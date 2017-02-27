@@ -22,4 +22,5 @@
  * SOFTWARE.
  */
 
+include 'common'
 include 'gradle-grpc-api-plugin'

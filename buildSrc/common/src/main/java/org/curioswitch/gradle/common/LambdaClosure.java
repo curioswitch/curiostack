@@ -22,22 +22,37 @@
  * SOFTWARE.
  */
 
-plugins {
-    id 'java-gradle-plugin'
-}
+package org.curioswitch.gradle.common;
 
-dependencies {
-    compile project(':common')
+import groovy.lang.Closure;
 
-    compile 'com.google.protobuf:protobuf-gradle-plugin'
-    compile 'io.spring.gradle:dependency-management-plugin'
-}
+public final class LambdaClosure {
 
-gradlePlugin {
-    plugins {
-        simplePlugin {
-            id = 'org.curioswitch.gradle-grpc-api-plugin'
-            implementationClass = 'org.curioswitch.gradle.plugins.GradleGrpcApiPlugin'
-        }
+  public static <T> Closure<Void> of(OneArgClosureFunction<T> function) {
+    return new OneArgClosure<>(function);
+  }
+
+  @FunctionalInterface
+  public interface OneArgClosureFunction<T> {
+    void call(T arg);
+  }
+
+  private static class OneArgClosure<T> extends Closure<Void> {
+
+    private final OneArgClosureFunction<T> function;
+
+    public OneArgClosure(OneArgClosureFunction<T> function) {
+      super(function);  // null doesn't work, but anything else is fine as it's not used.
+      this.function = function;
     }
+
+    protected Object doCall(Object arguments) {
+      @SuppressWarnings("unchecked")
+      T arg = (T) arguments;
+      function.call(arg);
+      return null;
+    }
+  }
+
+  private LambdaClosure() {}
 }

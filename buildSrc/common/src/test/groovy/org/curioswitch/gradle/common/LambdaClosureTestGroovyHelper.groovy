@@ -22,22 +22,17 @@
  * SOFTWARE.
  */
 
-plugins {
-    id 'java-gradle-plugin'
-}
+package org.curioswitch.gradle.common
 
-dependencies {
-    compile project(':common')
+class LambdaClosureTestGroovyHelper {
 
-    compile 'com.google.protobuf:protobuf-gradle-plugin'
-    compile 'io.spring.gradle:dependency-management-plugin'
-}
+    final String echo
 
-gradlePlugin {
-    plugins {
-        simplePlugin {
-            id = 'org.curioswitch.gradle-grpc-api-plugin'
-            implementationClass = 'org.curioswitch.gradle.plugins.GradleGrpcApiPlugin'
-        }
+    LambdaClosureTestGroovyHelper(String echo) {
+        this.echo = echo
+    }
+
+    def runClosure(Closure closure) {
+        closure.call(echo)
     }
 }

@@ -22,22 +22,15 @@
  * SOFTWARE.
  */
 
-plugins {
-    id 'java-gradle-plugin'
-}
+apply plugin: 'groovy'
 
 dependencies {
-    compile project(':common')
-
-    compile 'com.google.protobuf:protobuf-gradle-plugin'
-    compile 'io.spring.gradle:dependency-management-plugin'
+    compile localGroovy()
 }
 
-gradlePlugin {
-    plugins {
-        simplePlugin {
-            id = 'org.curioswitch.gradle-grpc-api-plugin'
-            implementationClass = 'org.curioswitch.gradle.plugins.GradleGrpcApiPlugin'
-        }
-    }
+// For some reason, this always gets run even though the Java is compiled within compileTestGroovy.
+// If we don't disable it ourselves, the tasks are never marked UP-TO-DATE and all builds get slowed
+// down.
+tasks.compileTestJava {
+    enabled = false
 }

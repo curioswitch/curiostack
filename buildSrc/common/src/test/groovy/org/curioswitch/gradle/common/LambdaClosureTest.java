@@ -22,22 +22,20 @@
  * SOFTWARE.
  */
 
-plugins {
-    id 'java-gradle-plugin'
-}
+package org.curioswitch.gradle.common;
 
-dependencies {
-    compile project(':common')
+import static org.assertj.core.api.Assertions.assertThat;
 
-    compile 'com.google.protobuf:protobuf-gradle-plugin'
-    compile 'io.spring.gradle:dependency-management-plugin'
-}
+import java.util.concurrent.atomic.AtomicReference;
+import org.junit.Test;
 
-gradlePlugin {
-    plugins {
-        simplePlugin {
-            id = 'org.curioswitch.gradle-grpc-api-plugin'
-            implementationClass = 'org.curioswitch.gradle.plugins.GradleGrpcApiPlugin'
-        }
-    }
+public class LambdaClosureTest {
+
+  @Test
+  public void oneArg() {
+    AtomicReference<String> stringHolder = new AtomicReference<>("");
+    new LambdaClosureTestGroovyHelper("oneArg")
+        .runClosure(LambdaClosure.of(stringHolder::set));
+    assertThat(stringHolder.get()).isEqualTo("oneArg");
+  }
 }

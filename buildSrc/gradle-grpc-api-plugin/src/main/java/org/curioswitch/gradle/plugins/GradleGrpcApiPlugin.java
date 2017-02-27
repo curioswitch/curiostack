@@ -25,17 +25,14 @@
 package org.curioswitch.gradle.plugins;
 
 import com.google.protobuf.gradle.ExecutableLocator;
-import com.google.protobuf.gradle.GenerateProtoTask.PluginOptions;
 import com.google.protobuf.gradle.ProtobufConfigurator;
 import com.google.protobuf.gradle.ProtobufConfigurator.JavaGenerateProtoTaskCollection;
 import com.google.protobuf.gradle.ProtobufConvention;
 import com.google.protobuf.gradle.ProtobufPlugin;
-import groovy.lang.Closure;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.util.Map;
-import org.codehaus.groovy.runtime.CurriedClosure;
 import org.codehaus.groovy.runtime.GStringImpl;
-import org.codehaus.groovy.runtime.MethodClosure;
+import org.curioswitch.gradle.common.LambdaClosure;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -75,68 +72,33 @@ public class GradleGrpcApiPlugin implements Plugin<Project> {
     // We generate into the apt directory since the gradle-apt-plugin provides good integration
     // with IntelliJ and no need to reinvent the wheel.
     protobuf.generatedFilesBaseDir = project.getBuildDir() + "/generated/source/apt";
-    @SuppressWarnings("unchecked")
-    Closure<ExecutableLocator> configureLocatorClosure =
-        new MethodClosure(this, "configureLocator");
-    protobuf.protoc(new CurriedClosure<>(
-        configureLocatorClosure,
-        "com.google.protobuf:protoc:" + managedVersions.get("com.google.protobuf:protoc")
-    ));
+    protobuf.protoc(LambdaClosure.of((ExecutableLocator locator) ->
+        locator.setArtifact("com.google.protobuf:protoc:"
+            + managedVersions.get("com.google.protobuf:protoc"))));
 
-    @SuppressWarnings("unchecked")
-    Closure<NamedDomainObjectContainer<ExecutableLocator>> configurePluginLocatorClosure =
-        new MethodClosure(this, "configurePluginLocator");
-    protobuf.plugins(new CurriedClosure<>(
-        configurePluginLocatorClosure,
-        "io.grpc:protoc-gen-grpc-java:" + managedVersions.get("io.grpc:grpc-core"),
-        "grpc"
-    ));
+    protobuf.plugins(LambdaClosure.of((NamedDomainObjectContainer<ExecutableLocator> locators) ->
+        locators.create("grpc").setArtifact(
+            "io.grpc:protoc-gen-grpc-java:" + managedVersions.get("io.grpc:grpc-core"))));
 
     String archivesBaseName =
         project.getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
     String descriptorSetOutputPath =
         project.getBuildDir() + "/resources/main/META-INF/armeria/grpc/" + project.getGroup()
             + "." + archivesBaseName + ".dsc";
-    @SuppressWarnings("unchecked")
-    Closure<JavaGenerateProtoTaskCollection> configureGenerateProtoTasksClosure =
-        new MethodClosure(this, "configureGenerateProtoTasks");
-    protobuf.generateProtoTasks(new CurriedClosure<>(
-        configureGenerateProtoTasksClosure,
-        descriptorSetOutputPath
-    ));
-
-    protobuf.runTaskConfigClosures();
-  }
-
-  public void configureGenerateProtoTasks(String descriptorSetOutputPath,
-      JavaGenerateProtoTaskCollection tasks) {
-    tasks.all().forEach(task -> {
-      task.getBuiltins().getByName("java").setOutputSubDir("");
-      task.getPlugins().create("grpc").setOutputSubDir("");
-    });
-    tasks.ofSourceSet("main").forEach(task -> {
-      task.getOutputs().file(descriptorSetOutputPath);
-      task.generateDescriptorSet = true;
-      task.descriptorSetOptions.includeSourceInfo = true;
-      task.descriptorSetOptions.includeImports = true;
-      task.descriptorSetOptions.path = new GStringImpl(
-          new Object[] {},
-          new String[] { descriptorSetOutputPath });
-    });
-  }
-
-  public void configureBuiltins(PluginOptions options) {
-    options.setOutputSubDir("");
-  }
-
-  public void configurePluginLocator(
-      String artifact,
-      String plugin,
-      NamedDomainObjectContainer<ExecutableLocator> locators) {
-    locators.create(plugin).setArtifact(artifact);
-  }
-
-  public void configureLocator(String artifact, ExecutableLocator locator) {
-    locator.setArtifact(artifact);
+    protobuf.generateProtoTasks(LambdaClosure.of((JavaGenerateProtoTaskCollection tasks) -> {
+      tasks.all().forEach(task -> {
+        task.getBuiltins().getByName("java").setOutputSubDir("");
+        task.getPlugins().create("grpc").setOutputSubDir("");
+      });
+      tasks.ofSourceSet("main").forEach(task -> {
+        task.getOutputs().file(descriptorSetOutputPath);
+        task.generateDescriptorSet = true;
+        task.descriptorSetOptions.includeSourceInfo = true;
+        task.descriptorSetOptions.includeImports = true;
+        task.descriptorSetOptions.path = new GStringImpl(
+            new Object[] {},
+            new String[] { descriptorSetOutputPath });
+      });
+    }));
   }
 }
