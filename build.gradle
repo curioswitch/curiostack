@@ -34,7 +34,13 @@ buildscript {
 
 plugins {
     id 'net.ltgt.apt' version '0.9' apply false
+    id 'org.springframework.boot' version '1.5.1.RELEASE' apply false
 }
+
+def dependencyVersions = [
+        [ 'com.google.protobuf', '3.2.0', [ 'protoc' ]],
+        [ 'io.grpc', '1.1.2', [ 'grpc-core', 'grpc-protobuf', 'grpc-stub' ]],
+]
 
 apply plugin: 'com.palantir.baseline-config'
 apply plugin: 'com.palantir.baseline-idea'
@@ -47,7 +53,26 @@ allprojects {
     plugins.withType(JavaPlugin) {
         project.apply plugin: 'com.palantir.baseline-idea'
         project.apply plugin: 'net.ltgt.apt'
+        project.apply plugin: 'org.springframework.boot'
 
         group = 'org.curioswitch.curiostack'
+
+        dependencyManagement {
+            dependencies {
+                dependencyVersions.each { group ->
+                    dependencySet(group: group[0], version: group[1]) {
+                        group[2].each {
+                            entry it
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    plugins.withType(JavaLibraryPlugin) {
+        bootRepackage {
+            enabled = false
+        }
     }
 }

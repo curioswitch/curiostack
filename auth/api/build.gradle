@@ -29,7 +29,7 @@ archivesBaseName = 'curio-auth-api'
 
 dependencies {
     [ 'grpc-core', 'grpc-stub', 'grpc-protobuf' ].each {
-        implementation "io.grpc:$it:1.1.2"
+        implementation "io.grpc:$it"
     }
 }
 
@@ -38,11 +38,11 @@ protobuf {
     // IntelliJ and no need to reinvent the wheel.
     generatedFilesBaseDir = "${buildDir}/generated/source/apt"
     protoc {
-        artifact = 'com.google.protobuf:protoc:3.2.0'
+        artifact = "com.google.protobuf:protoc:${dependencyManagement.managedVersions['com.google.protobuf:protoc']}"
     }
     plugins {
         grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.1.2"
+            artifact = "io.grpc:protoc-gen-grpc-java:${dependencyManagement.managedVersions['io.grpc:grpc-core']}"
         }
     }
     generateProtoTasks {
