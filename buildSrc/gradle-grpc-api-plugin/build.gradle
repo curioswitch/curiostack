@@ -22,6 +22,20 @@
  * SOFTWARE.
  */
 
-archivesBaseName = 'curio-auth-api'
+plugins {
+    id 'java-gradle-plugin'
+}
 
-apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
+dependencies {
+    compile 'com.google.protobuf:protobuf-gradle-plugin'
+    compile 'io.spring.gradle:dependency-management-plugin'
+}
+
+gradlePlugin {
+    plugins {
+        simplePlugin {
+            id = 'org.curioswitch.gradle-grpc-api-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.GradleGrpcApiPlugin'
+        }
+    }
+}

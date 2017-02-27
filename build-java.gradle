@@ -22,25 +22,42 @@
  * SOFTWARE.
  */
 
-buildscript {
-    repositories {
-        jcenter()
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-    }
-    dependencies {
-        classpath 'com.palantir:gradle-baseline-java:0.11.1'
-        classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE'
-        classpath 'net.ltgt.gradle:gradle-apt-plugin:0.9'
-    }
-}
+def dependencyVersions = [
+        [ 'org.assertj', '3.6.2', [ 'assertj-core' ]],
+        [ 'com.google.protobuf', '3.2.0', [ 'protoc' ]],
+        [ 'com.google.protobuf', '0.8.1', [ 'protobuf-gradle-plugin' ]],
+        [ 'io.grpc', '1.1.2', [ 'grpc-core', 'grpc-protobuf', 'grpc-stub' ]],
+        [ 'io.spring.gradle', '1.0.0.RELEASE', [ 'dependency-management-plugin' ]],
+        [ 'junit', '4.12', [ 'junit' ]],
+]
 
 allprojects {
-    apply plugin: 'base'
+    repositories {
+        jcenter()
+    }
+
+    plugins.withType(JavaPlugin) {
+        project.apply plugin: 'com.palantir.baseline-idea'
+        project.apply plugin: 'io.spring.dependency-management'
+        project.apply plugin: 'net.ltgt.apt'
+
+        group = 'org.curioswitch.curiostack'
+
+        dependencyManagement {
+            dependencies {
+                dependencyVersions.each { group ->
+                    dependencySet(group: group[0], version: group[1]) {
+                        group[2].each {
+                            entry it
+                        }
+                    }
+                }
+            }
+        }
+
+        dependencies {
+            testCompile 'org.assertj:assertj-core'
+            testCompile 'junit:junit'
+        }
+    }
 }
-
-apply plugin: 'com.palantir.baseline-config'
-apply plugin: 'com.palantir.baseline-idea'
-
-apply from: './build-java.gradle'

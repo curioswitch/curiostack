@@ -22,6 +22,23 @@
  * SOFTWARE.
  */
 
-archivesBaseName = 'curio-auth-api'
+// Plugin declarations cannot be shared between root and build project trees.
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+    dependencies {
+        classpath 'com.palantir:gradle-baseline-java:0.11.1'
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE'
+        classpath 'net.ltgt.gradle:gradle-apt-plugin:0.9'
+    }
+}
 
-apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
+apply from: '../build-java.gradle'
+
+dependencies {
+    runtime subprojects.collect { owner.project(it.path) }
+}
