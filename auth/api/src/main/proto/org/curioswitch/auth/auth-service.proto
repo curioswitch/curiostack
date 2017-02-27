@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package curioswitch.auth;
+
+option java_package = "org.curioswitch.auth.api";
+option java_multiple_files = true;
+
+// A request containing user credentials to try to authenticate
+// the user.
+message AuthenticateRequest {
+
+  // The type of credential included in the request.
+  enum CredentialType {
+    // An unknown credential type.
+    UNKNOWN = 0;
+
+    // A firebase token retrieved by the firebase client library.
+    // Will be included in AuthenticateRequest.token.
+    FIREBASE_TOKEN = 1;
+  }
+  // The type of credential.
+  CredentialType credential_type = 1;
+
+  // A credential that is a single token string.
+  string token = 2;
+}
+
+// A response containing the result of user authentication.
+message AuthenticateResponse {
+
+  // Result of authenticating the user.
+  enum Result {
+    // An unknown result.
+    UNKNOWN = 0;
+
+    // The user was successfully authenticated.
+    AUTHENTICATED = 1;
+
+    // The credential was not formatted correctly.
+    INVALID_CREDENTIAL = 2;
+
+    // The credential could not be used to login the user.
+    WRONG_CREDENTIAL = 3;
+  }
+  // The authentication result.
+  Result result = 1;
+
+  // The id of the user.
+  string user_id = 2;
+
+  // The email address of the user.
+  string email = 3;
+}
+
+// A service for authenticating and authorizing users to other services. All
+// auth actions for Curiostack services are handled by AuthService.
+service AuthService {
+
+  // Authenticate the user based on a logged-in credential. This is not a raw
+  // credential (e.g., username / password) but rather a token generated after
+  // executing a login action (e.g., using the firebase client library).
+  rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse);
+}

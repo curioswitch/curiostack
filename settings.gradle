@@ -22,32 +22,4 @@
  * SOFTWARE.
  */
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.1'
-        classpath 'com.palantir:gradle-baseline-java:0.11.1'
-    }
-}
-
-plugins {
-    id 'net.ltgt.apt' version '0.9' apply false
-}
-
-apply plugin: 'com.palantir.baseline-config'
-apply plugin: 'com.palantir.baseline-idea'
-
-allprojects {
-    repositories {
-        jcenter()
-    }
-
-    plugins.withType(JavaPlugin) {
-        project.apply plugin: 'com.palantir.baseline-idea'
-        project.apply plugin: 'net.ltgt.apt'
-
-        group = 'org.curioswitch.curiostack'
-    }
-}
+include ':auth:api'
