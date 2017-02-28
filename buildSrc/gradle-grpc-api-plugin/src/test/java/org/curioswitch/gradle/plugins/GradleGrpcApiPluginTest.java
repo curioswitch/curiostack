@@ -45,20 +45,19 @@ public class GradleGrpcApiPluginTest {
 
   @Test
   public void normal() throws Exception {
-    Project project = ProjectBuilder.builder()
-        .withName("api")
-        .build();
+    Project project = ProjectBuilder.builder().withName("api").build();
     project.setGroup("org.curioswitch.test");
 
     project.getPluginManager().apply(DependencyManagementPlugin.class);
     DependencyManagementExtension dependencyManagement =
         project.getExtensions().getByType(DependencyManagementExtension.class);
-    dependencyManagement.dependencies(handler -> {
-      handler.dependency("io.grpc:grpc-core:5.0.0");
-      handler.dependency("io.grpc:grpc-protobuf:5.0.0");
-      handler.dependency("io.grpc:grpc-stub:5.0.0");
-      handler.dependency("com.google.protobuf:protoc:6.0.0");
-    });
+    dependencyManagement.dependencies(
+        handler -> {
+          handler.dependency("io.grpc:grpc-core:5.0.0");
+          handler.dependency("io.grpc:grpc-protobuf:5.0.0");
+          handler.dependency("io.grpc:grpc-stub:5.0.0");
+          handler.dependency("com.google.protobuf:protoc:6.0.0");
+        });
 
     project.getPluginManager().apply(GradleGrpcApiPlugin.class);
     project.setProperty("archivesBaseName", "curio-test-api");
@@ -75,16 +74,21 @@ public class GradleGrpcApiPluginTest {
     assertThat(generateProtoTask.generateDescriptorSet).isTrue();
     assertThat(generateProtoTask.descriptorSetOptions.includeSourceInfo).isTrue();
     assertThat(generateProtoTask.descriptorSetOptions.includeImports).isTrue();
-    assertThat(generateProtoTask.descriptorSetOptions.path.toString()).isEqualTo(
-        project.getBuildDir()
-            + "/resources/main/META-INF/armeria/grpc/org.curioswitch.test.curio-test-api.dsc");
+    assertThat(generateProtoTask.descriptorSetOptions.path.toString())
+        .isEqualTo(
+            project.getBuildDir()
+                + "/resources/main/META-INF/armeria/grpc/org.curioswitch.test.curio-test-api.dsc");
 
     ProtobufConfigurator protobuf =
         project.getConvention().getPlugin(ProtobufConvention.class).getProtobuf();
-    protobuf.protoc(LambdaClosure.of((ExecutableLocator locator) ->
-        assertThat(locator.getArtifact()).isEqualTo("com.google.protobuf:protoc:6.0.0")));
-    protobuf.plugins(LambdaClosure.of((NamedDomainObjectContainer<ExecutableLocator> locators) ->
-        assertThat(locators.getByName("grpc").getArtifact()).isEqualTo(
-            "io.grpc:protoc-gen-grpc-java:5.0.0")));
+    protobuf.protoc(
+        LambdaClosure.of(
+            (ExecutableLocator locator) ->
+                assertThat(locator.getArtifact()).isEqualTo("com.google.protobuf:protoc:6.0.0")));
+    protobuf.plugins(
+        LambdaClosure.of(
+            (NamedDomainObjectContainer<ExecutableLocator> locators) ->
+                assertThat(locators.getByName("grpc").getArtifact())
+                    .isEqualTo("io.grpc:protoc-gen-grpc-java:5.0.0")));
   }
 }

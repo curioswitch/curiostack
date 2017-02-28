@@ -42,7 +42,7 @@ public final class LambdaClosure {
     private final OneArgClosureFunction<T> function;
 
     public OneArgClosure(OneArgClosureFunction<T> function) {
-      super(function);  // null doesn't work, but anything else is fine as it's not used.
+      super(function); // null doesn't work, but anything else is fine as it's not used.
       this.function = function;
     }
 

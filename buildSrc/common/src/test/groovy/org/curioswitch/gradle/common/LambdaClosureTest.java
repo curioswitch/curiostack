@@ -34,8 +34,7 @@ public class LambdaClosureTest {
   @Test
   public void oneArg() {
     AtomicReference<String> stringHolder = new AtomicReference<>("");
-    new LambdaClosureTestGroovyHelper("oneArg")
-        .runClosure(LambdaClosure.of(stringHolder::set));
+    new LambdaClosureTestGroovyHelper("oneArg").runClosure(LambdaClosure.of(stringHolder::set));
     assertThat(stringHolder.get()).isEqualTo("oneArg");
   }
 }

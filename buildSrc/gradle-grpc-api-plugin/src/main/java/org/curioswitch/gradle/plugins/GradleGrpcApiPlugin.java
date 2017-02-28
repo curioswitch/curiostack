@@ -42,12 +42,12 @@ import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePluginConvention;
 
 /**
- * A simple gradle plugin that configures the protobuf-gradle-plugin with appropriate
- * defaults for a GRPC API definition.
+ * A simple gradle plugin that configures the protobuf-gradle-plugin with appropriate defaults for a
+ * GRPC API definition.
  *
- * <p>The project will be configured as a Java library with the GRPC dependencies, and
- * the protobuf compiler will generate both Java code and a descriptor set with source code\
- * info for using in documentation services.
+ * <p>The project will be configured as a Java library with the GRPC dependencies, and the protobuf
+ * compiler will generate both Java code and a descriptor set with source code\ info for using in
+ * documentation services.
  */
 public class GradleGrpcApiPlugin implements Plugin<Project> {
 
@@ -60,48 +60,71 @@ public class GradleGrpcApiPlugin implements Plugin<Project> {
     // here for some reason.
     project.getPluginManager().apply("java-library");
 
-    GRPC_DEPENDENCIES.forEach(dep ->
-        project.getDependencies().add("implementation", "io.grpc:" + dep));
+    GRPC_DEPENDENCIES.forEach(
+        dep -> project.getDependencies().add("implementation", "io.grpc:" + dep));
 
-    project.afterEvaluate(p -> {
-      Map<String, String> managedVersions =
-          project.getExtensions().getByType(DependencyManagementExtension.class)
-              .getManagedVersions();
+    project.afterEvaluate(
+        p -> {
+          Map<String, String> managedVersions =
+              project
+                  .getExtensions()
+                  .getByType(DependencyManagementExtension.class)
+                  .getManagedVersions();
 
-      ProtobufConfigurator protobuf =
-          project.getConvention().getPlugin(ProtobufConvention.class).getProtobuf();
-      // We generate into the apt directory since the gradle-apt-plugin provides good integration
-      // with IntelliJ and no need to reinvent the wheel.
-      protobuf.generatedFilesBaseDir = project.getBuildDir() + "/generated/source/apt";
-      protobuf.protoc(LambdaClosure.of((ExecutableLocator locator) ->
-          locator.setArtifact("com.google.protobuf:protoc:"
-              + managedVersions.get("com.google.protobuf:protoc"))));
+          ProtobufConfigurator protobuf =
+              project.getConvention().getPlugin(ProtobufConvention.class).getProtobuf();
+          // We generate into the apt directory since the gradle-apt-plugin provides good integration
+          // with IntelliJ and no need to reinvent the wheel.
+          protobuf.generatedFilesBaseDir = project.getBuildDir() + "/generated/source/apt";
+          protobuf.protoc(
+              LambdaClosure.of(
+                  (ExecutableLocator locator) ->
+                      locator.setArtifact(
+                          "com.google.protobuf:protoc:"
+                              + managedVersions.get("com.google.protobuf:protoc"))));
 
-      protobuf.plugins(LambdaClosure.of((NamedDomainObjectContainer<ExecutableLocator> locators) ->
-          locators.create("grpc").setArtifact(
-              "io.grpc:protoc-gen-grpc-java:" + managedVersions.get("io.grpc:grpc-core"))));
+          protobuf.plugins(
+              LambdaClosure.of(
+                  (NamedDomainObjectContainer<ExecutableLocator> locators) ->
+                      locators
+                          .create("grpc")
+                          .setArtifact(
+                              "io.grpc:protoc-gen-grpc-java:"
+                                  + managedVersions.get("io.grpc:grpc-core"))));
 
-      String archivesBaseName =
-          project.getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
-      String descriptorSetOutputPath =
-          project.getBuildDir() + "/resources/main/META-INF/armeria/grpc/" + project.getGroup()
-              + "." + archivesBaseName + ".dsc";
-      protobuf.generateProtoTasks(LambdaClosure.of((JavaGenerateProtoTaskCollection tasks) -> {
-        tasks.all().forEach(task -> {
-          task.getBuiltins().getByName("java").setOutputSubDir("");
-          task.getPlugins().create("grpc").setOutputSubDir("");
+          String archivesBaseName =
+              project.getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
+          String descriptorSetOutputPath =
+              project.getBuildDir()
+                  + "/resources/main/META-INF/armeria/grpc/"
+                  + project.getGroup()
+                  + "."
+                  + archivesBaseName
+                  + ".dsc";
+          protobuf.generateProtoTasks(
+              LambdaClosure.of(
+                  (JavaGenerateProtoTaskCollection tasks) -> {
+                    tasks
+                        .all()
+                        .forEach(
+                            task -> {
+                              task.getBuiltins().getByName("java").setOutputSubDir("");
+                              task.getPlugins().create("grpc").setOutputSubDir("");
+                            });
+                    tasks
+                        .ofSourceSet("main")
+                        .forEach(
+                            task -> {
+                              task.getOutputs().file(descriptorSetOutputPath);
+                              task.generateDescriptorSet = true;
+                              task.descriptorSetOptions.includeSourceInfo = true;
+                              task.descriptorSetOptions.includeImports = true;
+                              task.descriptorSetOptions.path =
+                                  new GStringImpl(
+                                      new Object[] {}, new String[] {descriptorSetOutputPath});
+                            });
+                  }));
         });
-        tasks.ofSourceSet("main").forEach(task -> {
-          task.getOutputs().file(descriptorSetOutputPath);
-          task.generateDescriptorSet = true;
-          task.descriptorSetOptions.includeSourceInfo = true;
-          task.descriptorSetOptions.includeImports = true;
-          task.descriptorSetOptions.path = new GStringImpl(
-              new Object[]{},
-              new String[]{descriptorSetOutputPath});
-        });
-      }));
-    });
 
     // Add the protobuf plugin last to make sure our afterEvaluate runs before it.
     project.getPluginManager().apply(ProtobufPlugin.class);
