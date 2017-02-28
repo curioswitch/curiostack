@@ -24,4 +24,5 @@
 
 apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
 
+archivesBaseName = 'curio-auth-server'
 mainClassName = 'org.curioswitch.auth.server.Server'

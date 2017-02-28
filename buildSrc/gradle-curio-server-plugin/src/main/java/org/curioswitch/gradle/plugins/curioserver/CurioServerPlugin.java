@@ -24,9 +24,15 @@
 
 package org.curioswitch.gradle.plugins.curioserver;
 
+import com.bmuschko.gradle.docker.DockerExtension;
+import com.bmuschko.gradle.docker.DockerJavaApplication;
+import com.bmuschko.gradle.docker.DockerJavaApplicationPlugin;
+import groovy.lang.GroovyObject;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ApplicationPlugin;
+import org.gradle.api.plugins.ApplicationPluginConvention;
+import org.gradle.api.plugins.BasePluginConvention;
 
 /**
  * A simple {@link Plugin} to reduce boilerplate when defining server projects. Contains common
@@ -37,5 +43,21 @@ public class CurioServerPlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.getPluginManager().apply(ApplicationPlugin.class);
+
+    project.afterEvaluate(
+        p -> {
+          String archivesBaseName =
+              project.getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
+          project
+              .getConvention()
+              .getPlugin(ApplicationPluginConvention.class)
+              .setApplicationName(archivesBaseName);
+
+          GroovyObject docker = project.getExtensions().getByType(DockerExtension.class);
+          DockerJavaApplication javaApplication =
+              (DockerJavaApplication) docker.getProperty("javaApplication");
+          javaApplication.setMaintainer("Choko (choko@curioswitch.org)");
+        });
+    project.getPluginManager().apply(DockerJavaApplicationPlugin.class);
   }
 }

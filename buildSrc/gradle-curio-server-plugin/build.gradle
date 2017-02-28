@@ -26,6 +26,10 @@ plugins {
     id 'java-gradle-plugin'
 }
 
+dependencies {
+    compile 'com.bmuschko:gradle-docker-plugin'
+}
+
 gradlePlugin {
     plugins {
         simplePlugin {

@@ -38,7 +38,6 @@ buildscript {
     }
 }
 
-
 // Provides useful tasks like 'clean', 'assemble' to the root project.
 apply plugin: 'base'
 
