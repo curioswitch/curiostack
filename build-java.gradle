@@ -38,6 +38,7 @@ allprojects {
 
     plugins.withType(JavaPlugin) {
         project.apply plugin: 'com.diffplug.gradle.spotless'
+        project.apply plugin: 'com.github.hierynomus.license'
         project.apply plugin: 'com.palantir.baseline-idea'
         project.apply plugin: 'io.spring.dependency-management'
         project.apply plugin: 'net.ltgt.apt'

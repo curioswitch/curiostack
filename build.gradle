@@ -32,6 +32,7 @@ buildscript {
     dependencies {
         classpath 'com.diffplug.spotless:spotless-plugin-gradle:3.1.0'
         classpath 'com.palantir:gradle-baseline-java:0.11.1'
+        classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.1'
         classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE'
         classpath 'net.ltgt.gradle:gradle-apt-plugin:0.9'
     }
@@ -45,3 +46,23 @@ apply plugin: 'com.palantir.baseline-config'
 apply plugin: 'com.palantir.baseline-idea'
 
 apply from: './build-java.gradle'
+
+allprojects {
+    plugins.withType(JavaPlugin) {
+        license {
+            header rootProject.file('LICENSE')
+        }
+    }
+    plugins.withType(com.google.protobuf.gradle.ProtobufPlugin) {
+        // Protobuf plugin doesn't add proto sourceset to allSource, which seems like an omission.
+        // We add it to make sure license plugin picks up the files.
+        sourceSets.each({ sourceSet ->
+            sourceSet.allSource.source(sourceSet.proto)
+        })
+        license {
+            mapping {
+                proto = 'JAVADOC_STYLE'
+            }
+        }
+    }
+}
