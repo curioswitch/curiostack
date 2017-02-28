@@ -49,7 +49,7 @@ import org.gradle.api.plugins.BasePluginConvention;
  * compiler will generate both Java code and a descriptor set with source code\ info for using in
  * documentation services.
  */
-public class GradleGrpcApiPlugin implements Plugin<Project> {
+public class GrpcApiPlugin implements Plugin<Project> {
 
   private static final List<String> GRPC_DEPENDENCIES =
       Collections.unmodifiableList(Arrays.asList("grpc-core", "grpc-protobuf", "grpc-stub"));

@@ -41,7 +41,7 @@ import org.gradle.api.internal.project.DefaultProject;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Test;
 
-public class GradleGrpcApiPluginTest {
+public class GrpcApiPluginTest {
 
   @Test
   public void normal() throws Exception {
@@ -59,7 +59,7 @@ public class GradleGrpcApiPluginTest {
           handler.dependency("com.google.protobuf:protoc:6.0.0");
         });
 
-    project.getPluginManager().apply(GradleGrpcApiPlugin.class);
+    project.getPluginManager().apply(GrpcApiPlugin.class);
     project.setProperty("archivesBaseName", "curio-test-api");
 
     ((DefaultProject) project).evaluate();
