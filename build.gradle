@@ -36,9 +36,9 @@ buildscript {
     }
 }
 
-allprojects {
-    apply plugin: 'base'
-}
+
+// Provides useful tasks like 'clean', 'assemble' to the root project.
+apply plugin: 'base'
 
 apply plugin: 'com.palantir.baseline-config'
 apply plugin: 'com.palantir.baseline-idea'

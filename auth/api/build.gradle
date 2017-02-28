@@ -22,6 +22,6 @@
  * SOFTWARE.
  */
 
-archivesBaseName = 'curio-auth-api'
-
 apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
+
+archivesBaseName = 'curio-auth-api'
