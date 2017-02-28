@@ -59,7 +59,7 @@ public class GrpcApiPluginTest {
           handler.dependency("com.google.protobuf:protoc:6.0.0");
         });
 
-    project.getPluginManager().apply(GrpcApiPlugin.class);
+    project.getPluginManager().apply("org.curioswitch.gradle-grpc-api-plugin");
     project.setProperty("archivesBaseName", "curio-test-api");
 
     ((DefaultProject) project).evaluate();

@@ -22,6 +22,22 @@
  * SOFTWARE.
  */
 
-include 'common'
-include 'gradle-curio-server-plugin'
-include 'gradle-grpc-api-plugin'
+package org.curioswitch.gradle.plugins.curioserver;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.gradle.api.Project;
+import org.gradle.testfixtures.ProjectBuilder;
+import org.junit.Test;
+
+public class CurioServerPluginTest {
+
+  @Test
+  public void normal() {
+    Project project = ProjectBuilder.builder().build();
+
+    project.getPluginManager().apply("org.curioswitch.gradle-curio-server-plugin");
+
+    assertThat(project.getPluginManager().hasPlugin("application")).isTrue();
+  }
+}

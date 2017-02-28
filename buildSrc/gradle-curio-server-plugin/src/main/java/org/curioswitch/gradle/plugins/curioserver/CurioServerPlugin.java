@@ -22,6 +22,20 @@
  * SOFTWARE.
  */
 
-include 'common'
-include 'gradle-curio-server-plugin'
-include 'gradle-grpc-api-plugin'
+package org.curioswitch.gradle.plugins.curioserver;
+
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+import org.gradle.api.plugins.ApplicationPlugin;
+
+/**
+ * A simple {@link Plugin} to reduce boilerplate when defining server projects. Contains common
+ * logic for building and deploying executables.
+ */
+public class CurioServerPlugin implements Plugin<Project> {
+
+  @Override
+  public void apply(Project project) {
+    project.getPluginManager().apply(ApplicationPlugin.class);
+  }
+}

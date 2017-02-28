@@ -22,6 +22,6 @@
  * SOFTWARE.
  */
 
-include 'common'
-include 'gradle-curio-server-plugin'
-include 'gradle-grpc-api-plugin'
+apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
+
+mainClassName = 'org.curioswitch.auth.server.Server'

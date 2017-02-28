@@ -22,6 +22,11 @@
  * SOFTWARE.
  */
 
-include 'common'
-include 'gradle-curio-server-plugin'
-include 'gradle-grpc-api-plugin'
+package org.curioswitch.auth.server;
+
+public class Server {
+
+  public static void main(String[] args) {
+    System.out.println("TODO(choko): Implement the server.");
+  }
+}

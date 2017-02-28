@@ -22,4 +22,4 @@
  * SOFTWARE.
  */
 
-include ':auth:api'
+include ':auth:api', ':auth:server'
