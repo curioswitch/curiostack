@@ -50,6 +50,10 @@ allprojects {
 
         group = 'org.curioswitch.curiostack'
 
+        tasks.withType(JavaCompile) {
+            options.incremental = true
+        }
+
         dependencyManagement {
             dependencies {
                 dependencyVersions.each { group ->
