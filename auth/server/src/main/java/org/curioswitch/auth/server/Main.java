@@ -22,5 +22,33 @@
  * SOFTWARE.
  */
 
-include ':auth:api', ':auth:server'
-include ':common:server:framework'
+package org.curioswitch.auth.server;
+
+import com.linecorp.armeria.server.Server;
+import dagger.Binds;
+import dagger.Component;
+import dagger.Module;
+import dagger.multibindings.IntoSet;
+import io.grpc.BindableService;
+import javax.inject.Singleton;
+import org.curioswitch.common.server.framework.ServerModule;
+
+public class Main {
+
+  @Module(includes = ServerModule.class)
+  abstract static class AuthServerModule {
+    @Binds
+    @IntoSet
+    abstract BindableService authService(AuthService authService);
+  }
+
+  @Singleton
+  @Component(modules = AuthServerModule.class)
+  interface ServerComponent {
+    Server server();
+  }
+
+  public static void main(String[] args) {
+    DaggerMain_ServerComponent.builder().build().server().start();
+  }
+}

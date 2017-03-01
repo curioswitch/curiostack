@@ -22,5 +22,13 @@
  * SOFTWARE.
  */
 
-include ':auth:api', ':auth:server'
-include ':common:server:framework'
+apply plugin: 'java-library'
+
+dependencies {
+    api 'com.google.dagger:dagger'
+    api 'com.linecorp.armeria:armeria'
+
+    implementation 'com.linecorp.armeria:armeria-grpc'
+
+    apt 'com.google.dagger:dagger-compiler'
+}

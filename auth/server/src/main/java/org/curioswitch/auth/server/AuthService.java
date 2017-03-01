@@ -24,9 +24,23 @@
 
 package org.curioswitch.auth.server;
 
-public class Server {
+import io.grpc.stub.StreamObserver;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import org.curioswitch.auth.api.AuthServiceGrpc.AuthServiceImplBase;
+import org.curioswitch.auth.api.AuthenticateRequest;
+import org.curioswitch.auth.api.AuthenticateResponse;
 
-  public static void main(String[] args) {
-    System.out.println("TODO(choko): Implement the server.");
+@Singleton
+public class AuthService extends AuthServiceImplBase {
+
+  @Inject
+  AuthService() {}
+
+  @Override
+  public void authenticate(
+      AuthenticateRequest request, StreamObserver<AuthenticateResponse> responseObserver) {
+    responseObserver.onNext(AuthenticateResponse.getDefaultInstance());
+    responseObserver.onCompleted();
   }
 }

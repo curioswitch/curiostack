@@ -25,4 +25,12 @@
 apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
 
 archivesBaseName = 'curio-auth-server'
-mainClassName = 'org.curioswitch.auth.server.Server'
+mainClassName = 'org.curioswitch.auth.server.Main'
+
+dependencies {
+    compile project(':auth:api')
+    compile project(':common:server:framework')
+
+    apt 'com.google.dagger:dagger-compiler'
+    compile 'com.google.dagger:dagger'
+}

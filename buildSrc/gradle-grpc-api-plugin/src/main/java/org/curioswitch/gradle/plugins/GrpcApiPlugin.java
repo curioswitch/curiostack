@@ -60,8 +60,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
     // here for some reason.
     project.getPluginManager().apply("java-library");
 
-    GRPC_DEPENDENCIES.forEach(
-        dep -> project.getDependencies().add("implementation", "io.grpc:" + dep));
+    GRPC_DEPENDENCIES.forEach(dep -> project.getDependencies().add("api", "io.grpc:" + dep));
 
     project.afterEvaluate(
         p -> {

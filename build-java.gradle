@@ -25,9 +25,11 @@
 def dependencyVersions = [
         [ 'com.bmuschko', '3.0.5', [ 'gradle-docker-plugin' ]],
         [ 'org.assertj', '3.6.2', [ 'assertj-core' ]],
+        [ 'com.google.dagger', '2.9', [ 'dagger', 'dagger-compiler' ]],
         [ 'com.google.guava', '21.0', [ 'guava', 'guava-testlib' ]],
         [ 'com.google.protobuf', '3.2.0', [ 'protoc' ]],
         [ 'com.google.protobuf', '0.8.1', [ 'protobuf-gradle-plugin' ]],
+        [ 'com.linecorp.armeria', '0.38.0', [ 'armeria', 'armeria-grpc' ]],
         [ 'io.grpc', '1.1.2', [ 'grpc-core', 'grpc-protobuf', 'grpc-stub' ]],
         [ 'io.spring.gradle', '1.0.0.RELEASE', [ 'dependency-management-plugin' ]],
         [ 'junit', '4.12', [ 'junit' ]],
@@ -35,6 +37,7 @@ def dependencyVersions = [
 
 allprojects {
     repositories {
+        mavenCentral()
         jcenter()
     }
 
