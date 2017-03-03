@@ -17,3 +17,7 @@ dependencies:
 test:
   override:
     - echo "Test results are found in dependencies phase."
+  post:
+    # From https://circleci.com/docs/1.0/test-metadata/#gradle-junit-results
+    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+    - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
