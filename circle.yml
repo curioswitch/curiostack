@@ -5,6 +5,17 @@ machine:
     version: oraclejdk8
 
 dependencies:
+  cache_directories:
+    # buildSrc is compiled every build, but changes rarely. We'll rely on gradle to manage the state
+    # of these plugins, and can manually rebuild without cache if something goes wrong.
+    - buildSrc/common/build
+    - buildSrc/gradle-curio-server-plugin/build
+    - buildSrc/gradle-grpc-api-plugin/build
+    - buildSrc/gradle-monorepo-circleci-plugin/build
+
+    # Gradle is very advanced now and we try to rely on its management of internal state for faster
+    # builds. If this causes flaky builds, we can remove this caching.
+    - .gradle
   override:
     # Running tests during the dependencies phase is the only way to have CircleCI cache everything
     # gradle downloads.
