@@ -12,4 +12,4 @@ dependencies:
 
 test:
   override:
-    - echo: "Test results are found in dependencies phase."
+    - echo "Test results are found in dependencies phase."
