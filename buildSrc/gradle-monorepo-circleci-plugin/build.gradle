@@ -22,7 +22,19 @@
  * SOFTWARE.
  */
 
-include 'common'
-include 'gradle-curio-server-plugin'
-include 'gradle-grpc-api-plugin'
-include 'gradle-monorepo-circleci-plugin'
+plugins {
+    id 'java-gradle-plugin'
+}
+
+dependencies {
+    compile 'org.eclipse.jgit:org.eclipse.jgit'
+}
+
+gradlePlugin {
+    plugins {
+        simplePlugin {
+            id = 'org.curioswitch.gradle-monorepo-circleci-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.monorepo.MonorepoCircleCiPlugin'
+        }
+    }
+}

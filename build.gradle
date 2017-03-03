@@ -51,6 +51,8 @@ apply plugin: 'net.ltgt.apt'
 apply plugin: 'com.palantir.baseline-config'
 apply plugin: 'com.palantir.baseline-idea'
 
+apply plugin: 'org.curioswitch.gradle-monorepo-circleci-plugin'
+
 apply from: './build-java.gradle'
 
 allprojects {
