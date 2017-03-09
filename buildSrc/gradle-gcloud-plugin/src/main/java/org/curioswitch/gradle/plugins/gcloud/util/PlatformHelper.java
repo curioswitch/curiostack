@@ -22,8 +22,46 @@
  * SOFTWARE.
  */
 
-include 'common'
-include 'gradle-curio-server-plugin'
-include 'gradle-gcloud-plugin'
-include 'gradle-grpc-api-plugin'
-include 'gradle-monorepo-circleci-plugin'
+package org.curioswitch.gradle.plugins.gcloud.util;
+
+import java.util.Properties;
+
+public class PlatformHelper {
+
+  private final Properties props;
+
+  public PlatformHelper() {
+    this(System.getProperties());
+  }
+
+  PlatformHelper(Properties props) {
+    this.props = props;
+  }
+
+  public String getOsName() {
+    final String name = props.getProperty("os.name").toLowerCase();
+    if (name.contains("windows")) {
+      return "win";
+    }
+    if (name.contains("mac")) {
+      return "darwin";
+    }
+    if (name.contains("linux")) {
+      return "linux";
+    }
+
+    throw new IllegalArgumentException("Unsupported OS: " + name);
+  }
+
+  public String getOsArch() {
+    final String arch = props.getProperty("os.arch").toLowerCase();
+    if (arch.contains("64")) {
+      return "x86_64";
+    }
+    return "x86";
+  }
+
+  public boolean isWindows() {
+    return getOsName().equals("win");
+  }
+}

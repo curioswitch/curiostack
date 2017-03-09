@@ -22,8 +22,43 @@
  * SOFTWARE.
  */
 
-include 'common'
-include 'gradle-curio-server-plugin'
-include 'gradle-gcloud-plugin'
-include 'gradle-grpc-api-plugin'
-include 'gradle-monorepo-circleci-plugin'
+package org.curioswitch.gradle.plugins.gcloud;
+
+import java.io.File;
+import java.nio.file.Paths;
+import org.gradle.api.Project;
+import org.immutables.value.Value;
+import org.immutables.value.Value.Derived;
+import org.immutables.value.Value.Modifiable;
+import org.immutables.value.Value.Style;
+
+@Modifiable
+@Style(create = "new", typeModifiable = "*", defaultAsDefault = true, typeAbstract = "Immutable*")
+public interface ImmutableGcloudExtension {
+
+  String NAME = "gcloud";
+
+  @Value.Parameter
+  Project project();
+
+  default boolean download() {
+    return true;
+  }
+
+  default File workDir() {
+    return Paths.get(project().getProjectDir().getAbsolutePath(), ".gradle", "gcloud").toFile();
+  }
+
+  default String version() {
+    return "146.0.0";
+  }
+
+  default String distBaseUrl() {
+    return "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/";
+  }
+
+  @Derived
+  default PlatformConfig platformConfig() {
+    return PlatformConfig.fromExtension(this);
+  }
+}

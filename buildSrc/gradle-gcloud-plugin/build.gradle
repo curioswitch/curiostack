@@ -22,8 +22,20 @@
  * SOFTWARE.
  */
 
-include 'common'
-include 'gradle-curio-server-plugin'
-include 'gradle-gcloud-plugin'
-include 'gradle-grpc-api-plugin'
-include 'gradle-monorepo-circleci-plugin'
+plugins {
+    id 'java-gradle-plugin'
+}
+
+dependencies {
+    apt 'org.immutables:value'
+    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
+}
+
+gradlePlugin {
+    plugins {
+        simplePlugin {
+            id = 'org.curioswitch.gradle-gcloud-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.gcloud.GcloudPlugin'
+        }
+    }
+}

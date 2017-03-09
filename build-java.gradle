@@ -24,7 +24,6 @@
 
 def dependencyVersions = [
         [ 'com.bmuschko', '3.0.5', [ 'gradle-docker-plugin' ]],
-        [ 'org.assertj', '3.6.2', [ 'assertj-core' ]],
         [ 'com.google.dagger', '2.9', [ 'dagger', 'dagger-compiler' ]],
         [ 'com.google.guava', '21.0', [ 'guava', 'guava-testlib' ]],
         [ 'com.google.protobuf', '3.2.0', [ 'protoc' ]],
@@ -33,7 +32,9 @@ def dependencyVersions = [
         [ 'io.grpc', '1.1.2', [ 'grpc-core', 'grpc-protobuf', 'grpc-stub' ]],
         [ 'io.spring.gradle', '1.0.0.RELEASE', [ 'dependency-management-plugin' ]],
         [ 'junit', '4.12', [ 'junit' ]],
+        [ 'org.assertj', '3.6.2', [ 'assertj-core' ]],
         [ 'org.eclipse.jgit', '4.6.0.201612231935-r', [ 'org.eclipse.jgit' ]],
+        [ 'org.immutables', '2.4.3', [ 'builder', 'value' ]],
 ]
 
 allprojects {
