@@ -78,6 +78,13 @@ public class GcloudPlugin implements Plugin<Project> {
               project.getTasks().create("gcloudCreateClusterProject", GcloudTask.class);
           createClusterProject.setArgs(
               Arrays.asList("alpha", "projects", "create", config.clusterProject()));
+
+          // This task currently always fails, probably due to a bug in the SDK. It attempts
+          // to create the same repo twice, and the second one fails with an error...
+          GcloudTask createSourceRepo =
+              project.getTasks().create("gcloudCreateSourceRepository", GcloudTask.class);
+          createSourceRepo.setArgs(
+              Arrays.asList("alpha", "source", "repos", "create", config.sourceRepository()));
         });
   }
 }
