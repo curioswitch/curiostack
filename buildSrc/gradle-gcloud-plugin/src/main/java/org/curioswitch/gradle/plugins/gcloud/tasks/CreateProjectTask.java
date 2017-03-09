@@ -22,22 +22,38 @@
  * SOFTWARE.
  */
 
-plugins {
-    id 'java-gradle-plugin'
-}
+package org.curioswitch.gradle.plugins.gcloud.tasks;
 
-dependencies {
-    compile 'com.google.cloud:google-cloud-resourcemanager'
+import com.google.cloud.resourcemanager.ProjectInfo;
+import com.google.cloud.resourcemanager.ResourceManager;
+import com.google.cloud.resourcemanager.ResourceManagerOptions;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.TaskAction;
 
-    apt 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
-}
+/**
+ * TODO(choko): Fix this task, it is currently not working due to authentication issues so we use
+ * the SDK for now.
+ */
+public class CreateProjectTask extends DefaultTask {
 
-gradlePlugin {
-    plugins {
-        simplePlugin {
-            id = 'org.curioswitch.gradle-gcloud-plugin'
-            implementationClass = 'org.curioswitch.gradle.plugins.gcloud.GcloudPlugin'
-        }
-    }
+  private final ResourceManager resourceManager;
+
+  private String projectName;
+
+  public CreateProjectTask() {
+    this(ResourceManagerOptions.getDefaultInstance().getService());
+  }
+
+  CreateProjectTask(ResourceManager resourceManager) {
+    this.resourceManager = resourceManager;
+  }
+
+  public void setProjectName(String projectName) {
+    this.projectName = projectName;
+  }
+
+  @TaskAction
+  public void exec() {
+    resourceManager.create(ProjectInfo.newBuilder(projectName).build());
+  }
 }

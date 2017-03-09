@@ -39,14 +39,27 @@ public interface ImmutableGcloudExtension {
   String NAME = "gcloud";
 
   @Value.Parameter
-  Project project();
+  Project gradleProject();
+
+  default String clusterBaseName() {
+    throw new IllegalArgumentException("clusterBaseName must be specified.");
+  }
+
+  default String clusterProject() {
+    return clusterResourceName("cluster");
+  }
+
+  default String sourceRepository() {
+    return clusterResourceName("source");
+  }
 
   default boolean download() {
     return true;
   }
 
   default File workDir() {
-    return Paths.get(project().getProjectDir().getAbsolutePath(), ".gradle", "gcloud").toFile();
+    return Paths.get(gradleProject().getProjectDir().getAbsolutePath(), ".gradle", "gcloud")
+        .toFile();
   }
 
   default String version() {
@@ -60,5 +73,9 @@ public interface ImmutableGcloudExtension {
   @Derived
   default PlatformConfig platformConfig() {
     return PlatformConfig.fromExtension(this);
+  }
+
+  default String clusterResourceName(String resource) {
+    return clusterBaseName() + "-" + resource;
   }
 }

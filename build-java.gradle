@@ -24,6 +24,9 @@
 
 def dependencyVersions = [
         [ 'com.bmuschko', '3.0.5', [ 'gradle-docker-plugin' ]],
+        [ 'com.google.cloud', '0.9.4-alpha', [
+                'google-cloud-resourcemanager',
+        ]],
         [ 'com.google.dagger', '2.9', [ 'dagger', 'dagger-compiler' ]],
         [ 'com.google.guava', '21.0', [ 'guava', 'guava-testlib' ]],
         [ 'com.google.protobuf', '3.2.0', [ 'protoc' ]],

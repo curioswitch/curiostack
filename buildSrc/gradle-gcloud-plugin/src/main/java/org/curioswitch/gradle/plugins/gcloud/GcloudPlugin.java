@@ -67,13 +67,17 @@ public class GcloudPlugin implements Plugin<Project> {
               }
             });
 
-    SetupTask setupTask = project.getTasks().create(SetupTask.NAME, SetupTask.class);
-
     project.afterEvaluate(
         p -> {
+          SetupTask setupTask = project.getTasks().create(SetupTask.NAME, SetupTask.class);
           ImmutableGcloudExtension config =
               project.getExtensions().getByType(GcloudExtension.class);
           setupTask.setEnabled(config.download());
+
+          GcloudTask createClusterProject =
+              project.getTasks().create("gcloudCreateClusterProject", GcloudTask.class);
+          createClusterProject.setArgs(
+              Arrays.asList("alpha", "projects", "create", config.clusterProject()));
         });
   }
 }
