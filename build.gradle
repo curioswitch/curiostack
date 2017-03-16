@@ -45,9 +45,6 @@ buildscript {
 // Provides useful tasks like 'clean', 'assemble' to the root project.
 apply plugin: 'base'
 
-// To set up annotation processing in IntelliJ
-apply plugin: 'net.ltgt.apt'
-
 apply plugin: 'com.palantir.baseline-config'
 apply plugin: 'com.palantir.baseline-idea'
 
@@ -78,4 +75,17 @@ allprojects {
 
 gcloud {
     clusterBaseName = 'curioswitch'
+}
+
+idea.project.ipr.withXml {
+    def compilerConfiguration = it.node.component.find { it.@name == 'CompilerConfiguration' }
+    compilerConfiguration.remove(compilerConfiguration.annotationProcessing)
+    compilerConfiguration.append(new groovy.util.NodeBuilder().annotationProcessing() {
+        profile(name: 'Default', enabled: true, default: true) {
+            outputRelativeToContentRoot(value: true)
+            processorPath(useClasspath: true)
+            sourceOutputDir(name: '.')
+            sourceTestOutputDir(name: '.')
+        }
+    })
 }

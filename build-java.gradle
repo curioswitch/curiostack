@@ -34,6 +34,7 @@ def dependencyVersions = [
         [ 'com.linecorp.armeria', '0.38.0', [ 'armeria', 'armeria-grpc' ]],
         [ 'io.grpc', '1.1.2', [ 'grpc-core', 'grpc-protobuf', 'grpc-stub' ]],
         [ 'io.spring.gradle', '1.0.0.RELEASE', [ 'dependency-management-plugin' ]],
+        [ 'javax.inject', '1', 'javax.inject' ],
         [ 'junit', '4.12', [ 'junit' ]],
         [ 'org.assertj', '3.6.2', [ 'assertj-core' ]],
         [ 'org.eclipse.jgit', '4.6.0.201612231935-r', [ 'org.eclipse.jgit' ]],
@@ -51,12 +52,49 @@ allprojects {
         project.apply plugin: 'com.github.hierynomus.license'
         project.apply plugin: 'com.palantir.baseline-idea'
         project.apply plugin: 'io.spring.dependency-management'
-        project.apply plugin: 'net.ltgt.apt'
 
         group = 'org.curioswitch.curiostack'
 
         tasks.withType(JavaCompile) {
             options.incremental = true
+        }
+
+        [sourceSets.main, sourceSets.test].each { sourceSet ->
+            // HACK: Configurations usually use the same naming logic/scheme as for tasks
+            def aptConfiguration = configurations.create(sourceSet.getTaskName('', 'apt'))
+            configurations.getByName(sourceSet.getTaskName('', 'compileOnly'))
+                    .extendsFrom(aptConfiguration)
+
+            def outputDir = "$buildDir/generated/source/apt/${sourceSet.name}"
+            tasks.getByName(sourceSet.compileJavaTaskName) {
+                project.mkdir(outputDir)
+                options.annotationProcessorPath = aptConfiguration
+                options.compilerArgs += ['-s', outputDir]
+            }
+
+            project.plugins.withType(IdeaPlugin) {
+                project.idea.module {
+                    if (sourceSet == sourceSets.main) {
+                        sourceDirs += file(outputDir)
+                    } else {
+                        testSourceDirs += file(outputDir)
+                    }
+                    generatedSourceDirs += file(outputDir)
+                }
+            }
+        }
+
+        // While Gradle attempts to generate a unique module name automatically,
+        // it doesn't seem to always work properly, so we just always use unique
+        // module names.
+        project.idea.module {
+            def moduleName = project.name
+            def ancestor = project.parent
+            while (ancestor != null && ancestor != project.rootProject) {
+                moduleName = "${ancestor.name}-${moduleName}"
+                ancestor = ancestor.parent
+            }
+            name = moduleName
         }
 
         dependencyManagement {
