@@ -63,7 +63,7 @@ public interface ImmutableGcloudExtension {
   }
 
   default String version() {
-    return "146.0.0";
+    return "147.0.0";
   }
 
   default String distBaseUrl() {
