@@ -82,7 +82,9 @@ allprojects {
                     .extendsFrom(aptConfiguration)
 
             def outputDir = "$buildDir/generated/source/apt/${sourceSet.name}"
-            project.mkdir(outputDir)
+            File outputFile = project.mkdir(outputDir)
+            println outputFile
+            println outputFile.exists
             tasks.getByName(sourceSet.compileJavaTaskName) {
                 options.annotationProcessorPath = aptConfiguration
                 options.compilerArgs += ['-s', outputDir]
