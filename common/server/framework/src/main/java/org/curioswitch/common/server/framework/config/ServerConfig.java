@@ -22,24 +22,20 @@
  * SOFTWARE.
  */
 
-apply plugin: 'java-library'
+package org.curioswitch.common.server.framework.config;
 
-dependencies {
-    api 'com.google.dagger:dagger'
-    api 'com.linecorp.armeria:armeria'
-    api 'com.typesafe:config'
-    api 'org.apache.logging.log4j:log4j-api'
+import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
+import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Modifiable;
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
-    implementation 'com.linecorp.armeria:armeria-grpc'
-    implementation 'org.apache.logging.log4j:log4j-core'
-    implementation 'org.apache.logging.log4j:log4j-jcl'
-    implementation 'org.apache.logging.log4j:log4j-jul'
-    implementation 'org.apache.logging.log4j:log4j-slf4j-impl'
+@Immutable
+@Modifiable
+@JavaBeanStyle
+public interface ServerConfig {
 
-    apt 'com.google.dagger:dagger-compiler'
-
-    apt 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
+  /**
+   * Whether the server should generate a self-signed SSL certificate for the HTTPs port. This
+   * should only be enabled for local development.
+   */
+  boolean isGenerateSelfSignedCertificate();
 }

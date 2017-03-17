@@ -22,24 +22,23 @@
  * SOFTWARE.
  */
 
-apply plugin: 'java-library'
+package org.curioswitch.common.server.framework.immutables;
 
-dependencies {
-    api 'com.google.dagger:dagger'
-    api 'com.linecorp.armeria:armeria'
-    api 'com.typesafe:config'
-    api 'org.apache.logging.log4j:log4j-api'
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
+import org.immutables.value.Value.Style;
+import org.immutables.value.Value.Style.BuilderVisibility;
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
-    implementation 'com.linecorp.armeria:armeria-grpc'
-    implementation 'org.apache.logging.log4j:log4j-core'
-    implementation 'org.apache.logging.log4j:log4j-jcl'
-    implementation 'org.apache.logging.log4j:log4j-jul'
-    implementation 'org.apache.logging.log4j:log4j-slf4j-impl'
-
-    apt 'com.google.dagger:dagger-compiler'
-
-    apt 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
-}
+/**
+ * A {@link Style} which allows recognizing modifable versions of the type as javabeans.
+ */
+@Target(ElementType.TYPE)
+@Style(
+  create = "new",
+  get = {"get*", "is*"},
+  beanFriendlyModifiables = true,
+  isInitialized = "initialized",
+  builderVisibility = BuilderVisibility.PACKAGE,
+  defaultAsDefault = true
+)
+public @interface JavaBeanStyle {}

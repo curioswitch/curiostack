@@ -28,10 +28,20 @@ import com.linecorp.armeria.common.http.HttpSessionProtocols;
 import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigBeanFactory;
+import com.typesafe.config.ConfigFactory;
 import dagger.Module;
 import dagger.Provides;
 import io.grpc.BindableService;
+import io.netty.handler.ssl.util.SelfSignedCertificate;
+import java.security.cert.CertificateException;
 import java.util.Set;
+import javax.net.ssl.SSLException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.curioswitch.common.server.framework.config.ModifiableServerConfig;
+import org.curioswitch.common.server.framework.config.ServerConfig;
 
 /**
  * A {@link Module} which bootstraps a server, finding and registering GRPC services to expose.
@@ -56,14 +66,50 @@ import java.util.Set;
 @Module
 public class ServerModule {
 
+  private static final Logger logger = LogManager.getLogger();
+
   @Provides
-  Server armeriaServer(Set<BindableService> grpcServices) {
-    ServerBuilder sb = new ServerBuilder().port(8080, HttpSessionProtocols.HTTP);
+  Config config() {
+    return ConfigFactory.load();
+  }
+
+  @Provides
+  ServerConfig serverConfig(Config config) {
+    return ConfigBeanFactory.create(config.getConfig("server"), ModifiableServerConfig.class)
+        .toImmutable();
+  }
+
+  @Provides
+  Server armeriaServer(Set<BindableService> grpcServices, ServerConfig serverConfig) {
+    ServerBuilder sb = new ServerBuilder().port(8080, HttpSessionProtocols.HTTPS);
+
+    if (serverConfig.isGenerateSelfSignedCertificate()) {
+      logger.warn("Generating self-signed certificate. This should only happen on local!!!");
+      try {
+        SelfSignedCertificate certificate = new SelfSignedCertificate();
+        sb.sslContext(
+            HttpSessionProtocols.HTTPS, certificate.certificate(), certificate.privateKey());
+      } catch (CertificateException | SSLException e) {
+        // Can't happen.
+        throw new IllegalStateException(e);
+      }
+    }
 
     GrpcServiceBuilder serviceBuilder = new GrpcServiceBuilder();
     grpcServices.forEach(serviceBuilder::addService);
     sb.serviceUnder("/", serviceBuilder.build());
 
-    return sb.build();
+    Server server = sb.build();
+    server
+        .start()
+        .whenComplete(
+            (unused, t) -> {
+              if (t != null) {
+                logger.error("Error starting server.", t);
+              } else {
+                logger.info("Server started on ports: " + server.activePorts());
+              }
+            });
+    return server;
   }
 }

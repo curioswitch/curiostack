@@ -22,8 +22,16 @@
  * SOFTWARE.
  */
 
+def jacksonVersion = '2.8.7'
 def dependencyVersions = [
         [ 'com.bmuschko', '3.0.5', [ 'gradle-docker-plugin' ]],
+        [ 'com.fasterxml.jackson.core', jacksonVersion, [
+                'jackson-core',
+                'jackson-databind',
+        ]],
+        [ 'com.fasterxml.jackson.dataformat', jacksonVersion, [
+                'jackson-dataformat-yaml',
+        ]],
         [ 'com.google.cloud', '0.9.4-alpha', [
                 'google-cloud-resourcemanager',
         ]],
@@ -32,10 +40,18 @@ def dependencyVersions = [
         [ 'com.google.protobuf', '3.2.0', [ 'protoc' ]],
         [ 'com.google.protobuf', '0.8.1', [ 'protobuf-gradle-plugin' ]],
         [ 'com.linecorp.armeria', '0.38.0', [ 'armeria', 'armeria-grpc' ]],
+        [ 'com.typesafe', '1.3.1', [ 'config' ]],
         [ 'io.grpc', '1.1.2', [ 'grpc-core', 'grpc-protobuf', 'grpc-stub' ]],
         [ 'io.spring.gradle', '1.0.0.RELEASE', [ 'dependency-management-plugin' ]],
         [ 'javax.inject', '1', 'javax.inject' ],
         [ 'junit', '4.12', [ 'junit' ]],
+        [ 'org.apache.logging.log4j', '2.8.1', [
+                'log4j-api',
+                'log4j-core',
+                'log4j-jcl',
+                'log4j-jul',
+                'log4j-slf4j-impl',
+        ]],
         [ 'org.assertj', '3.6.2', [ 'assertj-core' ]],
         [ 'org.eclipse.jgit', '4.6.0.201612231935-r', [ 'org.eclipse.jgit' ]],
         [ 'org.immutables', '2.4.4', [ 'builder', 'value' ]],

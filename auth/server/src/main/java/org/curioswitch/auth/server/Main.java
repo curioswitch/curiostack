@@ -49,6 +49,6 @@ public class Main {
   }
 
   public static void main(String[] args) {
-    DaggerMain_ServerComponent.builder().build().server().start();
+    DaggerMain_ServerComponent.builder().build().server();
   }
 }
