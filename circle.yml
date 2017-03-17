@@ -12,7 +12,7 @@ dependencies:
   override:
     # Running tests during the dependencies phase is the only way to have CircleCI cache everything
     # gradle downloads.
-    - ./gradlew continuousTest
+    - ./gradlew continuousTest --stacktrace
 
 test:
   override:
