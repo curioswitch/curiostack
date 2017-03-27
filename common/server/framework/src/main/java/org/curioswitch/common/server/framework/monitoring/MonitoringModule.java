@@ -26,11 +26,23 @@ package org.curioswitch.common.server.framework.monitoring;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.jvm.BufferPoolMetricSet;
+import com.codahale.metrics.jvm.ClassLoadingGaugeSet;
+import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
+import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
+import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
+import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import com.codahale.metrics.log4j2.InstrumentedAppender;
 import com.google.common.io.Resources;
 import dagger.Module;
 import dagger.Provides;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.Properties;
+import javax.management.MBeanServer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
 
 @Module
 public class MonitoringModule {
@@ -43,6 +55,12 @@ public class MonitoringModule {
   }
 
   private static void configureDefaultMetrics(MetricRegistry registry) {
+    configureGitMetrics(registry);
+    configureJvmMetrics(registry);
+    configureLogMetrics(registry);
+  }
+
+  private static void configureGitMetrics(MetricRegistry registry) {
     try {
       Properties gitProperties = new Properties();
       gitProperties.load(
@@ -54,5 +72,24 @@ public class MonitoringModule {
     } catch (IOException e) {
       // git properties missing, ignore.
     }
+  }
+
+  private static void configureJvmMetrics(MetricRegistry registry) {
+    MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+    registry.register("jvm.buffer-pool", new BufferPoolMetricSet(mBeanServer));
+    registry.register("jvm.class-loading", new ClassLoadingGaugeSet());
+    registry.register("jvm.file-descriptor-ratio", new FileDescriptorRatioGauge());
+    registry.register("jvm.gc", new GarbageCollectorMetricSet());
+    registry.register("jvm.memory", new MemoryUsageGaugeSet());
+    registry.register("jvm.threads", new ThreadStatesGaugeSet());
+  }
+
+  private static void configureLogMetrics(MetricRegistry registry) {
+    InstrumentedAppender appender = new InstrumentedAppender(registry);
+    appender.start();
+    LoggerContext context = (LoggerContext) LogManager.getContext(false);
+    Configuration config = context.getConfiguration();
+    config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).addAppender(appender, null, null);
+    context.updateLoggers(config);
   }
 }
