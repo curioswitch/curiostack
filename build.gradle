@@ -22,10 +22,6 @@
  * SOFTWARE.
  */
 
-// TODO(choko): Remove after understanding CircleCI.
-// Add a commit.
-
-
 buildscript {
     repositories {
         jcenter()
