@@ -52,8 +52,7 @@ import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
  * which returns the initialized {@link Server}.
  *
  * <p>For example,
- * <pre>
- *   {@code
+ * <pre>{@code
  *   @Module(includes = ServerModule.class)
  *   abstract class MyAppServerModule {
  *     @Bind @IntoSet abstract BindableService myAppService(AppService service);
@@ -63,7 +62,7 @@ import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
  *   interface MyAppComponent {
  *     Server server();
  *   }
- * </pre>
+ * }</pre>
  */
 @Module(includes = MonitoringModule.class)
 public class ServerModule {
