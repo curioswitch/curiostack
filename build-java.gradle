@@ -24,6 +24,8 @@
 
 def jacksonVersion = '2.8.7'
 def dependencyVersions = [
+        [ 'commons-codec', '1.10', [ 'commons-codec' ]],
+        [ 'commons-logging', '1.2', [ 'commons-logging' ]],
         [ 'com.bmuschko', '3.0.5', [ 'gradle-docker-plugin' ]],
         [ 'com.fasterxml.jackson.core', jacksonVersion, [
                 'jackson-core',
@@ -48,9 +50,26 @@ def dependencyVersions = [
                 'metrics-log4j2',
         ]],
         [ 'io.grpc', '1.1.2', [ 'grpc-core', 'grpc-protobuf', 'grpc-stub' ]],
+        [ 'io.netty', '4.1.8.Final', [
+                'netty-buffer',
+                'netty-codec',
+                'netty-codec-dns',
+                'netty-codec-http2',
+                'netty-codec-http',
+                'netty-codec-socks',
+                'netty-common',
+                'netty-handler',
+                'netty-handler-proxy',
+                'netty-resolver',
+                'netty-resolver-dns',
+                'netty-transport',
+                'netty-transport-native-epoll',
+        ]],
         [ 'io.spring.gradle', '1.0.0.RELEASE', [ 'dependency-management-plugin' ]],
         [ 'javax.inject', '1', 'javax.inject' ],
         [ 'junit', '4.12', [ 'junit' ]],
+        [ 'org.apache.httpcomponents', '4.5.3', 'httpclient' ],
+        [ 'org.apache.httpcomponents', '4.4.6', 'httpcore' ],
         [ 'org.apache.logging.log4j', '2.8.1', [
                 'log4j-api',
                 'log4j-core',
@@ -59,8 +78,9 @@ def dependencyVersions = [
                 'log4j-slf4j-impl',
         ]],
         [ 'org.assertj', '3.6.2', [ 'assertj-core' ]],
-        [ 'org.eclipse.jgit', '4.6.0.201612231935-r', [ 'org.eclipse.jgit' ]],
+        [ 'org.eclipse.jgit', '4.6.1.201703071140-r', [ 'org.eclipse.jgit' ]],
         [ 'org.immutables', '2.4.4', [ 'builder', 'value' ]],
+        [ 'org.slf4j', '1.7.25', [ 'slf4j-api' ]],
 ]
 
 allprojects {
