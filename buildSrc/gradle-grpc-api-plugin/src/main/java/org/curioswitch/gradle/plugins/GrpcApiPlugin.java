@@ -40,6 +40,7 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePluginConvention;
+import org.gradle.api.plugins.JavaLibraryPlugin;
 
 /**
  * A simple gradle plugin that configures the protobuf-gradle-plugin with appropriate defaults for a
@@ -56,9 +57,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    // TODO(choko): Use class reference after fixing the fact that we only get gradle api 3.1
-    // here for some reason.
-    project.getPluginManager().apply("java-library");
+    project.getPluginManager().apply(JavaLibraryPlugin.class);
 
     GRPC_DEPENDENCIES.forEach(dep -> project.getDependencies().add("api", "io.grpc:" + dep));
 
