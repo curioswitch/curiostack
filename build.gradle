@@ -38,6 +38,10 @@ buildscript {
     }
 }
 
+plugins {
+    id 'com.gorylenko.gradle-git-properties' version '1.4.17' apply false
+}
+
 // Provides useful tasks like 'clean', 'assemble' to the root project.
 apply plugin: 'base'
 

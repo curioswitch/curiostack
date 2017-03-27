@@ -39,6 +39,10 @@ buildscript {
     }
 }
 
+plugins {
+    id 'com.gorylenko.gradle-git-properties' version '1.4.17' apply false
+}
+
 apply from: '../build-java.gradle'
 
 dependencies {
@@ -47,6 +51,9 @@ dependencies {
 
 allprojects {
     plugins.withType(JavaPlugin) {
+        gitProperties {
+            gitRepositoryRoot rootProject.file('..')
+        }
         license {
             header rootProject.file('../LICENSE')
         }

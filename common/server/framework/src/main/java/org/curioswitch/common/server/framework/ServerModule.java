@@ -42,6 +42,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.curioswitch.common.server.framework.config.ModifiableServerConfig;
 import org.curioswitch.common.server.framework.config.ServerConfig;
+import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
+import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
 
 /**
  * A {@link Module} which bootstraps a server, finding and registering GRPC services to expose.
@@ -63,7 +65,7 @@ import org.curioswitch.common.server.framework.config.ServerConfig;
  *   }
  * </pre>
  */
-@Module
+@Module(includes = MonitoringModule.class)
 public class ServerModule {
 
   private static final Logger logger = LogManager.getLogger();
@@ -80,7 +82,10 @@ public class ServerModule {
   }
 
   @Provides
-  Server armeriaServer(Set<BindableService> grpcServices, ServerConfig serverConfig) {
+  Server armeriaServer(
+      Set<BindableService> grpcServices,
+      MetricsHttpService metricsHttpService,
+      ServerConfig serverConfig) {
     ServerBuilder sb = new ServerBuilder().port(8080, HttpSessionProtocols.HTTPS);
 
     if (serverConfig.isGenerateSelfSignedCertificate()) {
@@ -94,6 +99,8 @@ public class ServerModule {
         throw new IllegalStateException(e);
       }
     }
+
+    sb.serviceAt("/internal/metrics", metricsHttpService);
 
     GrpcServiceBuilder serviceBuilder = new GrpcServiceBuilder();
     grpcServices.forEach(serviceBuilder::addService);

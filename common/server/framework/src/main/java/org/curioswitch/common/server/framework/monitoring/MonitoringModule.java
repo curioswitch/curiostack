@@ -22,25 +22,37 @@
  * SOFTWARE.
  */
 
-apply plugin: 'java-library'
+package org.curioswitch.common.server.framework.monitoring;
 
-dependencies {
-    api 'com.google.dagger:dagger'
-    api 'com.linecorp.armeria:armeria'
-    api 'com.typesafe:config'
-    api 'org.apache.logging.log4j:log4j-api'
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.io.Resources;
+import dagger.Module;
+import dagger.Provides;
+import java.io.IOException;
+import java.util.Properties;
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
-    implementation 'com.linecorp.armeria:armeria-grpc'
-    implementation 'io.dropwizard.metrics:metrics-json'
-    implementation 'org.apache.logging.log4j:log4j-core'
-    implementation 'org.apache.logging.log4j:log4j-jcl'
-    implementation 'org.apache.logging.log4j:log4j-jul'
-    implementation 'org.apache.logging.log4j:log4j-slf4j-impl'
+@Module
+public class MonitoringModule {
 
-    apt 'com.google.dagger:dagger-compiler'
+  @Provides
+  MetricRegistry metricRegistry() {
+    MetricRegistry registry = new MetricRegistry();
+    configureDefaultMetrics(registry);
+    return registry;
+  }
 
-    apt 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
+  private static void configureDefaultMetrics(MetricRegistry registry) {
+    try {
+      Properties gitProperties = new Properties();
+      gitProperties.load(
+          Resources.getResource("git.properties").openStream());
+      for (String key : gitProperties.stringPropertyNames()) {
+        String value = gitProperties.getProperty(key);
+        registry.register(key, (Gauge<String>) () -> value);
+      }
+    } catch (IOException e) {
+      // git properties missing, ignore.
+    }
+  }
 }
