@@ -70,7 +70,7 @@ public class MonorepoCircleCiPlugin implements Plugin<Project> {
                 .whenPluginAdded(
                     plugin -> {
                       Task testDependents = p.task("testDependents");
-                      testDependents.dependsOn(p.getTasks().findByName("test"));
+                      testDependents.dependsOn(p.getTasks().findByName("check"));
                       testDependents.dependsOn(
                           p.getConfigurations()
                               .getByName("testRuntime")
@@ -82,7 +82,7 @@ public class MonorepoCircleCiPlugin implements Plugin<Project> {
     for (Project proj : affectedProjects) {
       proj.afterEvaluate(
           p -> {
-            Task testTask = p.getTasks().findByName("test");
+            Task testTask = p.getTasks().findByName("check");
             if (testTask != null) {
               continuousTest.dependsOn(testTask);
             }
