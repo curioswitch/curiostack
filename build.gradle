@@ -57,6 +57,10 @@ allprojects {
     plugins.withType(JavaPlugin) {
         license {
             header rootProject.file('LICENSE')
+            mapping {
+                conf = 'DOUBLESLASH_STYLE'
+                yml = 'SCRIPT_STYLE'
+            }
         }
     }
     plugins.withType(com.google.protobuf.gradle.ProtobufPlugin) {

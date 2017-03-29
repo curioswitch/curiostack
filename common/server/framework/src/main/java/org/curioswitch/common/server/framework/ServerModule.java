@@ -46,22 +46,23 @@ import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
 
 /**
- * A {@link Module} which bootstraps a server, finding and registering GRPC services to expose.
- * All servers should include this {@link Module} from an application-specific {@link Module} that
- * binds services to be exposed to {@link BindableService} and add it to a {@link dagger.Component}
- * which returns the initialized {@link Server}.
+ * A {@link Module} which bootstraps a server, finding and registering GRPC services to expose. All
+ * servers should include this {@link Module} from an application-specific {@link Module} that binds
+ * services to be exposed to {@link BindableService} and add it to a {@link dagger.Component} which
+ * returns the initialized {@link Server}.
  *
  * <p>For example,
- * <pre>{@code
- *   @Module(includes = ServerModule.class)
- *   abstract class MyAppServerModule {
- *     @Bind @IntoSet abstract BindableService myAppService(AppService service);
- *   }
  *
- *   @Component(modules = MyAppServerModule.class)
- *   interface MyAppComponent {
- *     Server server();
- *   }
+ * <pre>{@code
+ * @Module(includes = ServerModule.class)
+ * abstract class MyAppServerModule {
+ *   @Bind @IntoSet abstract BindableService myAppService(AppService service);
+ * }
+ *
+ * @Component(modules = MyAppServerModule.class)
+ * interface MyAppComponent {
+ *   Server server();
+ * }
  * }</pre>
  */
 @Module(includes = MonitoringModule.class)

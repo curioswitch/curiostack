@@ -29,9 +29,7 @@ import java.lang.annotation.Target;
 import org.immutables.value.Value.Style;
 import org.immutables.value.Value.Style.BuilderVisibility;
 
-/**
- * A {@link Style} which allows recognizing modifable versions of the type as javabeans.
- */
+/** A {@link Style} which allows recognizing modifable versions of the type as javabeans. */
 @Target(ElementType.TYPE)
 @Style(
   create = "new",

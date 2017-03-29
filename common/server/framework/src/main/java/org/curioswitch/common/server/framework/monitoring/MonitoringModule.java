@@ -63,8 +63,7 @@ public class MonitoringModule {
   private static void configureGitMetrics(MetricRegistry registry) {
     try {
       Properties gitProperties = new Properties();
-      gitProperties.load(
-          Resources.getResource("git.properties").openStream());
+      gitProperties.load(Resources.getResource("git.properties").openStream());
       for (String key : gitProperties.stringPropertyNames()) {
         String value = gitProperties.getProperty(key);
         registry.register(key, (Gauge<String>) () -> value);
