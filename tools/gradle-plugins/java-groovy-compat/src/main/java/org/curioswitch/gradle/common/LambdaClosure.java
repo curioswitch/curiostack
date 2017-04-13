@@ -41,9 +41,7 @@ public final class LambdaClosure {
     return new OneArgClosure<>(function);
   }
 
-  /**
-   * A Java lambda interface defining a function with a single argument and void return.
-   */
+  /** A Java lambda interface defining a function with a single argument and void return. */
   @FunctionalInterface
   public interface OneArgClosureFunction<T> {
     void call(T arg);
