@@ -30,8 +30,25 @@ buildscript {
 apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
 ```
 
-This will set up the protobuf gradle plugin appropriately. Add a ```proto``` subdirectory under
-```main``` and add some proto files, and you're ready to go.
+The plugin adds the Spring dependency-management-plugin for resolving the version of GRPC and
+protobuf you would like to use. Specify the versions with something like
+
+```groovy
+dependencyManagement {
+    dependencies {
+        dependency 'com.google.protobuf:protoc:3.2.0'
+        dependencySet(group: 'io.grpc', version: '1.2.0') {
+            entry 'grpc-core'
+            entry 'grpc-protobuf'
+            entry 'grpc-stub'
+        }
+    }
+}
+
+```
+
+This is enough to set up the protobuf gradle plugin appropriately. Add a ```proto``` subdirectory 
+under ```main``` and add some proto files, and you're ready to go.
 
 An example usage can be found in [curio-auth-api](https://github.com/curioswitch/curiostack/blob/master/auth/api/build.gradle).
 The buildscript configuration is in the [top-level build file](https://github.com/curioswitch/curiostack/blob/master/build.gradle#L41).
