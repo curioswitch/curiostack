@@ -26,8 +26,6 @@ apply plugin: 'groovy'
 apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 
-apply plugin: 'com.jfrog.bintray'
-
 dependencies {
     api 'org.codehaus.groovy:groovy'
 }
@@ -37,14 +35,6 @@ dependencies {
 // down.
 tasks.compileTestJava {
     enabled = false
-}
-
-bintray {
-    pkg {
-        version {
-            name = project.version
-        }
-    }
 }
 
 publishing {

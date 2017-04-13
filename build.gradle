@@ -26,6 +26,9 @@ buildscript {
     repositories {
         jcenter()
         maven {
+            url  'http://dl.bintray.com/curioswitch/curiostack'
+        }
+        maven {
             url 'https://plugins.gradle.org/m2/'
         }
     }
@@ -35,6 +38,7 @@ buildscript {
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.1'
         classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE'
         classpath 'net.ltgt.gradle:gradle-apt-plugin:0.9'
+        classpath 'org.curioswitch.curiostack:gradle-grpc-api-plugin:0.0.1'
     }
 }
 
@@ -78,8 +82,9 @@ allprojects {
         }
     }
 
-    plugins.withType(com.jfrog.bintray.gradle.BintrayPlugin) {
+    plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
         project.apply plugin: 'com.jfrog.artifactory'
+        project.apply plugin: 'com.jfrog.bintray'
 
         def bintrayUser = findProperty('bintray.user')
         def bintrayKey = findProperty('bintray.key')
@@ -96,7 +101,7 @@ allprojects {
             }
         }
 
-        project.afterEvaluate {
+        afterEvaluate {
             bintray {
                 publish = true
                 user = bintrayUser
@@ -109,6 +114,7 @@ allprojects {
                     vcsUrl = 'https://github.com/curioswitch/curiostack.git'
                     githubRepo = 'curioswitch/curiostack'
                     version {
+                        name = project.version
                         gpg {
                             // Use bintray's keys for signing since there isn't much of a difference
                             // in security vs giving them your own private keys - either way bintray
@@ -118,6 +124,40 @@ allprojects {
                     }
                 }
                 publications = ['maven']
+            }
+
+            publishing {
+                publications {
+                    maven(MavenPublication) {
+                        from components.java
+
+                        artifactId = project.archivesBaseName
+
+                        artifact project.tasks.javadocJar
+                        artifact project.tasks.sourceJar
+
+                        pom.withXml {
+                            asNode().children()[3] + {
+                                resolveStrategy = Closure.DELEGATE_FIRST
+
+                                licenses {
+                                    license {
+                                        name 'MIT License'
+                                        url 'https://opensource.org/licenses/MIT'
+                                        distribution 'repo'
+                                    }
+                                }
+                                developers {
+                                    developer {
+                                        id 'chokoswitch'
+                                        name 'Choko'
+                                        email 'choko@curioswitch.org'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

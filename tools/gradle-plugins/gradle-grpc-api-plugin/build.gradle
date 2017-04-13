@@ -26,8 +26,10 @@ plugins {
     id 'java-gradle-plugin'
 }
 
+apply plugin: 'maven-publish'
+
 dependencies {
-    compile 'org.curioswitch.curiostack:java-groovy-compat:0.0.1'
+    compile project(':tools:gradle-plugins:java-groovy-compat')
 
     compile 'com.google.protobuf:protobuf-gradle-plugin'
     compile 'io.spring.gradle:dependency-management-plugin'
@@ -38,6 +40,26 @@ gradlePlugin {
         simplePlugin {
             id = 'org.curioswitch.gradle-grpc-api-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.GrpcApiPlugin'
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            pom.withXml {
+                // TODO(choko): Make it simpler to define pom attributes after the artifact, as is
+                // normal, by defining a DSL or something.
+                asNode().children()[3] + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+
+                    name 'Gradle GRPC API Plugin'
+                    description 'A heavily opinionated plugin for defining GRPC APIs in a gradle ' +
+                            'project with minimal configuration.'
+                    url 'https://github.com/curioswitch/curiostack/tree/master/' +
+                            'tools/gradle-plugins/gradle-grpc-api-plugin'
+                }
+            }
         }
     }
 }

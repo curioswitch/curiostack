@@ -192,42 +192,4 @@ allprojects {
             }
         }
     }
-
-    plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
-        afterEvaluate {
-            publishing {
-                publications {
-                    maven(MavenPublication) {
-                        from components.java
-
-                        artifactId = project.archivesBaseName
-
-                        artifact project.tasks.javadocJar
-                        artifact project.tasks.sourceJar
-
-                        pom.withXml {
-                            asNode().children()[3] + {
-                                resolveStrategy = Closure.DELEGATE_FIRST
-
-                                licenses {
-                                    license {
-                                        name 'MIT License'
-                                        url 'https://opensource.org/licenses/MIT'
-                                        distribution 'repo'
-                                    }
-                                }
-                                developers {
-                                    developer {
-                                        id 'chokoswitch'
-                                        name 'Choko'
-                                        email 'choko@curioswitch.org'
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 }

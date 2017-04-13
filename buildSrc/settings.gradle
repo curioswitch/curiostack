@@ -24,5 +24,4 @@
 
 include 'gradle-curio-server-plugin'
 include 'gradle-gcloud-plugin'
-include 'gradle-grpc-api-plugin'
 include 'gradle-monorepo-circleci-plugin'
