@@ -40,6 +40,8 @@ buildscript {
 
 plugins {
     id 'com.gorylenko.gradle-git-properties' version '1.4.17' apply false
+    id 'com.jfrog.artifactory' version '3.1.2' apply false
+    id 'com.jfrog.bintray' version '1.7.3' apply false
 }
 
 // Provides useful tasks like 'clean', 'assemble' to the root project.
@@ -72,6 +74,50 @@ allprojects {
         license {
             mapping {
                 proto = 'JAVADOC_STYLE'
+            }
+        }
+    }
+
+    plugins.withType(com.jfrog.bintray.gradle.BintrayPlugin) {
+        project.apply plugin: 'com.jfrog.artifactory'
+
+        def bintrayUser = findProperty('bintray.user')
+        def bintrayKey = findProperty('bintray.key')
+
+        artifactory {
+            contextUrl = 'http://oss.jfrog.org/artifactory'
+
+            publish {
+                repository {
+                    repoKey = 'oss-snapshot-local'
+                    username = bintrayUser
+                    password = bintrayKey
+                }
+            }
+        }
+
+        project.afterEvaluate {
+            bintray {
+                publish = true
+                user = bintrayUser
+                key = bintrayKey
+                pkg {
+                    name = project.archivesBaseName
+                    repo = 'curiostack'
+                    userOrg = 'curioswitch'
+                    licenses = ['MIT']
+                    vcsUrl = 'https://github.com/curioswitch/curiostack.git'
+                    githubRepo = 'curioswitch/curiostack'
+                    version {
+                        gpg {
+                            // Use bintray's keys for signing since there isn't much of a difference
+                            // in security vs giving them your own private keys - either way bintray
+                            // is trusted as the identity provider of your packages.
+                            sign = true
+                        }
+                    }
+                }
+                publications = ['maven']
             }
         }
     }

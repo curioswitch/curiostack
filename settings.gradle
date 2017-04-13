@@ -24,3 +24,4 @@
 
 include ':auth:api', ':auth:server'
 include ':common:server:framework'
+include ':tools:gradle-plugins:java-groovy-compat'

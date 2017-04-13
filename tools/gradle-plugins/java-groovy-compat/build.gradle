@@ -23,9 +23,13 @@
  */
 
 apply plugin: 'groovy'
+apply plugin: 'java-library'
+apply plugin: 'maven-publish'
+
+apply plugin: 'com.jfrog.bintray'
 
 dependencies {
-    compile localGroovy()
+    api 'org.codehaus.groovy:groovy'
 }
 
 // For some reason, this always gets run even though the Java is compiled within compileTestGroovy.
@@ -33,4 +37,32 @@ dependencies {
 // down.
 tasks.compileTestJava {
     enabled = false
+}
+
+bintray {
+    pkg {
+        version {
+            name = project.version
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            pom.withXml {
+                // TODO(choko): Make it simpler to define pom attributes after the artifact, as is
+                // normal, by defining a DSL or something.
+                asNode().children()[3] + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+
+                    name 'Java/Groovy Compatability Helper'
+                    description 'A utility library with functions for interacting with Groovy ' +
+                            'libraries from Java.'
+                    url 'https://github.com/curioswitch/curiostack/tree/master/' +
+                            'tools/gradle-plugins/java-groovy-compat'
+                }
+            }
+        }
+    }
 }

@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 
-include 'common'
 include 'gradle-curio-server-plugin'
 include 'gradle-gcloud-plugin'
 include 'gradle-grpc-api-plugin'

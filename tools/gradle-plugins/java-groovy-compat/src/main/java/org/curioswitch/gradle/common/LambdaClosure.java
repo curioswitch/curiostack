@@ -26,12 +26,24 @@ package org.curioswitch.gradle.common;
 
 import groovy.lang.Closure;
 
+/**
+ * A utility class for creating groovy-compatible {@link Closure}s from Java lambdas. As Java
+ * lambdas aren't closures, the semantics of {@link Closure} are not perfect, but closure semantics
+ * are rarely used in gradle files so this should be fine.
+ */
 public final class LambdaClosure {
 
+  /**
+   * Converts a single-argument, void-return lambda, {@link OneArgClosureFunction} to a
+   * groovy-compatible {@link Closure}.
+   */
   public static <T> Closure<Void> of(OneArgClosureFunction<T> function) {
     return new OneArgClosure<>(function);
   }
 
+  /**
+   * A Java lambda interface defining a function with a single argument and void return.
+   */
   @FunctionalInterface
   public interface OneArgClosureFunction<T> {
     void call(T arg);
@@ -41,7 +53,7 @@ public final class LambdaClosure {
 
     private final OneArgClosureFunction<T> function;
 
-    public OneArgClosure(OneArgClosureFunction<T> function) {
+    private OneArgClosure(OneArgClosureFunction<T> function) {
       super(function); // null doesn't work, but anything else is fine as it's not used.
       this.function = function;
     }

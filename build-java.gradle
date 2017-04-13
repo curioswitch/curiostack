@@ -78,6 +78,7 @@ def dependencyVersions = [
                 'log4j-slf4j-impl',
         ]],
         [ 'org.assertj', '3.6.2', [ 'assertj-core' ]],
+        [ 'org.codehaus.groovy', '2.4.10', [ 'groovy' ]],
         [ 'org.eclipse.jgit', '4.6.1.201703071140-r', [ 'org.eclipse.jgit' ]],
         [ 'org.immutables', '2.4.4', [ 'builder', 'value' ]],
         [ 'org.slf4j', '1.7.25', [ 'slf4j-api' ]],
@@ -86,6 +87,9 @@ def dependencyVersions = [
 allprojects {
     repositories {
         jcenter()
+        maven {
+            url  'http://dl.bintray.com/curioswitch/curiostack'
+        }
         mavenCentral()
     }
 
@@ -154,14 +158,75 @@ allprojects {
             }
         }
 
-        dependencies {
-            testCompile 'org.assertj:assertj-core'
-            testCompile 'junit:junit'
+        afterEvaluate {
+            dependencies {
+                def configuration = (project.plugins.hasPlugin('java-library')
+                        ? project.configurations.testImplementation
+                        : project.configurations.testCompile)
+                add configuration.name, 'org.assertj:assertj-core'
+                add configuration.name, 'junit:junit'
+            }
+        }
+
+        javadoc {
+            options {
+                quiet()
+                addBooleanOption('Xdoclint:all').value = true
+                addBooleanOption('Xdoclint:-missing').value = true
+            }
+        }
+
+        task javadocJar(type: Jar, dependsOn: javadoc) {
+            classifier = 'javadoc'
+            from javadoc.destinationDir
+        }
+
+        task sourceJar(type: Jar) {
+            classifier = 'sources'
+            from sourceSets.main.allSource
         }
 
         spotless {
             java {
                 googleJavaFormat()
+            }
+        }
+    }
+
+    plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
+        afterEvaluate {
+            publishing {
+                publications {
+                    maven(MavenPublication) {
+                        from components.java
+
+                        artifactId = project.archivesBaseName
+
+                        artifact project.tasks.javadocJar
+                        artifact project.tasks.sourceJar
+
+                        pom.withXml {
+                            asNode().children()[3] + {
+                                resolveStrategy = Closure.DELEGATE_FIRST
+
+                                licenses {
+                                    license {
+                                        name 'MIT License'
+                                        url 'https://opensource.org/licenses/MIT'
+                                        distribution 'repo'
+                                    }
+                                }
+                                developers {
+                                    developer {
+                                        id 'chokoswitch'
+                                        name 'Choko'
+                                        email 'choko@curioswitch.org'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

@@ -27,7 +27,7 @@ plugins {
 }
 
 dependencies {
-    compile project(':common')
+    compile 'org.curioswitch.curiostack:java-groovy-compat:0.0.1'
 
     compile 'com.google.protobuf:protobuf-gradle-plugin'
     compile 'io.spring.gradle:dependency-management-plugin'
