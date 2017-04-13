@@ -2,7 +2,7 @@
 
 A highly opinionated plugin for defining GRPC APIs in a gradle project with minimal configuration.
 Adding the plugin to the package is enough to set up the protobuf gradle plugin to generate code,
-including GRPC stubs. A sescriptor set with docstrings is also generated for use in documentation
+including GRPC stubs. A descriptor set with docstrings is also generated for use in documentation
 services (e.g., armeria).
 
 ## Usage
