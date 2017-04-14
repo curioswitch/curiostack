@@ -30,7 +30,7 @@ buildscript {
             url 'https://plugins.gradle.org/m2/'
         }
         maven {
-            url  "http://palantir.bintray.com/releases"
+            url  'http://palantir.bintray.com/releases'
         }
     }
     dependencies {
