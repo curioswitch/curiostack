@@ -7,20 +7,16 @@ services (e.g., armeria).
 
 ## Usage
 
-This plugin is not in JCenter or the Gradle Plugin Portal yet - it is currently in the process of
-being approved for inclusion in JCenter, after which it will also be published to the Gradle Plugin
-Portal.
+This plugin is currently only in JCenter - it will also be published to the Gradle Plugin Portal
+soon and will then support the new plugin IDL.
 
-In the meantime, you can add the Curiostack bintray repository to use this plugin.
+In the meantime, use the old plugin syntax, making sure ```jcenter()``` is in the repositories.
 
 ```groovy
 
 buildscript {
     repositories {
         jcenter()
-        maven {
-            url  'http://dl.bintray.com/curioswitch/curiostack'
-        }
     }
     dependencies {
         classpath 'org.curioswitch.curiostack:gradle-grpc-api-plugin:0.0.1'

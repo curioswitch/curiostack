@@ -26,10 +26,10 @@ buildscript {
     repositories {
         jcenter()
         maven {
-            url  'http://dl.bintray.com/curioswitch/curiostack'
+            url 'https://plugins.gradle.org/m2/'
         }
         maven {
-            url 'https://plugins.gradle.org/m2/'
+            url  'http://palantir.bintray.com/releases'
         }
     }
     dependencies {
