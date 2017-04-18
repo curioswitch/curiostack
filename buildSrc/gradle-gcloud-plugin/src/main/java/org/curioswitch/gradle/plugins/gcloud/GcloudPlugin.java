@@ -24,15 +24,36 @@
 
 package org.curioswitch.gradle.plugins.gcloud;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
+import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.SetupTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Rule;
+import org.gradle.api.Task;
+import org.gradle.api.plugins.BasePluginConvention;
+import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Style;
+import org.immutables.value.Value.Style.BuilderVisibility;
+import org.immutables.value.Value.Style.ImplementationVisibility;
 
 /**
  * A plugin that adds tasks for automatically downloading the gcloud sdk and running commands using
@@ -40,6 +61,10 @@ import org.gradle.api.Rule;
  * most commands should be migrated to using the gcloud Rest APIs to remove this dependency.
  */
 public class GcloudPlugin implements Plugin<Project> {
+
+  private static final ObjectMapper OBJECT_MAPPER =
+      new ObjectMapper(new YAMLFactory().enable(Feature.MINIMIZE_QUOTES))
+          .setSerializationInclusion(Include.NON_NULL);
 
   @Override
   public void apply(Project project) {
@@ -128,5 +153,102 @@ public class GcloudPlugin implements Plugin<Project> {
                   "--zone",
                   config.clusterZone()));
         });
+
+    addGenerateCloudBuildTask(project);
+  }
+
+  private void addGenerateCloudBuildTask(Project rootProject) {
+    Task generateCloudBuild = rootProject.getTasks().create("generateCloudBuild");
+    generateCloudBuild.doLast(
+        t -> {
+          List<String> imageTags = new ArrayList<>();
+          List<CloudBuildStep> serverSteps =
+              rootProject
+                  .getAllprojects()
+                  .stream()
+                  .filter(proj -> proj.getPlugins().hasPlugin(CurioServerPlugin.class))
+                  .flatMap(
+                      proj -> {
+                        String archivesBaseName =
+                            proj.getConvention()
+                                .getPlugin(BasePluginConvention.class)
+                                .getArchivesBaseName();
+                        String distId = "build-" + archivesBaseName + "-dist";
+                        String imageTag = "asia.gcr.io/$PROJECT_ID/" + archivesBaseName + ":latest";
+                        imageTags.add(imageTag);
+                        return Stream.of(
+                            ImmutableCloudBuildStep.builder()
+                                .id(distId)
+                                .waitFor("refresh-build-image")
+                                .name("asia.gcr.io/curioswitch-cluster/java-cloud-builder:latest")
+                                .entrypoint("./gradlew")
+                                .args(
+                                    Collections.singletonList(
+                                        proj.getTasks().getByName("dockerDistTar").getPath()))
+                                .build(),
+                            ImmutableCloudBuildStep.builder()
+                                .id("build-" + archivesBaseName + "-image")
+                                .waitFor(distId)
+                                .name("gcr.io/cloud-builders/docker")
+                                .args(
+                                    Arrays.asList(
+                                        "build",
+                                        "--tag=" + imageTag,
+                                        Paths.get(rootProject.getProjectDir().getAbsolutePath())
+                                            .relativize(
+                                                Paths.get(
+                                                    new File(proj.getBuildDir(), "docker")
+                                                        .getAbsolutePath()))
+                                            .toString()))
+                                .build());
+                      })
+                  .collect(Collectors.toList());
+          List<CloudBuildStep> steps = new ArrayList<>();
+          steps.add(
+              ImmutableCloudBuildStep.builder()
+                  .id("refresh-build-image")
+                  .name("gcr.io/cloud-builders/docker")
+                  .args(
+                      Arrays.asList(
+                          "build",
+                          "--tag=asia.gcr.io/curioswitch-cluster/java-cloud-builder:latest",
+                          "--file=./tools/build-images/java-cloud-builder/Dockerfile",
+                          "."))
+                  .build());
+          steps.addAll(serverSteps);
+          HashMap<String, Object> config = new LinkedHashMap<>();
+          config.put("steps", steps);
+          config.put("images", imageTags);
+          try {
+            OBJECT_MAPPER.writeValue(rootProject.file("cloudbuild.yaml"), config);
+          } catch (IOException e) {
+            throw new UncheckedIOException(e);
+          }
+        });
+  }
+
+  @Immutable
+  @Style(
+    visibility = ImplementationVisibility.PACKAGE,
+    builderVisibility = BuilderVisibility.PACKAGE,
+    defaultAsDefault = true
+  )
+  @JsonSerialize(as = ImmutableCloudBuildStep.class)
+  interface CloudBuildStep {
+    String id();
+
+    @Nullable
+    default String waitFor() {
+      return null;
+    }
+
+    String name();
+
+    @Nullable
+    default String entrypoint() {
+      return null;
+    }
+
+    List<String> args();
   }
 }

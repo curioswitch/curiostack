@@ -27,6 +27,10 @@ plugins {
 }
 
 dependencies {
+    compile project(':gradle-curio-server-plugin')
+
+    compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     compile 'com.google.cloud:google-cloud-resourcemanager'
 
     apt 'org.immutables:value'
