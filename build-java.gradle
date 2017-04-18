@@ -191,5 +191,15 @@ allprojects {
                 googleJavaFormat()
             }
         }
+
+        task resolveDependencies {
+            doLast {
+                configurations.all {
+                    if (it.canBeResolved) {
+                        it.resolve()
+                    }
+                }
+            }
+        }
     }
 }

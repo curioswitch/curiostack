@@ -70,8 +70,6 @@ public class CurioServerPlugin implements Plugin<Project> {
           // TODO(choko): Make this prefix configurable.
           String tag = "asia.gcr.io/" + baseTag;
           javaApplication.setTag(tag);
-
-
         });
     project.getPluginManager().apply(DockerJavaApplicationPlugin.class);
   }
