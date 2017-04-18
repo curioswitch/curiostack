@@ -159,9 +159,11 @@ public class GcloudPlugin implements Plugin<Project> {
 
   private void addGenerateCloudBuildTask(Project rootProject) {
     Task generateCloudBuild = rootProject.getTasks().create("generateCloudBuild");
+    String builderImage = "asia.gcr.io/$PROJECT_ID/java-cloud-builder:latest";
     generateCloudBuild.doLast(
         t -> {
           List<String> imageTags = new ArrayList<>();
+          imageTags.add(builderImage);
           List<CloudBuildStep> serverSteps =
               rootProject
                   .getAllprojects()
@@ -180,7 +182,7 @@ public class GcloudPlugin implements Plugin<Project> {
                             ImmutableCloudBuildStep.builder()
                                 .id(distId)
                                 .waitFor("refresh-build-image")
-                                .name("asia.gcr.io/curioswitch-cluster/java-cloud-builder:latest")
+                                .name(builderImage)
                                 .entrypoint("./gradlew")
                                 .args(
                                     Collections.singletonList(
@@ -211,7 +213,7 @@ public class GcloudPlugin implements Plugin<Project> {
                   .args(
                       Arrays.asList(
                           "build",
-                          "--tag=asia.gcr.io/curioswitch-cluster/java-cloud-builder:latest",
+                          "--tag=" + builderImage,
                           "--file=./tools/build-images/java-cloud-builder/Dockerfile",
                           "."))
                   .build());

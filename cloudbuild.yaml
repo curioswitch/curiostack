@@ -4,12 +4,12 @@ steps:
   name: gcr.io/cloud-builders/docker
   args:
   - build
-  - --tag=asia.gcr.io/curioswitch-cluster/java-cloud-builder:latest
+  - --tag=asia.gcr.io/$PROJECT_ID/java-cloud-builder:latest
   - --file=./tools/build-images/java-cloud-builder/Dockerfile
   - .
 - id: build-curio-auth-server-dist
   waitFor: refresh-build-image
-  name: asia.gcr.io/curioswitch-cluster/java-cloud-builder:latest
+  name: asia.gcr.io/$PROJECT_ID/java-cloud-builder:latest
   entrypoint: ./gradlew
   args:
   - :auth:server:dockerDistTar
@@ -21,4 +21,5 @@ steps:
   - --tag=asia.gcr.io/$PROJECT_ID/curio-auth-server:latest
   - auth/server/build/docker
 images:
+- asia.gcr.io/$PROJECT_ID/java-cloud-builder:latest
 - asia.gcr.io/$PROJECT_ID/curio-auth-server:latest
