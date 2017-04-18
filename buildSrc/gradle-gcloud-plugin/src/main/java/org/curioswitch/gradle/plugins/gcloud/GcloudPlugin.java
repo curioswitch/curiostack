@@ -24,7 +24,9 @@
 
 package org.curioswitch.gradle.plugins.gcloud;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.SetupTask;
@@ -85,6 +87,46 @@ public class GcloudPlugin implements Plugin<Project> {
               project.getTasks().create("gcloudCreateSourceRepository", GcloudTask.class);
           createSourceRepo.setArgs(
               Arrays.asList("alpha", "source", "repos", "create", config.sourceRepository()));
+
+          GcloudTask createCluster =
+              project.getTasks().create("gcloudCreateCluster", GcloudTask.class);
+          List<String> createClusterArgs = new ArrayList<>();
+          createClusterArgs.addAll(
+              Arrays.asList(
+                  "beta",
+                  "container",
+                  "clusters",
+                  "create",
+                  config.clusterName(),
+                  "--zone",
+                  config.clusterZone(),
+                  "--additional-zones",
+                  String.join(",", config.clusterAdditionalZones()),
+                  "--num-nodes",
+                  Integer.toString(config.clusterNumNodesPerZone()),
+                  "--enable-autorepair",
+                  "--enable-autoupgrade",
+                  "--machine-type",
+                  config.clusterMachineType(),
+                  "--scopes",
+                  "cloud-platform,storage-rw,default,sql-admin,"
+                      + "https://www.googleapis.com/auth/ndev.clouddns.readwrite"));
+          if (config.clusterKubernetesVersion() != null) {
+            createClusterArgs.add("--cluster-version");
+            createClusterArgs.add(config.clusterKubernetesVersion());
+          }
+          createCluster.setArgs(Collections.unmodifiableList(createClusterArgs));
+
+          GcloudTask loginToCluster =
+              project.getTasks().create("gcloudLoginToCluster", GcloudTask.class);
+          loginToCluster.setArgs(
+              Arrays.asList(
+                  "container",
+                  "clusters",
+                  "get-credentials",
+                  config.clusterName(),
+                  "--zone",
+                  config.clusterZone()));
         });
   }
 }

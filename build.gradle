@@ -165,6 +165,8 @@ allprojects {
 
 gcloud {
     clusterBaseName = 'curioswitch'
+    cloudRegion = 'asia-northeast1'
+    clusterKubernetesVersion = '1.6.1'
 }
 
 idea.project.ipr.withXml {

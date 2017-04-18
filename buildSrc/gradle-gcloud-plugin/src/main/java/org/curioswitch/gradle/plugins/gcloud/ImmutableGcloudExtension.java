@@ -26,6 +26,8 @@ package org.curioswitch.gradle.plugins.gcloud;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 import org.gradle.api.Project;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Derived;
@@ -41,8 +43,36 @@ public interface ImmutableGcloudExtension {
   @Value.Parameter
   Project gradleProject();
 
+  default String cloudRegion() {
+    throw new IllegalArgumentException("cloudRegion must be specified.");
+  }
+
+  default String clusterZone() {
+    return cloudRegion() + "-a";
+  }
+
+  default List<String> clusterAdditionalZones() {
+    return Collections.singletonList(cloudRegion() + "-c");
+  }
+
+  default int clusterNumNodesPerZone() {
+    return 1;
+  }
+
+  default String clusterKubernetesVersion() {
+    return null;
+  }
+
+  default String clusterMachineType() {
+    return "g1-small";
+  }
+
   default String clusterBaseName() {
     throw new IllegalArgumentException("clusterBaseName must be specified.");
+  }
+
+  default String clusterName() {
+    return clusterResourceName("cluster");
   }
 
   default String clusterProject() {
@@ -63,7 +93,7 @@ public interface ImmutableGcloudExtension {
   }
 
   default String version() {
-    return "147.0.0";
+    return "151.0.1";
   }
 
   default String distBaseUrl() {
