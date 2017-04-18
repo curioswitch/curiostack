@@ -4,7 +4,7 @@ steps:
   args:
   - build
   - '--tag=asia.gcr.io/curioswitch-cluster/java-cloud-builder:latest'
-  - '-f tools/build-images/java-cloud-builder/Dockerfile'
+  - '--file=./tools/build-images/java-cloud-builder/Dockerfile'
   - '.'
 - id: build-auth-server-dist
   waitFor: refresh-build-image
