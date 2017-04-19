@@ -28,6 +28,11 @@ plugins {
 
 dependencies {
     compile 'com.bmuschko:gradle-docker-plugin'
+    compile 'com.google.guava:guava'
+    compile 'io.fabric8:kubernetes-client'
+
+    apt 'org.immutables:value'
+    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
 }
 
 gradlePlugin {

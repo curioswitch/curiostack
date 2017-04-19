@@ -34,3 +34,12 @@ dependencies {
     apt 'com.google.dagger:dagger-compiler'
     compile 'com.google.dagger:dagger'
 }
+
+deployment {
+    types {
+        alpha {
+            // TODO(choko): Setup proper namespace.
+            namespace = 'default'
+        }
+    }
+}

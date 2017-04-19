@@ -49,6 +49,7 @@ def dependencyVersions = [
                 'metrics-json',
                 'metrics-log4j2',
         ]],
+        [ 'io.fabric8', '2.2.13', [ 'kubernetes-client' ]],
         [ 'io.grpc', '1.1.2', [ 'grpc-core', 'grpc-protobuf', 'grpc-stub' ]],
         [ 'io.netty', '4.1.8.Final', [
                 'netty-buffer',

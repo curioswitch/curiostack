@@ -27,7 +27,10 @@ package org.curioswitch.gradle.plugins.curioserver;
 import com.bmuschko.gradle.docker.DockerExtension;
 import com.bmuschko.gradle.docker.DockerJavaApplication;
 import com.bmuschko.gradle.docker.DockerJavaApplicationPlugin;
+import com.google.common.base.Ascii;
 import groovy.lang.GroovyObject;
+import org.curioswitch.gradle.plugins.curioserver.ImmutableDeploymentExtension.ImmutableDeploymentConfiguration;
+import org.curioswitch.gradle.plugins.curioserver.tasks.DeployPodTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ApplicationPlugin;
@@ -43,9 +46,15 @@ public class CurioServerPlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.getPluginManager().apply(ApplicationPlugin.class);
+    project
+        .getExtensions()
+        .create(ImmutableDeploymentExtension.NAME, DeploymentExtension.class, project);
 
     project.afterEvaluate(
         p -> {
+          ImmutableDeploymentExtension config =
+              project.getExtensions().getByType(DeploymentExtension.class);
+
           String archivesBaseName =
               project.getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
           project
@@ -70,6 +79,15 @@ public class CurioServerPlugin implements Plugin<Project> {
           // TODO(choko): Make this prefix configurable.
           String tag = "asia.gcr.io/" + baseTag;
           javaApplication.setTag(tag);
+
+          for (ImmutableDeploymentConfiguration type : config.getTypes()) {
+            String capitalized =
+                Ascii.toUpperCase(type.getName().charAt(0)) + type.getName().substring(1);
+            project
+                .getTasks()
+                .create("deploy" + capitalized, DeployPodTask.class)
+                .setType(type.getName());
+          }
         });
     project.getPluginManager().apply(DockerJavaApplicationPlugin.class);
   }
