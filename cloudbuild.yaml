@@ -18,10 +18,10 @@ steps:
   - -c
   - "gsutil cp gs://curioswitch-cluster-kubepush-key/kubepush.json . \ngcloud auth\
     \ activate-service-account --key-file ./kubepush.json \ngcloud container clusters\
-    \ get-credentials curioswitch-cluster --zone asia-northeast1-a \ncp ~/.kube/config\
-    \ /workspace/config"
+    \ get-credentials curioswitch-cluster --zone asia-northeast1-a"
   env:
   - CLOUDSDK_CONTAINER_USE_CLIENT_CERTIFICATE=True
+  - KUBECONFIG=/workspace/kubeconfig
 - id: build-curio-auth-server-dist
   waitFor:
   - refresh-build-image

@@ -160,6 +160,7 @@ public class GcloudPlugin implements Plugin<Project> {
   private void addGenerateCloudBuildTask(Project rootProject) {
     Task generateCloudBuild = rootProject.getTasks().create("generateCloudBuild");
     String builderImage = "gcr.io/$PROJECT_ID/java-cloud-builder:latest";
+    String kubeConfigEnv = "KUBECONFIG=/workspace/kubeconfig";
     generateCloudBuild.doLast(
         t -> {
           List<CloudBuildStep> serverSteps =
@@ -216,7 +217,7 @@ public class GcloudPlugin implements Plugin<Project> {
                                 .args(
                                     ImmutableList.of(
                                         proj.getTasks().getByName("deployAlpha").getPath()))
-                                .addEnv("KUBECONFIG=/workspace/kubeconfig")
+                                .addEnv(kubeConfigEnv)
                                 .build());
                       })
                   .collect(Collectors.toList());
@@ -245,9 +246,8 @@ public class GcloudPlugin implements Plugin<Project> {
                           "gsutil cp gs://curioswitch-cluster-kubepush-key/kubepush.json . \n"
                               + "gcloud auth activate-service-account --key-file ./kubepush.json \n"
                               + "gcloud container clusters get-credentials curioswitch-cluster "
-                              + "--zone asia-northeast1-a \n"
-                              + "cp ~/.kube/config /workspace/config"))
-                  .addEnv("CLOUDSDK_CONTAINER_USE_CLIENT_CERTIFICATE=True")
+                              + "--zone asia-northeast1-a"))
+                  .addEnv("CLOUDSDK_CONTAINER_USE_CLIENT_CERTIFICATE=True", kubeConfigEnv)
                   .build());
           steps.addAll(serverSteps);
           HashMap<String, Object> config = new LinkedHashMap<>();
