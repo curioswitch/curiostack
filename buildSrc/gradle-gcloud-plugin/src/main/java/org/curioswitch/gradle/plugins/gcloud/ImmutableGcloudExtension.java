@@ -79,6 +79,16 @@ public interface ImmutableGcloudExtension {
     return clusterResourceName("cluster");
   }
 
+  default String containerRegistry() {
+    if (cloudRegion().startsWith("asia")) {
+      return "asia.gcr.io";
+    } else if (cloudRegion().startsWith("europe")) {
+      return "eu.gcr.io";
+    } else {
+      return "gcr.io";
+    }
+  }
+
   default String sourceRepository() {
     return clusterResourceName("source");
   }

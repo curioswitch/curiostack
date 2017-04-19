@@ -38,13 +38,16 @@ import org.immutables.value.Value.Style;
 @Style(create = "new", typeModifiable = "*", defaultAsDefault = true, typeAbstract = "Immutable*")
 public interface ImmutableDeploymentExtension {
 
-  static final String DEPLOYMENT_TYPES =
-      "org.curioswitch.gradle.plugins.curioserver.deploymentTypes";
+  String DEPLOYMENT_TYPES = "org.curioswitch.gradle.plugins.curioserver.deploymentTypes";
 
   String NAME = "deployment";
 
   @Value.Parameter
   Project gradleProject();
+
+  default String imagePrefix() {
+    throw new IllegalArgumentException("imagePrefix must be set");
+  }
 
   @Lazy
   default String baseName() {
@@ -119,7 +122,7 @@ public interface ImmutableDeploymentExtension {
         .setReplicas(1)
         .setCpu("0.1")
         .setMemoryMb(256)
-        .setImage("asia.gcr.io/curioswitch-cluster/" + baseName() + ":latest");
+        .setImage(imagePrefix() + baseName() + ":latest");
     props.set(DEPLOYMENT_TYPES, types);
     return types;
   }

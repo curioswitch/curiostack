@@ -66,20 +66,6 @@ public class CurioServerPlugin implements Plugin<Project> {
           DockerJavaApplication javaApplication =
               (DockerJavaApplication) docker.getProperty("javaApplication");
           javaApplication.setBaseImage("openjdk:8-jre");
-          javaApplication.setMaintainer("Choko (choko@curioswitch.org)");
-
-          String tagVersion =
-              project.getVersion().equals("unspecified")
-                  ? "latest"
-                  : project.getVersion().toString();
-          String artifactAndVersion = (archivesBaseName + ":" + tagVersion).toLowerCase();
-          String baseTag =
-              project.getGroup() != null
-                  ? project.getGroup() + "/" + artifactAndVersion
-                  : artifactAndVersion;
-          // TODO(choko): Make this prefix configurable.
-          String tag = "asia.gcr.io/" + baseTag;
-          javaApplication.setTag(tag);
 
           for (ImmutableDeploymentConfiguration type : config.getTypes()) {
             String capitalized =

@@ -43,3 +43,9 @@ deployment {
         }
     }
 }
+
+docker {
+    javaApplication {
+        maintainer = 'Choko (choko@curioswitch.org)'
+    }
+}

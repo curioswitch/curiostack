@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
+import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.SetupTask;
 import org.gradle.api.Plugin;
@@ -100,6 +101,19 @@ public class GcloudPlugin implements Plugin<Project> {
           ImmutableGcloudExtension config =
               project.getExtensions().getByType(GcloudExtension.class);
           setupTask.setEnabled(config.download());
+
+          project.allprojects(
+              proj -> {
+                proj.getPlugins()
+                    .withType(
+                        CurioServerPlugin.class,
+                        unused -> {
+                          DeploymentExtension deployment =
+                              proj.getExtensions().getByType(DeploymentExtension.class);
+                          deployment.setImagePrefix(
+                              config.containerRegistry() + "/" + config.clusterProject() + "/");
+                        });
+              });
 
           GcloudTask createClusterProject =
               project.getTasks().create("gcloudCreateClusterProject", GcloudTask.class);
@@ -163,6 +177,8 @@ public class GcloudPlugin implements Plugin<Project> {
     String kubeConfigEnv = "KUBECONFIG=/workspace/kubeconfig";
     generateCloudBuild.doLast(
         t -> {
+          ImmutableGcloudExtension config =
+              rootProject.getExtensions().getByType(GcloudExtension.class);
           List<CloudBuildStep> serverSteps =
               rootProject
                   .getAllprojects()
@@ -177,7 +193,11 @@ public class GcloudPlugin implements Plugin<Project> {
                         String distId = "build-" + archivesBaseName + "-dist";
                         String imageId = "build-" + archivesBaseName + "-image";
                         String pushId = "push-" + archivesBaseName + "-image";
-                        String imageTag = "asia.gcr.io/$PROJECT_ID/" + archivesBaseName + ":latest";
+                        String imageTag =
+                            config.containerRegistry()
+                                + "/$PROJECT_ID/"
+                                + archivesBaseName
+                                + ":latest";
                         return Stream.of(
                             ImmutableCloudBuildStep.builder()
                                 .id(distId)
@@ -243,18 +263,22 @@ public class GcloudPlugin implements Plugin<Project> {
                   .args(
                       ImmutableList.of(
                           "-c",
-                          "gsutil cp gs://curioswitch-cluster-kubepush-key/kubepush.json . \n"
+                          "gsutil cp gs://"
+                              + config.clusterProject()
+                              + "-kubepush-key/kubepush.json . \n"
                               + "gcloud auth activate-service-account --key-file ./kubepush.json \n"
-                              + "gcloud container clusters get-credentials curioswitch-cluster "
-                              + "--zone asia-northeast1-a"))
+                              + "gcloud container clusters get-credentials "
+                              + config.clusterProject()
+                              + " --zone "
+                              + config.clusterZone()))
                   .addEnv("CLOUDSDK_CONTAINER_USE_CLIENT_CERTIFICATE=True", kubeConfigEnv)
                   .build());
           steps.addAll(serverSteps);
-          HashMap<String, Object> config = new LinkedHashMap<>();
-          config.put("steps", steps);
-          config.put("images", ImmutableList.of(builderImage));
+          HashMap<String, Object> cloudBuildConfig = new LinkedHashMap<>();
+          cloudBuildConfig.put("steps", steps);
+          cloudBuildConfig.put("images", ImmutableList.of(builderImage));
           try {
-            OBJECT_MAPPER.writeValue(rootProject.file("cloudbuild.yaml"), config);
+            OBJECT_MAPPER.writeValue(rootProject.file("cloudbuild.yaml"), cloudBuildConfig);
           } catch (IOException e) {
             throw new UncheckedIOException(e);
           }
