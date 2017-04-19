@@ -87,6 +87,8 @@ public class ServerModule {
       MetricsHttpService metricsHttpService,
       ServerConfig serverConfig) {
     ServerBuilder sb = new ServerBuilder().port(8080, HttpSessionProtocols.HTTPS);
+    // TODO(choko): Remove after integrating https into kubernetes
+    sb.port(8081, HttpSessionProtocols.HTTP);
 
     if (serverConfig.isGenerateSelfSignedCertificate()) {
       logger.warn("Generating self-signed certificate. This should only happen on local!!!");
