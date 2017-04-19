@@ -1,25 +1,59 @@
 ---
 steps:
 - id: refresh-build-image
+  waitFor:
+  - '-'
   name: gcr.io/cloud-builders/docker
   args:
   - build
-  - --tag=asia.gcr.io/$PROJECT_ID/java-cloud-builder:latest
+  - --tag=gcr.io/$PROJECT_ID/java-cloud-builder:latest
   - --file=./tools/build-images/java-cloud-builder/Dockerfile
   - .
+- id: login-to-cluster
+  waitFor:
+  - '-'
+  name: gcr.io/cloud-builders/gcloud
+  entrypoint: bash
+  args:
+  - -c
+  - "gsutil cp gs://curioswitch-cluster-kubepush-key/kubepush.json . \ngcloud auth\
+    \ activate-service-account --key-file ./kubepush.json \ngcloud container clusters\
+    \ get-credentials curioswitch-cluster --zone asia-northeast1-a \ncp ~/.kube/config\
+    \ /workspace/config"
+  env:
+  - CLOUDSDK_CONTAINER_USE_CLIENT_CERTIFICATE=True
 - id: build-curio-auth-server-dist
-  waitFor: refresh-build-image
-  name: asia.gcr.io/$PROJECT_ID/java-cloud-builder:latest
+  waitFor:
+  - refresh-build-image
+  name: gcr.io/$PROJECT_ID/java-cloud-builder:latest
   entrypoint: ./gradlew
   args:
   - :auth:server:dockerDistTar
 - id: build-curio-auth-server-image
-  waitFor: build-curio-auth-server-dist
+  waitFor:
+  - build-curio-auth-server-dist
   name: gcr.io/cloud-builders/docker
   args:
   - build
   - --tag=asia.gcr.io/$PROJECT_ID/curio-auth-server:latest
   - auth/server/build/docker
+- id: push-curio-auth-server-image
+  waitFor:
+  - build-curio-auth-server-image
+  name: gcr.io/cloud-builders/docker
+  args:
+  - push
+  - asia.gcr.io/$PROJECT_ID/curio-auth-server:latest
+- id: deploy-curio-auth-server
+  waitFor:
+  - push-curio-auth-server-image
+  - login-to-cluster
+  name: gcr.io/$PROJECT_ID/java-cloud-builder:latest
+  entrypoint: ./gradlew
+  args:
+  - :auth:server:deployAlpha
+  env:
+  - KUBECONFIG=/workspace/kubeconfig
 images:
-- asia.gcr.io/$PROJECT_ID/java-cloud-builder:latest
+- gcr.io/$PROJECT_ID/java-cloud-builder:latest
 - asia.gcr.io/$PROJECT_ID/curio-auth-server:latest

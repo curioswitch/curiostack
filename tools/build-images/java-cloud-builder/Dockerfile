@@ -8,7 +8,7 @@
 
 # TODO(choko): Define and document how to bootstrap this image from openjdk:8-jdk
 
-FROM asia.gcr.io/curioswitch-cluster/java-cloud-builder:latest
+FROM gcr.io/curioswitch-cluster/java-cloud-builder:latest
 
 ADD . /src
 RUN cd /src && ./gradlew resolveDependencies && cd / && rm -rf /src

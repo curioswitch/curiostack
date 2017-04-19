@@ -29,12 +29,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -64,7 +64,7 @@ public class GcloudPlugin implements Plugin<Project> {
 
   private static final ObjectMapper OBJECT_MAPPER =
       new ObjectMapper(new YAMLFactory().enable(Feature.MINIMIZE_QUOTES))
-          .setSerializationInclusion(Include.NON_NULL);
+          .setSerializationInclusion(Include.NON_EMPTY);
 
   @Override
   public void apply(Project project) {
@@ -88,7 +88,7 @@ public class GcloudPlugin implements Plugin<Project> {
               public void apply(String taskName) {
                 if (taskName.startsWith("gcloud_")) {
                   GcloudTask task = project.getTasks().create(taskName, GcloudTask.class);
-                  List<String> tokens = Arrays.asList(taskName.split("_"));
+                  List<String> tokens = ImmutableList.copyOf(taskName.split("_"));
                   task.setArgs(tokens.subList(1, tokens.size()));
                 }
               }
@@ -104,20 +104,20 @@ public class GcloudPlugin implements Plugin<Project> {
           GcloudTask createClusterProject =
               project.getTasks().create("gcloudCreateClusterProject", GcloudTask.class);
           createClusterProject.setArgs(
-              Arrays.asList("alpha", "projects", "create", config.clusterProject()));
+              ImmutableList.of("alpha", "projects", "create", config.clusterProject()));
 
           // This task currently always fails, probably due to a bug in the SDK. It attempts
           // to create the same repo twice, and the second one fails with an error...
           GcloudTask createSourceRepo =
               project.getTasks().create("gcloudCreateSourceRepository", GcloudTask.class);
           createSourceRepo.setArgs(
-              Arrays.asList("alpha", "source", "repos", "create", config.sourceRepository()));
+              ImmutableList.of("alpha", "source", "repos", "create", config.sourceRepository()));
 
           GcloudTask createCluster =
               project.getTasks().create("gcloudCreateCluster", GcloudTask.class);
           List<String> createClusterArgs = new ArrayList<>();
           createClusterArgs.addAll(
-              Arrays.asList(
+              ImmutableList.of(
                   "beta",
                   "container",
                   "clusters",
@@ -145,7 +145,7 @@ public class GcloudPlugin implements Plugin<Project> {
           GcloudTask loginToCluster =
               project.getTasks().create("gcloudLoginToCluster", GcloudTask.class);
           loginToCluster.setArgs(
-              Arrays.asList(
+              ImmutableList.of(
                   "container",
                   "clusters",
                   "get-credentials",
@@ -159,7 +159,7 @@ public class GcloudPlugin implements Plugin<Project> {
 
   private void addGenerateCloudBuildTask(Project rootProject) {
     Task generateCloudBuild = rootProject.getTasks().create("generateCloudBuild");
-    String builderImage = "asia.gcr.io/$PROJECT_ID/java-cloud-builder:latest";
+    String builderImage = "gcr.io/$PROJECT_ID/java-cloud-builder:latest";
     generateCloudBuild.doLast(
         t -> {
           List<String> imageTags = new ArrayList<>();
@@ -176,24 +176,26 @@ public class GcloudPlugin implements Plugin<Project> {
                                 .getPlugin(BasePluginConvention.class)
                                 .getArchivesBaseName();
                         String distId = "build-" + archivesBaseName + "-dist";
+                        String imageId = "build-" + archivesBaseName + "-image";
+                        String pushId = "push-" + archivesBaseName + "-image";
                         String imageTag = "asia.gcr.io/$PROJECT_ID/" + archivesBaseName + ":latest";
                         imageTags.add(imageTag);
                         return Stream.of(
                             ImmutableCloudBuildStep.builder()
                                 .id(distId)
-                                .waitFor("refresh-build-image")
+                                .addWaitFor("refresh-build-image")
                                 .name(builderImage)
                                 .entrypoint("./gradlew")
                                 .args(
-                                    Collections.singletonList(
+                                    ImmutableList.of(
                                         proj.getTasks().getByName("dockerDistTar").getPath()))
                                 .build(),
                             ImmutableCloudBuildStep.builder()
-                                .id("build-" + archivesBaseName + "-image")
-                                .waitFor(distId)
+                                .id(imageId)
+                                .addWaitFor(distId)
                                 .name("gcr.io/cloud-builders/docker")
                                 .args(
-                                    Arrays.asList(
+                                    ImmutableList.of(
                                         "build",
                                         "--tag=" + imageTag,
                                         Paths.get(rootProject.getProjectDir().getAbsolutePath())
@@ -202,6 +204,22 @@ public class GcloudPlugin implements Plugin<Project> {
                                                     new File(proj.getBuildDir(), "docker")
                                                         .getAbsolutePath()))
                                             .toString()))
+                                .build(),
+                            ImmutableCloudBuildStep.builder()
+                                .id(pushId)
+                                .addWaitFor(imageId)
+                                .name("gcr.io/cloud-builders/docker")
+                                .args(ImmutableList.of("push", imageTag))
+                                .build(),
+                            ImmutableCloudBuildStep.builder()
+                                .id("deploy-" + archivesBaseName)
+                                .addWaitFor(pushId, "login-to-cluster")
+                                .name(builderImage)
+                                .entrypoint("./gradlew")
+                                .args(
+                                    ImmutableList.of(
+                                        proj.getTasks().getByName("deployAlpha").getPath()))
+                                .addEnv("KUBECONFIG=/workspace/kubeconfig")
                                 .build());
                       })
                   .collect(Collectors.toList());
@@ -209,13 +227,30 @@ public class GcloudPlugin implements Plugin<Project> {
           steps.add(
               ImmutableCloudBuildStep.builder()
                   .id("refresh-build-image")
+                  .addWaitFor("-")
                   .name("gcr.io/cloud-builders/docker")
                   .args(
-                      Arrays.asList(
+                      ImmutableList.of(
                           "build",
                           "--tag=" + builderImage,
                           "--file=./tools/build-images/java-cloud-builder/Dockerfile",
                           "."))
+                  .build());
+          steps.add(
+              ImmutableCloudBuildStep.builder()
+                  .id("login-to-cluster")
+                  .addWaitFor("-")
+                  .name("gcr.io/cloud-builders/gcloud")
+                  .entrypoint("bash")
+                  .args(
+                      ImmutableList.of(
+                          "-c",
+                          "gsutil cp gs://curioswitch-cluster-kubepush-key/kubepush.json . \n"
+                              + "gcloud auth activate-service-account --key-file ./kubepush.json \n"
+                              + "gcloud container clusters get-credentials curioswitch-cluster "
+                              + "--zone asia-northeast1-a \n"
+                              + "cp ~/.kube/config /workspace/config"))
+                  .addEnv("CLOUDSDK_CONTAINER_USE_CLIENT_CERTIFICATE=True")
                   .build());
           steps.addAll(serverSteps);
           HashMap<String, Object> config = new LinkedHashMap<>();
@@ -239,9 +274,8 @@ public class GcloudPlugin implements Plugin<Project> {
   interface CloudBuildStep {
     String id();
 
-    @Nullable
-    default String waitFor() {
-      return null;
+    default List<String> waitFor() {
+      return ImmutableList.of();
     }
 
     String name();
@@ -252,5 +286,7 @@ public class GcloudPlugin implements Plugin<Project> {
     }
 
     List<String> args();
+
+    List<String> env();
   }
 }
