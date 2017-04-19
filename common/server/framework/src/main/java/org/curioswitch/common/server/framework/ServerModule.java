@@ -28,6 +28,7 @@ import com.linecorp.armeria.common.http.HttpSessionProtocols;
 import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
+import com.linecorp.armeria.server.http.healthcheck.HttpHealthCheckService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import com.typesafe.config.ConfigFactory;
@@ -102,6 +103,7 @@ public class ServerModule {
       }
     }
 
+    sb.serviceAt("/internal/health", new HttpHealthCheckService());
     sb.serviceAt("/internal/metrics", metricsHttpService);
 
     GrpcServiceBuilder serviceBuilder = new GrpcServiceBuilder();
