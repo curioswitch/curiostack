@@ -54,3 +54,5 @@ steps:
   - :auth:server:deployAlpha
   env:
   - KUBECONFIG=/workspace/kubeconfig
+images:
+- gcr.io/$PROJECT_ID/java-cloud-builder:latest
