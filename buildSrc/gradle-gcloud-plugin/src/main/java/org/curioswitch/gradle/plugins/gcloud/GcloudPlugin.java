@@ -252,6 +252,7 @@ public class GcloudPlugin implements Plugin<Project> {
           steps.addAll(serverSteps);
           HashMap<String, Object> config = new LinkedHashMap<>();
           config.put("steps", steps);
+          config.put("images", ImmutableList.of(builderImage));
           try {
             OBJECT_MAPPER.writeValue(rootProject.file("cloudbuild.yaml"), config);
           } catch (IOException e) {
