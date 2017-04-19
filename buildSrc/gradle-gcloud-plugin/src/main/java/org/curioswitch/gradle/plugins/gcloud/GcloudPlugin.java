@@ -162,8 +162,6 @@ public class GcloudPlugin implements Plugin<Project> {
     String builderImage = "gcr.io/$PROJECT_ID/java-cloud-builder:latest";
     generateCloudBuild.doLast(
         t -> {
-          List<String> imageTags = new ArrayList<>();
-          imageTags.add(builderImage);
           List<CloudBuildStep> serverSteps =
               rootProject
                   .getAllprojects()
@@ -179,7 +177,6 @@ public class GcloudPlugin implements Plugin<Project> {
                         String imageId = "build-" + archivesBaseName + "-image";
                         String pushId = "push-" + archivesBaseName + "-image";
                         String imageTag = "asia.gcr.io/$PROJECT_ID/" + archivesBaseName + ":latest";
-                        imageTags.add(imageTag);
                         return Stream.of(
                             ImmutableCloudBuildStep.builder()
                                 .id(distId)
@@ -255,7 +252,6 @@ public class GcloudPlugin implements Plugin<Project> {
           steps.addAll(serverSteps);
           HashMap<String, Object> config = new LinkedHashMap<>();
           config.put("steps", steps);
-          config.put("images", imageTags);
           try {
             OBJECT_MAPPER.writeValue(rootProject.file("cloudbuild.yaml"), config);
           } catch (IOException e) {
