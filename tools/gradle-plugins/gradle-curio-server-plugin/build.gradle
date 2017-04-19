@@ -25,6 +25,7 @@
 plugins {
     id 'java-gradle-plugin'
 }
+apply plugin: 'maven-publish'
 
 dependencies {
     compile 'com.bmuschko:gradle-docker-plugin'
@@ -40,6 +41,26 @@ gradlePlugin {
         simplePlugin {
             id = 'org.curioswitch.gradle-curio-server-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin'
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            pom.withXml {
+                // TODO(choko): Make it simpler to define pom attributes after the artifact, as is
+                // normal, by defining a DSL or something.
+                asNode().children()[3] + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+
+                    name 'Curio Server Plugin'
+                    description 'A heavily opinionated plugin for defining servers that can be ' +
+                            'packaged and deployed with minimal configuration.'
+                    url 'https://github.com/curioswitch/curiostack/tree/master/' +
+                            'tools/gradle-plugins/gradle-curio-server-plugin'
+                }
+            }
         }
     }
 }

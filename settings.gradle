@@ -24,4 +24,6 @@
 
 include ':auth:api', ':auth:server'
 include ':common:server:framework'
-include ':tools:gradle-plugins:gradle-grpc-api-plugin', ':tools:gradle-plugins:java-groovy-compat'
+include ':tools:gradle-plugins:gradle-curio-server-plugin'
+include ':tools:gradle-plugins:gradle-grpc-api-plugin'
+include ':tools:gradle-plugins:java-groovy-compat'

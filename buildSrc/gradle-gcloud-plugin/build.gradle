@@ -27,7 +27,8 @@ plugins {
 }
 
 dependencies {
-    compile project(':gradle-curio-server-plugin')
+    // TODO(choko): Move gcloud plugin out of buildSrc too.
+    compile 'org.curioswitch.curiostack:gradle-curio-server-plugin:0.0.1'
 
     compile 'com.fasterxml.jackson.core:jackson-databind'
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'

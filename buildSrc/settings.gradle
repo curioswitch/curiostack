@@ -22,6 +22,5 @@
  * SOFTWARE.
  */
 
-include 'gradle-curio-server-plugin'
 include 'gradle-gcloud-plugin'
 include 'gradle-monorepo-circleci-plugin'
