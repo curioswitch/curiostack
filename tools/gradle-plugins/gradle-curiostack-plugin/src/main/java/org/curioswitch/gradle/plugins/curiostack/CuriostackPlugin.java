@@ -231,7 +231,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     CoreJavadocOptions options = (CoreJavadocOptions) javadoc.getOptions();
     options.quiet();
     options.addBooleanOption("Xdoclint:all", true);
-    options.addBooleanOption("Xdoclint:-missing", false);
+    options.addBooleanOption("Xdoclint:-missing", true);
 
     project
         .getTasks()

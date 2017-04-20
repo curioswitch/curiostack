@@ -55,12 +55,12 @@ import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
  * <p>For example,
  *
  * <pre>{@code
- * @Module(includes = ServerModule.class)
+ * {@literal @}Module(includes = ServerModule.class)
  * abstract class MyAppServerModule {
- *   @Bind @IntoSet abstract BindableService myAppService(AppService service);
+ *   {@literal @}Bind @IntoSet abstract BindableService myAppService(AppService service);
  * }
  *
- * @Component(modules = MyAppServerModule.class)
+ * {@literal @}Component(modules = MyAppServerModule.class)
  * interface MyAppComponent {
  *   Server server();
  * }
