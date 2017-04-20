@@ -31,7 +31,6 @@ With the plugin applied, change the test command in your circle.yml to continuou
 plugin's change detection.
 
 ```yaml
-
 test:
   override:
   - ./gradlew continuousTest --stacktrace
