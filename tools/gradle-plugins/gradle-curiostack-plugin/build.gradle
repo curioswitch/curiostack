@@ -1,3 +1,8 @@
+import groovy.io.GroovyPrintStream
+import nl.javadude.gradle.plugins.license.License
+
+import java.nio.file.Paths
+
 /*
  * MIT License
  *
@@ -27,6 +32,28 @@ plugins {
 }
 
 apply plugin: 'maven-publish'
+
+def baselineManifestDir = project.file("$buildDir/gen-baseline")
+sourceSets {
+    main {
+        resources {
+            srcDir rootProject.file('.baseline')
+        }
+        output.dir(baselineManifestDir, builtBy: 'generateBaselineManifest')
+    }
+}
+
+task generateBaselineManifest {
+    doLast {
+        project.file("$baselineManifestDir/META-INF/").mkdirs()
+        GroovyPrintStream out = new GroovyPrintStream(project.file("$baselineManifestDir/META-INF/org.curioswitch.curiostack.baseline_manifest.txt"))
+        def baselineDir = rootProject.file('.baseline')
+        baselineDir.eachFileRecurse(groovy.io.FileType.FILES) {file ->
+            out.println Paths.get(baselineDir.path).relativize(Paths.get(file.path))
+        }
+        out.close()
+    }
+}
 
 dependencies {
     compile project(':tools:gradle-plugins:gradle-curio-server-plugin')
@@ -74,4 +101,9 @@ publishing {
             }
         }
     }
+}
+
+// TODO(choko): Figure out how to disable license check of baseline config and reenable.
+tasks.withType(License) {
+    enabled = false
 }

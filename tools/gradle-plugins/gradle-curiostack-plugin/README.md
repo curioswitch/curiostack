@@ -48,5 +48,10 @@ gradle plugins (e.g., gradle-curio-server-plugin, gradle-grpc-api-plugin) for us
 be ready to use optimized testing on CircleCI, and provide tasks for gcloud management. See
 individual plugin READMEs for their usage.
 
-TODO: Also automatically setup an initial ```.baseline``` directory. For now, just copy the
-directory from [here](https://github.com/curioswitch/curiostack/tree/master/.baseline).
+To get started with development in IntelliJ, just
+
+```bash
+$ ./gradlew idea
+```
+
+to automatically generate a project with code style settings and copyright set up.

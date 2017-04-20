@@ -29,15 +29,23 @@ import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Resources;
 import com.google.protobuf.gradle.ProtobufPlugin;
 import com.google.protobuf.gradle.ProtobufSourceDirectorySet;
 import com.gorylenko.GitPropertiesPlugin;
-import com.palantir.baseline.plugins.BaselineConfig;
 import com.palantir.baseline.plugins.BaselineIdea;
 import groovy.util.Node;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -49,6 +57,7 @@ import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.curioswitch.gradle.plugins.monorepo.MonorepoCircleCiPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -75,11 +84,48 @@ public class CuriostackPlugin implements Plugin<Project> {
     // Provides useful tasks like 'clean', 'assemble' to the root project.
     plugins.apply(BasePlugin.class);
 
-    plugins.apply(BaselineConfig.class);
     plugins.apply(BaselineIdea.class);
 
     plugins.apply(GcloudPlugin.class);
     plugins.apply(MonorepoCircleCiPlugin.class);
+
+    String baselineFiles;
+    try {
+      baselineFiles =
+          Resources.toString(
+              Resources.getResource("META-INF/org.curioswitch.curiostack.baseline_manifest.txt"),
+              StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+
+    Task baselineUpdateConfig =
+        rootProject
+            .getTasks()
+            .create("baselineUpdateConfig")
+            .doLast(
+                task -> {
+                  File baselineDir = rootProject.file(".baseline");
+                  baselineDir.mkdirs();
+                  for (String filePath : baselineFiles.split("\n")) {
+                    Path path = Paths.get(filePath);
+                    Path outputDirectory =
+                        Paths.get(baselineDir.getAbsolutePath()).resolve(path.getParent());
+                    rootProject.file(outputDirectory.toAbsolutePath()).mkdirs();
+                    try (FileOutputStream os =
+                            new FileOutputStream(
+                                outputDirectory.resolve(path.getFileName()).toFile());
+                        InputStream is = Resources.getResource(filePath).openStream()) {
+                      ByteStreams.copy(is, os);
+                    } catch (IOException e) {
+                      throw new UncheckedIOException(e);
+                    }
+                  }
+                });
+
+    if (!rootProject.file(".baseline").exists()) {
+      rootProject.getTasks().getByName("ideaProject").dependsOn(baselineUpdateConfig);
+    }
 
     rootProject.allprojects(
         project -> {
