@@ -94,5 +94,8 @@ $ ./gradlew :gcloudCreateCluster
 $ ./gradlew :gcloudLoginToCluster
 
 # Generates a cloudbuild.yaml containing steps to build all projects with [curio-server-plugin](https://github.com/curioswitch/curiostack/tree/master/tools/gradle-plugins/gradle-curio-server-plugin)
-$ ./gradlew :gcloudGenerateCloudBuild
+# Note the lack of a ':' - this forces gradle to configure all projects in the build, rather than
+# just a single one. This is required to be able to find the server projects while generating the
+# config.
+$ ./gradlew gcloudGenerateCloudBuild
 ```
