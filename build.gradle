@@ -42,6 +42,7 @@ buildscript {
         classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE'
         classpath 'net.ltgt.gradle:gradle-apt-plugin:0.9'
         classpath 'org.curioswitch.curiostack:gradle-curio-server-plugin:0.0.1'
+        classpath 'org.curioswitch.curiostack:gradle-gcloud-plugin:0.0.2'
         classpath 'org.curioswitch.curiostack:gradle-grpc-api-plugin:0.0.1'
     }
 }

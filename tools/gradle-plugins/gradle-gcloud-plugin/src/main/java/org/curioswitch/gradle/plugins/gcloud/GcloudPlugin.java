@@ -172,7 +172,7 @@ public class GcloudPlugin implements Plugin<Project> {
   }
 
   private void addGenerateCloudBuildTask(Project rootProject) {
-    Task generateCloudBuild = rootProject.getTasks().create("generateCloudBuild");
+    Task generateCloudBuild = rootProject.getTasks().create("gcloudGenerateCloudBuild");
     String builderImage = "gcr.io/$PROJECT_ID/java-cloud-builder:latest";
     String kubeConfigEnv = "KUBECONFIG=/workspace/kubeconfig";
     generateCloudBuild.doLast(

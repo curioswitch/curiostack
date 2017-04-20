@@ -26,9 +26,10 @@ plugins {
     id 'java-gradle-plugin'
 }
 
+apply plugin: 'maven-publish'
+
 dependencies {
-    // TODO(choko): Move gcloud plugin out of buildSrc too.
-    compile 'org.curioswitch.curiostack:gradle-curio-server-plugin:0.0.1'
+    compile project(':tools:gradle-plugins:gradle-curio-server-plugin')
 
     compile 'com.fasterxml.jackson.core:jackson-databind'
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
@@ -43,6 +44,27 @@ gradlePlugin {
         simplePlugin {
             id = 'org.curioswitch.gradle-gcloud-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.gcloud.GcloudPlugin'
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            pom.withXml {
+                // TODO(choko): Make it simpler to define pom attributes after the artifact, as is
+                // normal, by defining a DSL or something.
+                asNode().children()[3] + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+
+                    name 'Gradle Gcloud Plugin'
+                    description 'A plugin for allowing gcloud SDK commands to be run from ' +
+                            'gradle, with predefined tasks for common operations, including ' +
+                            'setting up a new cluster and build environment.'
+                    url 'https://github.com/curioswitch/curiostack/tree/master/' +
+                            'tools/gradle-plugins/gradle-gcloud-plugin'
+                }
+            }
         }
     }
 }

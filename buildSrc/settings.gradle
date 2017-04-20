@@ -22,5 +22,4 @@
  * SOFTWARE.
  */
 
-include 'gradle-gcloud-plugin'
 include 'gradle-monorepo-circleci-plugin'

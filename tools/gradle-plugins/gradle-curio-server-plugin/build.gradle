@@ -43,6 +43,10 @@ gradlePlugin {
             implementationClass = 'org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin'
         }
     }
+    // Disable plugin portal publishing until cross-project dependencies with multiple publications
+    // is solved.
+    // https://github.com/gradle/gradle/issues/1061
+    automatedPublishing = false
 }
 
 publishing {
