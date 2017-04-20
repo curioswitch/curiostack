@@ -34,78 +34,23 @@ buildscript {
         maven {
             url 'http://palantir.bintray.com/releases'
         }
+        mavenLocal()
     }
     dependencies {
-        classpath 'com.diffplug.spotless:spotless-plugin-gradle:3.1.0'
-        classpath 'com.palantir:gradle-baseline-java:0.11.1'
-        classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.1'
-        classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE'
-        classpath 'net.ltgt.gradle:gradle-apt-plugin:0.9'
-        classpath 'org.curioswitch.curiostack:gradle-curio-server-plugin:0.0.1'
-        classpath 'org.curioswitch.curiostack:gradle-gcloud-plugin:0.0.2'
-        classpath 'org.curioswitch.curiostack:gradle-grpc-api-plugin:0.0.1'
-        classpath 'org.curioswitch.curiostack:gradle-monorepo-circleci-plugin:0.0.1'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.1-d'
     }
 }
 
-plugins {
-    id 'com.gorylenko.gradle-git-properties' version '1.4.17' apply false
-    id 'com.jfrog.artifactory' version '3.1.2' apply false
-    id 'com.jfrog.bintray' version '1.7.3' apply false
-}
-
-// Provides useful tasks like 'clean', 'assemble' to the root project.
-apply plugin: 'base'
-
-apply plugin: 'com.palantir.baseline-config'
-apply plugin: 'com.palantir.baseline-idea'
-
-apply plugin: 'org.curioswitch.gradle-gcloud-plugin'
-apply plugin: 'org.curioswitch.gradle-monorepo-circleci-plugin'
-
-apply from: './build-java.gradle'
+apply plugin: 'org.curioswitch.gradle-curiostack-plugin'
 
 allprojects {
-    plugins.withType(JavaPlugin) {
-        license {
-            header rootProject.file('LICENSE')
-            mapping {
-                conf = 'DOUBLESLASH_STYLE'
-                yml = 'SCRIPT_STYLE'
-            }
-        }
-    }
-    plugins.withType(com.google.protobuf.gradle.ProtobufPlugin) {
-        // Protobuf plugin doesn't add proto sourceset to allSource, which seems like an omission.
-        // We add it to make sure license plugin picks up the files.
-        sourceSets.each({ sourceSet ->
-            sourceSet.allSource.source(sourceSet.proto)
-        })
-        license {
-            mapping {
-                proto = 'JAVADOC_STYLE'
-            }
-        }
-    }
+    project.group = 'org.curioswitch.curiostack'
 
     plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
-        project.apply plugin: 'com.jfrog.artifactory'
         project.apply plugin: 'com.jfrog.bintray'
 
         def bintrayUser = findProperty('bintray.user')
         def bintrayKey = findProperty('bintray.key')
-
-        artifactory {
-            contextUrl = 'http://oss.jfrog.org/artifactory'
-
-            publish {
-                repository {
-                    repoKey = 'oss-snapshot-local'
-                    username = bintrayUser
-                    password = bintrayKey
-                }
-            }
-        }
 
         afterEvaluate {
             bintray {
@@ -173,17 +118,4 @@ gcloud {
     clusterBaseName = 'curioswitch'
     cloudRegion = 'asia-northeast1'
     clusterKubernetesVersion = '1.6.1'
-}
-
-idea.project.ipr.withXml {
-    def compilerConfiguration = it.node.component.find { it.@name == 'CompilerConfiguration' }
-    compilerConfiguration.remove(compilerConfiguration.annotationProcessing)
-    compilerConfiguration.append(new groovy.util.NodeBuilder().annotationProcessing() {
-        profile(name: 'Default', enabled: true, default: true) {
-            outputRelativeToContentRoot(value: true)
-            processorPath(useClasspath: true)
-            sourceOutputDir(name: '.')
-            sourceTestOutputDir(name: '.')
-        }
-    })
 }

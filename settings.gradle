@@ -25,6 +25,7 @@
 include ':auth:api', ':auth:server'
 include ':common:server:framework'
 include ':tools:gradle-plugins:gradle-curio-server-plugin'
+include ':tools:gradle-plugins:gradle-curiostack-plugin'
 include ':tools:gradle-plugins:gradle-gcloud-plugin'
 include ':tools:gradle-plugins:gradle-grpc-api-plugin'
 include ':tools:gradle-plugins:gradle-monorepo-circleci-plugin'
