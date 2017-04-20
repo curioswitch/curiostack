@@ -44,6 +44,7 @@ buildscript {
         classpath 'org.curioswitch.curiostack:gradle-curio-server-plugin:0.0.1'
         classpath 'org.curioswitch.curiostack:gradle-gcloud-plugin:0.0.2'
         classpath 'org.curioswitch.curiostack:gradle-grpc-api-plugin:0.0.1'
+        classpath 'org.curioswitch.curiostack:gradle-monorepo-circleci-plugin:0.0.1'
     }
 }
 
