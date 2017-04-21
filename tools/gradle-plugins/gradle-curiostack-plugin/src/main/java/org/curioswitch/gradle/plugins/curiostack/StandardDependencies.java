@@ -191,7 +191,7 @@ class StandardDependencies {
           "com.diffplug.spotless:spotless-plugin-gradle:3.1.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.1",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3",
-          "com.palantir:gradle-baseline-java:0.11.1",
+          "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.1",
           "io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE",
