@@ -311,6 +311,8 @@ public class GcloudPlugin implements Plugin<Project> {
 
     List<String> args();
 
-    List<String> env();
+    default List<String> env() {
+      return ImmutableList.of("CI=true");
+    };
   }
 }

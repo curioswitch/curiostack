@@ -9,6 +9,8 @@ steps:
   - --tag=gcr.io/$PROJECT_ID/java-cloud-builder:latest
   - --file=./tools/build-images/java-cloud-builder/Dockerfile
   - .
+  env:
+  - CI=true
 - id: login-to-cluster
   waitFor:
   - '-'
@@ -29,6 +31,8 @@ steps:
   entrypoint: ./gradlew
   args:
   - :auth:server:dockerDistTar
+  env:
+  - CI=true
 - id: build-curio-auth-server-image
   waitFor:
   - build-curio-auth-server-dist
@@ -37,6 +41,8 @@ steps:
   - build
   - --tag=asia.gcr.io/$PROJECT_ID/curio-auth-server:latest
   - auth/server/build/docker
+  env:
+  - CI=true
 - id: push-curio-auth-server-image
   waitFor:
   - build-curio-auth-server-image
@@ -44,6 +50,8 @@ steps:
   args:
   - push
   - asia.gcr.io/$PROJECT_ID/curio-auth-server:latest
+  env:
+  - CI=true
 - id: deploy-curio-auth-server
   waitFor:
   - push-curio-auth-server-image

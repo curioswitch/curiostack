@@ -37,7 +37,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.7'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.8'
     }
 }
 
@@ -45,7 +45,7 @@ apply plugin: 'org.curioswitch.gradle-gcloud-build-cache-plugin'
 
 // TODO(choko): Use something a little less specific. Since Google Container Builder doesn't seem
 // to add the standard CI variable, we'll add it to the cloudbuild later.
-def isCiServer = System.getenv().containsKey('PROJECT_ID')
+def isCiServer = System.getenv().containsKey('CI')
 
 buildCache {
     local {
