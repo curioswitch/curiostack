@@ -44,6 +44,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
+import org.curioswitch.gradle.plugins.gcloud.tasks.CreateBuildCacheBucket;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.SetupTask;
 import org.gradle.api.Plugin;
@@ -166,6 +167,8 @@ public class GcloudPlugin implements Plugin<Project> {
                   config.clusterName(),
                   "--zone",
                   config.clusterZone()));
+
+          project.getTasks().create("createBuildCacheBucket", CreateBuildCacheBucket.class);
         });
 
     addGenerateCloudBuildTask(project);

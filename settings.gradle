@@ -22,6 +22,41 @@
  * SOFTWARE.
  */
 
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+        maven {
+            url 'http://dl.bintray.com/curioswitch/curiostack'
+        }
+        maven {
+            url 'http://palantir.bintray.com/releases'
+        }
+        mavenLocal()
+    }
+    dependencies {
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.7'
+    }
+}
+
+apply plugin: 'org.curioswitch.gradle-gcloud-build-cache-plugin'
+
+// TODO(choko): Use something a little less specific. Since Google Container Builder doesn't seem
+// to add the standard CI variable, we'll add it to the cloudbuild later.
+def isCiServer = System.getenv().containsKey('PROJECT_ID')
+
+buildCache {
+    local {
+        enabled = !isCiServer
+    }
+    remote(org.curioswitch.gradle.plugins.gcloud.buildcache.CloudStorageBuildCache) {
+        bucket = 'curioswitch-gradle-build-cache'
+        push = isCiServer
+    }
+}
+
 include ':auth:api', ':auth:server'
 include ':common:server:framework'
 include ':tools:gradle-plugins:gradle-curio-server-plugin'

@@ -34,6 +34,7 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind'
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     compile 'com.google.cloud:google-cloud-resourcemanager'
+    compile 'com.google.cloud:google-cloud-storage'
 
     apt 'org.immutables:value'
     compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
@@ -44,6 +45,10 @@ gradlePlugin {
         simplePlugin {
             id = 'org.curioswitch.gradle-gcloud-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.gcloud.GcloudPlugin'
+        }
+        simplePlugin {
+            id = 'org.curioswitch.gradle-gcloud-build-cache-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.gcloud.GcloudBuildCachePlugin'
         }
     }
 }

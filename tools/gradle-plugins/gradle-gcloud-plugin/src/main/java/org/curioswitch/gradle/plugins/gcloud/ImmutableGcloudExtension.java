@@ -93,6 +93,10 @@ public interface ImmutableGcloudExtension {
     return clusterResourceName("source");
   }
 
+  default String buildCacheStorageBucket() {
+    return clusterResourceName("gradle-build-cache");
+  }
+
   default boolean download() {
     return true;
   }

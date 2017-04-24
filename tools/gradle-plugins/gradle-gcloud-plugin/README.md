@@ -17,7 +17,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'org.curioswitch.curiostack:gradle-gcloud-plugin:0.0.1'
+        classpath 'org.curioswitch.curiostack:gradle-gcloud-plugin:0.0.3'
     }
 }
 
@@ -98,4 +98,49 @@ $ ./gradlew :gcloudLoginToCluster
 # just a single one. This is required to be able to find the server projects while generating the
 # config.
 $ ./gradlew gcloudGenerateCloudBuild
+```
+
+A settings plugin is also provided to use Google Cloud Storage as a remote build cache. This is
+currently alpha-level - it probably works ok, but needs more testing under load.
+
+To set up,
+
+```bash
+settings.gradle:
+// Use same buildscript as build.gradle to keep things simple.
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+    dependencies {
+        classpath 'org.curioswitch.curiostack:gradle-gcloud-plugin:0.0.3'
+    }
+}
+
+apply plugin: 'org.curioswitch.gradle-gcloud-build-cache-plugin'
+
+def isCiServer = System.getenv().containsKey('CI')
+
+buildCache {
+    local {
+        enabled = !isCiServer
+    }
+    remote(org.curioswitch.gradle.plugins.gcloud.buildcache.CloudStorageBuildCache) {
+        bucket = 'curioswitch-gradle-build-cache'
+        push = isCiServer
+    }
+}
+```
+
+```groovy
+build.gradle (root)
+gcloud {
+    // This must match the bucket in settings.gradle, it is not possible to share the config
+    // between settings and a project.
+    // If unset, this defaults to project-id-gradle-build-cache
+    buildCacheStorageBucket = 'curioswitch-gradle-build-cache'
+}
 ```

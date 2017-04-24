@@ -73,7 +73,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.9.4-alpha")
+              .version("1.0.0-rc2")
+              .addModules("google-cloud-storage")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("com.google.cloud")
+              .version("0.15.0-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
