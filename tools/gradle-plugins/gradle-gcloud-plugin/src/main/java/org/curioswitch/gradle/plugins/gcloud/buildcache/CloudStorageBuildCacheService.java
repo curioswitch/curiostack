@@ -72,10 +72,11 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
       throws BuildCacheException {
     Blob blob = cloudStorage.get(cacheKeyToBlobId(buildCacheKey));
     if (blob == null || !blob.exists()) {
-      blob = cloudStorage.create(BlobInfo
-          .newBuilder(cacheKeyToBlobId(buildCacheKey))
-          .setContentType(BUILD_CACHE_CONTENT_TYPE)
-          .build());
+      blob =
+          cloudStorage.create(
+              BlobInfo.newBuilder(cacheKeyToBlobId(buildCacheKey))
+                  .setContentType(BUILD_CACHE_CONTENT_TYPE)
+                  .build());
     }
     try (OutputStream os = Channels.newOutputStream(blob.writer())) {
       buildCacheEntryWriter.writeTo(os);
