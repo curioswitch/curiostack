@@ -59,7 +59,9 @@ buildCache {
 
 include ':auth:api', ':auth:server'
 include ':common:server:framework'
+include ':curioswitch:portal:client:web'
 include ':tools:gradle-plugins:gradle-curio-server-plugin'
+include ':tools:gradle-plugins:gradle-curio-web-plugin'
 include ':tools:gradle-plugins:gradle-curiostack-plugin'
 include ':tools:gradle-plugins:gradle-gcloud-plugin'
 include ':tools:gradle-plugins:gradle-grpc-api-plugin'

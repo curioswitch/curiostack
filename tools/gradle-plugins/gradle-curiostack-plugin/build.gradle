@@ -57,6 +57,7 @@ task generateBaselineManifest {
 
 dependencies {
     compile project(':tools:gradle-plugins:gradle-curio-server-plugin')
+    compile project(':tools:gradle-plugins:gradle-curio-web-plugin')
     compile project(':tools:gradle-plugins:gradle-gcloud-plugin')
     compile project(':tools:gradle-plugins:gradle-grpc-api-plugin')
     compile project(':tools:gradle-plugins:gradle-monorepo-circleci-plugin')

@@ -37,7 +37,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.8'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.9'
     }
 }
 
@@ -45,6 +45,14 @@ apply plugin: 'org.curioswitch.gradle-curiostack-plugin'
 
 allprojects {
     project.group = 'org.curioswitch.curiostack'
+
+    plugins.withType(JavaPlugin) {
+        dependencyManagement {
+            dependencies {
+                dependency 'com.moowork.gradle:gradle-node-plugin:1.1.1'
+            }
+        }
+    }
 
     plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
         project.apply plugin: 'com.jfrog.bintray'
