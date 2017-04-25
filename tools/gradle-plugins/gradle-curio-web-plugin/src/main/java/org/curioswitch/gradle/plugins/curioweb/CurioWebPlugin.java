@@ -53,8 +53,10 @@ public class CurioWebPlugin implements Plugin<Project> {
     project.getPlugins().apply(JavaLibraryPlugin.class);
 
     JavaPluginConvention java = project.getConvention().getPlugin(JavaPluginConvention.class);
-    java.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME).getOutput().dir(
-        ImmutableMap.of("builtBy", "copyWeb"), "build/javaweb");
+    java.getSourceSets()
+        .getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+        .getOutput()
+        .dir(ImmutableMap.of("builtBy", "copyWeb"), "build/javaweb");
 
     NodeExtension node = project.getExtensions().getByType(NodeExtension.class);
     node.setVersion(NODE_VERSION);
@@ -74,9 +76,10 @@ public class CurioWebPlugin implements Plugin<Project> {
     Copy copyWeb = project.getTasks().create("copyWeb", Copy.class);
     copyWeb.dependsOn(buildWeb);
     copyWeb.from("build/web");
-    project.afterEvaluate(p -> {
-      ImmutableWebExtension web = project.getExtensions().getByType(WebExtension.class);
-      copyWeb.into("build/javaweb/" + web.javaPackage().replace('.', '/'));
-    });
+    project.afterEvaluate(
+        p -> {
+          ImmutableWebExtension web = project.getExtensions().getByType(WebExtension.class);
+          copyWeb.into("build/javaweb/" + web.javaPackage().replace('.', '/'));
+        });
   }
 }
