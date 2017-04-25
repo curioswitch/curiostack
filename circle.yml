@@ -4,6 +4,11 @@ machine:
   java:
     version: oraclejdk8
 
+general:
+  branches:
+    ignore:
+    - master
+
 dependencies:
   cache_directories:
     # Gradle is very advanced now and we try to rely on its management of internal state for faster
