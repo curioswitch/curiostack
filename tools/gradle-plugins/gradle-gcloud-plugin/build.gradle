@@ -31,10 +31,13 @@ apply plugin: 'maven-publish'
 dependencies {
     compile project(':tools:gradle-plugins:gradle-curio-server-plugin')
 
+    compile 'com.bmuschko:gradle-docker-plugin'
     compile 'com.fasterxml.jackson.core:jackson-databind'
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     compile 'com.google.cloud:google-cloud-resourcemanager'
     compile 'com.google.cloud:google-cloud-storage'
+    compile 'com.google.guava:guava'
+    compile 'io.fabric8:kubernetes-client'
 
     apt 'org.immutables:value'
     compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
@@ -42,11 +45,15 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        simplePlugin {
+        database {
+            id = 'org.curioswitch.gradle-curio-database-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.gcloud.CurioDatabasePlugin'
+        }
+        gcloud {
             id = 'org.curioswitch.gradle-gcloud-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.gcloud.GcloudPlugin'
         }
-        simplePlugin {
+        buildCache {
             id = 'org.curioswitch.gradle-gcloud-build-cache-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.gcloud.GcloudBuildCachePlugin'
         }

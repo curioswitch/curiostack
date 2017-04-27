@@ -24,11 +24,16 @@
 
 package org.curioswitch.gradle.plugins.gcloud;
 
+import com.bmuschko.gradle.docker.DockerExtension;
+import com.bmuschko.gradle.docker.DockerRegistryCredentials;
+import com.bmuschko.gradle.docker.DockerRemoteApiPlugin;
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
@@ -56,6 +61,8 @@ import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Style;
 import org.immutables.value.Value.Style.BuilderVisibility;
 import org.immutables.value.Value.Style.ImplementationVisibility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A plugin that adds tasks for automatically downloading the gcloud sdk and running commands using
@@ -63,6 +70,8 @@ import org.immutables.value.Value.Style.ImplementationVisibility;
  * most commands should be migrated to using the gcloud Rest APIs to remove this dependency.
  */
 public class GcloudPlugin implements Plugin<Project> {
+
+  private static final Logger logger = LoggerFactory.getLogger(GcloudPlugin.class);
 
   private static final ObjectMapper OBJECT_MAPPER =
       new ObjectMapper(new YAMLFactory().enable(Feature.MINIMIZE_QUOTES))
@@ -112,6 +121,19 @@ public class GcloudPlugin implements Plugin<Project> {
                           DeploymentExtension deployment =
                               proj.getExtensions().getByType(DeploymentExtension.class);
                           deployment.setImagePrefix(
+                              config.containerRegistry() + "/" + config.clusterProject() + "/");
+                        });
+              });
+
+          project.allprojects(
+              proj -> {
+                proj.getPlugins()
+                    .withType(
+                        CurioDatabasePlugin.class,
+                        unused -> {
+                          DatabaseExtension database =
+                              proj.getExtensions().getByType(DatabaseExtension.class);
+                          database.setDevDockerImagePrefix(
                               config.containerRegistry() + "/" + config.clusterProject() + "/");
                         });
               });
@@ -169,6 +191,8 @@ public class GcloudPlugin implements Plugin<Project> {
                   config.clusterZone()));
 
           project.getTasks().create("createBuildCacheBucket", CreateBuildCacheBucket.class);
+
+          setupDockerCredentials(project, config);
         });
 
     addGenerateCloudBuildTask(project);
@@ -288,6 +312,47 @@ public class GcloudPlugin implements Plugin<Project> {
         });
   }
 
+  private void setupDockerCredentials(Project rootProject, ImmutableGcloudExtension config) {
+    final GoogleCredentials creds;
+    try {
+      creds = GoogleCredentials.getApplicationDefault();
+    } catch (IOException e) {
+      logger.info("Unable to retrieve application default credentials.", e);
+      return;
+    }
+    rootProject.allprojects(
+        project -> {
+          project
+              .getPlugins()
+              .withType(
+                  DockerRemoteApiPlugin.class,
+                  plugin -> {
+                    project
+                        .getTasks()
+                        .withType(DockerPushImage.class)
+                        .all(
+                            unused -> {
+                              if (creds.getAccessToken() == null) {
+                                try {
+                                  creds.refresh();
+                                } catch (IOException e) {
+                                  logger.warn("Unable to retrieve access token.", e);
+                                  return;
+                                }
+                              }
+                              DockerExtension docker =
+                                  project.getExtensions().getByType(DockerExtension.class);
+                              DockerRegistryCredentials credentials =
+                                  new DockerRegistryCredentials();
+                              credentials.setUrl("https://" + config.containerRegistry());
+                              credentials.setUsername("oauth2accesstoken");
+                              credentials.setPassword(creds.getAccessToken().getTokenValue());
+                              docker.setRegistryCredentials(credentials);
+                            });
+                  });
+        });
+  }
+
   @Immutable
   @Style(
     visibility = ImplementationVisibility.PACKAGE,
@@ -296,6 +361,7 @@ public class GcloudPlugin implements Plugin<Project> {
   )
   @JsonSerialize(as = ImmutableCloudBuildStep.class)
   interface CloudBuildStep {
+
     String id();
 
     default List<String> waitFor() {
