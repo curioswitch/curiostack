@@ -24,7 +24,9 @@
 
 package org.curioswitch.gradle.plugins.gcloud.tasks;
 
+import com.google.common.collect.ImmutableList;
 import java.io.File;
+import java.util.List;
 import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
 import org.curioswitch.gradle.plugins.gcloud.ImmutableGcloudExtension;
 import org.gradle.api.DefaultTask;
@@ -49,11 +51,13 @@ public class GcloudTask extends DefaultTask {
         config.download()
             ? new File(config.platformConfig().gcloudBinDir(), COMMAND).getAbsolutePath()
             : COMMAND;
+    List<Object> fullArgs =
+        ImmutableList.builder().addAll(args).add("--project=" + config.clusterProject()).build();
     getProject()
         .exec(
             exec -> {
               exec.executable(command);
-              exec.args(args);
+              exec.args(fullArgs);
               if (config.download()) {
                 exec.environment(
                     "PATH",
