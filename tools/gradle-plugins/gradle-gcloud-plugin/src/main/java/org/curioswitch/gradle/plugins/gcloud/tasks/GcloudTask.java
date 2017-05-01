@@ -32,7 +32,9 @@ import org.curioswitch.gradle.plugins.gcloud.ImmutableGcloudExtension;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
-/** A {@link org.gradle.api.Task} that executes a gcloud sdk command. */
+/**
+ * A {@link org.gradle.api.Task} that executes a gcloud sdk command.
+ */
 public class GcloudTask extends DefaultTask {
 
   private static final String COMMAND = "gcloud";
@@ -52,7 +54,10 @@ public class GcloudTask extends DefaultTask {
             ? new File(config.platformConfig().gcloudBinDir(), COMMAND).getAbsolutePath()
             : COMMAND;
     List<Object> fullArgs =
-        ImmutableList.builder().addAll(args).add("--project=" + config.clusterProject()).build();
+        ImmutableList.builder()
+            .add("--project=" + config.clusterProject())
+            .addAll(args)
+            .build();
     getProject()
         .exec(
             exec -> {
