@@ -26,9 +26,10 @@ package org.curioswitch.gradle.plugins.gcloud;
 
 import com.bmuschko.gradle.docker.DockerRemoteApiPlugin;
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage;
-import com.bmuschko.gradle.docker.tasks.image.DockerPushImage;
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile;
+import com.google.common.collect.ImmutableList;
 import org.curioswitch.gradle.plugins.gcloud.tasks.DeployDevDbPodTask;
+import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePlugin;
@@ -43,6 +44,12 @@ public class CurioDatabasePlugin implements Plugin<Project> {
 
     project.getPlugins().apply(BasePlugin.class);
     project.getPlugins().apply(DockerRemoteApiPlugin.class);
+    project.getPlugins().apply(GcloudPlugin.class);
+
+    project
+        .getExtensions()
+        .getByType(GcloudExtension.class)
+        .from(project.getRootProject().getExtensions().getByType(GcloudExtension.class));
 
     project.afterEvaluate(CurioDatabasePlugin::addTasks);
   }
@@ -67,10 +74,11 @@ public class CurioDatabasePlugin implements Plugin<Project> {
     buildDevDbDockerImage.setInputDir(generateDevDbDockerfile.getDestFile().getParentFile());
     buildDevDbDockerImage.setTag(config.devDockerImageTag());
 
-    DockerPushImage pushDevDbDockerImage =
-        project.getTasks().create("pushDevDbDockerImage", DockerPushImage.class);
+    GcloudTask pushDevDbDockerImage =
+        project.getTasks().create("pushDevDbDockerImage", GcloudTask.class);
     pushDevDbDockerImage.dependsOn(buildDevDbDockerImage);
-    pushDevDbDockerImage.setImageName(config.devDockerImageTag());
+    pushDevDbDockerImage.setArgs(
+        ImmutableList.of("docker", "--", "push", config.devDockerImageTag()));
 
     project
         .getTasks()

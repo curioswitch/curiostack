@@ -24,16 +24,11 @@
 
 package org.curioswitch.gradle.plugins.gcloud;
 
-import com.bmuschko.gradle.docker.DockerExtension;
-import com.bmuschko.gradle.docker.DockerRegistryCredentials;
-import com.bmuschko.gradle.docker.DockerRemoteApiPlugin;
-import com.bmuschko.gradle.docker.tasks.image.DockerPushImage;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
@@ -191,8 +186,6 @@ public class GcloudPlugin implements Plugin<Project> {
                   config.clusterZone()));
 
           project.getTasks().create("createBuildCacheBucket", CreateBuildCacheBucket.class);
-
-          setupDockerCredentials(project, config);
         });
 
     addGenerateCloudBuildTask(project);
@@ -309,47 +302,6 @@ public class GcloudPlugin implements Plugin<Project> {
           } catch (IOException e) {
             throw new UncheckedIOException(e);
           }
-        });
-  }
-
-  private void setupDockerCredentials(Project rootProject, ImmutableGcloudExtension config) {
-    final GoogleCredentials creds;
-    try {
-      creds = GoogleCredentials.getApplicationDefault();
-    } catch (IOException e) {
-      logger.info("Unable to retrieve application default credentials.", e);
-      return;
-    }
-    rootProject.allprojects(
-        project -> {
-          project
-              .getPlugins()
-              .withType(
-                  DockerRemoteApiPlugin.class,
-                  plugin -> {
-                    project
-                        .getTasks()
-                        .withType(DockerPushImage.class)
-                        .all(
-                            unused -> {
-                              if (creds.getAccessToken() == null) {
-                                try {
-                                  creds.refresh();
-                                } catch (IOException e) {
-                                  logger.warn("Unable to retrieve access token.", e);
-                                  return;
-                                }
-                              }
-                              DockerExtension docker =
-                                  project.getExtensions().getByType(DockerExtension.class);
-                              DockerRegistryCredentials credentials =
-                                  new DockerRegistryCredentials();
-                              credentials.setUrl("https://" + config.containerRegistry());
-                              credentials.setUsername("oauth2accesstoken");
-                              credentials.setPassword(creds.getAccessToken().getTokenValue());
-                              docker.setRegistryCredentials(credentials);
-                            });
-                  });
         });
   }
 
