@@ -38,7 +38,12 @@ public class CloudStorageBuildCacheServiceFactory
   public BuildCacheService createBuildCacheService(CloudStorageBuildCache buildCache) {
     checkNotNull(buildCache.getBucket(), "buildCache.bucket");
 
-    Storage cloudStorage = StorageOptions.getDefaultInstance().getService();
+    Storage cloudStorage = StorageOptions.newBuilder()
+        // This project id isn't actually used but it's still required to set something or the
+        // service itself does not get initiated. This is probably a bug in the client library.
+        .setProjectId("curiostack-devnull")
+        .build()
+        .getService();
 
     return new CloudStorageBuildCacheService(cloudStorage, buildCache.getBucket());
   }
