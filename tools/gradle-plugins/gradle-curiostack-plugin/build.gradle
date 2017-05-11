@@ -56,17 +56,23 @@ task generateBaselineManifest {
 }
 
 dependencies {
-    compile project(':tools:gradle-plugins:gradle-curio-server-plugin')
-    compile project(':tools:gradle-plugins:gradle-curio-web-plugin')
-    compile project(':tools:gradle-plugins:gradle-gcloud-plugin')
-    compile project(':tools:gradle-plugins:gradle-grpc-api-plugin')
     compile project(':tools:gradle-plugins:gradle-monorepo-circleci-plugin')
+    compile project(':tools:gradle-plugins:java-groovy-compat')
 
+    compile 'com.bmuschko:gradle-docker-plugin'
+    compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     compile 'com.diffplug.spotless:spotless-plugin-gradle'
+    compile 'com.google.cloud:google-cloud-resourcemanager'
+    compile 'com.google.cloud:google-cloud-storage'
+    compile 'com.google.guava:guava'
+    compile 'com.google.protobuf:protobuf-gradle-plugin'
     compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin'
+    compile 'com.moowork.gradle:gradle-node-plugin'
     compile 'com.palantir:gradle-baseline-java'
     compile 'gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties'
     compile 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin'
+    compile 'io.fabric8:kubernetes-client'
     compile 'io.spring.gradle:dependency-management-plugin'
 
     apt 'org.immutables:value'
@@ -75,9 +81,33 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        simplePlugin {
+        buildCache {
+            id = 'org.curioswitch.gradle-gcloud-build-cache-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.gcloud.GcloudBuildCachePlugin'
+        }
+        curiostack {
             id = 'org.curioswitch.gradle-curiostack-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.curiostack.CuriostackPlugin'
+        }
+        database {
+            id = 'org.curioswitch.gradle-curio-database-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.gcloud.CurioDatabasePlugin'
+        }
+        gcloud {
+            id = 'org.curioswitch.gradle-gcloud-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.gcloud.GcloudPlugin'
+        }
+        grpcApi {
+            id = 'org.curioswitch.gradle-grpc-api-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.grpcapi.GrpcApiPlugin'
+        }
+        server {
+            id = 'org.curioswitch.gradle-curio-server-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin'
+        }
+        web {
+            id = 'org.curioswitch.gradle-curio-web-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.curioweb.CurioWebPlugin'
         }
     }
 }

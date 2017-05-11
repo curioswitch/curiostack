@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins;
+package org.curioswitch.gradle.plugins.grpcapi;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins;
+package org.curioswitch.gradle.plugins.grpcapi;
 
 import com.google.protobuf.gradle.ExecutableLocator;
 import com.google.protobuf.gradle.ProtobufConfigurator;
