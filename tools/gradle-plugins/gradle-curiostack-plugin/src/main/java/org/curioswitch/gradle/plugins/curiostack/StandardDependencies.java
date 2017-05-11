@@ -47,7 +47,7 @@ class StandardDependencies {
     String version();
   }
 
-  private static final String JACKSON_VERSION = "2.8.7";
+  private static final String JACKSON_VERSION = "2.8.8";
 
   static final List<DependencySet> DEPENDENCY_SETS =
       ImmutableList.of(
@@ -73,17 +73,17 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.0.0-rc2")
+              .version("1.0.1")
               .addModules("google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.15.0-alpha")
+              .version("0.17.2-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.dagger")
-              .version("2.9")
+              .version("2.10")
               .addModules("dagger", "dagger-compiler")
               .build(),
           ImmutableDependencySet.builder()
@@ -93,12 +93,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.protobuf")
-              .version("3.2.0")
-              .addModules("protoc")
+              .version("3.3.0")
+              .addModules("protoc", "protobuf-java", "protobuf-java-util")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.40.0")
+              .version("0.43.0")
               .addModules("armeria", "armeria-grpc")
               .build(),
           ImmutableDependencySet.builder()
@@ -113,17 +113,17 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.fabric8")
-              .version("2.2.13")
+              .version("2.3.1")
               .addModules("kubernetes-client")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.grpc")
-              .version("1.1.2")
+              .version("1.3.0")
               .addModules("grpc-core", "grpc-protobuf", "grpc-stub")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("4.1.8.Final")
+              .version("4.1.10.Final")
               .addModules(
                   "netty-buffer",
                   "netty-codec",
@@ -161,12 +161,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.apache.logging.log4j")
-              .version("2.8.1")
+              .version("2.8.2")
               .addModules("log4j-api", "log4j-core", "log4j-jcl", "log4j-jul", "log4j-slf4j-impl")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.assertj")
-              .version("3.6.2")
+              .version("3.7.0")
               .addModules("assertj-core")
               .build(),
           ImmutableDependencySet.builder()
@@ -176,12 +176,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.eclipse.jgit")
-              .version("4.6.1.201703071140-r")
+              .version("4.7.0.201704051617-r")
               .addModules("org.eclipse.jgit")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.immutables")
-              .version("2.4.4")
+              .version("2.4.6")
               .addModules("builder", "value")
               .build(),
           ImmutableDependencySet.builder()
@@ -192,8 +192,8 @@ class StandardDependencies {
 
   static final List<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:3.0.5",
-          "com.diffplug.spotless:spotless-plugin-gradle:3.1.0",
+          "com.bmuschko:gradle-docker-plugin:3.0.6",
+          "com.diffplug.spotless:spotless-plugin-gradle:3.3.2",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.1",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3",
           "com.palantir:gradle-baseline-java:0.10.0",
