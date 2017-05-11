@@ -33,7 +33,9 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Copy;
+import org.gradle.api.tasks.ParallelizableTask;
 import org.gradle.api.tasks.SourceSet;
 
 /**
@@ -63,14 +65,14 @@ public class CurioWebPlugin implements Plugin<Project> {
     node.setYarnVersion(YARN_VERSION);
     node.setDownload(true);
 
-    NpmTask buildWeb = project.getTasks().create("buildWeb", NpmTask.class);
+    CacheableNpmTask buildWeb = project.getTasks().create("buildWeb", CacheableNpmTask.class);
     buildWeb.dependsOn("yarn");
     buildWeb.setArgs(ImmutableList.of("run", "build"));
     buildWeb.getInputs().dir("app");
     buildWeb.getInputs().dir("internals");
     // We assume the yarn task correctly handles up-to-date checks for node_modules, so only
-    // need to look at package.json here.
-    buildWeb.getInputs().file("package.json");
+    // need to look at yarn.lock here.
+    buildWeb.getInputs().file("yarn.lock");
     buildWeb.getOutputs().dir("build");
 
     Copy copyWeb = project.getTasks().create("copyWeb", Copy.class);
@@ -82,4 +84,8 @@ public class CurioWebPlugin implements Plugin<Project> {
           copyWeb.into("build/javaweb/" + web.javaPackage().replace('.', '/'));
         });
   }
+
+  @CacheableTask
+  @ParallelizableTask
+  public static class CacheableNpmTask extends NpmTask {}
 }
