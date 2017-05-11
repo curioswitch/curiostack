@@ -23,7 +23,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.16'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.17'
     }
 }
 
@@ -180,7 +180,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.16'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.17'
     }
 }
 
