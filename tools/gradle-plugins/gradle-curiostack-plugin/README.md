@@ -153,8 +153,24 @@ currently alpha-level - it probably works ok, but needs more testing under load.
 
 To set up,
 
+```groovy
+build.gradle (root)
+gcloud {
+    // This must match the bucket in settings.gradle, it is not possible to share the config
+    // between settings and a project.
+    // If unset, this defaults to project-id-gradle-build-cache
+    buildCacheStorageBucket = 'curioswitch-gradle-build-cache'
+}
+```
+
 ```bash
-settings.gradle:
+# Sets up the Google Storage Bucket which will be used by the build cache, only needs to be run
+# once.
+$ ./gradlew :createBuildCacheBucket
+```
+
+```groovy
+settings.gradle
 // Use same buildscript as build.gradle to keep things simple.
 buildscript {
     repositories {
@@ -180,16 +196,6 @@ buildCache {
         bucket = 'curioswitch-gradle-build-cache'
         push = isCiServer
     }
-}
-```
-
-```groovy
-build.gradle (root)
-gcloud {
-    // This must match the bucket in settings.gradle, it is not possible to share the config
-    // between settings and a project.
-    // If unset, this defaults to project-id-gradle-build-cache
-    buildCacheStorageBucket = 'curioswitch-gradle-build-cache'
 }
 ```
 
