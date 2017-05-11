@@ -96,7 +96,7 @@ allprojects {
                         artifact project.tasks.sourceJar
 
                         pom.withXml {
-                            asNode().children()[3] + {
+                            asNode().children()[6] + {
                                 resolveStrategy = Closure.DELEGATE_FIRST
 
                                 licenses {
@@ -111,7 +111,15 @@ allprojects {
                                         id 'chokoswitch'
                                         name 'Choko'
                                         email 'choko@curioswitch.org'
+                                        organization 'CurioSwitch'
+                                        organizationUrl 'https://github.com/curioswitch/curiostack'
                                     }
+                                }
+
+                                scm {
+                                    connection 'scm:git:git://github.com/curioswitch/curiostack.git'
+                                    developerConnection 'scm:git:ssh://github.com:curioswitch/curiostack.git'
+                                    url 'https://github.com/curioswitch/curiostack'
                                 }
                             }
                         }
