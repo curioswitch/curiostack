@@ -38,11 +38,15 @@ import org.gradle.caching.BuildCacheEntryWriter;
 import org.gradle.caching.BuildCacheException;
 import org.gradle.caching.BuildCacheKey;
 import org.gradle.caching.BuildCacheService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CloudStorageBuildCacheService implements BuildCacheService {
 
   private static final String BUILD_CACHE_CONTENT_TYPE =
       "application/vnd.gradle.build-cache-artifact";
+
+  private static final Logger logger = LoggerFactory.getLogger(CloudStorageBuildCacheService.class);
 
   private final Storage cloudStorage;
   private final String bucket;
@@ -55,14 +59,20 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
   @Override
   public boolean load(BuildCacheKey buildCacheKey, BuildCacheEntryReader buildCacheEntryReader)
       throws BuildCacheException {
-    Blob blob = cloudStorage.get(cacheKeyToBlobId(buildCacheKey));
-    if (blob == null || !blob.exists()) {
+    try {
+      Blob blob = cloudStorage.get(cacheKeyToBlobId(buildCacheKey));
+      if (blob == null || !blob.exists()) {
+        return false;
+      }
+      try (InputStream is = Channels.newInputStream(blob.reader())) {
+        buildCacheEntryReader.readFrom(is);
+      }
+    } catch (Exception e) {
+      logger.warn(
+          "Exception when trying to read from cloud storage, this usually means gcloud "
+              + "auth application-default login has not been called. Builds may be slower.",
+          e);
       return false;
-    }
-    try (InputStream is = Channels.newInputStream(blob.reader())) {
-      buildCacheEntryReader.readFrom(is);
-    } catch (IOException e) {
-      throw new UncheckedIOException("Error reading file from cloud storage.", e);
     }
     return true;
   }
