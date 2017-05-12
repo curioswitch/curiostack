@@ -31,6 +31,7 @@ dependencies {
     api 'com.google.dagger:dagger'
     api 'com.linecorp.armeria:armeria'
     api 'com.typesafe:config'
+    api 'io.grpc:grpc-core'
     api 'org.apache.logging.log4j:log4j-api'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'

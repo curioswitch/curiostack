@@ -22,10 +22,38 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-web-plugin'
+package org.curioswitch.portal.server;
 
-web {
-    javaPackage = 'org.curioswitch.portal.client.web'
+import com.linecorp.armeria.server.Server;
+import dagger.Component;
+import dagger.Module;
+import dagger.Provides;
+import dagger.multibindings.IntoSet;
+import javax.inject.Singleton;
+import org.curioswitch.common.server.framework.ServerModule;
+import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
+
+public class Main {
+
+  @Module(includes = ServerModule.class)
+  static class CurioswitchPortalServerModule {
+
+    @Provides
+    @IntoSet
+    StaticSiteServiceDefinition staticSite() {
+      return new StaticSiteServiceDefinition.Builder()
+          .classpathRoot("org/curioswitch/portal/client/web/")
+          .build();
+    }
+  }
+
+  @Singleton
+  @Component(modules = CurioswitchPortalServerModule.class)
+  interface ServerComponent {
+    Server server();
+  }
+
+  public static void main(String[] args) {
+    DaggerMain_ServerComponent.builder().build().server();
+  }
 }
-
-//TODO(choko): Fix npm command gets corrupted bug.

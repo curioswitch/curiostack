@@ -34,6 +34,7 @@ import com.typesafe.config.ConfigBeanFactory;
 import com.typesafe.config.ConfigFactory;
 import dagger.Module;
 import dagger.Provides;
+import dagger.multibindings.Multibinds;
 import io.grpc.BindableService;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import java.security.cert.CertificateException;
@@ -41,10 +42,13 @@ import java.util.Set;
 import javax.net.ssl.SSLException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.curioswitch.common.server.framework.ServerModule.InternalMultibindsModule;
 import org.curioswitch.common.server.framework.config.ModifiableServerConfig;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
+import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
+import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
 
 /**
  * A {@link Module} which bootstraps a server, finding and registering GRPC services to expose. All
@@ -66,10 +70,24 @@ import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
  * }
  * }</pre>
  */
-@Module(includes = MonitoringModule.class)
+@Module(includes = {MonitoringModule.class, InternalMultibindsModule.class})
 public class ServerModule {
 
   private static final Logger logger = LogManager.getLogger();
+
+  /**
+   * An abstract {@link Module} to declare {@link Multibinds} to allow empty {@link Set}s. Not for
+   * use outside this class.
+   */
+  @Module
+  public abstract static class InternalMultibindsModule {
+
+    @Multibinds
+    abstract Set<BindableService> grpcServices();
+
+    @Multibinds
+    abstract Set<StaticSiteServiceDefinition> staticSites();
+  }
 
   @Provides
   Config config() {
@@ -85,6 +103,7 @@ public class ServerModule {
   @Provides
   Server armeriaServer(
       Set<BindableService> grpcServices,
+      Set<StaticSiteServiceDefinition> staticSites,
       MetricsHttpService metricsHttpService,
       ServerConfig serverConfig) {
     ServerBuilder sb = new ServerBuilder().port(8080, HttpSessionProtocols.HTTPS);
@@ -106,9 +125,17 @@ public class ServerModule {
     sb.serviceAt("/internal/health", new HttpHealthCheckService());
     sb.serviceAt("/internal/metrics", metricsHttpService);
 
-    GrpcServiceBuilder serviceBuilder = new GrpcServiceBuilder();
-    grpcServices.forEach(serviceBuilder::addService);
-    sb.serviceUnder("/", serviceBuilder.build());
+    for (StaticSiteServiceDefinition staticSite : staticSites) {
+      sb.serviceUnder(
+          staticSite.urlRoot(),
+          StaticSiteService.of(staticSite.staticPath(), staticSite.classpathRoot()));
+    }
+
+    if (!grpcServices.isEmpty()) {
+      GrpcServiceBuilder serviceBuilder = new GrpcServiceBuilder();
+      grpcServices.forEach(serviceBuilder::addService);
+      sb.serviceUnder("/", serviceBuilder.build());
+    }
 
     Server server = sb.build();
     server

@@ -22,10 +22,24 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-web-plugin'
+apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
 
-web {
-    javaPackage = 'org.curioswitch.portal.client.web'
+archivesBaseName = 'curioswitch-portal-server'
+mainClassName = 'org.curioswitch.portal.server.Main'
+
+dependencies {
+    compile project(':common:server:framework')
+    compile project(':curioswitch:portal:client:web')
+
+    apt 'com.google.dagger:dagger-compiler'
+    compile 'com.google.dagger:dagger'
 }
 
-//TODO(choko): Fix npm command gets corrupted bug.
+deployment {
+    types {
+        alpha {
+            // TODO(choko): Setup proper namespace.
+            namespace = 'default'
+        }
+    }
+}

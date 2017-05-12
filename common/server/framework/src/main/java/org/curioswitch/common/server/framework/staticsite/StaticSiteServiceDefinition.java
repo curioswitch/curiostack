@@ -22,10 +22,35 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-web-plugin'
+package org.curioswitch.common.server.framework.staticsite;
 
-web {
-    javaPackage = 'org.curioswitch.portal.client.web'
+import org.curioswitch.common.server.framework.immutables.CurioStyle;
+import org.immutables.value.Value.Immutable;
+
+/**
+ * A definition of a {@link StaticSiteService} that should be registered to a {@link
+ * com.linecorp.armeria.server.Server}. Provide it from a {@link dagger.Module} to allow automatic
+ * registration.
+ */
+@Immutable
+@CurioStyle
+public interface StaticSiteServiceDefinition {
+
+  class Builder extends ImmutableStaticSiteServiceDefinition.Builder {}
+
+  /** The URL root to serve the site from. Defaults to "/". */
+  default String urlRoot() {
+    return "/";
+  }
+
+  /** The root directory in the classpath to serve resources from. */
+  String classpathRoot();
+
+  /**
+   * The URL path under {@link #urlRoot} from which static resources will be served. Defaults to
+   * "/static".
+   */
+  default String staticPath() {
+    return "/static/";
+  }
 }
-
-//TODO(choko): Fix npm command gets corrupted bug.
