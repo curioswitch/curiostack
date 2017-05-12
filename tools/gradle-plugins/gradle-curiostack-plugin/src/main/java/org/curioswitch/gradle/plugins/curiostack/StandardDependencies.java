@@ -140,6 +140,11 @@ class StandardDependencies {
                   "netty-transport-native-epoll")
               .build(),
           ImmutableDependencySet.builder()
+              .group("io.netty")
+              .version("2.0.1.Final")
+              .addModules("netty-tcnative-boringssl-static")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("javax.inject")
               .version("1")
               .addModules("javax.inject")
@@ -193,7 +198,7 @@ class StandardDependencies {
   static final List<String> DEPENDENCIES =
       ImmutableList.of(
           "com.bmuschko:gradle-docker-plugin:3.0.6",
-          "com.diffplug.spotless:spotless-plugin-gradle:3.3.2",
+          "com.diffplug.spotless:spotless-plugin-gradle:3.2.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.1",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3",
           "com.palantir:gradle-baseline-java:0.10.0",
