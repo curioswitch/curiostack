@@ -99,7 +99,7 @@ class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
               .version("0.43.0")
-              .addModules("armeria", "armeria-grpc")
+              .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.typesafe")
@@ -178,6 +178,11 @@ class StandardDependencies {
               .group("org.codehaus.groovy")
               .version("2.4.10")
               .addModules("groovy")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("org.curioswitch.curiostack")
+              .version("0.0.1")
+              .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.eclipse.jgit")
