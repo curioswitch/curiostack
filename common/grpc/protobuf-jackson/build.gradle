@@ -23,6 +23,7 @@
  */
 
 apply plugin: 'java-library'
+apply plugin: 'maven-publish'
 
 apply plugin: 'com.google.protobuf'
 apply plugin: 'me.champeau.gradle.jmh'
@@ -32,9 +33,9 @@ archivesBaseName = 'protobuf-jackson'
 sourceCompatibility = '1.7'
 targetCompatibility = '1.7'
 
-tasks.compileTestJava {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+[tasks.compileTestJava, tasks.compileJmhJava].each {
+    it.sourceCompatibility = '1.8'
+    it.targetCompatibility = '1.8'
 }
 
 protobuf {
@@ -64,6 +65,25 @@ dependencies {
     api 'com.google.protobuf:protobuf-java'
 
     implementation 'com.google.protobuf:protobuf-java-util'
-    implementation 'net.bytebuddy:byte-buddy:1.7.0'
+    implementation 'net.bytebuddy:byte-buddy'
 }
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            pom.withXml {
+                // TODO(choko): Make it simpler to define pom attributes after the artifact, as is
+                // normal, by defining a DSL or something.
+                asNode().children()[3] + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+
+                    name 'protobuf-jackson'
+                    description 'A library for efficient marshalling of Protocol Buffer messages ' +
+                            'to and from JSON.'
+                    url 'https://github.com/curioswitch/curiostack/tree/master/' +
+                            'common/grpc/protobuf-jackson'
+                }
+            }
+        }
+    }
+}
