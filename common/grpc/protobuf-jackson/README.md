@@ -4,6 +4,9 @@ protobuf-jackson is a library for efficient marshalling of Protocol Buffer messa
 JSON. It is based on the streaming API of the Jackson JSON handling library and uses Byte Buddy to
 generate efficient bytecode at runtime for marshalling specific message types.
 
+This library requires Java 7 only to allow cleaner syntax (e.g., multi-catch, diamond operator) for
+easier maintenance. If there is demand, re-targeting to Java 6 is conceivable.
+
 ## Why another Protocol Buffer <-> JSON marshaller
 
 The official Protocol Buffer Java library comes with a util library for marshalling to JSON, using

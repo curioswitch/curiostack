@@ -29,6 +29,14 @@ apply plugin: 'me.champeau.gradle.jmh'
 
 archivesBaseName = 'protobuf-jackson'
 
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
+
+tasks.compileTestJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
 protobuf {
     generatedFilesBaseDir = "$buildDir/generated/source/apt"
     protoc {
