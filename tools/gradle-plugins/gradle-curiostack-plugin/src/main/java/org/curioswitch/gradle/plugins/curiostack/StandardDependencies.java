@@ -72,6 +72,11 @@ class StandardDependencies {
               .addModules("jackson-dataformat-yaml")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.google.code.findbugs")
+              .version("3.0.2")
+              .addModules("jsr305")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.google.cloud")
               .version("1.0.1")
               .addModules("google-cloud-storage")
@@ -155,6 +160,11 @@ class StandardDependencies {
               .addModules("junit")
               .build(),
           ImmutableDependencySet.builder()
+              .group("net.bytebuddy")
+              .version("1.7.0")
+              .addModules("byte-buddy")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("org.apache.httpcomponents")
               .version("4.5.3")
               .addModules("httpclient")
@@ -206,9 +216,11 @@ class StandardDependencies {
           "com.diffplug.spotless:spotless-plugin-gradle:3.2.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.1",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3",
+          "com.moowork.gradle:gradle-node-plugin:1.1.1",
           "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.1",
-          "io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE",
+          "io.spring.gradle:dependency-management-plugin:1.0.2.RELEASE",
+          "me.champeau.gradle:jmh-gradle-plugin:0.3.1",
           "net.ltgt.gradle:gradle-apt-plugin:0.9");
 }

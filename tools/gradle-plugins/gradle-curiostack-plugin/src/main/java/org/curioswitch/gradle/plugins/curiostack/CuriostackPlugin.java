@@ -50,6 +50,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import me.champeau.gradle.JMHPlugin;
+import me.champeau.gradle.JMHPluginExtension;
 import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
@@ -290,6 +292,41 @@ public class CuriostackPlugin implements Plugin<Project> {
                             .getByType(ProtobufSourceDirectorySet.class));
               }
             });
+
+    project.getPlugins().withType(JMHPlugin.class, unused -> {
+      JMHPluginExtension jmh = project.getExtensions().getByType(JMHPluginExtension.class);
+      // Benchmarks are usually very small and converge quickly. If this stops being the case
+      // these numbers can be adjusted.
+      jmh.setFork(2);
+      jmh.setIterations(5);
+
+      jmh.setProfilers(ImmutableList.of("hs_comp"));
+      jmh.setJmhVersion("1.19");
+
+      Object jmhRegex = project.getRootProject().findProperty("jmhRegex");
+      if (jmhRegex != null) {
+        jmh.setInclude((String) jmhRegex);
+      }
+
+      // We will use the jmhManaged for any dependencies that should only be applied to JMH
+      // but should be resolved by our managed dependencies. We need a separate configuration
+      // to be able to provide the resolution workaround described below.
+      Configuration jmhManaged = project.getConfigurations().create("jmhManaged");
+      Configuration jmhConfiguration = project.getConfigurations().getByName(JMHPlugin.getJMH_NAME());
+      jmhConfiguration.extendsFrom(jmhManaged);
+
+      // JMH plugin uses a detached configuration to build an uber-jar, which dependencyManagement
+      // doesn't know about. Work around this by forcing parent configurations to be resolved and
+      // added directly to the jmh configuration, which overwrites the otherwise unresolvable
+      // dependency.
+      project.afterEvaluate(p -> {
+        jmhConfiguration.getExtendsFrom().forEach(parent -> {
+          parent.getResolvedConfiguration().getFirstLevelModuleDependencies().forEach(dep -> {
+            project.getDependencies().add(JMHPlugin.getJMH_NAME(), dep.getModule().toString());
+          });
+        });
+      });
+    });
   }
 
   private static void setupAptSourceSet(Project project, SourceSet sourceSet) {
@@ -337,13 +374,17 @@ public class CuriostackPlugin implements Plugin<Project> {
   }
 
   private static void addStandardJavaTestDependencies(Project project) {
-    Configuration configuration =
+    Configuration testConfiguration =
         project.getPlugins().hasPlugin(JavaLibraryPlugin.class)
-            ? project.getConfigurations().getByName("testImplementation")
-            : project.getConfigurations().getByName("testCompile");
+            ? project
+                .getConfigurations()
+                .getByName(JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME)
+            : project.getConfigurations().getByName(JavaPlugin.TEST_COMPILE_CONFIGURATION_NAME);
     DependencyHandler dependencies = project.getDependencies();
-    dependencies.add(configuration.getName(), "org.assertj:assertj-core");
-    dependencies.add(configuration.getName(), "junit:junit");
+
+    dependencies.add(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME, "com.google.code.findbugs:jsr305");
+    dependencies.add(testConfiguration.getName(), "org.assertj:assertj-core");
+    dependencies.add(testConfiguration.getName(), "junit:junit");
   }
 
   private static Optional<Node> findChild(Node node, Predicate<Node> predicate) {

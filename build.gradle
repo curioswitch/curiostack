@@ -37,68 +37,14 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.21'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.22'
     }
-}
-
-plugins {
-    id 'me.champeau.gradle.jmh' version '0.3.1' apply false
 }
 
 apply plugin: 'org.curioswitch.gradle-curiostack-plugin'
 
 allprojects {
     project.group = 'org.curioswitch.curiostack'
-
-    plugins.withType(JavaPlugin) {
-        dependencyManagement {
-            dependencies {
-                dependency 'com.moowork.gradle:gradle-node-plugin:1.1.1'
-            }
-        }
-
-        dependencies {
-            compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
-        }
-    }
-
-    plugins.withId 'me.champeau.gradle.jmh', {
-        jmh {
-            // Benchmarks are usually very small and converge quickly. If this stops being the case
-            // these numbers can be adjusted.
-            fork = 2
-            iterations = 5
-
-            profilers = ['hs_comp']
-            jmhVersion = '1.18'
-
-            if (rootProject.hasProperty('jmhRegex')) {
-                include rootProject.getProperty('jmhRegex')
-            }
-        }
-
-        configurations {
-            // We will use the jmhManaged for any dependencies that should only be applied to JMH
-            // but should be resolved by our managed dependencies. We need a separate configuration
-            // to be able to provide the resolution workaround described below.
-            jmhManaged
-            jmh.extendsFrom jmhManaged
-        }
-
-        // JMH plugin uses a detached configuration to build an uber-jar, which dependencyManagement
-        // doesn't know about. Work around this by forcing parent configurations to be resolved and
-        // added directly to the jmh configuration, which overwrites the otherwise unresolvable
-        // dependency.
-        afterEvaluate {
-            configurations.jmh.extendsFrom.each { parent ->
-                parent.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
-                    dependencies {
-                        jmh "${dep.module}"
-                    }
-                }
-            }
-        }
-    }
 
     plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
         project.apply plugin: 'com.jfrog.bintray'
