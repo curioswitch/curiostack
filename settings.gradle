@@ -58,6 +58,7 @@ buildCache {
 }
 
 include ':auth:api', ':auth:server'
+include ':common:grpc:protobuf-jackson'
 include ':common:server:framework'
 include ':curioswitch:portal:server'
 include ':curioswitch:portal:client:web'
