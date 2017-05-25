@@ -72,6 +72,11 @@ class StandardDependencies {
               .addModules("jackson-dataformat-yaml")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.fasterxml.jackson.datatype")
+              .version(JACKSON_VERSION)
+              .addModules("jackson-datatype-guava", "jackson-datatype-jsr310")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.google.code.findbugs")
               .version("3.0.2")
               .addModules("jsr305")
@@ -103,7 +108,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.45.0")
+              .version("0.46.0")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -191,7 +196,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.1")
+              .version("0.0.3")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()

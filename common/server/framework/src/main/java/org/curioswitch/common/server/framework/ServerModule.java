@@ -24,9 +24,11 @@
 
 package org.curioswitch.common.server.framework;
 
+import com.linecorp.armeria.common.grpc.GrpcSerializationFormats;
 import com.linecorp.armeria.common.http.HttpSessionProtocols;
 import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
+import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import com.linecorp.armeria.server.http.healthcheck.HttpHealthCheckService;
 import com.typesafe.config.Config;
@@ -122,6 +124,7 @@ public class ServerModule {
       }
     }
 
+    sb.serviceUnder("/internal/docs", new DocServiceBuilder().build());
     sb.serviceAt("/internal/health", new HttpHealthCheckService());
     sb.serviceAt("/internal/metrics", metricsHttpService);
 
@@ -132,9 +135,11 @@ public class ServerModule {
     }
 
     if (!grpcServices.isEmpty()) {
-      GrpcServiceBuilder serviceBuilder = new GrpcServiceBuilder();
+      GrpcServiceBuilder serviceBuilder = new GrpcServiceBuilder()
+          .supportedSerializationFormats(GrpcSerializationFormats.values())
+          .enableUnframedRequests(true);
       grpcServices.forEach(serviceBuilder::addService);
-      sb.serviceUnder("/", serviceBuilder.build());
+      sb.serviceUnder("/api", serviceBuilder.build());
     }
 
     Server server = sb.build();

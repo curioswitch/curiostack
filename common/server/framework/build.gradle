@@ -36,6 +36,8 @@ dependencies {
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     implementation 'com.linecorp.armeria:armeria-grpc'
     implementation 'io.dropwizard.metrics:metrics-json'
     implementation 'io.dropwizard.metrics:metrics-jvm'

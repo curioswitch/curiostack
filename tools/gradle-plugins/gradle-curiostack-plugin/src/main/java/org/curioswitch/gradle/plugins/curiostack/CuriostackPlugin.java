@@ -178,6 +178,7 @@ public class CuriostackPlugin implements Plugin<Project> {
               maven.setUrl("http://dl.bintray.com/curioswitch/curiostack");
             });
     project.getRepositories().mavenCentral();
+    project.getRepositories().mavenLocal();
   }
 
   private static void setupJavaProject(Project project) {
