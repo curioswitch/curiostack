@@ -45,7 +45,8 @@ public class GcloudTask extends DefaultTask {
 
   @TaskAction
   public void exec() {
-    ImmutableGcloudExtension config = getProject().getExtensions().getByType(GcloudExtension.class);
+    ImmutableGcloudExtension config =
+        getProject().getRootProject().getExtensions().getByType(GcloudExtension.class);
 
     String command =
         config.download()

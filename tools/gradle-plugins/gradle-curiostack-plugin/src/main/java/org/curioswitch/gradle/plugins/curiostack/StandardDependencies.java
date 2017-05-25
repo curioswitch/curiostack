@@ -218,9 +218,11 @@ class StandardDependencies {
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3",
           "com.moowork.gradle:gradle-node-plugin:1.1.1",
           "com.palantir:gradle-baseline-java:0.10.0",
+          "gradle.plugin.com.boxfuse.client:flyway-release:4.2.0",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.1",
           "io.spring.gradle:dependency-management-plugin:1.0.2.RELEASE",
           "me.champeau.gradle:jmh-gradle-plugin:0.3.1",
+          "mysql:mysql-connector-java:6.0.6",
           "net.ltgt.gradle:gradle-apt-plugin:0.9");
 }

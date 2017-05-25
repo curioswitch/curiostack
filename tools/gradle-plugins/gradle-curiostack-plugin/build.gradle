@@ -70,11 +70,14 @@ dependencies {
     compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin'
     compile 'com.moowork.gradle:gradle-node-plugin'
     compile 'com.palantir:gradle-baseline-java'
+    compile 'gradle.plugin.com.boxfuse.client:flyway-release'
     compile 'gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties'
     compile 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin'
     compile 'io.fabric8:kubernetes-client'
     compile 'io.spring.gradle:dependency-management-plugin'
     compile 'me.champeau.gradle:jmh-gradle-plugin'
+
+    runtime 'mysql:mysql-connector-java'
 
     apt 'org.immutables:value'
     compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'

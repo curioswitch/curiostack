@@ -30,6 +30,8 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile;
 import com.google.common.collect.ImmutableList;
 import org.curioswitch.gradle.plugins.gcloud.tasks.DeployDevDbPodTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
+import org.flywaydb.gradle.FlywayExtension;
+import org.flywaydb.gradle.FlywayPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePlugin;
@@ -44,18 +46,19 @@ public class CurioDatabasePlugin implements Plugin<Project> {
 
     project.getPlugins().apply(BasePlugin.class);
     project.getPlugins().apply(DockerRemoteApiPlugin.class);
-    project.getPlugins().apply(GcloudPlugin.class);
-
-    project
-        .getExtensions()
-        .getByType(GcloudExtension.class)
-        .from(project.getRootProject().getExtensions().getByType(GcloudExtension.class));
+    project.getPlugins().apply(FlywayPlugin.class);
 
     project.afterEvaluate(CurioDatabasePlugin::addTasks);
   }
 
   private static void addTasks(Project project) {
     ImmutableDatabaseExtension config = project.getExtensions().getByType(DatabaseExtension.class);
+
+    FlywayExtension flyway = project.getExtensions().getByType(FlywayExtension.class);
+    flyway.user = "dbadmin";
+    flyway.password = config.devAdminPassword();
+    flyway.schemas = new String[] {config.dbName()};
+
     Dockerfile generateDevDbDockerfile =
         project.getTasks().create("generateDevDbDockerfile", Dockerfile.class);
     generateDevDbDockerfile.from("mysql:5.7");
