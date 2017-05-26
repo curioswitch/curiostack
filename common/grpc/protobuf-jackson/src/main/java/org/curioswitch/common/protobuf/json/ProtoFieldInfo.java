@@ -28,8 +28,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.CaseFormat;
-import com.google.common.base.Converter;
+import com.google.common.base.CharMatcher;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
@@ -47,8 +46,9 @@ import javax.annotation.Nullable;
  */
 class ProtoFieldInfo {
 
-  private static final Converter<String, String> TO_CAMEL_CASE =
-      CaseFormat.LOWER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL);
+  private static final CharMatcher DIGITS_ASCII = CharMatcher.inRange('0', '9');
+  private static final CharMatcher LOWERCASE_ASCII = CharMatcher.inRange('a', 'z');
+  private static final CharMatcher UPPERCASE_ASCII = CharMatcher.inRange('A', 'Z');
 
   private final FieldDescriptor field;
   private final Message containingPrototype;
@@ -64,7 +64,7 @@ class ProtoFieldInfo {
     this.containingPrototype = checkNotNull(containingPrototype, "containingPrototype");
     builderClass = containingPrototype.newBuilderForType().getClass();
 
-    camelCaseName = TO_CAMEL_CASE.convert(field.getName());
+    camelCaseName = underscoresToUpperCamelCase(field.getName());
 
     if (field.isMapField()) {
       Descriptor mapType = field.getMessageType();
@@ -167,7 +167,7 @@ class ProtoFieldInfo {
   Method oneOfCaseMethod() {
     checkState(isInOneof(), "field is not in a oneof");
     String methodName =
-        "get" + TO_CAMEL_CASE.convert(field.getContainingOneof().getName()) + "Case";
+        "get" + underscoresToUpperCamelCase(field.getContainingOneof().getName()) + "Case";
     try {
       return containingPrototype.getClass().getDeclaredMethod(methodName);
     } catch (NoSuchMethodException e) {
@@ -241,7 +241,7 @@ class ProtoFieldInfo {
    */
   String getOneOfCaseMethodName() {
     checkState(isInOneof(), "field is not in a oneof");
-    return "get" + TO_CAMEL_CASE.convert(field.getContainingOneof().getName()) + "Case";
+    return "get" + underscoresToUpperCamelCase(field.getContainingOneof().getName()) + "Case";
   }
 
   /**
@@ -364,5 +364,34 @@ class ProtoFieldInfo {
     } catch (NoSuchMethodException e) {
       throw new IllegalStateException("Could not find getter for enum field.", e);
     }
+  }
+
+  // Guava's CaseFormat does not handle non-snake-case field names the same as protobuf compiler,
+  // so we just directly port the compiler's code from here:
+  // https://github.com/google/protobuf/blob/2f4489a3e504e0a4aaffee69b551c6acc9e08374/src/google/protobuf/compiler/cpp/cpp_helpers.cc#L108
+  private static String underscoresToUpperCamelCase(String input) {
+    boolean capitalizeNextLetter = true;
+    StringBuilder result = new StringBuilder(input.length());
+    for (int i = 0; i < input.length(); i++) {
+      char c = input.charAt(i);
+      if (LOWERCASE_ASCII.matches(c)) {
+        if (capitalizeNextLetter) {
+          result.append((char) (c + ('A' - 'a')));
+        } else {
+          result.append(c);
+        }
+        capitalizeNextLetter = false;
+      } else if (UPPERCASE_ASCII.matches(c)) {
+        // Capital letters are left as-is.
+        result.append(c);
+        capitalizeNextLetter = false;
+      } else if (DIGITS_ASCII.matches(c)) {
+        result.append(c);
+        capitalizeNextLetter = true;
+      } else {
+        capitalizeNextLetter = true;
+      }
+    }
+    return result.toString();
   }
 }

@@ -60,6 +60,7 @@ import com.google.protobuf.util.JsonTestProto.TestFieldMask;
 import com.google.protobuf.util.JsonTestProto.TestMap;
 import com.google.protobuf.util.JsonTestProto.TestOneof;
 import com.google.protobuf.util.JsonTestProto.TestRecursive;
+import com.google.protobuf.util.JsonTestProto.TestRegression;
 import com.google.protobuf.util.JsonTestProto.TestStruct;
 import com.google.protobuf.util.JsonTestProto.TestTimestamp;
 import com.google.protobuf.util.JsonTestProto.TestWrappers;
@@ -764,6 +765,12 @@ public class MessageMarshallerTest {
     builder.clear();
     assertThatThrownBy(() -> mergeFromJson(recursiveJson(ParseSupport.RECURSION_LIMIT), builder))
         .isInstanceOf(InvalidProtocolBufferException.class);
+  }
+
+  // https://github.com/curioswitch/curiostack/issues/7
+  @Test
+  public void protoFieldAlreadyCamelCase() throws Exception {
+    assertMatchesUpstream(TestRegression.newBuilder().addFeedIds(1).build());
   }
 
   private String recursiveJson(int numRecursions) {
