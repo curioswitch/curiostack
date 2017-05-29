@@ -33,7 +33,6 @@ import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import com.linecorp.armeria.server.http.healthcheck.HttpHealthCheckService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
-import com.typesafe.config.ConfigFactory;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.Multibinds;
@@ -72,7 +71,9 @@ import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefin
  * }
  * }</pre>
  */
-@Module(includes = {MonitoringModule.class, InternalMultibindsModule.class})
+@Module(
+  includes = {ApplicationModule.class, MonitoringModule.class, InternalMultibindsModule.class}
+)
 public class ServerModule {
 
   private static final Logger logger = LogManager.getLogger();
@@ -89,11 +90,6 @@ public class ServerModule {
 
     @Multibinds
     abstract Set<StaticSiteServiceDefinition> staticSites();
-  }
-
-  @Provides
-  Config config() {
-    return ConfigFactory.load();
   }
 
   @Provides
@@ -135,9 +131,10 @@ public class ServerModule {
     }
 
     if (!grpcServices.isEmpty()) {
-      GrpcServiceBuilder serviceBuilder = new GrpcServiceBuilder()
-          .supportedSerializationFormats(GrpcSerializationFormats.values())
-          .enableUnframedRequests(true);
+      GrpcServiceBuilder serviceBuilder =
+          new GrpcServiceBuilder()
+              .supportedSerializationFormats(GrpcSerializationFormats.values())
+              .enableUnframedRequests(true);
       grpcServices.forEach(serviceBuilder::addService);
       sb.serviceUnder("/api", serviceBuilder.build());
     }

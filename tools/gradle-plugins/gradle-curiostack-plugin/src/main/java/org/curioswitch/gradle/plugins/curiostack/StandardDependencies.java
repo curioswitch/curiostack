@@ -112,6 +112,11 @@ class StandardDependencies {
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.zaxxer")
+              .version("2.6.2")
+              .addModules("HikariCP")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.typesafe")
               .version("1.3.1")
               .addModules("config")
@@ -196,7 +201,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.3")
+              .version("0.0.4")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -208,6 +213,21 @@ class StandardDependencies {
               .group("org.immutables")
               .version("2.4.6")
               .addModules("builder", "value")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("org.jooq")
+              .version("3.9.2")
+              .addModules("jooq")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("org.mockito")
+              .version("2.8.9")
+              .addModules("mockito-core")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("org.simpleflatmapper")
+              .version("3.11.8")
+              .addModules("sfm-jooq")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.slf4j")

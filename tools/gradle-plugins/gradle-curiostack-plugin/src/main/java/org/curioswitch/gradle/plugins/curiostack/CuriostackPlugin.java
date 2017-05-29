@@ -403,6 +403,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     dependencies.add(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME, "com.google.code.findbugs:jsr305");
     dependencies.add(testConfiguration.getName(), "org.assertj:assertj-core");
     dependencies.add(testConfiguration.getName(), "junit:junit");
+    dependencies.add(testConfiguration.getName(), "org.mockito:mockito-core");
   }
 
   private static Optional<Node> findChild(Node node, Predicate<Node> predicate) {
