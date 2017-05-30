@@ -138,7 +138,7 @@ public class ServerModule {
               .enableUnframedRequests(true);
       grpcServices.forEach(serviceBuilder::addService);
       if (!serverConfig.isDisableGrpcServiceDiscovery()) {
-        grpcServices.add(ProtoReflectionService.newInstance());
+        serviceBuilder.addService(ProtoReflectionService.newInstance());
       }
       sb.serviceUnder("/api", serviceBuilder.build());
     }
