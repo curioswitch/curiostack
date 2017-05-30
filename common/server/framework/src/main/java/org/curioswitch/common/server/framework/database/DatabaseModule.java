@@ -40,7 +40,6 @@ import java.util.concurrent.Executors;
 import javax.sql.DataSource;
 import org.curioswitch.common.server.framework.config.DatabaseConfig;
 import org.curioswitch.common.server.framework.config.ModifiableDatabaseConfig;
-import org.curioswitch.common.server.framework.database.DatabaseModule.InternalDatabaseModule;
 import org.jooq.Configuration;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
@@ -50,44 +49,40 @@ import org.jooq.impl.DataSourceConnectionProvider;
 import org.jooq.impl.DefaultConfiguration;
 import org.simpleflatmapper.jooq.SfmRecordMapperProvider;
 
-@Module(includes = InternalDatabaseModule.class)
-public class DatabaseModule {
+@Module
+public abstract class DatabaseModule {
 
-  @Module
-  public abstract static class InternalDatabaseModule {
-    @BindsOptionalOf
-    abstract MetricRegistry metricRegistry();
-  }
+  @BindsOptionalOf
+  abstract MetricRegistry metricRegistry();
 
   @Provides
-  DatabaseConfig dbConfig(Config config) {
+  static DatabaseConfig dbConfig(Config config) {
     return ConfigBeanFactory.create(config.getConfig("database"), ModifiableDatabaseConfig.class)
         .toImmutable();
   }
 
   @Provides
   @ForDatabase
-  ListeningExecutorService dbExecutor() {
+  static ListeningExecutorService dbExecutor() {
     return MoreExecutors.listeningDecorator(
         Executors.newFixedThreadPool(
             20, new ThreadFactoryBuilder().setNameFormat("dbio-%d").setDaemon(true).build()));
   }
 
   @Provides
-  DataSource dataSource(DatabaseConfig config, Optional<MetricRegistry> metricRegistry) {
+  static DataSource dataSource(DatabaseConfig config, Optional<MetricRegistry> metricRegistry) {
     HikariConfig hikari = new HikariConfig();
     hikari.setJdbcUrl(config.getJdbcUrl());
     hikari.setUsername(config.getUsername());
     hikari.setPassword(config.getPassword());
     hikari.addDataSourceProperty("cachePrepStmts", "true");
-    if (metricRegistry.isPresent()) {
-      hikari.setMetricRegistry(metricRegistry);
-    }
+    metricRegistry.ifPresent(hikari::setMetricRegistry);
     return new HikariDataSource(hikari);
   }
 
   @Provides
-  DSLContext dbContext(DataSource dataSource, @ForDatabase ListeningExecutorService dbExecutor) {
+  static DSLContext dbContext(
+      DataSource dataSource, @ForDatabase ListeningExecutorService dbExecutor) {
     Configuration configuration =
         new DefaultConfiguration()
             .set(dbExecutor)

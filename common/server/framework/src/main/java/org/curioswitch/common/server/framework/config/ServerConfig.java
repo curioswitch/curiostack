@@ -28,6 +28,7 @@ import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Modifiable;
 
+/** General configuration properties for the server. */
 @Immutable
 @Modifiable
 @JavaBeanStyle
@@ -38,4 +39,13 @@ public interface ServerConfig {
    * should only be enabled for local development.
    */
   boolean isGenerateSelfSignedCertificate();
+
+  /**
+   * Whether the {@link io.grpc.protobuf.services.ProtoReflectionService} should be added to the
+   * server to enable discovery of bound {@link com.linecorp.armeria.server.grpc.GrpcService}s. The
+   * "grpc.reflection.v1alpha.ServerReflection/*" path should be blocked from external traffic when
+   * enabling this service. If it is difficult to block the service, this should be disabled
+   * instead.
+   */
+  boolean isDisableGrpcServiceDiscovery();
 }

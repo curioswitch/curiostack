@@ -93,7 +93,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.dagger")
-              .version("2.10")
+              .version("2.11")
               .addModules("dagger", "dagger-compiler")
               .build(),
           ImmutableDependencySet.builder()
@@ -134,7 +134,7 @@ class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("io.grpc")
               .version("1.3.0")
-              .addModules("grpc-core", "grpc-protobuf", "grpc-stub")
+              .addModules("grpc-core", "grpc-protobuf", "grpc-services", "grpc-stub")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
@@ -201,7 +201,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.4")
+              .version("0.0.5")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()

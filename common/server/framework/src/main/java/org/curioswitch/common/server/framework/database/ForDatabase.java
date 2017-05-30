@@ -32,6 +32,6 @@ import javax.inject.Qualifier;
 
 /** {@link Qualifier} for injected objects used by {@link DatabaseModule}. */
 @Qualifier
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @Target({ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
 public @interface ForDatabase {}

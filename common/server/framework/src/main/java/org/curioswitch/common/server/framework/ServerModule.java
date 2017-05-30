@@ -37,6 +37,7 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.Multibinds;
 import io.grpc.BindableService;
+import io.grpc.protobuf.services.ProtoReflectionService;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import java.security.cert.CertificateException;
 import java.util.Set;
@@ -136,6 +137,9 @@ public class ServerModule {
               .supportedSerializationFormats(GrpcSerializationFormats.values())
               .enableUnframedRequests(true);
       grpcServices.forEach(serviceBuilder::addService);
+      if (!serverConfig.isDisableGrpcServiceDiscovery()) {
+        grpcServices.add(ProtoReflectionService.newInstance());
+      }
       sb.serviceUnder("/api", serviceBuilder.build());
     }
 
