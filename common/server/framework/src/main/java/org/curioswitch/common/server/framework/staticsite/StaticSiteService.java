@@ -24,13 +24,17 @@
 
 package org.curioswitch.common.server.framework.staticsite;
 
+import com.google.common.collect.ImmutableSet;
 import com.linecorp.armeria.common.http.HttpRequest;
 import com.linecorp.armeria.common.http.HttpResponse;
 import com.linecorp.armeria.server.AbstractPathMapping;
+import com.linecorp.armeria.server.PathMappingResult;
 import com.linecorp.armeria.server.composition.AbstractCompositeService;
 import com.linecorp.armeria.server.composition.CompositeServiceEntry;
 import com.linecorp.armeria.server.http.file.HttpFileService;
 import com.linecorp.armeria.server.http.file.HttpFileServiceBuilder;
+import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * A {@link com.linecorp.armeria.server.Service} which serves a single-page static site (SPA). All
@@ -48,8 +52,13 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
     private static final ToIndexPathMapping SINGLETON = new ToIndexPathMapping();
 
     @Override
-    protected String doApply(String path) {
-      return "/index.html";
+    protected PathMappingResult doApply(String path, @Nullable String query) {
+      return PathMappingResult.of("/index.html", query);
+    }
+
+    @Override
+    public Set<String> paramNames() {
+      return ImmutableSet.of();
     }
 
     @Override

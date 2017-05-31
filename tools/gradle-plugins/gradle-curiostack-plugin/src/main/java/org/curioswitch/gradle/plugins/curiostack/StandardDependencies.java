@@ -83,12 +83,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.0.1")
+              .version("1.0.2")
               .addModules("google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.17.2-alpha")
+              .version("0.18.0-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
@@ -103,12 +103,17 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.protobuf")
+              .version("3.3.1")
+              .addModules("protobuf-java", "protobuf-java-util")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("com.google.protobuf")
               .version("3.3.0")
-              .addModules("protoc", "protobuf-java", "protobuf-java-util")
+              .addModules("protoc")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.46.0")
+              .version("0.47.0")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -191,7 +196,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.assertj")
-              .version("3.7.0")
+              .version("3.8.0")
               .addModules("assertj-core")
               .build(),
           ImmutableDependencySet.builder()
@@ -211,7 +216,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.immutables")
-              .version("2.4.6")
+              .version("2.5.2")
               .addModules("builder", "value")
               .build(),
           ImmutableDependencySet.builder()
@@ -237,7 +242,7 @@ class StandardDependencies {
 
   static final List<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:3.0.6",
+          "com.bmuschko:gradle-docker-plugin:3.0.7",
           "com.diffplug.spotless:spotless-plugin-gradle:3.2.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.1",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3",
@@ -245,9 +250,9 @@ class StandardDependencies {
           "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.boxfuse.client:flyway-release:4.2.0",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17",
-          "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.1",
+          "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
           "io.spring.gradle:dependency-management-plugin:1.0.2.RELEASE",
           "me.champeau.gradle:jmh-gradle-plugin:0.3.1",
-          "mysql:mysql-connector-java:6.0.6",
+          "mysql:mysql-connector-java:5.1.42",
           "net.ltgt.gradle:gradle-apt-plugin:0.9");
 }
