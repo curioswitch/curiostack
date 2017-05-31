@@ -65,6 +65,25 @@ public class DeployPodTask extends DefaultTask {
 
     final ImmutableDeploymentConfiguration deploymentConfig = config.getTypes().getByName(type);
 
+    ImmutableList.Builder<EnvVar> envVars =
+        ImmutableList.<EnvVar>builder()
+            .addAll(
+                deploymentConfig
+                        .envVars()
+                        .entrySet()
+                        .stream()
+                        .map((entry) -> new EnvVar(entry.getKey(), entry.getValue(), null))
+                    ::iterator);
+    if (!deploymentConfig.envVars().containsKey("JAVA_OPTS")) {
+      envVars.add(
+          new EnvVar(
+              "JAVA_OPTS",
+              "-Xms" + deploymentConfig.jvmHeapMb()
+                  + "m -Xmx" + deploymentConfig.jvmHeapMb() + "m -Dconfig.resource=application-"
+                  + type + ".conf",
+              null));
+    }
+
     Deployment deployment =
         new DeploymentBuilder()
             .withMetadata(
@@ -86,7 +105,7 @@ public class DeployPodTask extends DefaultTask {
                         new PodTemplateSpecBuilder()
                             .withMetadata(
                                 new ObjectMetaBuilder()
-                                    .addToLabels("getName", deploymentConfig.deploymentName())
+                                    .addToLabels("name", deploymentConfig.deploymentName())
                                     .build())
                             .withSpec(
                                 new PodSpecBuilder()
@@ -106,16 +125,7 @@ public class DeployPodTask extends DefaultTask {
                                                     .build())
                                             .withImage(deploymentConfig.image())
                                             .withName(deploymentConfig.deploymentName())
-                                            .withEnv(
-                                                ImmutableList.of(
-                                                    new EnvVar(
-                                                        "JAVA_OPTS",
-                                                        "-Xms"
-                                                            + deploymentConfig.jvmHeapMb()
-                                                            + "m -Xmx"
-                                                            + deploymentConfig.jvmHeapMb()
-                                                            + "m",
-                                                        null)))
+                                            .withEnv(envVars.build())
                                             .withImagePullPolicy("Always")
                                             .withReadinessProbe(
                                                 new ProbeBuilder()

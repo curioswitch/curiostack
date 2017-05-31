@@ -24,7 +24,9 @@
 
 package org.curioswitch.gradle.plugins.curioserver;
 
+import com.google.common.collect.ImmutableMap;
 import groovy.lang.Closure;
+import java.util.Map;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePluginConvention;
@@ -98,6 +100,10 @@ public interface ImmutableDeploymentExtension {
 
     default int containerPort() {
       return 8080;
+    }
+
+    default Map<String, String> envVars() {
+      return ImmutableMap.of();
     }
   }
 
