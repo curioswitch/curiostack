@@ -46,12 +46,14 @@ import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
 import org.curioswitch.gradle.plugins.gcloud.tasks.CreateBuildCacheBucket;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
+import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.SetupTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Rule;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.BasePluginConvention;
+import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Style;
 import org.immutables.value.Value.Style.BuilderVisibility;
@@ -76,10 +78,9 @@ public class GcloudPlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getExtensions().create(ImmutableGcloudExtension.NAME, GcloudExtension.class, project);
 
-    project
-        .getExtensions()
-        .getExtraProperties()
-        .set(GcloudTask.class.getSimpleName(), GcloudTask.class);
+    ExtraPropertiesExtension ext = project.getExtensions().getExtraProperties();
+    ext.set(GcloudTask.class.getSimpleName(), GcloudTask.class);
+    ext.set(RequestNamespaceCertTask.class.getSimpleName(), RequestNamespaceCertTask.class);
 
     project
         .getTasks()

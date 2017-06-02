@@ -200,6 +200,11 @@ class StandardDependencies {
               .addModules("assertj-core")
               .build(),
           ImmutableDependencySet.builder()
+              .group("org.bouncycastle")
+              .version("1.57")
+              .addModules("bcpkix-jdk15on")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("org.codehaus.groovy")
               .version("2.4.10")
               .addModules("groovy")

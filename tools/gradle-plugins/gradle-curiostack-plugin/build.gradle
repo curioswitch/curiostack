@@ -76,6 +76,7 @@ dependencies {
     compile 'io.fabric8:kubernetes-client'
     compile 'io.spring.gradle:dependency-management-plugin'
     compile 'me.champeau.gradle:jmh-gradle-plugin'
+    compile 'org.bouncycastle:bcpkix-jdk15on'
 
     runtime 'mysql:mysql-connector-java'
 
@@ -88,6 +89,11 @@ gradlePlugin {
         buildCache {
             id = 'org.curioswitch.gradle-gcloud-build-cache-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.gcloud.GcloudBuildCachePlugin'
+        }
+        cluster {
+
+            id = 'org.curioswitch.gradle-curio-cluster-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.gcloud.ClusterPlugin'
         }
         curiostack {
             id = 'org.curioswitch.gradle-curiostack-plugin'
