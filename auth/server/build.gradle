@@ -38,8 +38,7 @@ dependencies {
 deployment {
     types {
         alpha {
-            // TODO(choko): Setup proper namespace.
-            namespace = 'default'
+            namespace = 'auth-dev'
         }
     }
 }

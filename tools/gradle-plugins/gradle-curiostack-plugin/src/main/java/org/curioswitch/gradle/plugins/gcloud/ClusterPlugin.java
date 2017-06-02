@@ -35,13 +35,15 @@ public class ClusterPlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getExtensions().create(ImmutableClusterExtension.NAME, ClusterExtension.class, project);
 
-    project.afterEvaluate(ignored -> {
-      ImmutableClusterExtension config = project.getExtensions().getByType(ClusterExtension.class);
+    project.afterEvaluate(
+        ignored -> {
+          ImmutableClusterExtension config =
+              project.getExtensions().getByType(ClusterExtension.class);
 
-      if (config.namespace() != null) {
-        addNamespaceTasks(project);
-      }
-    });
+          if (config.namespace() != null) {
+            addNamespaceTasks(project);
+          }
+        });
   }
 
   private static void addNamespaceTasks(Project project) {

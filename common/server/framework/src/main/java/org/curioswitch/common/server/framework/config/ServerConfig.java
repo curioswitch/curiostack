@@ -40,6 +40,12 @@ public interface ServerConfig {
    */
   boolean isGenerateSelfSignedCertificate();
 
+  /** Path to the file containing the TLS certificate for this server. */
+  String getTlsCertificatePath();
+
+  /** Path to the file containing the private key for the TLS certificate for this server. */
+  String getTlsPrivateKeyPath();
+
   /**
    * Whether the {@link io.grpc.protobuf.services.ProtoReflectionService} should be added to the
    * server to enable discovery of bound {@link com.linecorp.armeria.server.grpc.GrpcService}s. The

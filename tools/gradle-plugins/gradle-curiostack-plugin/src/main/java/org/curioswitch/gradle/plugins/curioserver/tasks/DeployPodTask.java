@@ -36,6 +36,9 @@ import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder;
 import io.fabric8.kubernetes.api.model.ProbeBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.ResourceRequirementsBuilder;
+import io.fabric8.kubernetes.api.model.SecretVolumeSourceBuilder;
+import io.fabric8.kubernetes.api.model.VolumeBuilder;
+import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentSpecBuilder;
@@ -78,9 +81,13 @@ public class DeployPodTask extends DefaultTask {
       envVars.add(
           new EnvVar(
               "JAVA_OPTS",
-              "-Xms" + deploymentConfig.jvmHeapMb()
-                  + "m -Xmx" + deploymentConfig.jvmHeapMb() + "m -Dconfig.resource=application-"
-                  + type + ".conf",
+              "-Xms"
+                  + deploymentConfig.jvmHeapMb()
+                  + "m -Xmx"
+                  + deploymentConfig.jvmHeapMb()
+                  + "m -Dconfig.resource=application-"
+                  + type
+                  + ".conf",
               null));
     }
 
@@ -147,6 +154,20 @@ public class DeployPodTask extends DefaultTask {
                                                             deploymentConfig.containerPort())
                                                         .withName("http")
                                                         .build()))
+                                            .withVolumeMounts(
+                                                new VolumeMountBuilder()
+                                                    .withName("tls")
+                                                    .withMountPath("/etc/tls")
+                                                    .withReadOnly(true)
+                                                    .build())
+                                            .build())
+                                    .withVolumes(
+                                        new VolumeBuilder()
+                                            .withName("tls")
+                                            .withSecret(
+                                                new SecretVolumeSourceBuilder()
+                                                    .withSecretName("server-tls")
+                                                    .build())
                                             .build())
                                     .build())
                             .build())

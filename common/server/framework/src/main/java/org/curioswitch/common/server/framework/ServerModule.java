@@ -39,6 +39,7 @@ import dagger.multibindings.Multibinds;
 import io.grpc.BindableService;
 import io.grpc.protobuf.services.ProtoReflectionService;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import java.io.File;
 import java.security.cert.CertificateException;
 import java.util.Set;
 import javax.net.ssl.SSLException;
@@ -106,8 +107,6 @@ public class ServerModule {
       MetricsHttpService metricsHttpService,
       ServerConfig serverConfig) {
     ServerBuilder sb = new ServerBuilder().port(8080, HttpSessionProtocols.HTTPS);
-    // TODO(choko): Remove after integrating https into kubernetes
-    sb.port(8081, HttpSessionProtocols.HTTP);
 
     if (serverConfig.isGenerateSelfSignedCertificate()) {
       logger.warn("Generating self-signed certificate. This should only happen on local!!!");
@@ -118,6 +117,20 @@ public class ServerModule {
       } catch (CertificateException | SSLException e) {
         // Can't happen.
         throw new IllegalStateException(e);
+      }
+    } else if (serverConfig.getTlsCertificatePath().isEmpty()
+        || serverConfig.getTlsPrivateKeyPath().isEmpty()) {
+      throw new IllegalStateException(
+          "No TLS configuration provided, Curiostack does not support non-TLS servers. "
+              + "Use gradle-curio-cluster-plugin to set up a namespace and TLS.");
+    } else {
+      try {
+        sb.sslContext(
+            HttpSessionProtocols.HTTPS,
+            new File(serverConfig.getTlsCertificatePath()),
+            new File(serverConfig.getTlsPrivateKeyPath()));
+      } catch (SSLException e) {
+        throw new IllegalStateException("Could not load TLS certificate.", e);
       }
     }
 

@@ -56,12 +56,15 @@ import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
+import org.bouncycastle.openssl.jcajce.JcaPKCS8Generator;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
+import org.bouncycastle.util.io.pem.PemGenerationException;
+import org.bouncycastle.util.io.pem.PemObject;
 import org.curioswitch.gradle.plugins.gcloud.ClusterExtension;
 import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
 import org.curioswitch.gradle.plugins.gcloud.ImmutableClusterExtension;
@@ -98,11 +101,11 @@ public class RequestNamespaceCertTask extends DefaultTask {
             keyPair.getPublic());
     GeneralNames subjectAltNames =
         new GeneralNames(
-            new GeneralName[]{
-                new GeneralName(GeneralName.dNSName, "*." + cluster.namespace()),
-                new GeneralName(GeneralName.dNSName, "*." + cluster.namespace() + ".svc"),
-                new GeneralName(
-                    GeneralName.dNSName, "*." + cluster.namespace() + ".svc.cluster.local")
+            new GeneralName[] {
+              new GeneralName(GeneralName.dNSName, "*." + cluster.namespace()),
+              new GeneralName(GeneralName.dNSName, "*." + cluster.namespace() + ".svc"),
+              new GeneralName(
+                  GeneralName.dNSName, "*." + cluster.namespace() + ".svc.cluster.local")
             });
     ExtensionsGenerator extensions = new ExtensionsGenerator();
     try {
@@ -159,47 +162,70 @@ public class RequestNamespaceCertTask extends DefaultTask {
         config.download()
             ? new File(config.platformConfig().gcloudBinDir(), "kubectl").getAbsolutePath()
             : "kubectl";
-    getProject().exec(exec -> {
-      exec.executable(command);
-      exec.args("create", "-f", "-");
-      exec.setStandardInput(new ByteArrayInputStream(encodedApiRequest));
-    });
-    getProject().exec(exec -> {
-      exec.executable(command);
-      exec.args("certificate", "approve", cluster.namespace() + ".server.crt");
-    });
+    getProject()
+        .exec(
+            exec -> {
+              exec.executable(command);
+              exec.args("create", "-f", "-");
+              exec.setStandardInput(new ByteArrayInputStream(encodedApiRequest));
+            });
+    getProject()
+        .exec(
+            exec -> {
+              exec.executable(command);
+              exec.args("certificate", "approve", cluster.namespace() + ".server.crt");
+            });
 
     ByteArrayOutputStream certStream = new ByteArrayOutputStream();
-    getProject().exec(exec -> {
-      exec.executable(command);
-      exec.args("get", "csr", cluster.namespace() + ".server.crt", "-o",
-          "jsonpath={.status.certificate}");
-      exec.setStandardOutput(certStream);
-    });
-    String certificate = new String(Base64.getDecoder().decode(certStream.toByteArray()),
-        StandardCharsets.UTF_8);
+    getProject()
+        .exec(
+            exec -> {
+              exec.executable(command);
+              exec.args(
+                  "get",
+                  "csr",
+                  cluster.namespace() + ".server.crt",
+                  "-o",
+                  "jsonpath={.status.certificate}");
+              exec.setStandardOutput(certStream);
+            });
+    String certificate =
+        new String(Base64.getDecoder().decode(certStream.toByteArray()), StandardCharsets.UTF_8);
+
+    final JcaPKCS8Generator keyGenerator;
+    final PemObject keyObject;
+    try {
+      keyGenerator = new JcaPKCS8Generator(keyPair.getPrivate(), null);
+      keyObject = keyGenerator.generate();
+    } catch (PemGenerationException e) {
+      throw new IllegalStateException("Could not encode to pkcs8.", e);
+    }
+
     StringWriter keyWriter = new StringWriter();
     try (JcaPEMWriter pemWriter = new JcaPEMWriter(keyWriter)) {
-      pemWriter.writeObject(keyPair.getPrivate());
+      pemWriter.writeObject(keyObject);
     } catch (IOException e) {
       throw new IllegalStateException("Could not encode csr, can't happen.", e);
     }
     String key = keyWriter.toString();
 
     KubernetesClient client = new DefaultKubernetesClient();
-    Secret certificateSecret = new SecretBuilder()
-        .withMetadata(new ObjectMetaBuilder()
-            .withName("server-tls")
-            .withNamespace(cluster.namespace())
-            .build())
-        .withType("Opaque")
-        .withData(ImmutableMap.of(
-            "server.crt", Base64.getEncoder().encodeToString(
-                certificate.getBytes(StandardCharsets.UTF_8)),
-            "server-key.pem", Base64.getEncoder().encodeToString(
-                key.getBytes(StandardCharsets.UTF_8))
-        ))
-        .build();
+    Secret certificateSecret =
+        new SecretBuilder()
+            .withMetadata(
+                new ObjectMetaBuilder()
+                    .withName("server-tls")
+                    .withNamespace(cluster.namespace())
+                    .build())
+            .withType("Opaque")
+            .withData(
+                ImmutableMap.of(
+                    "server.crt",
+                        Base64.getEncoder()
+                            .encodeToString(certificate.getBytes(StandardCharsets.UTF_8)),
+                    "server-key.pem",
+                        Base64.getEncoder().encodeToString(key.getBytes(StandardCharsets.UTF_8))))
+            .build();
     client.resource(certificateSecret).createOrReplace();
   }
 }

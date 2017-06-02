@@ -29,9 +29,7 @@ import org.immutables.value.Value;
 import org.immutables.value.Value.Modifiable;
 import org.immutables.value.Value.Style;
 
-/**
- * Configuration for setting up a Kubernetes cluster resource.
- */
+/** Configuration for setting up a Kubernetes cluster resource. */
 @Modifiable
 @Style(create = "new", typeModifiable = "*", defaultAsDefault = true, typeAbstract = "Immutable*")
 public interface ImmutableClusterExtension {
@@ -41,9 +39,7 @@ public interface ImmutableClusterExtension {
   @Value.Parameter
   Project gradleProject();
 
-  /**
-   * The name of a namespace to create, or {@code null} if no namespace to create.
-   */
+  /** The name of a namespace to create, or {@code null} if no namespace to create. */
   default String namespace() {
     return null;
   }

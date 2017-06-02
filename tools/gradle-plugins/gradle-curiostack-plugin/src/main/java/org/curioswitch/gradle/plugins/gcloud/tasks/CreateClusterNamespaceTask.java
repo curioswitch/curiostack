@@ -38,13 +38,12 @@ public class CreateClusterNamespaceTask extends DefaultTask {
 
   @TaskAction
   public void exec() {
-    ImmutableClusterExtension cluster
-        = getProject().getExtensions().getByType(ClusterExtension.class);
-    Namespace namespace = new NamespaceBuilder()
-        .withMetadata(new ObjectMetaBuilder()
-            .withName(cluster.namespace())
-            .build())
-        .build();
+    ImmutableClusterExtension cluster =
+        getProject().getExtensions().getByType(ClusterExtension.class);
+    Namespace namespace =
+        new NamespaceBuilder()
+            .withMetadata(new ObjectMetaBuilder().withName(cluster.namespace()).build())
+            .build();
 
     KubernetesClient client = new DefaultKubernetesClient();
     client.resource(namespace).createOrReplace();
