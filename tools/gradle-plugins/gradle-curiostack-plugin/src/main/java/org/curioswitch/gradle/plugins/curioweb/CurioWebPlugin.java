@@ -28,7 +28,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.moowork.gradle.node.NodeExtension;
 import com.moowork.gradle.node.NodePlugin;
-import com.moowork.gradle.node.npm.NpmTask;
+import com.moowork.gradle.node.yarn.YarnTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaLibraryPlugin;
@@ -65,7 +65,7 @@ public class CurioWebPlugin implements Plugin<Project> {
     node.setYarnVersion(YARN_VERSION);
     node.setDownload(true);
 
-    CacheableNpmTask buildWeb = project.getTasks().create("buildWeb", CacheableNpmTask.class);
+    CacheableYarnTask buildWeb = project.getTasks().create("buildWeb", CacheableYarnTask.class);
     buildWeb.dependsOn("yarn");
     buildWeb.setArgs(ImmutableList.of("run", "build"));
     buildWeb.getInputs().dir("app");
@@ -87,5 +87,5 @@ public class CurioWebPlugin implements Plugin<Project> {
 
   @CacheableTask
   @ParallelizableTask
-  public static class CacheableNpmTask extends NpmTask {}
+  public static class CacheableYarnTask extends YarnTask {}
 }
