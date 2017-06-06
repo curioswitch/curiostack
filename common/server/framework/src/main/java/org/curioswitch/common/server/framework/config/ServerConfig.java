@@ -54,4 +54,11 @@ public interface ServerConfig {
    * instead.
    */
   boolean isDisableGrpcServiceDiscovery();
+
+  /**
+   * Whether the {@link com.linecorp.armeria.server.docs.DocService} is disabled in the server. It
+   * is recommended to leave it enabled, and this option has mainly been added temporarily as a
+   * workaround for https://github.com/line/armeria/pull/592.
+   */
+  boolean isDisableDocService();
 }

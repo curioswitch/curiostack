@@ -134,7 +134,9 @@ public class ServerModule {
       }
     }
 
-    sb.serviceUnder("/internal/docs", new DocServiceBuilder().build());
+    if (!serverConfig.isDisableDocService()) {
+      sb.serviceUnder("/internal/docs", new DocServiceBuilder().build());
+    }
     sb.serviceAt("/internal/health", new HttpHealthCheckService());
     sb.serviceAt("/internal/metrics", metricsHttpService);
 
