@@ -29,6 +29,10 @@ import com.linecorp.armeria.common.http.HttpRequest;
 import com.linecorp.armeria.common.http.HttpResponse;
 import com.linecorp.armeria.server.AbstractPathMapping;
 import com.linecorp.armeria.server.PathMappingResult;
+import com.linecorp.armeria.server.Service;
+import com.linecorp.armeria.server.ServiceRequestContext;
+import com.linecorp.armeria.server.ServiceRequestContextWrapper;
+import com.linecorp.armeria.server.SimpleDecoratingService;
 import com.linecorp.armeria.server.composition.AbstractCompositeService;
 import com.linecorp.armeria.server.composition.CompositeServiceEntry;
 import com.linecorp.armeria.server.http.file.HttpFileService;
@@ -88,6 +92,38 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
     super(
         CompositeServiceEntry.ofPrefix(staticPath, fileService),
         CompositeServiceEntry.ofExact("/sw.js", fileService),
-        CompositeServiceEntry.of(ToIndexPathMapping.SINGLETON, fileService));
+        CompositeServiceEntry.ofCatchAll(fileService.decorate(IndexService::new)));
+  }
+
+  // TODO(choko): Remove after path mapping for redirects works again.
+  private static class IndexService extends SimpleDecoratingService<HttpRequest, HttpResponse> {
+
+    /**
+     * Creates a new instance that decorates the specified {@link Service}.
+     */
+    private IndexService(
+        Service<? super HttpRequest, ? extends HttpResponse> delegate) {
+      super(delegate);
+    }
+
+    @Override
+    public HttpResponse serve(ServiceRequestContext ctx, HttpRequest req) throws Exception {
+      return delegate().serve(new ContextWrapper(ctx), req);
+    }
+
+    private static class ContextWrapper extends ServiceRequestContextWrapper {
+
+      /**
+       * Creates a new instance.
+       */
+      private ContextWrapper(ServiceRequestContext delegate) {
+        super(delegate);
+      }
+
+      @Override
+      public String pathWithoutPrefix() {
+        return "/index.html";
+      }
+    }
   }
 }
