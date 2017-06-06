@@ -140,12 +140,6 @@ public class ServerModule {
     sb.serviceAt("/internal/health", new HttpHealthCheckService());
     sb.serviceAt("/internal/metrics", metricsHttpService);
 
-    for (StaticSiteServiceDefinition staticSite : staticSites) {
-      sb.serviceUnder(
-          staticSite.urlRoot(),
-          StaticSiteService.of(staticSite.staticPath(), staticSite.classpathRoot()));
-    }
-
     if (!grpcServices.isEmpty()) {
       GrpcServiceBuilder serviceBuilder =
           new GrpcServiceBuilder()
@@ -156,6 +150,12 @@ public class ServerModule {
         serviceBuilder.addService(ProtoReflectionService.newInstance());
       }
       sb.serviceUnder("/api", serviceBuilder.build());
+    }
+
+    for (StaticSiteServiceDefinition staticSite : staticSites) {
+      sb.serviceUnder(
+          staticSite.urlRoot(),
+          StaticSiteService.of(staticSite.staticPath(), staticSite.classpathRoot()));
     }
 
     Server server = sb.build();
