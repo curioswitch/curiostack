@@ -56,7 +56,7 @@ public class DeployDevDbPodTask extends DefaultTask {
   @TaskAction
   public void exec() {
     ImmutableDatabaseExtension config =
-        getProject().getRootProject().getExtensions().getByType(DatabaseExtension.class);
+        getProject().getExtensions().getByType(DatabaseExtension.class);
 
     PersistentVolumeClaim volumeClaim =
         new PersistentVolumeClaimBuilder()
