@@ -24,10 +24,12 @@
 
 package org.curioswitch.common.server.framework;
 
+import com.linecorp.armeria.common.RequestContext;
 import com.linecorp.armeria.common.grpc.GrpcSerializationFormats;
 import com.linecorp.armeria.common.http.HttpSessionProtocols;
 import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
+import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import com.linecorp.armeria.server.http.healthcheck.HttpHealthCheckService;
@@ -36,16 +38,17 @@ import com.typesafe.config.ConfigBeanFactory;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.Multibinds;
+import dagger.producers.Production;
 import io.grpc.BindableService;
 import io.grpc.protobuf.services.ProtoReflectionService;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import java.io.File;
 import java.security.cert.CertificateException;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import javax.net.ssl.SSLException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.curioswitch.common.server.framework.ServerModule.InternalMultibindsModule;
 import org.curioswitch.common.server.framework.config.ModifiableServerConfig;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
@@ -73,35 +76,32 @@ import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefin
  * }
  * }</pre>
  */
-@Module(
-  includes = {ApplicationModule.class, MonitoringModule.class, InternalMultibindsModule.class}
-)
-public class ServerModule {
+@Module(includes = {ApplicationModule.class, MonitoringModule.class})
+public abstract class ServerModule {
 
   private static final Logger logger = LogManager.getLogger();
 
-  /**
-   * An abstract {@link Module} to declare {@link Multibinds} to allow empty {@link Set}s. Not for
-   * use outside this class.
-   */
-  @Module
-  public abstract static class InternalMultibindsModule {
+  @Multibinds
+  abstract Set<BindableService> grpcServices();
 
-    @Multibinds
-    abstract Set<BindableService> grpcServices();
-
-    @Multibinds
-    abstract Set<StaticSiteServiceDefinition> staticSites();
-  }
+  @Multibinds
+  abstract Set<StaticSiteServiceDefinition> staticSites();
 
   @Provides
-  ServerConfig serverConfig(Config config) {
+  static ServerConfig serverConfig(Config config) {
     return ConfigBeanFactory.create(config.getConfig("server"), ModifiableServerConfig.class)
         .toImmutable();
   }
 
   @Provides
-  Server armeriaServer(
+  @Production
+  static Executor executor() {
+    ServiceRequestContext ctx = RequestContext.current();
+    return ctx.contextAwareEventLoop();
+  }
+
+  @Provides
+  static Server armeriaServer(
       Set<BindableService> grpcServices,
       Set<StaticSiteServiceDefinition> staticSites,
       MetricsHttpService metricsHttpService,

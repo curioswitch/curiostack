@@ -98,11 +98,8 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
   // TODO(choko): Remove after path mapping for redirects works again.
   private static class IndexService extends SimpleDecoratingService<HttpRequest, HttpResponse> {
 
-    /**
-     * Creates a new instance that decorates the specified {@link Service}.
-     */
-    private IndexService(
-        Service<? super HttpRequest, ? extends HttpResponse> delegate) {
+    /** Creates a new instance that decorates the specified {@link Service}. */
+    private IndexService(Service<? super HttpRequest, ? extends HttpResponse> delegate) {
       super(delegate);
     }
 
@@ -113,9 +110,7 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
 
     private static class ContextWrapper extends ServiceRequestContextWrapper {
 
-      /**
-       * Creates a new instance.
-       */
+      /** Creates a new instance. */
       private ContextWrapper(ServiceRequestContext delegate) {
         super(delegate);
       }

@@ -94,7 +94,7 @@ class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("com.google.dagger")
               .version("2.11")
-              .addModules("dagger", "dagger-compiler")
+              .addModules("dagger", "dagger-compiler", "dagger-producers")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.guava")
@@ -117,14 +117,19 @@ class StandardDependencies {
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
-              .group("com.zaxxer")
-              .version("2.6.2")
-              .addModules("HikariCP")
+              .group("com.spotify")
+              .version("3.0.0")
+              .addModules("futures-extra")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.typesafe")
               .version("1.3.1")
               .addModules("config")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("com.zaxxer")
+              .version("2.6.2")
+              .addModules("HikariCP")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.dropwizard.metrics")
@@ -211,7 +216,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.8")
+              .version("0.0.9")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
