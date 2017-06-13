@@ -116,6 +116,7 @@ public class DeployPodTask extends DefaultTask {
                     .withReplicas(deploymentConfig.replicas())
                     .withStrategy(
                         new DeploymentStrategyBuilder()
+                            .withType("RollingUpdate")
                             .withRollingUpdate(
                                 new RollingUpdateDeploymentBuilder()
                                     .withNewMaxUnavailable(0)
@@ -125,7 +126,10 @@ public class DeployPodTask extends DefaultTask {
                         new PodTemplateSpecBuilder()
                             .withMetadata(
                                 new ObjectMetaBuilder()
-                                    .addToLabels("name", deploymentConfig.deploymentName())
+                                    .withLabels(
+                                        ImmutableMap.of(
+                                            "name", deploymentConfig.deploymentName(),
+                                            "revision", System.getenv().getOrDefault("REVISION_ID", "none")))
                                     .build())
                             .withSpec(
                                 new PodSpecBuilder()
@@ -215,7 +219,6 @@ public class DeployPodTask extends DefaultTask {
       client.resource(service).createOrReplace();
     }
 
-
     if (config.externalHost() != null) {
       Ingress ingress =
           new IngressBuilder()
@@ -223,16 +226,18 @@ public class DeployPodTask extends DefaultTask {
                   new ObjectMetaBuilder()
                       .withNamespace(deploymentConfig.namespace())
                       .withName(deploymentConfig.deploymentName())
-                      .withAnnotations(ImmutableMap.of(
-                          "kubernetes.io/tls-acme", "true",
-                          "kubernetes.io/ingress.class", "gce"))
+                      .withAnnotations(
+                          ImmutableMap.of(
+                              "kubernetes.io/tls-acme", "true",
+                              "kubernetes.io/ingress.class", "gce"))
                       .build())
               .withSpec(
                   new IngressSpecBuilder()
-                      .withTls(new IngressTLSBuilder()
-                          .withSecretName(deploymentConfig.deploymentName() + "-tls")
-                          .withHosts(config.externalHost())
-                          .build())
+                      .withTls(
+                          new IngressTLSBuilder()
+                              .withSecretName(deploymentConfig.deploymentName() + "-tls")
+                              .withHosts(config.externalHost())
+                              .build())
                       .withRules(
                           new IngressRuleBuilder()
                               .withHost(config.externalHost())
