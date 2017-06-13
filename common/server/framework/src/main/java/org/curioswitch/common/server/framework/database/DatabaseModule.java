@@ -37,6 +37,7 @@ import dagger.Module;
 import dagger.Provides;
 import java.util.Optional;
 import java.util.concurrent.Executors;
+import javax.inject.Singleton;
 import javax.sql.DataSource;
 import org.curioswitch.common.server.framework.config.DatabaseConfig;
 import org.curioswitch.common.server.framework.config.ModifiableDatabaseConfig;
@@ -55,6 +56,7 @@ public abstract class DatabaseModule {
   abstract MetricRegistry metricRegistry();
 
   @Provides
+  @Singleton
   static DatabaseConfig dbConfig(Config config) {
     return ConfigBeanFactory.create(config.getConfig("database"), ModifiableDatabaseConfig.class)
         .toImmutable();
@@ -62,6 +64,7 @@ public abstract class DatabaseModule {
 
   @Provides
   @ForDatabase
+  @Singleton
   static ListeningExecutorService dbExecutor() {
     return MoreExecutors.listeningDecorator(
         Executors.newFixedThreadPool(
@@ -69,6 +72,7 @@ public abstract class DatabaseModule {
   }
 
   @Provides
+  @Singleton
   static DataSource dataSource(DatabaseConfig config, Optional<MetricRegistry> metricRegistry) {
     HikariConfig hikari = new HikariConfig();
     hikari.setJdbcUrl(config.getJdbcUrl());
@@ -80,6 +84,7 @@ public abstract class DatabaseModule {
   }
 
   @Provides
+  @Singleton
   static DSLContext dbContext(
       DataSource dataSource, @ForDatabase ListeningExecutorService dbExecutor) {
     Configuration configuration =

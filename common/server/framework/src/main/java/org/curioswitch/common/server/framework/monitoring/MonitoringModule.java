@@ -39,6 +39,7 @@ import dagger.Provides;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.Properties;
+import javax.inject.Singleton;
 import javax.management.MBeanServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -48,6 +49,7 @@ import org.apache.logging.log4j.core.config.Configuration;
 public class MonitoringModule {
 
   @Provides
+  @Singleton
   MetricRegistry metricRegistry() {
     MetricRegistry registry = new MetricRegistry();
     configureDefaultMetrics(registry);

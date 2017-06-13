@@ -28,6 +28,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import dagger.Module;
 import dagger.Provides;
+import javax.inject.Singleton;
 
 /**
  * A {@link Module} which bootstraps a generic Java application. While most users will use {@link
@@ -39,6 +40,7 @@ import dagger.Provides;
 public class ApplicationModule {
 
   @Provides
+  @Singleton
   Config config() {
     return ConfigFactory.load();
   }

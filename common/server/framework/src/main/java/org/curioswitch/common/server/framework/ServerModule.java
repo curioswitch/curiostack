@@ -46,6 +46,7 @@ import java.io.File;
 import java.security.cert.CertificateException;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import javax.inject.Singleton;
 import javax.net.ssl.SSLException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -88,6 +89,7 @@ public abstract class ServerModule {
   abstract Set<StaticSiteServiceDefinition> staticSites();
 
   @Provides
+  @Singleton
   static ServerConfig serverConfig(Config config) {
     return ConfigBeanFactory.create(config.getConfig("server"), ModifiableServerConfig.class)
         .toImmutable();
@@ -101,6 +103,7 @@ public abstract class ServerModule {
   }
 
   @Provides
+  @Singleton
   static Server armeriaServer(
       Set<BindableService> grpcServices,
       Set<StaticSiteServiceDefinition> staticSites,
