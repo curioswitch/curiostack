@@ -51,7 +51,6 @@ dependencies {
     implementation 'org.apache.logging.log4j:log4j-jcl'
     implementation 'org.apache.logging.log4j:log4j-jul'
     implementation 'org.apache.logging.log4j:log4j-slf4j-impl'
-    implementation 'org.simpleflatmapper:sfm-jooq'
 
     runtime 'mysql:mysql-connector-java'
 

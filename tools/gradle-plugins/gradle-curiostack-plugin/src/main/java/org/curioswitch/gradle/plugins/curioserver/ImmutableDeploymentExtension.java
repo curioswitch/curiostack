@@ -27,6 +27,7 @@ package org.curioswitch.gradle.plugins.curioserver;
 import com.google.common.collect.ImmutableMap;
 import groovy.lang.Closure;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePluginConvention;
@@ -57,6 +58,11 @@ public interface ImmutableDeploymentExtension {
         .getConvention()
         .getPlugin(BasePluginConvention.class)
         .getArchivesBaseName();
+  }
+
+  @Nullable
+  default String externalHost() {
+    return null;
   }
 
   @Modifiable

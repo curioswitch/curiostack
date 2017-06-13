@@ -47,7 +47,6 @@ import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DataSourceConnectionProvider;
 import org.jooq.impl.DefaultConfiguration;
-import org.simpleflatmapper.jooq.SfmRecordMapperProvider;
 
 @Module
 public abstract class DatabaseModule {
@@ -88,8 +87,7 @@ public abstract class DatabaseModule {
             .set(dbExecutor)
             .set(SQLDialect.MYSQL)
             .set(new Settings().withRenderSchema(false))
-            .set(new DataSourceConnectionProvider(dataSource))
-            .set(new SfmRecordMapperProvider());
+            .set(new DataSourceConnectionProvider(dataSource));
     return DSL.using(configuration);
   }
 }

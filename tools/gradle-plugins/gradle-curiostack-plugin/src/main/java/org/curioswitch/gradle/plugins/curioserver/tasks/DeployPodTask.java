@@ -30,6 +30,7 @@ import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HTTPGetActionBuilder;
+import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.PodSpecBuilder;
 import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder;
@@ -37,12 +38,24 @@ import io.fabric8.kubernetes.api.model.ProbeBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.ResourceRequirementsBuilder;
 import io.fabric8.kubernetes.api.model.SecretVolumeSourceBuilder;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.ServicePortBuilder;
+import io.fabric8.kubernetes.api.model.ServiceSpecBuilder;
 import io.fabric8.kubernetes.api.model.VolumeBuilder;
 import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentSpecBuilder;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentStrategyBuilder;
+import io.fabric8.kubernetes.api.model.extensions.HTTPIngressPathBuilder;
+import io.fabric8.kubernetes.api.model.extensions.HTTPIngressRuleValueBuilder;
+import io.fabric8.kubernetes.api.model.extensions.Ingress;
+import io.fabric8.kubernetes.api.model.extensions.IngressBackendBuilder;
+import io.fabric8.kubernetes.api.model.extensions.IngressBuilder;
+import io.fabric8.kubernetes.api.model.extensions.IngressRuleBuilder;
+import io.fabric8.kubernetes.api.model.extensions.IngressSpecBuilder;
+import io.fabric8.kubernetes.api.model.extensions.IngressTLSBuilder;
 import io.fabric8.kubernetes.api.model.extensions.RollingUpdateDeploymentBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -174,7 +187,75 @@ public class DeployPodTask extends DefaultTask {
                     .build())
             .build();
 
+    Service service =
+        new ServiceBuilder()
+            .withMetadata(
+                new ObjectMetaBuilder()
+                    .withName(deploymentConfig.deploymentName())
+                    .withNamespace(deploymentConfig.namespace())
+                    .withAnnotations(
+                        ImmutableMap.of(
+                            "service.alpha.kubernetes.io/app-protocols", "{\"https\":\"HTTPS\"}"))
+                    .build())
+            .withSpec(
+                new ServiceSpecBuilder()
+                    .withPorts(
+                        new ServicePortBuilder()
+                            .withPort(deploymentConfig.containerPort())
+                            .withName("https")
+                            .build())
+                    .withSelector(ImmutableMap.of("name", deploymentConfig.deploymentName()))
+                    .withType(config.externalHost() != null ? "NodePort" : "ClusterIP")
+                    .build())
+            .build();
+
     KubernetesClient client = new DefaultKubernetesClient();
     client.resource(deployment).createOrReplace();
+    if (client.resource(service).get() == null) {
+      client.resource(service).createOrReplace();
+    }
+
+
+    if (config.externalHost() != null) {
+      Ingress ingress =
+          new IngressBuilder()
+              .withMetadata(
+                  new ObjectMetaBuilder()
+                      .withNamespace(deploymentConfig.namespace())
+                      .withName(deploymentConfig.deploymentName())
+                      .withAnnotations(ImmutableMap.of(
+                          "kubernetes.io/tls-acme", "true",
+                          "kubernetes.io/ingress.class", "gce"))
+                      .build())
+              .withSpec(
+                  new IngressSpecBuilder()
+                      .withTls(new IngressTLSBuilder()
+                          .withSecretName(deploymentConfig.deploymentName() + "-tls")
+                          .withHosts(config.externalHost())
+                          .build())
+                      .withRules(
+                          new IngressRuleBuilder()
+                              .withHost(config.externalHost())
+                              .withHttp(
+                                  new HTTPIngressRuleValueBuilder()
+                                      .withPaths(
+                                          new HTTPIngressPathBuilder()
+                                              .withPath("/*")
+                                              .withBackend(
+                                                  new IngressBackendBuilder()
+                                                      .withServiceName(
+                                                          deploymentConfig.deploymentName())
+                                                      .withServicePort(
+                                                          new IntOrString(
+                                                              deploymentConfig.containerPort()))
+                                                      .build())
+                                              .build())
+                                      .build())
+                              .build())
+                      .build())
+              .build();
+
+      client.resource(ingress).createOrReplace();
+    }
   }
 }
