@@ -34,6 +34,9 @@ import org.immutables.value.Value.Modifiable;
 @JavaBeanStyle
 public interface ServerConfig {
 
+  /** Port to listen on. Server will listen for HTTPS on this port. Defaults to 8080. */
+  int getPort();
+
   /**
    * Whether the server should generate a self-signed SSL certificate for the HTTPs port. This
    * should only be enabled for local development.

@@ -109,7 +109,7 @@ public abstract class ServerModule {
       Set<StaticSiteServiceDefinition> staticSites,
       MetricsHttpService metricsHttpService,
       ServerConfig serverConfig) {
-    ServerBuilder sb = new ServerBuilder().port(8080, HttpSessionProtocols.HTTPS);
+    ServerBuilder sb = new ServerBuilder().port(serverConfig.getPort(), HttpSessionProtocols.HTTPS);
 
     if (serverConfig.isGenerateSelfSignedCertificate()) {
       logger.warn("Generating self-signed certificate. This should only happen on local!!!");
