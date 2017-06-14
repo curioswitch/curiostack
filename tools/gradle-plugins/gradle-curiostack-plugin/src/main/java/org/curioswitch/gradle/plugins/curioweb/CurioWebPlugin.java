@@ -44,7 +44,7 @@ import org.gradle.api.tasks.SourceSet;
  */
 public class CurioWebPlugin implements Plugin<Project> {
 
-  private static final String NODE_VERSION = "6.10.2";
+  private static final String NODE_VERSION = "8.1.1";
   private static final String YARN_VERSION = "0.24.6";
 
   @Override
