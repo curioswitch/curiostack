@@ -1,0 +1,105 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+package org.curioswitch.common.server.framework.armeria;
+
+import com.linecorp.armeria.client.AllInOneClientFactory;
+import com.linecorp.armeria.client.ClientBuilder;
+import com.linecorp.armeria.client.ClientFactory;
+import com.linecorp.armeria.client.SessionOption;
+import com.linecorp.armeria.client.SessionOptions;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.net.ssl.TrustManagerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.curioswitch.common.server.framework.config.ServerConfig;
+
+/**
+ * A convenience factory that sets up a {@link ClientBuilder} with appropriate default parameters.
+ * Currently only sets up the client's SSL context but in the future will set up monitoring, etc.
+ */
+@Singleton
+public class ClientBuilderFactory {
+
+  private static final Logger logger = LogManager.getLogger();
+
+  private final ClientFactory clientFactory;
+
+  @Inject
+  public ClientBuilderFactory(ServerConfig serverConfig) {
+    TrustManagerFactory trustManagerFactory = null;
+    if (serverConfig.isDisableClientCertificateVerification()) {
+      logger.warn("Disabling client SSL verification. This should only happen on local!");
+      trustManagerFactory = InsecureTrustManagerFactory.INSTANCE;
+    } else if (!serverConfig.getCaCertificatePath().isEmpty()) {
+      trustManagerFactory = createTrustManagerFactoryForCa(serverConfig.getCaCertificatePath());
+    }
+    if (trustManagerFactory != null) {
+      clientFactory =
+          new AllInOneClientFactory(
+              SessionOptions.of(SessionOption.TRUST_MANAGER_FACTORY.newValue(trustManagerFactory)),
+              true);
+    } else {
+      clientFactory = ClientFactory.DEFAULT;
+    }
+  }
+
+  public ClientBuilder create(String url) {
+    return new ClientBuilder(url).factory(clientFactory);
+  }
+
+  private static TrustManagerFactory createTrustManagerFactoryForCa(String caCertificatePath) {
+    try {
+      KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+      keystore.load(null);
+
+      CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+      final X509Certificate caCertificate;
+      try (InputStream is = new FileInputStream(caCertificatePath)) {
+        caCertificate = (X509Certificate) certificateFactory.generateCertificate(is);
+      }
+
+      keystore.setCertificateEntry("caCert", caCertificate);
+
+      TrustManagerFactory trustManagerFactory =
+          TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+      trustManagerFactory.init(keystore);
+
+      return trustManagerFactory;
+    } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
+      throw new IllegalStateException("Could not create keystore.", e);
+    }
+  }
+}

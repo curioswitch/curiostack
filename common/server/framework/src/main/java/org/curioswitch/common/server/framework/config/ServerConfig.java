@@ -43,11 +43,23 @@ public interface ServerConfig {
    */
   boolean isGenerateSelfSignedCertificate();
 
+  /**
+   * Whether clients should have SSL certificate verification disabled. This should only be enabled
+   * for local development.
+   */
+  boolean isDisableClientCertificateVerification();
+
   /** Path to the file containing the TLS certificate for this server. */
   String getTlsCertificatePath();
 
   /** Path to the file containing the private key for the TLS certificate for this server. */
   String getTlsPrivateKeyPath();
+
+  /**
+   * Path to the file containing the certificate of the CA that issues server/client certs in this
+   * system.
+   */
+  String getCaCertificatePath();
 
   /**
    * Whether the {@link io.grpc.protobuf.services.ProtoReflectionService} should be added to the
