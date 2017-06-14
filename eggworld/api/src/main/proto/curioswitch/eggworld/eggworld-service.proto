@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package curioswitch.eggworld;
+
+option java_package = "org.curioswitch.eggworld.api";
+option java_multiple_files = true;
+
+// Ingredients that can be used to find a recipe.
+enum Ingredient {
+  // Bananas.
+  BANANA = 0;
+
+  // Cabbage.
+  CABBAGE = 1;
+
+  // Garlic.
+  GARLIC = 2;
+
+  // Onions.
+  ONION = 3;
+
+  // Potatos.
+  POTATO = 4;
+
+  // Spinach.
+  SPINACH = 5;
+
+  // Bacon.
+  BACON = 6;
+
+  // Beef.
+  BEEF = 7;
+
+  // Cheese.
+  CHEESE = 8;
+
+  // Milk
+  MILK = 9;
+
+  // Pork.
+  PORK = 10;
+
+  // Bread.
+  BREAD = 11;
+
+  // Chili.
+  CHILI = 12;
+
+  // Chocolate.
+  CHOCOLATE = 13;
+
+  // Honey.
+  HONEY = 14;
+
+  // Nuts.
+  NUTS = 15;
+
+  // Wine.
+  WINE = 16;
+}
+
+// A request to check what ingredients can still be used with the user's currently selected
+// ingredients. Only ingredients that can be added to produce an actual recipe are returned.
+message CheckIngredientsRequest {
+  // The currently selected ingredients.
+  repeated Ingredient selected_ingredient = 1;
+}
+
+// A response containing selectable ingredients.
+message CheckIngredientsResponse {
+  // Ingredients can be selected along with the ones in CheckIngredientsRequest.selected_ingredient.
+  repeated Ingredient selectable_ingredient = 1;
+}
+
+// Egg World, a service for determining recipes for a given set of ingredients (e.g., recipes using
+// ingredients in your refrigerator).
+service EggworldService {
+  // Check what ingredients can still be used given currently selected ones.
+  rpc CheckIngredients (CheckIngredientsRequest) returns (CheckIngredientsResponse);
+}
