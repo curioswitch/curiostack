@@ -97,6 +97,11 @@ class StandardDependencies {
               .addModules("dagger", "dagger-compiler", "dagger-producers")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.google.firebase")
+              .version("5.1.0")
+              .addModules("firebase-admin")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.google.guava")
               .version("21.0")
               .addModules("guava", "guava-testlib")

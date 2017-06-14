@@ -26,15 +26,20 @@ package org.curioswitch.common.server.framework;
 
 import com.linecorp.armeria.common.RequestContext;
 import com.linecorp.armeria.common.grpc.GrpcSerializationFormats;
+import com.linecorp.armeria.common.http.HttpRequest;
+import com.linecorp.armeria.common.http.HttpResponse;
 import com.linecorp.armeria.common.http.HttpSessionProtocols;
 import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
+import com.linecorp.armeria.server.Service;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
+import com.linecorp.armeria.server.http.auth.HttpAuthServiceBuilder;
 import com.linecorp.armeria.server.http.healthcheck.HttpHealthCheckService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
+import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.Multibinds;
@@ -50,6 +55,9 @@ import javax.inject.Singleton;
 import javax.net.ssl.SSLException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthConfig;
+import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthModule;
+import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthorizer;
 import org.curioswitch.common.server.framework.config.ModifiableServerConfig;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
@@ -77,7 +85,7 @@ import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefin
  * }
  * }</pre>
  */
-@Module(includes = {ApplicationModule.class, MonitoringModule.class})
+@Module(includes = {ApplicationModule.class, FirebaseAuthModule.class, MonitoringModule.class})
 public abstract class ServerModule {
 
   private static final Logger logger = LogManager.getLogger();
@@ -108,7 +116,9 @@ public abstract class ServerModule {
       Set<BindableService> grpcServices,
       Set<StaticSiteServiceDefinition> staticSites,
       MetricsHttpService metricsHttpService,
-      ServerConfig serverConfig) {
+      Lazy<FirebaseAuthorizer> firebaseAuthorizer,
+      ServerConfig serverConfig,
+      FirebaseAuthConfig authConfig) {
     ServerBuilder sb = new ServerBuilder().port(serverConfig.getPort(), HttpSessionProtocols.HTTPS);
 
     if (serverConfig.isGenerateSelfSignedCertificate()) {
@@ -152,7 +162,11 @@ public abstract class ServerModule {
       if (!serverConfig.isDisableGrpcServiceDiscovery()) {
         serviceBuilder.addService(ProtoReflectionService.newInstance());
       }
-      sb.serviceUnder("/api", serviceBuilder.build());
+      Service<HttpRequest, HttpResponse> service = serviceBuilder.build();
+      if (!authConfig.getServiceAccountBase64().isEmpty()) {
+        service = new HttpAuthServiceBuilder().addOAuth2(firebaseAuthorizer.get()).build(service);
+      }
+      sb.serviceUnder("/api", service);
     }
 
     for (StaticSiteServiceDefinition staticSite : staticSites) {
