@@ -22,10 +22,25 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
+package org.curioswitch.gradle.plugins.grpcapi;
 
-archivesBaseName = 'curioswitch-eggworld-api'
+import org.gradle.api.Project;
+import org.immutables.value.Value;
+import org.immutables.value.Value.Modifiable;
+import org.immutables.value.Value.Style;
 
-grpc {
-    web = true
+/** Configuration for setting up a Kubernetes cluster resource. */
+@Modifiable
+@Style(create = "new", typeModifiable = "*", defaultAsDefault = true, typeAbstract = "Immutable*")
+public interface ImmutableGrpcExtension {
+
+  String NAME = "grpc";
+
+  @Value.Parameter
+  Project gradleProject();
+
+  /** Whether to build grpc-web version of the API too. */
+  default boolean web() {
+    return false;
+  }
 }

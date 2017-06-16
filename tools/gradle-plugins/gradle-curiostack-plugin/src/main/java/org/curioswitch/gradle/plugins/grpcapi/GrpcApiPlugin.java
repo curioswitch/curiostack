@@ -24,12 +24,22 @@
 
 package org.curioswitch.gradle.plugins.grpcapi;
 
+import com.google.common.collect.ImmutableList;
 import com.google.protobuf.gradle.ExecutableLocator;
 import com.google.protobuf.gradle.ProtobufConfigurator;
 import com.google.protobuf.gradle.ProtobufConfigurator.JavaGenerateProtoTaskCollection;
 import com.google.protobuf.gradle.ProtobufConvention;
 import com.google.protobuf.gradle.ProtobufPlugin;
+import com.moowork.gradle.node.NodeExtension;
+import com.moowork.gradle.node.NodePlugin;
+import com.moowork.gradle.node.yarn.YarnInstallTask;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +49,7 @@ import org.curioswitch.gradle.common.LambdaClosure;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.plugins.BasePluginConvention;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 
@@ -52,17 +63,27 @@ import org.gradle.api.plugins.JavaLibraryPlugin;
  */
 public class GrpcApiPlugin implements Plugin<Project> {
 
+  private static final String RESOLVED_PLUGIN_SCRIPT_TEMPLATE
+      = "#!|NODE_PATH|\n"
+      + ""
+      + "require('../ts-protoc-gen/lib/ts_index');";
+
   private static final List<String> GRPC_DEPENDENCIES =
       Collections.unmodifiableList(Arrays.asList("grpc-core", "grpc-protobuf", "grpc-stub"));
 
   @Override
   public void apply(Project project) {
     project.getPluginManager().apply(JavaLibraryPlugin.class);
+    project.getPluginManager().apply(NodePlugin.class);
+
+    project.getExtensions().create(ImmutableGrpcExtension.NAME, GrpcExtension.class);
 
     GRPC_DEPENDENCIES.forEach(dep -> project.getDependencies().add("api", "io.grpc:" + dep));
 
     project.afterEvaluate(
         p -> {
+          ImmutableGrpcExtension config = project.getExtensions().getByType(GrpcExtension.class);
+
           Map<String, String> managedVersions =
               project
                   .getExtensions()
@@ -83,12 +104,16 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
           protobuf.plugins(
               LambdaClosure.of(
-                  (NamedDomainObjectContainer<ExecutableLocator> locators) ->
-                      locators
-                          .create("grpc")
-                          .setArtifact(
-                              "io.grpc:protoc-gen-grpc-java:"
-                                  + managedVersions.get("io.grpc:grpc-core"))));
+                  (NamedDomainObjectContainer<ExecutableLocator> locators) -> {
+                    locators
+                        .create("grpc")
+                        .setArtifact(
+                            "io.grpc:protoc-gen-grpc-java:"
+                                + managedVersions.get("io.grpc:grpc-core"));
+                    if (config.web()) {
+                      locators.create("ts").setPath("node_modules/.bin/protoc-gen-ts-resolved");
+                    }
+                  }));
 
           String archivesBaseName =
               project.getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
@@ -108,6 +133,14 @@ public class GrpcApiPlugin implements Plugin<Project> {
                             task -> {
                               task.getBuiltins().getByName("java").setOutputSubDir("");
                               task.getPlugins().create("grpc").setOutputSubDir("");
+                              if (config.web()) {
+                                task.getBuiltins().create("js")
+                                    .option("import_style=commonjs,binary")
+                                    .setOutputSubDir("../../web");
+                                task.getPlugins().create("ts")
+                                    .option("service=true")
+                                    .setOutputSubDir("../../web");
+                              }
                             });
                     tasks
                         .ofSourceSet("main")
@@ -122,9 +155,48 @@ public class GrpcApiPlugin implements Plugin<Project> {
                                       new Object[] {}, new String[] {descriptorSetOutputPath});
                             });
                   }));
+
+
         });
 
     // Add the protobuf plugin last to make sure our afterEvaluate runs before it.
     project.getPluginManager().apply(ProtobufPlugin.class);
+
+    // Additional configuration of tasks created by protobuf plugin.
+    project.afterEvaluate(p -> {
+      ImmutableGrpcExtension config = project.getExtensions().getByType(GrpcExtension.class);
+
+      if (config.web()) {
+
+        project.getTasks().getByName(YarnInstallTask.NAME, t -> {
+          YarnInstallTask yarn = (YarnInstallTask) t;
+          yarn.setArgs(ImmutableList.of("--ignore-scripts"));
+        });
+
+        // gradle-protobuf-plugin does not allow manipulating PATH for protoc invocation, so there's no way
+        // to point it at our downloaded nodejs. We go ahead and create our own plugin executable with the
+        // nodejs path resolved.
+        Task addResolvedPluginScript = project.getTasks().create("addResolvedPluginScript")
+            .dependsOn("yarn")
+            .doFirst(t -> {
+              String nodePath = project.getExtensions().getByType(NodeExtension.class).getVariant()
+                  .getNodeExec();
+              Path path;
+              try {
+                path = Files.write(
+                    Paths.get(
+                        project.getProjectDir().getAbsolutePath(),
+                        "node_modules/.bin/protoc-gen-ts-resolved"),
+                    RESOLVED_PLUGIN_SCRIPT_TEMPLATE.replaceFirst("\\|NODE_PATH\\|", nodePath).getBytes(
+                        StandardCharsets.UTF_8)
+                );
+              } catch (IOException e) {
+                throw new UncheckedIOException("Could not write resolved plugin script.", e);
+              }
+              path.toFile().setExecutable(true);
+            });
+        project.getTasks().getByName("generateProto").dependsOn(addResolvedPluginScript);
+      }
+    });
   }
 }

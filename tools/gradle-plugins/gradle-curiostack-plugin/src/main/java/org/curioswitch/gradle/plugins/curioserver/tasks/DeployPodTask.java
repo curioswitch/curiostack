@@ -215,7 +215,7 @@ public class DeployPodTask extends DefaultTask {
 
     KubernetesClient client = new DefaultKubernetesClient();
     client.resource(deployment).createOrReplace();
-    if (client.resource(service).get() == null) {
+    if (client.resource(service).fromServer().get() == null) {
       client.resource(service).createOrReplace();
     }
 
