@@ -61,6 +61,9 @@ public interface ServerConfig {
    */
   String getCaCertificatePath();
 
+  /** The path to service gRPC APIs on, defaults to /api. */
+  String getGrpcPath();
+
   /**
    * Whether the {@link io.grpc.protobuf.services.ProtoReflectionService} should be added to the
    * server to enable discovery of bound {@link com.linecorp.armeria.server.grpc.GrpcService}s. The

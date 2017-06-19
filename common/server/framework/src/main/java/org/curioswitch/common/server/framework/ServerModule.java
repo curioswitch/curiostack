@@ -166,7 +166,7 @@ public abstract class ServerModule {
       if (!authConfig.getServiceAccountBase64().isEmpty()) {
         service = new HttpAuthServiceBuilder().addOAuth2(firebaseAuthorizer.get()).build(service);
       }
-      sb.serviceUnder("/api", service);
+      sb.serviceUnder(serverConfig.getGrpcPath(), service);
     }
 
     for (StaticSiteServiceDefinition staticSite : staticSites) {
