@@ -123,10 +123,11 @@ public class DeployPodTask extends DefaultTask {
                                     .withNewMaxUnavailable(0)
                                     .build())
                             .build())
-                    .withSelector(new LabelSelectorBuilder()
-                        .withMatchLabels(ImmutableMap.of(
-                            "name", deploymentConfig.deploymentName()))
-                        .build())
+                    .withSelector(
+                        new LabelSelectorBuilder()
+                            .withMatchLabels(
+                                ImmutableMap.of("name", deploymentConfig.deploymentName()))
+                            .build())
                     .withTemplate(
                         new PodTemplateSpecBuilder()
                             .withMetadata(
@@ -134,7 +135,9 @@ public class DeployPodTask extends DefaultTask {
                                     .withLabels(
                                         ImmutableMap.of(
                                             "name", deploymentConfig.deploymentName(),
-                                            "revision", System.getenv().getOrDefault("REVISION_ID", "none")))
+                                            "revision",
+                                                System.getenv()
+                                                    .getOrDefault("REVISION_ID", "none")))
                                     .build())
                             .withSpec(
                                 new PodSpecBuilder()

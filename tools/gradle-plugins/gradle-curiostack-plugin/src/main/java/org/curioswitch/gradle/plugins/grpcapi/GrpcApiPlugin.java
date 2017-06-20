@@ -63,10 +63,8 @@ import org.gradle.api.plugins.JavaLibraryPlugin;
  */
 public class GrpcApiPlugin implements Plugin<Project> {
 
-  private static final String RESOLVED_PLUGIN_SCRIPT_TEMPLATE
-      = "#!|NODE_PATH|\n"
-      + ""
-      + "require('../ts-protoc-gen/lib/ts_index');";
+  private static final String RESOLVED_PLUGIN_SCRIPT_TEMPLATE =
+      "#!|NODE_PATH|\n" + "" + "require('../ts-protoc-gen/lib/ts_index');";
 
   private static final List<String> GRPC_DEPENDENCIES =
       Collections.unmodifiableList(Arrays.asList("grpc-core", "grpc-protobuf", "grpc-stub"));
@@ -134,10 +132,12 @@ public class GrpcApiPlugin implements Plugin<Project> {
                               task.getBuiltins().getByName("java").setOutputSubDir("");
                               task.getPlugins().create("grpc").setOutputSubDir("");
                               if (config.web()) {
-                                task.getBuiltins().create("js")
+                                task.getBuiltins()
+                                    .create("js")
                                     .option("import_style=commonjs,binary")
                                     .setOutputSubDir("../../web");
-                                task.getPlugins().create("ts")
+                                task.getPlugins()
+                                    .create("ts")
                                     .option("service=true")
                                     .setOutputSubDir("../../web");
                               }
@@ -155,48 +155,61 @@ public class GrpcApiPlugin implements Plugin<Project> {
                                       new Object[] {}, new String[] {descriptorSetOutputPath});
                             });
                   }));
-
-
         });
 
     // Add the protobuf plugin last to make sure our afterEvaluate runs before it.
     project.getPluginManager().apply(ProtobufPlugin.class);
 
     // Additional configuration of tasks created by protobuf plugin.
-    project.afterEvaluate(p -> {
-      ImmutableGrpcExtension config = project.getExtensions().getByType(GrpcExtension.class);
+    project.afterEvaluate(
+        p -> {
+          ImmutableGrpcExtension config = project.getExtensions().getByType(GrpcExtension.class);
 
-      if (config.web()) {
+          if (config.web()) {
 
-        project.getTasks().getByName(YarnInstallTask.NAME, t -> {
-          YarnInstallTask yarn = (YarnInstallTask) t;
-          yarn.setArgs(ImmutableList.of("--ignore-scripts"));
+            project
+                .getTasks()
+                .getByName(
+                    YarnInstallTask.NAME,
+                    t -> {
+                      YarnInstallTask yarn = (YarnInstallTask) t;
+                      yarn.setArgs(ImmutableList.of("--ignore-scripts"));
+                    });
+
+            // gradle-protobuf-plugin does not allow manipulating PATH for protoc invocation, so there's no way
+            // to point it at our downloaded nodejs. We go ahead and create our own plugin executable with the
+            // nodejs path resolved.
+            Task addResolvedPluginScript =
+                project
+                    .getTasks()
+                    .create("addResolvedPluginScript")
+                    .dependsOn("yarn")
+                    .doFirst(
+                        t -> {
+                          String nodePath =
+                              project
+                                  .getExtensions()
+                                  .getByType(NodeExtension.class)
+                                  .getVariant()
+                                  .getNodeExec();
+                          Path path;
+                          try {
+                            path =
+                                Files.write(
+                                    Paths.get(
+                                        project.getProjectDir().getAbsolutePath(),
+                                        "node_modules/.bin/protoc-gen-ts-resolved"),
+                                    RESOLVED_PLUGIN_SCRIPT_TEMPLATE
+                                        .replaceFirst("\\|NODE_PATH\\|", nodePath)
+                                        .getBytes(StandardCharsets.UTF_8));
+                          } catch (IOException e) {
+                            throw new UncheckedIOException(
+                                "Could not write resolved plugin script.", e);
+                          }
+                          path.toFile().setExecutable(true);
+                        });
+            project.getTasks().getByName("generateProto").dependsOn(addResolvedPluginScript);
+          }
         });
-
-        // gradle-protobuf-plugin does not allow manipulating PATH for protoc invocation, so there's no way
-        // to point it at our downloaded nodejs. We go ahead and create our own plugin executable with the
-        // nodejs path resolved.
-        Task addResolvedPluginScript = project.getTasks().create("addResolvedPluginScript")
-            .dependsOn("yarn")
-            .doFirst(t -> {
-              String nodePath = project.getExtensions().getByType(NodeExtension.class).getVariant()
-                  .getNodeExec();
-              Path path;
-              try {
-                path = Files.write(
-                    Paths.get(
-                        project.getProjectDir().getAbsolutePath(),
-                        "node_modules/.bin/protoc-gen-ts-resolved"),
-                    RESOLVED_PLUGIN_SCRIPT_TEMPLATE.replaceFirst("\\|NODE_PATH\\|", nodePath).getBytes(
-                        StandardCharsets.UTF_8)
-                );
-              } catch (IOException e) {
-                throw new UncheckedIOException("Could not write resolved plugin script.", e);
-              }
-              path.toFile().setExecutable(true);
-            });
-        project.getTasks().getByName("generateProto").dependsOn(addResolvedPluginScript);
-      }
-    });
   }
 }

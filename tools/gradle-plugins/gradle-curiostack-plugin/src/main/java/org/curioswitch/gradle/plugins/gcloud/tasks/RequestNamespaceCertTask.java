@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Streams;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretBuilder;
@@ -48,6 +49,7 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.util.Base64;
 import java.util.Map;
+import java.util.stream.Stream;
 import javax.security.auth.x500.X500Principal;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.Extension;
@@ -99,14 +101,19 @@ public class RequestNamespaceCertTask extends DefaultTask {
         new JcaPKCS10CertificationRequestBuilder(
             new X500Principal("CN=" + cluster.namespace() + ".ns.cluster.stellarstation.com"),
             keyPair.getPublic());
-    GeneralNames subjectAltNames =
-        new GeneralNames(
-            new GeneralName[] {
-              new GeneralName(GeneralName.dNSName, "*." + cluster.namespace()),
-              new GeneralName(GeneralName.dNSName, "*." + cluster.namespace() + ".svc"),
-              new GeneralName(
-                  GeneralName.dNSName, "*." + cluster.namespace() + ".svc.cluster.local")
-            });
+    Stream<GeneralName> generalNames =
+        Streams.concat(
+            Stream.of(
+                new GeneralName(GeneralName.dNSName, "*." + cluster.namespace()),
+                new GeneralName(GeneralName.dNSName, "*." + cluster.namespace() + ".svc"),
+                new GeneralName(
+                    GeneralName.dNSName, "*." + cluster.namespace() + ".svc.cluster.local")),
+            cluster
+                .extraNamespaceTlsHosts()
+                .stream()
+                .map(name -> new GeneralName(GeneralName.dNSName, name)));
+
+    GeneralNames subjectAltNames = new GeneralNames(generalNames.toArray(GeneralName[]::new));
     ExtensionsGenerator extensions = new ExtensionsGenerator();
     try {
       extensions.addExtension(Extension.subjectAlternativeName, false, subjectAltNames);
