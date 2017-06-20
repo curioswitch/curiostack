@@ -29,6 +29,7 @@ archivesBaseName = 'curio-server-framework'
 
 dependencies {
     api 'com.google.dagger:dagger'
+    api 'com.google.firebase:firebase-admin'
     api 'com.linecorp.armeria:armeria'
     api 'com.spotify:futures-extra'
     api 'com.typesafe:config'
@@ -37,7 +38,6 @@ dependencies {
     api 'org.jooq:jooq'
 
     implementation 'com.google.dagger:dagger-producers'
-    implementation 'com.google.firebase:firebase-admin'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-guava'

@@ -26,7 +26,6 @@ package org.curioswitch.gradle.plugins.curioweb;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.moowork.gradle.node.NodeExtension;
 import com.moowork.gradle.node.NodePlugin;
 import com.moowork.gradle.node.yarn.YarnTask;
 import org.gradle.api.Plugin;
@@ -44,9 +43,6 @@ import org.gradle.api.tasks.SourceSet;
  */
 public class CurioWebPlugin implements Plugin<Project> {
 
-  private static final String NODE_VERSION = "8.1.1";
-  private static final String YARN_VERSION = "0.24.6";
-
   @Override
   public void apply(Project project) {
     project.getExtensions().create("web", WebExtension.class);
@@ -59,11 +55,6 @@ public class CurioWebPlugin implements Plugin<Project> {
         .getByName(SourceSet.MAIN_SOURCE_SET_NAME)
         .getOutput()
         .dir(ImmutableMap.of("builtBy", "copyWeb"), "build/javaweb");
-
-    NodeExtension node = project.getExtensions().getByType(NodeExtension.class);
-    node.setVersion(NODE_VERSION);
-    node.setYarnVersion(YARN_VERSION);
-    node.setDownload(true);
 
     CacheableYarnTask buildWeb = project.getTasks().create("buildWeb", CacheableYarnTask.class);
     buildWeb.dependsOn("yarn");

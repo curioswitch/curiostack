@@ -109,7 +109,12 @@ public class GrpcApiPlugin implements Plugin<Project> {
                             "io.grpc:protoc-gen-grpc-java:"
                                 + managedVersions.get("io.grpc:grpc-core"));
                     if (config.web()) {
-                      locators.create("ts").setPath("node_modules/.bin/protoc-gen-ts-resolved");
+                      locators
+                          .create("ts")
+                          .setPath(
+                              project
+                                  .file("node_modules/.bin/protoc-gen-ts-resolved")
+                                  .getAbsolutePath());
                     }
                   }));
 
@@ -211,5 +216,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
             project.getTasks().getByName("generateProto").dependsOn(addResolvedPluginScript);
           }
         });
+
+    project.getTasks().getByName("compileTestJava").setEnabled(false);
   }
 }

@@ -34,6 +34,8 @@ import com.google.common.io.Resources;
 import com.google.protobuf.gradle.ProtobufPlugin;
 import com.google.protobuf.gradle.ProtobufSourceDirectorySet;
 import com.gorylenko.GitPropertiesPlugin;
+import com.moowork.gradle.node.NodeExtension;
+import com.moowork.gradle.node.NodePlugin;
 import com.palantir.baseline.plugins.BaselineIdea;
 import groovy.util.Node;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
@@ -79,6 +81,9 @@ import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
 
 public class CuriostackPlugin implements Plugin<Project> {
+
+  private static final String NODE_VERSION = "8.1.1";
+  private static final String YARN_VERSION = "0.24.6";
 
   @Override
   public void apply(Project rootProject) {
@@ -344,6 +349,17 @@ public class CuriostackPlugin implements Plugin<Project> {
                                       });
                             });
                   });
+            });
+
+    project
+        .getPlugins()
+        .withType(
+            NodePlugin.class,
+            unused -> {
+              NodeExtension node = project.getExtensions().getByType(NodeExtension.class);
+              node.setVersion(NODE_VERSION);
+              node.setYarnVersion(YARN_VERSION);
+              node.setDownload(true);
             });
   }
 

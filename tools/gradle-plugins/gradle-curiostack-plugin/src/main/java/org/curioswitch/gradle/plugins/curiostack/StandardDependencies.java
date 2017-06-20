@@ -47,7 +47,7 @@ class StandardDependencies {
     String version();
   }
 
-  private static final String JACKSON_VERSION = "2.8.8";
+  private static final String JACKSON_VERSION = "2.8.9";
 
   static final List<DependencySet> DEPENDENCY_SETS =
       ImmutableList.of(
@@ -83,12 +83,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.0.2")
+              .version("1.2.0")
               .addModules("google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.18.0-alpha")
+              .version("0.20.0-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
@@ -98,12 +98,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.firebase")
-              .version("5.1.0")
+              .version("5.2.0")
               .addModules("firebase-admin")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.guava")
-              .version("21.0")
+              .version("22.0")
               .addModules("guava", "guava-testlib")
               .build(),
           ImmutableDependencySet.builder()
@@ -118,7 +118,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.47.0")
+              .version("0.48.0")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -127,13 +127,24 @@ class StandardDependencies {
               .addModules("futures-extra")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.squareup.retrofit2")
+              .version("2.3.0")
+              .addModules(
+                  "adapter-guava",
+                  "adapter-java8",
+                  "converter-guava",
+                  "converter-jackson",
+                  "converter-java8",
+                  "retrofit")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.typesafe")
               .version("1.3.1")
               .addModules("config")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.zaxxer")
-              .version("2.6.2")
+              .version("2.6.3")
               .addModules("HikariCP")
               .build(),
           ImmutableDependencySet.builder()
@@ -143,17 +154,17 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.fabric8")
-              .version("2.3.1")
+              .version("2.4.1")
               .addModules("kubernetes-client")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.grpc")
-              .version("1.3.0")
+              .version("1.4.0")
               .addModules("grpc-core", "grpc-protobuf", "grpc-services", "grpc-stub")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("4.1.11.Final")
+              .version("4.1.12.Final")
               .addModules(
                   "netty-buffer",
                   "netty-codec",
@@ -186,7 +197,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.7.0")
+              .version("1.7.1")
               .addModules("byte-buddy")
               .build(),
           ImmutableDependencySet.builder()
@@ -221,22 +232,22 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.14")
+              .version("0.0.15")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.eclipse.jgit")
-              .version("4.7.0.201704051617-r")
+              .version("4.8.0.201706111038-r")
               .addModules("org.eclipse.jgit")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.immutables")
-              .version("2.5.2")
+              .version("2.5.3")
               .addModules("builder", "value")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jooq")
-              .version("3.9.2")
+              .version("3.9.3")
               .addModules("jooq")
               .build(),
           ImmutableDependencySet.builder()
@@ -246,7 +257,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.simpleflatmapper")
-              .version("3.11.8")
+              .version("3.12")
               .addModules("sfm-jooq")
               .build(),
           ImmutableDependencySet.builder()
