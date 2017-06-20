@@ -34,7 +34,6 @@ import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Copy;
-import org.gradle.api.tasks.ParallelizableTask;
 import org.gradle.api.tasks.SourceSet;
 
 /**
@@ -77,6 +76,5 @@ public class CurioWebPlugin implements Plugin<Project> {
   }
 
   @CacheableTask
-  @ParallelizableTask
   public static class CacheableYarnTask extends YarnTask {}
 }

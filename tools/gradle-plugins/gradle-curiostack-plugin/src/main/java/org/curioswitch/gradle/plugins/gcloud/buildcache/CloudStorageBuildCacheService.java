@@ -100,10 +100,5 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
   }
 
   @Override
-  public String getDescription() {
-    return String.format("Google Cloud Storage Build Cache (%s)", bucket);
-  }
-
-  @Override
   public void close() throws IOException {}
 }

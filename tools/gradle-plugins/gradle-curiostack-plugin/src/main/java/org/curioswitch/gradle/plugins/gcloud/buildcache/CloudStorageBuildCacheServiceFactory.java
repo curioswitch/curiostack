@@ -35,8 +35,11 @@ public class CloudStorageBuildCacheServiceFactory
     implements BuildCacheServiceFactory<CloudStorageBuildCache> {
 
   @Override
-  public BuildCacheService createBuildCacheService(CloudStorageBuildCache buildCache) {
+  public BuildCacheService createBuildCacheService(
+      CloudStorageBuildCache buildCache, Describer describer) {
     checkNotNull(buildCache.getBucket(), "buildCache.bucket");
+
+    describer.type("Google Cloud Storage Build Cache").config("bucket", buildCache.getBucket());
 
     Storage cloudStorage =
         StorageOptions.newBuilder()
