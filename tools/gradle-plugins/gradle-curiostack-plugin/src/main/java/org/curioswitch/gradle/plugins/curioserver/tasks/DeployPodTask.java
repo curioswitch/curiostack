@@ -31,6 +31,7 @@ import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HTTPGetActionBuilder;
 import io.fabric8.kubernetes.api.model.IntOrString;
+import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.PodSpecBuilder;
 import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder;
@@ -122,6 +123,10 @@ public class DeployPodTask extends DefaultTask {
                                     .withNewMaxUnavailable(0)
                                     .build())
                             .build())
+                    .withSelector(new LabelSelectorBuilder()
+                        .withMatchLabels(ImmutableMap.of(
+                            "name", deploymentConfig.deploymentName()))
+                        .build())
                     .withTemplate(
                         new PodTemplateSpecBuilder()
                             .withMetadata(
@@ -214,9 +219,15 @@ public class DeployPodTask extends DefaultTask {
             .build();
 
     KubernetesClient client = new DefaultKubernetesClient();
+
     client.resource(deployment).createOrReplace();
-    if (client.resource(service).fromServer().get() == null) {
-      client.resource(service).createOrReplace();
+    try {
+      if (client.resource(service).fromServer().get() == null) {
+        client.resource(service).createOrReplace();
+      }
+    } catch (ClassCastException e) {
+      // TODO(choko): Kubernetes client is throwing this on get() for some reason. Seems like a bug
+      // but it works to skip existing services to just live with it for now, but try to fix it.
     }
 
     if (config.externalHost() != null) {
