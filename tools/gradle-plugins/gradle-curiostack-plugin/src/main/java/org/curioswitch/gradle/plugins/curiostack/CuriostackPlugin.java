@@ -237,6 +237,13 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     project.afterEvaluate(CuriostackPlugin::addStandardJavaTestDependencies);
 
+    project
+        .getConfigurations()
+        .all(
+            configuration ->
+                configuration.exclude(
+                    ImmutableMap.of("group", "com.google.guava", "module", "guava-jdk5")));
+
     Javadoc javadoc = (Javadoc) project.getTasks().getByName("javadoc");
     CoreJavadocOptions options = (CoreJavadocOptions) javadoc.getOptions();
     options.quiet();
