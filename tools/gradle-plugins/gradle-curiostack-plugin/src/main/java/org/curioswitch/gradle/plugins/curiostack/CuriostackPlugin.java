@@ -194,6 +194,8 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(LicensePlugin.class);
     plugins.apply(SpotlessPlugin.class);
 
+    project.getNormalization().getRuntimeClasspath().ignore("git.properties");
+
     project.getTasks().withType(JavaCompile.class, task -> task.getOptions().setIncremental(true));
 
     SourceSetContainer sourceSets =
