@@ -2,6 +2,11 @@
  * Create the store with asynchronously loaded reducers
  */
 
+// @flow
+
+import type { History } from 'history';
+import type { Store } from 'redux';
+
 import { createStore, applyMiddleware, compose } from 'redux';
 import { fromJS } from 'immutable';
 import { routerMiddleware } from 'react-router-redux';
@@ -10,7 +15,20 @@ import createReducer from './reducers';
 
 const sagaMiddleware = createSagaMiddleware();
 
-export default function configureStore(initialState = {}, history) {
+declare var module : {
+  hot : {
+    accept(path:string, callback:() => void): void;
+  };
+};
+
+type AsyncExtensions = {
+  runSaga: () => void,
+  asyncReducers: Object,
+};
+export type AsyncStore = Store<*, *> & AsyncExtensions
+
+export default function configureStore(
+    initialState: Object = {}, history: History): AsyncStore {
   // Create the store with two middlewares
   // 1. sagaMiddleware: Makes redux-sagas work
   // 2. routerMiddleware: Syncs the location/URL path to the state
@@ -32,7 +50,7 @@ export default function configureStore(initialState = {}, history) {
       window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : compose;
   /* eslint-enable */
 
-  const store = createStore(
+  const store: Object = createStore(
     createReducer(),
     fromJS(initialState),
     composeEnhancers(...enhancers)

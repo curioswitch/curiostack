@@ -1,3 +1,9 @@
+// @flow
+
+import type { Reducer } from 'redux';
+
+import type { AsyncStore } from 'store';
+
 import conformsTo from 'lodash/conformsTo';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
@@ -10,7 +16,7 @@ import createReducer from 'reducers';
 /**
  * Validate the shape of redux store
  */
-export function checkStore(store) {
+export function checkStore(store: AsyncStore) {
   const shape = {
     dispatch: isFunction,
     subscribe: isFunction,
@@ -28,8 +34,8 @@ export function checkStore(store) {
 /**
  * Inject an asynchronously loaded reducer
  */
-export function injectAsyncReducer(store, isValid) {
-  return function injectReducer(name, asyncReducer) {
+export function injectAsyncReducer(store: AsyncStore, isValid: boolean) {
+  return function injectReducer(name: string, asyncReducer: Reducer<*, *>) {
     if (!isValid) checkStore(store);
 
     invariant(
@@ -47,8 +53,8 @@ export function injectAsyncReducer(store, isValid) {
 /**
  * Inject an asynchronously loaded saga
  */
-export function injectAsyncSagas(store, isValid) {
-  return function injectSagas(sagas) {
+export function injectAsyncSagas(store: AsyncStore, isValid: boolean) {
+  return function injectSagas(sagas: Array<Generator<*, void, *>>) {
     if (!isValid) checkStore(store);
 
     invariant(
@@ -68,7 +74,7 @@ export function injectAsyncSagas(store, isValid) {
 /**
  * Helper for creating injectors
  */
-export function getAsyncInjectors(store) {
+export function getAsyncInjectors(store: AsyncStore) {
   checkStore(store);
 
   return {
@@ -80,7 +86,7 @@ export function getAsyncInjectors(store) {
 /**
  * Helper to log an error when asynchronous loading fails.
  */
-export function errorLoading(err) {
+export function errorLoading(err: Error) {
   /* istanbul ignore next */
   console.error('Dynamic page loading failed', err); // eslint-disable-line no-console
 }
