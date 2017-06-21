@@ -24,7 +24,7 @@ const Loadable = ({ loader, LoadingComponent: CustomLoadingComponent, ...rest })
     loadableComponent = ReactLoadable({
       ...rest,
       loader: this.loaderWithAsyncInjectors,
-      LoadingComponent: CustomLoadingComponent || this.context.defaultLoadingComponent || this.emptyLoadingComponent,
+      loading: CustomLoadingComponent || this.context.defaultLoadingComponent || this.emptyLoadingComponent,
     });
 
     render() {
