@@ -285,6 +285,7 @@
     "jest-cli": "20.0.4",
     "lint-staged": "3.5.1",
     "node-plop": "0.7.0",
+    "npm-check-updates": "2.12.0",
     "null-loader": "0.1.1",
     "offline-plugin": "4.8.1",
     "plop": "1.8.0",
