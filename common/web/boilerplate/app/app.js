@@ -11,6 +11,7 @@ import 'babel-polyfill';
 // Import all the third party stuff
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { AppContainer } from 'react-hot-loader';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
 import createHistory from 'history/createBrowserHistory';
@@ -54,7 +55,9 @@ const render = (messages) => {
     <Provider store={store}>
       <LanguageProvider messages={messages}>
         <ConnectedRouter history={history}>
-          <App />
+          <AppContainer>
+            <App />
+          </AppContainer>
         </ConnectedRouter>
       </LanguageProvider>
     </Provider>,
@@ -66,7 +69,7 @@ const render = (messages) => {
 if (module.hot) {
   // modules.hot.accept does not accept dynamic dependencies,
   // have to be constants at compile-time
-  module.hot.accept('./i18n', () => {
+  module.hot.accept(['./i18n', 'containers/App'], () => {
     render(translationMessages);
   });
 }
