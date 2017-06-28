@@ -24,6 +24,7 @@
 
 package org.curioswitch.gradle.plugins.gcloud;
 
+import org.curioswitch.gradle.plugins.gcloud.tasks.CreateClientCertTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.CreateClusterNamespaceTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
 import org.gradle.api.Plugin;
@@ -49,5 +50,6 @@ public class ClusterPlugin implements Plugin<Project> {
   private static void addNamespaceTasks(Project project) {
     project.getTasks().create("createNamespace", CreateClusterNamespaceTask.class);
     project.getTasks().create("initNamespaceTls", RequestNamespaceCertTask.class);
+    project.getTasks().create("createClientCertificate", CreateClientCertTask.class);
   }
 }
