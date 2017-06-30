@@ -51,6 +51,7 @@ import java.io.File;
 import java.security.cert.CertificateException;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 import javax.inject.Singleton;
 import javax.net.ssl.SSLException;
 import org.apache.logging.log4j.LogManager;
@@ -96,6 +97,9 @@ public abstract class ServerModule {
   @Multibinds
   abstract Set<StaticSiteServiceDefinition> staticSites();
 
+  @Multibinds
+  abstract Set<Consumer<ServerBuilder>> serverCustomizers();
+
   @Provides
   @Singleton
   static ServerConfig serverConfig(Config config) {
@@ -115,6 +119,7 @@ public abstract class ServerModule {
   static Server armeriaServer(
       Set<BindableService> grpcServices,
       Set<StaticSiteServiceDefinition> staticSites,
+      Set<Consumer<ServerBuilder>> serverCustomizers,
       MetricsHttpService metricsHttpService,
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
       ServerConfig serverConfig,
@@ -146,6 +151,8 @@ public abstract class ServerModule {
         throw new IllegalStateException("Could not load TLS certificate.", e);
       }
     }
+
+    serverCustomizers.forEach(c -> c.accept(sb));
 
     if (!serverConfig.isDisableDocService()) {
       sb.serviceUnder("/internal/docs", new DocServiceBuilder().build());

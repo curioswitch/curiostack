@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableMap;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.EnvVarSourceBuilder;
 import io.fabric8.kubernetes.api.model.HTTPGetActionBuilder;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
@@ -38,6 +39,7 @@ import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder;
 import io.fabric8.kubernetes.api.model.ProbeBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.ResourceRequirementsBuilder;
+import io.fabric8.kubernetes.api.model.SecretKeySelectorBuilder;
 import io.fabric8.kubernetes.api.model.SecretVolumeSourceBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
@@ -90,6 +92,24 @@ public class DeployPodTask extends DefaultTask {
                         .entrySet()
                         .stream()
                         .map((entry) -> new EnvVar(entry.getKey(), entry.getValue(), null))
+                    ::iterator)
+            .addAll(
+                deploymentConfig
+                        .secretEnvVars()
+                        .entrySet()
+                        .stream()
+                        .map(
+                            (entry) ->
+                                new EnvVar(
+                                    entry.getKey(),
+                                    null,
+                                    new EnvVarSourceBuilder()
+                                        .withSecretKeyRef(
+                                            new SecretKeySelectorBuilder()
+                                                .withName(entry.getValue().get(0))
+                                                .withKey(entry.getValue().get(1))
+                                                .build())
+                                        .build()))
                     ::iterator);
     if (!deploymentConfig.envVars().containsKey("JAVA_OPTS")) {
       envVars.add(

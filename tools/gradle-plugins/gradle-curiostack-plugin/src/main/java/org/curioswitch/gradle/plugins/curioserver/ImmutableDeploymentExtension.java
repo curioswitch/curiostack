@@ -26,6 +26,7 @@ package org.curioswitch.gradle.plugins.curioserver;
 
 import com.google.common.collect.ImmutableMap;
 import groovy.lang.Closure;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -109,6 +110,10 @@ public interface ImmutableDeploymentExtension {
     }
 
     default Map<String, String> envVars() {
+      return ImmutableMap.of();
+    }
+
+    default Map<String, List<String>> secretEnvVars() {
       return ImmutableMap.of();
     }
   }

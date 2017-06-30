@@ -97,8 +97,7 @@ public class CreateClientCertTask extends DefaultTask {
 
     PKCS10CertificationRequestBuilder p10Builder =
         new JcaPKCS10CertificationRequestBuilder(
-            new X500Principal("CN=" + commonName),
-            keyPair.getPublic());
+            new X500Principal("CN=" + commonName), keyPair.getPublic());
 
     final ContentSigner signer;
     try {
@@ -167,12 +166,7 @@ public class CreateClientCertTask extends DefaultTask {
         .exec(
             exec -> {
               exec.executable(command);
-              exec.args(
-                  "get",
-                  "csr",
-                  csrName,
-                  "-o",
-                  "jsonpath={.status.certificate}");
+              exec.args("get", "csr", csrName, "-o", "jsonpath={.status.certificate}");
               exec.setStandardOutput(certStream);
             });
     String certificate =
