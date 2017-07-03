@@ -57,9 +57,11 @@ public class SslAuthorizer implements Authorizer<HttpRequest> {
     try {
       peerCerts = ctx.sslSession().getPeerCertificates();
     } catch (SSLPeerUnverifiedException e) {
+      logger.warn("Could not verify peer.", e);
       return CompletableFuture.completedFuture(false);
     }
     if (peerCerts.length == 0) {
+      logger.info("No peer certificates.");
       return CompletableFuture.completedFuture(false);
     }
     String name =
