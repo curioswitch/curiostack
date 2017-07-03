@@ -29,16 +29,12 @@ import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.SessionOption;
 import com.linecorp.armeria.client.SessionOptions;
+import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
+import io.netty.handler.ssl.util.SelfSignedCertificate;
+import java.io.File;
+import java.util.Optional;
+import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.net.ssl.TrustManagerFactory;
@@ -58,48 +54,55 @@ public class ClientBuilderFactory {
   private final ClientFactory clientFactory;
 
   @Inject
-  public ClientBuilderFactory(ServerConfig serverConfig) {
-    TrustManagerFactory trustManagerFactory = null;
+  public ClientBuilderFactory(
+      Optional<SelfSignedCertificate> selfSignedCertificate,
+      Optional<TrustManagerFactory> caTrustManager,
+      ServerConfig serverConfig) {
+    final TrustManagerFactory trustManagerFactory;
     if (serverConfig.isDisableClientCertificateVerification()) {
       logger.warn("Disabling client SSL verification. This should only happen on local!");
       trustManagerFactory = InsecureTrustManagerFactory.INSTANCE;
-    } else if (!serverConfig.getCaCertificatePath().isEmpty()) {
-      trustManagerFactory = createTrustManagerFactoryForCa(serverConfig.getCaCertificatePath());
-    }
-    if (trustManagerFactory != null) {
-      clientFactory =
-          new AllInOneClientFactory(
-              SessionOptions.of(SessionOption.TRUST_MANAGER_FACTORY.newValue(trustManagerFactory)),
-              true);
+    } else if (caTrustManager.isPresent()) {
+      trustManagerFactory = caTrustManager.get();
     } else {
-      clientFactory = ClientFactory.DEFAULT;
+      trustManagerFactory = null;
     }
+
+    final Consumer<SslContextBuilder> clientCertificateCustomizer;
+    if (selfSignedCertificate.isPresent()) {
+      SelfSignedCertificate certificate = selfSignedCertificate.get();
+      clientCertificateCustomizer =
+          sslContext -> sslContext.keyManager(certificate.certificate(), certificate.privateKey());
+    } else if (serverConfig.getTlsCertificatePath().isEmpty()
+        || serverConfig.getTlsPrivateKeyPath().isEmpty()) {
+      throw new IllegalStateException(
+          "No TLS configuration provided, Curiostack does not support clients without TLS "
+              + "certificates. Use gradle-curio-cluster-plugin to set up a namespace and TLS.");
+    } else {
+      clientCertificateCustomizer =
+          sslContext ->
+              sslContext.keyManager(
+                  new File(serverConfig.getTlsCertificatePath()),
+                  new File(serverConfig.getTlsPrivateKeyPath()));
+    }
+
+    final Consumer<SslContextBuilder> clientTlsCustomizer;
+    if (trustManagerFactory != null) {
+      clientTlsCustomizer =
+          sslContext -> {
+            clientCertificateCustomizer.accept(sslContext);
+            sslContext.trustManager(trustManagerFactory);
+          };
+    } else {
+      clientTlsCustomizer = clientCertificateCustomizer;
+    }
+    clientFactory =
+        new AllInOneClientFactory(
+            SessionOptions.of(SessionOption.SSL_CONTEXT_CUSTOMIZER.newValue(clientTlsCustomizer)),
+            true);
   }
 
   public ClientBuilder create(String url) {
     return new ClientBuilder(url).factory(clientFactory);
-  }
-
-  private static TrustManagerFactory createTrustManagerFactoryForCa(String caCertificatePath) {
-    try {
-      KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
-      keystore.load(null);
-
-      CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-      final X509Certificate caCertificate;
-      try (InputStream is = new FileInputStream(caCertificatePath)) {
-        caCertificate = (X509Certificate) certificateFactory.generateCertificate(is);
-      }
-
-      keystore.setCertificateEntry("caCert", caCertificate);
-
-      TrustManagerFactory trustManagerFactory =
-          TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-      trustManagerFactory.init(keystore);
-
-      return trustManagerFactory;
-    } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
-      throw new IllegalStateException("Could not create keystore.", e);
-    }
   }
 }

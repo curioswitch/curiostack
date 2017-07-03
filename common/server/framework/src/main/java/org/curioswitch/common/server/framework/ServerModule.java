@@ -24,21 +24,23 @@
 
 package org.curioswitch.common.server.framework;
 
+import com.linecorp.armeria.common.Flags;
+import com.linecorp.armeria.common.HttpRequest;
+import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.RequestContext;
+import com.linecorp.armeria.common.SessionProtocol;
 import com.linecorp.armeria.common.grpc.GrpcSerializationFormats;
-import com.linecorp.armeria.common.http.HttpRequest;
-import com.linecorp.armeria.common.http.HttpResponse;
-import com.linecorp.armeria.common.http.HttpSessionProtocols;
 import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.Service;
 import com.linecorp.armeria.server.ServiceRequestContext;
+import com.linecorp.armeria.server.auth.HttpAuthServiceBuilder;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
-import com.linecorp.armeria.server.http.auth.HttpAuthServiceBuilder;
-import com.linecorp.armeria.server.http.healthcheck.HttpHealthCheckService;
+import com.linecorp.armeria.server.healthcheck.HttpHealthCheckService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
+import dagger.BindsOptionalOf;
 import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
@@ -46,19 +48,42 @@ import dagger.multibindings.Multibinds;
 import dagger.producers.Production;
 import io.grpc.BindableService;
 import io.grpc.protobuf.services.ProtoReflectionService;
+import io.netty.handler.codec.http2.Http2SecurityUtil;
+import io.netty.handler.ssl.ApplicationProtocolConfig;
+import io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
+import io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
+import io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
+import io.netty.handler.ssl.ApplicationProtocolNames;
+import io.netty.handler.ssl.ClientAuth;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
+import io.netty.handler.ssl.SupportedCipherSuiteFilter;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import javax.inject.Singleton;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.TrustManagerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthConfig;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthModule;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthorizer;
+import org.curioswitch.common.server.framework.auth.ssl.SslAuthorizer;
+import org.curioswitch.common.server.framework.auth.ssl.SslCommonNamesProvider;
 import org.curioswitch.common.server.framework.config.ModifiableServerConfig;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
@@ -91,6 +116,16 @@ public abstract class ServerModule {
 
   private static final Logger logger = LogManager.getLogger();
 
+  private static final ApplicationProtocolConfig HTTPS_ALPN_CFG =
+      new ApplicationProtocolConfig(
+          Protocol.ALPN,
+          // NO_ADVERTISE is currently the only mode supported by both OpenSsl and JDK providers.
+          SelectorFailureBehavior.NO_ADVERTISE,
+          // ACCEPT is currently the only mode supported by both OpenSsl and JDK providers.
+          SelectedListenerFailureBehavior.ACCEPT,
+          ApplicationProtocolNames.HTTP_2,
+          ApplicationProtocolNames.HTTP_1_1);
+
   @Multibinds
   abstract Set<BindableService> grpcServices();
 
@@ -99,6 +134,9 @@ public abstract class ServerModule {
 
   @Multibinds
   abstract Set<Consumer<ServerBuilder>> serverCustomizers();
+
+  @BindsOptionalOf
+  abstract SslCommonNamesProvider sslCommonNamesProvider();
 
   @Provides
   @Singleton
@@ -115,6 +153,47 @@ public abstract class ServerModule {
   }
 
   @Provides
+  static Optional<SelfSignedCertificate> selfSignedCertificate(ServerConfig serverConfig) {
+    if (!serverConfig.isGenerateSelfSignedCertificate()) {
+      return Optional.empty();
+    }
+    logger.warn("Generating self-signed certificate. This should only happen on local!!!");
+    try {
+      return Optional.of(new SelfSignedCertificate());
+    } catch (CertificateException e) {
+      // Can't happen.
+      throw new IllegalStateException(e);
+    }
+  }
+
+  @Provides
+  static Optional<TrustManagerFactory> caTrustManager(ServerConfig serverConfig) {
+    if (serverConfig.getCaCertificatePath().isEmpty()) {
+      return Optional.empty();
+    }
+    try {
+      CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+      final X509Certificate certificate;
+      try (InputStream is = new FileInputStream(serverConfig.getCaCertificatePath())) {
+        certificate = (X509Certificate) certificateFactory.generateCertificate(is);
+      }
+
+      KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+      keystore.load(null);
+
+      keystore.setCertificateEntry("caCert", certificate);
+
+      TrustManagerFactory trustManagerFactory =
+          TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+      trustManagerFactory.init(keystore);
+
+      return Optional.of(trustManagerFactory);
+    } catch (CertificateException | IOException | KeyStoreException | NoSuchAlgorithmException e) {
+      throw new IllegalStateException("Could not load CA certificate.", e);
+    }
+  }
+
+  @Provides
   @Singleton
   static Server armeriaServer(
       Set<BindableService> grpcServices,
@@ -122,31 +201,41 @@ public abstract class ServerModule {
       Set<Consumer<ServerBuilder>> serverCustomizers,
       MetricsHttpService metricsHttpService,
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
+      Optional<SelfSignedCertificate> selfSignedCertificate,
+      Optional<TrustManagerFactory> caTrustManager,
+      Optional<SslCommonNamesProvider> sslCommonNamesProvider,
+      Lazy<SslAuthorizer> sslAuthorizer,
       ServerConfig serverConfig,
       FirebaseAuthConfig authConfig) {
-    ServerBuilder sb = new ServerBuilder().port(serverConfig.getPort(), HttpSessionProtocols.HTTPS);
+    ServerBuilder sb = new ServerBuilder().port(serverConfig.getPort(), SessionProtocol.HTTPS);
 
-    if (serverConfig.isGenerateSelfSignedCertificate()) {
-      logger.warn("Generating self-signed certificate. This should only happen on local!!!");
+    if (selfSignedCertificate.isPresent()) {
+      SelfSignedCertificate certificate = selfSignedCertificate.get();
       try {
-        SelfSignedCertificate certificate = new SelfSignedCertificate();
         sb.sslContext(
-            HttpSessionProtocols.HTTPS, certificate.certificate(), certificate.privateKey());
-      } catch (CertificateException | SSLException e) {
+            serverSslContext(certificate.certificate(), certificate.privateKey())
+                .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                .clientAuth(ClientAuth.OPTIONAL)
+                .build());
+      } catch (SSLException e) {
         // Can't happen.
         throw new IllegalStateException(e);
       }
     } else if (serverConfig.getTlsCertificatePath().isEmpty()
-        || serverConfig.getTlsPrivateKeyPath().isEmpty()) {
+        || serverConfig.getTlsPrivateKeyPath().isEmpty()
+        || !caTrustManager.isPresent()) {
       throw new IllegalStateException(
           "No TLS configuration provided, Curiostack does not support non-TLS servers. "
               + "Use gradle-curio-cluster-plugin to set up a namespace and TLS.");
     } else {
       try {
         sb.sslContext(
-            HttpSessionProtocols.HTTPS,
-            new File(serverConfig.getTlsCertificatePath()),
-            new File(serverConfig.getTlsPrivateKeyPath()));
+            serverSslContext(
+                    new File(serverConfig.getTlsCertificatePath()),
+                    new File(serverConfig.getTlsPrivateKeyPath()))
+                .trustManager(caTrustManager.get())
+                .clientAuth(ClientAuth.OPTIONAL)
+                .build());
       } catch (SSLException e) {
         throw new IllegalStateException("Could not load TLS certificate.", e);
       }
@@ -157,8 +246,8 @@ public abstract class ServerModule {
     if (!serverConfig.isDisableDocService()) {
       sb.serviceUnder("/internal/docs", new DocServiceBuilder().build());
     }
-    sb.serviceAt("/internal/health", new HttpHealthCheckService());
-    sb.serviceAt("/internal/metrics", metricsHttpService);
+    sb.service("/internal/health", new HttpHealthCheckService());
+    sb.service("/internal/metrics", metricsHttpService);
 
     if (!grpcServices.isEmpty()) {
       GrpcServiceBuilder serviceBuilder =
@@ -170,6 +259,9 @@ public abstract class ServerModule {
         serviceBuilder.addService(ProtoReflectionService.newInstance());
       }
       Service<HttpRequest, HttpResponse> service = serviceBuilder.build();
+      if (sslCommonNamesProvider.isPresent()) {
+        service = new HttpAuthServiceBuilder().add(sslAuthorizer.get()).build(service);
+      }
       if (!authConfig.getServiceAccountBase64().isEmpty()) {
         service = new HttpAuthServiceBuilder().addOAuth2(firebaseAuthorizer.get()).build(service);
       }
@@ -194,5 +286,12 @@ public abstract class ServerModule {
               }
             });
     return server;
+  }
+
+  private static SslContextBuilder serverSslContext(File keyCertChainFile, File keyFile) {
+    return SslContextBuilder.forServer(keyCertChainFile, keyFile, null)
+        .sslProvider(Flags.useOpenSsl() ? SslProvider.OPENSSL : SslProvider.JDK)
+        .ciphers(Http2SecurityUtil.CIPHERS, SupportedCipherSuiteFilter.INSTANCE)
+        .applicationProtocolConfig(HTTPS_ALPN_CFG);
   }
 }

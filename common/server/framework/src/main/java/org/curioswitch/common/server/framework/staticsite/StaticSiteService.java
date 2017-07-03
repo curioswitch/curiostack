@@ -25,8 +25,8 @@
 package org.curioswitch.common.server.framework.staticsite;
 
 import com.google.common.collect.ImmutableSet;
-import com.linecorp.armeria.common.http.HttpRequest;
-import com.linecorp.armeria.common.http.HttpResponse;
+import com.linecorp.armeria.common.HttpRequest;
+import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.server.AbstractPathMapping;
 import com.linecorp.armeria.server.PathMappingResult;
 import com.linecorp.armeria.server.Service;
@@ -35,8 +35,8 @@ import com.linecorp.armeria.server.ServiceRequestContextWrapper;
 import com.linecorp.armeria.server.SimpleDecoratingService;
 import com.linecorp.armeria.server.composition.AbstractCompositeService;
 import com.linecorp.armeria.server.composition.CompositeServiceEntry;
-import com.linecorp.armeria.server.http.file.HttpFileService;
-import com.linecorp.armeria.server.http.file.HttpFileServiceBuilder;
+import com.linecorp.armeria.server.file.HttpFileService;
+import com.linecorp.armeria.server.file.HttpFileServiceBuilder;
 import java.util.Set;
 import javax.annotation.Nullable;
 
@@ -99,7 +99,7 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
   private static class IndexService extends SimpleDecoratingService<HttpRequest, HttpResponse> {
 
     /** Creates a new instance that decorates the specified {@link Service}. */
-    private IndexService(Service<? super HttpRequest, ? extends HttpResponse> delegate) {
+    private IndexService(Service<HttpRequest, HttpResponse> delegate) {
       super(delegate);
     }
 
