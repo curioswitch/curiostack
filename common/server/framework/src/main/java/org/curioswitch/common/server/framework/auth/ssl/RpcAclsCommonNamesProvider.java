@@ -33,7 +33,8 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class JsonFileSslCommonNamesProvider implements SslCommonNamesProvider {
+/** A {@link SslCommonNamesProvider} that authorizers all keys specified in an rpcacls file. */
+public class RpcAclsCommonNamesProvider implements SslCommonNamesProvider {
 
   private static final Logger logger = LogManager.getLogger();
 
@@ -45,7 +46,8 @@ public class JsonFileSslCommonNamesProvider implements SslCommonNamesProvider {
     final Map<String, ?> rpcAcls;
     try {
       @SuppressWarnings("unchecked")
-      Map<String, ?> localRpcAcls = (Map<String, ?>) OBJECT_MAPPER.readValue(path.toFile(), Map.class);
+      Map<String, ?> localRpcAcls =
+          (Map<String, ?>) OBJECT_MAPPER.readValue(path.toFile(), Map.class);
       rpcAcls = localRpcAcls;
     } catch (IOException e) {
       logger.warn("Error parsing rpcacls file.", e);

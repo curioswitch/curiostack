@@ -64,6 +64,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -82,10 +84,12 @@ import org.apache.logging.log4j.Logger;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthConfig;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthModule;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthorizer;
+import org.curioswitch.common.server.framework.auth.ssl.RpcAclsCommonNamesProvider;
 import org.curioswitch.common.server.framework.auth.ssl.SslAuthorizer;
 import org.curioswitch.common.server.framework.auth.ssl.SslCommonNamesProvider;
 import org.curioswitch.common.server.framework.config.ModifiableServerConfig;
 import org.curioswitch.common.server.framework.config.ServerConfig;
+import org.curioswitch.common.server.framework.files.FileWatcher;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
@@ -204,19 +208,33 @@ public abstract class ServerModule {
       Optional<SelfSignedCertificate> selfSignedCertificate,
       Optional<TrustManagerFactory> caTrustManager,
       Optional<SslCommonNamesProvider> sslCommonNamesProvider,
-      Lazy<SslAuthorizer> sslAuthorizer,
+      FileWatcher.Builder fileWatcherBuilder,
       ServerConfig serverConfig,
       FirebaseAuthConfig authConfig) {
+    if (!sslCommonNamesProvider.isPresent()
+        && !serverConfig.getRpcAclsPath().isEmpty()
+        && !serverConfig.isDisableSslAuthorization()) {
+      Path path = Paths.get(serverConfig.getRpcAclsPath()).toAbsolutePath();
+      RpcAclsCommonNamesProvider commonNamesProvider = new RpcAclsCommonNamesProvider();
+      fileWatcherBuilder.registerPath(path, commonNamesProvider::processFile);
+      if (path.toFile().exists()) {
+        commonNamesProvider.processFile(path);
+      }
+      sslCommonNamesProvider = Optional.of(commonNamesProvider);
+    }
+
     ServerBuilder sb = new ServerBuilder().port(serverConfig.getPort(), SessionProtocol.HTTPS);
 
     if (selfSignedCertificate.isPresent()) {
       SelfSignedCertificate certificate = selfSignedCertificate.get();
       try {
-        sb.sslContext(
+        SslContextBuilder sslContext =
             serverSslContext(certificate.certificate(), certificate.privateKey())
-                .trustManager(InsecureTrustManagerFactory.INSTANCE)
-                .clientAuth(ClientAuth.OPTIONAL)
-                .build());
+                .trustManager(InsecureTrustManagerFactory.INSTANCE);
+        if (!serverConfig.isDisableSslAuthorization()) {
+          sslContext.clientAuth(ClientAuth.OPTIONAL);
+        }
+        sb.sslContext(sslContext.build());
       } catch (SSLException e) {
         // Can't happen.
         throw new IllegalStateException(e);
@@ -229,13 +247,15 @@ public abstract class ServerModule {
               + "Use gradle-curio-cluster-plugin to set up a namespace and TLS.");
     } else {
       try {
-        sb.sslContext(
+        SslContextBuilder sslContext =
             serverSslContext(
                     new File(serverConfig.getTlsCertificatePath()),
                     new File(serverConfig.getTlsPrivateKeyPath()))
-                .trustManager(caTrustManager.get())
-                .clientAuth(ClientAuth.OPTIONAL)
-                .build());
+                .trustManager(caTrustManager.get());
+        if (!serverConfig.isDisableSslAuthorization()) {
+          sslContext.clientAuth(ClientAuth.OPTIONAL);
+        }
+        sb.sslContext(sslContext.build());
       } catch (SSLException e) {
         throw new IllegalStateException("Could not load TLS certificate.", e);
       }
@@ -259,8 +279,11 @@ public abstract class ServerModule {
         serviceBuilder.addService(ProtoReflectionService.newInstance());
       }
       Service<HttpRequest, HttpResponse> service = serviceBuilder.build();
-      if (sslCommonNamesProvider.isPresent()) {
-        service = new HttpAuthServiceBuilder().add(sslAuthorizer.get()).build(service);
+      if (sslCommonNamesProvider.isPresent() && !serverConfig.isDisableSslAuthorization()) {
+        service =
+            new HttpAuthServiceBuilder()
+                .add(new SslAuthorizer(sslCommonNamesProvider.get()))
+                .build(service);
       }
       if (!authConfig.getServiceAccountBase64().isEmpty()) {
         service = new HttpAuthServiceBuilder().addOAuth2(firebaseAuthorizer.get()).build(service);
@@ -285,6 +308,13 @@ public abstract class ServerModule {
                 logger.info("Server started on ports: " + server.activePorts());
               }
             });
+
+    if (!fileWatcherBuilder.isEmpty()) {
+      FileWatcher fileWatcher = fileWatcherBuilder.build();
+      fileWatcher.start();
+      Runtime.getRuntime().addShutdownHook(new Thread(fileWatcher::close));
+    }
+
     return server;
   }
 

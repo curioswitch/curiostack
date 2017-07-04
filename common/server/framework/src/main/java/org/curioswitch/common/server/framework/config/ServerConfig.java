@@ -79,4 +79,20 @@ public interface ServerConfig {
    * workaround for https://github.com/line/armeria/pull/592.
    */
   boolean isDisableDocService();
+
+  /**
+   * Path to file containing rpc acl configuration. If empty, features using rpc acl will be
+   * disabled, including:
+   *
+   * <ul>
+   *   <li>{@link org.curioswitch.common.server.framework.auth.ssl.SslAuthorizer}
+   * </ul>
+   */
+  String getRpcAclsPath();
+
+  /**
+   * Whether authorization using SSL client certificates should be disabled. This should generally
+   * only be set to {@code true} for services used from browsers.
+   */
+  boolean isDisableSslAuthorization();
 }

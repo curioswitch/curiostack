@@ -31,10 +31,8 @@ import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.auth.Authorizer;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import javax.inject.Inject;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,9 +43,8 @@ public class SslAuthorizer implements Authorizer<HttpRequest> {
 
   private final SslCommonNamesProvider commonNamesProvider;
 
-  @Inject
-  public SslAuthorizer(Optional<SslCommonNamesProvider> commonNamesProvider) {
-    this.commonNamesProvider = commonNamesProvider.get();
+  public SslAuthorizer(SslCommonNamesProvider commonNamesProvider) {
+    this.commonNamesProvider = commonNamesProvider;
   }
 
   @Override

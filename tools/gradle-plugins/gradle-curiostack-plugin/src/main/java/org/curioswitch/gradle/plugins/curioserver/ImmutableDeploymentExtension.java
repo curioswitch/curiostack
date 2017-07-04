@@ -116,6 +116,10 @@ public interface ImmutableDeploymentExtension {
     default Map<String, List<String>> secretEnvVars() {
       return ImmutableMap.of();
     }
+
+    default Map<String, String> rpcAcls() {
+      return ImmutableMap.of();
+    }
   }
 
   default NamedDomainObjectContainer<DeploymentConfiguration> getTypes() {
@@ -139,7 +143,8 @@ public interface ImmutableDeploymentExtension {
         .setReplicas(1)
         .setCpu("0.1")
         .setMemoryMb(256)
-        .setImage(imagePrefix() + baseName() + ":latest");
+        .setImage(imagePrefix() + baseName() + ":latest")
+        .setRpcAcls(ImmutableMap.of("*", "*"));
     props.set(DEPLOYMENT_TYPES, types);
     return types;
   }

@@ -30,6 +30,7 @@ import com.bmuschko.gradle.docker.DockerJavaApplicationPlugin;
 import com.google.common.base.Ascii;
 import groovy.lang.GroovyObject;
 import org.curioswitch.gradle.plugins.curioserver.ImmutableDeploymentExtension.ImmutableDeploymentConfiguration;
+import org.curioswitch.gradle.plugins.curioserver.tasks.DeployConfigMapTask;
 import org.curioswitch.gradle.plugins.curioserver.tasks.DeployPodTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -70,10 +71,16 @@ public class CurioServerPlugin implements Plugin<Project> {
           for (ImmutableDeploymentConfiguration type : config.getTypes()) {
             String capitalized =
                 Ascii.toUpperCase(type.getName().charAt(0)) + type.getName().substring(1);
+            DeployConfigMapTask deployConfigMapTask =
+                project
+                    .getTasks()
+                    .create("deployConfigMap" + capitalized, DeployConfigMapTask.class)
+                    .setType(type.getName());
             project
                 .getTasks()
                 .create("deploy" + capitalized, DeployPodTask.class)
-                .setType(type.getName());
+                .setType(type.getName())
+                .dependsOn(deployConfigMapTask);
           }
         });
     project.getPluginManager().apply(DockerJavaApplicationPlugin.class);

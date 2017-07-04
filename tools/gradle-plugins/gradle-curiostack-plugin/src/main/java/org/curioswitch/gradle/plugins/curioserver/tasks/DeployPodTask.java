@@ -26,6 +26,7 @@ package org.curioswitch.gradle.plugins.curioserver.tasks;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import io.fabric8.kubernetes.api.model.ConfigMapVolumeSourceBuilder;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
 import io.fabric8.kubernetes.api.model.EnvVar;
@@ -204,6 +205,11 @@ public class DeployPodTask extends DefaultTask {
                                                     .withName("tls")
                                                     .withMountPath("/etc/tls")
                                                     .withReadOnly(true)
+                                                    .build(),
+                                                new VolumeMountBuilder()
+                                                    .withName("rpcacls")
+                                                    .withMountPath("/etc/rpcacls")
+                                                    .withReadOnly(true)
                                                     .build())
                                             .build())
                                     .withVolumes(
@@ -212,6 +218,13 @@ public class DeployPodTask extends DefaultTask {
                                             .withSecret(
                                                 new SecretVolumeSourceBuilder()
                                                     .withSecretName("server-tls")
+                                                    .build())
+                                            .build(),
+                                        new VolumeBuilder()
+                                            .withName("rpcacls")
+                                            .withConfigMap(
+                                                new ConfigMapVolumeSourceBuilder()
+                                                    .withName("rpcacls")
                                                     .build())
                                             .build())
                                     .build())
