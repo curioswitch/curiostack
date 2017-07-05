@@ -64,7 +64,7 @@ class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("com.fasterxml.jackson.core")
               .version(JACKSON_VERSION)
-              .addModules("jackson-core", "jackson-databind")
+              .addModules("jackson-annotations", "jackson-core", "jackson-databind")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.fasterxml.jackson.dataformat")
@@ -83,12 +83,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.2.0")
+              .version("1.2.1")
               .addModules("google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.20.0-alpha")
+              .version("0.20.1-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()

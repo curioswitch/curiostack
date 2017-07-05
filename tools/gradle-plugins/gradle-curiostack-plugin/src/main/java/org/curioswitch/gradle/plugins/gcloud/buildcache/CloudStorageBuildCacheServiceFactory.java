@@ -41,13 +41,7 @@ public class CloudStorageBuildCacheServiceFactory
 
     describer.type("Google Cloud Storage Build Cache").config("bucket", buildCache.getBucket());
 
-    Storage cloudStorage =
-        StorageOptions.newBuilder()
-            // This project id isn't actually used but it's still required to set something or the
-            // service itself does not get initiated. This is probably a bug in the client library.
-            .setProjectId("curiostack-devnull")
-            .build()
-            .getService();
+    Storage cloudStorage = StorageOptions.getDefaultInstance().getService();
 
     return new CloudStorageBuildCacheService(cloudStorage, buildCache.getBucket());
   }
