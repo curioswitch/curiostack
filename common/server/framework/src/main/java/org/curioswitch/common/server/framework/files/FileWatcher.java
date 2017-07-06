@@ -125,8 +125,15 @@ public class FileWatcher implements AutoCloseable {
           .forEach(
               path -> {
                 Path resolved = watchedDirs.get(key).resolve(path).toAbsolutePath();
-                logger.info("Processing update to path: " + resolved);
-                registeredPaths.get(resolved).accept(resolved);
+                Consumer<Path> callback = registeredPaths.get(resolved);
+                if (callback != null) {
+                  logger.info("Processing update to path: " + resolved);
+                  try {
+                    callback.accept(resolved);
+                  } catch (Exception e) {
+                    logger.warn("Unexpected exception processing update to path: " + resolved, e);
+                  }
+                }
               });
 
       boolean valid = key.reset();
