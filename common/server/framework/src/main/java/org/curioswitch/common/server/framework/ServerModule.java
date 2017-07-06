@@ -87,11 +87,14 @@ import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthorizer;
 import org.curioswitch.common.server.framework.auth.ssl.RpcAclsCommonNamesProvider;
 import org.curioswitch.common.server.framework.auth.ssl.SslAuthorizer;
 import org.curioswitch.common.server.framework.auth.ssl.SslCommonNamesProvider;
+import org.curioswitch.common.server.framework.config.JavascriptStaticConfig;
+import org.curioswitch.common.server.framework.config.ModifiableJavascriptStaticConfig;
 import org.curioswitch.common.server.framework.config.ModifiableServerConfig;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.files.FileWatcher;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
+import org.curioswitch.common.server.framework.staticsite.JavascriptStaticService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
 
@@ -146,6 +149,14 @@ public abstract class ServerModule {
   @Singleton
   static ServerConfig serverConfig(Config config) {
     return ConfigBeanFactory.create(config.getConfig("server"), ModifiableServerConfig.class)
+        .toImmutable();
+  }
+
+  @Provides
+  @Singleton
+  static JavascriptStaticConfig javascriptStaticConfig(Config config) {
+    return ConfigBeanFactory.create(
+            config.getConfig("javascriptConfig"), ModifiableJavascriptStaticConfig.class)
         .toImmutable();
   }
 
@@ -205,12 +216,14 @@ public abstract class ServerModule {
       Set<Consumer<ServerBuilder>> serverCustomizers,
       MetricsHttpService metricsHttpService,
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
+      Lazy<JavascriptStaticService> javascriptStaticService,
       Optional<SelfSignedCertificate> selfSignedCertificate,
       Optional<TrustManagerFactory> caTrustManager,
       Optional<SslCommonNamesProvider> sslCommonNamesProvider,
       FileWatcher.Builder fileWatcherBuilder,
       ServerConfig serverConfig,
-      FirebaseAuthConfig authConfig) {
+      FirebaseAuthConfig authConfig,
+      JavascriptStaticConfig javascriptStaticConfig) {
     if (!sslCommonNamesProvider.isPresent()
         && !serverConfig.getRpcAclsPath().isEmpty()
         && !serverConfig.isDisableSslAuthorization()) {
@@ -289,6 +302,11 @@ public abstract class ServerModule {
         service = new HttpAuthServiceBuilder().addOAuth2(firebaseAuthorizer.get()).build(service);
       }
       sb.serviceUnder(serverConfig.getGrpcPath(), service);
+    }
+
+    if (javascriptStaticConfig.getVersion() != 0) {
+      sb.service(
+          "/static/jsconfig-" + javascriptStaticConfig.getVersion(), javascriptStaticService.get());
     }
 
     for (StaticSiteServiceDefinition staticSite : staticSites) {
