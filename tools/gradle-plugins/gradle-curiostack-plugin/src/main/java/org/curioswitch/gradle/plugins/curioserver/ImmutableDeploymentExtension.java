@@ -90,7 +90,7 @@ public interface ImmutableDeploymentExtension {
     }
 
     default int memoryMb() {
-      return 128;
+      return 256;
     }
 
     default String image() {
