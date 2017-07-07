@@ -32,34 +32,54 @@ import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
-import com.codahale.metrics.log4j2.InstrumentedAppender;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import dagger.Module;
 import dagger.Provides;
+import dagger.multibindings.ElementsIntoSet;
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.hotspot.DefaultExports;
+import io.prometheus.client.log4j2.InstrumentedAppender;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.Properties;
+import java.util.Set;
 import javax.inject.Singleton;
 import javax.management.MBeanServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
+import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels.RpcMetricLabel;
 
 @Module
-public class MonitoringModule {
+public abstract class MonitoringModule {
 
   @Provides
   @Singleton
-  MetricRegistry metricRegistry() {
+  static MetricRegistry metricRegistry() {
     MetricRegistry registry = new MetricRegistry();
     configureDefaultMetrics(registry);
     return registry;
   }
 
+  @Provides
+  @Singleton
+  static CollectorRegistry collectorRegistry() {
+    CollectorRegistry registry = CollectorRegistry.defaultRegistry;
+    DefaultExports.initialize();
+    configureLogMetrics();
+    return registry;
+  }
+
+  @Provides
+  @ElementsIntoSet
+  static Set<RpcMetricLabel> metricLabels() {
+    return ImmutableSet.of(RpcMetricLabels.SERVICE, RpcMetricLabels.METHOD);
+  }
+
   private static void configureDefaultMetrics(MetricRegistry registry) {
     configureGitMetrics(registry);
     configureJvmMetrics(registry);
-    configureLogMetrics(registry);
   }
 
   private static void configureGitMetrics(MetricRegistry registry) {
@@ -85,8 +105,8 @@ public class MonitoringModule {
     registry.register("jvm.threads", new ThreadStatesGaugeSet());
   }
 
-  private static void configureLogMetrics(MetricRegistry registry) {
-    InstrumentedAppender appender = new InstrumentedAppender(registry);
+  private static void configureLogMetrics() {
+    InstrumentedAppender appender = InstrumentedAppender.createAppender("PROMETHEUS");
     appender.start();
     LoggerContext context = (LoggerContext) LogManager.getContext(false);
     Configuration config = context.getConfiguration();

@@ -186,6 +186,11 @@ class StandardDependencies {
               .addModules("netty-tcnative-boringssl-static")
               .build(),
           ImmutableDependencySet.builder()
+              .group("io.prometheus")
+              .version("0.0.23")
+              .addModules("simpleclient_hotspot", "simpleclient_log4j2")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("javax.inject")
               .version("1")
               .addModules("javax.inject")

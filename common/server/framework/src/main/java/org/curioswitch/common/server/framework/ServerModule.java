@@ -38,6 +38,8 @@ import com.linecorp.armeria.server.auth.HttpAuthServiceBuilder;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import com.linecorp.armeria.server.healthcheck.HttpHealthCheckService;
+import com.linecorp.armeria.server.metric.PrometheusExporterHttpService;
+import com.linecorp.armeria.server.metric.PrometheusMetricCollectingService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.BindsOptionalOf;
@@ -60,6 +62,7 @@ import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import io.prometheus.client.CollectorRegistry;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -94,6 +97,8 @@ import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.files.FileWatcher;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
+import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
+import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels.RpcMetricLabel;
 import org.curioswitch.common.server.framework.staticsite.JavascriptStaticService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
@@ -219,6 +224,8 @@ public abstract class ServerModule {
       Set<StaticSiteServiceDefinition> staticSites,
       Set<Consumer<ServerBuilder>> serverCustomizers,
       MetricsHttpService metricsHttpService,
+      CollectorRegistry collectorRegistry,
+      Set<RpcMetricLabel> metricLabels,
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
       Lazy<JavascriptStaticService> javascriptStaticService,
       Optional<SelfSignedCertificate> selfSignedCertificate,
@@ -286,7 +293,8 @@ public abstract class ServerModule {
       sb.serviceUnder("/internal/docs", new DocServiceBuilder().build());
     }
     sb.service("/internal/health", new HttpHealthCheckService());
-    sb.service("/internal/metrics", metricsHttpService);
+    sb.service("/internal/dropwizard", metricsHttpService);
+    sb.service("/internal/metrics", new PrometheusExporterHttpService(collectorRegistry));
 
     if (!grpcServices.isEmpty()) {
       GrpcServiceBuilder serviceBuilder =
@@ -307,6 +315,11 @@ public abstract class ServerModule {
       if (!authConfig.getServiceAccountBase64().isEmpty()) {
         service = new HttpAuthServiceBuilder().addOAuth2(firebaseAuthorizer.get()).build(service);
       }
+
+      service =
+          service.decorate(
+              PrometheusMetricCollectingService.newDecorator(
+                  collectorRegistry, metricLabels, RpcMetricLabels.grpcRequestLabeler()));
       sb.serviceUnder(serverConfig.getGrpcPath(), service);
     }
 

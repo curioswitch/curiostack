@@ -29,11 +29,16 @@ import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.SessionOption;
 import com.linecorp.armeria.client.SessionOptions;
+import com.linecorp.armeria.client.metric.PrometheusMetricCollectingClient;
+import com.linecorp.armeria.common.HttpRequest;
+import com.linecorp.armeria.common.HttpResponse;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import io.prometheus.client.CollectorRegistry;
 import java.io.File;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -41,6 +46,8 @@ import javax.net.ssl.TrustManagerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.curioswitch.common.server.framework.config.ServerConfig;
+import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
+import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels.RpcMetricLabel;
 
 /**
  * A convenience factory that sets up a {@link ClientBuilder} with appropriate default parameters.
@@ -52,9 +59,13 @@ public class ClientBuilderFactory {
   private static final Logger logger = LogManager.getLogger();
 
   private final ClientFactory clientFactory;
+  private final Set<RpcMetricLabel> labels;
+  private final CollectorRegistry collectorRegistry;
 
   @Inject
   public ClientBuilderFactory(
+      CollectorRegistry collectorRegistry,
+      Set<RpcMetricLabel> labels,
       Optional<SelfSignedCertificate> selfSignedCertificate,
       Optional<TrustManagerFactory> caTrustManager,
       ServerConfig serverConfig) {
@@ -100,9 +111,17 @@ public class ClientBuilderFactory {
         new AllInOneClientFactory(
             SessionOptions.of(SessionOption.SSL_CONTEXT_CUSTOMIZER.newValue(clientTlsCustomizer)),
             true);
+    this.labels = labels;
+    this.collectorRegistry = collectorRegistry;
   }
 
   public ClientBuilder create(String url) {
-    return new ClientBuilder(url).factory(clientFactory);
+    return new ClientBuilder(url)
+        .factory(clientFactory)
+        .decorator(
+            HttpRequest.class,
+            HttpResponse.class,
+            PrometheusMetricCollectingClient.newDecorator(
+                collectorRegistry, labels, RpcMetricLabels.grpcRequestLabeler()));
   }
 }
