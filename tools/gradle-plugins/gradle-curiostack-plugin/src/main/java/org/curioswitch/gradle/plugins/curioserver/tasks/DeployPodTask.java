@@ -250,7 +250,7 @@ public class DeployPodTask extends DefaultTask {
                             .withName("https")
                             .build())
                     .withSelector(ImmutableMap.of("name", deploymentConfig.deploymentName()))
-                    .withType(config.externalHost() != null ? "NodePort" : "ClusterIP")
+                    .withType(deploymentConfig.externalHost() != null ? "NodePort" : "ClusterIP")
                     .build())
             .build();
 
@@ -266,7 +266,7 @@ public class DeployPodTask extends DefaultTask {
       // but it works to skip existing services to just live with it for now, but try to fix it.
     }
 
-    if (config.externalHost() != null) {
+    if (deploymentConfig.externalHost() != null) {
       Ingress ingress =
           new IngressBuilder()
               .withMetadata(
@@ -283,11 +283,11 @@ public class DeployPodTask extends DefaultTask {
                       .withTls(
                           new IngressTLSBuilder()
                               .withSecretName(deploymentConfig.deploymentName() + "-tls")
-                              .withHosts(config.externalHost())
+                              .withHosts(deploymentConfig.externalHost())
                               .build())
                       .withRules(
                           new IngressRuleBuilder()
-                              .withHost(config.externalHost())
+                              .withHost(deploymentConfig.externalHost())
                               .withHttp(
                                   new HTTPIngressRuleValueBuilder()
                                       .withPaths(

@@ -97,6 +97,7 @@ import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
 import org.curioswitch.common.server.framework.staticsite.JavascriptStaticService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
+import org.jooq.DSLContext;
 
 /**
  * A {@link Module} which bootstraps a server, finding and registering GRPC services to expose. All
@@ -144,6 +145,9 @@ public abstract class ServerModule {
 
   @BindsOptionalOf
   abstract SslCommonNamesProvider sslCommonNamesProvider();
+
+  @BindsOptionalOf
+  abstract DSLContext db();
 
   @Provides
   @Singleton
@@ -223,7 +227,9 @@ public abstract class ServerModule {
       FileWatcher.Builder fileWatcherBuilder,
       ServerConfig serverConfig,
       FirebaseAuthConfig authConfig,
-      JavascriptStaticConfig javascriptStaticConfig) {
+      JavascriptStaticConfig javascriptStaticConfig,
+      // Eagerly trigger bindings when present.
+      Optional<DSLContext> unusedDb) {
     if (!sslCommonNamesProvider.isPresent()
         && !serverConfig.getRpcAclsPath().isEmpty()
         && !serverConfig.isDisableSslAuthorization()) {

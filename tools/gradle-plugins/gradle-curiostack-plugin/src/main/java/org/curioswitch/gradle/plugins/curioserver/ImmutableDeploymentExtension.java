@@ -61,17 +61,17 @@ public interface ImmutableDeploymentExtension {
         .getArchivesBaseName();
   }
 
-  @Nullable
-  default String externalHost() {
-    return null;
-  }
-
   @Modifiable
   @Style(create = "new", typeModifiable = "*", defaultAsDefault = true, typeAbstract = "Immutable*")
   interface ImmutableDeploymentConfiguration {
 
     @Value.Parameter
     String getName();
+
+    @Nullable
+    default String externalHost() {
+      return null;
+    }
 
     default String namespace() {
       return "default";
