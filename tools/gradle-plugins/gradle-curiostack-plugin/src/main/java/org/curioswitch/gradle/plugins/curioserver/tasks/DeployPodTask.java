@@ -159,6 +159,12 @@ public class DeployPodTask extends DefaultTask {
                                             "revision",
                                                 System.getenv()
                                                     .getOrDefault("REVISION_ID", "none")))
+                                    .withAnnotations(ImmutableMap.<String, String>builder()
+                                        .put("prometheus.io/scrape", "true")
+                                        .put("prometheus.io/scheme", "https")
+                                        .put("prometheus.io/path", "/internal/metrics")
+                                        .put("prometheus.io/port", String.valueOf(deploymentConfig.containerPort()))
+                                        .build())
                                     .build())
                             .withSpec(
                                 new PodSpecBuilder()
@@ -238,9 +244,14 @@ public class DeployPodTask extends DefaultTask {
                 new ObjectMetaBuilder()
                     .withName(deploymentConfig.deploymentName())
                     .withNamespace(deploymentConfig.namespace())
-                    .withAnnotations(
-                        ImmutableMap.of(
-                            "service.alpha.kubernetes.io/app-protocols", "{\"https\":\"HTTPS\"}"))
+                    .withAnnotations(ImmutableMap.<String, String>builder()
+                        .put("service.alpha.kubernetes.io/app-protocols", "{\"https\":\"HTTPS\"}")
+                        .put("prometheus.io/scrape", "true")
+                        .put("prometheus.io/scheme", "https")
+                        .put("prometheus.io/path", "/internal/metrics")
+                        .put("prometheus.io/port", String.valueOf(deploymentConfig.containerPort()))
+                        .put("prometheus.io/probe", "true")
+                        .build())
                     .build())
             .withSpec(
                 new ServiceSpecBuilder()
