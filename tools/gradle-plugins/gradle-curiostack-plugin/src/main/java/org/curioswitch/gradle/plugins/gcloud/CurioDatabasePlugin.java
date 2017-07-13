@@ -67,7 +67,7 @@ public class CurioDatabasePlugin implements Plugin<Project> {
     String devAdminPassword = config.devAdminPassword();
     if (devAdminPassword != null) {
       generateDevDbDockerfile.environmentVariable("MYSQL_PASSWORD", devAdminPassword);
-      // Root privilege need to be exposed to create users other than MYSQL_USER.
+      // Root privilege needs to be exposed to create users other than MYSQL_USER.
       generateDevDbDockerfile.environmentVariable("MYSQL_ROOT_PASSWORD", devAdminPassword);
     }
 
