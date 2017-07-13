@@ -429,6 +429,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     dependencies.add(testConfiguration.getName(), "org.assertj:assertj-core");
     dependencies.add(testConfiguration.getName(), "junit:junit");
     dependencies.add(testConfiguration.getName(), "org.mockito:mockito-core");
+    dependencies.add(testConfiguration.getName(), "info.solidsoft.mockito:mockito-java8");
   }
 
   private static Optional<Node> findChild(Node node, Predicate<Node> predicate) {

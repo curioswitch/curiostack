@@ -24,6 +24,7 @@
 
 package org.curioswitch.common.server.framework;
 
+import brave.Tracing;
 import com.linecorp.armeria.common.Flags;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
@@ -40,6 +41,7 @@ import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import com.linecorp.armeria.server.healthcheck.HttpHealthCheckService;
 import com.linecorp.armeria.server.metric.PrometheusExporterHttpService;
 import com.linecorp.armeria.server.metric.PrometheusMetricCollectingService;
+import com.linecorp.armeria.server.tracing.HttpTracingService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.BindsOptionalOf;
@@ -62,6 +64,7 @@ import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import io.prometheus.client.CollectorRegistry;
 import java.io.File;
 import java.io.FileInputStream;
@@ -78,6 +81,7 @@ import java.security.cert.X509Certificate;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import javax.inject.Singleton;
 import javax.net.ssl.SSLException;
@@ -93,12 +97,14 @@ import org.curioswitch.common.server.framework.auth.ssl.SslCommonNamesProvider;
 import org.curioswitch.common.server.framework.config.JavascriptStaticConfig;
 import org.curioswitch.common.server.framework.config.ModifiableJavascriptStaticConfig;
 import org.curioswitch.common.server.framework.config.ModifiableServerConfig;
+import org.curioswitch.common.server.framework.config.MonitoringConfig;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.files.FileWatcher;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels.RpcMetricLabel;
+import org.curioswitch.common.server.framework.monitoring.StackdriverReporter;
 import org.curioswitch.common.server.framework.staticsite.JavascriptStaticService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
@@ -177,6 +183,7 @@ public abstract class ServerModule {
   }
 
   @Provides
+  @Singleton
   static Optional<SelfSignedCertificate> selfSignedCertificate(ServerConfig serverConfig) {
     if (!serverConfig.isGenerateSelfSignedCertificate()) {
       return Optional.empty();
@@ -225,6 +232,7 @@ public abstract class ServerModule {
       Set<Consumer<ServerBuilder>> serverCustomizers,
       MetricsHttpService metricsHttpService,
       CollectorRegistry collectorRegistry,
+      Tracing tracing,
       Set<RpcMetricLabel> metricLabels,
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
       Lazy<JavascriptStaticService> javascriptStaticService,
@@ -232,9 +240,11 @@ public abstract class ServerModule {
       Optional<TrustManagerFactory> caTrustManager,
       Optional<SslCommonNamesProvider> sslCommonNamesProvider,
       FileWatcher.Builder fileWatcherBuilder,
+      Lazy<StackdriverReporter> stackdriverReporter,
       ServerConfig serverConfig,
       FirebaseAuthConfig authConfig,
       JavascriptStaticConfig javascriptStaticConfig,
+      MonitoringConfig monitoringConfig,
       // Eagerly trigger bindings when present.
       Optional<DSLContext> unusedDb) {
     if (!sslCommonNamesProvider.isPresent()
@@ -317,9 +327,11 @@ public abstract class ServerModule {
       }
 
       service =
-          service.decorate(
-              PrometheusMetricCollectingService.newDecorator(
-                  collectorRegistry, metricLabels, RpcMetricLabels.grpcRequestLabeler()));
+          service
+              .decorate(
+                  PrometheusMetricCollectingService.newDecorator(
+                      collectorRegistry, metricLabels, RpcMetricLabels.grpcRequestLabeler()))
+              .decorate(HttpTracingService.newDecorator(tracing));
       sb.serviceUnder(serverConfig.getGrpcPath(), service);
     }
 
@@ -350,6 +362,30 @@ public abstract class ServerModule {
       FileWatcher fileWatcher = fileWatcherBuilder.build();
       fileWatcher.start();
       Runtime.getRuntime().addShutdownHook(new Thread(fileWatcher::close));
+    }
+
+    // Work around armeria 0.51.0 using daemon threads for the server event loops.
+    new DefaultThreadFactory("idler", false)
+        .newThread(
+            () -> {
+              while (true) {
+                try {
+                  Thread.sleep(Long.MAX_VALUE);
+                } catch (InterruptedException e) {
+                  logger.info("Idler thread interrupted.");
+                }
+              }
+            })
+        .start();
+
+    if (monitoringConfig.isReportTraces()) {
+      server
+          .nextEventLoop()
+          .scheduleAtFixedRate(
+              stackdriverReporter.get()::flush,
+              0,
+              monitoringConfig.getTraceReportInterval().getSeconds(),
+              TimeUnit.SECONDS);
     }
 
     return server;

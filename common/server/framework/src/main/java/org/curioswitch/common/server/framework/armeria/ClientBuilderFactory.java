@@ -24,12 +24,12 @@
 
 package org.curioswitch.common.server.framework.armeria;
 
-import com.linecorp.armeria.client.AllInOneClientFactory;
+import brave.Tracing;
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientFactory;
-import com.linecorp.armeria.client.SessionOption;
-import com.linecorp.armeria.client.SessionOptions;
+import com.linecorp.armeria.client.ClientFactoryBuilder;
 import com.linecorp.armeria.client.metric.PrometheusMetricCollectingClient;
+import com.linecorp.armeria.client.tracing.HttpTracingClient;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -61,14 +61,17 @@ public class ClientBuilderFactory {
   private final ClientFactory clientFactory;
   private final Set<RpcMetricLabel> labels;
   private final CollectorRegistry collectorRegistry;
+  private final Tracing tracing;
 
   @Inject
   public ClientBuilderFactory(
       CollectorRegistry collectorRegistry,
+      Tracing tracing,
       Set<RpcMetricLabel> labels,
       Optional<SelfSignedCertificate> selfSignedCertificate,
       Optional<TrustManagerFactory> caTrustManager,
       ServerConfig serverConfig) {
+    this.tracing = tracing;
     final TrustManagerFactory trustManagerFactory;
     if (serverConfig.isDisableClientCertificateVerification()) {
       logger.warn("Disabling client SSL verification. This should only happen on local!");
@@ -107,10 +110,7 @@ public class ClientBuilderFactory {
     } else {
       clientTlsCustomizer = clientCertificateCustomizer;
     }
-    clientFactory =
-        new AllInOneClientFactory(
-            SessionOptions.of(SessionOption.SSL_CONTEXT_CUSTOMIZER.newValue(clientTlsCustomizer)),
-            true);
+    clientFactory = new ClientFactoryBuilder().sslContextCustomizer(clientTlsCustomizer).build();
     this.labels = labels;
     this.collectorRegistry = collectorRegistry;
   }
@@ -122,6 +122,7 @@ public class ClientBuilderFactory {
             HttpRequest.class,
             HttpResponse.class,
             PrometheusMetricCollectingClient.newDecorator(
-                collectorRegistry, labels, RpcMetricLabels.grpcRequestLabeler()));
+                collectorRegistry, labels, RpcMetricLabels.grpcRequestLabeler()))
+        .decorator(HttpRequest.class, HttpResponse.class, HttpTracingClient.newDecorator(tracing));
   }
 }

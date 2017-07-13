@@ -66,6 +66,8 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
 import org.curioswitch.gradle.plugins.curioserver.ImmutableDeploymentExtension;
 import org.curioswitch.gradle.plugins.curioserver.ImmutableDeploymentExtension.ImmutableDeploymentConfiguration;
+import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
+import org.curioswitch.gradle.plugins.gcloud.ImmutableGcloudExtension;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
@@ -84,6 +86,9 @@ public class DeployPodTask extends DefaultTask {
         getProject().getExtensions().getByType(DeploymentExtension.class);
 
     final ImmutableDeploymentConfiguration deploymentConfig = config.getTypes().getByName(type);
+
+    ImmutableGcloudExtension gcloud =
+        getProject().getRootProject().getExtensions().getByType(GcloudExtension.class);
 
     ImmutableList.Builder<EnvVar> envVars =
         ImmutableList.<EnvVar>builder()
@@ -122,7 +127,9 @@ public class DeployPodTask extends DefaultTask {
                   + deploymentConfig.jvmHeapMb()
                   + "m -Dconfig.resource=application-"
                   + type
-                  + ".conf",
+                  + ".conf"
+                  + " -Dmonitoring.stackdriverProjectId=" + gcloud.clusterProject()
+                  + " -Dmonitoring.serverName=" + deploymentConfig.deploymentName(),
               null));
     }
 

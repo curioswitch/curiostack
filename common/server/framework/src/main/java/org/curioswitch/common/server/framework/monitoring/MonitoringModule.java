@@ -24,6 +24,8 @@
 
 package org.curioswitch.common.server.framework.monitoring;
 
+import brave.Tracing;
+import brave.sampler.Sampler;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jvm.BufferPoolMetricSet;
@@ -32,8 +34,12 @@ import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import com.google.cloud.trace.v1.TraceServiceClient;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigBeanFactory;
+import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.ElementsIntoSet;
@@ -41,6 +47,7 @@ import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.hotspot.DefaultExports;
 import io.prometheus.client.log4j2.InstrumentedAppender;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.management.ManagementFactory;
 import java.util.Properties;
 import java.util.Set;
@@ -49,10 +56,21 @@ import javax.management.MBeanServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
+import org.curioswitch.common.server.framework.ApplicationModule;
+import org.curioswitch.common.server.framework.config.ModifiableMonitoringConfig;
+import org.curioswitch.common.server.framework.config.MonitoringConfig;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels.RpcMetricLabel;
 
-@Module
+@Module(includes = ApplicationModule.class)
 public abstract class MonitoringModule {
+
+  @Provides
+  @Singleton
+  static MonitoringConfig monitoringConfig(Config config) {
+    return ConfigBeanFactory.create(
+            config.getConfig("monitoring"), ModifiableMonitoringConfig.class)
+        .toImmutable();
+  }
 
   @Provides
   @Singleton
@@ -72,9 +90,33 @@ public abstract class MonitoringModule {
   }
 
   @Provides
+  @Singleton
+  static TraceServiceClient traceServiceClient() {
+    try {
+      return TraceServiceClient.create();
+    } catch (IOException e) {
+      throw new UncheckedIOException("Could not create TraceServiceClient.", e);
+    }
+  }
+
+  @Provides
   @ElementsIntoSet
   static Set<RpcMetricLabel> metricLabels() {
     return ImmutableSet.of(RpcMetricLabels.SERVICE, RpcMetricLabels.METHOD);
+  }
+
+  @Provides
+  @Singleton
+  static Tracing tracing(Lazy<StackdriverReporter> reporter, MonitoringConfig config) {
+    Tracing.Builder builder =
+        Tracing.newBuilder()
+            .localServiceName(config.getServerName())
+            .traceId128Bit(true)
+            .sampler(Sampler.ALWAYS_SAMPLE);
+    if (config.isReportTraces()) {
+      builder.reporter(reporter.get());
+    }
+    return builder.build();
   }
 
   private static void configureDefaultMetrics(MetricRegistry registry) {

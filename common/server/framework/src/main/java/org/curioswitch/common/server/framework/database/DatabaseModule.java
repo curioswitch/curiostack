@@ -24,7 +24,6 @@
 
 package org.curioswitch.common.server.framework.database;
 
-import com.codahale.metrics.MetricRegistry;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -32,13 +31,13 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import dagger.BindsOptionalOf;
+import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory;
 import dagger.Module;
 import dagger.Provides;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
+import org.curioswitch.common.server.framework.ApplicationModule;
 import org.curioswitch.common.server.framework.config.DatabaseConfig;
 import org.curioswitch.common.server.framework.config.ModifiableDatabaseConfig;
 import org.jooq.Configuration;
@@ -49,11 +48,8 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.DataSourceConnectionProvider;
 import org.jooq.impl.DefaultConfiguration;
 
-@Module
+@Module(includes = ApplicationModule.class)
 public abstract class DatabaseModule {
-
-  @BindsOptionalOf
-  abstract MetricRegistry metricRegistry();
 
   @Provides
   @Singleton
@@ -73,13 +69,15 @@ public abstract class DatabaseModule {
 
   @Provides
   @Singleton
-  static DataSource dataSource(DatabaseConfig config, Optional<MetricRegistry> metricRegistry) {
+  static DataSource dataSource(DatabaseConfig config) {
     HikariConfig hikari = new HikariConfig();
     hikari.setJdbcUrl(config.getJdbcUrl());
     hikari.setUsername(config.getUsername());
     hikari.setPassword(config.getPassword());
     hikari.addDataSourceProperty("cachePrepStmts", "true");
-    metricRegistry.ifPresent(hikari::setMetricRegistry);
+    hikari.addDataSourceProperty(
+        "statementInterceptors", "brave.mysql.TracingStatementInterceptor");
+    hikari.setMetricsTrackerFactory(new PrometheusMetricsTrackerFactory());
     return new HikariDataSource(hikari);
   }
 
