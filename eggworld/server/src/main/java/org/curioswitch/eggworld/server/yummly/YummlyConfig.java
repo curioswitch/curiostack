@@ -22,18 +22,21 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.eggworld.server.yummly.models;
+package org.curioswitch.eggworld.server.yummly;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.util.Map;
-import org.curioswitch.common.server.framework.immutables.CurioStyle;
+import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
 import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Modifiable;
 
-/** Facets in a search response (i.e., the total number of results for each of a given attribute. */
-@CurioStyle
+/** Configuration for Yummly API. */
+@JavaBeanStyle
 @Immutable
-@JsonDeserialize(as = ImmutableFacets.class)
-public interface Facets {
-  /** Total recipe counts for each ingredient specified in the search request. */
-  Map<String, Integer> ingredient();
+@Modifiable
+public interface YummlyConfig {
+
+  /** Yummly API id. */
+  String getApiId();
+
+  /** Yummly API key. */
+  String getApiKey();
 }

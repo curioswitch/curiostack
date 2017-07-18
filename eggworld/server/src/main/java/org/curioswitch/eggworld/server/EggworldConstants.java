@@ -22,18 +22,13 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.eggworld.server.yummly.models;
+package org.curioswitch.eggworld.server;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.util.Map;
-import org.curioswitch.common.server.framework.immutables.CurioStyle;
-import org.immutables.value.Value.Immutable;
+public final class EggworldConstants {
 
-/** Facets in a search response (i.e., the total number of results for each of a given attribute. */
-@CurioStyle
-@Immutable
-@JsonDeserialize(as = ImmutableFacets.class)
-public interface Facets {
-  /** Total recipe counts for each ingredient specified in the search request. */
-  Map<String, Integer> ingredient();
+  public static final String EGG_QUERY = "egg";
+
+  public static final String EGGS_INGREDIENT = "eggs";
+
+  private EggworldConstants() {}
 }

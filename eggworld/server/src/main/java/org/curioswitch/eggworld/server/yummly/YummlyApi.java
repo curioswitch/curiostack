@@ -24,6 +24,7 @@
 
 package org.curioswitch.eggworld.server.yummly;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import org.curioswitch.eggworld.server.yummly.models.SearchResponse;
 import retrofit2.http.GET;
@@ -33,7 +34,7 @@ import retrofit2.http.Query;
 public interface YummlyApi {
 
   @GET("recipes")
-  SearchResponse search(
+  ListenableFuture<SearchResponse> search(
       @Query("q") String query,
       @Query("allowedIngredient[]") List<String> ingredients,
       @Query("maxResult") int maxResult,

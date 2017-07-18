@@ -128,8 +128,10 @@ public class DeployPodTask extends DefaultTask {
                   + "m -Dconfig.resource=application-"
                   + type
                   + ".conf"
-                  + " -Dmonitoring.stackdriverProjectId=" + gcloud.clusterProject()
-                  + " -Dmonitoring.serverName=" + deploymentConfig.deploymentName(),
+                  + " -Dmonitoring.stackdriverProjectId="
+                  + gcloud.clusterProject()
+                  + " -Dmonitoring.serverName="
+                  + deploymentConfig.deploymentName(),
               null));
     }
 
@@ -166,12 +168,15 @@ public class DeployPodTask extends DefaultTask {
                                             "revision",
                                                 System.getenv()
                                                     .getOrDefault("REVISION_ID", "none")))
-                                    .withAnnotations(ImmutableMap.<String, String>builder()
-                                        .put("prometheus.io/scrape", "true")
-                                        .put("prometheus.io/scheme", "https")
-                                        .put("prometheus.io/path", "/internal/metrics")
-                                        .put("prometheus.io/port", String.valueOf(deploymentConfig.containerPort()))
-                                        .build())
+                                    .withAnnotations(
+                                        ImmutableMap.<String, String>builder()
+                                            .put("prometheus.io/scrape", "true")
+                                            .put("prometheus.io/scheme", "https")
+                                            .put("prometheus.io/path", "/internal/metrics")
+                                            .put(
+                                                "prometheus.io/port",
+                                                String.valueOf(deploymentConfig.containerPort()))
+                                            .build())
                                     .build())
                             .withSpec(
                                 new PodSpecBuilder()
@@ -251,14 +256,19 @@ public class DeployPodTask extends DefaultTask {
                 new ObjectMetaBuilder()
                     .withName(deploymentConfig.deploymentName())
                     .withNamespace(deploymentConfig.namespace())
-                    .withAnnotations(ImmutableMap.<String, String>builder()
-                        .put("service.alpha.kubernetes.io/app-protocols", "{\"https\":\"HTTPS\"}")
-                        .put("prometheus.io/scrape", "true")
-                        .put("prometheus.io/scheme", "https")
-                        .put("prometheus.io/path", "/internal/metrics")
-                        .put("prometheus.io/port", String.valueOf(deploymentConfig.containerPort()))
-                        .put("prometheus.io/probe", "true")
-                        .build())
+                    .withAnnotations(
+                        ImmutableMap.<String, String>builder()
+                            .put(
+                                "service.alpha.kubernetes.io/app-protocols",
+                                "{\"https\":\"HTTPS\"}")
+                            .put("prometheus.io/scrape", "true")
+                            .put("prometheus.io/scheme", "https")
+                            .put("prometheus.io/path", "/internal/metrics")
+                            .put(
+                                "prometheus.io/port",
+                                String.valueOf(deploymentConfig.containerPort()))
+                            .put("prometheus.io/probe", "true")
+                            .build())
                     .build())
             .withSpec(
                 new ServiceSpecBuilder()
@@ -269,6 +279,7 @@ public class DeployPodTask extends DefaultTask {
                             .build())
                     .withSelector(ImmutableMap.of("name", deploymentConfig.deploymentName()))
                     .withType(deploymentConfig.externalHost() != null ? "NodePort" : "ClusterIP")
+                    .withClusterIP(deploymentConfig.externalHost() == null ? "None" : null)
                     .build())
             .build();
 

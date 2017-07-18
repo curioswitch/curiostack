@@ -39,6 +39,7 @@ import com.linecorp.armeria.server.auth.HttpAuthServiceBuilder;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import com.linecorp.armeria.server.healthcheck.HttpHealthCheckService;
+import com.linecorp.armeria.server.logging.LoggingServiceBuilder;
 import com.linecorp.armeria.server.metric.PrometheusExporterHttpService;
 import com.linecorp.armeria.server.metric.PrometheusMetricCollectingService;
 import com.linecorp.armeria.server.tracing.HttpTracingService;
@@ -345,6 +346,8 @@ public abstract class ServerModule {
           staticSite.urlRoot(),
           StaticSiteService.of(staticSite.staticPath(), staticSite.classpathRoot()));
     }
+
+    sb.decorator(new LoggingServiceBuilder().newDecorator());
 
     Server server = sb.build();
     server

@@ -25,8 +25,8 @@
 package org.curioswitch.common.server.framework.monitoring;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;
-import com.linecorp.armeria.common.RpcRequest;
 import com.linecorp.armeria.common.logging.RequestLog;
 import com.linecorp.armeria.common.metric.MetricLabel;
 import java.util.List;
@@ -54,11 +54,9 @@ public final class RpcMetricLabels {
 
   public static Function<RequestLog, Map<RpcMetricLabel, String>> grpcRequestLabeler() {
     return log -> {
-      // The service name and method name are currently both present in the method's log for
-      // armeria.
-      List<String> methodParts =
-          PATH_SPLITTER.splitToList(((RpcRequest) log.requestContent()).method());
-      return ImmutableSortedMap.of(SERVICE, methodParts.get(0), METHOD, methodParts.get(1));
+      // The service name and method name will always be the last two path components.
+      List<String> methodParts = ImmutableList.copyOf(PATH_SPLITTER.split(log.path())).reverse();
+      return ImmutableSortedMap.of(SERVICE, methodParts.get(1), METHOD, methodParts.get(0));
     };
   }
 

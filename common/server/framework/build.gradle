@@ -28,6 +28,7 @@ apply plugin: 'maven-publish'
 archivesBaseName = 'curio-server-framework'
 
 dependencies {
+    api 'com.google.cloud:google-cloud-trace'
     api 'com.google.dagger:dagger'
     api 'com.google.firebase:firebase-admin'
     api 'com.linecorp.armeria:armeria'
@@ -38,7 +39,6 @@ dependencies {
     api 'org.apache.logging.log4j:log4j-api'
     api 'org.jooq:jooq'
 
-    implementation 'com.google.cloud:google-cloud-trace'
     implementation 'com.google.cloud.trace.adapters.zipkin:translation'
     implementation 'com.google.dagger:dagger-producers'
     implementation 'com.fasterxml.jackson.core:jackson-databind'

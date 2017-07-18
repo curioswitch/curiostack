@@ -31,6 +31,7 @@ dependencies {
     compile project(':common:server:framework')
     compile project(':eggworld:api')
 
+    compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
     compile 'com.linecorp.armeria:armeria-retrofit2'
     compile 'com.squareup.retrofit2:adapter-guava:2.3.0'
     compile 'com.squareup.retrofit2:converter-jackson:2.3.0'

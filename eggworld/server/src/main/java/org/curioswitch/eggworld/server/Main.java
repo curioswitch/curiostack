@@ -24,7 +24,36 @@
 
 package org.curioswitch.eggworld.server;
 
+import com.linecorp.armeria.server.Server;
+import dagger.Binds;
+import dagger.Component;
+import dagger.Module;
+import dagger.multibindings.IntoSet;
+import io.grpc.BindableService;
+import javax.inject.Singleton;
+import org.curioswitch.common.server.framework.ServerModule;
+import org.curioswitch.eggworld.server.graphs.CheckIngredientsGraph;
+import org.curioswitch.eggworld.server.yummly.YummlyApiModule;
+
 public class Main {
 
-  public static void main(String[] args) {}
+  @Module(
+      includes = {ServerModule.class, YummlyApiModule.class},
+      subcomponents = {CheckIngredientsGraph.Component.class}
+  )
+  abstract static class MainModule {
+    @Binds
+    @IntoSet
+    abstract BindableService service(EggworldService service);
+  }
+
+  @Singleton
+  @Component(modules = MainModule.class)
+  interface MainComponent {
+    Server server();
+  }
+
+  public static void main(String[] args) {
+    DaggerMain_MainComponent.create().server();
+  }
 }
