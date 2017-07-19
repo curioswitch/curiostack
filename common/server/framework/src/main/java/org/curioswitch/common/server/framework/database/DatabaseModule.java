@@ -77,6 +77,7 @@ public abstract class DatabaseModule {
     hikari.addDataSourceProperty("cachePrepStmts", "true");
     hikari.addDataSourceProperty(
         "statementInterceptors", "brave.mysql.TracingStatementInterceptor");
+    hikari.addDataSourceProperty("useUnicode", "yes");
     hikari.setMetricsTrackerFactory(new PrometheusMetricsTrackerFactory());
     return new HikariDataSource(hikari);
   }
