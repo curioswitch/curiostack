@@ -25,6 +25,7 @@
 package org.curioswitch.common.server.framework;
 
 import brave.Tracing;
+import com.google.common.io.Resources;
 import com.linecorp.armeria.common.Flags;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
@@ -67,10 +68,10 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.prometheus.client.CollectorRegistry;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
@@ -206,7 +207,7 @@ public abstract class ServerModule {
     try {
       CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
       final X509Certificate certificate;
-      try (InputStream is = new FileInputStream(serverConfig.getCaCertificatePath())) {
+      try (InputStream is = fileOrClasspathStream(serverConfig.getCaCertificatePath())) {
         certificate = (X509Certificate) certificateFactory.generateCertificate(is);
       }
 
@@ -266,7 +267,9 @@ public abstract class ServerModule {
       SelfSignedCertificate certificate = selfSignedCertificate.get();
       try {
         SslContextBuilder sslContext =
-            serverSslContext(certificate.certificate(), certificate.privateKey())
+            serverSslContext(
+                    fileOrClasspathStream(certificate.certificate().getAbsolutePath()),
+                    fileOrClasspathStream(certificate.privateKey().getAbsolutePath()))
                 .trustManager(InsecureTrustManagerFactory.INSTANCE);
         if (!serverConfig.isDisableSslAuthorization()) {
           sslContext.clientAuth(ClientAuth.OPTIONAL);
@@ -286,8 +289,8 @@ public abstract class ServerModule {
       try {
         SslContextBuilder sslContext =
             serverSslContext(
-                    new File(serverConfig.getTlsCertificatePath()),
-                    new File(serverConfig.getTlsPrivateKeyPath()))
+                    fileOrClasspathStream(serverConfig.getTlsCertificatePath()),
+                    fileOrClasspathStream(serverConfig.getTlsPrivateKeyPath()))
                 .trustManager(caTrustManager.get());
         if (!serverConfig.isDisableSslAuthorization()) {
           sslContext.clientAuth(ClientAuth.OPTIONAL);
@@ -394,10 +397,23 @@ public abstract class ServerModule {
     return server;
   }
 
-  private static SslContextBuilder serverSslContext(File keyCertChainFile, File keyFile) {
+  private static SslContextBuilder serverSslContext(
+      InputStream keyCertChainFile, InputStream keyFile) {
     return SslContextBuilder.forServer(keyCertChainFile, keyFile, null)
         .sslProvider(Flags.useOpenSsl() ? SslProvider.OPENSSL : SslProvider.JDK)
         .ciphers(Http2SecurityUtil.CIPHERS, SupportedCipherSuiteFilter.INSTANCE)
         .applicationProtocolConfig(HTTPS_ALPN_CFG);
+  }
+
+  private static InputStream fileOrClasspathStream(String path) {
+    try {
+      if (path.startsWith("classpath:")) {
+        return Resources.getResource(path.substring("classpath:".length())).openStream();
+      } else {
+        return new FileInputStream(path);
+      }
+    } catch (IOException e) {
+      throw new UncheckedIOException("Could not open path: " + path, e);
+    }
   }
 }

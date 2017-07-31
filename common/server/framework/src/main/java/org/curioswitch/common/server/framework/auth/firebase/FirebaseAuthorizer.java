@@ -30,6 +30,7 @@ import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.auth.Authorizer;
 import com.linecorp.armeria.server.auth.OAuth2Token;
 import io.netty.util.AttributeKey;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -60,9 +61,25 @@ public class FirebaseAuthorizer implements Authorizer<OAuth2Token> {
                 result.complete(false);
                 return;
               }
+              if (!config.getAllowedGoogleDomains().isEmpty()) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> firebaseClaims =
+                    (Map<String, Object>) token.getClaims().get("firebase");
+                if (!firebaseClaims.get("sign_in_provider").equals("google.com")
+                    || !config
+                        .getAllowedGoogleDomains()
+                        .contains(getEmailDomain(token.getEmail()))) {
+                  result.complete(false);
+                  return;
+                }
+              }
               ctx.attr(FIREBASE_TOKEN).set(token);
               result.complete(true);
             });
     return result;
+  }
+
+  private static String getEmailDomain(String email) {
+    return email.substring(email.indexOf('@') + 1);
   }
 }
