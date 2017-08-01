@@ -34,6 +34,7 @@ import com.moowork.gradle.node.NodeExtension;
 import com.moowork.gradle.node.NodePlugin;
 import com.moowork.gradle.node.yarn.YarnInstallTask;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -52,6 +53,8 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.BasePluginConvention;
 import org.gradle.api.plugins.JavaLibraryPlugin;
+import org.gradle.plugins.ide.idea.IdeaPlugin;
+import org.gradle.plugins.ide.idea.model.IdeaModule;
 
 /**
  * A simple gradle plugin that configures the protobuf-gradle-plugin with appropriate defaults for a
@@ -90,9 +93,22 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
           ProtobufConfigurator protobuf =
               project.getConvention().getPlugin(ProtobufConvention.class).getProtobuf();
-          // We generate into the apt directory since the gradle-apt-plugin provides good integration
-          // with IntelliJ and no need to reinvent the wheel.
-          protobuf.generatedFilesBaseDir = project.getBuildDir() + "/generated/source/apt";
+          protobuf.generatedFilesBaseDir = project.getBuildDir() + "/generated/source/proto";
+          project
+              .getPlugins()
+              .withType(
+                  IdeaPlugin.class,
+                  plugin -> {
+                    IdeaModule module = plugin.getModel().getModule();
+                    File generatedDir = project.file(protobuf.generatedFilesBaseDir);
+                    File mainDir = new File(generatedDir, "main");
+                    File testDir = new File(generatedDir, "test");
+                    module.getSourceDirs().add(mainDir);
+                    module.getGeneratedSourceDirs().add(mainDir);
+                    module.getTestSourceDirs().add(testDir);
+                    module.getGeneratedSourceDirs().add(testDir);
+                  });
+
           protobuf.protoc(
               LambdaClosure.of(
                   (ExecutableLocator locator) ->

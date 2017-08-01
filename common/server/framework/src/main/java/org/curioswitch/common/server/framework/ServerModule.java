@@ -102,6 +102,7 @@ import org.curioswitch.common.server.framework.config.ModifiableServerConfig;
 import org.curioswitch.common.server.framework.config.MonitoringConfig;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.files.FileWatcher;
+import org.curioswitch.common.server.framework.filter.IpFilteringService;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
@@ -348,6 +349,9 @@ public abstract class ServerModule {
       sb.serviceUnder(
           staticSite.urlRoot(),
           StaticSiteService.of(staticSite.staticPath(), staticSite.classpathRoot()));
+    }
+    if (!serverConfig.getIpFilterRules().isEmpty()) {
+      sb.decorator(IpFilteringService.newDecorator(serverConfig.getIpFilterRules()));
     }
 
     sb.decorator(new LoggingServiceBuilder().newDecorator());

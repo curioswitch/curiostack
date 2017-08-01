@@ -24,6 +24,7 @@
 
 package org.curioswitch.common.server.framework.config;
 
+import java.util.List;
 import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Modifiable;
@@ -95,4 +96,10 @@ public interface ServerConfig {
    * only be set to {@code true} for services used from browsers.
    */
   boolean isDisableSslAuthorization();
+
+  /**
+   * List of IP filtering rules, as IP Addresses with subnet range (e.g., 121.121.0.0/16). If
+   * non-empty, only requests that match these rules will be allowed to access the server.
+   */
+  List<String> getIpFilterRules();
 }
