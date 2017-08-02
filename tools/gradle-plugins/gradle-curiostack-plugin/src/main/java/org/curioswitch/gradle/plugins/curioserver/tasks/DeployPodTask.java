@@ -66,6 +66,8 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
 import org.curioswitch.gradle.plugins.curioserver.ImmutableDeploymentExtension;
 import org.curioswitch.gradle.plugins.curioserver.ImmutableDeploymentExtension.ImmutableDeploymentConfiguration;
+import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
+import org.curioswitch.gradle.plugins.gcloud.ImmutableGcloudExtension;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
@@ -84,6 +86,9 @@ public class DeployPodTask extends DefaultTask {
         getProject().getExtensions().getByType(DeploymentExtension.class);
 
     final ImmutableDeploymentConfiguration deploymentConfig = config.getTypes().getByName(type);
+
+    ImmutableGcloudExtension gcloud =
+        getProject().getRootProject().getExtensions().getByType(GcloudExtension.class);
 
     ImmutableList.Builder<EnvVar> envVars =
         ImmutableList.<EnvVar>builder()
@@ -122,7 +127,11 @@ public class DeployPodTask extends DefaultTask {
                   + deploymentConfig.jvmHeapMb()
                   + "m -Dconfig.resource=application-"
                   + type
-                  + ".conf",
+                  + ".conf"
+                  + " -Dmonitoring.stackdriverProjectId="
+                  + gcloud.clusterProject()
+                  + " -Dmonitoring.serverName="
+                  + deploymentConfig.deploymentName(),
               null));
     }
 
@@ -159,6 +168,15 @@ public class DeployPodTask extends DefaultTask {
                                             "revision",
                                                 System.getenv()
                                                     .getOrDefault("REVISION_ID", "none")))
+                                    .withAnnotations(
+                                        ImmutableMap.<String, String>builder()
+                                            .put("prometheus.io/scrape", "true")
+                                            .put("prometheus.io/scheme", "https")
+                                            .put("prometheus.io/path", "/internal/metrics")
+                                            .put(
+                                                "prometheus.io/port",
+                                                String.valueOf(deploymentConfig.containerPort()))
+                                            .build())
                                     .build())
                             .withSpec(
                                 new PodSpecBuilder()
@@ -239,8 +257,18 @@ public class DeployPodTask extends DefaultTask {
                     .withName(deploymentConfig.deploymentName())
                     .withNamespace(deploymentConfig.namespace())
                     .withAnnotations(
-                        ImmutableMap.of(
-                            "service.alpha.kubernetes.io/app-protocols", "{\"https\":\"HTTPS\"}"))
+                        ImmutableMap.<String, String>builder()
+                            .put(
+                                "service.alpha.kubernetes.io/app-protocols",
+                                "{\"https\":\"HTTPS\"}")
+                            .put("prometheus.io/scrape", "true")
+                            .put("prometheus.io/scheme", "https")
+                            .put("prometheus.io/path", "/internal/metrics")
+                            .put(
+                                "prometheus.io/port",
+                                String.valueOf(deploymentConfig.containerPort()))
+                            .put("prometheus.io/probe", "true")
+                            .build())
                     .build())
             .withSpec(
                 new ServiceSpecBuilder()
@@ -250,7 +278,8 @@ public class DeployPodTask extends DefaultTask {
                             .withName("https")
                             .build())
                     .withSelector(ImmutableMap.of("name", deploymentConfig.deploymentName()))
-                    .withType(config.externalHost() != null ? "NodePort" : "ClusterIP")
+                    .withType(deploymentConfig.externalHost() != null ? "NodePort" : "ClusterIP")
+                    .withClusterIP(deploymentConfig.externalHost() == null ? "None" : null)
                     .build())
             .build();
 
@@ -266,7 +295,7 @@ public class DeployPodTask extends DefaultTask {
       // but it works to skip existing services to just live with it for now, but try to fix it.
     }
 
-    if (config.externalHost() != null) {
+    if (deploymentConfig.externalHost() != null) {
       Ingress ingress =
           new IngressBuilder()
               .withMetadata(
@@ -283,11 +312,11 @@ public class DeployPodTask extends DefaultTask {
                       .withTls(
                           new IngressTLSBuilder()
                               .withSecretName(deploymentConfig.deploymentName() + "-tls")
-                              .withHosts(config.externalHost())
+                              .withHosts(deploymentConfig.externalHost())
                               .build())
                       .withRules(
                           new IngressRuleBuilder()
-                              .withHost(config.externalHost())
+                              .withHost(deploymentConfig.externalHost())
                               .withHttp(
                                   new HTTPIngressRuleValueBuilder()
                                       .withPaths(

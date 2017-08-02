@@ -89,7 +89,12 @@ class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
               .version("0.20.1-alpha")
-              .addModules("google-cloud-resourcemanager")
+              .addModules("google-cloud-resourcemanager", "google-cloud-trace")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("com.google.cloud.trace.adapters.zipkin")
+              .version("0.2.0")
+              .addModules("translation")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.dagger")
@@ -118,7 +123,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.50.0")
+              .version("0.51.0")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -148,8 +153,13 @@ class StandardDependencies {
               .addModules("HikariCP")
               .build(),
           ImmutableDependencySet.builder()
+              .group("info.solidsoft.mockito")
+              .version("2.1.0")
+              .addModules("mockito-java8")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("io.dropwizard.metrics")
-              .version("3.2.2")
+              .version("3.2.3")
               .addModules("metrics-core", "metrics-jvm", "metrics-json", "metrics-log4j2")
               .build(),
           ImmutableDependencySet.builder()
@@ -182,8 +192,18 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("2.0.1.Final")
+              .version("2.0.5.Final")
               .addModules("netty-tcnative-boringssl-static")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("io.prometheus")
+              .version("0.0.24")
+              .addModules("simpleclient_hotspot", "simpleclient_log4j2")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("io.zipkin.brave")
+              .version("4.5.1")
+              .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
               .group("javax.inject")
@@ -232,7 +252,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.21")
+              .version("0.0.27")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -242,8 +262,13 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.immutables")
-              .version("2.5.3")
+              .version("2.5.6")
               .addModules("builder", "value")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("org.jctools")
+              .version("2.0.2")
+              .addModules("jctools-core")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jooq")
@@ -252,7 +277,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")
-              .version("2.8.9")
+              .version("2.8.47")
               .addModules("mockito-core")
               .build(),
           ImmutableDependencySet.builder()

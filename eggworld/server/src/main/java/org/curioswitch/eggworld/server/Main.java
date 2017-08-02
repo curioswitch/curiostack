@@ -22,33 +22,38 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.common.server.framework;
+package org.curioswitch.eggworld.server;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import com.linecorp.armeria.server.Server;
+import dagger.Binds;
+import dagger.Component;
 import dagger.Module;
-import dagger.Provides;
+import dagger.multibindings.IntoSet;
+import io.grpc.BindableService;
 import javax.inject.Singleton;
+import org.curioswitch.common.server.framework.ServerModule;
+import org.curioswitch.eggworld.server.graphs.CheckIngredientsGraph;
+import org.curioswitch.eggworld.server.yummly.YummlyApiModule;
 
-/**
- * A {@link Module} which bootstraps a generic Java application. While most users will use {@link
- * ServerModule} to bootstrap a server, this {@link Module} can be useful when some server logic is
- * reused inside a non-server app, such as a batch job. At some point, these may be separated into
- * separate artifacts.
- */
-@Module
-public class ApplicationModule {
+public class Main {
 
-  static {
-    // Optimistically hope that this module is loaded very early to make sure java.util.Logger uses
-    // the bridge to avoid forcing users to specify a system property. They can still do so for more
-    // complete JUL coverage.
-    System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
+  @Module(
+      includes = {ServerModule.class, YummlyApiModule.class},
+      subcomponents = {CheckIngredientsGraph.Component.class}
+  )
+  abstract static class MainModule {
+    @Binds
+    @IntoSet
+    abstract BindableService service(EggworldService service);
   }
 
-  @Provides
   @Singleton
-  Config config() {
-    return ConfigFactory.load();
+  @Component(modules = MainModule.class)
+  interface MainComponent {
+    Server server();
+  }
+
+  public static void main(String[] args) {
+    DaggerMain_MainComponent.create().server();
   }
 }

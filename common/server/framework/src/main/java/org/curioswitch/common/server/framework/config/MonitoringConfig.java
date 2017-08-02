@@ -22,33 +22,31 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.common.server.framework;
+package org.curioswitch.common.server.framework.config;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import dagger.Module;
-import dagger.Provides;
-import javax.inject.Singleton;
+import java.time.Duration;
+import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
+import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Modifiable;
 
-/**
- * A {@link Module} which bootstraps a generic Java application. While most users will use {@link
- * ServerModule} to bootstrap a server, this {@link Module} can be useful when some server logic is
- * reused inside a non-server app, such as a batch job. At some point, these may be separated into
- * separate artifacts.
- */
-@Module
-public class ApplicationModule {
+/** Configuration for monitoring. */
+@Immutable
+@Modifiable
+@JavaBeanStyle
+public interface MonitoringConfig {
 
-  static {
-    // Optimistically hope that this module is loaded very early to make sure java.util.Logger uses
-    // the bridge to avoid forcing users to specify a system property. They can still do so for more
-    // complete JUL coverage.
-    System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
-  }
+  /** Name to use to identify this server in monitoring. */
+  String getServerName();
 
-  @Provides
-  @Singleton
-  Config config() {
-    return ConfigFactory.load();
-  }
+  /** Maximum size of queue of Zipkin traces. */
+  int getTraceQueueSize();
+
+  /** The Stackdriver project id to report traces to. */
+  String getStackdriverProjectId();
+
+  /** Whether to report traces to Stackdriver. Otherwise, logged to text. */
+  boolean isReportTraces();
+
+  /** The interval for reporting traces. */
+  Duration getTraceReportInterval();
 }

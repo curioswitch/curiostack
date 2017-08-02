@@ -22,33 +22,26 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.common.server.framework;
+package org.curioswitch.common.server.framework.grpc;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import dagger.Module;
-import dagger.Provides;
-import javax.inject.Singleton;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.spotify.futures.FuturesExtra;
+import io.grpc.stub.StreamObserver;
 
-/**
- * A {@link Module} which bootstraps a generic Java application. While most users will use {@link
- * ServerModule} to bootstrap a server, this {@link Module} can be useful when some server logic is
- * reused inside a non-server app, such as a batch job. At some point, these may be separated into
- * separate artifacts.
- */
-@Module
-public class ApplicationModule {
+/** A utility for using gRPC with producer graphs. */
+public final class GrpcGraphUtil {
 
-  static {
-    // Optimistically hope that this module is loaded very early to make sure java.util.Logger uses
-    // the bridge to avoid forcing users to specify a system property. They can still do so for more
-    // complete JUL coverage.
-    System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
-  }
-
-  @Provides
-  @Singleton
-  Config config() {
-    return ConfigFactory.load();
+  /**
+   * Wires the result of a {@link ListenableFuture} to the response handling methods of a {@link
+   * StreamObserver}.
+   */
+  public static <T> void unary(ListenableFuture<T> graphFuture, StreamObserver<T> observer) {
+    FuturesExtra.addCallback(
+        graphFuture,
+        response -> {
+          observer.onNext(response);
+          observer.onCompleted();
+        },
+        observer::onError);
   }
 }

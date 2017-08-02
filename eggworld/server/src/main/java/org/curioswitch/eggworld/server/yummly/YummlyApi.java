@@ -22,33 +22,22 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.common.server.framework;
+package org.curioswitch.eggworld.server.yummly;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import dagger.Module;
-import dagger.Provides;
-import javax.inject.Singleton;
+import com.google.common.util.concurrent.ListenableFuture;
+import java.util.List;
+import org.curioswitch.eggworld.server.yummly.models.SearchResponse;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
 
-/**
- * A {@link Module} which bootstraps a generic Java application. While most users will use {@link
- * ServerModule} to bootstrap a server, this {@link Module} can be useful when some server logic is
- * reused inside a non-server app, such as a batch job. At some point, these may be separated into
- * separate artifacts.
- */
-@Module
-public class ApplicationModule {
+/** The Yummly API, for finding recipes. */
+public interface YummlyApi {
 
-  static {
-    // Optimistically hope that this module is loaded very early to make sure java.util.Logger uses
-    // the bridge to avoid forcing users to specify a system property. They can still do so for more
-    // complete JUL coverage.
-    System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
-  }
-
-  @Provides
-  @Singleton
-  Config config() {
-    return ConfigFactory.load();
-  }
+  @GET("recipes")
+  ListenableFuture<SearchResponse> search(
+      @Query("q") String query,
+      @Query("allowedIngredient[]") List<String> ingredients,
+      @Query("maxResult") int maxResult,
+      @Query("requirePictures") boolean requirePictures,
+      @Query("facetField[]") List<String> facetFields);
 }

@@ -24,6 +24,7 @@
 
 package org.curioswitch.common.server.framework.auth.firebase;
 
+import java.util.List;
 import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Modifiable;
@@ -41,4 +42,10 @@ public interface FirebaseAuthConfig {
 
   /** Whether to authenticate users with unverified email address. */
   boolean isAllowUnverifiedEmail();
+
+  /**
+   * A list of allowed Google-login domains. If non-empty, only tokens that authenticate to users
+   * logged into Google with one of these domains will be allowed.
+   */
+  List<String> getAllowedGoogleDomains();
 }

@@ -24,6 +24,8 @@
 
 package org.curioswitch.common.server.framework;
 
+import brave.Tracing;
+import com.google.common.io.Resources;
 import com.linecorp.armeria.common.Flags;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
@@ -38,6 +40,10 @@ import com.linecorp.armeria.server.auth.HttpAuthServiceBuilder;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import com.linecorp.armeria.server.healthcheck.HttpHealthCheckService;
+import com.linecorp.armeria.server.logging.LoggingServiceBuilder;
+import com.linecorp.armeria.server.metric.PrometheusExporterHttpService;
+import com.linecorp.armeria.server.metric.PrometheusMetricCollectingService;
+import com.linecorp.armeria.server.tracing.HttpTracingService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.BindsOptionalOf;
@@ -60,10 +66,12 @@ import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-import java.io.File;
+import io.netty.util.concurrent.DefaultThreadFactory;
+import io.prometheus.client.CollectorRegistry;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
@@ -75,6 +83,7 @@ import java.security.cert.X509Certificate;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import javax.inject.Singleton;
 import javax.net.ssl.SSLException;
@@ -90,13 +99,19 @@ import org.curioswitch.common.server.framework.auth.ssl.SslCommonNamesProvider;
 import org.curioswitch.common.server.framework.config.JavascriptStaticConfig;
 import org.curioswitch.common.server.framework.config.ModifiableJavascriptStaticConfig;
 import org.curioswitch.common.server.framework.config.ModifiableServerConfig;
+import org.curioswitch.common.server.framework.config.MonitoringConfig;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.files.FileWatcher;
+import org.curioswitch.common.server.framework.filter.IpFilteringService;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
+import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
+import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels.RpcMetricLabel;
+import org.curioswitch.common.server.framework.monitoring.StackdriverReporter;
 import org.curioswitch.common.server.framework.staticsite.JavascriptStaticService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
+import org.jooq.DSLContext;
 
 /**
  * A {@link Module} which bootstraps a server, finding and registering GRPC services to expose. All
@@ -145,6 +160,9 @@ public abstract class ServerModule {
   @BindsOptionalOf
   abstract SslCommonNamesProvider sslCommonNamesProvider();
 
+  @BindsOptionalOf
+  abstract DSLContext db();
+
   @Provides
   @Singleton
   static ServerConfig serverConfig(Config config) {
@@ -168,6 +186,7 @@ public abstract class ServerModule {
   }
 
   @Provides
+  @Singleton
   static Optional<SelfSignedCertificate> selfSignedCertificate(ServerConfig serverConfig) {
     if (!serverConfig.isGenerateSelfSignedCertificate()) {
       return Optional.empty();
@@ -189,7 +208,7 @@ public abstract class ServerModule {
     try {
       CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
       final X509Certificate certificate;
-      try (InputStream is = new FileInputStream(serverConfig.getCaCertificatePath())) {
+      try (InputStream is = fileOrClasspathStream(serverConfig.getCaCertificatePath())) {
         certificate = (X509Certificate) certificateFactory.generateCertificate(is);
       }
 
@@ -215,15 +234,22 @@ public abstract class ServerModule {
       Set<StaticSiteServiceDefinition> staticSites,
       Set<Consumer<ServerBuilder>> serverCustomizers,
       MetricsHttpService metricsHttpService,
+      CollectorRegistry collectorRegistry,
+      Tracing tracing,
+      Set<RpcMetricLabel> metricLabels,
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
       Lazy<JavascriptStaticService> javascriptStaticService,
       Optional<SelfSignedCertificate> selfSignedCertificate,
       Optional<TrustManagerFactory> caTrustManager,
       Optional<SslCommonNamesProvider> sslCommonNamesProvider,
       FileWatcher.Builder fileWatcherBuilder,
+      Lazy<StackdriverReporter> stackdriverReporter,
       ServerConfig serverConfig,
       FirebaseAuthConfig authConfig,
-      JavascriptStaticConfig javascriptStaticConfig) {
+      JavascriptStaticConfig javascriptStaticConfig,
+      MonitoringConfig monitoringConfig,
+      // Eagerly trigger bindings when present.
+      Optional<DSLContext> unusedDb) {
     if (!sslCommonNamesProvider.isPresent()
         && !serverConfig.getRpcAclsPath().isEmpty()
         && !serverConfig.isDisableSslAuthorization()) {
@@ -242,7 +268,9 @@ public abstract class ServerModule {
       SelfSignedCertificate certificate = selfSignedCertificate.get();
       try {
         SslContextBuilder sslContext =
-            serverSslContext(certificate.certificate(), certificate.privateKey())
+            serverSslContext(
+                    fileOrClasspathStream(certificate.certificate().getAbsolutePath()),
+                    fileOrClasspathStream(certificate.privateKey().getAbsolutePath()))
                 .trustManager(InsecureTrustManagerFactory.INSTANCE);
         if (!serverConfig.isDisableSslAuthorization()) {
           sslContext.clientAuth(ClientAuth.OPTIONAL);
@@ -262,8 +290,8 @@ public abstract class ServerModule {
       try {
         SslContextBuilder sslContext =
             serverSslContext(
-                    new File(serverConfig.getTlsCertificatePath()),
-                    new File(serverConfig.getTlsPrivateKeyPath()))
+                    fileOrClasspathStream(serverConfig.getTlsCertificatePath()),
+                    fileOrClasspathStream(serverConfig.getTlsPrivateKeyPath()))
                 .trustManager(caTrustManager.get());
         if (!serverConfig.isDisableSslAuthorization()) {
           sslContext.clientAuth(ClientAuth.OPTIONAL);
@@ -280,7 +308,8 @@ public abstract class ServerModule {
       sb.serviceUnder("/internal/docs", new DocServiceBuilder().build());
     }
     sb.service("/internal/health", new HttpHealthCheckService());
-    sb.service("/internal/metrics", metricsHttpService);
+    sb.service("/internal/dropwizard", metricsHttpService);
+    sb.service("/internal/metrics", new PrometheusExporterHttpService(collectorRegistry));
 
     if (!grpcServices.isEmpty()) {
       GrpcServiceBuilder serviceBuilder =
@@ -301,6 +330,13 @@ public abstract class ServerModule {
       if (!authConfig.getServiceAccountBase64().isEmpty()) {
         service = new HttpAuthServiceBuilder().addOAuth2(firebaseAuthorizer.get()).build(service);
       }
+
+      service =
+          service
+              .decorate(
+                  PrometheusMetricCollectingService.newDecorator(
+                      collectorRegistry, metricLabels, RpcMetricLabels.grpcRequestLabeler()))
+              .decorate(HttpTracingService.newDecorator(tracing));
       sb.serviceUnder(serverConfig.getGrpcPath(), service);
     }
 
@@ -314,6 +350,11 @@ public abstract class ServerModule {
           staticSite.urlRoot(),
           StaticSiteService.of(staticSite.staticPath(), staticSite.classpathRoot()));
     }
+    if (!serverConfig.getIpFilterRules().isEmpty()) {
+      sb.decorator(IpFilteringService.newDecorator(serverConfig.getIpFilterRules()));
+    }
+
+    sb.decorator(new LoggingServiceBuilder().newDecorator());
 
     Server server = sb.build();
     server
@@ -333,13 +374,50 @@ public abstract class ServerModule {
       Runtime.getRuntime().addShutdownHook(new Thread(fileWatcher::close));
     }
 
+    // Work around armeria 0.51.0 using daemon threads for the server event loops.
+    new DefaultThreadFactory("idler", false)
+        .newThread(
+            () -> {
+              while (true) {
+                try {
+                  Thread.sleep(Long.MAX_VALUE);
+                } catch (InterruptedException e) {
+                  logger.info("Idler thread interrupted.");
+                }
+              }
+            })
+        .start();
+
+    if (monitoringConfig.isReportTraces()) {
+      server
+          .nextEventLoop()
+          .scheduleAtFixedRate(
+              stackdriverReporter.get()::flush,
+              0,
+              monitoringConfig.getTraceReportInterval().getSeconds(),
+              TimeUnit.SECONDS);
+    }
+
     return server;
   }
 
-  private static SslContextBuilder serverSslContext(File keyCertChainFile, File keyFile) {
+  private static SslContextBuilder serverSslContext(
+      InputStream keyCertChainFile, InputStream keyFile) {
     return SslContextBuilder.forServer(keyCertChainFile, keyFile, null)
         .sslProvider(Flags.useOpenSsl() ? SslProvider.OPENSSL : SslProvider.JDK)
         .ciphers(Http2SecurityUtil.CIPHERS, SupportedCipherSuiteFilter.INSTANCE)
         .applicationProtocolConfig(HTTPS_ALPN_CFG);
+  }
+
+  private static InputStream fileOrClasspathStream(String path) {
+    try {
+      if (path.startsWith("classpath:")) {
+        return Resources.getResource(path.substring("classpath:".length())).openStream();
+      } else {
+        return new FileInputStream(path);
+      }
+    } catch (IOException e) {
+      throw new UncheckedIOException("Could not open path: " + path, e);
+    }
   }
 }
