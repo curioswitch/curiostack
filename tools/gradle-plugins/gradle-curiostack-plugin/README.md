@@ -113,7 +113,7 @@ gcloud {
   download = true // default value, instructs plugin to automatically download the gcloud SDK
   // Default value - check release notes to see what the latest version is and specify it here.
   // https://cloud.google.com/sdk/docs/release-notes
-  version = '151.0.1'
+  version = '164.0.0'
 }
 
 ```
