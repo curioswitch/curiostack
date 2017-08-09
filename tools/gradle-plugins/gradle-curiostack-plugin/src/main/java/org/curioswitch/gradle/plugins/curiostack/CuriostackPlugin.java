@@ -82,8 +82,8 @@ import org.gradle.plugins.ide.idea.model.IdeaModule;
 
 public class CuriostackPlugin implements Plugin<Project> {
 
-  private static final String NODE_VERSION = "8.1.1";
-  private static final String YARN_VERSION = "0.24.6";
+  private static final String NODE_VERSION = "8.2.1";
+  private static final String YARN_VERSION = "0.27.5";
 
   @Override
   public void apply(Project rootProject) {
@@ -332,7 +332,7 @@ public class CuriostackPlugin implements Plugin<Project> {
               // to be able to provide the resolution workaround described below.
               Configuration jmhManaged = project.getConfigurations().create("jmhManaged");
               Configuration jmhConfiguration =
-                  project.getConfigurations().getByName(JMHPlugin.getJMH_NAME());
+                  project.getConfigurations().getByName(JMHPlugin.JMH_NAME);
               jmhConfiguration.extendsFrom(jmhManaged);
 
               // JMH plugin uses a detached configuration to build an uber-jar, which dependencyManagement
@@ -353,7 +353,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                                         project
                                             .getDependencies()
                                             .add(
-                                                JMHPlugin.getJMH_NAME(),
+                                                JMHPlugin.JMH_NAME,
                                                 dep.getModule().toString());
                                       });
                             });
@@ -427,6 +427,7 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     dependencies.add(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME, "com.google.code.findbugs:jsr305");
     dependencies.add(testConfiguration.getName(), "org.assertj:assertj-core");
+    dependencies.add(testConfiguration.getName(), "org.awaitility:awaitility");
     dependencies.add(testConfiguration.getName(), "junit:junit");
     dependencies.add(testConfiguration.getName(), "org.mockito:mockito-core");
     dependencies.add(testConfiguration.getName(), "info.solidsoft.mockito:mockito-java8");

@@ -66,7 +66,6 @@ import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-import io.netty.util.concurrent.DefaultThreadFactory;
 import io.prometheus.client.CollectorRegistry;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -373,20 +372,6 @@ public abstract class ServerModule {
       fileWatcher.start();
       Runtime.getRuntime().addShutdownHook(new Thread(fileWatcher::close));
     }
-
-    // Work around armeria 0.51.0 using daemon threads for the server event loops.
-    new DefaultThreadFactory("idler", false)
-        .newThread(
-            () -> {
-              while (true) {
-                try {
-                  Thread.sleep(Long.MAX_VALUE);
-                } catch (InterruptedException e) {
-                  logger.info("Idler thread interrupted.");
-                }
-              }
-            })
-        .start();
 
     if (monitoringConfig.isReportTraces()) {
       server
