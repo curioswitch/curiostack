@@ -29,8 +29,7 @@ module.exports = require('./webpack.base.babel')({
   // Add hot reloading in development
   entry: [
     'eventsource-polyfill', // Necessary for hot reloading with IE
-    'react-hot-loader/patch',
-    'webpack-hot-middleware/client',
+    'webpack-hot-middleware/client?reload=true',
     path.join(process.cwd(), 'app/app.js'), // Start with js/app.js
   ],
 
@@ -42,11 +41,6 @@ module.exports = require('./webpack.base.babel')({
 
   // Add development plugins
   plugins: dependencyHandlers().concat(plugins), // eslint-disable-line no-use-before-define
-
-  // Tell babel that we want to hot-reload
-  babelQuery: {
-    plugins: ['react-hot-loader/babel'],
-  },
 
   // Emit a source map for easier debugging
   // See https://webpack.js.org/configuration/devtool/#devtool
