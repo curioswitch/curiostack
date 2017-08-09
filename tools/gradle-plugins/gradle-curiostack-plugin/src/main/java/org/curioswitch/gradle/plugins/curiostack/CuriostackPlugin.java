@@ -352,9 +352,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                                       dep -> {
                                         project
                                             .getDependencies()
-                                            .add(
-                                                JMHPlugin.JMH_NAME,
-                                                dep.getModule().toString());
+                                            .add(JMHPlugin.JMH_NAME, dep.getModule().toString());
                                       });
                             });
                   });

@@ -26,6 +26,7 @@ package org.curioswitch.gradle.plugins.grpcapi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.gradle.ExecutableLocator;
+import com.google.protobuf.gradle.GenerateProtoTask.DescriptorSetOptions;
 import com.google.protobuf.gradle.ProtobufConfigurator;
 import com.google.protobuf.gradle.ProtobufConfigurator.JavaGenerateProtoTaskCollection;
 import com.google.protobuf.gradle.ProtobufConvention;
@@ -69,6 +70,22 @@ public class GrpcApiPlugin implements Plugin<Project> {
   private static final String RESOLVED_PLUGIN_SCRIPT_TEMPLATE =
       "#!|NODE_PATH|\n" + "" + "require('../ts-protoc-gen/lib/ts_index');";
 
+  private static final String PACKAGE_JSON_TEMPLATE =
+      "{\n"
+          + "  \"name\": \"|PACKAGE_NAME|\",\n"
+          + "  \"version\": \"latest\",\n"
+          + "  \"main\": \"index.js\",\n"
+          + "  \"dependencies\": {\n"
+          + "    \"@types/google-protobuf\": \"3.2.6\",\n"
+          + "    \"google-protobuf\": \"3.3.0\",\n"
+          + "    \"grpc-web-client\": \"0.3.0\"\n"
+          + "  },\n"
+          + "  \"devDependencies\": {\n"
+          + "    \"ts-protoc-gen\": \"0.3.3\",\n"
+          + "    \"typescript\": \"2.4.2\"\n"
+          + "  }\n"
+          + "}";
+
   private static final List<String> GRPC_DEPENDENCIES =
       Collections.unmodifiableList(Arrays.asList("grpc-core", "grpc-protobuf", "grpc-stub"));
 
@@ -93,14 +110,14 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
           ProtobufConfigurator protobuf =
               project.getConvention().getPlugin(ProtobufConvention.class).getProtobuf();
-          protobuf.generatedFilesBaseDir = project.getBuildDir() + "/generated/source/proto";
+          protobuf.setGeneratedFilesBaseDir(project.getBuildDir() + "/generated/source/proto");
           project
               .getPlugins()
               .withType(
                   IdeaPlugin.class,
                   plugin -> {
                     IdeaModule module = plugin.getModel().getModule();
-                    File generatedDir = project.file(protobuf.generatedFilesBaseDir);
+                    File generatedDir = project.file(protobuf.getGeneratedFilesBaseDir());
                     File mainDir = new File(generatedDir, "main");
                     File testDir = new File(generatedDir, "test");
                     module.getSourceDirs().add(mainDir);
@@ -153,14 +170,16 @@ public class GrpcApiPlugin implements Plugin<Project> {
                               task.getBuiltins().getByName("java").setOutputSubDir("");
                               task.getPlugins().create("grpc").setOutputSubDir("");
                               if (config.web()) {
+                                // We generate web protos into build/web to make it easier to
+                                // reference from other projects.
                                 task.getBuiltins()
                                     .create("js")
                                     .option("import_style=commonjs,binary")
-                                    .setOutputSubDir("../../web");
+                                    .setOutputSubDir("../../../../web");
                                 task.getPlugins()
                                     .create("ts")
                                     .option("service=true")
-                                    .setOutputSubDir("../../web");
+                                    .setOutputSubDir("../../../../web");
                               }
                             });
                     tasks
@@ -168,12 +187,13 @@ public class GrpcApiPlugin implements Plugin<Project> {
                         .forEach(
                             task -> {
                               task.getOutputs().file(descriptorSetOutputPath);
-                              task.generateDescriptorSet = true;
-                              task.descriptorSetOptions.includeSourceInfo = true;
-                              task.descriptorSetOptions.includeImports = true;
-                              task.descriptorSetOptions.path =
+                              task.setGenerateDescriptorSet(true);
+                              DescriptorSetOptions options = task.getDescriptorSetOptions();
+                              options.setIncludeSourceInfo(true);
+                              options.setIncludeImports(true);
+                              options.setPath(
                                   new GStringImpl(
-                                      new Object[] {}, new String[] {descriptorSetOutputPath});
+                                      new Object[] {}, new String[] {descriptorSetOutputPath}));
                             });
                   }));
         });
@@ -187,7 +207,6 @@ public class GrpcApiPlugin implements Plugin<Project> {
           ImmutableGrpcExtension config = project.getExtensions().getByType(GrpcExtension.class);
 
           if (config.web()) {
-
             project
                 .getTasks()
                 .getByName(
@@ -229,7 +248,33 @@ public class GrpcApiPlugin implements Plugin<Project> {
                           }
                           path.toFile().setExecutable(true);
                         });
-            project.getTasks().getByName("generateProto").dependsOn(addResolvedPluginScript);
+
+            String archivesBaseName =
+                project.getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
+            Task addPackageJson =
+                project
+                    .getTasks()
+                    .create("packageJson")
+                    .dependsOn("generateProto")
+                    .doFirst(
+                        t -> {
+                          try {
+                            Files.write(
+                                Paths.get(
+                                    project.getBuildDir().getAbsolutePath(), "web", "package.json"),
+                                PACKAGE_JSON_TEMPLATE
+                                    .replaceFirst("\\|PACKAGE_NAME\\|", archivesBaseName)
+                                    .getBytes(StandardCharsets.UTF_8));
+                          } catch (IOException e) {
+                            throw new UncheckedIOException("Could not write package.json.", e);
+                          }
+                        });
+
+            project
+                .getTasks()
+                .getByName("generateProto")
+                .dependsOn(addResolvedPluginScript)
+                .finalizedBy(addPackageJson);
           }
         });
 
