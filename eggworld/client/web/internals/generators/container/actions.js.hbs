@@ -4,6 +4,12 @@
  *
  */
 
-import { createAction } from 'redux-actions';
+import {
+  DEFAULT_ACTION,
+} from './constants';
 
-export const defaultAction = createAction('app/{{ properCase name }}/DEFAULT_ACTION');
+export function defaultAction() {
+  return {
+    type: DEFAULT_ACTION,
+  };
+}
