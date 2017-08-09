@@ -18,7 +18,6 @@ import HomePage from 'containers/HomePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 
 export class App extends React.Component { // eslint-disable-line react/prefer-stateless-function
-
   render() {
     return (
       <div>

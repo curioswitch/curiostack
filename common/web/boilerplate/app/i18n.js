@@ -20,7 +20,7 @@ export const appLocales = [
 addLocaleData(enLocaleData);
 
 export const formatTranslationMessages = (
-    locale: string, messages: { [string]: string }) => {
+  locale: string, messages: { [string]: string }) => {
   const defaultFormattedMessages = locale !== DEFAULT_LOCALE
     ? formatTranslationMessages(DEFAULT_LOCALE, enTranslationMessages)
     : {};

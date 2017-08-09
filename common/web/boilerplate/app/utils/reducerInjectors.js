@@ -1,11 +1,11 @@
 // @flow
 
 import type { Reducer } from 'redux';
-import type { AsyncStore } from '../store';
 
 import invariant from 'invariant';
 import isEmpty from 'lodash/isEmpty';
 
+import type { AsyncStore } from '../store';
 import createReducer from '../reducers';
 
 export function injectReducerFactory(store: AsyncStore) {

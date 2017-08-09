@@ -1,10 +1,10 @@
-import type { AsyncStore } from '../store';
-
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 import invariant from 'invariant';
 import conformsTo from 'lodash/conformsTo';
+
+import type { AsyncStore } from '../store';
 
 import {
   DAEMON,
