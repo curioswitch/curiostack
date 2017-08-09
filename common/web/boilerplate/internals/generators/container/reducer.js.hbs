@@ -5,16 +5,19 @@
  */
 
 import { fromJS } from 'immutable';
-import { handleActions } from 'redux-actions';
-
 import {
-  defaultAction,
-} from './actions';
+  DEFAULT_ACTION,
+} from './constants';
 
 const initialState = fromJS({});
 
-export default handleActions({
-  [defaultAction]: (state) => (
-    state
-  ),
-}, initialState);
+function {{ camelCase name }}Reducer(state = initialState, action) {
+  switch (action.type) {
+    case DEFAULT_ACTION:
+      return state;
+    default:
+      return state;
+  }
+}
+
+export default {{ camelCase name }}Reducer;
