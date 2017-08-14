@@ -1,24 +1,62 @@
-/*
+/**
+ *
  * HomePage
  *
- * This is the first thing users see of our App, at the '/' route
- *
- * NOTE: while this component should technically be a stateless functional
- * component (SFC), hot reloading does not currently support SFCs. If hot
- * reloading is not a necessity for you then you can refactor it and remove
- * the linting exception.
  */
 
 import React from 'react';
-import { FormattedMessage } from 'react-intl';
-import messages from './messages';
+import { Helmet } from 'react-helmet';
+import { connect } from 'react-redux';
+import { Stage } from 'react-konva';
+import { compose } from 'redux';
 
-export default class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+import injectSaga from 'utils/injectSaga';
+import injectReducer from 'utils/injectReducer';
+
+import FlowerLayer from 'components/FlowerLayer';
+import FoodLayer from 'components/FoodLayer';
+import MainLayer from 'components/MainLayer';
+
+import { INGREDIENTS } from './constants';
+import makeSelectHomePage from './selectors';
+import reducer from './reducer';
+import saga from './saga';
+
+export class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   render() {
     return (
-      <h1>
-        <FormattedMessage {...messages.header} />
-      </h1>
+      <div>
+        <Helmet>
+          <title>HomePage</title>
+          <meta name="description" content="Description of HomePage" />
+        </Helmet>
+        <Stage width={1080} height={1920}>
+          <MainLayer />
+          <FlowerLayer />
+          <FoodLayer ingredients={INGREDIENTS.fruit} />
+          <FoodLayer ingredients={INGREDIENTS.meat} visible={false} />
+          <FoodLayer ingredients={INGREDIENTS.other} visible={false} />
+        </Stage>
+      </div>
     );
   }
 }
+
+const mapStateToProps = makeSelectHomePage();
+
+function mapDispatchToProps(dispatch) {
+  return {
+    dispatch,
+  };
+}
+
+const withConnect = connect(mapStateToProps, mapDispatchToProps);
+
+const withReducer = injectReducer({ key: 'homePage', reducer });
+const withSaga = injectSaga({ key: 'homePage', saga });
+
+export default compose(
+  withReducer,
+  withSaga,
+  withConnect,
+)(HomePage);

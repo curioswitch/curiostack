@@ -1,9 +1,9 @@
 // import React from 'react';
 // import { shallow } from 'enzyme';
 
-// import { HomePage } from '../index';
+// import FlowerLayer from '../index';
 
-describe('<HomePage />', () => {
+describe('<FlowerLayer />', () => {
   it('Expect to have unit tests specified', () => {
     expect(true).toEqual(false);
   });
