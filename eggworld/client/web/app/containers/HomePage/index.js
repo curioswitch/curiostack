@@ -6,7 +6,6 @@
 
 // @flow
 
-import type { Set } from 'immutable';
 import type { Node } from 'konva';
 import type { Dispatch } from 'redux';
 
@@ -25,6 +24,7 @@ import FoodLayer from 'components/FoodLayer';
 import MainLayer from 'components/MainLayer';
 
 import {
+  checkIngredients,
   foodDragged,
   mouthAnimationFrame,
   selectTab,
@@ -34,16 +34,26 @@ import makeSelectHomePage from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
+type PropTypes = {
+  doCheckIngredients: (number[]) => void,
+  eatenFood: number[],
+  foodBeingEaten: ?Node,
+  onFoodDragged: (Node) => void,
+  onMouthAnimationFrame: () => void,
+  onSelectTab: (string) => void,
+  selectedTab: 'fruit'|'meat'|'other',
+  usableFood: number[],
+};
+
 export class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
 
-  props: {
-    eatenFood: Set<string>,
-    foodBeingEaten: ?Node,
-    onFoodDragged: (Node) => void,
-    onMouthAnimationFrame: () => void,
-    onSelectTab: (string) => void,
-    selectedTab: 'fruit'|'meat'|'other',
-  };
+  componentWillReceiveProps(nextProps: PropTypes) {
+    if (nextProps.eatenFood.length !== this.props.eatenFood.length) {
+      this.props.doCheckIngredients(nextProps.eatenFood);
+    }
+  }
+
+  props: PropTypes;
 
   render() {
     return (
@@ -62,18 +72,21 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
           <FoodLayer
             ingredients={INGREDIENTS.fruit}
             eatenFood={this.props.eatenFood}
+            usableFood={this.props.usableFood}
             onFoodDragged={this.props.onFoodDragged}
             visible={this.props.selectedTab === 'fruit'}
           />
           <FoodLayer
             ingredients={INGREDIENTS.meat}
             eatenFood={this.props.eatenFood}
+            usableFood={this.props.usableFood}
             onFoodDragged={this.props.onFoodDragged}
             visible={this.props.selectedTab === 'meat'}
           />
           <FoodLayer
             ingredients={INGREDIENTS.other}
             eatenFood={this.props.eatenFood}
+            usableFood={this.props.usableFood}
             onFoodDragged={this.props.onFoodDragged}
             visible={this.props.selectedTab === 'other'}
           />
@@ -87,6 +100,7 @@ const mapStateToProps = makeSelectHomePage();
 
 function mapDispatchToProps(dispatch: Dispatch<*>) {
   return {
+    doCheckIngredients: (ingredients: number[]) => dispatch(checkIngredients(ingredients)),
     onFoodDragged: (food: Node) => dispatch(foodDragged(food)),
     onMouthAnimationFrame: () => dispatch(mouthAnimationFrame()),
     onSelectTab: (tab: string) => dispatch(selectTab(tab)),

@@ -6,6 +6,8 @@
 
 // @flow
 
+import { Ingredient } from 'curioswitch-eggworld-api/curioswitch/eggworld/eggworld-service_pb';
+
 import baconImageSrc from './assets/bacon.png';
 import bananaImageSrc from './assets/banana.png';
 import beefImageSrc from './assets/beef.png';
@@ -27,27 +29,27 @@ import wineImageSrc from './assets/wine.png';
 
 export const INGREDIENTS = {
   fruit: [
-    { key: 'banana', name: 'バナナ', imageSrc: bananaImageSrc },
-    { key: 'cabbage', name: 'キャベツ', imageSrc: cabbageImageSrc },
-    { key: 'garlic', name: 'にんにく', imageSrc: garlicImageSrc },
-    { key: 'onion', name: '玉ねぎ', imageSrc: onionImageSrc },
-    { key: 'potatoes', name: 'じゃがいも', imageSrc: potatoesImageSrc },
-    { key: 'spinach', name: 'ほうれん草', imageSrc: spinachImageSrc },
+    { key: Ingredient.BANANA, name: 'バナナ', imageSrc: bananaImageSrc },
+    { key: Ingredient.CABBAGE, name: 'キャベツ', imageSrc: cabbageImageSrc },
+    { key: Ingredient.GARLIC, name: 'にんにく', imageSrc: garlicImageSrc },
+    { key: Ingredient.ONION, name: '玉ねぎ', imageSrc: onionImageSrc },
+    { key: Ingredient.POTATO, name: 'じゃがいも', imageSrc: potatoesImageSrc },
+    { key: Ingredient.SPINACH, name: 'ほうれん草', imageSrc: spinachImageSrc },
   ],
   meat: [
-    { key: 'bacon', name: 'ベーコン', imageSrc: baconImageSrc },
-    { key: 'beef', name: '牛肉', imageSrc: beefImageSrc },
-    { key: 'cheese', name: 'チーズ', imageSrc: cheeseImageSrc },
-    { key: 'chicken', name: '鶏肉', imageSrc: chickenImageSrc },
-    { key: 'milk', name: '牛乳', imageSrc: milkImageSrc },
-    { key: 'pork', name: '豚肉', imageSrc: porkImageSrc },
+    { key: Ingredient.BACON, name: 'ベーコン', imageSrc: baconImageSrc },
+    { key: Ingredient.BEEF, name: '牛肉', imageSrc: beefImageSrc },
+    { key: Ingredient.CHEESE, name: 'チーズ', imageSrc: cheeseImageSrc },
+    { key: Ingredient.CHICKEN, name: '鶏肉', imageSrc: chickenImageSrc },
+    { key: Ingredient.MILK, name: '牛乳', imageSrc: milkImageSrc },
+    { key: Ingredient.PORK, name: '豚肉', imageSrc: porkImageSrc },
   ],
   other: [
-    { key: 'bread', name: 'パン', imageSrc: breadImageSrc },
-    { key: 'chile', name: '唐辛子', imageSrc: chileImageSrc },
-    { key: 'chocolate', name: 'チョコレート', imageSrc: chocolateImageSrc },
-    { key: 'honey', name: 'はちみつ', imageSrc: honeyImageSrc },
-    { key: 'nuts', name: 'ナツ', imageSrc: nutsImageSrc },
-    { key: 'wine', name: 'ワイン', imageSrc: wineImageSrc },
+    { key: Ingredient.BREAD, name: 'パン', imageSrc: breadImageSrc },
+    { key: Ingredient.CHILI, name: '唐辛子', imageSrc: chileImageSrc },
+    { key: Ingredient.CHOCOLATE, name: 'チョコレート', imageSrc: chocolateImageSrc },
+    { key: Ingredient.HONEY, name: 'はちみつ', imageSrc: honeyImageSrc },
+    { key: Ingredient.NUTS, name: 'ナツ', imageSrc: nutsImageSrc },
+    { key: Ingredient.WINE, name: 'ワイン', imageSrc: wineImageSrc },
   ],
 };

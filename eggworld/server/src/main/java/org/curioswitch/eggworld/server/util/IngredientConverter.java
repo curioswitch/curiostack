@@ -54,6 +54,8 @@ public final class IngredientConverter extends Converter<Ingredient, String> {
         return "beef";
       case CHEESE:
         return "cheese";
+      case CHICKEN:
+        return "chicken";
       case MILK:
         return "milk";
       case PORK:
@@ -97,6 +99,8 @@ public final class IngredientConverter extends Converter<Ingredient, String> {
         return Ingredient.BEEF;
       case "cheese":
         return Ingredient.CHEESE;
+      case "chicken":
+        return Ingredient.CHICKEN;
       case "milk":
         return Ingredient.MILK;
       case "pork":

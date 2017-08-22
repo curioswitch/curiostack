@@ -216,6 +216,7 @@
     "chalk": "2.1.0",
     "compression": "1.7.0",
     "cross-env": "5.0.5",
+    "curioswitch-eggworld-api": "file:../../api/build/web",
     "express": "4.15.4",
     "fontfaceobserver": "2.0.13",
     "history": "4.6.3",

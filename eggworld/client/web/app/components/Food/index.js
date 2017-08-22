@@ -6,6 +6,7 @@
 
 // @flow
 
+import Konva from 'konva';
 import React from 'react';
 import { Group, Text } from 'react-konva';
 
@@ -13,25 +14,34 @@ import KonvaImage from 'components/KonvaImage';
 
 type PropTypes = {
   onFoodDragged: (any) => void,
-  ingredient: string,
+  ingredient: number,
   x: number,
   y: number,
   imageSrc: string,
   name: string,
   removed: boolean, // eslint-disable-next-line react/no-unused-prop-types
+  unusable: boolean,
 };
 
 class Food extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
 
   componentWillReceiveProps(nextProps: PropTypes) {
-    if (nextProps.removed && this.node && !this.removed) {
-      const node = this.node;
+    if (!this.node || this.removed) {
+      return;
+    }
+    const node = this.node;
+    if (nextProps.removed) {
       // Programatically remove the eaten food instead of declaratively because we do not manage
       // the food's position in our state and cannot allow it to be rerendered.
       const drawingNode = node.getLayer() || node.getStage();
       node.remove();
       drawingNode.batchDraw();
       this.removed = true;
+    }
+    if (nextProps.unusable) {
+      const image = node.children[0];
+      image.cache();
+      image.filters([Konva.Filters.Grayscale]);
     }
   }
 

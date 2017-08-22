@@ -2,9 +2,17 @@
 # yarn lockfile v1
 
 
+"@types/google-protobuf@3.2.6":
+  version "3.2.6"
+  resolved "https://registry.yarnpkg.com/@types/google-protobuf/-/google-protobuf-3.2.6.tgz#b225169f285cbaccc9bea541b2ca11b46d110df8"
+
 "@types/node@^6.0.46":
   version "6.0.85"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-6.0.85.tgz#ec02bfe54a61044f2be44f13b389c6a0e8ee05ae"
+
+"@types/text-encoding@0.0.30":
+  version "0.0.30"
+  resolved "https://registry.yarnpkg.com/@types/text-encoding/-/text-encoding-0.0.30.tgz#2ad7bc19287094c9d2754d238e0994dd2995781f"
 
 abab@^1.0.3:
   version "1.0.3"
@@ -1314,6 +1322,10 @@ brorand@^1.0.1:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/brorand/-/brorand-1.0.6.tgz#4028706b915f91f7b349a2e0bf3c376039d216e5"
 
+browser-headers@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/browser-headers/-/browser-headers-0.2.1.tgz#35cb1caa56e758946fb4ddd80344b9dba48d0924"
+
 browser-resolve@^1.11.2:
   version "1.11.2"
   resolved "https://registry.yarnpkg.com/browser-resolve/-/browser-resolve-1.11.2.tgz#8ff09b0a2c421718a1051c260b32e48f442938ce"
@@ -2258,6 +2270,13 @@ cssom@0.3.x, "cssom@>= 0.3.2 < 0.4.0":
   resolved "https://registry.yarnpkg.com/cssstyle/-/cssstyle-0.2.37.tgz#541097234cb2513c83ceed3acddc27ff27987d54"
   dependencies:
     cssom "0.3.x"
+
+"curioswitch-eggworld-api@file:../../api/build/web":
+  version latest
+  dependencies:
+    "@types/google-protobuf" "3.2.6"
+    google-protobuf "3.3.0"
+    grpc-web-client "0.3.0"
 
 currently-unhandled@^0.4.1:
   version "0.4.1"
@@ -3816,6 +3835,10 @@ glogg@^1.0.0:
   dependencies:
     sparkles "^1.0.0"
 
+google-protobuf@3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/google-protobuf/-/google-protobuf-3.3.0.tgz#21c15ec2fbd57c236eb684d2e18bcaeca9759b77"
+
 got@^3.2.0:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/got/-/got-3.3.1.tgz#e5d0ed4af55fc3eef4d56007769d98192bcb2eca"
@@ -3903,6 +3926,14 @@ graceful-fs@~3.0.2:
 growly@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
+
+grpc-web-client@0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/grpc-web-client/-/grpc-web-client-0.3.0.tgz#b46e64b298c480745006f883678e318d7abc11b4"
+  dependencies:
+    "@types/text-encoding" "0.0.30"
+    browser-headers "^0.2.1"
+    text-encoding "^0.6.4"
 
 gulp-decompress@^1.2.0:
   version "1.2.0"
@@ -8695,7 +8726,7 @@ test-exclude@^4.1.1:
     read-pkg-up "^1.0.1"
     require-main-filename "^1.0.1"
 
-text-encoding@0.6.4:
+text-encoding@0.6.4, text-encoding@^0.6.4:
   version "0.6.4"
   resolved "https://registry.yarnpkg.com/text-encoding/-/text-encoding-0.6.4.tgz#e399a982257a276dae428bb92845cb71bdc26d19"
 

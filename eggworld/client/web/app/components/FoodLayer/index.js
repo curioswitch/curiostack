@@ -6,8 +6,6 @@
 
 // @flow
 
-import type { Set } from 'immutable';
-
 import React from 'react';
 import { Layer } from 'react-konva';
 
@@ -16,9 +14,10 @@ import Food from 'components/Food';
 class FoodLayer extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
 
   props: {
-    eatenFood: Set<string>,
-    ingredients: Array<{ key: string, name: string, imageSrc: string }>,
+    eatenFood: number[],
+    ingredients: Array<{ key: number, name: string, imageSrc: string }>,
     onFoodDragged: (any) => void,
+    usableFood: number[],
     visible: boolean,
   };
 
@@ -38,6 +37,7 @@ class FoodLayer extends React.PureComponent { // eslint-disable-line react/prefe
             imageSrc={imageSrc}
             name={name}
             removed={this.props.eatenFood.includes(key)}
+            unusable={!this.props.usableFood.includes(key)}
             onFoodDragged={this.props.onFoodDragged}
           />
         ))}
