@@ -16,7 +16,7 @@ const selectHomePageDomain = () => (state) => state.get('homePage');
 
 const makeSelectHomePage = () => createSelector(
   selectHomePageDomain(),
-  (substate) => substate.toJS()
+  (substate) => substate.delete('mouthAnimationFrameCount').toJS()
 );
 
 export default makeSelectHomePage;

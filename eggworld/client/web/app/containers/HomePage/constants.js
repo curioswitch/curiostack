@@ -25,8 +25,6 @@ import spinachImageSrc from './assets/spinach.png';
 import nutsImageSrc from './assets/nuts.png';
 import wineImageSrc from './assets/wine.png';
 
-export const DEFAULT_ACTION = 'app/HomePage/DEFAULT_ACTION';
-
 export const INGREDIENTS = {
   fruit: [
     { key: 'banana', name: 'バナナ', imageSrc: bananaImageSrc },

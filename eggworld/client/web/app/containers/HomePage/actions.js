@@ -4,12 +4,10 @@
  *
  */
 
-import {
-  DEFAULT_ACTION,
-} from './constants';
+// @flow
 
-export function defaultAction() {
-  return {
-    type: DEFAULT_ACTION,
-  };
-}
+import { createAction } from 'redux-actions';
+
+export const drawStage = createAction('app/containers/HomePage/DRAW_STAGE');
+export const foodDragged = createAction('app/containers/HomePage/FOOD_DRAGGED');
+export const mouthAnimationFrame = createAction('app/containers/HomePage/MOUTH_ANIMATION_FRAME');

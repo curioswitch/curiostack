@@ -6,6 +6,9 @@
 
 // @flow
 
+import type { Set } from 'immutable';
+import type { Node } from 'konva';
+
 import React from 'react';
 import { Group, Layer, Text } from 'react-konva';
 
@@ -15,6 +18,7 @@ class FoodLayer extends React.PureComponent { // eslint-disable-line react/prefe
 
   props: {
     ingredients: Array<{ key: string, name: string, imageSrc: string }>,
+    onFoodDragged: (Node) => void,
   };
 
   render() {
@@ -35,6 +39,10 @@ class FoodLayer extends React.PureComponent { // eslint-disable-line react/prefe
             width={width}
             height={height}
             draggable
+            onDragmove={(e) => this.props.onFoodDragged({
+              ingredient: key,
+              node: e.target,
+            })}
           >
             <KonvaImage
               src={imageSrc}

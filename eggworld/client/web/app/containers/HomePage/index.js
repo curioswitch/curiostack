@@ -4,6 +4,12 @@
  *
  */
 
+// @flow
+
+import type { Set } from 'immutable';
+import type { Node } from 'konva';
+import type { Dispatch } from 'redux';
+
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
@@ -13,16 +19,28 @@ import { compose } from 'redux';
 import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 
+import AnimationLayer from 'components/AnimationLayer';
 import FlowerLayer from 'components/FlowerLayer';
 import FoodLayer from 'components/FoodLayer';
 import MainLayer from 'components/MainLayer';
 
+import {
+  foodDragged,
+  mouthAnimationFrame,
+} from './actions';
 import { INGREDIENTS } from './constants';
 import makeSelectHomePage from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
 export class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+
+  props: {
+    foodBeingEaten: ?Node,
+    onFoodDragged: (Node) => void,
+    onMouthAnimationFrame: () => void,
+  };
+
   render() {
     return (
       <div>
@@ -31,11 +49,26 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
           <meta name="description" content="Description of HomePage" />
         </Helmet>
         <Stage width={1080} height={1920}>
-          <MainLayer />
+          <MainLayer selected="fruit" />
           <FlowerLayer />
-          <FoodLayer ingredients={INGREDIENTS.fruit} />
-          <FoodLayer ingredients={INGREDIENTS.meat} visible={false} />
-          <FoodLayer ingredients={INGREDIENTS.other} visible={false} />
+          <AnimationLayer
+            onMouthAnimationFrame={this.props.onMouthAnimationFrame}
+            started={this.props.foodBeingEaten !== null}
+          />
+          <FoodLayer
+            ingredients={INGREDIENTS.fruit}
+            onFoodDragged={this.props.onFoodDragged}
+          />
+          <FoodLayer
+            ingredients={INGREDIENTS.meat}
+            onFoodDragged={this.props.onFoodDragged}
+            visible={false}
+          />
+          <FoodLayer
+            ingredients={INGREDIENTS.other}
+            onFoodDragged={this.props.onFoodDragged}
+            visible={false}
+          />
         </Stage>
       </div>
     );
@@ -44,8 +77,10 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
 
 const mapStateToProps = makeSelectHomePage();
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch: Dispatch<*>) {
   return {
+    onFoodDragged: (food: Node) => dispatch(foodDragged(food)),
+    onMouthAnimationFrame: () => dispatch(mouthAnimationFrame()),
     dispatch,
   };
 }
