@@ -25,6 +25,7 @@
 package org.curioswitch.gradle.plugins.grpcapi;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.protobuf.gradle.ExecutableLocator;
 import com.google.protobuf.gradle.GenerateProtoTask.DescriptorSetOptions;
 import com.google.protobuf.gradle.ProtobufConfigurator;
@@ -52,6 +53,7 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.plugins.BasePluginConvention;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
@@ -68,6 +70,7 @@ import org.gradle.plugins.ide.idea.model.IdeaModule;
 public class GrpcApiPlugin implements Plugin<Project> {
 
   private static final String TS_PROTOC_GEN_VERSION = "0.3.3";
+  private static final String TYPESCRIPT_VERSION = "2.4.2";
 
   private static final String RESOLVED_PLUGIN_SCRIPT_TEMPLATE =
       "#!|NODE_PATH|\n" + "" + "require('../ts-protoc-gen/lib/ts_index');";
@@ -80,9 +83,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
           + "  \"dependencies\": {\n"
           + "    \"@types/google-protobuf\": \"3.2.6\",\n"
           + "    \"google-protobuf\": \"3.3.0\",\n"
-          + "    \"grpc-web-client\": \"0.3.0\",\n"
-          + "    \"tsc-glob\": \"2.0.1\",\n"
-          + "    \"typescript\": \"2.4.2\"\n"
+          + "    \"grpc-web-client\": \"0.3.0\"\n"
           + "  }\n"
           + "}";
 
@@ -211,9 +212,15 @@ public class GrpcApiPlugin implements Plugin<Project> {
                 project.getTasks().create("installTsProtocGen", YarnTask.class);
             installTsProtocGen.setArgs(
                 ImmutableList.of(
-                    "add", "--dev", "--no-lockfile", "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION));
-            installTsProtocGen.getInputs().property("version", TS_PROTOC_GEN_VERSION);
-            installTsProtocGen.getOutputs().dir("build/ts-protoc-gen");
+                    "add",
+                    "--dev",
+                    "--no-lockfile",
+                    "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION,
+                    "typescript@" + TYPESCRIPT_VERSION));
+            installTsProtocGen.getInputs().property("ts-protoc-gen-version", TS_PROTOC_GEN_VERSION);
+            installTsProtocGen.getInputs().property("typescript-version", TYPESCRIPT_VERSION);
+            installTsProtocGen.getOutputs().dir("node_modules/ts-protoc-gen");
+            installTsProtocGen.getOutputs().dir("node_modules/typescript");
 
             // gradle-protobuf-plugin does not allow manipulating PATH for protoc invocation, so there's no way
             // to point it at our downloaded nodejs. We go ahead and create our own plugin executable with the
@@ -272,12 +279,19 @@ public class GrpcApiPlugin implements Plugin<Project> {
                             throw new UncheckedIOException("Could not write package.json.", e);
                           }
                         });
+            YarnTask compileTypescript =
+                project.getTasks().create("compileTypescript", YarnTask.class);
+            compileTypescript.setArgs(
+                Iterables.concat(
+                    ImmutableList.of("run", "tsc"),
+                    (ConfigurableFileTree) project.fileTree("build/web").include("**/*.ts")));
+            compileTypescript.doLast(unused -> project.file("package.json").delete());
 
             project
                 .getTasks()
                 .getByName("generateProto")
                 .dependsOn(addResolvedPluginScript)
-                .finalizedBy(addPackageJson);
+                .finalizedBy(addPackageJson, compileTypescript);
           }
         });
 
