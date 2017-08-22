@@ -21,6 +21,7 @@ class Button extends React.PureComponent { // eslint-disable-line react/prefer-s
     x: number,
     y: number,
     label: string,
+    onClick: () => void,
   };
 
   render() {
@@ -30,6 +31,7 @@ class Button extends React.PureComponent { // eslint-disable-line react/prefer-s
         y={this.props.y}
         width={362}
         height={200}
+        onClick={this.props.onClick}
       >
         <KonvaImage
           src={this.props.selected ? buttonPressedSrc : buttonUnpressedSrc}

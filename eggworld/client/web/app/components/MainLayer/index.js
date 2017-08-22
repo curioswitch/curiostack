@@ -17,7 +17,8 @@ import eggImageSrc from './assets/egg.png';
 class MainLayer extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
 
   props: {
-    selected: 'fruit' | 'meat' | 'other',
+    onSelectTab: (string) => void,
+    selected: 'fruit'|'meat'|'other',
   };
 
   render() {
@@ -41,18 +42,21 @@ class MainLayer extends React.PureComponent { // eslint-disable-line react/prefe
           x={0}
           y={720}
           label="果物・野菜"
+          onClick={() => this.props.onSelectTab('fruit')}
         />
         <Button
           selected={selected === 'meat'}
           x={360}
           y={720}
           label="肉・乳製品"
+          onClick={() => this.props.onSelectTab('meat')}
         />
         <Button
           selected={selected === 'other'}
           x={720}
           y={720}
           label="その他"
+          onClick={() => this.props.onSelectTab('other')}
         />
       </Layer>
     );

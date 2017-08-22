@@ -27,6 +27,7 @@ import MainLayer from 'components/MainLayer';
 import {
   foodDragged,
   mouthAnimationFrame,
+  selectTab,
 } from './actions';
 import { INGREDIENTS } from './constants';
 import makeSelectHomePage from './selectors';
@@ -36,9 +37,12 @@ import saga from './saga';
 export class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
 
   props: {
+    eatenFood: Set<string>,
     foodBeingEaten: ?Node,
     onFoodDragged: (Node) => void,
     onMouthAnimationFrame: () => void,
+    onSelectTab: (string) => void,
+    selectedTab: 'fruit'|'meat'|'other',
   };
 
   render() {
@@ -49,7 +53,7 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
           <meta name="description" content="Description of HomePage" />
         </Helmet>
         <Stage width={1080} height={1920}>
-          <MainLayer selected="fruit" />
+          <MainLayer selected={this.props.selectedTab} onSelectTab={this.props.onSelectTab} />
           <FlowerLayer />
           <AnimationLayer
             onMouthAnimationFrame={this.props.onMouthAnimationFrame}
@@ -57,17 +61,21 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
           />
           <FoodLayer
             ingredients={INGREDIENTS.fruit}
+            eatenFood={this.props.eatenFood}
             onFoodDragged={this.props.onFoodDragged}
+            visible={this.props.selectedTab === 'fruit'}
           />
           <FoodLayer
             ingredients={INGREDIENTS.meat}
+            eatenFood={this.props.eatenFood}
             onFoodDragged={this.props.onFoodDragged}
-            visible={false}
+            visible={this.props.selectedTab === 'meat'}
           />
           <FoodLayer
             ingredients={INGREDIENTS.other}
+            eatenFood={this.props.eatenFood}
             onFoodDragged={this.props.onFoodDragged}
-            visible={false}
+            visible={this.props.selectedTab === 'other'}
           />
         </Stage>
       </div>
@@ -81,6 +89,7 @@ function mapDispatchToProps(dispatch: Dispatch<*>) {
   return {
     onFoodDragged: (food: Node) => dispatch(foodDragged(food)),
     onMouthAnimationFrame: () => dispatch(mouthAnimationFrame()),
+    onSelectTab: (tab: string) => dispatch(selectTab(tab)),
     dispatch,
   };
 }

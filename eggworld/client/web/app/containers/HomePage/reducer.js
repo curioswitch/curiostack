@@ -10,6 +10,7 @@ import {
   drawStage,
   foodDragged,
   mouthAnimationFrame,
+  selectTab,
 } from './actions';
 
 const MOUTH_RECTANGLE = {
@@ -32,6 +33,7 @@ const initialState = fromJS({
   eatenFood: Set(),
   foodBeingEaten: null,
   mouthAnimationFrameCount: 0,
+  selectedTab: 'fruit',
 });
 
 export default handleActions({
@@ -40,13 +42,8 @@ export default handleActions({
   [mouthAnimationFrame]: (state) => state.withMutations((mutable) => {
     const count = state.get('mouthAnimationFrameCount');
     if (count === 12) {
-      const { ingredient, node } = state.get('foodBeingEaten');
+      const { ingredient } = state.get('foodBeingEaten');
       mutable.update('eatenFood', (eatenFood) => eatenFood.add(ingredient));
-      // Programatically remove the eaten food instead of declaratively because we do not manage
-      // the food's position in our state and cannot allow it to be rerendered.
-      const drawingNode = node.getLayer() || node.getStage();
-      node.remove();
-      drawingNode.batchDraw();
     }
     if (count === 24) {
       mutable.set('mouthAnimationFrameCount', 0).set('foodBeingEaten', null);
@@ -54,4 +51,5 @@ export default handleActions({
       mutable.update('mouthAnimationFrameCount', (c) => c + 1);
     }
   }),
+  [selectTab]: (state, { payload }) => state.set('selectedTab', payload),
 }, initialState);
