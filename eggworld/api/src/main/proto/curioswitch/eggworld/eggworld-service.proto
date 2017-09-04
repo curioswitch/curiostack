@@ -43,8 +43,8 @@ enum Ingredient {
   // Onions.
   ONION = 3;
 
-  // Potatos.
-  POTATO = 4;
+  // Potatoes.
+  POTATOES = 4;
 
   // Spinach.
   SPINACH = 5;
@@ -70,8 +70,8 @@ enum Ingredient {
   // Bread.
   BREAD = 12;
 
-  // Chili.
-  CHILI = 13;
+  // Chile.
+  CHILE = 13;
 
   // Chocolate.
   CHOCOLATE = 14;

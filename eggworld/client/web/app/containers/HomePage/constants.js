@@ -33,7 +33,7 @@ export const INGREDIENTS = {
     { key: Ingredient.CABBAGE, name: 'キャベツ', imageSrc: cabbageImageSrc },
     { key: Ingredient.GARLIC, name: 'にんにく', imageSrc: garlicImageSrc },
     { key: Ingredient.ONION, name: '玉ねぎ', imageSrc: onionImageSrc },
-    { key: Ingredient.POTATO, name: 'じゃがいも', imageSrc: potatoesImageSrc },
+    { key: Ingredient.POTATOES, name: 'じゃがいも', imageSrc: potatoesImageSrc },
     { key: Ingredient.SPINACH, name: 'ほうれん草', imageSrc: spinachImageSrc },
   ],
   meat: [
@@ -46,7 +46,7 @@ export const INGREDIENTS = {
   ],
   other: [
     { key: Ingredient.BREAD, name: 'パン', imageSrc: breadImageSrc },
-    { key: Ingredient.CHILI, name: '唐辛子', imageSrc: chileImageSrc },
+    { key: Ingredient.CHILE, name: '唐辛子', imageSrc: chileImageSrc },
     { key: Ingredient.CHOCOLATE, name: 'チョコレート', imageSrc: chocolateImageSrc },
     { key: Ingredient.HONEY, name: 'はちみつ', imageSrc: honeyImageSrc },
     { key: Ingredient.NUTS, name: 'ナツ', imageSrc: nutsImageSrc },
