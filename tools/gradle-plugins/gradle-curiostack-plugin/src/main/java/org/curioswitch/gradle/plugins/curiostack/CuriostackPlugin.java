@@ -27,6 +27,7 @@ package org.curioswitch.gradle.plugins.curiostack;
 import com.diffplug.gradle.spotless.JavaExtension;
 import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
+import com.github.benmanes.gradle.versions.VersionsPlugin;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
@@ -193,6 +194,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(GitPropertiesPlugin.class);
     plugins.apply(LicensePlugin.class);
     plugins.apply(SpotlessPlugin.class);
+    plugins.apply(VersionsPlugin.class);
 
     project.getNormalization().getRuntimeClasspath().ignore("git.properties");
 
