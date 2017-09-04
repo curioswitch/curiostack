@@ -25,6 +25,7 @@
 package org.curioswitch.common.server.framework;
 
 import brave.Tracing;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import com.linecorp.armeria.common.Flags;
 import com.linecorp.armeria.common.HttpRequest;
@@ -84,6 +85,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import javax.inject.Singleton;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
@@ -102,6 +104,7 @@ import org.curioswitch.common.server.framework.config.MonitoringConfig;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.files.FileWatcher;
 import org.curioswitch.common.server.framework.filter.IpFilteringService;
+import org.curioswitch.common.server.framework.grpc.GrpcServiceDefinition;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
@@ -149,6 +152,9 @@ public abstract class ServerModule {
 
   @Multibinds
   abstract Set<BindableService> grpcServices();
+
+  @Multibinds
+  abstract Set<GrpcServiceDefinition> grpcServiceDefinitions();
 
   @Multibinds
   abstract Set<StaticSiteServiceDefinition> staticSites();
@@ -230,6 +236,7 @@ public abstract class ServerModule {
   @Singleton
   static Server armeriaServer(
       Set<BindableService> grpcServices,
+      Set<GrpcServiceDefinition> grpcServiceDefinitions,
       Set<StaticSiteServiceDefinition> staticSites,
       Set<Consumer<ServerBuilder>> serverCustomizers,
       MetricsHttpService metricsHttpService,
@@ -311,15 +318,29 @@ public abstract class ServerModule {
     sb.service("/internal/metrics", new PrometheusExporterHttpService(collectorRegistry));
 
     if (!grpcServices.isEmpty()) {
+      GrpcServiceDefinition definition =
+          new GrpcServiceDefinition.Builder()
+              .addAllServices(grpcServices)
+              .decorator(Function.identity())
+              .build();
+      grpcServiceDefinitions =
+          ImmutableSet.<GrpcServiceDefinition>builder()
+              .addAll(grpcServiceDefinitions)
+              .add(definition)
+              .build();
+    }
+
+    for (GrpcServiceDefinition definition : grpcServiceDefinitions) {
       GrpcServiceBuilder serviceBuilder =
           new GrpcServiceBuilder()
               .supportedSerializationFormats(GrpcSerializationFormats.values())
               .enableUnframedRequests(true);
-      grpcServices.forEach(serviceBuilder::addService);
+      definition.services().forEach(serviceBuilder::addService);
       if (!serverConfig.isDisableGrpcServiceDiscovery()) {
         serviceBuilder.addService(ProtoReflectionService.newInstance());
       }
-      Service<HttpRequest, HttpResponse> service = serviceBuilder.build();
+      Service<HttpRequest, HttpResponse> service =
+          serviceBuilder.build().decorate(definition.decorator());
       if (sslCommonNamesProvider.isPresent() && !serverConfig.isDisableSslAuthorization()) {
         service =
             new HttpAuthServiceBuilder()
@@ -336,7 +357,7 @@ public abstract class ServerModule {
                   PrometheusMetricCollectingService.newDecorator(
                       collectorRegistry, metricLabels, RpcMetricLabels.grpcRequestLabeler()))
               .decorate(HttpTracingService.newDecorator(tracing));
-      sb.serviceUnder(serverConfig.getGrpcPath(), service);
+      sb.serviceUnder(definition.path(), service);
     }
 
     if (javascriptStaticConfig.getVersion() != 0) {
