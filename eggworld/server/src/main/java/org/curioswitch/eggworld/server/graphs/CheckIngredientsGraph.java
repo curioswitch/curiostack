@@ -80,17 +80,22 @@ public class CheckIngredientsGraph {
 
   @Produces
   ListenableFuture<SearchResponse> doSearch(CheckIngredientsRequest request, YummlyApi yummly) {
-    List<String> ingredients = ImmutableList.<String>builder()
-        .addAll(IngredientConverter.FORWARD.convertAll(request.getSelectedIngredientList()))
-        .add(EggworldConstants.EGGS_INGREDIENT)
-        .build();
+    List<String> ingredients =
+        ImmutableList.<String>builder()
+            .addAll(IngredientConverter.FORWARD.convertAll(request.getSelectedIngredientList()))
+            .add(EggworldConstants.EGGS_INGREDIENT)
+            .build();
     return yummly.search(EggworldConstants.EGG_QUERY, ingredients, 1, true, INGREDIENT_FACET);
   }
 
   @Produces
   CheckIngredientsResponse response(SearchResponse searchResponse) {
     List<Ingredient> availableIngredients =
-        searchResponse.facetCounts().ingredient().entrySet().stream()
+        searchResponse
+            .facetCounts()
+            .ingredient()
+            .entrySet()
+            .stream()
             .filter(e -> SUPPORTED_INGREDIENTS.contains(e.getKey()) && e.getValue() > 0)
             .map(e -> IngredientConverter.REVERSE.convert(e.getKey()))
             .collect(toImmutableList());

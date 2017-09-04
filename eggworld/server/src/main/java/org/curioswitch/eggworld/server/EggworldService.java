@@ -47,8 +47,8 @@ class EggworldService extends EggworldServiceImplBase {
   }
 
   @Override
-  public void checkIngredients(CheckIngredientsRequest request,
-      StreamObserver<CheckIngredientsResponse> responseObserver) {
+  public void checkIngredients(
+      CheckIngredientsRequest request, StreamObserver<CheckIngredientsResponse> responseObserver) {
     FuturesExtra.addCallback(
         checkIngredientsGraph.get().graph(new CheckIngredientsGraph(request)).build().execute(),
         response -> {
@@ -59,8 +59,8 @@ class EggworldService extends EggworldServiceImplBase {
   }
 
   @Override
-  public void findRecipe(FindRecipeRequest request,
-      StreamObserver<FindRecipeResponse> responseObserver) {
+  public void findRecipe(
+      FindRecipeRequest request, StreamObserver<FindRecipeResponse> responseObserver) {
     super.findRecipe(request, responseObserver);
   }
 }

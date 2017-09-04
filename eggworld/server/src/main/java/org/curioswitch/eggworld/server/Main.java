@@ -38,8 +38,8 @@ import org.curioswitch.eggworld.server.yummly.YummlyApiModule;
 public class Main {
 
   @Module(
-      includes = {ServerModule.class, YummlyApiModule.class},
-      subcomponents = {CheckIngredientsGraph.Component.class}
+    includes = {ServerModule.class, YummlyApiModule.class},
+    subcomponents = {CheckIngredientsGraph.Component.class}
   )
   abstract static class MainModule {
     @Binds
