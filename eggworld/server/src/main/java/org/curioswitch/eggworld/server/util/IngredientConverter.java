@@ -44,7 +44,7 @@ public final class IngredientConverter extends Converter<Ingredient, String> {
         return "garlic";
       case ONION:
         return "onion";
-      case POTATO:
+      case POTATOES:
         return "potatoes";
       case SPINACH:
         return "spinach";
@@ -62,7 +62,7 @@ public final class IngredientConverter extends Converter<Ingredient, String> {
         return "pork";
       case BREAD:
         return "bread";
-      case CHILI:
+      case CHILE:
         return "chile";
       case CHOCOLATE:
         return "chocolate";
@@ -90,7 +90,7 @@ public final class IngredientConverter extends Converter<Ingredient, String> {
       case "onion":
         return Ingredient.ONION;
       case "potatoes":
-        return Ingredient.POTATO;
+        return Ingredient.POTATOES;
       case "spinach":
         return Ingredient.SPINACH;
       case "bacon":
@@ -108,7 +108,7 @@ public final class IngredientConverter extends Converter<Ingredient, String> {
       case "bread":
         return Ingredient.BREAD;
       case "chile":
-        return Ingredient.CHILI;
+        return Ingredient.CHILE;
       case "chocolate":
         return Ingredient.CHOCOLATE;
       case "honey":

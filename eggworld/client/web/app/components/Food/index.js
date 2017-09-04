@@ -24,7 +24,6 @@ type PropTypes = {
 };
 
 class Food extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-
   componentWillReceiveProps(nextProps: PropTypes) {
     if (!this.node || this.removed) {
       return;

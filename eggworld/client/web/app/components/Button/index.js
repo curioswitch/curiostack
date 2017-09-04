@@ -15,7 +15,6 @@ import buttonPressedSrc from './assets/button_pressed.png';
 import buttonUnpressedSrc from './assets/button_unpressed.png';
 
 class Button extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-
   props: {
     selected: boolean,
     x: number,

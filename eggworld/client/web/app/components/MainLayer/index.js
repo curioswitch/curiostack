@@ -15,7 +15,6 @@ import KonvaImage from 'components/KonvaImage';
 import eggImageSrc from './assets/egg.png';
 
 class MainLayer extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-
   props: {
     onSelectTab: (string) => void,
     selected: 'fruit'|'meat'|'other',

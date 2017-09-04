@@ -12,7 +12,6 @@ import { Layer } from 'react-konva';
 import Food from 'components/Food';
 
 class FoodLayer extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-
   props: {
     eatenFood: number[],
     ingredients: Array<{ key: number, name: string, imageSrc: string }>,
