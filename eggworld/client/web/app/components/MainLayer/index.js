@@ -16,7 +16,7 @@ import eggImageSrc from './assets/egg.png';
 
 type Props = {
   onSelectTab: (string) => void,
-  selected: 'fruit'|'meat'|'other',
+  selected: 'fruit' | 'meat' | 'other',
 };
 
 class MainLayer extends React.PureComponent<Props> { // eslint-disable-line react/prefer-stateless-function

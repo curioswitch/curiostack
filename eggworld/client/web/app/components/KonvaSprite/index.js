@@ -4,17 +4,23 @@
 *
 */
 
+// @flow
+
 import React from 'react';
 import { Sprite } from 'react-konva';
 
-type PropTypes = {
+type Props = {
   animation?: string,
   onFrameIndexChange: (any) => void,
   src: string,
   started: boolean,
 };
 
-class KonvaSprite extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+type State = {
+  image: ?window.Image,
+};
+
+class KonvaSprite extends React.PureComponent<Props, State> { // eslint-disable-line react/prefer-stateless-function
   state = {
     image: null,
   };
@@ -28,11 +34,13 @@ class KonvaSprite extends React.PureComponent { // eslint-disable-line react/pre
     };
     image.src = this.props.src;
     // While react-konva is supposed to handle this, it doesn't for some reason.
-    this.node.on('frameIndexChange', this.props.onFrameIndexChange);
+    if (this.node) {
+      this.node.on('frameIndexChange', this.props.onFrameIndexChange);
+    }
   }
 
-  componentWillReceiveProps(nextProps: PropTypes) {
-    if (nextProps.started === this.props.started) {
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.started === this.props.started || !this.node) {
       return;
     }
     if (nextProps.started) {
@@ -43,8 +51,6 @@ class KonvaSprite extends React.PureComponent { // eslint-disable-line react/pre
   }
 
   node: ?Sprite = null;
-
-  props: PropTypes;
 
   render() {
     // eslint-disable-next-line no-unused-vars
