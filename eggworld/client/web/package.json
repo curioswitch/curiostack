@@ -307,7 +307,6 @@
     "url-loader": "0.5.9",
     "webpack": "3.5.5",
     "webpack-dev-middleware": "1.12.0",
-    "webpack-hot-middleware": "2.18.2",
-    "yarn-upgrade-all": "0.1.8"
+    "webpack-hot-middleware": "2.18.2"
   }
 }
