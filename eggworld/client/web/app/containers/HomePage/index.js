@@ -36,7 +36,7 @@ import makeSelectHomePage from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
-type PropTypes = {
+type Props = {
   doCheckIngredients: (number[]) => void,
   eatenFood: Ingredient[],
   foodBeingEaten: ?Node,
@@ -47,14 +47,12 @@ type PropTypes = {
   usableFood: Ingredient[],
 };
 
-export class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-  componentWillReceiveProps(nextProps: PropTypes) {
+export class HomePage extends React.PureComponent<Props> { // eslint-disable-line react/prefer-stateless-function
+  componentWillReceiveProps(nextProps: Props) {
     if (nextProps.eatenFood.length !== this.props.eatenFood.length) {
       this.props.doCheckIngredients(nextProps.eatenFood);
     }
   }
-
-  props: PropTypes;
 
   render() {
     return (

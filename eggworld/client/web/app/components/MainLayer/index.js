@@ -14,12 +14,12 @@ import KonvaImage from 'components/KonvaImage';
 
 import eggImageSrc from './assets/egg.png';
 
-class MainLayer extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-  props: {
-    onSelectTab: (string) => void,
-    selected: 'fruit'|'meat'|'other',
-  };
+type Props = {
+  onSelectTab: (string) => void,
+  selected: 'fruit'|'meat'|'other',
+};
 
+class MainLayer extends React.PureComponent<Props> { // eslint-disable-line react/prefer-stateless-function
   render() {
     const { selected } = this.props;
     return (

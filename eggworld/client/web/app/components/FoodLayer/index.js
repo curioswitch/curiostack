@@ -11,15 +11,15 @@ import { Layer } from 'react-konva';
 
 import Food from 'components/Food';
 
-class FoodLayer extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-  props: {
-    eatenFood: number[],
-    ingredients: Array<{ key: number, name: string, imageSrc: string }>,
-    onFoodDragged: (any) => void,
-    usableFood: number[],
-    visible: boolean,
-  };
+type Props = {
+  eatenFood: number[],
+  ingredients: Array<{ key: number, name: string, imageSrc: string }>,
+  onFoodDragged: (any) => void,
+  usableFood: number[],
+  visible: boolean,
+};
 
+class FoodLayer extends React.PureComponent<Props> { // eslint-disable-line react/prefer-stateless-function
   render() {
     const startingX = 20;
     const deltaX = 380;

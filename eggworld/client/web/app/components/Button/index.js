@@ -14,15 +14,15 @@ import KonvaImage from 'components/KonvaImage';
 import buttonPressedSrc from './assets/button_pressed.png';
 import buttonUnpressedSrc from './assets/button_unpressed.png';
 
-class Button extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-  props: {
-    selected: boolean,
-    x: number,
-    y: number,
-    label: string,
-    onClick: () => void,
-  };
+type Props = {
+  selected: boolean,
+  x: number,
+  y: number,
+  label: string,
+  onClick: () => void,
+};
 
+class Button extends React.PureComponent<Props> { // eslint-disable-line react/prefer-stateless-function
   render() {
     return (
       <Group
@@ -51,9 +51,5 @@ class Button extends React.PureComponent { // eslint-disable-line react/prefer-s
     );
   }
 }
-
-Button.propTypes = {
-
-};
 
 export default Button;

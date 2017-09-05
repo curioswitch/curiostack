@@ -13,12 +13,12 @@ import KonvaSprite from 'components/KonvaSprite';
 
 import mouthSpriteSrc from './assets/mouth-sprite.png';
 
-class AnimationLayer extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-  props: {
-    onMouthAnimationFrame: () => void,
-    started: boolean,
-  };
+type Props = {
+  onMouthAnimationFrame: () => void,
+  started: boolean,
+};
 
+class AnimationLayer extends React.PureComponent<Props> { // eslint-disable-line react/prefer-stateless-function
   render() {
     return (
       <Layer>

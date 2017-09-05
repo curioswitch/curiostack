@@ -9,11 +9,15 @@
 import React from 'react';
 import { Image } from 'react-konva';
 
-type PropTypes = {
+type Props = {
   src: string,
 };
 
-class KonvaImage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+type State = {
+  image: ?window.Image,
+};
+
+class KonvaImage extends React.PureComponent<Props, State> { // eslint-disable-line react/prefer-stateless-function
   state = {
     image: null,
   };
@@ -30,14 +34,12 @@ class KonvaImage extends React.PureComponent { // eslint-disable-line react/pref
     image.src = this.props.src;
   }
 
-  componentWillReceiveProps(nextProps: PropTypes) {
+  componentWillReceiveProps(nextProps: Props) {
     if (nextProps.src === this.props.src || !this.state.image) {
       return;
     }
     this.state.image.src = nextProps.src;
   }
-
-  props: PropTypes;
 
   render() {
     return (

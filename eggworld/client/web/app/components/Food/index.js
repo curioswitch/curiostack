@@ -12,7 +12,7 @@ import { Group, Text } from 'react-konva';
 
 import KonvaImage from 'components/KonvaImage';
 
-type PropTypes = {
+type Props = {
   onFoodDragged: (any) => void,
   ingredient: number,
   x: number,
@@ -23,8 +23,8 @@ type PropTypes = {
   unusable: boolean, // eslint-disable-line react/no-unused-prop-types
 };
 
-class Food extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-  componentWillReceiveProps(nextProps: PropTypes) {
+class Food extends React.PureComponent<Props> { // eslint-disable-line react/prefer-stateless-function
+  componentWillReceiveProps(nextProps: Props) {
     if (!this.node || this.removed) {
       return;
     }
@@ -51,8 +51,6 @@ class Food extends React.PureComponent { // eslint-disable-line react/prefer-sta
   shouldComponentUpdate() {
     return false;
   }
-
-  props: PropTypes;
 
   node: ?Group = null;
   removed = false;
