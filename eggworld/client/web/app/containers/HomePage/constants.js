@@ -53,3 +53,6 @@ export const INGREDIENTS = {
     { key: Ingredient.WINE, name: 'ワイン', imageSrc: wineImageSrc },
   ],
 };
+
+export const INGREDIENTS_MAP = INGREDIENTS.fruit.concat(INGREDIENTS.meat).concat(INGREDIENTS.other).reduce(
+  (map, ingredientDetails) => Object.assign({}, map, { [ingredientDetails.key]: ingredientDetails }), {});

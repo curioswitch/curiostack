@@ -19,8 +19,8 @@ type PropTypes = {
   y: number,
   imageSrc: string,
   name: string,
-  removed: boolean, // eslint-disable-next-line react/no-unused-prop-types
-  unusable: boolean,
+  removed: boolean, // eslint-disable-line react/no-unused-prop-types
+  unusable: boolean, // eslint-disable-line react/no-unused-prop-types
 };
 
 class Food extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
@@ -38,6 +38,7 @@ class Food extends React.PureComponent { // eslint-disable-line react/prefer-sta
       this.removed = true;
     }
     if (nextProps.unusable) {
+      node.setDraggable(false);
       const image = node.children[0];
       image.cache();
       image.filters([Konva.Filters.Grayscale]);

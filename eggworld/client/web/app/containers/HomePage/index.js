@@ -9,6 +9,8 @@
 import type { Node } from 'konva';
 import type { Dispatch } from 'redux';
 
+import type { Ingredient } from 'curioswitch-eggworld-api/curioswitch/eggworld/eggworld-service_pb';
+
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
@@ -36,17 +38,16 @@ import saga from './saga';
 
 type PropTypes = {
   doCheckIngredients: (number[]) => void,
-  eatenFood: number[],
+  eatenFood: Ingredient[],
   foodBeingEaten: ?Node,
   onFoodDragged: (Node) => void,
   onMouthAnimationFrame: () => void,
   onSelectTab: (string) => void,
   selectedTab: 'fruit'|'meat'|'other',
-  usableFood: number[],
+  usableFood: Ingredient[],
 };
 
 export class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-
   componentWillReceiveProps(nextProps: PropTypes) {
     if (nextProps.eatenFood.length !== this.props.eatenFood.length) {
       this.props.doCheckIngredients(nextProps.eatenFood);
@@ -64,7 +65,7 @@ export class HomePage extends React.PureComponent { // eslint-disable-line react
         </Helmet>
         <Stage width={1080} height={1920}>
           <MainLayer selected={this.props.selectedTab} onSelectTab={this.props.onSelectTab} />
-          <FlowerLayer />
+          <FlowerLayer eatenFood={this.props.eatenFood} />
           <AnimationLayer
             onMouthAnimationFrame={this.props.onMouthAnimationFrame}
             started={this.props.foodBeingEaten !== null}

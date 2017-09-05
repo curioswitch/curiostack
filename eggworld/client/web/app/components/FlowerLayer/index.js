@@ -6,10 +6,14 @@
 
 // @flow
 
+import type { Ingredient } from 'curioswitch-eggworld-api/curioswitch/eggworld/eggworld-service_pb';
+
 import React from 'react';
-import { Layer } from 'react-konva';
+import { Group, Layer } from 'react-konva';
 
 import KonvaImage from 'components/KonvaImage';
+
+import { INGREDIENTS_MAP } from 'containers/HomePage/constants';
 
 import flowerImageSrc from './assets/flower1.png';
 
@@ -42,18 +46,32 @@ const FLOWER_LOCATIONS = [
 ];
 
 class FlowerLayer extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+  props: {
+    eatenFood: Ingredient[],
+  };
+
   render() {
     return (
       <Layer>
-        {FLOWER_LOCATIONS.map(({ x, y }) => (
-          <KonvaImage
-            key={`${x}:${y}`}
-            src={flowerImageSrc}
-            x={x}
-            y={y}
-            width={200}
-            height={200}
-          />
+        {this.props.eatenFood.map((ingredient, i) => (
+          <Group
+            key={ingredient}
+            x={FLOWER_LOCATIONS[i].x}
+            y={FLOWER_LOCATIONS[i].y}
+          >
+            <KonvaImage
+              src={flowerImageSrc}
+              width={200}
+              height={200}
+            />
+            <KonvaImage
+              src={INGREDIENTS_MAP[ingredient].imageSrc}
+              x={30}
+              y={30}
+              width={146}
+              height={146}
+            />
+          </Group>
         ))}
       </Layer>
     );
