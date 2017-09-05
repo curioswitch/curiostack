@@ -83,13 +83,15 @@ export class HomePage extends React.PureComponent<Props> { // eslint-disable-lin
   }
 
   hammerAnimation = new Animation((frame) => {
-    let angleDiff = frame.timeDiff * 360 / 10 / 1000;
+    let angleDiff = ((frame.timeDiff * 360) / 10) / 1000;
     const frameIndex = frame.time % 3000;
+    // eslint-disable-next-line no-empty
     if (frameIndex < 200) {
     } else if (frameIndex < 400) {
       angleDiff = -angleDiff;
     } else if (frameIndex < 600) {
       angleDiff = 0;
+    // eslint-disable-next-line no-empty
     } else if (frameIndex < 800) {
     } else if (frameIndex < 1000) {
       angleDiff = -angleDiff;
