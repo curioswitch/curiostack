@@ -220,6 +220,7 @@
     "babel-polyfill": "6.26.0",
     "chalk": "2.1.0",
     "compression": "1.7.0",
+    "yuki-createjs": "0.0.3",
     "cross-env": "5.0.5",
     "curioswitch-eggworld-api": "file:../../api/build/web",
     "express": "4.15.4",

@@ -8890,3 +8890,7 @@ yauzl@^2.2.1:
   dependencies:
     buffer-crc32 "~0.2.3"
     fd-slicer "~1.0.1"
+
+yuki-createjs@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/yuki-createjs/-/yuki-createjs-0.0.3.tgz#cdf25a7dd08116d6ab31fef17144e85771be4219"

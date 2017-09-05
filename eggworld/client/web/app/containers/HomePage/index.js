@@ -11,6 +11,8 @@ import type { Dispatch } from 'redux';
 
 import type { Ingredient } from 'curioswitch-eggworld-api/curioswitch/eggworld/eggworld-service_pb';
 
+import 'yuki-createjs/lib/soundjs-0.6.2.combined';
+
 import { Animation } from 'konva';
 import React from 'react';
 import { Helmet } from 'react-helmet';
@@ -38,6 +40,10 @@ import makeSelectHomePage from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
+import mogmogChokoSoundSrc from './assets/mogmog_choko.m4a';
+import mogmogCute1SoundSrc from './assets/mogmog_cute1.m4a';
+import mogmogNormal1SoundSrc from './assets/mogmog_normal1.m4a';
+
 type Props = {
   doCheckIngredients: (number[]) => void,
   doRotateHammer: (number) => void,
@@ -51,6 +57,18 @@ type Props = {
   usableFood: Ingredient[],
 };
 
+const createjs = global.createjs;
+
+createjs.Sound.registerSound(mogmogChokoSoundSrc, 'mogmog1');
+createjs.Sound.registerSound(mogmogCute1SoundSrc, 'mogmog2');
+createjs.Sound.registerSound(mogmogNormal1SoundSrc, 'mogmog3');
+
+function getRandomInt(min, max) {
+  const minCeil = Math.ceil(min);
+  const maxFloor = Math.floor(max);
+  return Math.floor(Math.random() * ((maxFloor - minCeil) + 1)) + minCeil;
+}
+
 export class HomePage extends React.PureComponent<Props> { // eslint-disable-line react/prefer-stateless-function
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.eatenFood.length !== this.props.eatenFood.length) {
@@ -58,6 +76,9 @@ export class HomePage extends React.PureComponent<Props> { // eslint-disable-lin
     }
     if (nextProps.eatenFood.length > 0 && !this.hammerAnimation.isRunning()) {
       this.hammerAnimation.start();
+    }
+    if (!this.props.foodBeingEaten && nextProps.foodBeingEaten) {
+      createjs.Sound.play(`mogmog${getRandomInt(1, 3)}`);
     }
   }
 
