@@ -13,6 +13,7 @@ import {
   drawStage,
   foodDragged,
   mouthAnimationFrame,
+  rotateHammer,
   selectTab,
 } from './actions';
 import { INGREDIENTS } from './constants';
@@ -36,6 +37,7 @@ function isInsideMouth(node) {
 const initialState = fromJS({
   eatenFood: Set(),
   foodBeingEaten: null,
+  hammerRotation: 0,
   selectedTab: 'fruit',
   usableFood: Set(INGREDIENTS.fruit.concat(INGREDIENTS.meat).concat(INGREDIENTS.other).map((item) => item.key)),
 });
@@ -60,5 +62,6 @@ export default handleActions({
       mouthAnimationFrameCount += 1;
     }
   }),
+  [rotateHammer]: (state, { payload }) => state.update('hammerRotation', (rotation) => rotation + payload),
   [selectTab]: (state, { payload }) => state.set('selectedTab', payload),
 }, initialState);

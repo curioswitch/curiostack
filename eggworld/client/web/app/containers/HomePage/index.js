@@ -11,6 +11,7 @@ import type { Dispatch } from 'redux';
 
 import type { Ingredient } from 'curioswitch-eggworld-api/curioswitch/eggworld/eggworld-service_pb';
 
+import { Animation } from 'konva';
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
@@ -29,6 +30,7 @@ import {
   checkIngredients,
   foodDragged,
   mouthAnimationFrame,
+  rotateHammer,
   selectTab,
 } from './actions';
 import { INGREDIENTS } from './constants';
@@ -38,12 +40,14 @@ import saga from './saga';
 
 type Props = {
   doCheckIngredients: (number[]) => void,
+  doRotateHammer: (number) => void,
   eatenFood: Ingredient[],
   foodBeingEaten: ?Node,
+  hammerRotation: number,
   onFoodDragged: (Node) => void,
   onMouthAnimationFrame: () => void,
   onSelectTab: (string) => void,
-  selectedTab: 'fruit'|'meat'|'other',
+  selectedTab: 'fruit' | 'meat' | 'other',
   usableFood: Ingredient[],
 };
 
@@ -52,7 +56,29 @@ export class HomePage extends React.PureComponent<Props> { // eslint-disable-lin
     if (nextProps.eatenFood.length !== this.props.eatenFood.length) {
       this.props.doCheckIngredients(nextProps.eatenFood);
     }
+    if (nextProps.eatenFood.length > 0 && !this.hammerAnimation.isRunning()) {
+      this.hammerAnimation.start();
+    }
   }
+
+  hammerAnimation = new Animation((frame) => {
+    let angleDiff = frame.timeDiff * 360 / 10 / 1000;
+    const frameIndex = frame.time % 3000;
+    if (frameIndex < 200) {
+    } else if (frameIndex < 400) {
+      angleDiff = -angleDiff;
+    } else if (frameIndex < 600) {
+      angleDiff = 0;
+    } else if (frameIndex < 800) {
+    } else if (frameIndex < 1000) {
+      angleDiff = -angleDiff;
+    } else {
+      angleDiff = 0;
+    }
+    if (angleDiff !== 0) {
+      this.props.doRotateHammer(angleDiff);
+    }
+  });
 
   render() {
     return (
@@ -66,6 +92,8 @@ export class HomePage extends React.PureComponent<Props> { // eslint-disable-lin
           <FlowerLayer eatenFood={this.props.eatenFood} />
           <AnimationLayer
             onMouthAnimationFrame={this.props.onMouthAnimationFrame}
+            hammerRotation={this.props.hammerRotation}
+            showHammer={this.props.eatenFood.length !== 0}
             started={this.props.foodBeingEaten !== null}
           />
           <FoodLayer
@@ -101,6 +129,7 @@ function mapDispatchToProps(dispatch: Dispatch<*>) {
   return {
     doCheckIngredients: (ingredients: number[]) => dispatch(checkIngredients(ingredients)),
     onFoodDragged: (food: Node) => dispatch(foodDragged(food)),
+    doRotateHammer: (angleDiff: number) => dispatch(rotateHammer(angleDiff)),
     onMouthAnimationFrame: () => dispatch(mouthAnimationFrame()),
     onSelectTab: (tab: string) => dispatch(selectTab(tab)),
     dispatch,
