@@ -1,8 +1,4 @@
-import isEmpty from 'lodash/isEmpty';
-import isFunction from 'lodash/isFunction';
-import isString from 'lodash/isString';
-import invariant from 'invariant';
-import conformsTo from 'lodash/conformsTo';
+// @flow
 
 import type { AsyncStore } from '../store';
 
@@ -12,31 +8,13 @@ import {
   RESTART_ON_REMOUNT,
 } from './constants';
 
-const allowedModes = [RESTART_ON_REMOUNT, DAEMON, ONCE_TILL_UNMOUNT];
-
-const checkKey = (key: string) => invariant(
-  !isEmpty(key),
-  '(app/utils...) injectSaga: Expected `key` to be a non empty string'
-);
-
-const checkDescriptor = (descriptor) => {
-  const shape = {
-    saga: isFunction,
-    mode: (mode) => isString(mode) && allowedModes.includes(mode),
-  };
-  invariant(
-    conformsTo(descriptor, shape),
-    '(app/utils...) injectSaga: Expected a valid saga descriptor'
-  );
-};
-
 export function injectSagaFactory(store: AsyncStore) {
-  return function injectSaga(key: string, descriptor = {}, args) {
+  return function injectSaga(
+    key: string,
+    descriptor: { saga: any, mode: RESTART_ON_REMOUNT | DAEMON | ONCE_TILL_UNMOUNT },
+    args: any) {
     const newDescriptor = { ...descriptor, mode: descriptor.mode || RESTART_ON_REMOUNT };
     const { saga, mode } = newDescriptor;
-
-    checkKey(key);
-    checkDescriptor(newDescriptor);
 
     let hasSaga = Reflect.has(store.injectedSagas, key);
 
@@ -56,9 +34,7 @@ export function injectSagaFactory(store: AsyncStore) {
 }
 
 export function ejectSagaFactory(store: AsyncStore) {
-  return function ejectSaga(key) {
-    checkKey(key);
-
+  return function ejectSaga(key: string) {
     if (Reflect.has(store.injectedSagas, key)) {
       const descriptor = store.injectedSagas[key];
       if (descriptor.mode !== DAEMON) {

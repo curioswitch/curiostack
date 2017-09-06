@@ -7,7 +7,7 @@
 // @flow
 
 import React from 'react';
-import {Layer} from 'react-konva';
+import { Layer } from 'react-konva';
 
 import KonvaImage from 'components/KonvaImage';
 import KonvaSprite from 'components/KonvaSprite';
