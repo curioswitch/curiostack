@@ -2859,9 +2859,9 @@ eslint-plugin-jsx-a11y@5.1.1:
     emoji-regex "^6.1.0"
     jsx-ast-utils "^1.4.0"
 
-eslint-plugin-react@7.3.0:
-  version "7.3.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-react/-/eslint-plugin-react-7.3.0.tgz#ca9368da36f733fbdc05718ae4e91f778f38e344"
+eslint-plugin-react@7.4.0-rc.0:
+  version "7.4.0-rc.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-react/-/eslint-plugin-react-7.4.0-rc.0.tgz#7544a6674ae5ad5ab1380ed38c312024daa133dc"
   dependencies:
     doctrine "^2.0.0"
     has "^1.0.1"
