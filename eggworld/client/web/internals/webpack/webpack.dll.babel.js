@@ -29,7 +29,9 @@ module.exports = require('./webpack.base.babel')({
     library: '[name]',
   },
   plugins: [
-    new webpack.DllPlugin({ name: '[name]', path: join(outputPath, '[name].json') }), // eslint-disable-line no-new
+    new webpack.DllPlugin({
+      name: '[name]',
+      path: join(outputPath, '[name].json') }),
   ],
   performance: {
     hints: false,
