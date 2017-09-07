@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableSet;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.server.AbstractPathMapping;
+import com.linecorp.armeria.server.PathMappingContext;
 import com.linecorp.armeria.server.PathMappingResult;
 import com.linecorp.armeria.server.Service;
 import com.linecorp.armeria.server.ServiceRequestContext;
@@ -38,7 +39,6 @@ import com.linecorp.armeria.server.composition.CompositeServiceEntry;
 import com.linecorp.armeria.server.file.HttpFileService;
 import com.linecorp.armeria.server.file.HttpFileServiceBuilder;
 import java.util.Set;
-import javax.annotation.Nullable;
 
 /**
  * A {@link com.linecorp.armeria.server.Service} which serves a singlepage static site (SPA). All
@@ -56,8 +56,8 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
     private static final ToIndexPathMapping SINGLETON = new ToIndexPathMapping();
 
     @Override
-    protected PathMappingResult doApply(String path, @Nullable String query) {
-      return PathMappingResult.of("/index.html", query);
+    protected PathMappingResult doApply(PathMappingContext mappingCtx) {
+      return PathMappingResult.of("/index.html", mappingCtx.query());
     }
 
     @Override
@@ -71,7 +71,7 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
     }
 
     @Override
-    public String metricName() {
+    public String meterTag() {
       return "index";
     }
   }

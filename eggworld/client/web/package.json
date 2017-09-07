@@ -21,7 +21,6 @@
     "preinstall": "npm run npmcheckversion",
     "postinstall": "npm run build:dll",
     "prebuild": "npm run build:clean",
-
     "build": "cross-env NODE_ENV=production webpack --config internals/webpack/webpack.prod.babel.js --color -p --progress --hide-modules --display-optimization-bailout",
     "build:clean": "rimraf ./build",
     "build:dll": "node ./internals/scripts/dependencies.js",
@@ -220,7 +219,6 @@
     "babel-polyfill": "6.26.0",
     "chalk": "2.1.0",
     "compression": "1.7.0",
-    "yuki-createjs": "0.0.3",
     "cross-env": "5.0.5",
     "curioswitch-eggworld-api": "file:../../api/build/web",
     "express": "4.15.4",
@@ -251,7 +249,8 @@
     "sanitize.css": "5.0.0",
     "styled-components": "2.1.2",
     "warning": "3.0.0",
-    "whatwg-fetch": "2.0.3"
+    "whatwg-fetch": "2.0.3",
+    "yuki-createjs": "0.0.3"
   },
   "devDependencies": {
     "add-asset-html-webpack-plugin": "2.0.1",

@@ -34,6 +34,7 @@ dependencies {
     api 'com.linecorp.armeria:armeria'
     api 'com.spotify:futures-extra'
     api 'com.typesafe:config'
+    api 'io.dropwizard.metrics:metrics-core'
     api 'io.grpc:grpc-core'
     api 'io.zipkin.brave:brave'
     api 'org.apache.logging.log4j:log4j-api'

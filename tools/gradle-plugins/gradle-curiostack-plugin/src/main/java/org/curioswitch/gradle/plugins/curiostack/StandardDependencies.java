@@ -113,17 +113,17 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.protobuf")
-              .version("3.3.1")
+              .version("3.4.0")
               .addModules("protobuf-java", "protobuf-java-util")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.protobuf")
-              .version("3.3.0")
+              .version("3.4.0")
               .addModules("protoc")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.52.0")
+              .version("0.53.0")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -174,7 +174,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("4.1.12.Final")
+              .version("4.1.15.Final")
               .addModules(
                   "netty-buffer",
                   "netty-codec",
@@ -192,7 +192,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("2.0.5.Final")
+              .version("2.0.6.Final")
               .addModules("netty-tcnative-boringssl-static")
               .build(),
           ImmutableDependencySet.builder()
@@ -257,7 +257,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.29")
+              .version("0.0.30")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()

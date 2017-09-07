@@ -42,8 +42,8 @@ import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import com.linecorp.armeria.server.healthcheck.HttpHealthCheckService;
 import com.linecorp.armeria.server.logging.LoggingServiceBuilder;
-import com.linecorp.armeria.server.metric.PrometheusExporterHttpService;
-import com.linecorp.armeria.server.metric.PrometheusMetricCollectingService;
+import com.linecorp.armeria.server.metric.MetricCollectingService;
+import com.linecorp.armeria.server.metric.PrometheusExpositionService;
 import com.linecorp.armeria.server.tracing.HttpTracingService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
@@ -55,6 +55,7 @@ import dagger.multibindings.Multibinds;
 import dagger.producers.Production;
 import io.grpc.BindableService;
 import io.grpc.protobuf.services.ProtoReflectionService;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.handler.codec.http2.Http2SecurityUtil;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
 import io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
@@ -108,7 +109,6 @@ import org.curioswitch.common.server.framework.grpc.GrpcServiceDefinition;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
-import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels.RpcMetricLabel;
 import org.curioswitch.common.server.framework.monitoring.StackdriverReporter;
 import org.curioswitch.common.server.framework.staticsite.JavascriptStaticService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
@@ -241,8 +241,8 @@ public abstract class ServerModule {
       Set<Consumer<ServerBuilder>> serverCustomizers,
       MetricsHttpService metricsHttpService,
       CollectorRegistry collectorRegistry,
+      MeterRegistry meterRegistry,
       Tracing tracing,
-      Set<RpcMetricLabel> metricLabels,
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
       Lazy<JavascriptStaticService> javascriptStaticService,
       Optional<SelfSignedCertificate> selfSignedCertificate,
@@ -315,7 +315,7 @@ public abstract class ServerModule {
     }
     sb.service("/internal/health", new HttpHealthCheckService());
     sb.service("/internal/dropwizard", metricsHttpService);
-    sb.service("/internal/metrics", new PrometheusExporterHttpService(collectorRegistry));
+    sb.service("/internal/metrics", new PrometheusExpositionService(collectorRegistry));
 
     if (!grpcServices.isEmpty()) {
       GrpcServiceDefinition definition =
@@ -354,8 +354,8 @@ public abstract class ServerModule {
       service =
           service
               .decorate(
-                  PrometheusMetricCollectingService.newDecorator(
-                      collectorRegistry, metricLabels, RpcMetricLabels.grpcRequestLabeler()))
+                  MetricCollectingService.newDecorator(
+                      RpcMetricLabels.grpcRequestLabeler("grpc_services")))
               .decorate(HttpTracingService.newDecorator(tracing));
       sb.serviceUnder(definition.path(), service);
     }
@@ -375,6 +375,7 @@ public abstract class ServerModule {
     }
 
     sb.decorator(new LoggingServiceBuilder().newDecorator());
+    sb.meterRegistry(meterRegistry);
 
     Server server = sb.build();
     server
