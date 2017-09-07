@@ -25,7 +25,6 @@
 package org.curioswitch.gradle.plugins.grpcapi;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.protobuf.gradle.ExecutableLocator;
 import com.google.protobuf.gradle.GenerateProtoTask.DescriptorSetOptions;
 import com.google.protobuf.gradle.ProtobufConfigurator;
@@ -34,7 +33,8 @@ import com.google.protobuf.gradle.ProtobufConvention;
 import com.google.protobuf.gradle.ProtobufPlugin;
 import com.moowork.gradle.node.NodeExtension;
 import com.moowork.gradle.node.NodePlugin;
-import com.moowork.gradle.node.yarn.YarnTask;
+import com.moowork.gradle.node.npm.NpmTask;
+import com.moowork.gradle.node.task.NodeTask;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.File;
 import java.io.IOException;
@@ -81,8 +81,8 @@ public class GrpcApiPlugin implements Plugin<Project> {
           + "  \"version\": \"latest\",\n"
           + "  \"main\": \"index.js\",\n"
           + "  \"dependencies\": {\n"
-          + "    \"@types/google-protobuf\": \"3.2.6\",\n"
-          + "    \"google-protobuf\": \"3.3.0\",\n"
+          + "    \"@types/google-protobuf\": \"3.2.7\",\n"
+          + "    \"google-protobuf\": \"3.4.0\",\n"
           + "    \"grpc-web-client\": \"0.3.0\"\n"
           + "  }\n"
           + "}";
@@ -208,13 +208,12 @@ public class GrpcApiPlugin implements Plugin<Project> {
           ImmutableGrpcExtension config = project.getExtensions().getByType(GrpcExtension.class);
 
           if (config.web()) {
-            YarnTask installTsProtocGen =
-                project.getTasks().create("installTsProtocGen", YarnTask.class);
+            NpmTask installTsProtocGen =
+                project.getTasks().create("installTsProtocGen", NpmTask.class);
             installTsProtocGen.setArgs(
                 ImmutableList.of(
-                    "add",
-                    "--dev",
-                    "--no-lockfile",
+                    "install",
+                    "--no-save",
                     "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION,
                     "typescript@" + TYPESCRIPT_VERSION));
             installTsProtocGen.getInputs().property("ts-protoc-gen-version", TS_PROTOC_GEN_VERSION);
@@ -279,19 +278,21 @@ public class GrpcApiPlugin implements Plugin<Project> {
                             throw new UncheckedIOException("Could not write package.json.", e);
                           }
                         });
-            YarnTask compileTypescript =
-                project.getTasks().create("compileTypescript", YarnTask.class);
-            compileTypescript.setArgs(
-                Iterables.concat(
-                    ImmutableList.of("run", "tsc"),
-                    (ConfigurableFileTree) project.fileTree("build/web").include("**/*.ts")));
-            compileTypescript.doLast(unused -> project.file("package.json").delete());
+            NodeTask compileTypescript =
+                project.getTasks().create("compileTypescript", NodeTask.class);
+            compileTypescript.dependsOn("generateProto");
+            compileTypescript.setScript(new File(project.getProjectDir(), "node_modules/.bin/tsc"));
 
             project
                 .getTasks()
                 .getByName("generateProto")
                 .dependsOn(addResolvedPluginScript)
-                .finalizedBy(addPackageJson, compileTypescript);
+                .finalizedBy(addPackageJson, compileTypescript)
+                .doLast(
+                    unused ->
+                        compileTypescript.setArgs(
+                            (ConfigurableFileTree)
+                                project.fileTree("build/web").include("**/*.ts")));
           }
         });
 
