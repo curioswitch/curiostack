@@ -34,7 +34,7 @@ import org.immutables.value.Value.Immutable;
 @Immutable
 @JsonDeserialize(as = ImmutableSearchResponse.class)
 public interface SearchResponse {
-  /** The total number of matchibng results. */
+  /** The total number of matching results. */
   int totalMatchCount();
 
   /** The facets of the search response. */

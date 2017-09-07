@@ -79,17 +79,18 @@ public class CheckIngredientsGraph {
   }
 
   @Produces
-  ListenableFuture<SearchResponse> doSearch(CheckIngredientsRequest request, YummlyApi yummly) {
+  static ListenableFuture<SearchResponse> doSearch(
+      CheckIngredientsRequest request, YummlyApi yummly) {
     List<String> ingredients =
         ImmutableList.<String>builder()
             .addAll(IngredientConverter.FORWARD.convertAll(request.getSelectedIngredientList()))
             .add(EggworldConstants.EGGS_INGREDIENT)
             .build();
-    return yummly.search(EggworldConstants.EGG_QUERY, ingredients, 1, true, INGREDIENT_FACET);
+    return yummly.search(EggworldConstants.EGG_QUERY, ingredients, 0, 1, true, INGREDIENT_FACET);
   }
 
   @Produces
-  CheckIngredientsResponse response(SearchResponse searchResponse) {
+  static CheckIngredientsResponse response(SearchResponse searchResponse) {
     List<Ingredient> availableIngredients =
         searchResponse
             .facetCounts()

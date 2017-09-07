@@ -47,12 +47,13 @@ const FLOWER_LOCATIONS = [
 
 type Props = {
   eatenFood: Ingredient[],
+  visible: boolean,
 };
 
 class FlowerLayer extends React.PureComponent<Props> { // eslint-disable-line react/prefer-stateless-function
   render() {
     return (
-      <Layer>
+      <Layer visible={this.props.visible}>
         {this.props.eatenFood.map((ingredient, i) => (
           <Group
             key={ingredient}

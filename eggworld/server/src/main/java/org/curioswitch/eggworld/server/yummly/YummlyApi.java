@@ -37,6 +37,7 @@ public interface YummlyApi {
   ListenableFuture<SearchResponse> search(
       @Query("q") String query,
       @Query("allowedIngredient[]") List<String> ingredients,
+      @Query("start") int start,
       @Query("maxResult") int maxResult,
       @Query("requirePictures") boolean requirePictures,
       @Query("facetField[]") List<String> facetFields);

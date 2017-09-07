@@ -10,7 +10,10 @@ import { fromJS, Set } from 'immutable';
 import { handleActions } from 'redux-actions';
 import {
   checkIngredientsResponse,
+  cook,
+  cookResponse,
   drawStage,
+  eggBreakingDone,
   foodDragged,
   mouthAnimationFrame,
   rotateHammer,
@@ -35,9 +38,12 @@ function isInsideMouth(node) {
 }
 
 const initialState = fromJS({
+  cooking: false,
   eatenFood: Set(),
+  eggBreakingDone: false,
   foodBeingEaten: null,
   hammerRotation: 0,
+  recipeUrl: null,
   selectedTab: 'fruit',
   usableFood: Set(INGREDIENTS.fruit.concat(INGREDIENTS.meat).concat(INGREDIENTS.other).map((item) => item.key)),
 });
@@ -48,7 +54,21 @@ let mouthAnimationFrameCount = 0;
 export default handleActions({
   [checkIngredientsResponse]: (state, { payload }: { payload: CheckIngredientsResponse }) =>
     state.set('usableFood', Set(payload.getSelectableIngredientList())),
+  [cook]: (state) => state.set('cooking', true),
+  [cookResponse]: (state, { payload }) => {
+    if (state.get('eggBreakingDone')) {
+      window.location.href = payload;
+    }
+    return state.set('recipeUrl', payload);
+  },
   [drawStage]: (state) => state.update('drawStageCount', (count) => count + 1),
+  [eggBreakingDone]: (state) => {
+    const recipeUrl = state.get('recipeUrl');
+    if (recipeUrl) {
+      window.location.href = recipeUrl;
+    }
+    return state.set('eggBreakingDone', true);
+  },
   [foodDragged]: (state, { payload }) => (isInsideMouth(payload.node) ? state.set('foodBeingEaten', payload) : state),
   [mouthAnimationFrame]: (state) => state.withMutations((mutable) => {
     if (mouthAnimationFrameCount === 12) {

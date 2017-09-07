@@ -30,6 +30,8 @@ import MainLayer from 'components/MainLayer';
 
 import {
   checkIngredients,
+  cook,
+  eggBreakingDone,
   foodDragged,
   mouthAnimationFrame,
   rotateHammer,
@@ -45,11 +47,14 @@ import mogmogCute1SoundSrc from './assets/mogmog_cute1.m4a';
 import mogmogNormal1SoundSrc from './assets/mogmog_normal1.m4a';
 
 type Props = {
+  cooking: boolean,
   doCheckIngredients: (number[]) => void,
+  doCook: () => void,
   doRotateHammer: (number) => void,
   eatenFood: Ingredient[],
   foodBeingEaten: ?Node,
   hammerRotation: number,
+  onEggBreakingDone: () => void,
   onFoodDragged: (Node) => void,
   onMouthAnimationFrame: () => void,
   onSelectTab: (string) => void,
@@ -76,6 +81,9 @@ export class HomePage extends React.PureComponent<Props> { // eslint-disable-lin
     }
     if (nextProps.eatenFood.length > 0 && !this.hammerAnimation.isRunning()) {
       this.hammerAnimation.start();
+    }
+    if (!this.props.cooking && nextProps.cooking) {
+      this.hammerAnimation.stop();
     }
     if (!this.props.foodBeingEaten && nextProps.foodBeingEaten) {
       createjs.Sound.play(`mogmog${getRandomInt(1, 3)}`);
@@ -104,6 +112,7 @@ export class HomePage extends React.PureComponent<Props> { // eslint-disable-lin
   });
 
   render() {
+    const { cooking } = this.props;
     return (
       <div>
         <Helmet>
@@ -111,13 +120,23 @@ export class HomePage extends React.PureComponent<Props> { // eslint-disable-lin
           <meta name="description" content="Description of HomePage" />
         </Helmet>
         <Stage width={1080} height={1920}>
-          <MainLayer selected={this.props.selectedTab} onSelectTab={this.props.onSelectTab} />
-          <FlowerLayer eatenFood={this.props.eatenFood} />
+          <MainLayer
+            selected={this.props.selectedTab}
+            cooking={cooking}
+            onEggBreakingDone={this.props.onEggBreakingDone}
+            onSelectTab={this.props.onSelectTab}
+          />
+          <FlowerLayer
+            eatenFood={this.props.eatenFood}
+            visible={!cooking}
+          />
           <AnimationLayer
+            onHammerClick={this.props.doCook}
             onMouthAnimationFrame={this.props.onMouthAnimationFrame}
             hammerRotation={this.props.hammerRotation}
             showHammer={this.props.eatenFood.length !== 0}
             started={this.props.foodBeingEaten !== null}
+            visible={!cooking}
           />
           <FoodLayer
             ingredients={INGREDIENTS.fruit}
@@ -151,9 +170,11 @@ const mapStateToProps = makeSelectHomePage();
 function mapDispatchToProps(dispatch: Dispatch<*>) {
   return {
     doCheckIngredients: (ingredients: number[]) => dispatch(checkIngredients(ingredients)),
+    doCook: () => dispatch(cook()),
     onFoodDragged: (food: Node) => dispatch(foodDragged(food)),
     doRotateHammer: (angleDiff: number) => dispatch(rotateHammer(angleDiff)),
     onMouthAnimationFrame: () => dispatch(mouthAnimationFrame()),
+    onEggBreakingDone: () => dispatch(eggBreakingDone()),
     onSelectTab: (tab: string) => dispatch(selectTab(tab)),
     dispatch,
   };

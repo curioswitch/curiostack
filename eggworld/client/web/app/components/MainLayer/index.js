@@ -11,23 +11,51 @@ import { Layer } from 'react-konva';
 
 import Button from 'components/Button';
 import KonvaImage from 'components/KonvaImage';
+import KonvaSprite from 'components/KonvaSprite';
 
 import eggImageSrc from './assets/egg.png';
+import eggBreakingSpriteSrc from './assets/eggbreaking-sprite.jpg';
 
 type Props = {
+  cooking: boolean,
+  onEggBreakingDone: () => void,
   onSelectTab: (string) => void,
   selected: 'fruit' | 'meat' | 'other',
 };
 
-class MainLayer extends React.PureComponent<Props> { // eslint-disable-line react/prefer-stateless-function
+class MainLayer extends React.PureComponent<Props> {
+  onEggBreakingFrameChange = (e: any) => {
+    if (e.newVal === 3) {
+      e.currentTarget.stop();
+      this.props.onEggBreakingDone();
+    }
+  };
+
   render() {
-    const { selected } = this.props;
+    const { cooking, selected } = this.props;
     return (
       <Layer>
         <KonvaImage
           src={eggImageSrc}
           width={1080}
           height={760}
+          visible={!cooking}
+        />
+        <KonvaSprite
+          src={eggBreakingSpriteSrc}
+          animation="break"
+          animations={{
+            break: [
+              0, 0, 1080, 769,
+              0, 881, 1080, 769,
+              0, 1762, 1080, 769,
+              0, 2643, 1080, 769,
+            ],
+          }}
+          frameRate={3}
+          onFrameIndexChange={this.onEggBreakingFrameChange}
+          started={cooking}
+          visible={cooking}
         />
         <KonvaImage
           src="http://static.yummly.com/api-logo.png"

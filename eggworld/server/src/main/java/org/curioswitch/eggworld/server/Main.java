@@ -28,23 +28,37 @@ import com.linecorp.armeria.server.Server;
 import dagger.Binds;
 import dagger.Component;
 import dagger.Module;
+import dagger.Provides;
 import dagger.multibindings.IntoSet;
 import io.grpc.BindableService;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
 import javax.inject.Singleton;
 import org.curioswitch.common.server.framework.ServerModule;
 import org.curioswitch.eggworld.server.graphs.CheckIngredientsGraph;
+import org.curioswitch.eggworld.server.graphs.FindRecipeGraph;
 import org.curioswitch.eggworld.server.yummly.YummlyApiModule;
 
 public class Main {
 
   @Module(
     includes = {ServerModule.class, YummlyApiModule.class},
-    subcomponents = {CheckIngredientsGraph.Component.class}
+    subcomponents = {
+      CheckIngredientsGraph.Component.class,
+      FindRecipeGraph.Component.class,
+    }
   )
   abstract static class MainModule {
     @Binds
     @IntoSet
     abstract BindableService service(EggworldService service);
+
+    @Provides
+    @Singleton
+    static Supplier<Random> randomSupplier() {
+      return ThreadLocalRandom::current;
+    }
   }
 
   @Singleton

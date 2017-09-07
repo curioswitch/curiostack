@@ -17,15 +17,17 @@ import mouthSpriteSrc from './assets/mouth-sprite.png';
 
 type Props = {
   hammerRotation: number,
+  onHammerClick: () => void,
   onMouthAnimationFrame: () => void,
   showHammer: boolean,
   started: boolean,
+  visible: boolean,
 };
 
 class AnimationLayer extends React.PureComponent<Props> { // eslint-disable-line react/prefer-stateless-function
   render() {
     return (
-      <Layer>
+      <Layer visible={this.props.visible}>
         <KonvaSprite
           src={mouthSpriteSrc}
           x={450}
@@ -46,7 +48,7 @@ class AnimationLayer extends React.PureComponent<Props> { // eslint-disable-line
           }}
           frameRate={10}
           onFrameIndexChange={this.props.onMouthAnimationFrame}
-          started={this.props.started}
+          started={this.props.started && this.props.visible}
         />
         <KonvaImage
           src={hammerImageSrc}
@@ -57,6 +59,7 @@ class AnimationLayer extends React.PureComponent<Props> { // eslint-disable-line
           offsetY={200}
           rotation={this.props.hammerRotation}
           visible={this.props.showHammer}
+          onClick={this.props.onHammerClick}
         />
       </Layer>
     );
