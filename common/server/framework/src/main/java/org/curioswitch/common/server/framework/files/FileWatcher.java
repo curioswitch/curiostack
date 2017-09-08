@@ -36,6 +36,8 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -124,15 +126,38 @@ public class FileWatcher implements AutoCloseable {
               })
           .forEach(
               path -> {
-                Path resolved = watchedDirs.get(key).resolve(path).toAbsolutePath();
-                Consumer<Path> callback = registeredPaths.get(resolved);
-                if (callback != null) {
+                final Path resolved;
+                try {
+                  resolved = watchedDirs.get(key).resolve(path).toRealPath();
+                } catch (IOException e) {
+                  logger.warn("Unexpected exception resolving path: {}", path, e);
+                  return;
+                }
+                Optional<Consumer<Path>> callback =
+                    registeredPaths
+                        .entrySet()
+                        .stream()
+                        .filter(
+                            e -> {
+                              try {
+                                return e.getKey().toRealPath().equals(resolved);
+                              } catch (IOException ex) {
+                                logger.warn(
+                                    "Unexpected exception resolving path: {}", e.getKey(), ex);
+                                return false;
+                              }
+                            })
+                        .map(Entry::getValue)
+                        .findFirst();
+                if (callback.isPresent()) {
                   logger.info("Processing update to path: " + resolved);
                   try {
-                    callback.accept(resolved);
+                    callback.get().accept(resolved);
                   } catch (Exception e) {
-                    logger.warn("Unexpected exception processing update to path: " + resolved, e);
+                    logger.warn("Unexpected exception processing update to path: {}", resolved, e);
                   }
+                } else {
+                  logger.info("Could not find callback for path: {}", resolved);
                 }
               });
 
