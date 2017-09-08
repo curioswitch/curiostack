@@ -292,7 +292,10 @@ public class GrpcApiPlugin implements Plugin<Project> {
                     unused ->
                         compileTypescript.setArgs(
                             (ConfigurableFileTree)
-                                project.fileTree("build/web").include("**/*.ts")));
+                                project
+                                    .fileTree("build/web")
+                                    .include("**/*.ts")
+                                    .exclude("**/*.d.ts")));
           }
         });
 
