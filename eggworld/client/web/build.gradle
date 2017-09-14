@@ -22,23 +22,12 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
+apply plugin: 'org.curioswitch.gradle-curio-web-plugin'
 
-archivesBaseName = 'eggworld-server'
-mainClassName = 'org.curioswitch.eggworld.server.Main'
+archivesBaseName = 'eggworld-client-web'
 
-dependencies {
-    compile project(':common:server:framework')
-    compile project(':eggworld:api')
-    compile project(':eggworld:client:web')
-
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
-    compile 'com.linecorp.armeria:armeria-retrofit2'
-    compile 'com.squareup.retrofit2:adapter-guava:2.3.0'
-    compile 'com.squareup.retrofit2:converter-jackson:2.3.0'
-
-    apt 'com.google.dagger:dagger-compiler'
-
-    apt 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
+web {
+    javaPackage = 'org.curioswitch.eggworld.web'
 }
+
+yarn.dependsOn ':eggworld:api:generateProto'

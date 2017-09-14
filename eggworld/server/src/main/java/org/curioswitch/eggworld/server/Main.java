@@ -36,6 +36,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import javax.inject.Singleton;
 import org.curioswitch.common.server.framework.ServerModule;
+import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
 import org.curioswitch.eggworld.server.graphs.CheckIngredientsGraph;
 import org.curioswitch.eggworld.server.graphs.FindRecipeGraph;
 import org.curioswitch.eggworld.server.yummly.YummlyApiModule;
@@ -53,6 +54,14 @@ public class Main {
     @Binds
     @IntoSet
     abstract BindableService service(EggworldService service);
+
+    @Provides
+    @IntoSet
+    static StaticSiteServiceDefinition staticSite() {
+      return new StaticSiteServiceDefinition.Builder()
+          .classpathRoot("/org/curioswitch/eggworld/web")
+          .build();
+    }
 
     @Provides
     @Singleton
