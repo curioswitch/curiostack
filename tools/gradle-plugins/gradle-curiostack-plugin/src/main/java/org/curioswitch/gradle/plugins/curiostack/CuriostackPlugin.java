@@ -83,8 +83,8 @@ import org.gradle.plugins.ide.idea.model.IdeaModule;
 
 public class CuriostackPlugin implements Plugin<Project> {
 
-  private static final String NODE_VERSION = "8.2.1";
-  private static final String YARN_VERSION = "0.27.5";
+  private static final String NODE_VERSION = "8.7.0";
+  private static final String YARN_VERSION = "1.2.1";
 
   @Override
   public void apply(Project rootProject) {

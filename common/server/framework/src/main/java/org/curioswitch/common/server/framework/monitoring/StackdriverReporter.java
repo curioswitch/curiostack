@@ -45,7 +45,7 @@ import zipkin.Span;
 import zipkin.reporter.Reporter;
 
 @Singleton
-public class StackdriverReporter implements Reporter<zipkin.Span>, Flushable, AutoCloseable {
+public class StackdriverReporter implements Reporter<Span>, Flushable, AutoCloseable {
 
   private static final Logger logger = LogManager.getLogger();
 

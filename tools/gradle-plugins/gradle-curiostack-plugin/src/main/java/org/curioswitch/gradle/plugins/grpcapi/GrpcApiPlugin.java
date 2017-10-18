@@ -69,8 +69,8 @@ import org.gradle.plugins.ide.idea.model.IdeaModule;
  */
 public class GrpcApiPlugin implements Plugin<Project> {
 
-  private static final String TS_PROTOC_GEN_VERSION = "0.3.3";
-  private static final String TYPESCRIPT_VERSION = "2.4.2";
+  private static final String TS_PROTOC_GEN_VERSION = "0.4.0";
+  private static final String TYPESCRIPT_VERSION = "2.5.3";
 
   private static final String RESOLVED_PLUGIN_SCRIPT_TEMPLATE =
       "#!|NODE_PATH|\n" + "" + "require('../ts-protoc-gen/lib/ts_index');";
@@ -83,7 +83,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
           + "  \"dependencies\": {\n"
           + "    \"@types/google-protobuf\": \"3.2.7\",\n"
           + "    \"google-protobuf\": \"3.4.0\",\n"
-          + "    \"grpc-web-client\": \"0.3.0\"\n"
+          + "    \"grpc-web-client\": \"0.3.1\"\n"
           + "  }\n"
           + "}";
 
