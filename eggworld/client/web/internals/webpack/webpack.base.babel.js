@@ -52,10 +52,22 @@ module.exports = (options) => ({
           {
             loader: 'image-webpack-loader',
             options: {
-              progressive: true,
-              optimizationLevel: 7,
-              interlaced: false,
+              mozjpeg: {
+                enabled: false,
+                quality: 65,
+                progressive: true,
+              },
+              gifsicle: {
+                optimizationLevel: 7,
+                interlaced: false,
+              },
+              optipng: {
+                enabled: false,
+                optimizationLevel: 7,
+                interlaced: false,
+              },
               pngquant: {
+                enabled: false,
                 quality: '65-90',
                 speed: 4,
               },

@@ -77,6 +77,11 @@ class StandardDependencies {
               .addModules("jackson-datatype-guava", "jackson-datatype-jsr310")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.github.ben-manes.caffeine")
+              .version("2.5.6")
+              .addModules("caffeine")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.google.code.findbugs")
               .version("3.0.2")
               .addModules("jsr305")
@@ -108,7 +113,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.guava")
-              .version("23.2-jre")
+              .version("23.3-jre")
               .addModules("guava", "guava-testlib")
               .build(),
           ImmutableDependencySet.builder()
@@ -123,7 +128,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.53.2")
+              .version("0.54.1")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -164,13 +169,21 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.fabric8")
-              .version("3.0.0")
+              .version("3.0.2")
               .addModules("kubernetes-client")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.grpc")
               .version("1.7.0")
-              .addModules("grpc-core", "grpc-protobuf", "grpc-services", "grpc-stub")
+              .addModules(
+                  "grpc-all",
+                  "grpc-auth",
+                  "grpc-core",
+                  "grpc-netty",
+                  "grpc-okhttp",
+                  "grpc-protobuf",
+                  "grpc-services",
+                  "grpc-stub")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
@@ -197,12 +210,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.prometheus")
-              .version("0.0.26")
+              .version("0.1.0")
               .addModules("simpleclient_hotspot", "simpleclient_log4j2")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("4.7.2")
+              .version("4.6.0")
               .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
@@ -217,8 +230,8 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.7.6")
-              .addModules("byte-buddy")
+              .version("1.7.8")
+              .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.apache.httpcomponents")
@@ -271,6 +284,11 @@ class StandardDependencies {
               .addModules("builder", "value")
               .build(),
           ImmutableDependencySet.builder()
+              .group("org.javassist")
+              .version("3.22.0-GA")
+              .addModules("javassist")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("org.jctools")
               .version("2.1.1")
               .addModules("jctools-core")
@@ -294,13 +312,18 @@ class StandardDependencies {
               .group("org.slf4j")
               .version("1.7.25")
               .addModules("slf4j-api")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("org.snakeyaml")
+              .version("1.19")
+              .addModules("snakeyaml")
               .build());
 
   static final List<String> DEPENDENCIES =
       ImmutableList.of(
           "com.bmuschko:gradle-docker-plugin:3.2.0",
           "com.diffplug.spotless:spotless-plugin-gradle:3.6.0",
-          "com.github.ben-manes:gradle-versions-plugin:0.15.0",
+          "com.github.ben-manes:gradle-versions-plugin:0.17.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.3",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3",
           "com.moowork.gradle:gradle-node-plugin:1.2.0",
