@@ -509,7 +509,8 @@ abstract class WellKnownTypeMarshaller<T extends Message> extends TypeSpecificMa
         if (parser.getCurrentName().equals("value")) {
           builder.setValue(contentMarshaller.readValue(parser, currentDepth).toByteString());
         }
-        // Well-known types will not finish parsing the current object (they don't readValue objects),
+        // Well-known types will not finish parsing the current object (they don't readValue
+        // objects),
         // so we close it here.
         if (parser.nextValue() != JsonToken.END_OBJECT) {
           throw new InvalidProtocolBufferException(

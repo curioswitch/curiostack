@@ -40,7 +40,6 @@ dependencies {
     api 'org.apache.logging.log4j:log4j-api'
     api 'org.jooq:jooq'
 
-    implementation 'com.google.cloud.trace.adapters.zipkin:translation'
     implementation 'com.google.dagger:dagger-producers'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
@@ -87,4 +86,9 @@ publishing {
             }
         }
     }
+}
+
+// TODO(choko): Remove after stackdriver-zipkin is released
+license {
+    exclude 'com/google/**'
 }

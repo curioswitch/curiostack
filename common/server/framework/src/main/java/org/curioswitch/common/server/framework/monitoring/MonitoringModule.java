@@ -112,7 +112,7 @@ public abstract class MonitoringModule {
             .traceId128Bit(true)
             .sampler(Sampler.ALWAYS_SAMPLE);
     if (config.isReportTraces()) {
-      builder.reporter(reporter.get());
+      builder.spanReporter(reporter.get());
     }
     return builder.build();
   }

@@ -70,7 +70,7 @@ import org.gradle.plugins.ide.idea.model.IdeaModule;
 public class GrpcApiPlugin implements Plugin<Project> {
 
   private static final String TS_PROTOC_GEN_VERSION = "0.4.0";
-  private static final String TYPESCRIPT_VERSION = "2.5.3";
+  private static final String TYPESCRIPT_VERSION = "2.6.2";
 
   private static final String RESOLVED_PLUGIN_SCRIPT_TEMPLATE =
       "#!|NODE_PATH|\n" + "" + "require('../ts-protoc-gen/lib/ts_index');";
@@ -82,7 +82,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
           + "  \"main\": \"index.js\",\n"
           + "  \"dependencies\": {\n"
           + "    \"@types/google-protobuf\": \"3.2.7\",\n"
-          + "    \"google-protobuf\": \"3.4.0\",\n"
+          + "    \"google-protobuf\": \"3.5.0\",\n"
           + "    \"grpc-web-client\": \"0.3.1\"\n"
           + "  }\n"
           + "}";
@@ -221,8 +221,10 @@ public class GrpcApiPlugin implements Plugin<Project> {
             installTsProtocGen.getOutputs().dir("node_modules/ts-protoc-gen");
             installTsProtocGen.getOutputs().dir("node_modules/typescript");
 
-            // gradle-protobuf-plugin does not allow manipulating PATH for protoc invocation, so there's no way
-            // to point it at our downloaded nodejs. We go ahead and create our own plugin executable with the
+            // gradle-protobuf-plugin does not allow manipulating PATH for protoc invocation, so
+            // there's no way
+            // to point it at our downloaded nodejs. We go ahead and create our own plugin
+            // executable with the
             // nodejs path resolved.
             Task addResolvedPluginScript =
                 project

@@ -304,7 +304,8 @@ public class MessageMarshallerTest {
   @Test
   public void parserRejectDuplicatedFields() throws Exception {
     // NOTE: Upstream parser does not correctly reject duplicates with the same field variableName,
-    // only when json variableName and proto variableName are both specified. We handle both cases. Also, since
+    // only when json variableName and proto variableName are both specified. We handle both cases.
+    // Also, since
     // we keep track based on field number, the logic is much simpler so most of these tests
     // are redundant and just preserved to maintain parity with upstream.
 

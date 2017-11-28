@@ -24,7 +24,6 @@
 
 package org.curioswitch.gradle.plugins.curiostack;
 
-import com.diffplug.gradle.spotless.JavaExtension;
 import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
 import com.github.benmanes.gradle.versions.VersionsPlugin;
@@ -60,6 +59,7 @@ import nl.javadude.gradle.plugins.license.LicensePlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.curioswitch.gradle.plugins.monorepo.MonorepoCircleCiPlugin;
+import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -83,8 +83,9 @@ import org.gradle.plugins.ide.idea.model.IdeaModule;
 
 public class CuriostackPlugin implements Plugin<Project> {
 
-  private static final String NODE_VERSION = "8.7.0";
-  private static final String YARN_VERSION = "1.2.1";
+  private static final String GOOGLE_JAVA_FORMAT_VERSION = "1.5";
+  private static final String NODE_VERSION = "9.2.0";
+  private static final String YARN_VERSION = "1.3.2";
 
   @Override
   public void apply(Project rootProject) {
@@ -155,6 +156,17 @@ public class CuriostackPlugin implements Plugin<Project> {
                             "proto", "JAVADOC_STYLE",
                             "yml", "SCRIPT_STYLE"));
                   });
+
+          project
+              .getPlugins()
+              .withType(
+                  NodePlugin.class,
+                  unused -> {
+                    NodeExtension node = project.getExtensions().getByType(NodeExtension.class);
+                    node.setVersion(NODE_VERSION);
+                    node.setYarnVersion(YARN_VERSION);
+                    node.setDownload(true);
+                  });
         });
 
     rootProject
@@ -200,8 +212,11 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     project.getTasks().withType(JavaCompile.class, task -> task.getOptions().setIncremental(true));
 
-    SourceSetContainer sourceSets =
-        project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets();
+    JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
+    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_1_8);
+    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_1_8);
+
+    SourceSetContainer sourceSets = javaPlugin.getSourceSets();
     setupAptSourceSet(project, sourceSets.getByName("main"));
     setupAptSourceSet(project, sourceSets.getByName("test"));
 
@@ -274,7 +289,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
 
     SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
-    spotless.java(JavaExtension::googleJavaFormat);
+    spotless.java((extension) -> extension.googleJavaFormat(GOOGLE_JAVA_FORMAT_VERSION));
 
     project
         .getTasks()
@@ -316,7 +331,8 @@ public class CuriostackPlugin implements Plugin<Project> {
             JMHPlugin.class,
             unused -> {
               JMHPluginExtension jmh = project.getExtensions().getByType(JMHPluginExtension.class);
-              // Benchmarks are usually very small and converge quickly. If this stops being the case
+              // Benchmarks are usually very small and converge quickly. If this stops being the
+              // case
               // these numbers can be adjusted.
               jmh.setFork(2);
               jmh.setIterations(5);
@@ -330,16 +346,20 @@ public class CuriostackPlugin implements Plugin<Project> {
               }
 
               // We will use the jmhManaged for any dependencies that should only be applied to JMH
-              // but should be resolved by our managed dependencies. We need a separate configuration
+              // but should be resolved by our managed dependencies. We need a separate
+              // configuration
               // to be able to provide the resolution workaround described below.
               Configuration jmhManaged = project.getConfigurations().create("jmhManaged");
               Configuration jmhConfiguration =
                   project.getConfigurations().getByName(JMHPlugin.JMH_NAME);
               jmhConfiguration.extendsFrom(jmhManaged);
 
-              // JMH plugin uses a detached configuration to build an uber-jar, which dependencyManagement
-              // doesn't know about. Work around this by forcing parent configurations to be resolved and
-              // added directly to the jmh configuration, which overwrites the otherwise unresolvable
+              // JMH plugin uses a detached configuration to build an uber-jar, which
+              // dependencyManagement
+              // doesn't know about. Work around this by forcing parent configurations to be
+              // resolved and
+              // added directly to the jmh configuration, which overwrites the otherwise
+              // unresolvable
               // dependency.
               project.afterEvaluate(
                   p -> {
@@ -358,17 +378,6 @@ public class CuriostackPlugin implements Plugin<Project> {
                                       });
                             });
                   });
-            });
-
-    project
-        .getPlugins()
-        .withType(
-            NodePlugin.class,
-            unused -> {
-              NodeExtension node = project.getExtensions().getByType(NodeExtension.class);
-              node.setVersion(NODE_VERSION);
-              node.setYarnVersion(YARN_VERSION);
-              node.setDownload(true);
             });
   }
 

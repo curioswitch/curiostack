@@ -22,25 +22,8 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.common.server.framework.monitoring;
-
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.linecorp.armeria.common.metric.MeterIdPrefix;
-import com.linecorp.armeria.common.metric.MeterIdPrefixFunction;
-import java.util.List;
-
-public final class RpcMetricLabels {
-
-  private static final Splitter PATH_SPLITTER = Splitter.on('/');
-
-  public static MeterIdPrefixFunction grpcRequestLabeler(String name) {
-    return (registry, log) -> {
-      // The service name and method name will always be the last two path components.
-      List<String> methodParts = ImmutableList.copyOf(PATH_SPLITTER.split(log.path())).reverse();
-      return new MeterIdPrefix(name, "service", methodParts.get(1), "method", methodParts.get(0));
-    };
-  }
-
-  private RpcMetricLabels() {}
-}
+/**
+ * Temporary fork of https://github.com/GoogleCloudPlatform/stackdriver-zipkin to support latest
+ * Brave version.
+ */
+package com.google.cloud.trace.zipkin.translation;
