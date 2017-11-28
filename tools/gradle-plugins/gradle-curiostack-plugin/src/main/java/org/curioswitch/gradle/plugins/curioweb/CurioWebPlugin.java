@@ -30,10 +30,12 @@ import com.moowork.gradle.node.NodePlugin;
 import com.moowork.gradle.node.yarn.YarnTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Copy;
+import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.SourceSet;
 
 /**
@@ -54,6 +56,13 @@ public class CurioWebPlugin implements Plugin<Project> {
         .getByName(SourceSet.MAIN_SOURCE_SET_NAME)
         .getOutput()
         .dir(ImmutableMap.of("builtBy", "copyWeb"), "build/javaweb");
+
+    // Since yarn is very fast, go ahead and clean node_modules too to prevent inconsistency.
+    project.getTasks().getByName(BasePlugin.CLEAN_TASK_NAME, task -> {
+      Delete castTask = (Delete) task;
+      castTask.delete(project.file("node_modules"));
+    });
+
 
     CacheableYarnTask buildWeb = project.getTasks().create("buildWeb", CacheableYarnTask.class);
     buildWeb.dependsOn("yarn");
