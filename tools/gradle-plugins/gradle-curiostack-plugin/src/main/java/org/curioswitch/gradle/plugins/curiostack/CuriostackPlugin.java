@@ -72,6 +72,7 @@ import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.PluginContainer;
+import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.compile.JavaCompile;
@@ -379,6 +380,13 @@ public class CuriostackPlugin implements Plugin<Project> {
                             });
                   });
             });
+
+    // It is very common to want to pass in command line system properties to the binary, so just
+    // always forward properties. It won't affect production since no one runs binaries via Gradle
+    // in production.
+    project.getTasks().withType(JavaExec.class, task ->
+      System.getProperties().forEach((key, value) -> task.systemProperty((String) key, value))
+    );
   }
 
   private static void setupAptSourceSet(Project project, SourceSet sourceSet) {
