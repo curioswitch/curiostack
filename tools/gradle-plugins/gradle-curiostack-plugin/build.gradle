@@ -77,6 +77,7 @@ dependencies {
     compile 'io.fabric8:kubernetes-client'
     compile 'io.spring.gradle:dependency-management-plugin'
     compile 'me.champeau.gradle:jmh-gradle-plugin'
+    compile 'net.ltgt.gradle:gradle-apt-plugin'
     compile 'org.bouncycastle:bcpkix-jdk15on'
 
     runtime 'mysql:mysql-connector-java'

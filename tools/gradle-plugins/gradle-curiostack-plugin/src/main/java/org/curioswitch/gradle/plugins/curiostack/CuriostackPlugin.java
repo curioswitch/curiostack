@@ -37,7 +37,6 @@ import com.gorylenko.GitPropertiesPlugin;
 import com.moowork.gradle.node.NodeExtension;
 import com.moowork.gradle.node.NodePlugin;
 import com.palantir.baseline.plugins.BaselineIdea;
-import groovy.util.Node;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.File;
@@ -48,12 +47,11 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
 import me.champeau.gradle.JMHPlugin;
 import me.champeau.gradle.JMHPluginExtension;
+import net.ltgt.gradle.apt.AptIdeaPlugin;
+import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleAptConvention;
+import net.ltgt.gradle.apt.AptPlugin;
 import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
@@ -63,9 +61,9 @@ import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.JavaLibraryPlugin;
@@ -169,17 +167,6 @@ public class CuriostackPlugin implements Plugin<Project> {
                     node.setDownload(true);
                   });
         });
-
-    rootProject
-        .getPlugins()
-        .withType(
-            IdeaPlugin.class,
-            idea -> {
-              idea.getModel()
-                  .getProject()
-                  .getIpr()
-                  .withXml(CuriostackPlugin::addAnnotationProcessingXml);
-            });
   }
 
   private static void setupRepositories(Project project) {
@@ -202,6 +189,8 @@ public class CuriostackPlugin implements Plugin<Project> {
 
   private static void setupJavaProject(Project project) {
     PluginContainer plugins = project.getPlugins();
+    plugins.apply(AptPlugin.class);
+    plugins.apply(AptIdeaPlugin.class);
     plugins.apply(BaselineIdea.class);
     plugins.apply(DependencyManagementPlugin.class);
     plugins.apply(GitPropertiesPlugin.class);
@@ -216,10 +205,6 @@ public class CuriostackPlugin implements Plugin<Project> {
     JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
     javaPlugin.setSourceCompatibility(JavaVersion.VERSION_1_8);
     javaPlugin.setTargetCompatibility(JavaVersion.VERSION_1_8);
-
-    SourceSetContainer sourceSets = javaPlugin.getSourceSets();
-    setupAptSourceSet(project, sourceSets.getByName("main"));
-    setupAptSourceSet(project, sourceSets.getByName("test"));
 
     // While Gradle attempts to generate a unique module name automatically,
     // it doesn't seem to always work properly, so we just always use unique
@@ -237,6 +222,12 @@ public class CuriostackPlugin implements Plugin<Project> {
                 ancestor = ancestor.getParent();
               }
               module.setName(moduleName);
+
+              new DslObject(module)
+                  .getConvention()
+                  .getPlugin(ModuleAptConvention.class)
+                  .getApt()
+                  .setAddAptDependencies(false);
             });
 
     DependencyManagementExtension dependencyManagement =
@@ -279,6 +270,7 @@ public class CuriostackPlugin implements Plugin<Project> {
               javadocJar.from(javadoc.getDestinationDir());
             });
 
+    SourceSetContainer sourceSets = javaPlugin.getSourceSets();
     project
         .getTasks()
         .create(
@@ -286,7 +278,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             Jar.class,
             sourceJar -> {
               sourceJar.setClassifier("sources");
-              sourceJar.from(sourceSets.getByName("main").getAllSource());
+              sourceJar.from(sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME).getAllSource());
             });
 
     SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
@@ -389,50 +381,6 @@ public class CuriostackPlugin implements Plugin<Project> {
     );
   }
 
-  private static void setupAptSourceSet(Project project, SourceSet sourceSet) {
-    // HACK: Configurations usually use the same naming logic/scheme as for tasks
-    Configuration aptConfiguration =
-        project.getConfigurations().create(sourceSet.getTaskName("", "apt"));
-    project
-        .getConfigurations()
-        .getByName(sourceSet.getTaskName("", "compileOnly"))
-        .extendsFrom(aptConfiguration);
-
-    File outputDir = project.file("build/generated/source/apt/" + sourceSet.getName());
-    String outputDirPath = outputDir.getAbsolutePath();
-    project
-        .getTasks()
-        .getByName(
-            sourceSet.getCompileJavaTaskName(),
-            t -> {
-              JavaCompile task = (JavaCompile) t;
-              task.getOptions().setAnnotationProcessorPath(aptConfiguration);
-              task.getOptions().getCompilerArgs().addAll(ImmutableList.of("-s", outputDirPath));
-              task.doFirst(
-                  unused -> {
-                    project.mkdir(outputDirPath);
-                  });
-            });
-
-    project
-        .getPlugins()
-        .withType(
-            IdeaPlugin.class,
-            plugin -> {
-              IdeaModule module = plugin.getModel().getModule();
-              if (sourceSet.getName().equals("test")) {
-                Set<File> testSrcDirs = module.getTestSourceDirs();
-                testSrcDirs.add(outputDir);
-                module.setTestSourceDirs(testSrcDirs);
-              } else {
-                Set<File> srcDirs = module.getSourceDirs();
-                srcDirs.add(outputDir);
-                module.setSourceDirs(srcDirs);
-              }
-              module.getGeneratedSourceDirs().add(outputDir);
-            });
-  }
-
   private static void addStandardJavaTestDependencies(Project project) {
     Configuration testConfiguration =
         project.getPlugins().hasPlugin(JavaLibraryPlugin.class)
@@ -448,39 +396,5 @@ public class CuriostackPlugin implements Plugin<Project> {
     dependencies.add(testConfiguration.getName(), "junit:junit");
     dependencies.add(testConfiguration.getName(), "org.mockito:mockito-core");
     dependencies.add(testConfiguration.getName(), "info.solidsoft.mockito:mockito-java8");
-  }
-
-  private static Optional<Node> findChild(Node node, Predicate<Node> predicate) {
-    // Should work.
-    @SuppressWarnings("unchecked")
-    List<Node> children = (List<Node>) node.children();
-    return children.stream().filter(predicate).findFirst();
-  }
-
-  // Using groovy's XmlProvider from Java is very verbose, but this is the only time we need to, so
-  // live with it.
-  private static void addAnnotationProcessingXml(XmlProvider xml) {
-    Node compilerConfiguration =
-        findChild(
-                xml.asNode(),
-                node ->
-                    node.name().equals("component")
-                        && node.attribute("name").equals("CompilerConfiguration"))
-            .orElseGet(
-                () ->
-                    xml.asNode()
-                        .appendNode("component", ImmutableMap.of("name", "CompilerConfiguration")));
-    findChild(compilerConfiguration, node -> node.name().equals("annotationProcessing"))
-        .ifPresent(compilerConfiguration::remove);
-    Node profile =
-        compilerConfiguration
-            .appendNode("annotationProcessing")
-            .appendNode(
-                "profile",
-                ImmutableMap.of("name", "Default", "enabled", "true", "default", "true"));
-    profile.appendNode("outputRelativeToContentRoot", ImmutableMap.of("value", "true"));
-    profile.appendNode("processorPath", ImmutableMap.of("useClasspath", "true"));
-    profile.appendNode("sourceOutputDir", ImmutableMap.of("name", "."));
-    profile.appendNode("sourceTestOutputDir", ImmutableMap.of("name", "."));
   }
 }
