@@ -376,9 +376,13 @@ public class CuriostackPlugin implements Plugin<Project> {
     // It is very common to want to pass in command line system properties to the binary, so just
     // always forward properties. It won't affect production since no one runs binaries via Gradle
     // in production.
-    project.getTasks().withType(JavaExec.class, task ->
-      System.getProperties().forEach((key, value) -> task.systemProperty((String) key, value))
-    );
+    project
+        .getTasks()
+        .withType(
+            JavaExec.class,
+            task ->
+                System.getProperties()
+                    .forEach((key, value) -> task.systemProperty((String) key, value)));
   }
 
   private static void addStandardJavaTestDependencies(Project project) {

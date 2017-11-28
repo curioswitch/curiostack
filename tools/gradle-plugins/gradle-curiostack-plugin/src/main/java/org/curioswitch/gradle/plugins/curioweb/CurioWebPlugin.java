@@ -58,11 +58,14 @@ public class CurioWebPlugin implements Plugin<Project> {
         .dir(ImmutableMap.of("builtBy", "copyWeb"), "build/javaweb");
 
     // Since yarn is very fast, go ahead and clean node_modules too to prevent inconsistency.
-    project.getTasks().getByName(BasePlugin.CLEAN_TASK_NAME, task -> {
-      Delete castTask = (Delete) task;
-      castTask.delete(project.file("node_modules"));
-    });
-
+    project
+        .getTasks()
+        .getByName(
+            BasePlugin.CLEAN_TASK_NAME,
+            task -> {
+              Delete castTask = (Delete) task;
+              castTask.delete(project.file("node_modules"));
+            });
 
     CacheableYarnTask buildWeb = project.getTasks().create("buildWeb", CacheableYarnTask.class);
     buildWeb.dependsOn("yarn");
