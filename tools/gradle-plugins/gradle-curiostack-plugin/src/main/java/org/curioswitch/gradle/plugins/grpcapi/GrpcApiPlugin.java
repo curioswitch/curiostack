@@ -72,11 +72,12 @@ import org.gradle.plugins.ide.idea.model.IdeaModule;
  */
 public class GrpcApiPlugin implements Plugin<Project> {
 
+  private static final String PROTOC_GEN_FLOW_VERSION = "1.0.0-alpha.11";
   private static final String TS_PROTOC_GEN_VERSION = "0.4.0";
   private static final String TYPESCRIPT_VERSION = "2.6.2";
 
   private static final String RESOLVED_PLUGIN_SCRIPT_TEMPLATE =
-      "#!|NODE_PATH|\n" + "" + "require('../ts-protoc-gen/lib/ts_index');";
+      "#!|NODE_PATH|\n" + "" + "require('|IMPORTED_MODULE|');";
 
   private static final String PACKAGE_JSON_TEMPLATE =
       "{\n"
@@ -152,6 +153,12 @@ public class GrpcApiPlugin implements Plugin<Project> {
                               project
                                   .file("node_modules/.bin/protoc-gen-ts-resolved")
                                   .getAbsolutePath());
+                      locators
+                          .create("flow")
+                          .setPath(
+                              project
+                                  .file("node_modules/.bin/protoc-gen-flow-resolved")
+                                  .getAbsolutePath());
                     }
                   }));
 
@@ -184,6 +191,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
                                     .create("ts")
                                     .option("service=true")
                                     .setOutputSubDir("../../../../web");
+                                task.getPlugins().create("flow").setOutputSubDir("../../../../web");
                               }
                             });
                     tasks
@@ -223,6 +231,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
                 ImmutableList.of(
                     "install",
                     "--no-save",
+                    "protoc-gen-flow@" + PROTOC_GEN_FLOW_VERSION,
                     "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION,
                     "typescript@" + TYPESCRIPT_VERSION));
             installTsProtocGen.getInputs().property("ts-protoc-gen-version", TS_PROTOC_GEN_VERSION);
@@ -248,21 +257,10 @@ public class GrpcApiPlugin implements Plugin<Project> {
                                   .getByType(NodeExtension.class)
                                   .getVariant()
                                   .getNodeExec();
-                          Path path;
-                          try {
-                            path =
-                                Files.write(
-                                    Paths.get(
-                                        project.getProjectDir().getAbsolutePath(),
-                                        "node_modules/.bin/protoc-gen-ts-resolved"),
-                                    RESOLVED_PLUGIN_SCRIPT_TEMPLATE
-                                        .replaceFirst("\\|NODE_PATH\\|", nodePath)
-                                        .getBytes(StandardCharsets.UTF_8));
-                          } catch (IOException e) {
-                            throw new UncheckedIOException(
-                                "Could not write resolved plugin script.", e);
-                          }
-                          path.toFile().setExecutable(true);
+                          writeResolvedScript(
+                              project, nodePath, "protoc-gen-ts-resolved", "./protoc-gen-ts");
+                          writeResolvedScript(
+                              project, nodePath, "protoc-gen-flow-resolved", "./protoc-gen-flow");
                         });
 
             String archivesBaseName =
@@ -292,7 +290,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
             NodeTask compileTypescript =
                 project.getTasks().create("compileTypescript", NodeTask.class);
             compileTypescript.dependsOn("generateProto");
-            compileTypescript.setScript(new File(project.getProjectDir(), "node_modules/.bin/tsc"));
+            compileTypescript.setScript(project.file("node_modules/.bin/tsc"));
 
             project
                 .getTasks()
@@ -300,13 +298,12 @@ public class GrpcApiPlugin implements Plugin<Project> {
                 .dependsOn(addResolvedPluginScript)
                 .finalizedBy(addPackageJson, compileTypescript)
                 .doLast(
-                    unused ->
-                        compileTypescript.setArgs(
-                            (ConfigurableFileTree)
-                                project
-                                    .fileTree("build/web")
-                                    .include("**/*.ts")
-                                    .exclude("**/*.d.ts")));
+                    unused -> {
+                      Iterable<?> typescriptFiles =
+                          (ConfigurableFileTree)
+                              project.fileTree("build/web").include("**/*.ts").exclude("**/*.d.ts");
+                      compileTypescript.setArgs(typescriptFiles);
+                    });
 
             // Unclear why sometimes compileTestJava fails with "no source files" instead of being
             // skipped (usually when activating web), but it's not that hard to at least check the
@@ -318,5 +315,23 @@ public class GrpcApiPlugin implements Plugin<Project> {
             }
           }
         });
+  }
+
+  private static void writeResolvedScript(
+      Project project, String nodePath, String outputFilename, String importedModule) {
+    Path path;
+    try {
+      path =
+          Files.write(
+              Paths.get(
+                  project.getProjectDir().getAbsolutePath(), "node_modules/.bin/" + outputFilename),
+              RESOLVED_PLUGIN_SCRIPT_TEMPLATE
+                  .replaceFirst("\\|NODE_PATH\\|", nodePath)
+                  .replaceFirst("\\|IMPORTED_MODULE\\|", importedModule)
+                  .getBytes(StandardCharsets.UTF_8));
+    } catch (IOException e) {
+      throw new UncheckedIOException("Could not write resolved plugin script.", e);
+    }
+    path.toFile().setExecutable(true);
   }
 }

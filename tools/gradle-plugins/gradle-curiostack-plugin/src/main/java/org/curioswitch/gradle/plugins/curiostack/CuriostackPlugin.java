@@ -71,6 +71,7 @@ import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.PluginContainer;
+import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
@@ -166,6 +167,17 @@ public class CuriostackPlugin implements Plugin<Project> {
                     node.setVersion(NODE_VERSION);
                     node.setYarnVersion(YARN_VERSION);
                     node.setDownload(true);
+
+                    // Since yarn is very fast, go ahead and clean node_modules too to prevent
+                    // inconsistency.
+                    project
+                        .getTasks()
+                        .getByName(
+                            BasePlugin.CLEAN_TASK_NAME,
+                            task -> {
+                              Delete castTask = (Delete) task;
+                              castTask.delete(project.file("node_modules"));
+                            });
                   });
         });
   }
