@@ -223,6 +223,8 @@
     "curioswitch-eggworld-api": "file:../../api/build/web",
     "express": "4.15.4",
     "fontfaceobserver": "2.0.13",
+    "google-protobuf": "3.5.0",
+    "grpc-web-client": "0.3.1",
     "history": "4.7.2",
     "immutable": "3.8.1",
     "intl": "1.2.5",

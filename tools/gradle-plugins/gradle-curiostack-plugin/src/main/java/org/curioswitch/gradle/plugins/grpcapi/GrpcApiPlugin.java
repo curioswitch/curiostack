@@ -210,7 +210,13 @@ public class GrpcApiPlugin implements Plugin<Project> {
         p -> {
           ImmutableGrpcExtension config = project.getExtensions().getByType(GrpcExtension.class);
 
-          if (config.web()) {
+          if (!config.web()) {
+            // There isn't a good way to control the application of the node plugin via the web
+            // property, so just disable some popular automatic tasks.
+            project.getTasks().getByName("nodeSetup").setEnabled(false);
+            project.getTasks().getByName("yarn").setEnabled(false);
+            project.getTasks().getByName("yarnSetup").setEnabled(false);
+          } else {
             NpmTask installTsProtocGen =
                 project.getTasks().create("installTsProtocGen", NpmTask.class);
             installTsProtocGen.setArgs(
