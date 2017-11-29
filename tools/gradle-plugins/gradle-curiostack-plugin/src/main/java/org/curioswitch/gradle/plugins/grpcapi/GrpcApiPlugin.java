@@ -56,6 +56,9 @@ import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.plugins.BasePluginConvention;
 import org.gradle.api.plugins.JavaLibraryPlugin;
+import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
 
@@ -298,9 +301,16 @@ public class GrpcApiPlugin implements Plugin<Project> {
                                     .fileTree("build/web")
                                     .include("**/*.ts")
                                     .exclude("**/*.d.ts")));
+
+            // Unclear why sometimes compileTestJava fails with "no source files" instead of being
+            // skipped (usually when activating web), but it's not that hard to at least check the
+            // source set directory.
+            SourceSetContainer sourceSets =
+                project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets();
+            if (sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME).getAllJava().isEmpty()) {
+              project.getTasks().getByName("compileTestJava").setEnabled(false);
+            }
           }
         });
-
-    project.getTasks().getByName("compileTestJava").setEnabled(false);
   }
 }
