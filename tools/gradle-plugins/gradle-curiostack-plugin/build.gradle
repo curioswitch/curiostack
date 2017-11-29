@@ -56,7 +56,6 @@ task generateBaselineManifest {
 }
 
 dependencies {
-    compile project(':tools:gradle-plugins:gradle-monorepo-circleci-plugin')
     compile project(':tools:gradle-plugins:java-groovy-compat')
 
     compile 'com.bmuschko:gradle-docker-plugin'
@@ -93,6 +92,10 @@ gradlePlugin {
         buildCache {
             id = 'org.curioswitch.gradle-gcloud-build-cache-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.gcloud.GcloudBuildCachePlugin'
+        }
+        ci {
+            id = 'org.curioswitch.gradle-curio-generic-ci-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin'
         }
         cluster {
 

@@ -50,7 +50,7 @@ gcloud {
 
 That's it! The project will be configured with annotation processing, include all other Curiostack
 gradle plugins (e.g., gradle-curio-server-plugin, gradle-grpc-api-plugin) for use in subprojects,
-be ready to use optimized testing on CircleCI, and provide tasks for gcloud management. See
+be ready to use optimized testing on continuous builds, and provide tasks for gcloud management. See
 individual plugin READMEs for their usage.
 
 To get started with development in IntelliJ, just

@@ -55,9 +55,9 @@ import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleAptConvention;
 import net.ltgt.gradle.apt.AptPlugin;
 import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
+import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
-import org.curioswitch.gradle.plugins.monorepo.MonorepoCircleCiPlugin;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -95,8 +95,8 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     plugins.apply(BaselineIdea.class);
 
+    plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
-    plugins.apply(MonorepoCircleCiPlugin.class);
 
     String baselineFiles;
     try {

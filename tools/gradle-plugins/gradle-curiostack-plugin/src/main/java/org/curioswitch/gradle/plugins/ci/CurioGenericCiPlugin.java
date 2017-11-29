@@ -22,13 +22,12 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.monorepo;
+package org.curioswitch.gradle.plugins.ci;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -51,15 +50,16 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.JavaPlugin;
 
-public class MonorepoCircleCiPlugin implements Plugin<Project> {
+public class CurioGenericCiPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
     if (project.getParent() != null) {
       throw new IllegalStateException(
-          "gradle-monorepo-circleci-plugin can only be " + "applied to the root project.");
+          "curio-generic-ci-plugin can only be " + "applied to the root project.");
     }
-    if (System.getenv("CIRCLECI") == null) {
+
+    if (System.getenv("CI") == null) {
       return;
     }
 
@@ -97,7 +97,9 @@ public class MonorepoCircleCiPlugin implements Plugin<Project> {
   private Set<Project> computeAffectedProjects(Project project) {
     final Set<String> affectedRelativeFilePaths;
     try (Git git = Git.open(project.getRootDir())) {
-      String branch = currentBranch();
+      // TODO(choko): Validate the remote of the branch, which matters if there are forks.
+      String branch = git.getRepository().getBranch();
+
       if (branch.equals("master")) {
         affectedRelativeFilePaths = computeAffectedFilesForMaster(git);
       } else {
@@ -148,13 +150,10 @@ public class MonorepoCircleCiPlugin implements Plugin<Project> {
     return computeAffectedFiles(git, oldTreeParser, newTreeParser);
   }
 
+  // Assume all tested changes are in a single commit, which works when commits are always squashed.
   private Set<String> computeAffectedFilesForMaster(Git git) throws IOException {
-    String compareUrl = System.getenv("CIRCLE_COMPARE_URL");
-    List<String> parts = Arrays.asList(compareUrl.split("/"));
-    String commitsPart = parts.get(parts.size() - 1);
-    List<String> commits = Arrays.asList(commitsPart.split("\\.\\.\\."));
-    ObjectId oldTreeId = git.getRepository().resolve(commits.get(0) + "^{tree}");
-    ObjectId newTreeId = git.getRepository().resolve(commits.get(1) + "^{tree}");
+    ObjectId oldTreeId = git.getRepository().resolve("HEAD^{tree}");
+    ObjectId newTreeId = git.getRepository().resolve("HEAD^^{tree}");
 
     final CanonicalTreeParser oldTreeParser;
     final CanonicalTreeParser newTreeParser;
@@ -219,10 +218,5 @@ public class MonorepoCircleCiPlugin implements Plugin<Project> {
     CanonicalTreeParser parser = new CanonicalTreeParser();
     parser.reset(reader, id);
     return parser;
-  }
-
-  private String currentBranch() {
-    String tag = System.getenv("CIRCLE_TAG");
-    return tag != null ? tag : System.getenv("CIRCLE_BRANCH");
   }
 }
