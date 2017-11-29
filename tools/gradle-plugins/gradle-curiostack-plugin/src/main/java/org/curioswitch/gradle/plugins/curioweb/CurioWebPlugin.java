@@ -27,9 +27,11 @@ package org.curioswitch.gradle.plugins.curioweb;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.moowork.gradle.node.NodePlugin;
+import com.moowork.gradle.node.yarn.YarnInstallTask;
 import com.moowork.gradle.node.yarn.YarnTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -67,8 +69,31 @@ public class CurioWebPlugin implements Plugin<Project> {
               castTask.delete(project.file("node_modules"));
             });
 
+    YarnInstallTask yarnUpdateTask = project.getTasks().create("yarnUpdate", YarnInstallTask.class);
+
+    YarnInstallTask yarnTask = project.getTasks().withType(YarnInstallTask.class).getByName("yarn");
+    yarnTask.setArgs(ImmutableList.of("--frozen-lockfile"));
+    Task yarnWarning =
+        project
+            .getTasks()
+            .create(
+                "yarnWarning",
+                task -> {
+                  task.onlyIf(unused -> yarnTask.getState().getFailure() != null);
+                  task.doFirst(
+                      unused ->
+                          project
+                              .getLogger()
+                              .warn(
+                                  "yarn task failed. If you have updated a dependency and the "
+                                      + "error says 'Your lockfile needs to be updated.', run \n\n"
+                                      + "./gradlew "
+                                      + yarnUpdateTask.getPath()));
+                });
+    yarnTask.finalizedBy(yarnWarning);
+
     CacheableYarnTask buildWeb = project.getTasks().create("buildWeb", CacheableYarnTask.class);
-    buildWeb.dependsOn("yarn");
+    buildWeb.dependsOn(yarnTask);
     buildWeb.setArgs(ImmutableList.of("run", "build"));
     buildWeb.getInputs().dir("app");
     buildWeb.getInputs().dir("internals");
