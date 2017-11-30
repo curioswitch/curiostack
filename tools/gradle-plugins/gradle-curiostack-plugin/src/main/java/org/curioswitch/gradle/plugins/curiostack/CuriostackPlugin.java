@@ -170,6 +170,7 @@ public class CuriostackPlugin implements Plugin<Project> {
 
                     // Since yarn is very fast, go ahead and clean node_modules too to prevent
                     // inconsistency.
+                    project.getPluginManager().apply(BasePlugin.class);
                     project
                         .getTasks()
                         .getByName(
