@@ -63,6 +63,15 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       return;
     }
 
+    final Set<Project> affectedProjects;
+    try {
+       affectedProjects = computeAffectedProjects(project);
+    } catch (Throwable t) {
+      // Don't prevent further gradle configuration due to issues computing the git state.
+      project.getLogger().warn("Couldn't compute affected targets.", t);
+      return;
+    }
+
     project.allprojects(
         p ->
             p.getPlugins()
@@ -77,7 +86,6 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                               .getTaskDependencyFromProjectDependency(false, "testDependents"));
                     }));
 
-    Set<Project> affectedProjects = computeAffectedProjects(project);
     Task continuousTest = project.task("continuousTest");
     for (Project proj : affectedProjects) {
       proj.afterEvaluate(
