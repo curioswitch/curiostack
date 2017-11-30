@@ -134,7 +134,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.55.0")
+              .version("0.55.1")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -221,7 +221,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("4.10.0")
+              .version("4.10.1")
               .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
@@ -306,7 +306,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jooq")
-              .version("3.10.1")
+              .version("3.10.2")
               .addModules("jooq")
               .build(),
           ImmutableDependencySet.builder()

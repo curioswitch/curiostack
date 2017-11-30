@@ -62,7 +62,7 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind'
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     compile 'com.diffplug.spotless:spotless-plugin-gradle'
-    compile 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
+    compile 'com.github.ben-manes:gradle-versions-plugin'
     compile 'com.google.cloud:google-cloud-resourcemanager'
     compile 'com.google.cloud:google-cloud-storage'
     compile 'com.google.guava:guava'
