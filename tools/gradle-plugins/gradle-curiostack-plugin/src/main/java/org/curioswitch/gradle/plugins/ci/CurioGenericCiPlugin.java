@@ -65,7 +65,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
 
     final Set<Project> affectedProjects;
     try {
-       affectedProjects = computeAffectedProjects(project);
+      affectedProjects = computeAffectedProjects(project);
     } catch (Throwable t) {
       // Don't prevent further gradle configuration due to issues computing the git state.
       project.getLogger().warn("Couldn't compute affected targets.", t);

@@ -191,7 +191,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
                                     .create("ts")
                                     .option("service=true")
                                     .setOutputSubDir("../../../../web");
-                                task.getPlugins().create("flow").setOutputSubDir("../../../../web");
+                                // task.getPlugins().create("flow").setOutputSubDir("../../../../web");
                               }
                             });
                     tasks
