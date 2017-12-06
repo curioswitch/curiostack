@@ -37,7 +37,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.66'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.72'
     }
 }
 
@@ -52,6 +52,7 @@ buildCache {
         enabled = !isCiServer
     }
     remote(org.curioswitch.gradle.plugins.gcloud.buildcache.CloudStorageBuildCache) {
+        project = 'curioswitch-cluster'
         bucket = 'curioswitch-gradle-build-cache'
         push = isCiServer
     }
