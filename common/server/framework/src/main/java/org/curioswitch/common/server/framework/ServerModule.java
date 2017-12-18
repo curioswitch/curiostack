@@ -322,6 +322,7 @@ public abstract class ServerModule {
           new GrpcServiceDefinition.Builder()
               .addAllServices(grpcServices)
               .decorator(Function.identity())
+              .path(serverConfig.getGrpcPath())
               .build();
       grpcServiceDefinitions =
           ImmutableSet.<GrpcServiceDefinition>builder()

@@ -30,16 +30,17 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
+import com.google.common.io.ByteStreams;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -183,21 +184,24 @@ public class RequestNamespaceCertTask extends DefaultTask {
               exec.args("certificate", "approve", cluster.namespace() + ".server.crt");
             });
 
-    ByteArrayOutputStream certStream = new ByteArrayOutputStream();
-    getProject()
-        .exec(
-            exec -> {
-              exec.executable(command);
-              exec.args(
+    // Gradle Exec seems to be flaky when reading from stdout, so use normal ProcessBuilder.
+    final byte[] certificateBytes;
+    try {
+      Process getCertProcess =
+          new ProcessBuilder(
+                  command,
                   "get",
                   "csr",
                   cluster.namespace() + ".server.crt",
                   "-o",
-                  "jsonpath={.status.certificate}");
-              exec.setStandardOutput(certStream);
-            });
+                  "jsonpath={.status.certificate}")
+              .start();
+      certificateBytes = ByteStreams.toByteArray(getCertProcess.getInputStream());
+    } catch (IOException e) {
+      throw new UncheckedIOException("Could not fetch certificate.", e);
+    }
     String certificate =
-        new String(Base64.getDecoder().decode(certStream.toByteArray()), StandardCharsets.UTF_8);
+        new String(Base64.getDecoder().decode(certificateBytes), StandardCharsets.UTF_8);
 
     final JcaPKCS8Generator keyGenerator;
     final PemObject keyObject;
