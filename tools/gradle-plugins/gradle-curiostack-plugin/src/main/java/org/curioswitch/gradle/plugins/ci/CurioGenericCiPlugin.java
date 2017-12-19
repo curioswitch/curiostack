@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
@@ -79,7 +80,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                 .whenPluginAdded(
                     plugin -> {
                       Task testDependents = p.task("testDependents");
-                      testDependents.dependsOn(p.getTasks().findByName("check"));
+                      testDependents.dependsOn(p.getTasks().findByName("build"));
                       testDependents.dependsOn(
                           p.getConfigurations()
                               .getByName("testRuntime")
@@ -154,7 +155,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
     CanonicalTreeParser oldTreeParser =
         parserForBranch(git, git.getRepository().exactRef("refs/remotes/origin/master"));
     CanonicalTreeParser newTreeParser =
-        parserForBranch(git, git.getRepository().exactRef("refs/heads/" + branch));
+        parserForBranch(git, git.getRepository().exactRef(Constants.HEAD));
     return computeAffectedFiles(git, oldTreeParser, newTreeParser);
   }
 
