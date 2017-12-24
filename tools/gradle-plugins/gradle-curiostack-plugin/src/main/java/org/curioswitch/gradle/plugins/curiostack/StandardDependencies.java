@@ -47,7 +47,7 @@ class StandardDependencies {
     String version();
   }
 
-  private static final String JACKSON_VERSION = "2.9.2";
+  private static final String JACKSON_VERSION = "2.9.3";
 
   static final List<DependencySet> DEPENDENCY_SETS =
       ImmutableList.of(
@@ -88,17 +88,17 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.12.0")
+              .version("1.14.0")
               .addModules("google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.30.0-alpha")
+              .version("0.32.0-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.30.0-beta")
+              .version("0.32.0-beta")
               .addModules("google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
@@ -108,33 +108,33 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.dagger")
-              .version("2.13")
+              .version("2.14.1")
               .addModules("dagger", "dagger-compiler", "dagger-producers")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.firebase")
-              .version("5.5.0")
+              .version("5.7.0")
               .addModules("firebase-admin")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.guava")
-              .version("23.5-jre")
+              .version("23.6-jre")
               .addModules("guava", "guava-testlib")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.protobuf")
-              .version("3.5.0")
+              .version("3.5.1")
               .addModules("protobuf-java", "protobuf-java-util")
               .build(),
           // protoc often diverges from protobuf-java
           ImmutableDependencySet.builder()
               .group("com.google.protobuf")
-              .version("3.5.0")
+              .version("3.5.1")
               .addModules("protoc")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.55.1")
+              .version("0.56.0")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -175,7 +175,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.fabric8")
-              .version("3.1.0")
+              .version("3.1.5")
               .addModules("kubernetes-client")
               .build(),
           ImmutableDependencySet.builder()
@@ -221,7 +221,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("4.10.1")
+              .version("4.13.1")
               .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
@@ -276,7 +276,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.35")
+              .version("0.0.36")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -316,7 +316,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")
-              .version("2.12.0")
+              .version("2.13.0")
               .addModules("mockito-core")
               .build(),
           ImmutableDependencySet.builder()
@@ -338,17 +338,17 @@ class StandardDependencies {
   static final List<String> DEPENDENCIES =
       ImmutableList.of(
           "com.bmuschko:gradle-docker-plugin:3.2.1",
-          "com.diffplug.spotless:spotless-plugin-gradle:3.6.0",
+          "com.diffplug.spotless:spotless-plugin-gradle:3.7.0",
           "com.github.ben-manes:gradle-versions-plugin:0.17.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.3",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0",
           "com.moowork.gradle:gradle-node-plugin:1.2.0",
           "com.palantir:gradle-baseline-java:0.10.0",
-          "gradle.plugin.com.boxfuse.client:flyway-release:4.2.0",
+          "gradle.plugin.com.boxfuse.client:flyway-release:5.0.2",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
-          "io.spring.gradle:dependency-management-plugin:1.0.3.RELEASE",
+          "io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE",
           "me.champeau.gradle:jmh-gradle-plugin:0.4.5",
-          "mysql:mysql-connector-java:5.1.44",
+          "mysql:mysql-connector-java:5.1.45",
           "net.ltgt.gradle:gradle-apt-plugin:0.13");
 }
