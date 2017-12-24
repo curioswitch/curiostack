@@ -21,24 +21,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-
-# An image that inherits from itself. Any files stored outside the working directory volume, like
-# dependency jars, will be saved into the image. By rebuilding itself before any build of the
-# repository, dependency jars can be cached continuously.
-
-# TODO(choko): Define a condition to clear and recreate the cache from scratch. The smartest
-# approach would look at the current source repositories dependencies and compare with the cached
-# dependencies, a basic approach would be to store the original build timestamp and look at it
-
-ARG cluster
-FROM gcr.io/${cluster}/java-cloud-builder
-
-ADD . /src
-RUN cd /src && ./gradlew resolveDependencies yarn --stacktrace
-
-FROM gcr.io/${cluster}/java-cloud-builder:bootstrap
-
-COPY --from=0 /root/.gradle/wrapper /root/.gradle/wrapper
-COPY --from=0 /root/.npm /root/.npm
-COPY --from=0 /usr/local/share/.cache /usr/local/share/.cache
-COPY --from=0 /root/.gradle/caches /root/.gradle/caches
+---
+steps:
+- id: build-bootstrap-image
+  name: gcr.io/cloud-builders/docker
+  args:
+  - build
+  - --tag=gcr.io/$PROJECT_ID/java-cloud-builder:bootstrap
+  - ./tools/build-images/java-cloud-builder/bootstrap
+  env:
+  - CI=true
+- id: tag-bootstrap-image
+  waitFor:
+  - build-bootstrap-image
+  name: gcr.io/cloud-builders/docker
+  args:
+  - tag
+  - gcr.io/$PROJECT_ID/java-cloud-builder:bootstrap
+  - gcr.io/$PROJECT_ID/java-cloud-builder
+- id: build-builder-image
+  waitFor:
+  - tag-bootstrap-image
+  name: gcr.io/cloud-builders/docker
+  args:
+  - build
+  - --build-arg=cluster=$PROJECT_ID
+  - --tag=gcr.io/$PROJECT_ID/java-cloud-builder
+  - --file=./tools/build-images/java-cloud-builder/Dockerfile
+  - .
+  env:
+  - CI=true
+images:
+- gcr.io/$PROJECT_ID/java-cloud-builder:bootstrap
+- gcr.io/$PROJECT_ID/java-cloud-builder

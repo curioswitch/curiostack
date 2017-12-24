@@ -21,24 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+FROM openjdk:8-jdk-slim
 
-# An image that inherits from itself. Any files stored outside the working directory volume, like
-# dependency jars, will be saved into the image. By rebuilding itself before any build of the
-# repository, dependency jars can be cached continuously.
-
-# TODO(choko): Define a condition to clear and recreate the cache from scratch. The smartest
-# approach would look at the current source repositories dependencies and compare with the cached
-# dependencies, a basic approach would be to store the original build timestamp and look at it
-
-ARG cluster
-FROM gcr.io/${cluster}/java-cloud-builder
-
-ADD . /src
-RUN cd /src && ./gradlew resolveDependencies yarn --stacktrace
-
-FROM gcr.io/${cluster}/java-cloud-builder:bootstrap
-
-COPY --from=0 /root/.gradle/wrapper /root/.gradle/wrapper
-COPY --from=0 /root/.npm /root/.npm
-COPY --from=0 /usr/local/share/.cache /usr/local/share/.cache
-COPY --from=0 /root/.gradle/caches /root/.gradle/caches
+# Add build toolchain / python for e.g., nodejs extensions and git for golang / manual builds.
+RUN apt-get -y update && apt-get -y install build-essential git python-minimal
