@@ -22,6 +22,10 @@
  * SOFTWARE.
  */
 
+// TEST CHANGE DO NOT MERGE
+
+foobarBreakTheBuild()
+
 buildscript {
     repositories {
         jcenter()
