@@ -22,8 +22,6 @@
  * SOFTWARE.
  */
 
-// TEST CHANGE - DO NOT MERGE
-
 apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 
