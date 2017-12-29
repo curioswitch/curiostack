@@ -1,8 +1,13 @@
 {
   "name": "@curiostack/cloudbuild-github",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Integration between Google Container Builder and GitHub.",
-  "keywords": ["github", "cloudbuild", "google container builder", "cloud functions"],
+  "keywords": [
+    "github",
+    "cloudbuild",
+    "google container builder",
+    "cloud functions"
+  ],
   "homepage": "https://github.com/curioswitch/curiostack/tree/master/tools/cloudbuild-github",
   "bugs": "https://github.com/curioswitch/curiostack/issues",
   "license": "MIT",
@@ -88,11 +93,14 @@
       "no-console": 0,
       "no-use-before-define": 0,
       "prefer-template": 2,
-      "prettier/prettier": ["error", {
-        "arrowParens": "always",
-        "singleQuote": true,
-        "trailingComma": "all"
-      }],
+      "prettier/prettier": [
+        "error",
+        {
+          "arrowParens": "always",
+          "singleQuote": true,
+          "trailingComma": "all"
+        }
+      ],
       "require-yield": 0
     }
   },
@@ -119,8 +127,8 @@
     "eslint-config-prettier": "2.9.0",
     "eslint-plugin-flowtype": "2.40.1",
     "eslint-plugin-import": "2.8.0",
-    "eslint-plugin-prettier": "2.4.0",
     "eslint-plugin-jsx-a11y": "6.0.3",
+    "eslint-plugin-prettier": "2.4.0",
     "eslint-plugin-react": "7.5.1",
     "eslint-plugin-redux-saga": "0.6.0",
     "flow-bin": "0.61.0",
