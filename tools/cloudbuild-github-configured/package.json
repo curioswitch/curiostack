@@ -1,0 +1,9 @@
+{
+  "name": "cloudbuild-github-example",
+  "description": "Curiostack's cloudbuild function - not meant to be consumed.",
+  "main": "index.js",
+  "private": true,
+  "dependencies": {
+    "curio-cloudbuild-github": "0.0.1"
+  }
+}
