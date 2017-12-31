@@ -88,3 +88,4 @@ steps:
   - KUBECONFIG=/workspace/kubeconfig
 images:
 - gcr.io/$PROJECT_ID/java-cloud-builder:latest
+timeout: 60m
