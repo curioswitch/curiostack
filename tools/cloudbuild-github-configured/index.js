@@ -22,4 +22,4 @@
  * SOFTWARE.
  */
 
-module.exports = require('curio-cloudbuild-github');
+module.exports = require('@curiostack/cloudbuild-github');
