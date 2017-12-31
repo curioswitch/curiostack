@@ -240,8 +240,8 @@ export default async function setup() {
   });
 
   ui.log.write('Outputting config.yml and index.js.');
-  fs.writeFileSync('index.js', indexJs);
   fs.writeFileSync('config.yml', configYaml);
+  fs.writeFileSync('index.js', indexJs);
 
   ui.log.write('Deploying cloud functions.');
   await spawn(

@@ -33,7 +33,10 @@ $ yarn run cloudbuild-cli
 This will prompt you for information about your repository, including an access token for working with
 your GitHub repository (see details about tokens [here](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)).
 It will then write out an `index.js` and `config.yml` file that will be used by the webhook, deploy
-the cloud functions, and set up the repository webhook. That's it!
+the cloud functions, and set up the repository webhook.
+
+Currently does not add the correct permissions to the cloudbuild account for decrypting keys and this
+needs to be done on the cloud console. This will be fixed shortly.
 
 The current version does not support an easy flow for editing configuration yet (coming soon). In the
 meantime, especially for modifying the build step to match your build system, edit `config.yml` and
