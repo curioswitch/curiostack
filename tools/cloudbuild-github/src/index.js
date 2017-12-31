@@ -25,6 +25,8 @@
 import { handleBuildEvent } from './notifier';
 import { handleWebhook } from './webhook';
 
+import config from './config';
+
 export function cloudbuildGithubWebhook(req, res) {
   handleWebhook(req, res).catch((err) => {
     console.error('Error handling webhook: ', err);

@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@curiostack/cloudbuild-github@0.0.7":
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/@curiostack/cloudbuild-github/-/cloudbuild-github-0.0.7.tgz#260afa4c9f09282786387bfefdd810be27fbf99f"
+"@curiostack/cloudbuild-github@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@curiostack/cloudbuild-github/-/cloudbuild-github-0.0.8.tgz#3837c6e344a373a89b2ca8f30bec1088d391dc17"
   dependencies:
     "@octokit/webhooks" "3.1.0"
     child-process-promise "2.2.1"

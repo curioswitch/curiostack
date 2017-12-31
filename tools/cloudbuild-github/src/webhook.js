@@ -70,6 +70,8 @@ async function handlePullRequest(event) {
       googleApis.cancelCloudbuild(build.id);
     });
   console.log(`Starting cloud build for pull request ${pull.number}.`);
+  console.log('Repos', config.repos);
+  console.log('Repo', repo);
   await googleApis.startCloudbuild(
     config.repos[repo].cloudbuild,
     substitutions,
