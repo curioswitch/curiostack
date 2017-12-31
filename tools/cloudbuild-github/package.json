@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/cloudbuild-github",
-  "version": "0.0.3",
+  "version": "0.0.9",
   "description": "Integration between Google Container Builder and GitHub.",
   "keywords": [
     "github",
@@ -13,6 +13,9 @@
   "license": "MIT",
   "author": "Choko <choko@curioswitch.org>",
   "main": "build/index.js",
+  "bin": {
+    "cloudbuild-cli": "build/cli/index.js"
+  },
   "directories": {
     "lib": "build"
   },
@@ -20,7 +23,8 @@
   "scripts": {
     "prebuild": "yarn run build:clean",
     "build": "babel ./src -d ./build",
-    "build:clean": "rimraf ./build"
+    "build:clean": "rimraf ./build",
+    "prepublish": "yarn run build"
   },
   "babel": {
     "presets": [
@@ -106,8 +110,10 @@
   },
   "dependencies": {
     "@octokit/webhooks": "3.1.0",
+    "child-process-promise": "2.2.1",
     "es6-promisify": "5.0.0",
     "googleapis": "23.0.0",
+    "inquirer": "4.0.1",
     "js-yaml": "3.10.0",
     "parse-duration": "0.1.1",
     "request": "2.83.0",

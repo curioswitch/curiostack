@@ -48,7 +48,60 @@ class GoogleApis {
   cancelBuild: ?(any) => Promise<any> = null;
   createBuild: ?(CreateBuildRequest) => Promise<CreateBuildResponse> = null;
   listBuilds: ?(any) => Promise<any> = null;
+
+  createKmsKeyring = null;
+  createKmsKey = null;
   decryptKms: ?(DecryptKmsRequest) => Promise<DecryptKmsResult> = null;
+  encryptKms = null;
+  setKmsIamPolicy = null;
+
+  async getProjectId() {
+    await this.init();
+
+    if (!this.projectId) {
+      throw new Error('Not initialized.');
+    }
+    return this.projectId;
+  }
+
+  async createKeyring(location: string, keyring: string) {
+    await this.init();
+
+    if (!this.projectId) {
+      throw new Error('Not initialized.');
+    }
+    const request = {
+      parent: `projects/${this.projectId}/locations/${location}`,
+      keyRingId: keyring,
+    };
+    if (!this.createKmsKeyring) {
+      throw new Error('Not initialized.');
+    }
+    const created = await this.createKmsKeyring(request);
+    console.log(`Keyring ${created.name} created.`);
+  }
+
+  async createKey(location: string, keyring: string, key: string) {
+    await this.init();
+
+    if (!this.projectId) {
+      throw new Error('Not initialized.');
+    }
+    const request = {
+      parent: `projects/${
+        this.projectId
+      }/locations/${location}/keyRings/${keyring}`,
+      cryptoKeyId: key,
+      resource: {
+        purpose: 'ENCRYPT_DECRYPT',
+      },
+    };
+    if (!this.createKmsKey) {
+      throw new Error('Not initialized.');
+    }
+    const created = await this.createKmsKey(request);
+    console.log(`Key ${created.name} created.`);
+  }
 
   async decryptKey(
     location: string,
@@ -76,6 +129,66 @@ class GoogleApis {
     }
     const { plaintext } = await this.decryptKms(request);
     return plaintext;
+  }
+
+  async encryptKey(
+    location: string,
+    keyring: string,
+    key: string,
+    plaintext: string,
+  ) {
+    await this.init();
+
+    if (!this.projectId) {
+      throw new Error('Not initialized.');
+    }
+
+    const request = {
+      name: `projects/${
+        this.projectId
+      }/locations/${location}/keyRings/${keyring}/cryptoKeys/${key}`,
+      resource: {
+        plaintext: Buffer.from(plaintext).toString('base64'),
+      },
+    };
+
+    if (!this.encryptKms) {
+      throw new Error('Not initialized.');
+    }
+    const { ciphertext } = await this.encryptKms(request);
+    return ciphertext;
+  }
+
+  async setDecrypter(
+    location: string,
+    keyring: string,
+    serviceAccount: string,
+  ) {
+    await this.init();
+
+    if (!this.projectId) {
+      throw new Error('Not initialized.');
+    }
+
+    const request = {
+      resource_: `projects/${
+        this.projectId
+      }/locations/${location}/keyRings/${keyring}`,
+      resource: {
+        policy: {
+          bindings: [
+            {
+              role: 'roles/cloudkms.cryptoKeyDecrypter',
+              members: [`serviceAccount:${serviceAccount}`],
+            },
+          ],
+        },
+      },
+    };
+    if (!this.setKmsIamPolicy) {
+      throw new Error('Not initialized.');
+    }
+    await this.setKmsIamPolicy(request);
   }
 
   async cancelCloudbuild(id: string) {
@@ -157,8 +270,24 @@ class GoogleApis {
     const { auth, projectId } = await this.authorize();
     this.projectId = projectId;
     const cloudkms = google.cloudkms({ version: 'v1', auth });
+    this.createKmsKeyring = promisify(
+      cloudkms.projects.locations.keyRings.create,
+      cloudkms,
+    );
+    this.createKmsKey = promisify(
+      cloudkms.projects.locations.keyRings.cryptoKeys.create,
+      cloudkms,
+    );
     this.decryptKms = promisify(
       cloudkms.projects.locations.keyRings.cryptoKeys.decrypt,
+      cloudkms,
+    );
+    this.encryptKms = promisify(
+      cloudkms.projects.locations.keyRings.cryptoKeys.encrypt,
+      cloudkms,
+    );
+    this.setKmsIamPolicy = promisify(
+      cloudkms.projects.locations.keyRings.cryptoKeys.setIamPolicy,
       cloudkms,
     );
 
