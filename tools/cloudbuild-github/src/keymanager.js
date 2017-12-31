@@ -31,8 +31,11 @@ import config from './config';
 class KeyManager {
   decryptedKeys: Map<string, string> = new Map();
 
-  async getGithubToken() {
-    return this.getDecrypted(config.encryptedGithubToken, 'GITHUB_TOKEN');
+  async getGithubToken(repo: string) {
+    return this.getDecrypted(
+      config.repos[repo].encryptedGithubToken,
+      `GITHUB_TOKEN-${repo}`,
+    );
   }
 
   async getWebhookSecret() {
