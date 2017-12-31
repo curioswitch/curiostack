@@ -30,6 +30,8 @@ import { keyManager } from './keymanager';
 
 import { COMMENTS_URL_KEY, STATUSES_URL_KEY } from './constants';
 
+const GITHUB_API_BASE = 'https://api.github.com';
+
 function statusToState(status): string {
   switch (status) {
     case 'QUEUED':
@@ -87,8 +89,27 @@ export async function handleBuildEvent(event: any) {
     Buffer.from(event.data.data, 'base64').toString('utf8'),
   );
 
-  const statusesUrl = build.substitutions[STATUSES_URL_KEY];
+  let repoName: ?string = null;
+  let revisionId: ?string = null;
+  if (!build.substitutions) {
+    // No substitutions for triggered builds, we'll post to the commit instead.
+    const repoSource = build.sourceProvenance.resolvedRepoSource;
+    // eslint-disable-next-line prefer-destructuring
+    const cloudbuildRepoName = repoSource.repoName;
+    if (!cloudbuildRepoName.startsWith('github-')) {
+      // Not a github repo.
+      return;
+    }
+    repoName = cloudbuildRepoName.substring('github-'.length).replace('-', '/');
+    revisionId = repoSource.commitSha;
+  }
+
+  const statusesUrl =
+    repoName && revisionId
+      ? `${GITHUB_API_BASE}/repos/${repoName}/statuses/${revisionId}`
+      : build.substitutions[STATUSES_URL_KEY];
   if (!statusesUrl) {
+    // A non-triggered build not from the webhook, nothing to do.
     return;
   }
 
@@ -104,8 +125,13 @@ export async function handleBuildEvent(event: any) {
     throw new Error(`Failed to set status: ${JSON.stringify(statusResponse)}`);
   }
 
-  const commentsUrl = build.substitutions[COMMENTS_URL_KEY];
+  const commentsUrl =
+    repoName && revisionId
+      ? `${GITHUB_API_BASE}/repos/${repoName}/commits/${revisionId}/comments`
+      : build.substitutions[COMMENTS_URL_KEY];
   if (!commentsUrl) {
+    // A non-triggered build not from the webhook, nothing to do (we shouldn't
+    // actually get here since we have a similar check for statuses).
     return;
   }
 
@@ -116,11 +142,16 @@ export async function handleBuildEvent(event: any) {
     case 'CANCELLED':
     case 'STATUS_UNKNOWN':
       return;
-    case 'SUCCESS':
+    case 'SUCCESS': {
+      if (repoName) {
+        // Don't comment on success for triggered builds.
+        return;
+      }
       comment = `Build succeded. If you have approval, you're ready to merge!\n\nLogs:\n${
         build.logUrl
       }`;
       break;
+    }
     case 'FAILURE':
       comment = `Build failed. Check the logs and try again.\n\nLogs:\n${
         build.logUrl
