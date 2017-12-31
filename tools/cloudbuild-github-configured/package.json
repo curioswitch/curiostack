@@ -4,6 +4,6 @@
   "main": "index.js",
   "private": true,
   "dependencies": {
-    "@curiostack/cloudbuild-github": "0.0.3"
+    "@curiostack/cloudbuild-github": "0.0.7"
   }
 }
