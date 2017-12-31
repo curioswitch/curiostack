@@ -29,6 +29,7 @@ steps:
   name: gcr.io/cloud-builders/docker
   args:
   - build
+  - --build-arg=cluster=$PROJECT_ID
   - --tag=gcr.io/$PROJECT_ID/java-cloud-builder:latest
   - --file=./tools/build-images/java-cloud-builder/Dockerfile
   - .
