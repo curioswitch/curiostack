@@ -43,9 +43,9 @@ async function handlePullRequest(event) {
   const otherBranchLocalRef = `refs/remotes/origin/PR-${pull.number}`;
   const baseBranchRemoteRef = `refs/heads/${pull.base.ref}`;
   const baseBranchLocalRef = `refs/remotes/origin/${pull.base.ref}`;
+  const repo = event.repository.full_name;
 
   const substitutions = {
-    _ENCRYPTED_GITHUB_TOKEN: config.encryptedGithubToken,
     _REPOSITORY_URL: pull.base.repo.clone_url,
     _OTHER_BRANCH_REMOTE_REF: otherBranchRemoteRef,
     _OTHER_BRANCH_LOCAL_REF: otherBranchLocalRef,
@@ -70,7 +70,11 @@ async function handlePullRequest(event) {
       googleApis.cancelCloudbuild(build.id);
     });
   console.log(`Starting cloud build for pull request ${pull.number}.`);
-  await googleApis.startCloudbuild(config.cloudbuild, substitutions, tags);
+  await googleApis.startCloudbuild(
+    config.repos[repo].cloudbuild,
+    substitutions,
+    tags,
+  );
 }
 
 export async function handleWebhook(req: any, res: any) {

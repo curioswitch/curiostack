@@ -32,6 +32,8 @@ import { COMMENTS_URL_KEY, STATUSES_URL_KEY } from './constants';
 
 const GITHUB_API_BASE = 'https://api.github.com';
 
+const GITHUB_URL_REPO_REGEX = /repos\/([^/]+\/[^/]+)\//;
+
 function statusToState(status): string {
   switch (status) {
     case 'QUEUED':
@@ -68,7 +70,8 @@ function statusToDescription(status): string {
 }
 
 async function makeRequest(uri: string, body: any) {
-  const githubToken = await keyManager.getGithubToken();
+  const repo = GITHUB_URL_REPO_REGEX.exec(uri)[1];
+  const githubToken = await keyManager.getGithubToken(repo);
   return request({
     method: 'POST',
     uri,

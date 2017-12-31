@@ -4,47 +4,49 @@ kms:
   keyring: cloudbuild
   key: github
 encryptedWebhookSecret: CiQAuiNYMVyJ9RxUrcOTMETxtYWb9AcJ3jOkPcohVQp/Kz4OL9sSUQBMY6gZ9EuPQxdIdU543Te365fdIEZFd/GVCE2jV0gKN7QZDekm1t36wDl5AmXtaeOsU/SoHxMqVBmkyzm39fFuH6bCeQsaXD+B5hb/LmUgxA==
-encryptedGithubToken: CiQAuiNYMVmykiKA+o3aGhQWKU9IrSaVSLyf3Ssfka4dzF3Tu0USUQBMY6gZlatrBfJMsnBz9kJ0/QLVvEgolPpttVqHReNLWb5ShhP8dn75Ejy+30tHHn/79YMdby/8rZoHlDZjUm6DO5wm+YXyKxezqlVVDnBJ6Q==
-cloudbuild:
-  steps:
-    - id: fetch-source
-      # Use gcloud image instead of git, since the latter sets gcloud credentials and prevents
-      # GIT_ASKPASS from working.
-      name: gcr.io/cloud-builders/gcloud
-      entrypoint: bash
-      args:
-      - -c
-      # Use same commands as Jenkins with PreBuildMerge.
-      - |
-        echo 'echo $$GITHUB_TOKEN' > /tmp/cloudbuild-github-pass.sh && \
-        chmod +x /tmp/cloudbuild-github-pass.sh && \
-        git init && \
-        git fetch --no-tags --progress $_REPOSITORY_URL +$_OTHER_BRANCH_REMOTE_REF:$_OTHER_BRANCH_LOCAL_REF +$_BASE_BRANCH_REMOTE_REF:$_BASE_BRANCH_LOCAL_REF && \
-        git config remote.origin.url $_REPOSITORY_URL && \
-        git config user.name cloudbuild && \
-        git config user.email cloudbuild@example.com && \
-        git checkout -f $_OTHER_BRANCH_LOCAL_REF && \
-        git merge --no-ff --no-edit --no-progress $_BASE_BRANCH_LOCAL_REF && \
-        MERGE_REV=$(git rev-parse HEAD^{commit}) && \
-        git checkout -f $_BASE_BRANCH_LOCAL_REF && \
-        git merge --no-ff --no-edit --no-progress $$MERGE_REV && \
-        MERGE_REV=$(git rev-parse HEAD^{commit}) && \
-        git checkout -f $$MERGE_REV
-      env:
-      - GIT_ASKPASS=/tmp/cloudbuild-github-pass.sh
-      secretEnv:
-      - GITHUB_TOKEN
-    - id: build-all
-      name: gcr.io/$PROJECT_ID/java-cloud-builder
-      entrypoint: ./gradlew
-      args:
-      - continuousTest
-      - --stacktrace
-      - --no-daemon
-      env:
-      - CI=true
-  timeout: 60m
-  secrets:
-  - kmsKeyName: projects/curioswitch-cluster/locations/global/keyRings/cloudbuild/cryptoKeys/github
-    secretEnv:
-      GITHUB_TOKEN: CiQAuiNYMVmykiKA+o3aGhQWKU9IrSaVSLyf3Ssfka4dzF3Tu0USUQBMY6gZlatrBfJMsnBz9kJ0/QLVvEgolPpttVqHReNLWb5ShhP8dn75Ejy+30tHHn/79YMdby/8rZoHlDZjUm6DO5wm+YXyKxezqlVVDnBJ6Q==
+repos:
+  curioswitch/curiostack:
+    encryptedGithubToken: CiQAuiNYMVmykiKA+o3aGhQWKU9IrSaVSLyf3Ssfka4dzF3Tu0USUQBMY6gZlatrBfJMsnBz9kJ0/QLVvEgolPpttVqHReNLWb5ShhP8dn75Ejy+30tHHn/79YMdby/8rZoHlDZjUm6DO5wm+YXyKxezqlVVDnBJ6Q==
+    cloudbuild:
+      steps:
+        - id: fetch-source
+          # Use gcloud image instead of git, since the latter sets gcloud credentials and prevents
+          # GIT_ASKPASS from working.
+          name: gcr.io/cloud-builders/gcloud
+          entrypoint: bash
+          args:
+          - -c
+          # Use same commands as Jenkins with PreBuildMerge.
+          - |
+            echo 'echo $$GITHUB_TOKEN' > /tmp/cloudbuild-github-pass.sh && \
+            chmod +x /tmp/cloudbuild-github-pass.sh && \
+            git init && \
+            git fetch --no-tags --progress $_REPOSITORY_URL +$_OTHER_BRANCH_REMOTE_REF:$_OTHER_BRANCH_LOCAL_REF +$_BASE_BRANCH_REMOTE_REF:$_BASE_BRANCH_LOCAL_REF && \
+            git config remote.origin.url $_REPOSITORY_URL && \
+            git config user.name cloudbuild && \
+            git config user.email cloudbuild@example.com && \
+            git checkout -f $_OTHER_BRANCH_LOCAL_REF && \
+            git merge --no-ff --no-edit --no-progress $_BASE_BRANCH_LOCAL_REF && \
+            MERGE_REV=$(git rev-parse HEAD^{commit}) && \
+            git checkout -f $_BASE_BRANCH_LOCAL_REF && \
+            git merge --no-ff --no-edit --no-progress $$MERGE_REV && \
+            MERGE_REV=$(git rev-parse HEAD^{commit}) && \
+            git checkout -f $$MERGE_REV
+          env:
+          - GIT_ASKPASS=/tmp/cloudbuild-github-pass.sh
+          secretEnv:
+          - GITHUB_TOKEN
+        - id: build-all
+          name: gcr.io/$PROJECT_ID/java-cloud-builder
+          entrypoint: ./gradlew
+          args:
+          - continuousTest
+          - --stacktrace
+          - --no-daemon
+          env:
+          - CI=true
+      timeout: 60m
+      secrets:
+      - kmsKeyName: projects/curioswitch-cluster/locations/global/keyRings/cloudbuild/cryptoKeys/github
+        secretEnv:
+          GITHUB_TOKEN: CiQAuiNYMVmykiKA+o3aGhQWKU9IrSaVSLyf3Ssfka4dzF3Tu0USUQBMY6gZlatrBfJMsnBz9kJ0/QLVvEgolPpttVqHReNLWb5ShhP8dn75Ejy+30tHHn/79YMdby/8rZoHlDZjUm6DO5wm+YXyKxezqlVVDnBJ6Q==
