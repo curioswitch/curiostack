@@ -2,10 +2,10 @@ kms:
   location: us-central1
   keyring: cloudbuild
   key: github
-encryptedWebhookSecret: CiQAxdYgHBZcPHTIJ9byAgZ9lbNsYW8++z9pl0DvHzHtGbbD1EISPAA/OpLBXiAIhW6tE+dArwIV/P/c0jKuh6E74YXmkZpgLtr+9J6hmOY5GyC2lvAqDPb/VFXnI+d0RswM/w==
+encryptedWebhookSecret: CiQAxdYgHJB9AXKH4i4YKOyXwXUX0DRhALZPAhRCKgP3nnDFPmkSPQA/OpLBgpyFTL5Q76v7oNq3Vse8N8KMeK/MGucW+Ox4H0aNIFegcX23miuYPzug3T0NQ5sQm0YddvA9dAk=
 repos:
   curioswitch/curiostack:
-    encryptedGithubToken: CiQAxdYgHAe9vpyYsAJhWCq+Gld7EFyvYVKqmPWUsZKtdlKuwHkSUQA/OpLBTOXGX1vqFXv28CLfkzcqsSukoN4eOoudRsSm28h5a3ImgZDTSJNU5w7lovJrPyLtzYX97lQ1zyc0k058xE1DP1/9hnK+HAkjsujV6Q==
+    encryptedGithubToken: CiQAxdYgHEoOUqReR+fSuUBil5DON+3hhzaHavInF11ViVXfkgESUQA/OpLBqfATDj0jSQWWIS3cW5VUBEcZTHx6NfSAOwO1h2i8vyoq8euBNPOhLAZBnN45sj4khnNLXUxMCATTecPJ1Nna7DBcFXEKRth9Zq93dg==
     cloudbuild:
       steps:
         - id: fetch-source
@@ -45,4 +45,4 @@ repos:
       secrets:
         - kmsKeyName: projects/curioswitch-cluster/locations/us-central1/keyRings/cloudbuild/cryptoKeys/github
           secretEnv:
-            GITHUB_TOKEN: CiQAxdYgHAe9vpyYsAJhWCq+Gld7EFyvYVKqmPWUsZKtdlKuwHkSUQA/OpLBTOXGX1vqFXv28CLfkzcqsSukoN4eOoudRsSm28h5a3ImgZDTSJNU5w7lovJrPyLtzYX97lQ1zyc0k058xE1DP1/9hnK+HAkjsujV6Q==
+            GITHUB_TOKEN: CiQAxdYgHEoOUqReR+fSuUBil5DON+3hhzaHavInF11ViVXfkgESUQA/OpLBqfATDj0jSQWWIS3cW5VUBEcZTHx6NfSAOwO1h2i8vyoq8euBNPOhLAZBnN45sj4khnNLXUxMCATTecPJ1Nna7DBcFXEKRth9Zq93dg==

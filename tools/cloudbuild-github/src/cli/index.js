@@ -23,6 +23,13 @@
  * SOFTWARE.
  */
 
+import process from 'process';
+
 import setup from './setup';
 
-setup();
+setup()
+  .then(() => process.exit())
+  .catching((err) => {
+    console.error('Unexpected error.', err);
+    process.exit(1);
+  });
