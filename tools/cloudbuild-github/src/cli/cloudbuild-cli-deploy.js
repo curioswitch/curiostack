@@ -24,17 +24,16 @@
 
 // @flow
 
-import fs from 'fs';
 import process from 'process';
 
 import { spawn } from 'child-process-promise';
 import program from 'commander';
 import inquirer from 'inquirer';
-import yaml from 'js-yaml';
 import request from 'request-promise-native';
 
 import packageJson from '../../package.json';
 
+import config from '../config';
 import { googleApis } from '../gcloud';
 import { keyManager } from '../keymanager';
 
@@ -65,8 +64,6 @@ async function deploy() {
   const ui = new inquirer.ui.BottomBar();
 
   const projectId = await googleApis.getProjectId();
-
-  const config = yaml.safeLoad(fs.readFileSync('config.yml'));
 
   const webhookSecret = keyManager.getWebhookSecret();
 
