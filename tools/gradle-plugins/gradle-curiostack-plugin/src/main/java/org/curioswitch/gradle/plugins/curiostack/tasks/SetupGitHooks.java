@@ -35,6 +35,8 @@ import org.gradle.api.tasks.TaskAction;
 public class SetupGitHooks extends DefaultTask {
 
   private static final String HOOK_FILE = "#!/bin/sh\n\n"
+      + "echo 'Running pre-push check of affected targets. If you want to skip this, run "
+      + "git push --no-verify instead.'\n"
       + "./gradlew continuousCheck -Pci=true";
 
   public SetupGitHooks() {
