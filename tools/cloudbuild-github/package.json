@@ -24,7 +24,8 @@
     "prebuild": "yarn run build:clean",
     "build": "babel ./src -d ./build",
     "build:clean": "rimraf ./build",
-    "prepublish": "yarn run build"
+    "prepublish": "yarn run build",
+    "type-check": "../../node_modules/.bin/tsc"
   },
   "babel": {
     "presets": [
@@ -121,6 +122,7 @@
     "request-promise-native": "1.0.5"
   },
   "devDependencies": {
+    "@curiostack/base-node-dev": "0.0.1",
     "babel-cli": "6.26.0",
     "babel-core": "6.26.0",
     "babel-eslint": "8.1.1",

@@ -1,7 +1,7 @@
 {
-  "name": "tslint-config-base",
+  "name": "@curiostack/base-node-dev",
   "version": "0.0.1",
-  "description": "Curiostack's base tslint config for non-browser applications.",
+  "description": "Curiostack's base dev dependencies for non-browser applications.",
   "main": "build/index.js",
   "repository": "curioswitch/curiostack",
   "author": "Choko <choko@curioswitch.org>",
