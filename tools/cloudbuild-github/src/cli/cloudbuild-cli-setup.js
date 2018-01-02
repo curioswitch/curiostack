@@ -129,7 +129,7 @@ async function setup() {
       name: 'repo.token',
       message:
         'Paste-in a GitHub personal access token with repo and hook permissions ' +
-        '- generate at "https://github.com/settings/tokens/new?scopes=repo,admin:repo_hook&description=cloudbuild"',
+        '- generate at \nhttps://github.com/settings/tokens/new?scopes=repo,admin:repo_hook&description=cloudbuild\n',
       validate: (val) => !!val || 'Access token is required.',
     },
   ]);
