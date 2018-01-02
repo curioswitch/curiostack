@@ -24,13 +24,11 @@
 
 // @flow
 
-import fs from 'fs';
 import process from 'process';
 
 import { spawn } from 'child-process-promise';
 import program from 'commander';
 import inquirer from 'inquirer';
-import yaml from 'js-yaml';
 import request from 'request-promise-native';
 
 import packageJson from '../../package.json';
@@ -66,15 +64,7 @@ async function deploy() {
 
   const projectId = await googleApis.getProjectId();
 
-  const config = yaml.safeLoad(fs.readFileSync('config.yml'));
-
-  const { kms } = config;
-  const webhookSecret = await googleApis.decryptKey(
-    kms.location,
-    kms.keyring,
-    kms.key,
-    config.encryptedWebhookSecret,
-  );
+  const webhookSecret = keyManager.getWebhookSecret();
 
   ui.log.write('Deploying cloud functions.');
   if (program.delete) {
