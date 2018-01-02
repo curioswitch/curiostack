@@ -24,6 +24,7 @@
 
 package org.curioswitch.gradle.plugins.ci;
 
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
@@ -53,6 +54,9 @@ import org.gradle.api.plugins.JavaPlugin;
 
 public class CurioGenericCiPlugin implements Plugin<Project> {
 
+  private static final List<String> CONTINUOUS_TASK_TYPES =
+      ImmutableList.of("build", "check", "test");
+
   @Override
   public void apply(Project project) {
     if (project.getParent() != null) {
@@ -60,7 +64,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
           "curio-generic-ci-plugin can only be " + "applied to the root project.");
     }
 
-    if (System.getenv("CI") == null) {
+    if (System.getenv("CI") == null && !project.getRootProject().hasProperty("ci")) {
       return;
     }
 
@@ -73,33 +77,60 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       return;
     }
 
+    if (affectedProjects.contains(project.getRootProject())) {
+      // Rebuild everything when the root project is changed.
+      for (String type : CONTINUOUS_TASK_TYPES) {
+        Task continuousTask =
+            project.task("continuous" + Character.toUpperCase(type.charAt(0)) + type.substring(1));
+        project.allprojects(
+            proj ->
+                proj.afterEvaluate(
+                    p -> {
+                      Task task = p.getTasks().findByName(type);
+                      if (task != null) {
+                        continuousTask.dependsOn(task);
+                      }
+                    }));
+      }
+      return;
+    }
+
     project.allprojects(
         p ->
             p.getPlugins()
                 .withType(JavaPlugin.class)
                 .whenPluginAdded(
                     plugin -> {
-                      Task testDependents = p.task("testDependents");
-                      testDependents.dependsOn(p.getTasks().findByName("build"));
-                      testDependents.dependsOn(
-                          p.getConfigurations()
-                              .getByName("testRuntime")
-                              .getTaskDependencyFromProjectDependency(false, "testDependents"));
+                      for (String type : CONTINUOUS_TASK_TYPES) {
+                        String dependentsTaskName = type + "Dependents";
+                        if (p.getTasks().findByName(dependentsTaskName) != null) {
+                          return;
+                        }
+                        Task dependents = p.task(dependentsTaskName);
+                        dependents.dependsOn(p.getTasks().findByName(type));
+                        dependents.dependsOn(
+                            p.getConfigurations()
+                                .getByName("testRuntime")
+                                .getTaskDependencyFromProjectDependency(false, dependentsTaskName));
+                      }
                     }));
 
-    Task continuousTest = project.task("continuousTest");
-    for (Project proj : affectedProjects) {
-      proj.afterEvaluate(
-          p -> {
-            Task testTask = p.getTasks().findByName("check");
-            if (testTask != null) {
-              continuousTest.dependsOn(testTask);
-            }
-            Task testDependentsTask = p.getTasks().findByName("testDependents");
-            if (testDependentsTask != null) {
-              continuousTest.dependsOn(testDependentsTask);
-            }
-          });
+    for (String type : CONTINUOUS_TASK_TYPES) {
+      Task continuousTask =
+          project.task("continuous" + Character.toUpperCase(type.charAt(0)) + type.substring(1));
+      for (Project proj : affectedProjects) {
+        proj.afterEvaluate(
+            p -> {
+              Task task = p.getTasks().findByName(type);
+              if (task != null) {
+                continuousTask.dependsOn(task);
+              }
+              Task dependentsTask = p.getTasks().findByName(type + "Dependents");
+              if (dependentsTask != null) {
+                continuousTask.dependsOn(dependentsTask);
+              }
+            });
+      }
     }
   }
 
@@ -152,8 +183,11 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
   }
 
   private Set<String> computeAffectedFilesForBranch(Git git, String branch) throws IOException {
+    String masterRemote =
+        git.getRepository().getRemoteNames().contains("upstream") ? "upstream" : "origin";
     CanonicalTreeParser oldTreeParser =
-        parserForBranch(git, git.getRepository().exactRef("refs/remotes/origin/master"));
+        parserForBranch(
+            git, git.getRepository().exactRef("refs/remotes/" + masterRemote + "/master"));
     CanonicalTreeParser newTreeParser =
         parserForBranch(git, git.getRepository().exactRef(Constants.HEAD));
     return computeAffectedFiles(git, oldTreeParser, newTreeParser);
