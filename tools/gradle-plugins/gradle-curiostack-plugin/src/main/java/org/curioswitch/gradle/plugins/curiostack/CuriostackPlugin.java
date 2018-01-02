@@ -57,6 +57,7 @@ import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
+import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
@@ -98,6 +99,8 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
+
+    rootProject.getTasks().create("setupGitHooks", SetupGitHooks.class);
 
     String baselineFiles;
     try {
