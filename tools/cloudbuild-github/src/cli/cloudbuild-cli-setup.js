@@ -26,11 +26,13 @@
 
 import crypto from 'crypto';
 import fs from 'fs';
+import process from 'process';
 
-import { spawn } from 'child-process-promise';
+import program from 'commander';
 import inquirer from 'inquirer';
-import request from 'request-promise-native';
 import yaml from 'js-yaml';
+
+import packageJson from '../../package.json';
 
 import { googleApis } from '../gcloud';
 
@@ -87,30 +89,7 @@ const indexJs = `/*
 module.exports = require('@curiostack/cloudbuild-github');
 `;
 
-const GITHUB_API_BASE = 'https://api.github.com';
-
-async function makeGithubRequest(
-  uri: string,
-  body: any,
-  token: string,
-  method: string = 'POST',
-) {
-  return request({
-    method,
-    uri,
-    body,
-    json: true,
-    headers: {
-      'User-Agent': 'cloudbuild-github',
-    },
-    auth: {
-      user: 'token',
-      pass: token,
-    },
-  });
-}
-
-export default async function setup() {
+async function setup() {
   const ui = new inquirer.ui.BottomBar();
 
   const answers = await inquirer.prompt([
@@ -174,11 +153,11 @@ export default async function setup() {
       throw err;
     }
   }
-  await googleApis.setDecrypter(
-    location,
-    keyring,
+  const projectNumber = await googleApis.getProjectNumber();
+  await googleApis.setDecrypters(location, keyring, [
     `${projectId}@appspot.gserviceaccount.com`,
-  );
+    `${projectNumber}@cloudbuild.gserviceaccount.com`,
+  ]);
 
   ui.log.write('Encrypting secrets.');
   const encryptedWebhookSecret = await googleApis.encryptKey(
@@ -243,64 +222,17 @@ export default async function setup() {
   fs.writeFileSync('config.yml', configYaml);
   fs.writeFileSync('index.js', indexJs);
 
-  ui.log.write('Deploying cloud functions.');
-  await spawn(
-    'gcloud',
-    [
-      'beta',
-      'functions',
-      'deploy',
-      'cloudbuildGithubWebhook',
-      '--trigger-http',
-    ],
-    { stdio: 'inherit' },
+  ui.log.write(
+    'Done! Edit config.yml with any more customizations and run deploy.',
   );
-  await spawn(
-    'gcloud',
-    [
-      'beta',
-      'functions',
-      'deploy',
-      'cloudbuildGithubNotifier',
-      '--trigger-topic',
-      'cloud-builds',
-    ],
-    { stdio: 'inherit' },
-  );
-
-  const webhookUrl = `https://us-central1-${projectId}.cloudfunctions.net/cloudbuildGithubWebhook`;
-
-  ui.log.write('Setting up repository webhook');
-  const hooksUri = `${GITHUB_API_BASE}/repos/${answers.repo.name}/hooks`;
-  const existingHooks = await makeGithubRequest(
-    hooksUri,
-    null,
-    answers.repo.token,
-    'GET',
-  );
-  await Promise.all(
-    existingHooks
-      .filter((hook) => hook.config.url === webhookUrl)
-      .map((hook) =>
-        makeGithubRequest(
-          `${hooksUri}/${hook.id}`,
-          null,
-          answers.repo.token,
-          'DELETE',
-        ),
-      ),
-  );
-
-  const hook = {
-    name: 'web',
-    config: {
-      url: webhookUrl,
-      content_type: 'json',
-      secret: webhookSecret,
-    },
-    events: ['pull_request'],
-  };
-  await makeGithubRequest(hooksUri, hook, answers.repo.token);
-
-  ui.log.write('Done!');
 }
+
+program.version(packageJson.version).parse(process.argv);
+
+setup().then(
+  () => process.exit(),
+  (err) => {
+    console.error('Unexpected error.', err);
+    process.exit(1);
+  },
+);
