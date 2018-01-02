@@ -77,6 +77,24 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       return;
     }
 
+    if (affectedProjects.contains(project.getRootProject())) {
+      // Rebuild everything when the root project is changed.
+      for (String type : CONTINUOUS_TASK_TYPES) {
+        Task continuousTask =
+            project.task("continuous" + Character.toUpperCase(type.charAt(0)) + type.substring(1));
+        project.allprojects(
+            proj ->
+                proj.afterEvaluate(
+                    p -> {
+                      Task task = p.getTasks().findByName(type);
+                      if (task != null) {
+                        continuousTask.dependsOn(task);
+                      }
+                    }));
+      }
+      return;
+    }
+
     project.allprojects(
         p ->
             p.getPlugins()
