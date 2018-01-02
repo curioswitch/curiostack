@@ -97,8 +97,11 @@ gradlePlugin {
             id = 'org.curioswitch.gradle-curio-generic-ci-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin'
         }
+        cloudbuildGithub {
+            id = 'org.curioswitch.gradle-curio-cloudbuild-github-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.cloudbuild.CloudbuildGithubPlugin'
+        }
         cluster {
-
             id = 'org.curioswitch.gradle-curio-cluster-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.gcloud.ClusterPlugin'
         }

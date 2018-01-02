@@ -156,7 +156,7 @@ async function deploy() {
 
 program
   .version(packageJson.version)
-  .option('-d, --delete', 'Delete existing functions first')
+  .option('--delete', 'Delete existing functions first')
   .parse(process.argv);
 
 deploy().then(

@@ -37,7 +37,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.75'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.76'
     }
 }
 
@@ -66,5 +66,6 @@ include ':curioswitch:portal:server'
 include ':curioswitch:portal:client:web'
 include ':database:yourmakedb:dev'
 include ':eggworld:api', 'eggworld:client:web', ':eggworld:server'
+include ':tools:cloudbuild-github-functions'
 include ':tools:gradle-plugins:gradle-curiostack-plugin'
 include ':tools:gradle-plugins:java-groovy-compat'

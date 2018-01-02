@@ -89,6 +89,10 @@ const indexJs = `/*
 module.exports = require('@curiostack/cloudbuild-github');
 `;
 
+const DEFAULT_KMS_LOCATION = 'us-central1';
+const DEFAULT_KMS_KEYRING = 'cloudbuild';
+const DEFAULT_KMS_KEY = 'github';
+
 async function setup() {
   const ui = new inquirer.ui.BottomBar();
 
@@ -96,22 +100,25 @@ async function setup() {
     {
       name: 'kms.location',
       message: 'Enter the location for the keyring used to encrypt secrets.',
-      default: 'us-central1',
+      default: DEFAULT_KMS_LOCATION,
       validate: (val) => KMS_LOCATIONS.includes(val) || 'Invalid KMS location.',
+      when: !program.defaults,
     },
     {
       name: 'kms.keyring',
       message:
         'Enter the name of the keyring used to encrypt secrets. ' +
         'Will be created if it does not exist.',
-      default: 'cloudbuild',
+      default: DEFAULT_KMS_KEYRING,
+      when: !program.defaults,
     },
     {
       name: 'kms.key',
       message:
         'Enter the name of the key used to encrypt secrets. ' +
         'Will be created if it does not exist.',
-      default: 'github',
+      default: DEFAULT_KMS_KEY,
+      when: !program.defaults,
     },
     {
       name: 'repo.name',
@@ -127,7 +134,12 @@ async function setup() {
     },
   ]);
 
-  const { location, keyring, key } = answers.kms;
+  const {
+    location = DEFAULT_KMS_LOCATION,
+    keyring = DEFAULT_KMS_KEYRING,
+    key = DEFAULT_KMS_KEY,
+  } =
+    answers.kms || {};
 
   const webhookSecret = crypto.randomBytes(10).toString('hex');
   const projectId = await googleApis.getProjectId();
@@ -174,7 +186,11 @@ async function setup() {
   );
 
   const config = {
-    kms: answers.kms,
+    kms: {
+      location,
+      keyring,
+      key,
+    },
     encryptedWebhookSecret,
     repos: {
       [answers.repo.name]: {
@@ -201,9 +217,7 @@ async function setup() {
           timeout: '60m',
           secrets: [
             {
-              kmsKeyName: `projects/${projectId}/locations/${
-                answers.kms.location
-              }/keyRings/${answers.kms.keyring}/cryptoKeys/${answers.kms.key}`,
+              kmsKeyName: `projects/${projectId}/locations/${location}/keyRings/${keyring}/cryptoKeys/${key}`,
               secretEnv: {
                 GITHUB_TOKEN: encryptedGithubToken,
               },
@@ -227,7 +241,10 @@ async function setup() {
   );
 }
 
-program.version(packageJson.version).parse(process.argv);
+program
+  .version(packageJson.version)
+  .option('--defaults', 'Use defaults')
+  .parse(process.argv);
 
 setup().then(
   () => process.exit(),

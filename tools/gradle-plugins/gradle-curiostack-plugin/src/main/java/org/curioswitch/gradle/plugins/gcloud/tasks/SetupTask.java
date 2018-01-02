@@ -53,6 +53,8 @@ public class SetupTask extends DefaultTask {
     this.config = getProject().getExtensions().getByType(GcloudExtension.class);
     platformConfig = config.platformConfig();
     repositoriesBackup = new ArrayList<>(getProject().getRepositories());
+
+    onlyIf(unused -> !getProject().file(platformConfig.sdkDir()).exists());
   }
 
   @TaskAction
