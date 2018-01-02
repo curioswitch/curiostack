@@ -1,0 +1,16 @@
+{
+  "presets": [
+    ["@babel/preset-env", {
+      "targets": {
+        "browsers": {
+          "node": "6.11.5"
+        }
+      },
+      "modules": false
+    }]
+  ],
+  "plugins": [
+    "babel-plugin-add-module-exports",
+    "@babel/plugin-transform-modules-commonjs"
+  ]
+}
