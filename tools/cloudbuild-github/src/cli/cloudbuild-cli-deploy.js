@@ -65,7 +65,7 @@ async function deploy() {
 
   const projectId = await googleApis.getProjectId();
 
-  const webhookSecret = keyManager.getWebhookSecret();
+  const webhookSecret = await keyManager.getWebhookSecret();
 
   ui.log.write('Deploying cloud functions.');
   if (program.delete) {
