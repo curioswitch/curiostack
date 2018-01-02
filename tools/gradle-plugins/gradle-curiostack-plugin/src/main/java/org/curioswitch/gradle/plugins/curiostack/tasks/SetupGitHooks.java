@@ -34,10 +34,11 @@ import org.gradle.api.tasks.TaskAction;
 
 public class SetupGitHooks extends DefaultTask {
 
-  private static final String HOOK_FILE = "#!/bin/sh\n\n"
-      + "echo 'Running pre-push check of affected targets. If you want to skip this, run "
-      + "git push --no-verify instead.'\n"
-      + "./gradlew continuousCheck -Pci=true";
+  private static final String HOOK_FILE =
+      "#!/bin/sh\n\n"
+          + "echo 'Running pre-push check of affected targets. If you want to skip this, run "
+          + "git push --no-verify instead.'\n"
+          + "./gradlew continuousCheck -Pci=true";
 
   public SetupGitHooks() {
     getOutputs().file(".git/hooks/pre-push");
@@ -46,8 +47,10 @@ public class SetupGitHooks extends DefaultTask {
   @TaskAction
   public void exec() {
     try {
-      Files.write(Paths.get(".git", "hooks", "pre-push"),
-          HOOK_FILE.getBytes(StandardCharsets.UTF_8)).toFile().setExecutable(true);
+      Files.write(
+              Paths.get(".git", "hooks", "pre-push"), HOOK_FILE.getBytes(StandardCharsets.UTF_8))
+          .toFile()
+          .setExecutable(true);
     } catch (IOException e) {
       throw new UncheckedIOException("Could not write pre-push hook.", e);
     }
