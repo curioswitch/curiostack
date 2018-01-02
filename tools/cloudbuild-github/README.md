@@ -7,7 +7,12 @@ webhook and status / comment notifications using Google Cloud Functions.
 
 ### Curiostack users
 
-Coming soon: A gradle task that does all above the below automatically.
+Create a new project with the `org.curioswitch.gradle-curio-cloudbuild-github-plugin` applied and
+run the `:deploy` task, e.g.,
+
+```bash
+$ ./gradlew :tools:cloudbuild-github-functions:deploy
+```
 
 ### Normal usage
 
