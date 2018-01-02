@@ -22,6 +22,8 @@
 # SOFTWARE.
 #
 
+# TEST CHANGE - DO NOT MERGE
+
 # An image that inherits from itself. Any files stored outside the working directory volume, like
 # dependency jars, will be saved into the image. By rebuilding itself before any build of the
 # repository, dependency jars can be cached continuously.
