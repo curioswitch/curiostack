@@ -25,11 +25,12 @@
 
 import process from 'process';
 
-import setup from './setup';
+import program from 'commander';
 
-setup()
-  .then(() => process.exit())
-  .catching((err) => {
-    console.error('Unexpected error.', err);
-    process.exit(1);
-  });
+import packageJson from '../../package.json';
+
+program
+  .version(packageJson.version)
+  .command('setup', 'First-time setup of encryption keys and configuration')
+  .command('deploy', 'Deploy cloud functions')
+  .parse(process.argv);

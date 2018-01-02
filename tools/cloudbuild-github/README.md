@@ -13,7 +13,7 @@ Coming soon: A gradle task that does all above the below automatically.
 
 The `gcloud` must be present on the path (see https://cloud.google.com/sdk/downloads) for how to 
 install. In addition, the `GCLOUD_PROJECT` environment variable may need to be set to your GCP
-project id.
+project ID.
 
 Start by creating a new project with a dependency on the library.
 
@@ -27,32 +27,38 @@ This will download the library, including a CLI to help setup. To create the con
 and deploy it, run
 
 ```bash
-$ yarn run cloudbuild-cli
+$ yarn run cloudbuild-cli setup
+$ # Customize config.yml (e.g., replacing build step)
+$ yarn run cloudbuild-cli deploy
 ```
 
 This will prompt you for information about your repository, including an access token for working with
 your GitHub repository (see details about tokens [here](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)).
 It will then write out an `index.js` and `config.yml` file that will be used by the webhook, deploy
-the cloud functions, and set up the repository webhook.
+the cloud functions, and set up the repository webhook. That's it.
 
-Currently does not add the correct permissions to the cloudbuild account for decrypting keys and this
-needs to be done on the cloud console. This will be fixed shortly.
-
-The current version does not support an easy flow for editing configuration yet (coming soon). In the
-meantime, especially for modifying the build step to match your build system, edit `config.yml` and
-redeploy manually using
+If you update the configuration, just run deploy again.
 
 ```bash
-$ yarn run build
-$ gcloud beta functions deploy cloudbuildGithubWebhook --trigger-http
-$ gcloud beta functions deploy cloudbuildGithubNotifier --trigger-topic cloud-builds
+$ yarn run cloudbuild-cli deploy
 ```
 
-Note, I have been unsuccessful in having new code be recognized when redeploying (bug in cloud functions?).
-To work around this, you may need to delete the functions before redeploying - this will introduce
-downtime between the delete and deploy.
+If you have trouble getting redeployed functions to update, add the `--delete` option when deploying.
+This will delete the function before deploying, so there will be some downtime. Hopefully as cloud
+functions matures, redeploys will work reliably and this option will go away.
 
 ```bash
-$ gcloud beta functions delete cloudbuildGithubWebhook
-$ gcloud beta functions delete cloudbuildGithubNotifier
+$ yarn run cloudbuild-cli deploy --delete
 ```
+
+## Details
+
+This package includes two cloud functions, a GitHub webhook and a pubsub subscriber to cloudbuild events.
+In response to an incoming webhook request, the first function will use the cloudbuild REST API to 
+start a new build, which is configured to fetch the source from GitHub and then run a build command.
+The subscriber function is notified of all build events, and appropriately sets the GitHub status and
+comments on success or failure for change.
+
+The webhook only supports pull requests, it does not implement support for repository push events.
+It is trivial to set up a triggered cloudbuild within GCP itself and is recommended to do so. The
+subscriber will properly run on events for triggered builds too.

@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/cloudbuild-github",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Integration between Google Container Builder and GitHub.",
   "keywords": [
     "github",
@@ -14,7 +14,7 @@
   "author": "Choko <choko@curioswitch.org>",
   "main": "build/index.js",
   "bin": {
-    "cloudbuild-cli": "build/cli/index.js"
+    "cloudbuild-cli": "build/cli/cloudbuild-cli.js"
   },
   "directories": {
     "lib": "build"
@@ -111,6 +111,7 @@
   "dependencies": {
     "@octokit/webhooks": "3.1.0",
     "child-process-promise": "2.2.1",
+    "commander": "2.12.2",
     "es6-promisify": "5.0.0",
     "googleapis": "23.0.0",
     "inquirer": "4.0.1",
@@ -137,7 +138,7 @@
     "eslint-plugin-prettier": "2.4.0",
     "eslint-plugin-react": "7.5.1",
     "eslint-plugin-redux-saga": "0.6.0",
-    "flow-bin": "0.61.0",
+    "flow-bin": "0.62.0",
     "prettier": "1.9.2",
     "rimraf": "2.6.2"
   }

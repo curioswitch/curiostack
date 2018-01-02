@@ -45,6 +45,8 @@ type DecryptKmsResult = {
 class GoogleApis {
   projectId: ?string = null;
 
+  getGoogleProject = null;
+
   cancelBuild: ?(any) => Promise<any> = null;
   createBuild: ?(CreateBuildRequest) => Promise<CreateBuildResponse> = null;
   listBuilds: ?(any) => Promise<any> = null;
@@ -62,6 +64,18 @@ class GoogleApis {
       throw new Error('Not initialized.');
     }
     return this.projectId;
+  }
+
+  async getProjectNumber() {
+    await this.init();
+
+    if (!this.getGoogleProject) {
+      throw new Error('Not initialized.');
+    }
+    const { projectNumber } = await this.getGoogleProject({
+      projectId: this.projectId,
+    });
+    return projectNumber;
   }
 
   async createKeyring(location: string, keyring: string) {
@@ -159,10 +173,10 @@ class GoogleApis {
     return ciphertext;
   }
 
-  async setDecrypter(
+  async setDecrypters(
     location: string,
     keyring: string,
-    serviceAccount: string,
+    serviceAccounts: string[],
   ) {
     await this.init();
 
@@ -179,7 +193,7 @@ class GoogleApis {
           bindings: [
             {
               role: 'roles/cloudkms.cryptoKeyDecrypter',
-              members: [`serviceAccount:${serviceAccount}`],
+              members: serviceAccounts.map((acc) => `serviceAccount:${acc}`),
             },
           ],
         },
@@ -269,6 +283,16 @@ class GoogleApis {
 
     const { auth, projectId } = await this.authorize();
     this.projectId = projectId;
+
+    const resourceManager = google.cloudresourcemanager({
+      version: 'v1',
+      auth,
+    });
+    this.getGoogleProject = promisify(
+      resourceManager.projects.get,
+      resourceManager,
+    );
+
     const cloudkms = google.cloudkms({ version: 'v1', auth });
     this.createKmsKeyring = promisify(
       cloudkms.projects.locations.keyRings.create,
