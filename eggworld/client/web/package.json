@@ -47,7 +47,6 @@
   "lint-staged": {
     "*.js": "lint:eslint"
   },
-  "pre-commit": "lint:staged",
   "babel": {
     "plugins": [
       "styled-components"
@@ -300,7 +299,6 @@
     "null-loader": "0.1.1",
     "offline-plugin": "4.8.3",
     "plop": "1.8.1",
-    "pre-commit": "1.2.2",
     "react-test-renderer": "15.6.1",
     "rimraf": "2.6.1",
     "shelljs": "0.7.8",
