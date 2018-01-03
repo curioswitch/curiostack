@@ -22,44 +22,32 @@
  * SOFTWARE.
  */
 
-// @flow
+import * as fs from 'fs';
+import * as path from 'path';
 
-import { googleApis } from './gcloud';
+import * as yaml from 'js-yaml';
 
-import config from './config';
-
-class KeyManager {
-  decryptedKeys: Map<string, string> = new Map();
-
-  async getGithubToken(repo: string) {
-    return this.getDecrypted(
-      config.repos[repo].encryptedGithubToken,
-      `GITHUB_TOKEN-${repo}`,
-    );
-  }
-
-  async getWebhookSecret() {
-    return this.getDecrypted(config.encryptedWebhookSecret, 'WEBHOOK_SECRET');
-  }
-
-  async getDecrypted(encryptedBase64: string, cacheKey: string) {
-    const cached = this.decryptedKeys.get(cacheKey);
-    if (cached) {
-      return cached;
-    }
-    console.log('Decrypting ', cacheKey);
-    const decrypted = Buffer.from(
-      await googleApis.decryptKey(
-        config.kms.location,
-        config.kms.keyring,
-        config.kms.key,
-        encryptedBase64,
-      ),
-      'base64',
-    ).toString('ascii');
-    this.decryptedKeys.set(cacheKey, decrypted);
-    return decrypted;
-  }
+export interface IRepos {
+  [repo: string]: {
+    encryptedGithubToken: string;
+    cloudbuild: any & {
+      timeout?: string;
+    };
+  };
 }
 
-export const keyManager = new KeyManager();
+export interface IConfig {
+  kms: {
+    location: string;
+    keyring: string;
+    key: string;
+  };
+  encryptedWebhookSecret: string;
+  repos: IRepos;
+}
+
+const config: IConfig = yaml.safeLoad(
+  fs.readFileSync(path.resolve('config.yml'), 'utf8'),
+);
+
+export default config;

@@ -22,22 +22,31 @@
  * SOFTWARE.
  */
 
-// @flow
-
-import process from 'process';
+import * as process from 'process';
 
 import { spawn } from 'child-process-promise';
-import program from 'commander';
-import inquirer from 'inquirer';
-import request from 'request-promise-native';
+import * as program from 'commander';
+import * as inquirer from 'inquirer';
+import * as request from 'request-promise-native';
 
-import packageJson from '../../package.json';
+import * as packageJson from '../../package.json';
 
 import config from '../config';
 import { googleApis } from '../gcloud';
 import { keyManager } from '../keymanager';
 
 const GITHUB_API_BASE = 'https://api.github.com';
+
+interface IHook {
+  id?: string;
+  name: string;
+  config: {
+    url: string;
+    content_type: string;
+    secret: string;
+  };
+  events: string[];
+}
 
 async function makeGithubRequest(
   uri: string,
@@ -127,18 +136,13 @@ async function deploy() {
       );
       await Promise.all(
         existingHooks
-          .filter((hook) => hook.config.url === webhookUrl)
-          .map((hook) =>
-            makeGithubRequest(
-              `${hooksUri}/${hook.id}`,
-              null,
-              repoToken,
-              'DELETE',
-            ),
+          .filter((h: IHook) => h.config.url === webhookUrl)
+          .map(async (h: IHook) =>
+            makeGithubRequest(`${hooksUri}/${h.id}`, null, repoToken, 'DELETE'),
           ),
       );
 
-      const hook = {
+      const hook: IHook = {
         name: 'web',
         config: {
           url: webhookUrl,
@@ -147,7 +151,7 @@ async function deploy() {
         },
         events: ['pull_request'],
       };
-      await makeGithubRequest(hooksUri, hook, repoToken);
+      return makeGithubRequest(hooksUri, hook, repoToken);
     }),
   );
 

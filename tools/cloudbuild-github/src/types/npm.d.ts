@@ -22,24 +22,9 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    'tslint:latest',
-    'tslint-config-airbnb-base',
-    'tslint-config-prettier',
-  ],
-  rules: {
-    'cyclomatic-complexity': false,
-    'no-console': false,
-    'object-literal-sort-keys': false,
-    prettier: [
-      true,
-      {
-        arrowParens: 'always',
-        singleQuote: true,
-        trailingComma: 'all',
-      },
-    ],
-  },
-  rulesDirectory: ['tslint-plugin-prettier'],
-};
+declare module '*/package.json' {
+  const value: {
+    version: string;
+  };
+  export = value;
+}

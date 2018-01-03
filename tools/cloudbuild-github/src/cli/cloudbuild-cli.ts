@@ -1,7 +1,8 @@
+#!/usr/bin/env node
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2017 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,24 +23,14 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    'tslint:latest',
-    'tslint-config-airbnb-base',
-    'tslint-config-prettier',
-  ],
-  rules: {
-    'cyclomatic-complexity': false,
-    'no-console': false,
-    'object-literal-sort-keys': false,
-    prettier: [
-      true,
-      {
-        arrowParens: 'always',
-        singleQuote: true,
-        trailingComma: 'all',
-      },
-    ],
-  },
-  rulesDirectory: ['tslint-plugin-prettier'],
-};
+import * as process from 'process';
+
+import * as program from 'commander';
+
+import * as packageJson from '../../package.json';
+
+program
+  .version(packageJson.version)
+  .command('setup', 'First-time setup of encryption keys and configuration')
+  .command('deploy', 'Deploy cloud functions')
+  .parse(process.argv);

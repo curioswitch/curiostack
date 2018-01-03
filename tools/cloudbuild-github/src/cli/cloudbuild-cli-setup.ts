@@ -22,17 +22,15 @@
  * SOFTWARE.
  */
 
-// @flow
+import * as crypto from 'crypto';
+import * as fs from 'fs';
+import * as process from 'process';
 
-import crypto from 'crypto';
-import fs from 'fs';
-import process from 'process';
+import * as program from 'commander';
+import * as inquirer from 'inquirer';
+import * as yaml from 'js-yaml';
 
-import program from 'commander';
-import inquirer from 'inquirer';
-import yaml from 'js-yaml';
-
-import packageJson from '../../package.json';
+import * as packageJson from '../../package.json';
 
 import { googleApis } from '../gcloud';
 
@@ -93,6 +91,8 @@ const DEFAULT_KMS_LOCATION = 'us-central1';
 const DEFAULT_KMS_KEYRING = 'cloudbuild';
 const DEFAULT_KMS_KEY = 'github';
 
+const SECRET_NUM_BYTES = 10;
+
 async function setup() {
   const ui = new inquirer.ui.BottomBar();
 
@@ -141,7 +141,7 @@ async function setup() {
   } =
     answers.kms || {};
 
-  const webhookSecret = crypto.randomBytes(10).toString('hex');
+  const webhookSecret = crypto.randomBytes(SECRET_NUM_BYTES).toString('hex');
   const projectId = await googleApis.getProjectId();
   if (!projectId) {
     ui.log.write(

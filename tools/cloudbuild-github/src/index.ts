@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2017 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,24 +22,29 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    'tslint:latest',
-    'tslint-config-airbnb-base',
-    'tslint-config-prettier',
-  ],
-  rules: {
-    'cyclomatic-complexity': false,
-    'no-console': false,
-    'object-literal-sort-keys': false,
-    prettier: [
-      true,
-      {
-        arrowParens: 'always',
-        singleQuote: true,
-        trailingComma: 'all',
-      },
-    ],
-  },
-  rulesDirectory: ['tslint-plugin-prettier'],
-};
+import * as sourceMapSupport from 'source-map-support';
+sourceMapSupport.install();
+
+import { Request, Response } from 'express-serve-static-core';
+import * as HttpStatus from 'http-status-codes';
+
+import { handleBuildEvent } from './notifier';
+import { handleWebhook } from './webhook';
+
+export interface ICloudFunctionsRequest extends Request {
+  rawBody: Buffer;
+}
+
+export function cloudbuildGithubWebhook(
+  req: ICloudFunctionsRequest,
+  res: Response,
+) {
+  handleWebhook(req, res).catch((err) => {
+    console.error('Error handling webhook: ', err);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
+  });
+}
+
+export function cloudbuildGithubNotifier(event: any) {
+  return handleBuildEvent(event);
+}

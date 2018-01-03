@@ -8,20 +8,15 @@
   "license": "MIT",
   "scripts": {
     "prebuild": "yarn run build:clean",
-    "build": "babel --extensions '.ts' ./src -d ./build",
+    "build": "tsc --outDir ./build --noEmit false --lib es2016 --target es2016",
     "build:clean": "rimraf ./build",
     "//": "Normally we would lint before build, but we are actually building the lint config here.",
     "postbuild": "yarn run lint",
-    "prepublishOnly": "yarn run build",
-    "lint": "yarn run type-check && yarn run tslint --project tsconfig.json",
-    "type-check": "tsc"
+    "prepublish": "yarn run build",
+    "lint": "yarn run tslint --project tsconfig.json"
   },
   "dependencies": {
-    "@babel/cli": "7.0.0-beta.36",
-    "@babel/core": "7.0.0-beta.36",
-    "@babel/plugin-transform-modules-commonjs": "7.0.0-beta.36",
-    "@babel/preset-env": "7.0.0-beta.36",
-    "@babel/preset-typescript": "7.0.0-beta.36",
+    "@types/node": "8.5.2",
     "prettier": "1.9.2",
     "rimraf": "2.6.2",
     "tslint": "5.8.0",
@@ -29,9 +24,5 @@
     "tslint-config-prettier": "1.6.0",
     "tslint-plugin-prettier": "1.3.0",
     "typescript": "2.6.2"
-  },
-  "devDependencies": {
-    "//": "tslint cannot read the config without module.exports",
-    "babel-plugin-add-module-exports": "0.2.1"
   }
 }

@@ -22,17 +22,20 @@
  * SOFTWARE.
  */
 
-// @flow
-
+/* tslint:disable-next-line: no-submodule-imports */
 import verify from '@octokit/webhooks/verify';
+import { Response } from 'express-serve-static-core';
+import { PullRequest } from 'github-webhook-event-types';
+import * as HttpStatus from 'http-status-codes';
 
-import { keyManager } from './keymanager';
 import { googleApis } from './gcloud';
+import { keyManager } from './keymanager';
 
 import config from './config';
 import { COMMENTS_URL_KEY, STATUSES_URL_KEY } from './constants';
+import { ICloudFunctionsRequest } from './index';
 
-async function handlePullRequest(event) {
+async function handlePullRequest(event: PullRequest) {
   if (event.action !== 'opened' && event.action !== 'synchronize') {
     console.log('Unhandled event action: ', event.action);
     return;
@@ -77,7 +80,10 @@ async function handlePullRequest(event) {
   );
 }
 
-export async function handleWebhook(req: any, res: any) {
+export async function handleWebhook(
+  req: ICloudFunctionsRequest,
+  res: Response,
+) {
   if (
     !verify(
       await keyManager.getWebhookSecret(),
@@ -86,7 +92,7 @@ export async function handleWebhook(req: any, res: any) {
     )
   ) {
     console.error('Invalid signature.');
-    res.status(400).end();
+    res.status(HttpStatus.BAD_REQUEST).end();
     return;
   }
 
@@ -94,11 +100,11 @@ export async function handleWebhook(req: any, res: any) {
   const eventType = req.get('X-GitHub-Event');
   switch (eventType) {
     case 'pull_request':
-      await handlePullRequest(event);
+      await handlePullRequest(event as PullRequest);
       break;
     default:
       console.log('Unhandled event type: ', eventType);
       break;
   }
-  res.status(200).end();
+  res.status(HttpStatus.OK).end();
 }
