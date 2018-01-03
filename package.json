@@ -2,6 +2,7 @@
   "private": true,
   "workspaces": [
     "common/web/base-node-dev",
+    "common/web/base-web-dev",
     "curioswitch/portal/client/web",
     "eggworld/api/build/web",
     "eggworld/client/web",
