@@ -37,6 +37,7 @@ import com.google.protobuf.gradle.ProtobufSourceDirectorySet;
 import com.gorylenko.GitPropertiesPlugin;
 import com.moowork.gradle.node.NodeExtension;
 import com.moowork.gradle.node.NodePlugin;
+import com.moowork.gradle.node.yarn.YarnInstallTask;
 import com.palantir.baseline.plugins.BaselineIdea;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
@@ -100,6 +101,30 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
     plugins.apply(NodePlugin.class);
+
+    YarnInstallTask yarnTask =
+        rootProject.getTasks().withType(YarnInstallTask.class).getByName("yarn");
+    yarnTask.setArgs(ImmutableList.of("--frozen-lockfile"));
+    YarnInstallTask yarnUpdateTask =
+        rootProject.getTasks().create("yarnUpdate", YarnInstallTask.class);
+    Task yarnWarning =
+        rootProject
+            .getTasks()
+            .create(
+                "yarnWarning",
+                task -> {
+                  task.onlyIf(unused -> yarnTask.getState().getFailure() != null);
+                  task.doFirst(
+                      unused ->
+                          rootProject
+                              .getLogger()
+                              .warn(
+                                  "yarn task failed. If you have updated a dependency and the "
+                                      + "error says 'Your lockfile needs to be updated.', run \n\n"
+                                      + "./gradlew "
+                                      + yarnUpdateTask.getPath()));
+                });
+    yarnTask.finalizedBy(yarnWarning);
 
     rootProject.getTasks().create("setupGitHooks", SetupGitHooks.class);
 
