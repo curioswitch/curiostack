@@ -27,11 +27,9 @@ package org.curioswitch.gradle.plugins.curioweb;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.moowork.gradle.node.NodePlugin;
-import com.moowork.gradle.node.yarn.YarnInstallTask;
 import com.moowork.gradle.node.yarn.YarnTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.CacheableTask;
@@ -57,37 +55,14 @@ public class CurioWebPlugin implements Plugin<Project> {
         .getOutput()
         .dir(ImmutableMap.of("builtBy", "copyWeb"), "build/javaweb");
 
-    YarnInstallTask yarnUpdateTask = project.getTasks().create("yarnUpdate", YarnInstallTask.class);
-
-    YarnInstallTask yarnTask = project.getTasks().withType(YarnInstallTask.class).getByName("yarn");
-    yarnTask.setArgs(ImmutableList.of("--frozen-lockfile"));
-    Task yarnWarning =
-        project
-            .getTasks()
-            .create(
-                "yarnWarning",
-                task -> {
-                  task.onlyIf(unused -> yarnTask.getState().getFailure() != null);
-                  task.doFirst(
-                      unused ->
-                          project
-                              .getLogger()
-                              .warn(
-                                  "yarn task failed. If you have updated a dependency and the "
-                                      + "error says 'Your lockfile needs to be updated.', run \n\n"
-                                      + "./gradlew "
-                                      + yarnUpdateTask.getPath()));
-                });
-    yarnTask.finalizedBy(yarnWarning);
-
     CacheableYarnTask buildWeb = project.getTasks().create("buildWeb", CacheableYarnTask.class);
-    buildWeb.dependsOn(yarnTask);
+    buildWeb.dependsOn(project.getRootProject().getTasks().findByName("yarn"));
     buildWeb.setArgs(ImmutableList.of("run", "build"));
     buildWeb.getInputs().dir("app");
     buildWeb.getInputs().dir("internals");
     // We assume the yarn task correctly handles up-to-date checks for node_modules, so only
     // need to look at yarn.lock here.
-    buildWeb.getInputs().file("yarn.lock");
+    buildWeb.getInputs().file(project.getRootProject().file("yarn.lock"));
     buildWeb.getOutputs().dir("build");
 
     Copy copyWeb = project.getTasks().create("copyWeb", Copy.class);
