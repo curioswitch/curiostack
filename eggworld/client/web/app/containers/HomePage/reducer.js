@@ -4,7 +4,7 @@
  *
  */
 
-import type { CheckIngredientsResponse } from 'curioswitch-eggworld-api/curioswitch/eggworld/eggworld-service_pb';
+import type { CheckIngredientsResponse } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb';
 
 import { fromJS, Set } from 'immutable';
 import { handleActions } from 'redux-actions';

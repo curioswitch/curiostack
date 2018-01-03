@@ -25,6 +25,8 @@
 package org.curioswitch.gradle.plugins.grpcapi;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.io.Resources;
 import com.google.protobuf.gradle.ExecutableLocator;
 import com.google.protobuf.gradle.GenerateProtoTask.DescriptorSetOptions;
 import com.google.protobuf.gradle.ProtobufConfigurator;
@@ -34,7 +36,6 @@ import com.google.protobuf.gradle.ProtobufPlugin;
 import com.moowork.gradle.node.NodeExtension;
 import com.moowork.gradle.node.NodePlugin;
 import com.moowork.gradle.node.npm.NpmTask;
-import com.moowork.gradle.node.task.NodeTask;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +54,6 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.plugins.BasePluginConvention;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -72,24 +72,31 @@ import org.gradle.plugins.ide.idea.model.IdeaModule;
  */
 public class GrpcApiPlugin implements Plugin<Project> {
 
-  private static final String PROTOC_GEN_FLOW_VERSION = "1.0.0-alpha.11";
+  private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.1";
+  private static final String GOOGLE_PROTOBUF_VERSION = "3.5.0";
+  private static final String GRPC_WEB_CLIENT_VERSION = "0.3.1";
   private static final String TS_PROTOC_GEN_VERSION = "0.4.0";
+  private static final String TYPES_GOOGLE_PROTOBUF_VERSION = "3.2.7";
   private static final String TYPESCRIPT_VERSION = "2.6.2";
 
   private static final String RESOLVED_PLUGIN_SCRIPT_TEMPLATE =
       "#!|NODE_PATH|\n" + "" + "require('|IMPORTED_MODULE|');";
 
-  private static final String PACKAGE_JSON_TEMPLATE =
-      "{\n"
-          + "  \"name\": \"|PACKAGE_NAME|\",\n"
-          + "  \"version\": \"latest\",\n"
-          + "  \"main\": \"index.js\",\n"
-          + "  \"dependencies\": {\n"
-          + "    \"@types/google-protobuf\": \"3.2.7\",\n"
-          + "    \"google-protobuf\": \"3.5.0\",\n"
-          + "    \"grpc-web-client\": \"0.3.1\"\n"
-          + "  }\n"
-          + "}";
+  private static final String PACKAGE_JSON_TEMPLATE;
+  private static final String TSCONFIG_TEMPLATE;
+
+  static {
+    try {
+      PACKAGE_JSON_TEMPLATE =
+          Resources.toString(
+              Resources.getResource("grpcapi/package-template.json"), StandardCharsets.UTF_8);
+      TSCONFIG_TEMPLATE =
+          Resources.toString(
+              Resources.getResource("grpcapi/tsconfig-template.json"), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      throw new UncheckedIOException("Could not read package-template.json", e);
+    }
+  }
 
   private static final List<String> GRPC_DEPENDENCIES =
       Collections.unmodifiableList(Arrays.asList("grpc-core", "grpc-protobuf", "grpc-stub"));
@@ -191,7 +198,6 @@ public class GrpcApiPlugin implements Plugin<Project> {
                                     .create("ts")
                                     .option("service=true")
                                     .setOutputSubDir("../../../../web");
-                                // task.getPlugins().create("flow").setOutputSubDir("../../../../web");
                               }
                             });
                     tasks
@@ -218,26 +224,23 @@ public class GrpcApiPlugin implements Plugin<Project> {
         p -> {
           ImmutableGrpcExtension config = project.getExtensions().getByType(GrpcExtension.class);
 
+          // We expect using yarn workspaces, so these should not be necessary even for web
+          // projects.
+          project.getTasks().getByName("yarn").setEnabled(false);
+          project.getTasks().getByName("yarnSetup").setEnabled(false);
+
           if (!config.web()) {
             // There isn't a good way to control the application of the node plugin via the web
             // property, so just disable some popular automatic tasks.
             project.getTasks().getByName("nodeSetup").setEnabled(false);
-            project.getTasks().getByName("yarn").setEnabled(false);
-            project.getTasks().getByName("yarnSetup").setEnabled(false);
           } else {
+
             NpmTask installTsProtocGen =
                 project.getTasks().create("installTsProtocGen", NpmTask.class);
             installTsProtocGen.setArgs(
-                ImmutableList.of(
-                    "install",
-                    "--no-save",
-                    "protoc-gen-flow@" + PROTOC_GEN_FLOW_VERSION,
-                    "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION,
-                    "typescript@" + TYPESCRIPT_VERSION));
+                ImmutableList.of("install", "--no-save", "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION));
             installTsProtocGen.getInputs().property("ts-protoc-gen-version", TS_PROTOC_GEN_VERSION);
-            installTsProtocGen.getInputs().property("typescript-version", TYPESCRIPT_VERSION);
             installTsProtocGen.getOutputs().dir("node_modules/ts-protoc-gen");
-            installTsProtocGen.getOutputs().dir("node_modules/typescript");
 
             // gradle-protobuf-plugin does not allow manipulating PATH for protoc invocation, so
             // there's no way
@@ -259,12 +262,26 @@ public class GrpcApiPlugin implements Plugin<Project> {
                                   .getNodeExec();
                           writeResolvedScript(
                               project, nodePath, "protoc-gen-ts-resolved", "./protoc-gen-ts");
-                          writeResolvedScript(
-                              project, nodePath, "protoc-gen-flow-resolved", "./protoc-gen-flow");
                         });
+            addResolvedPluginScript
+                .getOutputs()
+                .files(
+                    ImmutableMap.of(
+                        "protoc-gen-ts-resolved", "node_modules/.bin/protoc-gen-ts-resolved"));
 
-            String archivesBaseName =
-                project.getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
+            String packageName =
+                config.webPackageName().isEmpty()
+                    ? project
+                        .getConvention()
+                        .getPlugin(BasePluginConvention.class)
+                        .getArchivesBaseName()
+                    : config.webPackageName();
+            Path packageJsonPath =
+                Paths.get(project.getBuildDir().getAbsolutePath(), "web", "package.json");
+            Path indexJsPath =
+                Paths.get(project.getBuildDir().getAbsolutePath(), "web", "index.ts");
+            Path tsConfigPath =
+                Paths.get(project.getBuildDir().getAbsolutePath(), "web", "tsconfig.json");
             Task addPackageJson =
                 project
                     .getTasks()
@@ -274,36 +291,49 @@ public class GrpcApiPlugin implements Plugin<Project> {
                         t -> {
                           try {
                             Files.write(
-                                Paths.get(
-                                    project.getBuildDir().getAbsolutePath(), "web", "package.json"),
+                                packageJsonPath,
                                 PACKAGE_JSON_TEMPLATE
-                                    .replaceFirst("\\|PACKAGE_NAME\\|", archivesBaseName)
+                                    .replaceFirst("\\|PACKAGE_NAME\\|", packageName)
+                                    .replaceFirst(
+                                        "\\|TYPES_GOOGLE_PROTOBUF_VERSION\\|",
+                                        TYPES_GOOGLE_PROTOBUF_VERSION)
+                                    .replaceFirst(
+                                        "\\|GOOGLE_PROTOBUF_VERSION\\|", GOOGLE_PROTOBUF_VERSION)
+                                    .replaceFirst(
+                                        "\\|GRPC_WEB_CLIENT_VERSION\\|", GRPC_WEB_CLIENT_VERSION)
+                                    .replaceFirst(
+                                        "\\|CURIOSTACK_BASE_NODE_DEV_VERSION\\|",
+                                        CURIOSTACK_BASE_NODE_DEV_VERSION)
+                                    .replaceFirst("\\|TYPESCRIPT_VERSION\\|", TYPESCRIPT_VERSION)
                                     .getBytes(StandardCharsets.UTF_8));
                             Files.write(
-                                Paths.get(
-                                    project.getBuildDir().getAbsolutePath(), "web", "index.js"),
-                                new byte[0]);
+                                tsConfigPath,
+                                TSCONFIG_TEMPLATE
+                                    .replaceFirst(
+                                        "\\|BASE_TSCONFIG\\|",
+                                        project
+                                            .getRootProject()
+                                            .file("tsconfig.json")
+                                            .getAbsolutePath())
+                                    .getBytes(StandardCharsets.UTF_8));
+                            Files.write(indexJsPath, new byte[0]);
                           } catch (IOException e) {
                             throw new UncheckedIOException("Could not write package.json.", e);
                           }
                         });
-            NodeTask compileTypescript =
-                project.getTasks().create("compileTypescript", NodeTask.class);
-            compileTypescript.dependsOn("generateProto");
-            compileTypescript.setScript(project.file("node_modules/.bin/tsc"));
+            addPackageJson
+                .getOutputs()
+                .files(
+                    ImmutableMap.of(
+                        "PACKAGE_JSON", packageJsonPath.toFile(),
+                        "INDEX_TS", indexJsPath.toFile(),
+                        "TS_CONFIG", tsConfigPath.toFile()));
 
             project
                 .getTasks()
                 .getByName("generateProto")
                 .dependsOn(addResolvedPluginScript)
-                .finalizedBy(addPackageJson, compileTypescript)
-                .doLast(
-                    unused -> {
-                      Iterable<?> typescriptFiles =
-                          (ConfigurableFileTree)
-                              project.fileTree("build/web").include("**/*.ts").exclude("**/*.d.ts");
-                      compileTypescript.setArgs(typescriptFiles);
-                    });
+                .finalizedBy(addPackageJson);
 
             // Unclear why sometimes compileTestJava fails with "no source files" instead of being
             // skipped (usually when activating web), but it's not that hard to at least check the

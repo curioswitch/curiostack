@@ -6,7 +6,7 @@
 
 // @flow
 
-import { Ingredient } from 'curioswitch-eggworld-api/curioswitch/eggworld/eggworld-service_pb';
+import { Ingredient } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb';
 
 import baconImageSrc from './assets/bacon.png';
 import bananaImageSrc from './assets/banana.png';

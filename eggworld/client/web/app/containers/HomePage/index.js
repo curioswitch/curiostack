@@ -9,7 +9,7 @@
 import type { Node } from 'konva';
 import type { Dispatch } from 'redux';
 
-import type { Ingredient } from 'curioswitch-eggworld-api/curioswitch/eggworld/eggworld-service_pb';
+import type { Ingredient } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb';
 
 import 'yuki-createjs/lib/soundjs-0.6.2.combined';
 

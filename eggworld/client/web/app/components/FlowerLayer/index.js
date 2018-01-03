@@ -6,7 +6,7 @@
 
 // @flow
 
-import type { Ingredient } from 'curioswitch-eggworld-api/curioswitch/eggworld/eggworld-service_pb';
+import type { Ingredient } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb';
 
 import React from 'react';
 import { Group, Layer } from 'react-konva';
