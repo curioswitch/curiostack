@@ -1,8 +1,7 @@
-#!/usr/bin/env node
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,14 +22,6 @@
  * SOFTWARE.
  */
 
-import process from 'process';
-
-import program from 'commander';
-
-import packageJson from '../../package.json';
-
-program
-  .version(packageJson.version)
-  .command('setup', 'First-time setup of encryption keys and configuration')
-  .command('deploy', 'Deploy cloud functions')
-  .parse(process.argv);
+declare module 'parse-duration' {
+  export default function parse(duration: string): number;
+}

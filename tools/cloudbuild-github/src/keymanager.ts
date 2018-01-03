@@ -22,9 +22,42 @@
  * SOFTWARE.
  */
 
-import path from 'path';
+import { googleApis } from './gcloud';
 
-import { readFileSync } from 'fs';
-import yaml from 'js-yaml';
+import config from './config';
 
-export default yaml.safeLoad(readFileSync(path.resolve('config.yml')));
+export class KeyManager {
+  private decryptedKeys: Map<string, string> = new Map();
+
+  public async getGithubToken(repo: string) {
+    return this.getDecrypted(
+      config.repos[repo].encryptedGithubToken,
+      `GITHUB_TOKEN-${repo}`,
+    );
+  }
+
+  public async getWebhookSecret() {
+    return this.getDecrypted(config.encryptedWebhookSecret, 'WEBHOOK_SECRET');
+  }
+
+  private async getDecrypted(encryptedBase64: string, cacheKey: string) {
+    const cached = this.decryptedKeys.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+    console.log('Decrypting ', cacheKey);
+    const decrypted = Buffer.from(
+      await googleApis.decryptKey(
+        config.kms.location,
+        config.kms.keyring,
+        config.kms.key,
+        encryptedBase64,
+      ),
+      'base64',
+    ).toString('ascii');
+    this.decryptedKeys.set(cacheKey, decrypted);
+    return decrypted;
+  }
+}
+
+export const keyManager = new KeyManager();

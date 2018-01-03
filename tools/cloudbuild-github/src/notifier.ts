@@ -22,10 +22,9 @@
  * SOFTWARE.
  */
 
-// @flow
+import * as request from 'request-promise-native';
 
-import request from 'request-promise-native';
-
+import { IBuild } from './gcloud';
 import { keyManager } from './keymanager';
 
 import { COMMENTS_URL_KEY, STATUSES_URL_KEY } from './constants';
@@ -34,7 +33,7 @@ const GITHUB_API_BASE = 'https://api.github.com';
 
 const GITHUB_URL_REPO_REGEX = /repos\/([^/]+\/[^/]+)\//;
 
-function statusToState(status): string {
+function statusToState(status: string): string {
   switch (status) {
     case 'QUEUED':
     case 'WORKING':
@@ -48,7 +47,7 @@ function statusToState(status): string {
   }
 }
 
-function statusToDescription(status): string {
+function statusToDescription(status: string): string {
   switch (status) {
     case 'QUEUED':
       return 'Build queued.';
@@ -70,30 +69,33 @@ function statusToDescription(status): string {
 }
 
 async function makeRequest(uri: string, body: any) {
-  const repo = GITHUB_URL_REPO_REGEX.exec(uri)[1];
-  const githubToken = await keyManager.getGithubToken(repo);
+  const repoMatch = GITHUB_URL_REPO_REGEX.exec(uri);
+  if (!repoMatch) {
+    throw new Error('Could not parse github url.');
+  }
+  const githubToken = await keyManager.getGithubToken(repoMatch[1]);
   return request({
     method: 'POST',
     uri,
-    body,
-    json: true,
     headers: {
       'User-Agent': 'cloudbuild-github',
     },
+    body,
+    json: true,
     auth: {
-      user: 'token',
       pass: githubToken,
+      user: 'token',
     },
   });
 }
 
 export async function handleBuildEvent(event: any) {
-  const build = JSON.parse(
+  const build: IBuild = JSON.parse(
     Buffer.from(event.data.data, 'base64').toString('utf8'),
   );
 
-  let repoName: ?string = null;
-  let revisionId: ?string = null;
+  let repoName: string | null = null;
+  let revisionId: string | null = null;
   if (!build.substitutions) {
     // No substitutions for triggered builds, we'll post to the commit instead.
     const repoSource = build.sourceProvenance.resolvedRepoSource;

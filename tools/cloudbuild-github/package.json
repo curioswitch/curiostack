@@ -21,125 +21,40 @@
   },
   "repository": "curioswitch/curiostack",
   "scripts": {
-    "prebuild": "yarn run build:clean",
-    "build": "babel ./src -d ./build",
+    "prebuild": "yarn run build:clean && yarn run lint",
+    "build": "tsc --outDir ./build --noEmit false --lib es2016 --target es2016",
     "build:clean": "rimraf ./build",
+    "lint": "yarn run tslint --project tsconfig.json",
     "prepublish": "yarn run build"
-  },
-  "babel": {
-    "presets": [
-      [
-        "env",
-        {
-          "targets": {
-            "node": "6.11.5"
-          },
-          "modules": false
-        }
-      ],
-      "stage-0",
-      "flow"
-    ],
-    "plugins": [
-      "transform-es2015-modules-commonjs"
-    ]
-  },
-  "eslintConfig": {
-    "parser": "babel-eslint",
-    "extends": [
-      "airbnb",
-      "plugin:flowtype/recommended",
-      "prettier",
-      "prettier/flowtype",
-      "prettier/react"
-    ],
-    "env": {
-      "node": true,
-      "jest": true,
-      "es6": true
-    },
-    "plugins": [
-      "flowtype",
-      "prettier"
-    ],
-    "parserOptions": {
-      "ecmaVersion": 6,
-      "sourceType": "module"
-    },
-    "rules": {
-      "arrow-body-style": [
-        2,
-        "as-needed"
-      ],
-      "class-methods-use-this": 0,
-      "import/imports-first": 0,
-      "import/newline-after-import": 0,
-      "import/no-dynamic-require": 0,
-      "import/no-extraneous-dependencies": 0,
-      "import/no-named-as-default": 0,
-      "import/no-unresolved": 2,
-      "import/no-webpack-loader-syntax": 0,
-      "import/order": [
-        2,
-        {
-          "groups": [
-            "builtin",
-            "external",
-            "internal",
-            "parent",
-            "sibling",
-            "index"
-          ],
-          "newlines-between": "ignore"
-        }
-      ],
-      "import/prefer-default-export": 0,
-      "no-console": 0,
-      "no-use-before-define": 0,
-      "prefer-template": 2,
-      "prettier/prettier": [
-        "error",
-        {
-          "arrowParens": "always",
-          "singleQuote": true,
-          "trailingComma": "all"
-        }
-      ],
-      "require-yield": 0
-    }
   },
   "dependencies": {
     "@octokit/webhooks": "3.1.0",
     "child-process-promise": "2.2.1",
     "commander": "2.12.2",
     "es6-promisify": "5.0.0",
+    "express-serve-static-core": "0.1.1",
+    "github-webhook-event-types": "1.0.0",
     "googleapis": "23.0.0",
+    "http-status": "1.0.1",
+    "http-status-codes": "1.3.0",
     "inquirer": "4.0.1",
     "js-yaml": "3.10.0",
     "parse-duration": "0.1.1",
     "request": "2.83.0",
-    "request-promise-native": "1.0.5"
+    "request-promise-native": "1.0.5",
+    "source-map-support": "0.5.0"
   },
   "devDependencies": {
-    "babel-cli": "6.26.0",
-    "babel-core": "6.26.0",
-    "babel-eslint": "8.1.1",
-    "babel-plugin-transform-es2015-modules-commonjs": "6.26.0",
-    "babel-preset-env": "1.6.1",
-    "babel-preset-flow": "6.23.0",
-    "babel-preset-stage-0": "6.24.1",
-    "eslint": "4.14.0",
-    "eslint-config-airbnb": "16.1.0",
-    "eslint-config-airbnb-base": "12.1.0",
-    "eslint-config-prettier": "2.9.0",
-    "eslint-plugin-flowtype": "2.40.1",
-    "eslint-plugin-import": "2.8.0",
-    "eslint-plugin-jsx-a11y": "6.0.3",
-    "eslint-plugin-prettier": "2.4.0",
-    "eslint-plugin-react": "7.5.1",
-    "eslint-plugin-redux-saga": "0.6.0",
-    "flow-bin": "0.62.0",
-    "prettier": "1.9.2",
-    "rimraf": "2.6.2"
+    "@curiostack/base-node-dev": "0.0.1",
+    "@types/es6-promisify": "5.0.0",
+    "@types/http-status": "0.2.30",
+    "@types/inquirer": "0.0.36",
+    "@types/js-yaml": "3.10.1",
+    "@types/request-promise-native": "1.0.10",
+    "@types/source-map-support": "0.4.0",
+    "rimraf": "2.6.2",
+    "//": "Declare bin transitive dependencies here until https://github.com/yarnpkg/yarn/pull/4848",
+    "tslint": "5.8.0",
+    "typescript": "2.6.2"
   }
 }

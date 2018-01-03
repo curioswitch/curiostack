@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "workspaces": [
+    "common/web/base-node-dev",
+    "tools/cloudbuild-github",
+    "tools/cloudbuild-github-functions"
+  ]
+}
