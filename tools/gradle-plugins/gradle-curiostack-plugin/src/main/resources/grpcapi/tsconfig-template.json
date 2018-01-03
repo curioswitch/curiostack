@@ -1,0 +1,6 @@
+{
+  "extends": "|BASE_TSCONFIG|",
+  "include": [
+    "**/*"
+  ]
+}

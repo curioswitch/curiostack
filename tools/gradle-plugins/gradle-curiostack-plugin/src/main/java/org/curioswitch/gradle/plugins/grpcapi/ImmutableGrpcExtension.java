@@ -43,4 +43,9 @@ public interface ImmutableGrpcExtension {
   default boolean web() {
     return false;
   }
+
+  /** The name to use in the package.json for the web package. */
+  default String webPackageName() {
+    return "";
+  }
 }

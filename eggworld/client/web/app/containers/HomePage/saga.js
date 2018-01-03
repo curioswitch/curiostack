@@ -26,13 +26,13 @@ import type {
   CheckIngredientsResponse,
   FindRecipeResponse,
   Ingredient,
-} from 'curioswitch-eggworld-api/curioswitch/eggworld/eggworld-service_pb';
+} from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb';
 
 import { grpc, Code } from 'grpc-web-client';
 import { takeLatest, call, put, select } from 'redux-saga/effects';
 
-import { CheckIngredientsRequest, FindRecipeRequest } from 'curioswitch-eggworld-api/curioswitch/eggworld/eggworld-service_pb';
-import { EggworldService } from 'curioswitch-eggworld-api/curioswitch/eggworld/eggworld-service_pb_service';
+import { CheckIngredientsRequest, FindRecipeRequest } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb';
+import { EggworldService } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb_service';
 
 import {
   checkIngredients,

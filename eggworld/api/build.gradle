@@ -28,4 +28,5 @@ archivesBaseName = 'curioswitch-eggworld-api'
 
 grpc {
     web = true
+    webPackageName = '@curiostack/eggworld-api'
 }
