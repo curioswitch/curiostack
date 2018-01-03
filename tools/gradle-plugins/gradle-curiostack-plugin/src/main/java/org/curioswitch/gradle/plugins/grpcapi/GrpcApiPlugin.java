@@ -234,7 +234,6 @@ public class GrpcApiPlugin implements Plugin<Project> {
             // property, so just disable some popular automatic tasks.
             project.getTasks().getByName("nodeSetup").setEnabled(false);
           } else {
-
             NpmTask installTsProtocGen =
                 project.getTasks().create("installTsProtocGen", NpmTask.class);
             installTsProtocGen.setArgs(
@@ -329,11 +328,10 @@ public class GrpcApiPlugin implements Plugin<Project> {
                         "INDEX_TS", indexJsPath.toFile(),
                         "TS_CONFIG", tsConfigPath.toFile()));
 
-            project
-                .getTasks()
-                .getByName("generateProto")
-                .dependsOn(addResolvedPluginScript)
-                .finalizedBy(addPackageJson);
+            Task generateProto = project.getTasks().getByName("generateProto");
+            generateProto.dependsOn(addResolvedPluginScript).finalizedBy(addPackageJson);
+
+            project.getRootProject().getTasks().findByName("yarn").dependsOn(generateProto);
 
             // Unclear why sometimes compileTestJava fails with "no source files" instead of being
             // skipped (usually when activating web), but it's not that hard to at least check the

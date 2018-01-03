@@ -99,6 +99,7 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
+    plugins.apply(NodePlugin.class);
 
     rootProject.getTasks().create("setupGitHooks", SetupGitHooks.class);
 
@@ -170,6 +171,11 @@ public class CuriostackPlugin implements Plugin<Project> {
                     node.setVersion(NODE_VERSION);
                     node.setYarnVersion(YARN_VERSION);
                     node.setDownload(true);
+
+                    if (project != project.getRootProject()) {
+                      // We only execute yarn in the root task since we use workspaces.
+                      project.getTasks().findByName("yarn").setEnabled(false);
+                    }
 
                     // Since yarn is very fast, go ahead and clean node_modules too to prevent
                     // inconsistency.
