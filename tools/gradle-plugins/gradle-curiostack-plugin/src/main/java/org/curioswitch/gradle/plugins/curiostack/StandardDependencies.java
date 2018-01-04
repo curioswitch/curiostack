@@ -193,7 +193,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("4.1.17.Final")
+              .version("4.1.19.Final")
               .addModules(
                   "netty-buffer",
                   "netty-codec",
