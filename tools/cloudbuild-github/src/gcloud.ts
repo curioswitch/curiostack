@@ -23,8 +23,8 @@
  */
 
 import * as promisify from 'es6-promisify';
-import google from 'googleapis';
-import parseDuration from 'parse-duration';
+import * as google from 'googleapis';
+import * as parseDuration from 'parse-duration';
 
 export interface IBuild {
   id: string;
@@ -286,6 +286,7 @@ export class GoogleApis {
       resource: {
         ...sanitizedConfig,
         options: {
+          ...sanitizedConfig.options,
           substitutionOption: 'ALLOW_LOOSE',
         },
         substitutions,
@@ -346,7 +347,7 @@ export class GoogleApis {
     };
   }
 
-  private async authorize() {
+  private async authorize(): Promise<{ auth: any; projectId: string }> {
     return new Promise<{ auth: any; projectId: string }>((resolve, reject) =>
       google.auth.getApplicationDefault(
         (err: Error, authClient: any, projectId: string) => {

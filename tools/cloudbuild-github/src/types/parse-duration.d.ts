@@ -23,5 +23,9 @@
  */
 
 declare module 'parse-duration' {
-  export default function parse(duration: string): number;
+  function parse(duration: string): number;
+  namespace parse {
+
+  }
+  export = parse;
 }

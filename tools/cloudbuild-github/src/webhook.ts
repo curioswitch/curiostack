@@ -23,7 +23,7 @@
  */
 
 /* tslint:disable-next-line: no-submodule-imports */
-import verify from '@octokit/webhooks/verify';
+import * as verify from '@octokit/webhooks/verify';
 import { Response } from 'express-serve-static-core';
 import { PullRequest } from 'github-webhook-event-types';
 import * as HttpStatus from 'http-status-codes';
