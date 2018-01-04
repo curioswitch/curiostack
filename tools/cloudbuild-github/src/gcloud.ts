@@ -24,7 +24,7 @@
 
 import * as promisify from 'es6-promisify';
 import * as google from 'googleapis';
-import parseDuration from 'parse-duration';
+import * as parseDuration from 'parse-duration';
 
 export interface IBuild {
   id: string;
