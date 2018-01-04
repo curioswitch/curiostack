@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/cloudbuild-github",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Integration between Google Container Builder and GitHub.",
   "keywords": [
     "github",
@@ -45,6 +45,7 @@
     "source-map-support": "0.5.0"
   },
   "devDependencies": {
+    "//": "Declare bin transitive dependencies here until https://github.com/yarnpkg/yarn/pull/4848",
     "@curiostack/base-node-dev": "0.0.1",
     "@types/es6-promisify": "5.0.0",
     "@types/http-status": "0.2.30",
@@ -53,7 +54,6 @@
     "@types/request-promise-native": "1.0.10",
     "@types/source-map-support": "0.4.0",
     "rimraf": "2.6.2",
-    "//": "Declare bin transitive dependencies here until https://github.com/yarnpkg/yarn/pull/4848",
     "tslint": "5.8.0",
     "typescript": "2.6.2"
   }
