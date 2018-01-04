@@ -23,9 +23,7 @@
  */
 
 declare module '@octokit/webhooks/verify' {
-  export default function verify(
-    secret: string,
-    body: string,
-    sig: string,
-  ): boolean;
+  function verify(secret: string, body: string, sig: string): boolean;
+  namespace verify {}
+  export = verify;
 }
