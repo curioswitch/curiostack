@@ -306,15 +306,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
                                     .replaceFirst("\\|TYPESCRIPT_VERSION\\|", TYPESCRIPT_VERSION)
                                     .getBytes(StandardCharsets.UTF_8));
                             Files.write(
-                                tsConfigPath,
-                                TSCONFIG_TEMPLATE
-                                    .replaceFirst(
-                                        "\\|BASE_TSCONFIG\\|",
-                                        project
-                                            .getRootProject()
-                                            .file("tsconfig.json")
-                                            .getAbsolutePath())
-                                    .getBytes(StandardCharsets.UTF_8));
+                                tsConfigPath, TSCONFIG_TEMPLATE.getBytes(StandardCharsets.UTF_8));
                             Files.write(indexJsPath, new byte[0]);
                           } catch (IOException e) {
                             throw new UncheckedIOException("Could not write package.json.", e);
