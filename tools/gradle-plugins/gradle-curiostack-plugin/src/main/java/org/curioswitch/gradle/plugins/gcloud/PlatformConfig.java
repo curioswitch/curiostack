@@ -44,7 +44,7 @@ public interface PlatformConfig {
     PlatformHelper platformHelper = new PlatformHelper();
 
     if (platformHelper.isWindows()) {
-      throw new IllegalArgumentException("Plugin does not support windows yet.");
+      config.gradleProject().getLogger().info("GCloud not supported on windows yet, skipping...");
     }
 
     String osName = platformHelper.getOsName();
