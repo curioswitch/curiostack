@@ -129,3 +129,8 @@ gcloud {
     cloudRegion = 'asia-northeast1'
     clusterKubernetesVersion = '1.6.1'
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.4.1'
+    distributionType = 'ALL'
+}
