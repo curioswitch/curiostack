@@ -34,7 +34,6 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import com.google.protobuf.gradle.ProtobufPlugin;
 import com.google.protobuf.gradle.ProtobufSourceDirectorySet;
-import com.gorylenko.GitPropertiesPlugin;
 import com.moowork.gradle.node.NodeExtension;
 import com.moowork.gradle.node.NodePlugin;
 import com.moowork.gradle.node.yarn.YarnInstallTask;
@@ -241,12 +240,9 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(AptIdeaPlugin.class);
     plugins.apply(BaselineIdea.class);
     plugins.apply(DependencyManagementPlugin.class);
-    plugins.apply(GitPropertiesPlugin.class);
     plugins.apply(LicensePlugin.class);
     plugins.apply(SpotlessPlugin.class);
     plugins.apply(VersionsPlugin.class);
-
-    project.getNormalization().getRuntimeClasspath().ignore("git.properties");
 
     project
         .getTasks()
