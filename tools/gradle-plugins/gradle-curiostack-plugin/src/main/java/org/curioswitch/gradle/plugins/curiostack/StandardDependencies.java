@@ -62,6 +62,11 @@ class StandardDependencies {
               .addModules("commons-logging")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.google.auto.factory")
+              .version("1.0-beta5")
+              .addModules("auto-factory")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.fasterxml.jackson.core")
               .version(JACKSON_VERSION)
               .addModules("jackson-annotations", "jackson-core", "jackson-databind")
@@ -78,7 +83,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.github.ben-manes.caffeine")
-              .version("2.6.0")
+              .version("2.6.1")
               .addModules("caffeine")
               .build(),
           ImmutableDependencySet.builder()
@@ -179,6 +184,11 @@ class StandardDependencies {
               .addModules("kubernetes-client")
               .build(),
           ImmutableDependencySet.builder()
+              .group("io.lettuce")
+              .version("5.0.1.RELEASE")
+              .addModules("lettuce-core")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("io.grpc")
               .version("1.8.0")
               .addModules(
@@ -276,7 +286,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.37")
+              .version("0.0.38")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()

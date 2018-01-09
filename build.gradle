@@ -37,7 +37,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.83'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.84'
     }
 }
 
