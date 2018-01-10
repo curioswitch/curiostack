@@ -37,10 +37,12 @@ import java.nio.ByteBuffer;
 class ProtobufRedisCodec<K extends Message, V extends Message>
     implements RedisCodec<K, V>, ToByteBufEncoder<K, V> {
 
+  private final byte[] keyPrefix;
   private final K keyPrototype;
   private final V valuePrototype;
 
-  ProtobufRedisCodec(K keyPrototype, V valuePrototype) {
+  ProtobufRedisCodec(byte[] keyPrefix, K keyPrototype, V valuePrototype) {
+    this.keyPrefix = keyPrefix;
     this.keyPrototype = keyPrototype;
     this.valuePrototype = valuePrototype;
   }
@@ -57,36 +59,38 @@ class ProtobufRedisCodec<K extends Message, V extends Message>
 
   @Override
   public ByteBuffer encodeKey(K key) {
-    return encode(key);
+    throw new UnsupportedOperationException("Should use more efficient encodeKey(K, ByteBuf)");
   }
 
   @Override
   public void encodeKey(K key, ByteBuf target) {
+    target.writeBytes(keyPrefix);
     encodeTo(key, target);
+    target.writerIndex(key.getSerializedSize() + keyPrefix.length);
   }
 
   @Override
   public ByteBuffer encodeValue(V value) {
-    return encode(value);
+    throw new UnsupportedOperationException("Should use more efficient encodeValue(V, ByteBuf)");
   }
 
   @Override
   public void encodeValue(V value, ByteBuf target) {
     encodeTo(value, target);
+    target.writerIndex(value.getSerializedSize());
   }
 
   @Override
   public int estimateSize(Object keyOrValue) {
-    return ((Message) keyOrValue).getSerializedSize();
-  }
-
-  private static ByteBuffer encode(Message message) {
-    return message.toByteString().asReadOnlyByteBuffer();
+    // Will overestimate for values which don't need the prefix, but can't help it.
+    return ((Message) keyOrValue).getSerializedSize() + keyPrefix.length;
   }
 
   private static void encodeTo(Message message, ByteBuf target) {
     try {
-      message.writeTo(CodedOutputStream.newInstance(target.nioBuffer(0, target.writableBytes())));
+      message.writeTo(
+          CodedOutputStream.newInstance(
+              target.nioBuffer(target.writerIndex(), target.writableBytes())));
     } catch (IOException e) {
       throw new UncheckedIOException("Could not encode message.", e);
     }

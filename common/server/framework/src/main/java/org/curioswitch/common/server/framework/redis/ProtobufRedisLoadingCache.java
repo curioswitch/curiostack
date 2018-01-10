@@ -35,6 +35,7 @@ import com.spotify.futures.CompletableFuturesExtra;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.SetArgs;
 import io.lettuce.core.api.async.RedisAsyncCommands;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -67,6 +68,7 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
      * Constructs a new {@link ProtobufRedisLoadingCache} that can write protobuf {@link Message}
      * keys and values to redis, with an optional local cache layer.
      *
+     * @param name name of this cache, will be prefixed onto all keys.
      * @param keyPrototype a prototype for the key {@link Message}, usually gotten from {@code
      *     Key.getDefaultInstance()}.
      * @param valuePrototype a prototype for the value {@link Message}, usually gotten from {@code
@@ -77,12 +79,13 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
      *     null}, local caching will be disabled.
      */
     public <K extends Message, V extends Message> ProtobufRedisLoadingCache<K, V> create(
+        String name,
         K keyPrototype,
         V valuePrototype,
         Duration redisTtl,
         @Nullable CaffeineSpec localCacheSpec) {
       return new ProtobufRedisLoadingCache<>(
-          keyPrototype, valuePrototype, redisTtl, localCacheSpec, redisClient);
+          name, keyPrototype, valuePrototype, redisTtl, localCacheSpec, redisClient);
     }
   }
 
@@ -93,6 +96,7 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
   private final SetArgs setArgs;
 
   ProtobufRedisLoadingCache(
+      String name,
       K keyPrototype,
       V valuePrototype,
       Duration redisTtl,
@@ -102,7 +106,12 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
     checkNotNull(valuePrototype, "valuePrototype");
     checkNotNull(redisTtl, "redisTtl");
     checkNotNull(redisClient, "redisClient");
-    redis = redisClient.connect(new ProtobufRedisCodec<>(keyPrototype, valuePrototype)).async();
+    redis =
+        redisClient
+            .connect(
+                new ProtobufRedisCodec<>(
+                    (name + ":").getBytes(StandardCharsets.UTF_8), keyPrototype, valuePrototype))
+            .async();
     final Caffeine<Object, Object> caffeineBuilder =
         localCacheSpec != null
             ? Caffeine.from(localCacheSpec)
