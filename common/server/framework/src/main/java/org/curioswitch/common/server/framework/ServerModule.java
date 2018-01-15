@@ -106,6 +106,7 @@ import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.files.FileWatcher;
 import org.curioswitch.common.server.framework.filter.IpFilteringService;
 import org.curioswitch.common.server.framework.grpc.GrpcServiceDefinition;
+import org.curioswitch.common.server.framework.inject.EagerInit;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
@@ -161,6 +162,10 @@ public abstract class ServerModule {
 
   @Multibinds
   abstract Set<Consumer<ServerBuilder>> serverCustomizers();
+
+  @Multibinds
+  @EagerInit
+  abstract Set<Object> eagerInitializedDependencies();
 
   @BindsOptionalOf
   abstract SslCommonNamesProvider sslCommonNamesProvider();
@@ -254,8 +259,8 @@ public abstract class ServerModule {
       FirebaseAuthConfig authConfig,
       JavascriptStaticConfig javascriptStaticConfig,
       MonitoringConfig monitoringConfig,
-      // Eagerly trigger bindings when present.
-      Optional<DSLContext> unusedDb) {
+      // Eagerly trigger bindings that are present, not actually used here.
+      @EagerInit Set<Object> eagerInitializedDependencies) {
     if (!sslCommonNamesProvider.isPresent()
         && !serverConfig.getRpcAclsPath().isEmpty()
         && !serverConfig.isDisableSslAuthorization()) {
