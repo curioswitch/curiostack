@@ -24,11 +24,15 @@
 
 package org.curioswitch.gradle.plugins.gcloud;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
@@ -36,13 +40,11 @@ import java.io.UncheckedIOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Map;
 import javax.annotation.Nullable;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
+import org.curioswitch.gradle.plugins.curioserver.DeploymentConfiguration;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
 import org.curioswitch.gradle.plugins.gcloud.tasks.CreateBuildCacheBucket;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
@@ -71,7 +73,9 @@ public class GcloudPlugin implements Plugin<Project> {
   private static final Logger logger = LoggerFactory.getLogger(GcloudPlugin.class);
 
   private static final ObjectMapper OBJECT_MAPPER =
-      new ObjectMapper(new YAMLFactory().enable(Feature.MINIMIZE_QUOTES))
+      new ObjectMapper(
+              new YAMLFactory().enable(Feature.MINIMIZE_QUOTES).disable(Feature.SPLIT_LINES))
+          .registerModule(new GuavaModule())
           .setSerializationInclusion(Include.NON_EMPTY);
 
   @Override
@@ -194,12 +198,29 @@ public class GcloudPlugin implements Plugin<Project> {
 
   private void addGenerateCloudBuildTask(Project rootProject) {
     Task generateCloudBuild = rootProject.getTasks().create("gcloudGenerateCloudBuild");
-    String builderImage = "gcr.io/$PROJECT_ID/java-cloud-builder:latest";
-    String kubeConfigEnv = "KUBECONFIG=/workspace/kubeconfig";
     generateCloudBuild.doLast(
         t -> {
+          String javaBuilder = "gcr.io/$PROJECT_ID/java-cloud-builder";
+          String dockerBuilder = "gcr.io/cloud-builders/docker";
+          String kubectlBuilder = "gcr.io/cloud-builders/kubectl";
+
           ImmutableGcloudExtension config =
               rootProject.getExtensions().getByType(GcloudExtension.class);
+
+          File existingCloudbuildFile = rootProject.file("cloudbuild.yaml");
+          final CloudBuild existingCloudBuild;
+          try {
+            existingCloudBuild =
+                !existingCloudbuildFile.exists()
+                    ? null
+                    : OBJECT_MAPPER.readValue(existingCloudbuildFile, CloudBuild.class);
+          } catch (IOException e) {
+            throw new UncheckedIOException("Could not parse existing cloudbuild file.", e);
+          }
+
+          String refreshBuildImageId = "curio-generated-refresh-build-image";
+          String buildAllImageId = "curio-generated-build-all";
+
           List<CloudBuildStep> serverSteps =
               rootProject
                   .getAllprojects()
@@ -211,95 +232,127 @@ public class GcloudPlugin implements Plugin<Project> {
                             proj.getConvention()
                                 .getPlugin(BasePluginConvention.class)
                                 .getArchivesBaseName();
-                        String distId = "build-" + archivesBaseName + "-dist";
-                        String imageId = "build-" + archivesBaseName + "-image";
-                        String pushId = "push-" + archivesBaseName + "-image";
+                        String imageId = "curio-generated-build-" + archivesBaseName + "-image";
+                        String pushId = "curio-generated-push-" + archivesBaseName + "-image";
+                        String deployId = "curio-generated-deploy-" + archivesBaseName;
                         String imageTag =
-                            config.containerRegistry()
-                                + "/$PROJECT_ID/"
-                                + archivesBaseName
-                                + ":latest";
-                        return Stream.of(
-                            ImmutableCloudBuildStep.builder()
-                                .id(distId)
-                                .addWaitFor("refresh-build-image")
-                                .name(builderImage)
-                                .entrypoint("./gradlew")
-                                .args(
-                                    ImmutableList.of(
-                                        proj.getTasks().getByName("dockerDistTar").getPath()))
-                                .build(),
+                            config.containerRegistry() + "/$PROJECT_ID/" + archivesBaseName;
+                        String dockerPath =
+                            Paths.get(rootProject.getProjectDir().getAbsolutePath())
+                                .relativize(
+                                    Paths.get(
+                                        new File(proj.getBuildDir(), "docker").getAbsolutePath()))
+                                .toString();
+
+                        DeploymentExtension deployment =
+                            proj.getExtensions().getByType(DeploymentExtension.class);
+                        DeploymentConfiguration alpha = deployment.getTypes().getByName("alpha");
+
+                        ImmutableList.Builder<CloudBuildStep> steps = ImmutableList.builder();
+                        steps.add(
                             ImmutableCloudBuildStep.builder()
                                 .id(imageId)
-                                .addWaitFor(distId)
-                                .name("gcr.io/cloud-builders/docker")
+                                .addWaitFor(buildAllImageId)
+                                .name(dockerBuilder)
+                                .entrypoint("/bin/bash")
                                 .args(
                                     ImmutableList.of(
-                                        "build",
-                                        "--tag=" + imageTag,
-                                        Paths.get(rootProject.getProjectDir().getAbsolutePath())
-                                            .relativize(
-                                                Paths.get(
-                                                    new File(proj.getBuildDir(), "docker")
-                                                        .getAbsolutePath()))
-                                            .toString()))
-                                .build(),
+                                        "-c",
+                                        "test -e "
+                                            + dockerPath
+                                            + " && docker build --tag="
+                                            + imageTag
+                                            + " "
+                                            + dockerPath))
+                                .build());
+                        steps.add(
                             ImmutableCloudBuildStep.builder()
                                 .id(pushId)
                                 .addWaitFor(imageId)
-                                .name("gcr.io/cloud-builders/docker")
-                                .args(ImmutableList.of("push", imageTag))
-                                .build(),
-                            ImmutableCloudBuildStep.builder()
-                                .id("deploy-" + archivesBaseName)
-                                .addWaitFor(pushId, "login-to-cluster")
-                                .name(builderImage)
-                                .entrypoint("./gradlew")
+                                .name(dockerBuilder)
+                                .entrypoint("/bin/bash")
                                 .args(
                                     ImmutableList.of(
-                                        proj.getTasks().getByName("deployAlpha").getPath()))
-                                .addEnv(kubeConfigEnv)
+                                        "-c",
+                                        "test -e " + dockerPath + " && docker push " + imageTag))
                                 .build());
+                        if (deployment.autoDeployAlpha()) {
+                          steps.add(
+                              ImmutableCloudBuildStep.builder()
+                                  .id(deployId)
+                                  .addWaitFor(pushId)
+                                  .name(kubectlBuilder)
+                                  .entrypoint("/bin/bash")
+                                  .args(
+                                      ImmutableList.of(
+                                          "-c",
+                                          "test -e "
+                                              + dockerPath
+                                              + " && kubectl --namespace="
+                                              + alpha.namespace()
+                                              + " patch deployment/"
+                                              + alpha.deploymentName()
+                                              + " -p "
+                                              + "'{\"spec\": {\"template\": {\"metadata\": {\"labels\": {\"revision\": \"$REVISION_ID\" }}}}}'"))
+                                  .env(
+                                      ImmutableList.of(
+                                          "CLOUDSDK_COMPUTE_ZONE=" + config.clusterZone(),
+                                          "CLOUDSDK_CONTAINER_CLUSTER=" + config.clusterName()))
+                                  .build());
+                        }
+                        return steps.build().stream();
                       })
-                  .collect(Collectors.toList());
+                  .collect(toImmutableList());
           List<CloudBuildStep> steps = new ArrayList<>();
           steps.add(
               ImmutableCloudBuildStep.builder()
-                  .id("refresh-build-image")
+                  .id(refreshBuildImageId)
                   .addWaitFor("-")
-                  .name("gcr.io/cloud-builders/docker")
+                  .name(dockerBuilder)
                   .args(
                       ImmutableList.of(
                           "build",
-                          "--tag=" + builderImage,
+                          "--tag=" + javaBuilder,
                           "--file=./tools/build-images/java-cloud-builder/Dockerfile",
                           "."))
+                  .env(ImmutableList.of("CI=true", "CI_MASTER=true"))
                   .build());
           steps.add(
               ImmutableCloudBuildStep.builder()
-                  .id("login-to-cluster")
-                  .addWaitFor("-")
-                  .name("gcr.io/cloud-builders/gcloud")
-                  .entrypoint("bash")
-                  .args(
-                      ImmutableList.of(
-                          "-c",
-                          "gsutil cp gs://"
-                              + config.clusterProject()
-                              + "-kubepush-key/kubepush.json . \n"
-                              + "gcloud auth activate-service-account --key-file ./kubepush.json \n"
-                              + "gcloud container clusters get-credentials "
-                              + config.clusterProject()
-                              + " --zone "
-                              + config.clusterZone()))
-                  .addEnv("CLOUDSDK_CONTAINER_USE_CLIENT_CERTIFICATE=True", kubeConfigEnv)
+                  .id(buildAllImageId)
+                  .addWaitFor(refreshBuildImageId)
+                  .name(javaBuilder)
+                  .entrypoint("./gradlew")
+                  .args(ImmutableList.of("continuousBuild", "--stacktrace", "--no-daemon"))
+                  .env(ImmutableList.of("CI=true", "CI_MASTER=true"))
                   .build());
           steps.addAll(serverSteps);
-          HashMap<String, Object> cloudBuildConfig = new LinkedHashMap<>();
-          cloudBuildConfig.put("steps", steps);
-          cloudBuildConfig.put("images", ImmutableList.of(builderImage));
+
+          ImmutableCloudBuild.Builder cloudBuildConfig =
+              ImmutableCloudBuild.builder().addAllSteps(steps).addImages(javaBuilder);
+
+          if (existingCloudBuild != null) {
+            CloudBuild existingWithoutGenerated =
+                ImmutableCloudBuild.builder()
+                    .from(existingCloudBuild)
+                    .steps(
+                        existingCloudBuild
+                                .steps()
+                                .stream()
+                                .filter(step -> !step.id().startsWith("curio-generated-"))
+                            ::iterator)
+                    .images(
+                        existingCloudBuild
+                                .images()
+                                .stream()
+                                .filter(image -> !image.equals(javaBuilder))
+                            ::iterator)
+                    .build();
+            cloudBuildConfig.from(existingWithoutGenerated);
+          }
+
           try {
-            OBJECT_MAPPER.writeValue(rootProject.file("cloudbuild.yaml"), cloudBuildConfig);
+            OBJECT_MAPPER.writeValue(rootProject.file("cloudbuild.yaml"), cloudBuildConfig.build());
           } catch (IOException e) {
             throw new UncheckedIOException(e);
           }
@@ -312,6 +365,7 @@ public class GcloudPlugin implements Plugin<Project> {
     builderVisibility = BuilderVisibility.PACKAGE,
     defaultAsDefault = true
   )
+  @JsonDeserialize(as = ImmutableCloudBuildStep.class)
   @JsonSerialize(as = ImmutableCloudBuildStep.class)
   interface CloudBuildStep {
 
@@ -333,5 +387,26 @@ public class GcloudPlugin implements Plugin<Project> {
     default List<String> env() {
       return ImmutableList.of("CI=true");
     };
+  }
+
+  @Immutable
+  @Style(
+    visibility = ImplementationVisibility.PACKAGE,
+    builderVisibility = BuilderVisibility.PACKAGE,
+    defaultAsDefault = true
+  )
+  @JsonDeserialize(as = ImmutableCloudBuild.class)
+  @JsonSerialize(as = ImmutableCloudBuild.class)
+  interface CloudBuild {
+    List<CloudBuildStep> steps();
+
+    List<String> images();
+
+    @Nullable
+    default String timeout() {
+      return null;
+    }
+
+    Map<String, String> options();
   }
 }

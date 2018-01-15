@@ -61,6 +61,7 @@ dependencies {
     compile 'com.bmuschko:gradle-docker-plugin'
     compile 'com.fasterxml.jackson.core:jackson-databind'
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
+    compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
     compile 'com.diffplug.spotless:spotless-plugin-gradle'
     compile 'com.github.ben-manes:gradle-versions-plugin'
     compile 'com.google.cloud:google-cloud-resourcemanager'
