@@ -119,10 +119,7 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
     cache =
         caffeineBuilder
             .executor(CurrentRequestContextExecutor.INSTANCE)
-            .buildAsync(
-                (k) -> {
-                  throw new IllegalStateException("loader is not set at build time.");
-                });
+            .buildAsync((k, executor) -> redis.get(k).toCompletableFuture());
     setArgs = SetArgs.Builder.px(redisTtl.toMillis());
   }
 
@@ -133,6 +130,36 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
   public ListenableFuture<V> get(K key, Function<K, ListenableFuture<V>> loader) {
     return CompletableFuturesExtra.toListenableFuture(
         cache.get(key, (k, executor) -> loadWithCache(k, executor, loader)));
+  }
+
+  /**
+   * Returns the value for the given {@code key} if it is present in cache, otherwise returns {@code
+   * null}.
+   */
+  public ListenableFuture<V> getIfPresent(K key) {
+    return CompletableFuturesExtra.toListenableFuture(cache.get(key));
+  }
+
+  /**
+   * Sets the given {@code value} for the given {@code key} in cache. Simultaneous writes to the
+   * same key will result in consecutive updates, so this method should only be used when this is
+   * acceptable (e.g., for storing state that might be used to resume an operation). For general
+   * cache semantics, use {@link #get(Message, Function)}.
+   */
+  public ListenableFuture<V> put(K key, V value) {
+    CompletableFuture<V> setAndReturnValueFuture =
+        redis.set(key, value, setArgs).thenApply(unused -> value).toCompletableFuture();
+    cache.put(key, setAndReturnValueFuture);
+    return CompletableFuturesExtra.toListenableFuture(setAndReturnValueFuture);
+  }
+
+  /**
+   * Deletes the given {@code key} from the redis cache. This can be used to invalidate remote
+   * caches. It is not practical to invalidate local caches remotely, so this is only useful if the
+   * local cache is disabled everywhere (i.e., {@code localCacheSpec} is null on construction).
+   */
+  public void deleteFromRedis(K key) {
+    redis.del(key);
   }
 
   private CompletableFuture<V> loadWithCache(
