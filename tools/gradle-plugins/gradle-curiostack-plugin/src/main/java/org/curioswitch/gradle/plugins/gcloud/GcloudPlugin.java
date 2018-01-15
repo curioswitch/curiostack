@@ -288,12 +288,12 @@ public class GcloudPlugin implements Plugin<Project> {
                                           "-c",
                                           "test -e "
                                               + dockerPath
-                                              + " && kubectl --namespace="
+                                              + " && /builder/kubectl.bash --namespace="
                                               + alpha.namespace()
                                               + " patch deployment/"
                                               + alpha.deploymentName()
                                               + " -p "
-                                              + "'{\"spec\": {\"template\": {\"metadata\": {\"labels\": {\"revision\": \"$REVISION_ID\" }}}}}'"))
+                                              + "'{\\\"spec\\\": {\\\"template\\\": {\\\"metadata\\\": {\\\"labels\\\": {\\\"revision\\\": \\\"$REVISION_ID\\\" }}}}}'"))
                                   .env(
                                       ImmutableList.of(
                                           "CLOUDSDK_COMPUTE_ZONE=" + config.clusterZone(),
