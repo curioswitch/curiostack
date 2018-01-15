@@ -72,6 +72,8 @@ public class CurioServerPlugin implements Plugin<Project> {
               (DockerJavaApplication) docker.getProperty("javaApplication");
           javaApplication.setBaseImage("openjdk:8-jre");
 
+          project.getTasks().getByName("build").dependsOn("dockerDistTar");
+
           for (ImmutableDeploymentConfiguration type : config.getTypes()) {
             String capitalized =
                 Ascii.toUpperCase(type.getName().charAt(0)) + type.getName().substring(1);
