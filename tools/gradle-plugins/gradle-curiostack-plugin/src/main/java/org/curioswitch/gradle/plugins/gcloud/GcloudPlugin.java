@@ -293,7 +293,7 @@ public class GcloudPlugin implements Plugin<Project> {
                                               + " patch deployment/"
                                               + alpha.deploymentName()
                                               + " -p "
-                                              + "'{\\\"spec\\\": {\\\"template\\\": {\\\"metadata\\\": {\\\"labels\\\": {\\\"revision\\\": \\\"$REVISION_ID\\\" }}}}}'"))
+                                              + "'{\"spec\": {\"template\": {\"metadata\": {\"labels\": {\"revision\": \"$REVISION_ID\" }}}}}'"))
                                   .env(
                                       ImmutableList.of(
                                           "CLOUDSDK_COMPUTE_ZONE=" + config.clusterZone(),
