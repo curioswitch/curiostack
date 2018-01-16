@@ -50,6 +50,7 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.util.Base64;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import javax.security.auth.x500.X500Principal;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -183,6 +184,13 @@ public class RequestNamespaceCertTask extends DefaultTask {
               exec.executable(command);
               exec.args("certificate", "approve", cluster.namespace() + ".server.crt");
             });
+
+    // Need to wait a bit for certificate to propagate before fetching.
+    try {
+      TimeUnit.SECONDS.sleep(5);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
 
     // Gradle Exec seems to be flaky when reading from stdout, so use normal ProcessBuilder.
     final byte[] certificateBytes;
