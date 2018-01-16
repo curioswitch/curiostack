@@ -241,7 +241,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       }
     }
     return affectedRelativePaths.stream()
-        .filter(path -> path.equals("settings.gradle"))
+        .filter(path -> !path.equals("settings.gradle"))
         .collect(toImmutableSet());
   }
 
