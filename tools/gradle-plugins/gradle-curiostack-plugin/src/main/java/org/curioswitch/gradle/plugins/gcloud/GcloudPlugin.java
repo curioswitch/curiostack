@@ -288,7 +288,7 @@ public class GcloudPlugin implements Plugin<Project> {
                                           "-c",
                                           "test -e "
                                               + dockerPath
-                                              + " && kubectl --namespace="
+                                              + " && /builder/kubectl.bash --namespace="
                                               + alpha.namespace()
                                               + " patch deployment/"
                                               + alpha.deploymentName()

@@ -81,8 +81,6 @@ dependencies {
     compile 'org.bouncycastle:bcpkix-jdk15on'
 
     runtime 'mysql:mysql-connector-java'
-    // TODO(choko): Remove after Flyway 5.0 - https://github.com/flyway/flyway/issues/1545
-    runtime 'org.glassfish.corba:glassfish-corba-omgapi'
 
     apt 'org.immutables:value'
     compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'

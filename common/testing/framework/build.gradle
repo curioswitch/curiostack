@@ -22,39 +22,34 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.common.server.framework.redis;
+apply plugin: 'java-library'
+apply plugin: 'maven-publish'
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigBeanFactory;
-import dagger.Module;
-import dagger.Provides;
-import dagger.multibindings.IntoSet;
-import io.lettuce.core.RedisClient;
-import javax.inject.Singleton;
-import org.curioswitch.common.server.framework.config.ModifiableRedisConfig;
-import org.curioswitch.common.server.framework.config.RedisConfig;
-import org.curioswitch.common.server.framework.inject.EagerInit;
+archivesBaseName = 'curio-testing-framework'
 
-@Module
-public abstract class RedisModule {
+dependencies {
+    api project(':common:server:framework')
 
-  @Provides
-  @Singleton
-  static RedisConfig redisConfig(Config config) {
-    return ConfigBeanFactory.create(config.getConfig("redis"), ModifiableRedisConfig.class)
-        .toImmutable();
-  }
+    apt 'com.google.dagger:dagger-compiler'
 
-  @Provides
-  @Singleton
-  static RedisClient redisClient(RedisConfig config) {
-    return RedisClient.create(config.getUrl());
-  }
+    implementation 'org.simpleflatmapper:sfm-jooq'
+}
 
-  @Provides
-  @EagerInit
-  @IntoSet
-  static Object init(RedisClient redisClient) {
-    return redisClient;
-  }
+publishing {
+    publications {
+        maven(MavenPublication) {
+            pom.withXml {
+                // TODO(choko): Make it simpler to define pom attributes after the artifact, as is
+                // normal, by defining a DSL or something.
+                asNode().children()[3] + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+
+                    name 'Curio Testing Framework'
+                    description 'A testing framework to help when using curiostack.'
+                    url 'https://github.com/curioswitch/curiostack/tree/master/' +
+                            'common/testing/framework'
+                }
+            }
+        }
+    }
 }

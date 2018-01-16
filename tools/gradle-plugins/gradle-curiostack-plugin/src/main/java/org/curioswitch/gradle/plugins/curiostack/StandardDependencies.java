@@ -118,7 +118,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.firebase")
-              .version("5.7.0")
+              .version("5.8.0")
               .addModules("firebase-admin")
               .build(),
           ImmutableDependencySet.builder()
@@ -134,12 +134,12 @@ class StandardDependencies {
           // protoc often diverges from protobuf-java
           ImmutableDependencySet.builder()
               .group("com.google.protobuf")
-              .version("3.5.1")
+              .version("3.5.1-1")
               .addModules("protoc")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.56.0")
+              .version("0.56.1")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -165,7 +165,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.zaxxer")
-              .version("2.7.4")
+              .version("2.7.6")
               .addModules("HikariCP")
               .build(),
           ImmutableDependencySet.builder()
@@ -175,12 +175,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.dropwizard.metrics")
-              .version("3.2.5")
+              .version("4.0.2")
               .addModules("metrics-core", "metrics-jvm", "metrics-json", "metrics-log4j2")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.fabric8")
-              .version("3.1.5")
+              .version("3.1.8")
               .addModules("kubernetes-client")
               .build(),
           ImmutableDependencySet.builder()
@@ -190,7 +190,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.grpc")
-              .version("1.8.0")
+              .version("1.9.0")
               .addModules(
                   "grpc-all",
                   "grpc-auth",
@@ -231,7 +231,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("4.13.1")
+              .version("4.13.2")
               .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
@@ -266,7 +266,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.assertj")
-              .version("3.8.0")
+              .version("3.9.0")
               .addModules("assertj-core")
               .build(),
           ImmutableDependencySet.builder()
@@ -276,7 +276,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.bouncycastle")
-              .version("1.58")
+              .version("1.59")
               .addModules("bcpkix-jdk15on")
               .build(),
           ImmutableDependencySet.builder()
@@ -286,18 +286,18 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.40")
+              .version("0.0.41")
               .addModules("curio-server-framework")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("org.curioswitch.curiostack")
+              .version("0.0.2")
+              .addModules("curio-testing-framework")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.eclipse.jgit")
               .version("4.9.0.201710071750-r")
               .addModules("org.eclipse.jgit")
-              .build(),
-          ImmutableDependencySet.builder()
-              .group("org.glassfish.corba")
-              .version("4.1.0")
-              .addModules("glassfish-corba-omgapi")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.immutables")
@@ -316,7 +316,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jooq")
-              .version("3.10.2")
+              .version("3.10.3")
               .addModules("jooq")
               .build(),
           ImmutableDependencySet.builder()
@@ -331,8 +331,8 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.simpleflatmapper")
-              .version("3.12")
-              .addModules("sfm-jooq")
+              .version("3.15.3")
+              .addModules("sfm-jooq", "sfm-converter-protobuf")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.slf4j")
@@ -348,14 +348,14 @@ class StandardDependencies {
   static final List<String> DEPENDENCIES =
       ImmutableList.of(
           "com.bmuschko:gradle-docker-plugin:3.2.1",
-          "com.diffplug.spotless:spotless-plugin-gradle:3.7.0",
+          "com.diffplug.spotless:spotless-plugin-gradle:3.8.0",
           "com.github.ben-manes:gradle-versions-plugin:0.17.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.3",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0",
           "com.moowork.gradle:gradle-node-plugin:1.2.0",
           "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.boxfuse.client:flyway-release:5.0.2",
-          "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17",
+          "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.20",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
           "io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE",
           "me.champeau.gradle:jmh-gradle-plugin:0.4.5",

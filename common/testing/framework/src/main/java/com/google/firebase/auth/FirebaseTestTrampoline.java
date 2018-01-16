@@ -22,39 +22,24 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.common.server.framework.redis;
+package com.google.firebase.auth;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigBeanFactory;
-import dagger.Module;
-import dagger.Provides;
-import dagger.multibindings.IntoSet;
-import io.lettuce.core.RedisClient;
-import javax.inject.Singleton;
-import org.curioswitch.common.server.framework.config.ModifiableRedisConfig;
-import org.curioswitch.common.server.framework.config.RedisConfig;
-import org.curioswitch.common.server.framework.inject.EagerInit;
+import com.google.api.client.json.JsonFactory;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 
-@Module
-public abstract class RedisModule {
+/**
+ * Provides access to package-private methods of {@link com.google.firebase.auth} for use in tests.
+ * Trampolines are more type-safe than using reflection. Users should use the methods in {@link
+ * org.curioswitch.common.testing.auth.firebase.FirebaseTestUtil} instead of calling these directly.
+ */
+public class FirebaseTestTrampoline {
 
-  @Provides
-  @Singleton
-  static RedisConfig redisConfig(Config config) {
-    return ConfigBeanFactory.create(config.getConfig("redis"), ModifiableRedisConfig.class)
-        .toImmutable();
-  }
-
-  @Provides
-  @Singleton
-  static RedisClient redisClient(RedisConfig config) {
-    return RedisClient.create(config.getUrl());
-  }
-
-  @Provides
-  @EagerInit
-  @IntoSet
-  static Object init(RedisClient redisClient) {
-    return redisClient;
+  public static FirebaseToken parseToken(JsonFactory jsonFactory, String tokenString) {
+    try {
+      return FirebaseToken.parse(jsonFactory, tokenString);
+    } catch (IOException e) {
+      throw new UncheckedIOException("Could not parse firebase token.", e);
+    }
   }
 }

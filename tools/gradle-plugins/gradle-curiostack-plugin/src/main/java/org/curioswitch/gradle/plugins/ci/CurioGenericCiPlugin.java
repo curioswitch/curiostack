@@ -24,6 +24,8 @@
 
 package org.curioswitch.gradle.plugins.ci;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -238,7 +240,9 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
           break;
       }
     }
-    return affectedRelativePaths;
+    return affectedRelativePaths.stream()
+        .filter(path -> path.equals("settings.gradle"))
+        .collect(toImmutableSet());
   }
 
   private CanonicalTreeParser parserForBranch(Git git, Ref branch) throws IOException {

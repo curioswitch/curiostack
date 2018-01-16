@@ -22,39 +22,43 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.common.server.framework.redis;
+package org.curioswitch.common.testing.database;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigBeanFactory;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import dagger.Module;
 import dagger.Provides;
-import dagger.multibindings.IntoSet;
-import io.lettuce.core.RedisClient;
-import javax.inject.Singleton;
-import org.curioswitch.common.server.framework.config.ModifiableRedisConfig;
-import org.curioswitch.common.server.framework.config.RedisConfig;
-import org.curioswitch.common.server.framework.inject.EagerInit;
+import dagger.producers.Production;
+import java.util.concurrent.Executor;
+import org.curioswitch.common.server.framework.database.DatabaseUtil;
+import org.curioswitch.common.server.framework.database.ForDatabase;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.tools.jdbc.MockConnection;
+import org.jooq.tools.jdbc.MockDataProvider;
 
 @Module
-public abstract class RedisModule {
+public abstract class DatabaseTestingModule {
 
   @Provides
-  @Singleton
-  static RedisConfig redisConfig(Config config) {
-    return ConfigBeanFactory.create(config.getConfig("redis"), ModifiableRedisConfig.class)
-        .toImmutable();
+  @ForDatabase
+  static ListeningExecutorService dbExecutor() {
+    return MoreExecutors.listeningDecorator(MoreExecutors.newDirectExecutorService());
   }
 
   @Provides
-  @Singleton
-  static RedisClient redisClient(RedisConfig config) {
-    return RedisClient.create(config.getUrl());
+  @Production
+  static Executor executor() {
+    return MoreExecutors.directExecutor();
   }
 
   @Provides
-  @EagerInit
-  @IntoSet
-  static Object init(RedisClient redisClient) {
-    return redisClient;
+  static DSLContext db(MockDataProvider dataProvider) {
+    MockConnection connection = new MockConnection(dataProvider);
+    DSLContext db = DSL.using(connection, SQLDialect.MYSQL);
+    db.configuration().set(DatabaseUtil.sfmRecordMapperProvider());
+    db.settings().setRenderSchema(false);
+    return db;
   }
 }

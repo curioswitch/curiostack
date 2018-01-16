@@ -22,39 +22,17 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.common.server.framework.redis;
+package org.curioswitch.common.testing.auth.firebase;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigBeanFactory;
-import dagger.Module;
-import dagger.Provides;
-import dagger.multibindings.IntoSet;
-import io.lettuce.core.RedisClient;
-import javax.inject.Singleton;
-import org.curioswitch.common.server.framework.config.ModifiableRedisConfig;
-import org.curioswitch.common.server.framework.config.RedisConfig;
-import org.curioswitch.common.server.framework.inject.EagerInit;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.firebase.auth.FirebaseTestTrampoline;
+import com.google.firebase.auth.FirebaseToken;
 
-@Module
-public abstract class RedisModule {
+/** Utilities to work with firebase in tests. */
+public class FirebaseTestUtil {
 
-  @Provides
-  @Singleton
-  static RedisConfig redisConfig(Config config) {
-    return ConfigBeanFactory.create(config.getConfig("redis"), ModifiableRedisConfig.class)
-        .toImmutable();
-  }
-
-  @Provides
-  @Singleton
-  static RedisClient redisClient(RedisConfig config) {
-    return RedisClient.create(config.getUrl());
-  }
-
-  @Provides
-  @EagerInit
-  @IntoSet
-  static Object init(RedisClient redisClient) {
-    return redisClient;
+  /** Parses a serialized {@link FirebaseToken} without verification. */
+  public static FirebaseToken parse(String serialized) {
+    return FirebaseTestTrampoline.parseToken(JacksonFactory.getDefaultInstance(), serialized);
   }
 }

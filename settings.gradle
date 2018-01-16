@@ -37,7 +37,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.87'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.88'
     }
 }
 
@@ -61,6 +61,7 @@ buildCache {
 include ':auth:api', ':auth:server'
 include ':common:grpc:protobuf-jackson'
 include ':common:server:framework'
+include ':common:testing:framework'
 include ':cluster:namespaces:auth-dev'
 include ':curioswitch:portal:server'
 include ':curioswitch:portal:client:web'
