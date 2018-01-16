@@ -93,7 +93,8 @@ public abstract class DatabaseModule {
             .set(dbExecutor)
             .set(SQLDialect.MYSQL)
             .set(new Settings().withRenderSchema(false))
-            .set(new DataSourceConnectionProvider(dataSource));
+            .set(new DataSourceConnectionProvider(dataSource))
+            .set(DatabaseUtil.sfmRecordMapperProvider());
     DSLContext ctx = DSL.using(configuration);
     // Eagerly trigger JOOQ classinit for better startup performance.
     ctx.select().from("curio_server_framework_init").getSQL();

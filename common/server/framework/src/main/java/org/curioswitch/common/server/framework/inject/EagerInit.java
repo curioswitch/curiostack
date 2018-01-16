@@ -32,13 +32,15 @@ import javax.inject.Qualifier;
 
 /**
  * {@link Qualifier} to use on {@link Object} type providers to indicate the provided objects should
- * be initialized at server startup. This is useful for dependencies used in
- * {@link dagger.producers.ProducerModule} because they will not be initialized until the first
- * usage of a producer graph. For {@link javax.inject.Singleton} dependencies, it is highly
- * recommended to provide an {@link EagerInit} annotated {@code init} provider that accepts the
- * objects as dependencies.
+ * be initialized at server startup. This is useful for dependencies used in {@link
+ * dagger.producers.ProducerModule} because they will not be initialized until the first usage of a
+ * producer graph. For {@link javax.inject.Singleton} dependencies, it is highly recommended to
+ * provide an {@link EagerInit} annotated {@code init} provider that accepts the objects as
+ * dependencies.
  *
- * <p>For example,<pre>{@code
+ * <p>For example,
+ *
+ * <pre>{@code
  * {@literal @}Module
  * public class MyModule {
  *   {@literal @}Provides

@@ -290,6 +290,11 @@ class StandardDependencies {
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
+              .group("org.curioswitch.curiostack")
+              .version("0.0.2")
+              .addModules("curio-testing-framework")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("org.eclipse.jgit")
               .version("4.9.0.201710071750-r")
               .addModules("org.eclipse.jgit")
@@ -326,8 +331,8 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.simpleflatmapper")
-              .version("3.12")
-              .addModules("sfm-jooq")
+              .version("3.15.3")
+              .addModules("sfm-jooq", "sfm-converter-protobuf")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.slf4j")
