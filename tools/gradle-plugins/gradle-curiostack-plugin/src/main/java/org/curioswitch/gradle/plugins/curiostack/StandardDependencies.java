@@ -355,7 +355,7 @@ class StandardDependencies {
           "com.moowork.gradle:gradle-node-plugin:1.2.0",
           "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.boxfuse.client:flyway-release:5.0.2",
-          "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.20",
+          "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
           "io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE",
           "me.champeau.gradle:jmh-gradle-plugin:0.4.5",
