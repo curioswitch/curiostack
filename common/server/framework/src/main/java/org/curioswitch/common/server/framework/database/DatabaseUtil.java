@@ -58,12 +58,16 @@ public final class DatabaseUtil {
                     }
                   });
 
+  // Make singleton to allow better code generation.
+  private static final SfmRecordMapperProvider MAPPER_PROVIDER =
+      new SfmRecordMapperProvider(MAPPER_CONFIG, ReflectionService.newInstance());
+
   /**
    * Returns a {@link SfmRecordMapperProvider} configured to allow missing properties, which are
    * common when mapping from DB objects to business logic objects.
    */
   public static SfmRecordMapperProvider sfmRecordMapperProvider() {
-    return new SfmRecordMapperProvider(MAPPER_CONFIG, ReflectionService.newInstance());
+    return MAPPER_PROVIDER;
   }
 
   private DatabaseUtil() {}
