@@ -29,7 +29,7 @@ import com.typesafe.config.ConfigBeanFactory;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoSet;
-import io.lettuce.core.RedisClient;
+import io.lettuce.core.cluster.RedisClusterClient;
 import javax.inject.Singleton;
 import org.curioswitch.common.server.framework.config.ModifiableRedisConfig;
 import org.curioswitch.common.server.framework.config.RedisConfig;
@@ -47,14 +47,14 @@ public abstract class RedisModule {
 
   @Provides
   @Singleton
-  static RedisClient redisClient(RedisConfig config) {
-    return RedisClient.create(config.getUrl());
+  static RedisClusterClient redisClient(RedisConfig config) {
+    return RedisClusterClient.create(config.getUrl());
   }
 
   @Provides
   @EagerInit
   @IntoSet
-  static Object init(RedisClient redisClient) {
+  static Object init(RedisClusterClient redisClient) {
     return redisClient;
   }
 }

@@ -32,9 +32,9 @@ import com.github.benmanes.caffeine.cache.CaffeineSpec;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Message;
 import com.spotify.futures.CompletableFuturesExtra;
-import io.lettuce.core.RedisClient;
 import io.lettuce.core.SetArgs;
-import io.lettuce.core.api.async.RedisAsyncCommands;
+import io.lettuce.core.cluster.RedisClusterClient;
+import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -57,10 +57,10 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
   /** A {@link Factory} for creating {@link ProtobufRedisLoadingCache}. */
   public static class Factory {
 
-    private final RedisClient redisClient;
+    private final RedisClusterClient redisClient;
 
     @Inject
-    public Factory(RedisClient redisClient) {
+    public Factory(RedisClusterClient redisClient) {
       this.redisClient = redisClient;
     }
 
@@ -91,7 +91,7 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
 
   private static final Logger logger = LogManager.getLogger();
 
-  private final RedisAsyncCommands<K, V> redis;
+  private final RedisClusterAsyncCommands<K, V> redis;
   private final AsyncLoadingCache<K, V> cache;
   private final SetArgs setArgs;
 
@@ -101,7 +101,7 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
       V valuePrototype,
       Duration redisTtl,
       @Nullable CaffeineSpec localCacheSpec,
-      RedisClient redisClient) {
+      RedisClusterClient redisClient) {
     checkNotNull(keyPrototype, "keyPrototype");
     checkNotNull(valuePrototype, "valuePrototype");
     checkNotNull(redisTtl, "redisTtl");
