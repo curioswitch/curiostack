@@ -50,6 +50,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import me.champeau.gradle.JMHPlugin;
 import me.champeau.gradle.JMHPluginExtension;
+import nebula.plugin.resolutionrules.ResolutionRulesPlugin;
 import net.ltgt.gradle.apt.AptIdeaPlugin;
 import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleAptConvention;
 import net.ltgt.gradle.apt.AptPlugin;
@@ -169,6 +170,8 @@ public class CuriostackPlugin implements Plugin<Project> {
         project -> {
           setupRepositories(project);
 
+          project.getPlugins().apply(ResolutionRulesPlugin.class);
+
           project.getPlugins().withType(JavaPlugin.class, plugin -> setupJavaProject(project));
 
           project
@@ -256,8 +259,8 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
 
     JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
-    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_1_8);
-    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_1_8);
+    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_1_9);
+    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_1_9);
 
     // While Gradle attempts to generate a unique module name automatically,
     // it doesn't seem to always work properly, so we just always use unique
@@ -275,6 +278,11 @@ public class CuriostackPlugin implements Plugin<Project> {
                 ancestor = ancestor.getParent();
               }
               module.setName(moduleName);
+
+              project
+                  .getTasks()
+                  .getByName("clean")
+                  .doLast(unused -> project.file(project.getName() + ".iml").delete());
 
               new DslObject(module)
                   .getConvention()
@@ -297,6 +305,10 @@ public class CuriostackPlugin implements Plugin<Project> {
           StandardDependencies.DEPENDENCIES.forEach(dependencies::dependency);
         });
 
+    // Pretty much all java code needs at least the Generated annotation.
+    project
+        .getDependencies()
+        .add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, "javax.annotation:javax.annotation-api");
     project.afterEvaluate(CuriostackPlugin::addStandardJavaTestDependencies);
 
     project
@@ -309,8 +321,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     Javadoc javadoc = (Javadoc) project.getTasks().getByName("javadoc");
     CoreJavadocOptions options = (CoreJavadocOptions) javadoc.getOptions();
     options.quiet();
-    options.addBooleanOption("Xdoclint:all", true);
-    options.addBooleanOption("Xdoclint:-missing", true);
+    options.addBooleanOption("Xdoclint:all,-missing", true);
 
     project
         .getTasks()
@@ -396,8 +407,7 @@ public class CuriostackPlugin implements Plugin<Project> {
               // configuration
               // to be able to provide the resolution workaround described below.
               Configuration jmhManaged = project.getConfigurations().create("jmhManaged");
-              Configuration jmhConfiguration =
-                  project.getConfigurations().getByName(JMHPlugin.JMH_NAME);
+              Configuration jmhConfiguration = project.getConfigurations().getByName("jmh");
               jmhConfiguration.extendsFrom(jmhManaged);
 
               // JMH plugin uses a detached configuration to build an uber-jar, which
@@ -420,7 +430,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                                       dep -> {
                                         project
                                             .getDependencies()
-                                            .add(JMHPlugin.JMH_NAME, dep.getModule().toString());
+                                            .add("jmh", dep.getModule().toString());
                                       });
                             });
                   });
@@ -448,7 +458,8 @@ public class CuriostackPlugin implements Plugin<Project> {
     DependencyHandler dependencies = project.getDependencies();
 
     dependencies.add(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME, "com.google.code.findbugs:jsr305");
-    dependencies.add(testConfiguration.getName(), "org.curioswitch.curiostack:curio-testing-framework");
+    dependencies.add(
+        testConfiguration.getName(), "org.curioswitch.curiostack:curio-testing-framework");
     dependencies.add(testConfiguration.getName(), "org.assertj:assertj-core");
     dependencies.add(testConfiguration.getName(), "org.awaitility:awaitility");
     dependencies.add(testConfiguration.getName(), "junit:junit");
