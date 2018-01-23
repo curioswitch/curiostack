@@ -30,6 +30,7 @@ import com.google.protobuf.Message;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.codec.ToByteBufEncoder;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
@@ -59,7 +60,9 @@ class ProtobufRedisCodec<K extends Message, V extends Message>
 
   @Override
   public ByteBuffer encodeKey(K key) {
-    throw new UnsupportedOperationException("Should use more efficient encodeKey(K, ByteBuf)");
+    ByteBuf buf = Unpooled.buffer(estimateSize(key));
+    encodeKey(key, buf);
+    return buf.nioBuffer();
   }
 
   @Override
@@ -71,7 +74,9 @@ class ProtobufRedisCodec<K extends Message, V extends Message>
 
   @Override
   public ByteBuffer encodeValue(V value) {
-    throw new UnsupportedOperationException("Should use more efficient encodeValue(V, ByteBuf)");
+    ByteBuf buf = Unpooled.buffer(estimateSize(value));
+    encodeValue(value, buf);
+    return buf.nioBuffer();
   }
 
   @Override

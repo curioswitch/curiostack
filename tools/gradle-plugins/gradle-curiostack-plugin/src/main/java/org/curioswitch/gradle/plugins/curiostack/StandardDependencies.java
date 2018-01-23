@@ -286,7 +286,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.42")
+              .version("0.0.43")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
