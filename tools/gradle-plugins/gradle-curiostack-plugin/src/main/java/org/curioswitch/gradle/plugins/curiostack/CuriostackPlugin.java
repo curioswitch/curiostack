@@ -445,7 +445,12 @@ public class CuriostackPlugin implements Plugin<Project> {
             JavaExec.class,
             task ->
                 System.getProperties()
-                    .forEach((key, value) -> task.systemProperty((String) key, value)));
+                    .entrySet()
+                    .stream()
+                    // IntelliJ property which doesn't work with Java9.
+                    .filter(entry -> !entry.getKey().equals("java.endorsed.dirs"))
+                    .forEach(
+                        entry -> task.systemProperty((String) entry.getKey(), entry.getValue())));
   }
 
   private static void addStandardJavaTestDependencies(Project project) {
