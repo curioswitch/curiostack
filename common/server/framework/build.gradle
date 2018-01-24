@@ -71,6 +71,9 @@ dependencies {
 
     runtime 'mysql:mysql-connector-java'
 
+    apt 'com.google.auto.service:auto-service'
+    compileOnly 'com.google.auto.service:auto-service'
+
     apt 'com.google.dagger:dagger-compiler'
 
     apt 'org.immutables:value'

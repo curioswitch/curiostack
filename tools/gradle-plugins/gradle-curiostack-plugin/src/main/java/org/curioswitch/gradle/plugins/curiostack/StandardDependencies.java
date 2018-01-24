@@ -67,6 +67,11 @@ class StandardDependencies {
               .addModules("auto-factory")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.google.auto.service")
+              .version("1.0-rc4")
+              .addModules("auto-service")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.fasterxml.jackson.core")
               .version(JACKSON_VERSION)
               .addModules("jackson-annotations", "jackson-core", "jackson-databind")
@@ -291,7 +296,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.45")
+              .version("0.0.46")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
