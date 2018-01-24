@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-FROM openjdk:8-jdk-slim
+FROM openjdk:9-jdk-slim
 
 # Add build toolchain / python for e.g., nodejs extensions and git for golang / manual builds.
 RUN apt-get -y update && apt-get -y install build-essential git python-minimal

@@ -67,6 +67,11 @@ class StandardDependencies {
               .addModules("auto-factory")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.google.auto.service")
+              .version("1.0-rc4")
+              .addModules("auto-service")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.fasterxml.jackson.core")
               .version(JACKSON_VERSION)
               .addModules("jackson-annotations", "jackson-core", "jackson-databind")
@@ -87,23 +92,28 @@ class StandardDependencies {
               .addModules("caffeine")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.google.auto")
+              .version("0.10")
+              .addModules("auto-common")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.google.code.findbugs")
               .version("3.0.2")
               .addModules("jsr305")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.14.0")
+              .version("1.15.0")
               .addModules("google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.32.0-alpha")
+              .version("0.33.0-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.32.0-beta")
+              .version("0.33.0-beta")
               .addModules("google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
@@ -231,7 +241,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("4.13.2")
+              .version("4.13.3")
               .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
@@ -286,7 +296,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.43")
+              .version("0.0.46")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -316,13 +326,8 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jooq")
-              .version("3.10.3")
+              .version("3.10.4")
               .addModules("jooq")
-              .build(),
-          ImmutableDependencySet.builder()
-              .group("org.mariadb.jdbc")
-              .version("2.2.0")
-              .addModules("mariadb-java-client")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")
@@ -332,7 +337,13 @@ class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("org.simpleflatmapper")
               .version("3.15.3")
-              .addModules("sfm-jooq", "sfm-converter-protobuf")
+              .addModules(
+                  "sfm-jooq",
+                  "sfm-converter-protobuf",
+                  "sfm-reflect",
+                  "sfm-jdbc",
+                  "sfm-map",
+                  "sfm-util")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.slf4j")
@@ -347,18 +358,23 @@ class StandardDependencies {
 
   static final List<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:3.2.1",
+          "com.bmuschko:gradle-docker-plugin:3.2.2",
           "com.diffplug.spotless:spotless-plugin-gradle:3.8.0",
           "com.github.ben-manes:gradle-versions-plugin:0.17.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.3",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0",
           "com.moowork.gradle:gradle-node-plugin:1.2.0",
+          "com.netflix.nebula:gradle-dependency-lock-plugin:5.0.2",
+          "com.netflix.nebula:gradle-resolution-rules-plugin:5.1.0",
           "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.boxfuse.client:flyway-release:5.0.2",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
           "io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE",
+          "javax.annotation:javax.annotation-api:1.3.1",
+          "javax.xml.bind:jaxb-api:2.3.0",
           "me.champeau.gradle:jmh-gradle-plugin:0.4.5",
           "mysql:mysql-connector-java:5.1.45",
-          "net.ltgt.gradle:gradle-apt-plugin:0.13");
+          "net.ltgt.gradle:gradle-apt-plugin:0.13",
+          "nu.studer:gradle-jooq-plugin:2.0.9");
 }

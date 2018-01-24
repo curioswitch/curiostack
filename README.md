@@ -3,6 +3,16 @@ Full stack to help satisfy curiosity
 
 ## Developing
 
+Curiostack requires JDK9. For Ubuntu / Debian users, the included OpenJDK9 will not work due to an
+embarrassing [bug](https://bugs.launchpad.net/ubuntu/+source/openjdk-9/+bug/1727002). To work around
+this, install the Oracle JDK9 from a PPA.
+
+```bash
+$ sudo add-apt-repository ppa:webupd8team/java
+$ sudo apt-get update
+$ sudo apt-get install oracle-java9-installer
+```
+
 Curiostack only has a dependency on Java. However, IntelliJ is highly recommended for development.
 The free community edition is sufficient for Java development, while the pro edition may provide a
 more integrated IDE for both server and client development. Many users will choose to use IntelliJ
