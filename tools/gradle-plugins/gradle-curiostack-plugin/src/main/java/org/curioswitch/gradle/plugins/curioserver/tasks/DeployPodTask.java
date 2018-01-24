@@ -120,7 +120,8 @@ public class DeployPodTask extends DefaultTask {
     if (!deploymentConfig.envVars().containsKey("JAVA_OPTS")) {
       int numWorkers = (int) (Math.ceil(Double.parseDouble(deploymentConfig.cpu())) * 2);
       StringBuilder javaOpts = new StringBuilder();
-      javaOpts.append("-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap ")
+      javaOpts
+          .append("-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap ")
           .append("-Dconfig.resource=application-")
           .append(type)
           .append(".conf ")
@@ -136,11 +137,7 @@ public class DeployPodTask extends DefaultTask {
       if (!type.equals("prod")) {
         javaOpts.append("-Dcom.linecorp.armeria.verboseExceptions=true ");
       }
-      envVars.add(
-          new EnvVar(
-              "JAVA_OPTS",
-              javaOpts.toString(),
-              null));
+      envVars.add(new EnvVar("JAVA_OPTS", javaOpts.toString(), null));
     }
 
     Deployment deployment =
