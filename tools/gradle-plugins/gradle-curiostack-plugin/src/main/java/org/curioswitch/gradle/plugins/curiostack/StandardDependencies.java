@@ -117,6 +117,11 @@ class StandardDependencies {
               .addModules("google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.google.cloud.sql")
+              .version("1.0.5")
+              .addModules("mysql-socket-factory")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.google.cloud.trace.adapters.zipkin")
               .version("0.3.0")
               .addModules("translation")
@@ -167,6 +172,11 @@ class StandardDependencies {
                   "converter-jackson",
                   "converter-java8",
                   "retrofit")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("com.sun.xml.bind")
+              .version("2.3.0")
+              .addModules("jaxb-core", "jaxb-impl")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.typesafe")
@@ -371,6 +381,7 @@ class StandardDependencies {
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
           "io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE",
+          "javax.activation:activation:1.1.1",
           "javax.annotation:javax.annotation-api:1.3.1",
           "javax.xml.bind:jaxb-api:2.3.0",
           "me.champeau.gradle:jmh-gradle-plugin:0.4.5",

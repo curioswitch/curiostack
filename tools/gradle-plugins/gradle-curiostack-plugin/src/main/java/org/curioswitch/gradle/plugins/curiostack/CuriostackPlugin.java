@@ -56,6 +56,8 @@ import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleAptConvention;
 import net.ltgt.gradle.apt.AptPlugin;
 import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
+import nu.studer.gradle.jooq.JooqPlugin;
+import nu.studer.gradle.jooq.JooqTask;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
@@ -73,6 +75,7 @@ import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.PluginContainer;
+import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.SourceSet;
@@ -217,6 +220,8 @@ public class CuriostackPlugin implements Plugin<Project> {
                             });
                   });
         });
+
+    setupDataSources(rootProject);
   }
 
   private static void setupRepositories(Project project) {
@@ -436,6 +441,31 @@ public class CuriostackPlugin implements Plugin<Project> {
                   });
             });
 
+    project
+        .getPlugins()
+        .withType(
+            JooqPlugin.class,
+            unused -> {
+              project
+                  .getTasks()
+                  .withType(
+                      JooqTask.class,
+                      t -> {
+                        for (String dependency :
+                            ImmutableList.of(
+                                "javax.activation:activation",
+                                "javax.xml.bind:jaxb-api",
+                                "com.sun.xml.bind:jaxb-core",
+                                "com.sun.xml.bind:jaxb-impl",
+                                "mysql:mysql-connector-java",
+                                // Not sure why this isn't automatically added.
+                                "com.google.guava:guava",
+                                "com.google.cloud.sql:mysql-socket-factory")) {
+                          project.getDependencies().add("jooqRuntime", dependency);
+                        }
+                      });
+            });
+
     // It is very common to want to pass in command line system properties to the binary, so just
     // always forward properties. It won't affect production since no one runs binaries via Gradle
     // in production.
@@ -470,5 +500,22 @@ public class CuriostackPlugin implements Plugin<Project> {
     dependencies.add(testConfiguration.getName(), "junit:junit");
     dependencies.add(testConfiguration.getName(), "org.mockito:mockito-core");
     dependencies.add(testConfiguration.getName(), "info.solidsoft.mockito:mockito-java8");
+  }
+
+  private static void setupDataSources(Project project) {
+    // TODO(choko): Preconfigure XML as well
+    Configuration configuration = project.getConfigurations().create("jdbcDrivers");
+    project
+        .getDependencies()
+        .add(configuration.getName(), "com.google.cloud.sql:mysql-socket-factory:1.0.5");
+    project
+        .getTasks()
+        .create(
+            "setupDataSources",
+            Copy.class,
+            t -> {
+              t.from(configuration);
+              t.into(".ideaDataSources/drivers");
+            });
   }
 }
