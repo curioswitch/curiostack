@@ -83,10 +83,15 @@ dependencies {
     compile 'nu.studer:gradle-jooq-plugin'
     compile 'org.bouncycastle:bcpkix-jdk15on'
 
-    runtime 'mysql:mysql-connector-java'
+    // Flyway plugin uses the gradle classpath, so adding this allows flyway to access cloud sql.
+    runtime 'com.google.cloud.sql:mysql-socket-factory'
 
     // TODO(choko): Remove after jooq fixes this requirement - https://github.com/jOOQ/jOOQ/issues/6879
+    // It's simpler to add these explicitly rather than requiring Gradle to be run with --add-modules
+    runtime 'javax.activation:activation'
     runtime 'javax.xml.bind:jaxb-api'
+    runtime 'com.sun.xml.bind:jaxb-core'
+    runtime 'com.sun.xml.bind:jaxb-impl'
 
     apt 'org.immutables:value'
     compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
