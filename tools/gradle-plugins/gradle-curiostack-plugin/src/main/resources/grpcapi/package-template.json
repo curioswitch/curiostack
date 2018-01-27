@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "postinstall": "tsc --noEmit false --lib es5 dom --target es5"
+    "postinstall": "tsc --noEmit false --lib es5,dom --target es5"
   },
   "dependencies": {
     "@types/google-protobuf": "|TYPES_GOOGLE_PROTOBUF_VERSION|",
