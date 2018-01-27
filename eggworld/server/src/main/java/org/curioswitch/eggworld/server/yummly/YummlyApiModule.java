@@ -50,8 +50,7 @@ public abstract class YummlyApiModule {
 
   @Provides
   static YummlyConfig yummlyConfig(Config config) {
-    return ConfigBeanFactory.create(
-        config.getConfig("yummly"), ModifiableYummlyConfig.class)
+    return ConfigBeanFactory.create(config.getConfig("yummly"), ModifiableYummlyConfig.class)
         .toImmutable();
   }
 
@@ -62,10 +61,12 @@ public abstract class YummlyApiModule {
         .baseUrl("http://api.yummly.com/v1/api/")
         .addCallAdapterFactory(GuavaCallAdapterFactory.create())
         .addConverterFactory(JacksonConverterFactory.create(OBJECT_MAPPER))
-        .withClientOptions((unused, options) -> options
-            .addHttpHeader(HttpHeaderNames.of("X-Yummly-App-ID"), config.getApiId())
-            .addHttpHeader(HttpHeaderNames.of("X-Yummly-App-Key"), config.getApiKey())
-            .decorator(HttpRequest.class, HttpResponse.class, LoggingClient.newDecorator()))
+        .withClientOptions(
+            (unused, options) ->
+                options
+                    .addHttpHeader(HttpHeaderNames.of("X-Yummly-App-ID"), config.getApiId())
+                    .addHttpHeader(HttpHeaderNames.of("X-Yummly-App-Key"), config.getApiKey())
+                    .decorator(HttpRequest.class, HttpResponse.class, LoggingClient.newDecorator()))
         .build()
         .create(YummlyApi.class);
   }

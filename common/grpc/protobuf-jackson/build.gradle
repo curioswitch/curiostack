@@ -25,8 +25,8 @@
 apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 
-apply plugin: 'com.google.protobuf'
 apply plugin: 'me.champeau.gradle.jmh'
+apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
 
 archivesBaseName = 'protobuf-jackson'
 
@@ -38,19 +38,8 @@ targetCompatibility = '1.7'
     it.targetCompatibility = '1.8'
 }
 
-protobuf {
-    generatedFilesBaseDir = "$buildDir/generated/source/apt"
-    protoc {
-        artifact = "com.google.protobuf:protoc:" +
-                "${dependencyManagement.managedVersions['com.google.protobuf:protoc']}"
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins.java.outputSubDir = ''
-        }
-    }
-}
-
+// Not clear why this doesn't happen automatically with the configuration extension.
+tasks.compileJmhJava.dependsOn tasks.compileTestJava
 configurations.jmh.extendsFrom configurations.testRuntimeClasspath
 jmh {
     exclude = '.*FieldDispatchBenchmark.*'

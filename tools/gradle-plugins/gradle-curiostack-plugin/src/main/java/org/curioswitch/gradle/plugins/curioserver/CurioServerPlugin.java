@@ -28,6 +28,7 @@ import com.bmuschko.gradle.docker.DockerExtension;
 import com.bmuschko.gradle.docker.DockerJavaApplication;
 import com.bmuschko.gradle.docker.DockerJavaApplicationPlugin;
 import com.google.common.base.Ascii;
+import com.gorylenko.GitPropertiesPlugin;
 import groovy.lang.GroovyObject;
 import org.curioswitch.gradle.plugins.curioserver.ImmutableDeploymentExtension.ImmutableDeploymentConfiguration;
 import org.curioswitch.gradle.plugins.curioserver.tasks.DeployConfigMapTask;
@@ -47,9 +48,12 @@ public class CurioServerPlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.getPluginManager().apply(ApplicationPlugin.class);
+    project.getPluginManager().apply(GitPropertiesPlugin.class);
     project
         .getExtensions()
         .create(ImmutableDeploymentExtension.NAME, DeploymentExtension.class, project);
+
+    project.getNormalization().getRuntimeClasspath().ignore("git.properties");
 
     project.afterEvaluate(
         p -> {
@@ -66,7 +70,9 @@ public class CurioServerPlugin implements Plugin<Project> {
           GroovyObject docker = project.getExtensions().getByType(DockerExtension.class);
           DockerJavaApplication javaApplication =
               (DockerJavaApplication) docker.getProperty("javaApplication");
-          javaApplication.setBaseImage("openjdk:8-jre");
+          javaApplication.setBaseImage("openjdk:9-jre-slim");
+
+          project.getTasks().getByName("build").dependsOn("dockerDistTar");
 
           for (ImmutableDeploymentConfiguration type : config.getTypes()) {
             String capitalized =

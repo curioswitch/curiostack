@@ -24,78 +24,105 @@
 
 package org.curioswitch.eggworld.server.graphs;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
-
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.linecorp.armeria.common.RequestContext;
 import dagger.producers.ProducerModule;
 import dagger.producers.Produces;
 import dagger.producers.ProductionSubcomponent;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import org.curioswitch.eggworld.api.CheckIngredientsRequest;
-import org.curioswitch.eggworld.api.CheckIngredientsResponse;
-import org.curioswitch.eggworld.api.Ingredient;
+import java.util.Random;
+import java.util.concurrent.Executor;
+import java.util.function.Supplier;
+import org.curioswitch.eggworld.api.FindRecipeRequest;
+import org.curioswitch.eggworld.api.FindRecipeResponse;
 import org.curioswitch.eggworld.server.EggworldConstants;
 import org.curioswitch.eggworld.server.util.IngredientConverter;
 import org.curioswitch.eggworld.server.yummly.YummlyApi;
+import org.curioswitch.eggworld.server.yummly.models.Recipe;
 import org.curioswitch.eggworld.server.yummly.models.SearchResponse;
 
 @ProducerModule
-public class CheckIngredientsGraph {
+public class FindRecipeGraph {
 
-  private static final List<String> INGREDIENT_FACET = ImmutableList.of("ingredient");
-
-  private static final Set<String> SUPPORTED_INGREDIENTS =
-      Arrays.stream(Ingredient.values())
-          .filter(i -> i != Ingredient.UNRECOGNIZED)
-          .map(IngredientConverter.FORWARD::convert)
-          .collect(toImmutableSet());
-
-  @ProductionSubcomponent(modules = {CheckIngredientsGraph.class})
+  @ProductionSubcomponent(modules = {FindRecipeGraph.class})
   public interface Component {
 
-    ListenableFuture<CheckIngredientsResponse> execute();
+    ListenableFuture<FindRecipeResponse> execute();
 
     @ProductionSubcomponent.Builder
     interface Builder {
-      Builder graph(CheckIngredientsGraph graph);
+      Builder graph(FindRecipeGraph graph);
 
       Component build();
     }
   }
 
-  private final CheckIngredientsRequest request;
+  private final FindRecipeRequest request;
 
-  public CheckIngredientsGraph(CheckIngredientsRequest request) {
+  public FindRecipeGraph(FindRecipeRequest request) {
     this.request = request;
   }
 
   @Produces
-  CheckIngredientsRequest request() {
+  FindRecipeRequest request() {
     return request;
   }
 
   @Produces
-  ListenableFuture<SearchResponse> doSearch(CheckIngredientsRequest request, YummlyApi yummly) {
-    List<String> ingredients = ImmutableList.<String>builder()
-        .addAll(IngredientConverter.FORWARD.convertAll(request.getSelectedIngredientList()))
+  static List<String> ingredients(FindRecipeRequest request) {
+    return ImmutableList.<String>builder()
+        .addAll(IngredientConverter.FORWARD.convertAll(request.getIngredientList()))
         .add(EggworldConstants.EGGS_INGREDIENT)
         .build();
-    return yummly.search(EggworldConstants.EGG_QUERY, ingredients, 1, true, INGREDIENT_FACET);
   }
 
   @Produces
-  CheckIngredientsResponse response(SearchResponse searchResponse) {
-    List<Ingredient> availableIngredients =
-        searchResponse.facetCounts().ingredient().entrySet().stream()
-            .filter(e -> SUPPORTED_INGREDIENTS.contains(e.getKey()) && e.getValue() > 0)
-            .map(e -> IngredientConverter.REVERSE.convert(e.getKey()))
-            .collect(toImmutableList());
-    return CheckIngredientsResponse.newBuilder()
-        .addAllSelectableIngredient(availableIngredients)
+  static ListenableFuture<SearchResponse> doSearch(List<String> ingredients, YummlyApi yummly) {
+    return yummly.search(EggworldConstants.EGG_QUERY, ingredients, 0, 1, true, ImmutableList.of());
+  }
+
+  @Produces
+  static ListenableFuture<Recipe> recipe(
+      List<String> ingredients,
+      SearchResponse searchResponse,
+      Supplier<Random> randomSupplier,
+      YummlyApi yummly) {
+    int totalCount = searchResponse.totalMatchCount();
+
+    ListenableFuture<SearchResponse> future = Futures.immediateFuture(null);
+    // Get a random recipe to return. Search request fails randomly so try a few times.
+    Executor executor = RequestContext.current().contextAwareEventLoop();
+    Random random = randomSupplier.get();
+    for (int i = 0; i < 5; i++) {
+      int resultIndex = random.nextInt(totalCount);
+      future =
+          Futures.transformAsync(
+              future,
+              result -> {
+                if (result != null && !result.matches().isEmpty()) {
+                  return Futures.immediateFuture(result);
+                }
+                return yummly.search(
+                    EggworldConstants.EGG_QUERY,
+                    ingredients,
+                    resultIndex,
+                    1,
+                    true,
+                    ImmutableList.of());
+              },
+              executor);
+    }
+
+    return Futures.transform(future, r -> r.matches().get(0), MoreExecutors.directExecutor());
+  }
+
+  @Produces
+  static FindRecipeResponse response(Recipe recipe) {
+    return FindRecipeResponse.newBuilder()
+        .setRecipeUrl("http://www.yummly.com/recipe/" + recipe.id())
         .build();
   }
 }

@@ -56,13 +56,13 @@ public class CurioWebPlugin implements Plugin<Project> {
         .dir(ImmutableMap.of("builtBy", "copyWeb"), "build/javaweb");
 
     CacheableYarnTask buildWeb = project.getTasks().create("buildWeb", CacheableYarnTask.class);
-    buildWeb.dependsOn("yarn");
+    buildWeb.dependsOn(project.getRootProject().getTasks().findByName("yarn"));
     buildWeb.setArgs(ImmutableList.of("run", "build"));
     buildWeb.getInputs().dir("app");
     buildWeb.getInputs().dir("internals");
     // We assume the yarn task correctly handles up-to-date checks for node_modules, so only
     // need to look at yarn.lock here.
-    buildWeb.getInputs().file("yarn.lock");
+    buildWeb.getInputs().file(project.getRootProject().file("yarn.lock"));
     buildWeb.getOutputs().dir("build");
 
     Copy copyWeb = project.getTasks().create("copyWeb", Copy.class);

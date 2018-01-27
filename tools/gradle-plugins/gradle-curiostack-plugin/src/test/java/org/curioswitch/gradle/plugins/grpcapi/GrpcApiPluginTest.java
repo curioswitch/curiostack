@@ -68,13 +68,13 @@ public class GrpcApiPluginTest {
     assertThat(task).isInstanceOf(GenerateProtoTask.class).isNotNull();
     GenerateProtoTask generateProtoTask = (GenerateProtoTask) task;
     // 2 output dirs for java and grpc, but they are the same in our config.
-    String outputDir = project.getBuildDir().getAbsolutePath() + "/generated/source/apt/main";
+    String outputDir = project.getBuildDir().getAbsolutePath() + "/generated/source/proto/main";
     assertThat(generateProtoTask.getAllOutputDirs().stream().map(File::getAbsolutePath))
         .containsExactly(outputDir, outputDir);
-    assertThat(generateProtoTask.generateDescriptorSet).isTrue();
-    assertThat(generateProtoTask.descriptorSetOptions.includeSourceInfo).isTrue();
-    assertThat(generateProtoTask.descriptorSetOptions.includeImports).isTrue();
-    assertThat(generateProtoTask.descriptorSetOptions.path.toString())
+    assertThat(generateProtoTask.getGenerateDescriptorSet()).isTrue();
+    assertThat(generateProtoTask.getDescriptorSetOptions().getIncludeSourceInfo()).isTrue();
+    assertThat(generateProtoTask.getDescriptorSetOptions().getIncludeImports()).isTrue();
+    assertThat(generateProtoTask.getDescriptorSetOptions().getPath().toString())
         .isEqualTo(
             project.getBuildDir()
                 + "/resources/main/META-INF/armeria/grpc/org.curioswitch.test.curio-test-api.dsc");

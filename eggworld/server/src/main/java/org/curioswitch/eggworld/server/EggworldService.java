@@ -24,43 +24,46 @@
 
 package org.curioswitch.eggworld.server;
 
-import com.spotify.futures.FuturesExtra;
 import io.grpc.stub.StreamObserver;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import org.curioswitch.common.server.framework.grpc.GrpcGraphUtil;
 import org.curioswitch.eggworld.api.CheckIngredientsRequest;
 import org.curioswitch.eggworld.api.CheckIngredientsResponse;
 import org.curioswitch.eggworld.api.EggworldServiceGrpc.EggworldServiceImplBase;
 import org.curioswitch.eggworld.api.FindRecipeRequest;
 import org.curioswitch.eggworld.api.FindRecipeResponse;
 import org.curioswitch.eggworld.server.graphs.CheckIngredientsGraph;
+import org.curioswitch.eggworld.server.graphs.FindRecipeGraph;
 
 @Singleton
 class EggworldService extends EggworldServiceImplBase {
 
   private final Provider<CheckIngredientsGraph.Component.Builder> checkIngredientsGraph;
+  private final Provider<FindRecipeGraph.Component.Builder> findRecipeGraph;
 
   @Inject
-  EggworldService(Provider<CheckIngredientsGraph.Component.Builder> checkIngredientsGraph) {
+  EggworldService(
+      Provider<CheckIngredientsGraph.Component.Builder> checkIngredientsGraph,
+      Provider<FindRecipeGraph.Component.Builder> findRecipeGraph) {
     this.checkIngredientsGraph = checkIngredientsGraph;
+    this.findRecipeGraph = findRecipeGraph;
   }
 
   @Override
-  public void checkIngredients(CheckIngredientsRequest request,
-      StreamObserver<CheckIngredientsResponse> responseObserver) {
-    FuturesExtra.addCallback(
+  public void checkIngredients(
+      CheckIngredientsRequest request, StreamObserver<CheckIngredientsResponse> responseObserver) {
+    GrpcGraphUtil.unary(
         checkIngredientsGraph.get().graph(new CheckIngredientsGraph(request)).build().execute(),
-        response -> {
-          responseObserver.onNext(response);
-          responseObserver.onCompleted();
-        },
-        responseObserver::onError);
+        responseObserver);
   }
 
   @Override
-  public void findRecipe(FindRecipeRequest request,
-      StreamObserver<FindRecipeResponse> responseObserver) {
-    super.findRecipe(request, responseObserver);
+  public void findRecipe(
+      FindRecipeRequest request, StreamObserver<FindRecipeResponse> responseObserver) {
+    GrpcGraphUtil.unary(
+        findRecipeGraph.get().graph(new FindRecipeGraph(request)).build().execute(),
+        responseObserver);
   }
 }

@@ -41,11 +41,11 @@ import org.apache.logging.log4j.Logger;
 import org.curioswitch.common.server.framework.config.MonitoringConfig;
 import org.jctools.queues.MessagePassingQueue;
 import org.jctools.queues.MpscCompoundQueue;
-import zipkin.Span;
-import zipkin.reporter.Reporter;
+import zipkin2.Span;
+import zipkin2.reporter.Reporter;
 
 @Singleton
-public class StackdriverReporter implements Reporter<zipkin.Span>, Flushable, AutoCloseable {
+public class StackdriverReporter implements Reporter<Span>, Flushable, AutoCloseable {
 
   private static final Logger logger = LogManager.getLogger();
 

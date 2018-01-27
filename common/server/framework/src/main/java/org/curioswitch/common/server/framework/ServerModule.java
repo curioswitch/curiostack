@@ -25,6 +25,7 @@
 package org.curioswitch.common.server.framework;
 
 import brave.Tracing;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import com.linecorp.armeria.common.Flags;
 import com.linecorp.armeria.common.HttpRequest;
@@ -41,8 +42,8 @@ import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import com.linecorp.armeria.server.healthcheck.HttpHealthCheckService;
 import com.linecorp.armeria.server.logging.LoggingServiceBuilder;
-import com.linecorp.armeria.server.metric.PrometheusExporterHttpService;
-import com.linecorp.armeria.server.metric.PrometheusMetricCollectingService;
+import com.linecorp.armeria.server.metric.MetricCollectingService;
+import com.linecorp.armeria.server.metric.PrometheusExpositionService;
 import com.linecorp.armeria.server.tracing.HttpTracingService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
@@ -54,6 +55,7 @@ import dagger.multibindings.Multibinds;
 import dagger.producers.Production;
 import io.grpc.BindableService;
 import io.grpc.protobuf.services.ProtoReflectionService;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.handler.codec.http2.Http2SecurityUtil;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
 import io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
@@ -66,7 +68,6 @@ import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-import io.netty.util.concurrent.DefaultThreadFactory;
 import io.prometheus.client.CollectorRegistry;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -85,6 +86,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import javax.inject.Singleton;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
@@ -103,10 +105,11 @@ import org.curioswitch.common.server.framework.config.MonitoringConfig;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.files.FileWatcher;
 import org.curioswitch.common.server.framework.filter.IpFilteringService;
+import org.curioswitch.common.server.framework.grpc.GrpcServiceDefinition;
+import org.curioswitch.common.server.framework.inject.EagerInit;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
-import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels.RpcMetricLabel;
 import org.curioswitch.common.server.framework.monitoring.StackdriverReporter;
 import org.curioswitch.common.server.framework.staticsite.JavascriptStaticService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
@@ -152,10 +155,17 @@ public abstract class ServerModule {
   abstract Set<BindableService> grpcServices();
 
   @Multibinds
+  abstract Set<GrpcServiceDefinition> grpcServiceDefinitions();
+
+  @Multibinds
   abstract Set<StaticSiteServiceDefinition> staticSites();
 
   @Multibinds
   abstract Set<Consumer<ServerBuilder>> serverCustomizers();
+
+  @Multibinds
+  @EagerInit
+  abstract Set<Object> eagerInitializedDependencies();
 
   @BindsOptionalOf
   abstract SslCommonNamesProvider sslCommonNamesProvider();
@@ -231,12 +241,13 @@ public abstract class ServerModule {
   @Singleton
   static Server armeriaServer(
       Set<BindableService> grpcServices,
+      Set<GrpcServiceDefinition> grpcServiceDefinitions,
       Set<StaticSiteServiceDefinition> staticSites,
       Set<Consumer<ServerBuilder>> serverCustomizers,
       MetricsHttpService metricsHttpService,
       CollectorRegistry collectorRegistry,
+      MeterRegistry meterRegistry,
       Tracing tracing,
-      Set<RpcMetricLabel> metricLabels,
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
       Lazy<JavascriptStaticService> javascriptStaticService,
       Optional<SelfSignedCertificate> selfSignedCertificate,
@@ -248,8 +259,8 @@ public abstract class ServerModule {
       FirebaseAuthConfig authConfig,
       JavascriptStaticConfig javascriptStaticConfig,
       MonitoringConfig monitoringConfig,
-      // Eagerly trigger bindings when present.
-      Optional<DSLContext> unusedDb) {
+      // Eagerly trigger bindings that are present, not actually used here.
+      @EagerInit Set<Object> eagerInitializedDependencies) {
     if (!sslCommonNamesProvider.isPresent()
         && !serverConfig.getRpcAclsPath().isEmpty()
         && !serverConfig.isDisableSslAuthorization()) {
@@ -309,18 +320,33 @@ public abstract class ServerModule {
     }
     sb.service("/internal/health", new HttpHealthCheckService());
     sb.service("/internal/dropwizard", metricsHttpService);
-    sb.service("/internal/metrics", new PrometheusExporterHttpService(collectorRegistry));
+    sb.service("/internal/metrics", new PrometheusExpositionService(collectorRegistry));
 
     if (!grpcServices.isEmpty()) {
+      GrpcServiceDefinition definition =
+          new GrpcServiceDefinition.Builder()
+              .addAllServices(grpcServices)
+              .decorator(Function.identity())
+              .path(serverConfig.getGrpcPath())
+              .build();
+      grpcServiceDefinitions =
+          ImmutableSet.<GrpcServiceDefinition>builder()
+              .addAll(grpcServiceDefinitions)
+              .add(definition)
+              .build();
+    }
+
+    for (GrpcServiceDefinition definition : grpcServiceDefinitions) {
       GrpcServiceBuilder serviceBuilder =
           new GrpcServiceBuilder()
               .supportedSerializationFormats(GrpcSerializationFormats.values())
               .enableUnframedRequests(true);
-      grpcServices.forEach(serviceBuilder::addService);
+      definition.services().forEach(serviceBuilder::addService);
       if (!serverConfig.isDisableGrpcServiceDiscovery()) {
         serviceBuilder.addService(ProtoReflectionService.newInstance());
       }
-      Service<HttpRequest, HttpResponse> service = serviceBuilder.build();
+      Service<HttpRequest, HttpResponse> service =
+          serviceBuilder.build().decorate(definition.decorator());
       if (sslCommonNamesProvider.isPresent() && !serverConfig.isDisableSslAuthorization()) {
         service =
             new HttpAuthServiceBuilder()
@@ -334,10 +360,10 @@ public abstract class ServerModule {
       service =
           service
               .decorate(
-                  PrometheusMetricCollectingService.newDecorator(
-                      collectorRegistry, metricLabels, RpcMetricLabels.grpcRequestLabeler()))
+                  MetricCollectingService.newDecorator(
+                      RpcMetricLabels.grpcRequestLabeler("grpc_services")))
               .decorate(HttpTracingService.newDecorator(tracing));
-      sb.serviceUnder(serverConfig.getGrpcPath(), service);
+      sb.serviceUnder(definition.path(), service);
     }
 
     if (javascriptStaticConfig.getVersion() != 0) {
@@ -355,6 +381,7 @@ public abstract class ServerModule {
     }
 
     sb.decorator(new LoggingServiceBuilder().newDecorator());
+    sb.meterRegistry(meterRegistry);
 
     Server server = sb.build();
     server
@@ -373,20 +400,6 @@ public abstract class ServerModule {
       fileWatcher.start();
       Runtime.getRuntime().addShutdownHook(new Thread(fileWatcher::close));
     }
-
-    // Work around armeria 0.51.0 using daemon threads for the server event loops.
-    new DefaultThreadFactory("idler", false)
-        .newThread(
-            () -> {
-              while (true) {
-                try {
-                  Thread.sleep(Long.MAX_VALUE);
-                } catch (InterruptedException e) {
-                  logger.info("Idler thread interrupted.");
-                }
-              }
-            })
-        .start();
 
     if (monitoringConfig.isReportTraces()) {
       server

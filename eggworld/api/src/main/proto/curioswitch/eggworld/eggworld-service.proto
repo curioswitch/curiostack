@@ -43,8 +43,8 @@ enum Ingredient {
   // Onions.
   ONION = 3;
 
-  // Potatos.
-  POTATO = 4;
+  // Potatoes.
+  POTATOES = 4;
 
   // Spinach.
   SPINACH = 5;
@@ -58,29 +58,32 @@ enum Ingredient {
   // Cheese.
   CHEESE = 8;
 
+  // Chicken.
+  CHICKEN = 9;
+
   // Milk
-  MILK = 9;
+  MILK = 10;
 
   // Pork.
-  PORK = 10;
+  PORK = 11;
 
   // Bread.
-  BREAD = 11;
+  BREAD = 12;
 
-  // Chili.
-  CHILI = 12;
+  // Chile.
+  CHILE = 13;
 
   // Chocolate.
-  CHOCOLATE = 13;
+  CHOCOLATE = 14;
 
   // Honey.
-  HONEY = 14;
+  HONEY = 15;
 
   // Nuts.
-  NUTS = 15;
+  NUTS = 16;
 
   // Wine.
-  WINE = 16;
+  WINE = 17;
 }
 
 // A request to check what ingredients can still be used with the user's currently selected

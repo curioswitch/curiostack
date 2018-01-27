@@ -118,21 +118,26 @@ public class DeployPodTask extends DefaultTask {
                                         .build()))
                     ::iterator);
     if (!deploymentConfig.envVars().containsKey("JAVA_OPTS")) {
-      envVars.add(
-          new EnvVar(
-              "JAVA_OPTS",
-              "-Xms"
-                  + deploymentConfig.jvmHeapMb()
-                  + "m -Xmx"
-                  + deploymentConfig.jvmHeapMb()
-                  + "m -Dconfig.resource=application-"
-                  + type
-                  + ".conf"
-                  + " -Dmonitoring.stackdriverProjectId="
-                  + gcloud.clusterProject()
-                  + " -Dmonitoring.serverName="
-                  + deploymentConfig.deploymentName(),
-              null));
+      int numWorkers = (int) (Math.ceil(Double.parseDouble(deploymentConfig.cpu())) * 2);
+      StringBuilder javaOpts = new StringBuilder();
+      javaOpts
+          .append("-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap ")
+          .append("-Dconfig.resource=application-")
+          .append(type)
+          .append(".conf ")
+          .append("-Dmonitoring.stackdriverProjectId=")
+          .append(gcloud.clusterProject())
+          .append(" ")
+          .append("-Dmonitoring.serverName=")
+          .append(deploymentConfig.deploymentName())
+          .append(" ")
+          .append("-Dcom.linecorp.armeria.numCommonWorkers=")
+          .append(numWorkers)
+          .append(" ");
+      if (!type.equals("prod")) {
+        javaOpts.append("-Dcom.linecorp.armeria.verboseExceptions=true ");
+      }
+      envVars.add(new EnvVar("JAVA_OPTS", javaOpts.toString(), null));
     }
 
     Deployment deployment =

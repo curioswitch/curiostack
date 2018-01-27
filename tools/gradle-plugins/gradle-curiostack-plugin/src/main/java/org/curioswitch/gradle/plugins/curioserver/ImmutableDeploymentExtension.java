@@ -61,6 +61,10 @@ public interface ImmutableDeploymentExtension {
         .getArchivesBaseName();
   }
 
+  default boolean autoDeployAlpha() {
+    return true;
+  }
+
   @Modifiable
   @Style(create = "new", typeModifiable = "*", defaultAsDefault = true, typeAbstract = "Immutable*")
   interface ImmutableDeploymentConfiguration {

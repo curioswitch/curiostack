@@ -27,24 +27,31 @@ apply plugin: 'maven-publish'
 
 archivesBaseName = 'curio-server-framework'
 
+// TODO(choko): Figure out why the POM is invalid when using dependency management with classifier.
+def sfmVersion = '3.15.3'
+
 dependencies {
     api 'com.google.cloud:google-cloud-trace'
     api 'com.google.dagger:dagger'
+    api 'com.google.dagger:dagger-producers'
     api 'com.google.firebase:firebase-admin'
     api 'com.linecorp.armeria:armeria'
     api 'com.spotify:futures-extra'
     api 'com.typesafe:config'
+    api 'io.dropwizard.metrics:metrics-core'
     api 'io.grpc:grpc-core'
+    api 'io.lettuce:lettuce-core'
     api 'io.zipkin.brave:brave'
     api 'org.apache.logging.log4j:log4j-api'
     api 'org.jooq:jooq'
+    api group: 'org.simpleflatmapper', name: 'sfm-jooq', classifier: 'jdk9', version: sfmVersion
 
-    implementation 'com.google.cloud.trace.adapters.zipkin:translation'
-    implementation 'com.google.dagger:dagger-producers'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+    implementation 'com.google.protobuf:protobuf-java'
     implementation 'com.linecorp.armeria:armeria-grpc'
     implementation 'com.linecorp.armeria:armeria-zipkin'
     implementation 'com.zaxxer:HikariCP'
@@ -59,8 +66,13 @@ dependencies {
     implementation 'org.apache.logging.log4j:log4j-jul'
     implementation 'org.apache.logging.log4j:log4j-slf4j-impl'
     implementation 'org.jctools:jctools-core'
+    implementation group: 'org.simpleflatmapper', name: 'sfm-converter-protobuf', classifier: 'jdk9', version: sfmVersion
+    implementation group: 'org.simpleflatmapper', name: 'sfm-reflect', classifier: 'jdk9', version: sfmVersion
 
     runtime 'mysql:mysql-connector-java'
+
+    apt 'com.google.auto.service:auto-service'
+    compileOnly 'com.google.auto.service:auto-service'
 
     apt 'com.google.dagger:dagger-compiler'
 
@@ -86,4 +98,9 @@ publishing {
             }
         }
     }
+}
+
+// TODO(choko): Remove after stackdriver-zipkin is released
+license {
+    exclude 'com/google/**'
 }

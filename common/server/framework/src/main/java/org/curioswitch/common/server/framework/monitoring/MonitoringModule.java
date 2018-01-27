@@ -35,14 +35,14 @@ import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.google.cloud.trace.v1.TraceServiceClient;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
+import com.linecorp.armeria.common.metric.PrometheusMeterRegistries;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
-import dagger.multibindings.ElementsIntoSet;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.hotspot.DefaultExports;
 import io.prometheus.client.log4j2.InstrumentedAppender;
@@ -50,7 +50,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.management.ManagementFactory;
 import java.util.Properties;
-import java.util.Set;
 import javax.inject.Singleton;
 import javax.management.MBeanServer;
 import org.apache.logging.log4j.LogManager;
@@ -59,7 +58,6 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.curioswitch.common.server.framework.ApplicationModule;
 import org.curioswitch.common.server.framework.config.ModifiableMonitoringConfig;
 import org.curioswitch.common.server.framework.config.MonitoringConfig;
-import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels.RpcMetricLabel;
 
 @Module(includes = ApplicationModule.class)
 public abstract class MonitoringModule {
@@ -91,18 +89,18 @@ public abstract class MonitoringModule {
 
   @Provides
   @Singleton
+  static MeterRegistry meterRegistry(CollectorRegistry collectorRegistry) {
+    return PrometheusMeterRegistries.newRegistry(collectorRegistry);
+  }
+
+  @Provides
+  @Singleton
   static TraceServiceClient traceServiceClient() {
     try {
       return TraceServiceClient.create();
     } catch (IOException e) {
       throw new UncheckedIOException("Could not create TraceServiceClient.", e);
     }
-  }
-
-  @Provides
-  @ElementsIntoSet
-  static Set<RpcMetricLabel> metricLabels() {
-    return ImmutableSet.of(RpcMetricLabels.SERVICE, RpcMetricLabels.METHOD);
   }
 
   @Provides
@@ -114,7 +112,7 @@ public abstract class MonitoringModule {
             .traceId128Bit(true)
             .sampler(Sampler.ALWAYS_SAMPLE);
     if (config.isReportTraces()) {
-      builder.reporter(reporter.get());
+      builder.spanReporter(reporter.get());
     }
     return builder.build();
   }

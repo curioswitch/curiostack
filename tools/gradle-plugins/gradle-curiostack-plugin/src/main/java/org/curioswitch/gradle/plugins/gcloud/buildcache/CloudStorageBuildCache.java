@@ -28,7 +28,16 @@ import org.gradle.caching.configuration.AbstractBuildCache;
 
 public class CloudStorageBuildCache extends AbstractBuildCache {
 
+  private String project;
   private String bucket;
+
+  public String getProject() {
+    return project;
+  }
+
+  public void setProject(String project) {
+    this.project = project;
+  }
 
   public String getBucket() {
     return bucket;

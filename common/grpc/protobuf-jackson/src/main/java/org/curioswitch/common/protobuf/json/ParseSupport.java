@@ -401,7 +401,8 @@ final class ParseSupport {
   static void throwIfOneofAlreadyWritten(Object oneofCase, String fieldName)
       throws InvalidProtocolBufferException {
     if (((EnumLite) oneofCase).getNumber() != 0) {
-      // TODO: Add the actual variableName of the offending field to the error message like upstream, not
+      // TODO: Add the actual variableName of the offending field to the error message like
+      // upstream, not
       // too hard but just a little boring for the expected return.
       throw new InvalidProtocolBufferException(
           "Cannot set field "

@@ -37,7 +37,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.53'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.100'
     }
 }
 
@@ -48,6 +48,8 @@ allprojects {
 
     plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
         project.apply plugin: 'com.jfrog.bintray'
+        // This should happen automatically, not clear why not.
+        tasks.bintrayUpload.dependsOn tasks.publishToMavenLocal
 
         def bintrayUser = findProperty('bintray.user')
         def bintrayKey = findProperty('bintray.key')
@@ -126,4 +128,9 @@ gcloud {
     clusterBaseName = 'curioswitch'
     cloudRegion = 'asia-northeast1'
     clusterKubernetesVersion = '1.6.1'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.4.1'
+    distributionType = 'ALL'
 }

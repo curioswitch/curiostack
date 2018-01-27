@@ -41,7 +41,8 @@ public class CloudStorageBuildCacheServiceFactory
 
     describer.type("Google Cloud Storage Build Cache").config("bucket", buildCache.getBucket());
 
-    Storage cloudStorage = StorageOptions.getDefaultInstance().getService();
+    Storage cloudStorage =
+        StorageOptions.newBuilder().setProjectId(buildCache.getProject()).build().getService();
 
     return new CloudStorageBuildCacheService(cloudStorage, buildCache.getBucket());
   }

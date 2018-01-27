@@ -26,37 +26,19 @@ package org.curioswitch.common.server.framework.monitoring;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSortedMap;
-import com.linecorp.armeria.common.logging.RequestLog;
-import com.linecorp.armeria.common.metric.MetricLabel;
+import com.linecorp.armeria.common.metric.MeterIdPrefix;
+import com.linecorp.armeria.common.metric.MeterIdPrefixFunction;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import org.curioswitch.common.server.framework.immutables.CurioStyle;
-import org.immutables.value.Value.Immutable;
 
 public final class RpcMetricLabels {
 
-  @Immutable
-  @CurioStyle
-  public interface RpcMetricLabel extends MetricLabel<RpcMetricLabel> {
-    static RpcMetricLabel of(String name) {
-      return ImmutableRpcMetricLabel.builder().name(name).build();
-    }
-
-    String name();
-  }
-
   private static final Splitter PATH_SPLITTER = Splitter.on('/');
 
-  public static final RpcMetricLabel SERVICE = RpcMetricLabel.of("service");
-  public static final RpcMetricLabel METHOD = RpcMetricLabel.of("method");
-
-  public static Function<RequestLog, Map<RpcMetricLabel, String>> grpcRequestLabeler() {
-    return log -> {
+  public static MeterIdPrefixFunction grpcRequestLabeler(String name) {
+    return (registry, log) -> {
       // The service name and method name will always be the last two path components.
       List<String> methodParts = ImmutableList.copyOf(PATH_SPLITTER.split(log.path())).reverse();
-      return ImmutableSortedMap.of(SERVICE, methodParts.get(1), METHOD, methodParts.get(0));
+      return new MeterIdPrefix(name, "service", methodParts.get(1), "method", methodParts.get(0));
     };
   }
 

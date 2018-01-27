@@ -24,20 +24,20 @@
 
 package org.curioswitch.gradle.plugins.curiostack;
 
-import com.diffplug.gradle.spotless.JavaExtension;
 import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
+import com.diffplug.gradle.spotless.SpotlessTask;
+import com.github.benmanes.gradle.versions.VersionsPlugin;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import com.google.protobuf.gradle.ProtobufPlugin;
 import com.google.protobuf.gradle.ProtobufSourceDirectorySet;
-import com.gorylenko.GitPropertiesPlugin;
 import com.moowork.gradle.node.NodeExtension;
 import com.moowork.gradle.node.NodePlugin;
+import com.moowork.gradle.node.yarn.YarnInstallTask;
 import com.palantir.baseline.plugins.BaselineIdea;
-import groovy.util.Node;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.File;
@@ -48,29 +48,36 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
 import me.champeau.gradle.JMHPlugin;
 import me.champeau.gradle.JMHPluginExtension;
+import nebula.plugin.resolutionrules.ResolutionRulesPlugin;
+import net.ltgt.gradle.apt.AptIdeaPlugin;
+import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleAptConvention;
+import net.ltgt.gradle.apt.AptPlugin;
 import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
+import nu.studer.gradle.jooq.JooqPlugin;
+import nu.studer.gradle.jooq.JooqTask;
+import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
+import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
-import org.curioswitch.gradle.plugins.monorepo.MonorepoCircleCiPlugin;
+import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.PluginContainer;
+import org.gradle.api.tasks.Copy;
+import org.gradle.api.tasks.Delete;
+import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.compile.JavaCompile;
@@ -82,8 +89,9 @@ import org.gradle.plugins.ide.idea.model.IdeaModule;
 
 public class CuriostackPlugin implements Plugin<Project> {
 
-  private static final String NODE_VERSION = "8.1.1";
-  private static final String YARN_VERSION = "0.24.6";
+  private static final String GOOGLE_JAVA_FORMAT_VERSION = "1.5";
+  private static final String NODE_VERSION = "9.2.0";
+  private static final String YARN_VERSION = "1.3.2";
 
   @Override
   public void apply(Project rootProject) {
@@ -93,8 +101,35 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     plugins.apply(BaselineIdea.class);
 
+    plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
-    plugins.apply(MonorepoCircleCiPlugin.class);
+    plugins.apply(NodePlugin.class);
+
+    YarnInstallTask yarnTask =
+        rootProject.getTasks().withType(YarnInstallTask.class).getByName("yarn");
+    yarnTask.setArgs(ImmutableList.of("--frozen-lockfile"));
+    YarnInstallTask yarnUpdateTask =
+        rootProject.getTasks().create("yarnUpdate", YarnInstallTask.class);
+    Task yarnWarning =
+        rootProject
+            .getTasks()
+            .create(
+                "yarnWarning",
+                task -> {
+                  task.onlyIf(unused -> yarnTask.getState().getFailure() != null);
+                  task.doFirst(
+                      unused ->
+                          rootProject
+                              .getLogger()
+                              .warn(
+                                  "yarn task failed. If you have updated a dependency and the "
+                                      + "error says 'Your lockfile needs to be updated.', run \n\n"
+                                      + "./gradlew "
+                                      + yarnUpdateTask.getPath()));
+                });
+    yarnTask.finalizedBy(yarnWarning);
+
+    rootProject.getTasks().create("setupGitHooks", SetupGitHooks.class);
 
     String baselineFiles;
     try {
@@ -138,6 +173,8 @@ public class CuriostackPlugin implements Plugin<Project> {
         project -> {
           setupRepositories(project);
 
+          project.getPlugins().apply(ResolutionRulesPlugin.class);
+
           project.getPlugins().withType(JavaPlugin.class, plugin -> setupJavaProject(project));
 
           project
@@ -154,18 +191,37 @@ public class CuriostackPlugin implements Plugin<Project> {
                             "proto", "JAVADOC_STYLE",
                             "yml", "SCRIPT_STYLE"));
                   });
+
+          project
+              .getPlugins()
+              .withType(
+                  NodePlugin.class,
+                  unused -> {
+                    NodeExtension node = project.getExtensions().getByType(NodeExtension.class);
+                    node.setVersion(NODE_VERSION);
+                    node.setYarnVersion(YARN_VERSION);
+                    node.setDownload(true);
+
+                    if (project != project.getRootProject()) {
+                      // We only execute yarn in the root task since we use workspaces.
+                      project.getTasks().findByName("yarn").setEnabled(false);
+                    }
+
+                    // Since yarn is very fast, go ahead and clean node_modules too to prevent
+                    // inconsistency.
+                    project.getPluginManager().apply(BasePlugin.class);
+                    project
+                        .getTasks()
+                        .getByName(
+                            BasePlugin.CLEAN_TASK_NAME,
+                            task -> {
+                              Delete castTask = (Delete) task;
+                              castTask.delete(project.file("node_modules"));
+                            });
+                  });
         });
 
-    rootProject
-        .getPlugins()
-        .withType(
-            IdeaPlugin.class,
-            idea -> {
-              idea.getModel()
-                  .getProject()
-                  .getIpr()
-                  .withXml(CuriostackPlugin::addAnnotationProcessingXml);
-            });
+    setupDataSources(rootProject);
   }
 
   private static void setupRepositories(Project project) {
@@ -188,20 +244,28 @@ public class CuriostackPlugin implements Plugin<Project> {
 
   private static void setupJavaProject(Project project) {
     PluginContainer plugins = project.getPlugins();
+    plugins.apply(AptPlugin.class);
+    plugins.apply(AptIdeaPlugin.class);
     plugins.apply(BaselineIdea.class);
     plugins.apply(DependencyManagementPlugin.class);
-    plugins.apply(GitPropertiesPlugin.class);
     plugins.apply(LicensePlugin.class);
     plugins.apply(SpotlessPlugin.class);
+    plugins.apply(VersionsPlugin.class);
 
-    project.getNormalization().getRuntimeClasspath().ignore("git.properties");
+    project
+        .getTasks()
+        .withType(
+            JavaCompile.class,
+            task -> {
+              task.getOptions().setIncremental(true);
+              project
+                  .getTasks()
+                  .withType(SpotlessTask.class, spotlessTask -> spotlessTask.dependsOn(task));
+            });
 
-    project.getTasks().withType(JavaCompile.class, task -> task.getOptions().setIncremental(true));
-
-    SourceSetContainer sourceSets =
-        project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets();
-    setupAptSourceSet(project, sourceSets.getByName("main"));
-    setupAptSourceSet(project, sourceSets.getByName("test"));
+    JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
+    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_1_9);
+    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_1_9);
 
     // While Gradle attempts to generate a unique module name automatically,
     // it doesn't seem to always work properly, so we just always use unique
@@ -219,6 +283,17 @@ public class CuriostackPlugin implements Plugin<Project> {
                 ancestor = ancestor.getParent();
               }
               module.setName(moduleName);
+
+              project
+                  .getTasks()
+                  .getByName("clean")
+                  .doLast(unused -> project.file(project.getName() + ".iml").delete());
+
+              new DslObject(module)
+                  .getConvention()
+                  .getPlugin(ModuleAptConvention.class)
+                  .getApt()
+                  .setAddAptDependencies(false);
             });
 
     DependencyManagementExtension dependencyManagement =
@@ -235,6 +310,10 @@ public class CuriostackPlugin implements Plugin<Project> {
           StandardDependencies.DEPENDENCIES.forEach(dependencies::dependency);
         });
 
+    // Pretty much all java code needs at least the Generated annotation.
+    project
+        .getDependencies()
+        .add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, "javax.annotation:javax.annotation-api");
     project.afterEvaluate(CuriostackPlugin::addStandardJavaTestDependencies);
 
     project
@@ -247,8 +326,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     Javadoc javadoc = (Javadoc) project.getTasks().getByName("javadoc");
     CoreJavadocOptions options = (CoreJavadocOptions) javadoc.getOptions();
     options.quiet();
-    options.addBooleanOption("Xdoclint:all", true);
-    options.addBooleanOption("Xdoclint:-missing", true);
+    options.addBooleanOption("Xdoclint:all,-missing", true);
 
     project
         .getTasks()
@@ -261,6 +339,7 @@ public class CuriostackPlugin implements Plugin<Project> {
               javadocJar.from(javadoc.getDestinationDir());
             });
 
+    SourceSetContainer sourceSets = javaPlugin.getSourceSets();
     project
         .getTasks()
         .create(
@@ -268,11 +347,11 @@ public class CuriostackPlugin implements Plugin<Project> {
             Jar.class,
             sourceJar -> {
               sourceJar.setClassifier("sources");
-              sourceJar.from(sourceSets.getByName("main").getAllSource());
+              sourceJar.from(sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME).getAllSource());
             });
 
     SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
-    spotless.java(JavaExtension::googleJavaFormat);
+    spotless.java((extension) -> extension.googleJavaFormat(GOOGLE_JAVA_FORMAT_VERSION));
 
     project
         .getTasks()
@@ -314,7 +393,8 @@ public class CuriostackPlugin implements Plugin<Project> {
             JMHPlugin.class,
             unused -> {
               JMHPluginExtension jmh = project.getExtensions().getByType(JMHPluginExtension.class);
-              // Benchmarks are usually very small and converge quickly. If this stops being the case
+              // Benchmarks are usually very small and converge quickly. If this stops being the
+              // case
               // these numbers can be adjusted.
               jmh.setFork(2);
               jmh.setIterations(5);
@@ -328,16 +408,19 @@ public class CuriostackPlugin implements Plugin<Project> {
               }
 
               // We will use the jmhManaged for any dependencies that should only be applied to JMH
-              // but should be resolved by our managed dependencies. We need a separate configuration
+              // but should be resolved by our managed dependencies. We need a separate
+              // configuration
               // to be able to provide the resolution workaround described below.
               Configuration jmhManaged = project.getConfigurations().create("jmhManaged");
-              Configuration jmhConfiguration =
-                  project.getConfigurations().getByName(JMHPlugin.getJMH_NAME());
+              Configuration jmhConfiguration = project.getConfigurations().getByName("jmh");
               jmhConfiguration.extendsFrom(jmhManaged);
 
-              // JMH plugin uses a detached configuration to build an uber-jar, which dependencyManagement
-              // doesn't know about. Work around this by forcing parent configurations to be resolved and
-              // added directly to the jmh configuration, which overwrites the otherwise unresolvable
+              // JMH plugin uses a detached configuration to build an uber-jar, which
+              // dependencyManagement
+              // doesn't know about. Work around this by forcing parent configurations to be
+              // resolved and
+              // added directly to the jmh configuration, which overwrites the otherwise
+              // unresolvable
               // dependency.
               project.afterEvaluate(
                   p -> {
@@ -352,9 +435,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                                       dep -> {
                                         project
                                             .getDependencies()
-                                            .add(
-                                                JMHPlugin.getJMH_NAME(),
-                                                dep.getModule().toString());
+                                            .add("jmh", dep.getModule().toString());
                                       });
                             });
                   });
@@ -363,57 +444,43 @@ public class CuriostackPlugin implements Plugin<Project> {
     project
         .getPlugins()
         .withType(
-            NodePlugin.class,
+            JooqPlugin.class,
             unused -> {
-              NodeExtension node = project.getExtensions().getByType(NodeExtension.class);
-              node.setVersion(NODE_VERSION);
-              node.setYarnVersion(YARN_VERSION);
-              node.setDownload(true);
+              project
+                  .getTasks()
+                  .withType(
+                      JooqTask.class,
+                      t -> {
+                        for (String dependency :
+                            ImmutableList.of(
+                                "javax.activation:activation",
+                                "javax.xml.bind:jaxb-api",
+                                "com.sun.xml.bind:jaxb-core",
+                                "com.sun.xml.bind:jaxb-impl",
+                                "mysql:mysql-connector-java",
+                                // Not sure why this isn't automatically added.
+                                "com.google.guava:guava",
+                                "com.google.cloud.sql:mysql-socket-factory")) {
+                          project.getDependencies().add("jooqRuntime", dependency);
+                        }
+                      });
             });
-  }
 
-  private static void setupAptSourceSet(Project project, SourceSet sourceSet) {
-    // HACK: Configurations usually use the same naming logic/scheme as for tasks
-    Configuration aptConfiguration =
-        project.getConfigurations().create(sourceSet.getTaskName("", "apt"));
-    project
-        .getConfigurations()
-        .getByName(sourceSet.getTaskName("", "compileOnly"))
-        .extendsFrom(aptConfiguration);
-
-    File outputDir = project.file("build/generated/source/apt/" + sourceSet.getName());
-    String outputDirPath = outputDir.getAbsolutePath();
+    // It is very common to want to pass in command line system properties to the binary, so just
+    // always forward properties. It won't affect production since no one runs binaries via Gradle
+    // in production.
     project
         .getTasks()
-        .getByName(
-            sourceSet.getCompileJavaTaskName(),
-            t -> {
-              JavaCompile task = (JavaCompile) t;
-              task.getOptions().setAnnotationProcessorPath(aptConfiguration);
-              task.getOptions().getCompilerArgs().addAll(ImmutableList.of("-s", outputDirPath));
-              task.doFirst(
-                  unused -> {
-                    project.mkdir(outputDirPath);
-                  });
-            });
-
-    project
-        .getPlugins()
         .withType(
-            IdeaPlugin.class,
-            plugin -> {
-              IdeaModule module = plugin.getModel().getModule();
-              if (sourceSet.getName().equals("test")) {
-                Set<File> testSrcDirs = module.getTestSourceDirs();
-                testSrcDirs.add(outputDir);
-                module.setTestSourceDirs(testSrcDirs);
-              } else {
-                Set<File> srcDirs = module.getSourceDirs();
-                srcDirs.add(outputDir);
-                module.setSourceDirs(srcDirs);
-              }
-              module.getGeneratedSourceDirs().add(outputDir);
-            });
+            JavaExec.class,
+            task ->
+                System.getProperties()
+                    .entrySet()
+                    .stream()
+                    // IntelliJ property which doesn't work with Java9.
+                    .filter(entry -> !entry.getKey().equals("java.endorsed.dirs"))
+                    .forEach(
+                        entry -> task.systemProperty((String) entry.getKey(), entry.getValue())));
   }
 
   private static void addStandardJavaTestDependencies(Project project) {
@@ -426,43 +493,29 @@ public class CuriostackPlugin implements Plugin<Project> {
     DependencyHandler dependencies = project.getDependencies();
 
     dependencies.add(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME, "com.google.code.findbugs:jsr305");
+    dependencies.add(
+        testConfiguration.getName(), "org.curioswitch.curiostack:curio-testing-framework");
     dependencies.add(testConfiguration.getName(), "org.assertj:assertj-core");
+    dependencies.add(testConfiguration.getName(), "org.awaitility:awaitility");
     dependencies.add(testConfiguration.getName(), "junit:junit");
     dependencies.add(testConfiguration.getName(), "org.mockito:mockito-core");
     dependencies.add(testConfiguration.getName(), "info.solidsoft.mockito:mockito-java8");
   }
 
-  private static Optional<Node> findChild(Node node, Predicate<Node> predicate) {
-    // Should work.
-    @SuppressWarnings("unchecked")
-    List<Node> children = (List<Node>) node.children();
-    return children.stream().filter(predicate).findFirst();
-  }
-
-  // Using groovy's XmlProvider from Java is very verbose, but this is the only time we need to, so
-  // live with it.
-  private static void addAnnotationProcessingXml(XmlProvider xml) {
-    Node compilerConfiguration =
-        findChild(
-                xml.asNode(),
-                node ->
-                    node.name().equals("component")
-                        && node.attribute("name").equals("CompilerConfiguration"))
-            .orElseGet(
-                () ->
-                    xml.asNode()
-                        .appendNode("component", ImmutableMap.of("name", "CompilerConfiguration")));
-    findChild(compilerConfiguration, node -> node.name().equals("annotationProcessing"))
-        .ifPresent(compilerConfiguration::remove);
-    Node profile =
-        compilerConfiguration
-            .appendNode("annotationProcessing")
-            .appendNode(
-                "profile",
-                ImmutableMap.of("name", "Default", "enabled", "true", "default", "true"));
-    profile.appendNode("outputRelativeToContentRoot", ImmutableMap.of("value", "true"));
-    profile.appendNode("processorPath", ImmutableMap.of("useClasspath", "true"));
-    profile.appendNode("sourceOutputDir", ImmutableMap.of("name", "."));
-    profile.appendNode("sourceTestOutputDir", ImmutableMap.of("name", "."));
+  private static void setupDataSources(Project project) {
+    // TODO(choko): Preconfigure XML as well
+    Configuration configuration = project.getConfigurations().create("jdbcDrivers");
+    project
+        .getDependencies()
+        .add(configuration.getName(), "com.google.cloud.sql:mysql-socket-factory:1.0.5");
+    project
+        .getTasks()
+        .create(
+            "setupDataSources",
+            Copy.class,
+            t -> {
+              t.from(configuration);
+              t.into(".ideaDataSources/drivers");
+            });
   }
 }

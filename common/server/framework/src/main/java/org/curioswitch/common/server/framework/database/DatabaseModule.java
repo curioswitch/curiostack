@@ -34,12 +34,14 @@ import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory;
 import dagger.Module;
 import dagger.Provides;
+import dagger.multibindings.IntoSet;
 import java.util.concurrent.Executors;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
 import org.curioswitch.common.server.framework.ApplicationModule;
 import org.curioswitch.common.server.framework.config.DatabaseConfig;
 import org.curioswitch.common.server.framework.config.ModifiableDatabaseConfig;
+import org.curioswitch.common.server.framework.inject.EagerInit;
 import org.jooq.Configuration;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
@@ -91,7 +93,18 @@ public abstract class DatabaseModule {
             .set(dbExecutor)
             .set(SQLDialect.MYSQL)
             .set(new Settings().withRenderSchema(false))
-            .set(new DataSourceConnectionProvider(dataSource));
-    return DSL.using(configuration);
+            .set(new DataSourceConnectionProvider(dataSource))
+            .set(DatabaseUtil.sfmRecordMapperProvider());
+    DSLContext ctx = DSL.using(configuration);
+    // Eagerly trigger JOOQ classinit for better startup performance.
+    ctx.select().from("curio_server_framework_init").getSQL();
+    return ctx;
+  }
+
+  @Provides
+  @EagerInit
+  @IntoSet
+  static Object init(DSLContext dslContext) {
+    return dslContext;
   }
 }

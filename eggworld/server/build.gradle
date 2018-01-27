@@ -30,6 +30,7 @@ mainClassName = 'org.curioswitch.eggworld.server.Main'
 dependencies {
     compile project(':common:server:framework')
     compile project(':eggworld:api')
+    compile project(':eggworld:client:web')
 
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
     compile 'com.linecorp.armeria:armeria-retrofit2'
