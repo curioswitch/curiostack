@@ -1,6 +1,9 @@
 {
+  "compilerOptions": {
+    "types": ["google-protobuf"]
+  },
   "include": [
-    "./**/*"
+    "**/*"
   ],
   "exclude": [
     "node_modules"
