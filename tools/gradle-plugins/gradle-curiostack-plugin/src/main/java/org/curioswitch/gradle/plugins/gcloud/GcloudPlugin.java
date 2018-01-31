@@ -218,6 +218,7 @@ public class GcloudPlugin implements Plugin<Project> {
             throw new UncheckedIOException("Could not parse existing cloudbuild file.", e);
           }
 
+          String deepenGitRepoId = "curio-generated-deepen-git-repo";
           String refreshBuildImageId = "curio-generated-refresh-build-image";
           String buildAllImageId = "curio-generated-build-all";
 
@@ -263,7 +264,8 @@ public class GcloudPlugin implements Plugin<Project> {
                                             + " && docker build --tag="
                                             + imageTag
                                             + " "
-                                            + dockerPath))
+                                            + dockerPath
+                                            + " || echo Skipping..."))
                                 .build());
                         steps.add(
                             ImmutableCloudBuildStep.builder()
@@ -274,7 +276,11 @@ public class GcloudPlugin implements Plugin<Project> {
                                 .args(
                                     ImmutableList.of(
                                         "-c",
-                                        "test -e " + dockerPath + " && docker push " + imageTag))
+                                        "test -e "
+                                            + dockerPath
+                                            + " && docker push "
+                                            + imageTag
+                                            + " || echo Skipping..."))
                                 .build());
                         if (deployment.autoDeployAlpha()) {
                           steps.add(
@@ -293,7 +299,8 @@ public class GcloudPlugin implements Plugin<Project> {
                                               + " patch deployment/"
                                               + alpha.deploymentName()
                                               + " -p "
-                                              + "'{\"spec\": {\"template\": {\"metadata\": {\"labels\": {\"revision\": \"$REVISION_ID\" }}}}}'"))
+                                              + "'{\"spec\": {\"template\": {\"metadata\": {\"labels\": {\"revision\": \"$REVISION_ID\" }}}}}'"
+                                              + " || echo Skipping..."))
                                   .env(
                                       ImmutableList.of(
                                           "CLOUDSDK_COMPUTE_ZONE=" + config.clusterZone(),
@@ -306,8 +313,15 @@ public class GcloudPlugin implements Plugin<Project> {
           List<CloudBuildStep> steps = new ArrayList<>();
           steps.add(
               ImmutableCloudBuildStep.builder()
-                  .id(refreshBuildImageId)
+                  .id(deepenGitRepoId)
                   .addWaitFor("-")
+                  .name("gcr.io/cloud-builders/git")
+                  .args(ImmutableList.of("fetch", "origin", "master", "--depth=10"))
+                  .build());
+          steps.add(
+              ImmutableCloudBuildStep.builder()
+                  .id(refreshBuildImageId)
+                  .addWaitFor(deepenGitRepoId)
                   .name(dockerBuilder)
                   .args(
                       ImmutableList.of(

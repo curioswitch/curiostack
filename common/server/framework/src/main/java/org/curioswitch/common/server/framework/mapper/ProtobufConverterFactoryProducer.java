@@ -35,8 +35,8 @@ import org.simpleflatmapper.converter.ConverterFactoryProducer;
 import org.simpleflatmapper.util.Consumer;
 
 /**
- * {@link AbstractConverterFactoryProducer} to convert Java8 {@link LocalDateTime} to
- * {@link Timestamp}.
+ * {@link AbstractConverterFactoryProducer} to convert Java8 {@link LocalDateTime} and
+ * {@link java.sql.Timestamp} to {@link Timestamp}.
  */
 @AutoService(ConverterFactoryProducer.class)
 public class ProtobufConverterFactoryProducer extends AbstractConverterFactoryProducer {
@@ -45,13 +45,23 @@ public class ProtobufConverterFactoryProducer extends AbstractConverterFactoryPr
   public void produce(Consumer<? super ConverterFactory<?, ?>> consumer) {
     constantConverter(
         consumer,
+        java.sql.Timestamp.class,
+        Timestamp.class,
+        t -> {
+          if (t == null) {
+            return null;
+          }
+          return ProtoTimestamps.fromLocalDateTime(t.toLocalDateTime(), ZoneOffset.UTC);
+        });
+    constantConverter(
+        consumer,
         LocalDateTime.class,
         Timestamp.class,
-        (ldt -> {
+        ldt -> {
           if (ldt == null) {
             return null;
           }
           return ProtoTimestamps.fromLocalDateTime(ldt, ZoneOffset.UTC);
-        }));
+        });
   }
 }

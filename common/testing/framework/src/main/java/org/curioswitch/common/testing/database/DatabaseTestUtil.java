@@ -22,32 +22,31 @@
  * SOFTWARE.
  */
 
-apply plugin: 'java-library'
-apply plugin: 'maven-publish'
+package org.curioswitch.common.testing.database;
 
-archivesBaseName = 'curio-testing-framework'
+import org.curioswitch.common.server.framework.database.DatabaseUtil;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.tools.jdbc.MockConnection;
+import org.jooq.tools.jdbc.MockDataProvider;
 
-dependencies {
-    api project(':common:server:framework')
+/**
+ * Utilities for working with a mock database in tests.
+ */
+public final class DatabaseTestUtil {
 
-    apt 'com.google.dagger:dagger-compiler'
-}
+  /**
+   * Returns a {@link DSLContext} with a mock connection using the provided
+   * {@link MockDataProvider}.
+   */
+  public static DSLContext newDbContext(MockDataProvider dataProvider) {
+    MockConnection connection = new MockConnection(dataProvider);
+    DSLContext db = DSL.using(connection, SQLDialect.MYSQL);
+    db.configuration().set(DatabaseUtil.sfmRecordMapperProvider());
+    db.settings().setRenderSchema(false);
+    return db;
+  }
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            pom.withXml {
-                // TODO(choko): Make it simpler to define pom attributes after the artifact, as is
-                // normal, by defining a DSL or something.
-                asNode().children()[3] + {
-                    resolveStrategy = Closure.DELEGATE_FIRST
-
-                    name 'Curio Testing Framework'
-                    description 'A testing framework to help when using curiostack.'
-                    url 'https://github.com/curioswitch/curiostack/tree/master/' +
-                            'common/testing/framework'
-                }
-            }
-        }
-    }
+  private DatabaseTestUtil() {}
 }
