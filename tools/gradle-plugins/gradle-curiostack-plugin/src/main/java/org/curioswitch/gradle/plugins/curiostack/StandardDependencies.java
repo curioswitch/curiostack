@@ -306,12 +306,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.46")
+              .version("0.0.47")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.2")
+              .version("0.0.3")
               .addModules("curio-testing-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -343,17 +343,6 @@ class StandardDependencies {
               .group("org.mockito")
               .version("2.13.0")
               .addModules("mockito-core")
-              .build(),
-          ImmutableDependencySet.builder()
-              .group("org.simpleflatmapper")
-              .version("3.15.3")
-              .addModules(
-                  "sfm-jooq",
-                  "sfm-converter-protobuf",
-                  "sfm-reflect",
-                  "sfm-jdbc",
-                  "sfm-map",
-                  "sfm-util")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.slf4j")

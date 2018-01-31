@@ -30,12 +30,8 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.producers.Production;
 import java.util.concurrent.Executor;
-import org.curioswitch.common.server.framework.database.DatabaseUtil;
 import org.curioswitch.common.server.framework.database.ForDatabase;
 import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.tools.jdbc.MockConnection;
 import org.jooq.tools.jdbc.MockDataProvider;
 
 @Module
@@ -55,10 +51,6 @@ public abstract class DatabaseTestingModule {
 
   @Provides
   static DSLContext db(MockDataProvider dataProvider) {
-    MockConnection connection = new MockConnection(dataProvider);
-    DSLContext db = DSL.using(connection, SQLDialect.MYSQL);
-    db.configuration().set(DatabaseUtil.sfmRecordMapperProvider());
-    db.settings().setRenderSchema(false);
-    return db;
+    return DatabaseTestUtil.newDbContext(dataProvider);
   }
 }
