@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-web-dev",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Curiostack's base dev dependencies for browser applications.",
   "main": "build/index.js",
   "repository": "curioswitch/curiostack",
@@ -16,7 +16,7 @@
     "lint": "yarn run tslint --project tsconfig.json"
   },
   "dependencies": {
-    "@curiostack/base-node-dev": "0.0.1",
+    "@curiostack/base-node-dev": "0.0.2",
     "babel-core": "6.26.0",
     "babel-loader": "7.1.2",
     "babel-plugin-dynamic-import-node": "1.2.0",
