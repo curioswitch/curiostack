@@ -32,7 +32,6 @@ import com.google.protobuf.gradle.ProtobufConfigurator;
 import com.google.protobuf.gradle.ProtobufConvention;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
-import java.io.File;
 import org.curioswitch.gradle.common.LambdaClosure;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
@@ -67,10 +66,6 @@ public class GrpcApiPluginTest {
     Task task = project.getTasks().findByName("generateProto");
     assertThat(task).isInstanceOf(GenerateProtoTask.class).isNotNull();
     GenerateProtoTask generateProtoTask = (GenerateProtoTask) task;
-    // 2 output dirs for java and grpc, but they are the same in our config.
-    String outputDir = project.getBuildDir().getAbsolutePath() + "/generated/source/proto/main";
-    assertThat(generateProtoTask.getAllOutputDirs().stream().map(File::getAbsolutePath))
-        .containsExactly(outputDir, outputDir);
     assertThat(generateProtoTask.getGenerateDescriptorSet()).isTrue();
     assertThat(generateProtoTask.getDescriptorSetOptions().getIncludeSourceInfo()).isTrue();
     assertThat(generateProtoTask.getDescriptorSetOptions().getIncludeImports()).isTrue();

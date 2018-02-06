@@ -24,6 +24,8 @@
 
 package org.curioswitch.common.server.framework.auth.firebase;
 
+import com.google.api.core.ApiFutureCallback;
+import com.google.api.core.ApiFutures;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.linecorp.armeria.server.ServiceRequestContext;
@@ -52,30 +54,34 @@ public class FirebaseAuthorizer implements Authorizer<OAuth2Token> {
   @Override
   public CompletionStage<Boolean> authorize(ServiceRequestContext ctx, OAuth2Token data) {
     CompletableFuture<Boolean> result = new CompletableFuture<>();
-    firebaseAuth
-        .verifyIdToken(data.accessToken())
-        .addOnFailureListener(ignored -> result.complete(false))
-        .addOnSuccessListener(
-            token -> {
-              if (!token.isEmailVerified() && !config.isAllowUnverifiedEmail()) {
+    ApiFutures.addCallback(
+        firebaseAuth.verifyIdTokenAsync(data.accessToken()),
+        new ApiFutureCallback<>() {
+          @Override
+          public void onFailure(Throwable t) {
+            result.complete(false);
+          }
+
+          @Override
+          public void onSuccess(FirebaseToken token) {
+            if (!token.isEmailVerified() && !config.isAllowUnverifiedEmail()) {
+              result.complete(false);
+              return;
+            }
+            if (!config.getAllowedGoogleDomains().isEmpty()) {
+              @SuppressWarnings("unchecked")
+              Map<String, Object> firebaseClaims =
+                  (Map<String, Object>) token.getClaims().get("firebase");
+              if (!firebaseClaims.get("sign_in_provider").equals("google.com")
+                  || !config.getAllowedGoogleDomains().contains(getEmailDomain(token.getEmail()))) {
                 result.complete(false);
                 return;
               }
-              if (!config.getAllowedGoogleDomains().isEmpty()) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> firebaseClaims =
-                    (Map<String, Object>) token.getClaims().get("firebase");
-                if (!firebaseClaims.get("sign_in_provider").equals("google.com")
-                    || !config
-                        .getAllowedGoogleDomains()
-                        .contains(getEmailDomain(token.getEmail()))) {
-                  result.complete(false);
-                  return;
-                }
-              }
-              ctx.attr(FIREBASE_TOKEN).set(token);
-              result.complete(true);
-            });
+            }
+            ctx.attr(FIREBASE_TOKEN).set(token);
+            result.complete(true);
+          }
+        });
     return result;
   }
 

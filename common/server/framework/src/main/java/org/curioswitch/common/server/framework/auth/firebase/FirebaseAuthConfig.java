@@ -24,8 +24,11 @@
 
 package org.curioswitch.common.server.framework.auth.firebase;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.util.List;
 import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
+import org.immutables.value.Value.Check;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Modifiable;
 
@@ -48,4 +51,23 @@ public interface FirebaseAuthConfig {
    * logged into Google with one of these domains will be allowed.
    */
   List<String> getAllowedGoogleDomains();
+
+  /**
+   * A list of paths that should allow unauthenticated requests. Unauthenticated requests to paths
+   * in this list will be allowed. Only one of excluded or included paths can be set, not both.
+   */
+  List<String> getExcludedPaths();
+
+  /**
+   * A list of paths that must allow authenticated requests. Unauthenticated requests to paths not
+   * in this list will be allowed. Only one of excluded or included paths can be set, not both.
+   */
+  List<String> getIncludedPaths();
+
+  @Check
+  default void check() {
+    checkArgument(
+        getExcludedPaths().isEmpty() || getIncludedPaths().isEmpty(),
+        "Both excluded paths and included paths cannot be set at the same time.");
+  }
 }

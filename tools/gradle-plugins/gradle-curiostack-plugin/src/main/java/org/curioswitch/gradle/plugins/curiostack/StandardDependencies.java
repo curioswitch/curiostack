@@ -221,7 +221,6 @@ class StandardDependencies {
                   "grpc-services",
                   "grpc-stub")
               .build(),
-
           ImmutableDependencySet.builder()
               .group("io.micrometer")
               .version("1.0.0-rc.9")
@@ -312,7 +311,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.47")
+              .version("0.0.48")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()

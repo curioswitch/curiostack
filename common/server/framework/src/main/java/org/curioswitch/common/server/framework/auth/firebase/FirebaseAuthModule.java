@@ -24,10 +24,10 @@
 
 package org.curioswitch.common.server.framework.auth.firebase;
 
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseCredentials;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.Module;
@@ -56,8 +56,8 @@ public class FirebaseAuthModule {
     try {
       options =
           new FirebaseOptions.Builder()
-              .setCredential(
-                  FirebaseCredentials.fromCertificate(
+              .setCredentials(
+                  GoogleCredentials.fromStream(
                       new ByteArrayInputStream(
                           Base64.getDecoder().decode(config.getServiceAccountBase64()))))
               .setDatabaseUrl("https://" + config.getProjectId() + ".firebaseio.com")
