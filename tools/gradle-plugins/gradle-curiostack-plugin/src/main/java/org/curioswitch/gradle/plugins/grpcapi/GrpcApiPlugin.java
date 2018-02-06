@@ -37,7 +37,6 @@ import com.moowork.gradle.node.NodeExtension;
 import com.moowork.gradle.node.NodePlugin;
 import com.moowork.gradle.node.npm.NpmTask;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -59,8 +58,6 @@ import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
-import org.gradle.plugins.ide.idea.IdeaPlugin;
-import org.gradle.plugins.ide.idea.model.IdeaModule;
 
 /**
  * A simple gradle plugin that configures the protobuf-gradle-plugin with appropriate defaults for a
@@ -122,21 +119,6 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
           ProtobufConfigurator protobuf =
               project.getConvention().getPlugin(ProtobufConvention.class).getProtobuf();
-          protobuf.setGeneratedFilesBaseDir(project.getBuildDir() + "/generated/source/proto");
-          project
-              .getPlugins()
-              .withType(
-                  IdeaPlugin.class,
-                  plugin -> {
-                    IdeaModule module = plugin.getModel().getModule();
-                    File generatedDir = project.file(protobuf.getGeneratedFilesBaseDir());
-                    File mainDir = new File(generatedDir, "main");
-                    File testDir = new File(generatedDir, "test");
-                    module.getSourceDirs().add(mainDir);
-                    module.getGeneratedSourceDirs().add(mainDir);
-                    module.getTestSourceDirs().add(testDir);
-                    module.getGeneratedSourceDirs().add(testDir);
-                  });
 
           protobuf.protoc(
               LambdaClosure.of(

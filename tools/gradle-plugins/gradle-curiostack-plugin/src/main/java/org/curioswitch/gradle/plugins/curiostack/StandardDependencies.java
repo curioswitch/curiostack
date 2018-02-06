@@ -47,7 +47,7 @@ class StandardDependencies {
     String version();
   }
 
-  private static final String JACKSON_VERSION = "2.9.3";
+  private static final String JACKSON_VERSION = "2.9.4";
 
   static final List<DependencySet> DEPENDENCY_SETS =
       ImmutableList.of(
@@ -103,17 +103,17 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.15.0")
+              .version("1.16.0")
               .addModules("google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.33.0-alpha")
+              .version("0.34.0-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.33.0-beta")
+              .version("0.34.0-beta")
               .addModules("google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
@@ -138,7 +138,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.guava")
-              .version("23.6-jre")
+              .version("24.0-jre")
               .addModules("guava", "guava-testlib")
               .build(),
           ImmutableDependencySet.builder()
@@ -154,7 +154,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.56.1")
+              .version("0.58.0")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -221,9 +221,15 @@ class StandardDependencies {
                   "grpc-services",
                   "grpc-stub")
               .build(),
+
+          ImmutableDependencySet.builder()
+              .group("io.micrometer")
+              .version("1.0.0-rc.9")
+              .addModules("micrometer-registry-prometheus")
+              .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("4.1.19.Final")
+              .version("4.1.21.Final")
               .addModules(
                   "netty-buffer",
                   "netty-codec",
@@ -251,7 +257,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("4.13.3")
+              .version("4.13.4")
               .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
@@ -266,7 +272,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.7.9")
+              .version("1.7.10")
               .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
@@ -357,14 +363,14 @@ class StandardDependencies {
 
   static final List<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:3.2.2",
-          "com.diffplug.spotless:spotless-plugin-gradle:3.8.0",
+          "com.bmuschko:gradle-docker-plugin:3.2.4",
+          "com.diffplug.spotless:spotless-plugin-gradle:3.9.0",
           "com.github.ben-manes:gradle-versions-plugin:0.17.0",
-          "com.google.protobuf:protobuf-gradle-plugin:0.8.3",
+          "com.google.protobuf:protobuf-gradle-plugin:0.8.4",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0",
           "com.moowork.gradle:gradle-node-plugin:1.2.0",
           "com.netflix.nebula:gradle-dependency-lock-plugin:5.0.2",
-          "com.netflix.nebula:gradle-resolution-rules-plugin:5.1.0",
+          "com.netflix.nebula:gradle-resolution-rules-plugin:5.1.1",
           "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.boxfuse.client:flyway-release:5.0.2",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17",
