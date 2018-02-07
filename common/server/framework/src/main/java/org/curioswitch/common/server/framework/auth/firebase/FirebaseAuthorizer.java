@@ -42,6 +42,9 @@ public class FirebaseAuthorizer implements Authorizer<OAuth2Token> {
   public static final AttributeKey<FirebaseToken> FIREBASE_TOKEN =
       AttributeKey.valueOf(FirebaseAuthorizer.class, "FIREBASE_TOKEN");
 
+  public static final AttributeKey<String> RAW_FIREBASE_TOKEN =
+      AttributeKey.valueOf(FirebaseAuthorizer.class, "RAW_FIREBASE_TOKEN");
+
   private final FirebaseAuth firebaseAuth;
   private final FirebaseAuthConfig config;
 
@@ -79,6 +82,7 @@ public class FirebaseAuthorizer implements Authorizer<OAuth2Token> {
               }
             }
             ctx.attr(FIREBASE_TOKEN).set(token);
+            ctx.attr(RAW_FIREBASE_TOKEN).set(data.accessToken());
             result.complete(true);
           }
         });
