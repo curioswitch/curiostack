@@ -32,6 +32,8 @@ import com.github.benmanes.caffeine.cache.CaffeineSpec;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Message;
 import com.spotify.futures.CompletableFuturesExtra;
+import io.lettuce.core.RedisException;
+import io.lettuce.core.RedisFuture;
 import io.lettuce.core.SetArgs;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
@@ -164,8 +166,14 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
 
   private CompletableFuture<V> loadWithCache(
       K key, Executor executor, Function<K, ListenableFuture<V>> loader) {
-    return redis
-        .get(key)
+    final RedisFuture<V> fromCache;
+    try {
+      fromCache = redis.get(key);
+    } catch (RedisException t) {
+      logger.warn("Error reading from redis cache. Computing value anyways.", t);
+      return CompletableFuturesExtra.toCompletableFuture(loader.apply(key));
+    }
+    return fromCache
         .handleAsync(
             (cached, t) -> {
               if (cached != null) {

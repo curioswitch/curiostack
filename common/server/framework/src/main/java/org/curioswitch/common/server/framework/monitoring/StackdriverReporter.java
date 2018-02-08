@@ -89,7 +89,7 @@ public class StackdriverReporter implements Reporter<Span>, Flushable, AutoClose
 
           @Override
           public void onSuccess(Empty result) {
-            logger.info("Successfully reported traces.");
+            logger.trace("Successfully reported traces.");
           }
         });
   }

@@ -25,6 +25,7 @@
 package org.curioswitch.common.server.framework;
 
 import brave.Tracing;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import com.linecorp.armeria.common.Flags;
@@ -37,7 +38,9 @@ import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.Service;
 import com.linecorp.armeria.server.ServiceRequestContext;
+import com.linecorp.armeria.server.auth.AuthTokenExtractors;
 import com.linecorp.armeria.server.auth.HttpAuthServiceBuilder;
+import com.linecorp.armeria.server.auth.OAuth2Token;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import com.linecorp.armeria.server.healthcheck.HttpHealthCheckService;
@@ -83,6 +86,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -94,6 +98,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthConfig;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthModule;
+import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthService;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthorizer;
 import org.curioswitch.common.server.framework.auth.ssl.RpcAclsCommonNamesProvider;
 import org.curioswitch.common.server.framework.auth.ssl.SslAuthorizer;
@@ -257,6 +262,7 @@ public abstract class ServerModule {
       Lazy<StackdriverReporter> stackdriverReporter,
       ServerConfig serverConfig,
       FirebaseAuthConfig authConfig,
+      FirebaseAuthService.Factory firebaseAuthServiceFactory,
       JavascriptStaticConfig javascriptStaticConfig,
       MonitoringConfig monitoringConfig,
       // Eagerly trigger bindings that are present, not actually used here.
@@ -354,7 +360,18 @@ public abstract class ServerModule {
                 .build(service);
       }
       if (!authConfig.getServiceAccountBase64().isEmpty()) {
-        service = new HttpAuthServiceBuilder().addOAuth2(firebaseAuthorizer.get()).build(service);
+        FirebaseAuthorizer authorizer = firebaseAuthorizer.get();
+        service =
+            service.decorate(
+                firebaseAuthServiceFactory.newDecorator(
+                    ImmutableList.of(
+                        (ctx, req) -> {
+                          OAuth2Token token = AuthTokenExtractors.OAUTH2.apply(req.headers());
+                          if (token == null) {
+                            return CompletableFuture.completedFuture(false);
+                          }
+                          return authorizer.authorize(ctx, token);
+                        })));
       }
 
       service =
