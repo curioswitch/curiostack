@@ -32,6 +32,7 @@ import com.github.benmanes.caffeine.cache.CaffeineSpec;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Message;
 import com.spotify.futures.CompletableFuturesExtra;
+import io.lettuce.core.ReadFrom;
 import io.lettuce.core.RedisException;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.SetArgs;
@@ -86,8 +87,40 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
         V valuePrototype,
         Duration redisTtl,
         @Nullable CaffeineSpec localCacheSpec) {
+      return create(name, keyPrototype, valuePrototype, redisTtl, false, localCacheSpec);
+    }
+
+    /**
+     * Constructs a new {@link ProtobufRedisLoadingCache} that can write protobuf {@link Message}
+     * keys and values to redis, with an optional local cache layer.
+     *
+     * @param name name of this cache, will be prefixed onto all keys.
+     * @param keyPrototype a prototype for the key {@link Message}, usually gotten from {@code
+     *     Key.getDefaultInstance()}.
+     * @param valuePrototype a prototype for the value {@link Message}, usually gotten from {@code
+     *     Value.getDefaultInstance()}.
+     * @param redisTtl the time until expiration of a value in the redis cache. The local cache
+     *     should be considered in localCacheSpec.
+     * @param redisMasterOnly whether redis reads should only happen from master. Best-effort,
+     *     temporary persistent storage should set this to {@code true}.
+     * @param localCacheSpec a {@link CaffeineSpec} to control the local cache layer. If {@code
+     *     null}, local caching will be disabled.
+     */
+    public <K extends Message, V extends Message> ProtobufRedisLoadingCache<K, V> create(
+        String name,
+        K keyPrototype,
+        V valuePrototype,
+        Duration redisTtl,
+        boolean redisMasterOnly,
+        @Nullable CaffeineSpec localCacheSpec) {
       return new ProtobufRedisLoadingCache<>(
-          name, keyPrototype, valuePrototype, redisTtl, localCacheSpec, redisClient);
+          name,
+          keyPrototype,
+          valuePrototype,
+          redisTtl,
+          localCacheSpec,
+          redisClient,
+          redisMasterOnly ? ReadFrom.MASTER : ReadFrom.NEAREST);
     }
   }
 
@@ -103,7 +136,8 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
       V valuePrototype,
       Duration redisTtl,
       @Nullable CaffeineSpec localCacheSpec,
-      RedisClusterClient redisClient) {
+      RedisClusterClient redisClient,
+      ReadFrom readFrom) {
     checkNotNull(keyPrototype, "keyPrototype");
     checkNotNull(valuePrototype, "valuePrototype");
     checkNotNull(redisTtl, "redisTtl");

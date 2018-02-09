@@ -116,6 +116,7 @@ import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
 import org.curioswitch.common.server.framework.monitoring.StackdriverReporter;
+import org.curioswitch.common.server.framework.staticsite.InfiniteCachingService;
 import org.curioswitch.common.server.framework.staticsite.JavascriptStaticService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
@@ -321,12 +322,24 @@ public abstract class ServerModule {
 
     serverCustomizers.forEach(c -> c.accept(sb));
 
-    if (!serverConfig.isDisableDocService()) {
-      sb.serviceUnder("/internal/docs", new DocServiceBuilder().build());
+    Optional<Function<Service<HttpRequest, HttpResponse>, IpFilteringService>> ipFilter =
+        Optional.empty();
+    if (!serverConfig.getIpFilterRules().isEmpty()) {
+      ipFilter = Optional.of(IpFilteringService.newDecorator(serverConfig.getIpFilterRules()));
     }
-    sb.service("/internal/health", new HttpHealthCheckService());
-    sb.service("/internal/dropwizard", metricsHttpService);
-    sb.service("/internal/metrics", new PrometheusExpositionService(collectorRegistry));
+
+    if (!serverConfig.isDisableDocService()) {
+      sb.serviceUnder(
+          "/internal/docs",
+          internalService(new DocServiceBuilder().build(), ipFilter, serverConfig));
+    }
+    sb.service(
+        "/internal/health", internalService(new HttpHealthCheckService(), ipFilter, serverConfig));
+    sb.service("/internal/dropwizard", internalService(metricsHttpService, ipFilter, serverConfig));
+    sb.service(
+        "/internal/metrics",
+        internalService(
+            new PrometheusExpositionService(collectorRegistry), ipFilter, serverConfig));
 
     if (!grpcServices.isEmpty()) {
       GrpcServiceDefinition definition =
@@ -351,6 +364,7 @@ public abstract class ServerModule {
       if (!serverConfig.isDisableGrpcServiceDiscovery()) {
         serviceBuilder.addService(ProtoReflectionService.newInstance());
       }
+      definition.customizer().accept(serviceBuilder);
       Service<HttpRequest, HttpResponse> service =
           serviceBuilder.build().decorate(definition.decorator());
       if (sslCommonNamesProvider.isPresent() && !serverConfig.isDisableSslAuthorization()) {
@@ -385,7 +399,8 @@ public abstract class ServerModule {
 
     if (javascriptStaticConfig.getVersion() != 0) {
       sb.service(
-          "/static/jsconfig-" + javascriptStaticConfig.getVersion(), javascriptStaticService.get());
+          "/static/jsconfig-" + javascriptStaticConfig.getVersion(),
+          javascriptStaticService.get().decorate(InfiniteCachingService.newDecorator()));
     }
 
     for (StaticSiteServiceDefinition staticSite : staticSites) {
@@ -393,8 +408,8 @@ public abstract class ServerModule {
           staticSite.urlRoot(),
           StaticSiteService.of(staticSite.staticPath(), staticSite.classpathRoot()));
     }
-    if (!serverConfig.getIpFilterRules().isEmpty()) {
-      sb.decorator(IpFilteringService.newDecorator(serverConfig.getIpFilterRules()));
+    if (ipFilter.isPresent() && !serverConfig.getIpFilterInternalOnly()) {
+      sb.decorator(ipFilter.get());
     }
 
     sb.decorator(new LoggingServiceBuilder().newDecorator());
@@ -449,5 +464,15 @@ public abstract class ServerModule {
     } catch (IOException e) {
       throw new UncheckedIOException("Could not open path: " + path, e);
     }
+  }
+
+  private static Service<HttpRequest, HttpResponse> internalService(
+      Service<HttpRequest, HttpResponse> service,
+      Optional<Function<Service<HttpRequest, HttpResponse>, IpFilteringService>> ipFilter,
+      ServerConfig config) {
+    if (!ipFilter.isPresent() || !config.getIpFilterInternalOnly()) {
+      return service;
+    }
+    return service.decorate(ipFilter.get());
   }
 }
