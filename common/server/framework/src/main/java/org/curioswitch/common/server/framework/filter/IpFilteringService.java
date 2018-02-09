@@ -29,7 +29,6 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.base.Splitter;
 import com.google.common.net.HttpHeaders;
-import com.linecorp.armeria.common.DefaultHttpResponse;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
@@ -43,6 +42,8 @@ import io.netty.handler.ipfilter.IpSubnetFilterRule;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.function.Function;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * {@link com.linecorp.armeria.server.DecoratingService} which only allows requests from a whitelist
@@ -52,6 +53,8 @@ import java.util.function.Function;
  * strongly recommended.
  */
 public class IpFilteringService extends SimpleDecoratingService<HttpRequest, HttpResponse> {
+
+  private static final Logger logger = LogManager.getLogger();
 
   private static final Splitter RULE_SPLITTER = Splitter.on('/');
 
@@ -83,9 +86,8 @@ public class IpFilteringService extends SimpleDecoratingService<HttpRequest, Htt
     if (rules.stream().anyMatch(rule -> rule.matches(clientAddress))) {
       return delegate().serve(ctx, req);
     } else {
-      DefaultHttpResponse response = new DefaultHttpResponse();
-      response.respond(HttpStatus.FORBIDDEN);
-      return response;
+      logger.info("Denying access from IP " + clientAddress);
+      return HttpResponse.of(HttpStatus.FORBIDDEN);
     }
   }
 

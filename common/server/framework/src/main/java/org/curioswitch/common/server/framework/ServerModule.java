@@ -107,6 +107,7 @@ import org.curioswitch.common.server.framework.config.JavascriptStaticConfig;
 import org.curioswitch.common.server.framework.config.ModifiableJavascriptStaticConfig;
 import org.curioswitch.common.server.framework.config.ModifiableServerConfig;
 import org.curioswitch.common.server.framework.config.MonitoringConfig;
+import org.curioswitch.common.server.framework.config.SecurityConfig;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.files.FileWatcher;
 import org.curioswitch.common.server.framework.filter.IpFilteringService;
@@ -116,6 +117,8 @@ import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
 import org.curioswitch.common.server.framework.monitoring.StackdriverReporter;
+import org.curioswitch.common.server.framework.security.HttpsOnlyService;
+import org.curioswitch.common.server.framework.security.SecurityModule;
 import org.curioswitch.common.server.framework.staticsite.InfiniteCachingService;
 import org.curioswitch.common.server.framework.staticsite.JavascriptStaticService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
@@ -142,7 +145,14 @@ import org.jooq.DSLContext;
  * }
  * }</pre>
  */
-@Module(includes = {ApplicationModule.class, FirebaseAuthModule.class, MonitoringModule.class})
+@Module(
+  includes = {
+    ApplicationModule.class,
+    FirebaseAuthModule.class,
+    MonitoringModule.class,
+    SecurityModule.class
+  }
+)
 public abstract class ServerModule {
 
   private static final Logger logger = LogManager.getLogger();
@@ -264,8 +274,10 @@ public abstract class ServerModule {
       ServerConfig serverConfig,
       FirebaseAuthConfig authConfig,
       FirebaseAuthService.Factory firebaseAuthServiceFactory,
+      HttpsOnlyService.Factory httpsOnlyServiceFactory,
       JavascriptStaticConfig javascriptStaticConfig,
       MonitoringConfig monitoringConfig,
+      SecurityConfig securityConfig,
       // Eagerly trigger bindings that are present, not actually used here.
       @EagerInit Set<Object> eagerInitializedDependencies) {
     if (!sslCommonNamesProvider.isPresent()
@@ -408,8 +420,13 @@ public abstract class ServerModule {
           staticSite.urlRoot(),
           StaticSiteService.of(staticSite.staticPath(), staticSite.classpathRoot()));
     }
+
     if (ipFilter.isPresent() && !serverConfig.getIpFilterInternalOnly()) {
       sb.decorator(ipFilter.get());
+    }
+
+    if (securityConfig.getHttpsOnly()) {
+      sb.decorator(httpsOnlyServiceFactory.newDecorator());
     }
 
     sb.decorator(new LoggingServiceBuilder().newDecorator());
