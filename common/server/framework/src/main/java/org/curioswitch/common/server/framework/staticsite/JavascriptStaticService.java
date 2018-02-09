@@ -26,7 +26,7 @@ package org.curioswitch.common.server.framework.staticsite;
 
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpRequest;
-import com.linecorp.armeria.common.HttpResponseWriter;
+import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.server.AbstractHttpService;
@@ -47,8 +47,7 @@ public class JavascriptStaticService extends AbstractHttpService {
   }
 
   @Override
-  protected void doGet(ServiceRequestContext ctx, HttpRequest req, HttpResponseWriter res)
-      throws Exception {
-    res.respond(HttpStatus.OK, MediaType.JAVASCRIPT_UTF_8, response);
+  protected HttpResponse doGet(ServiceRequestContext ctx, HttpRequest req) {
+    return HttpResponse.of(HttpStatus.OK, MediaType.JAVASCRIPT_UTF_8, response);
   }
 }

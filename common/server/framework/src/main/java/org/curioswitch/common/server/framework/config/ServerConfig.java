@@ -102,4 +102,10 @@ public interface ServerConfig {
    * non-empty, only requests that match these rules will be allowed to access the server.
    */
   List<String> getIpFilterRules();
+
+  /**
+   * Sets whether IP filter rules should only be applied to internal services. If not set, IP filter
+   * rules are applied to all requests.
+   */
+  boolean getIpFilterInternalOnly();
 }

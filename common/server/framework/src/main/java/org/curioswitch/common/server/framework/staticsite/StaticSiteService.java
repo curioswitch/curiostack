@@ -90,7 +90,8 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
 
   private StaticSiteService(String staticPath, HttpFileService fileService) {
     super(
-        CompositeServiceEntry.ofPrefix(staticPath, fileService),
+        CompositeServiceEntry.ofPrefix(
+            staticPath, fileService.decorate(InfiniteCachingService.newDecorator())),
         CompositeServiceEntry.ofExact("/sw.js", fileService),
         CompositeServiceEntry.ofCatchAll(fileService.decorate(IndexService::new)));
   }

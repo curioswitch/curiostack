@@ -77,6 +77,8 @@ public interface ImmutableDeploymentExtension {
       return null;
     }
 
+    List<String> additionalServicePaths();
+
     default String namespace() {
       return "default";
     }
