@@ -37,6 +37,7 @@ import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.PodSpecBuilder;
 import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder;
+import io.fabric8.kubernetes.api.model.Probe;
 import io.fabric8.kubernetes.api.model.ProbeBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.ResourceRequirementsBuilder;
@@ -65,6 +66,7 @@ import io.fabric8.kubernetes.api.model.extensions.IngressTLSBuilder;
 import io.fabric8.kubernetes.api.model.extensions.RollingUpdateDeploymentBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -210,18 +212,11 @@ public class DeployPodTask extends DefaultTask {
                                             .withEnv(envVars.build())
                                             .withImagePullPolicy("Always")
                                             .withReadinessProbe(
-                                                new ProbeBuilder()
-                                                    .withHttpGet(
-                                                        new HTTPGetActionBuilder()
-                                                            .withScheme("HTTPS")
-                                                            .withPath(
-                                                                deploymentConfig.healthCheckPath())
-                                                            .withNewPort(
-                                                                deploymentConfig.containerPort())
-                                                            .build())
-                                                    .withInitialDelaySeconds(30)
-                                                    .withTimeoutSeconds(1)
-                                                    .build())
+                                                createProbe(
+                                                    deploymentConfig, Duration.ofSeconds(5)))
+                                            .withLivenessProbe(
+                                                createProbe(
+                                                    deploymentConfig, Duration.ofSeconds(15)))
                                             .withPorts(
                                                 ImmutableList.of(
                                                     new ContainerPortBuilder()
@@ -348,6 +343,20 @@ public class DeployPodTask extends DefaultTask {
 
       client.resource(ingress).createOrReplace();
     }
+  }
+
+  private Probe createProbe(ImmutableDeploymentConfiguration deploymentConfig, Duration period) {
+    return new ProbeBuilder()
+        .withHttpGet(
+            new HTTPGetActionBuilder()
+                .withScheme("HTTPS")
+                .withPath(deploymentConfig.healthCheckPath())
+                .withNewPort(deploymentConfig.containerPort())
+                .build())
+        .withPeriodSeconds((int) period.toSeconds())
+        .withInitialDelaySeconds(30)
+        .withTimeoutSeconds(5)
+        .build();
   }
 
   private ServiceSpec createServiceSpec(ImmutableDeploymentConfiguration deploymentConfig) {
