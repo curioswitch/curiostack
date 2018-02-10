@@ -353,6 +353,7 @@ public class DeployPodTask extends DefaultTask {
                 .withPath(deploymentConfig.healthCheckPath())
                 .withNewPort(deploymentConfig.containerPort())
                 .build())
+        .withPeriodSeconds((int) period.toSeconds())
         .withInitialDelaySeconds(30)
         .withTimeoutSeconds(5)
         .build();
