@@ -66,6 +66,7 @@ import io.fabric8.kubernetes.api.model.extensions.IngressTLSBuilder;
 import io.fabric8.kubernetes.api.model.extensions.RollingUpdateDeploymentBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -210,8 +211,12 @@ public class DeployPodTask extends DefaultTask {
                                             .withName(deploymentConfig.deploymentName())
                                             .withEnv(envVars.build())
                                             .withImagePullPolicy("Always")
-                                            .withReadinessProbe(createProbe(deploymentConfig))
-                                            .withLivenessProbe(createProbe(deploymentConfig))
+                                            .withReadinessProbe(
+                                                createProbe(
+                                                    deploymentConfig, Duration.ofSeconds(5)))
+                                            .withLivenessProbe(
+                                                createProbe(
+                                                    deploymentConfig, Duration.ofSeconds(15)))
                                             .withPorts(
                                                 ImmutableList.of(
                                                     new ContainerPortBuilder()
@@ -340,7 +345,7 @@ public class DeployPodTask extends DefaultTask {
     }
   }
 
-  private Probe createProbe(ImmutableDeploymentConfiguration deploymentConfig) {
+  private Probe createProbe(ImmutableDeploymentConfiguration deploymentConfig, Duration period) {
     return new ProbeBuilder()
         .withHttpGet(
             new HTTPGetActionBuilder()
