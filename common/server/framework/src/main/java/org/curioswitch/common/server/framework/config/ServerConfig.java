@@ -108,4 +108,11 @@ public interface ServerConfig {
    * rules are applied to all requests.
    */
   boolean getIpFilterInternalOnly();
+
+  /**
+   * Sets whether to shutdown gracefully, by first disabling health check and then wait some time
+   * for requests to go away before shutting down. This should always be set in non-local
+   * deployments.
+   */
+  boolean getEnableGracefulShutdown();
 }

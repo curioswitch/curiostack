@@ -50,9 +50,7 @@ public abstract class RedisModule {
   @Singleton
   static RedisClusterClient redisClient(RedisConfig config) {
     RedisClusterClient client = RedisClusterClient.create(config.getUrl());
-    client.setOptions(ClusterClientOptions.builder()
-        .validateClusterNodeMembership(false)
-        .build());
+    client.setOptions(ClusterClientOptions.builder().validateClusterNodeMembership(false).build());
     return client;
   }
 

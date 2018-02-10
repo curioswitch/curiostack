@@ -287,7 +287,11 @@ public class DeployPodTask extends DefaultTask {
             .build();
     Map<String, Service> additionalServices = new HashMap<>();
     for (String path : deploymentConfig.additionalServicePaths()) {
-      String serviceName = deploymentConfig.deploymentName() + path.replace('/', '-');
+      String sanitizedPath = path;
+      if (sanitizedPath.endsWith("/*")) {
+        sanitizedPath = sanitizedPath.substring(0, path.length() - 2);
+      }
+      String serviceName = deploymentConfig.deploymentName() + sanitizedPath.replace('/', '-');
       additionalServices.put(
           path,
           new ServiceBuilder()

@@ -84,9 +84,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -432,6 +434,10 @@ public abstract class ServerModule {
     sb.decorator(new LoggingServiceBuilder().newDecorator());
     sb.meterRegistry(meterRegistry);
 
+    if (serverConfig.getEnableGracefulShutdown()) {
+      sb.gracefulShutdownTimeout(Duration.ofSeconds(10), Duration.ofSeconds(30));
+    }
+
     Server server = sb.build();
     server
         .start()
@@ -443,6 +449,18 @@ public abstract class ServerModule {
                 logger.info("Server started on ports: " + server.activePorts());
               }
             });
+
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  logger.info("Shutting down server.");
+                  try {
+                    server.stop().get();
+                  } catch (InterruptedException | ExecutionException e) {
+                    logger.warn("Error shutting down server.", e);
+                  }
+                }));
 
     if (!fileWatcherBuilder.isEmpty()) {
       FileWatcher fileWatcher = fileWatcherBuilder.build();
