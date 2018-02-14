@@ -127,7 +127,7 @@ public class DeployPodTask extends DefaultTask {
                     ::iterator);
     if (!deploymentConfig.envVars().containsKey("JAVA_OPTS")) {
       int numWorkers = (int) (Math.ceil(Double.parseDouble(deploymentConfig.cpu())) * 2);
-      int heapSize = (int) (deploymentConfig.memoryMb() * 0.7);
+      int heapSize = (int) (deploymentConfig.memoryMb() * 0.6);
       StringBuilder javaOpts = new StringBuilder();
       javaOpts
           .append("-Xms")
