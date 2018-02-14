@@ -36,7 +36,6 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-import java.io.File;
 import java.util.Optional;
 import java.util.function.Consumer;
 import javax.inject.Inject;
@@ -46,6 +45,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
+import org.curioswitch.common.server.framework.util.ResourceUtil;
 
 /**
  * A convenience factory that sets up a {@link ClientBuilder} with appropriate default parameters.
@@ -91,8 +91,8 @@ public class ClientBuilderFactory {
       clientCertificateCustomizer =
           sslContext ->
               sslContext.keyManager(
-                  new File(serverConfig.getTlsCertificatePath()),
-                  new File(serverConfig.getTlsPrivateKeyPath()));
+                  ResourceUtil.openStream(serverConfig.getTlsCertificatePath()),
+                  ResourceUtil.openStream(serverConfig.getTlsPrivateKeyPath()));
     }
 
     final Consumer<SslContextBuilder> clientTlsCustomizer;

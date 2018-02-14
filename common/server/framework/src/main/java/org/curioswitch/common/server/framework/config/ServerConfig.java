@@ -50,6 +50,12 @@ public interface ServerConfig {
    */
   boolean isDisableClientCertificateVerification();
 
+  /**
+   * Whether backend service SSL certificates should be verified. This should only be enabled for
+   * local development.
+   */
+  boolean isDisableServerCertificateVerification();
+
   /** Path to the file containing the TLS certificate for this server. */
   String getTlsCertificatePath();
 
