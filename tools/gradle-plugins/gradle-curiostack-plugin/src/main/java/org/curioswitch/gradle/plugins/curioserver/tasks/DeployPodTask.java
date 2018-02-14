@@ -127,12 +127,15 @@ public class DeployPodTask extends DefaultTask {
                     ::iterator);
     if (!deploymentConfig.envVars().containsKey("JAVA_OPTS")) {
       int numWorkers = (int) (Math.ceil(Double.parseDouble(deploymentConfig.cpu())) * 2);
+      int heapSize = (int) (deploymentConfig.memoryMb() * 0.8);
       StringBuilder javaOpts = new StringBuilder();
       javaOpts
-          .append(
-              "-XX:+UnlockExperimentalVMOptions "
-                  + "-XX:+UseCGroupMemoryLimitForHeap "
-                  + "-XX:MaxRAMFraction=1")
+          .append("-Xms")
+          .append(heapSize)
+          .append("m ")
+          .append("-Xmx")
+          .append(heapSize)
+          .append("m ")
           .append("-Dconfig.resource=application-")
           .append(type)
           .append(".conf ")
