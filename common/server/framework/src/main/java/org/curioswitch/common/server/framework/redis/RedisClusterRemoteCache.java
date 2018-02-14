@@ -22,27 +22,32 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.common.server.framework.config;
+package org.curioswitch.common.server.framework.redis;
 
-import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Modifiable;
+import io.lettuce.core.SetArgs;
+import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
+import java.util.concurrent.CompletionStage;
 
-/** Configuration properties for a redis connection. */
-@Immutable
-@Modifiable
-@JavaBeanStyle
-public interface RedisConfig {
+class RedisClusterRemoteCache<K, V> implements RemoteCache<K, V> {
 
-  /**
-   * The redis connection url, including password and namespace, e.g.
-   * 'redis://password@localhost:6379/0'.
-   */
-  String getUrl();
+  private final RedisClusterAsyncCommands<K, V> redis;
 
-  /**
-   * Whether a noop cache should be used instead of redis. Should only be enabled for local
-   * development.
-   */
-  boolean isNoop();
+  RedisClusterRemoteCache(RedisClusterAsyncCommands<K, V> redis) {
+    this.redis = redis;
+  }
+
+  @Override
+  public CompletionStage<V> get(K key) {
+    return redis.get(key);
+  }
+
+  @Override
+  public CompletionStage<String> set(K key, V value, SetArgs setArgs) {
+    return redis.set(key, value, setArgs);
+  }
+
+  @Override
+  public CompletionStage<Long> del(K key) {
+    return redis.del(key);
+  }
 }

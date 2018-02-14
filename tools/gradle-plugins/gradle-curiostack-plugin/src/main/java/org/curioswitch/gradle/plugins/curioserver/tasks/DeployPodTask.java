@@ -129,7 +129,10 @@ public class DeployPodTask extends DefaultTask {
       int numWorkers = (int) (Math.ceil(Double.parseDouble(deploymentConfig.cpu())) * 2);
       StringBuilder javaOpts = new StringBuilder();
       javaOpts
-          .append("-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap ")
+          .append(
+              "-XX:+UnlockExperimentalVMOptions "
+                  + "-XX:+UseCGroupMemoryLimitForHeap "
+                  + "-XX:MaxRAMFraction=1")
           .append("-Dconfig.resource=application-")
           .append(type)
           .append(".conf ")
