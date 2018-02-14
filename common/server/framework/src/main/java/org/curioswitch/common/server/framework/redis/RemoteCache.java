@@ -22,27 +22,16 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.common.server.framework.config;
+package org.curioswitch.common.server.framework.redis;
 
-import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Modifiable;
+import io.lettuce.core.SetArgs;
+import java.util.concurrent.CompletionStage;
 
-/** Configuration properties for a redis connection. */
-@Immutable
-@Modifiable
-@JavaBeanStyle
-public interface RedisConfig {
+interface RemoteCache<K, V> {
 
-  /**
-   * The redis connection url, including password and namespace, e.g.
-   * 'redis://password@localhost:6379/0'.
-   */
-  String getUrl();
+  CompletionStage<V> get(K key);
 
-  /**
-   * Whether a noop cache should be used instead of redis. Should only be enabled for local
-   * development.
-   */
-  boolean isNoop();
+  CompletionStage<String> set(K key, V value, SetArgs setArgs);
+
+  CompletionStage<Long> del(K key);
 }
