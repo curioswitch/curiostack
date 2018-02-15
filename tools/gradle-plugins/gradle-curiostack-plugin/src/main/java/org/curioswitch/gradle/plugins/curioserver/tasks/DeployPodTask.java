@@ -126,16 +126,20 @@ public class DeployPodTask extends DefaultTask {
                                         .build()))
                     ::iterator);
     if (!deploymentConfig.envVars().containsKey("JAVA_OPTS")) {
-      int numWorkers = (int) (Math.ceil(Double.parseDouble(deploymentConfig.cpu())) * 2);
-      int heapSize = (int) (deploymentConfig.memoryMb() * 0.6);
+      int numCpus = (int) Math.ceil(Double.parseDouble(deploymentConfig.cpu()));
+      int numWorkers = numCpus * 2;
+      int heapSize = (int) (deploymentConfig.memoryMb() * 0.5);
       StringBuilder javaOpts = new StringBuilder();
       javaOpts
-          .append("-Xms")
+          .append("-XX:+PrintFlagsFinal -Xms")
           .append(heapSize)
           .append("m ")
           .append("-Xmx")
           .append(heapSize)
           .append("m ")
+          .append("-XX:ParallelGCThreads=")
+          .append(numCpus)
+          .append(" ")
           .append("-Dconfig.resource=application-")
           .append(type)
           .append(".conf ")
@@ -147,6 +151,9 @@ public class DeployPodTask extends DefaultTask {
           .append(" ")
           .append("-Dcom.linecorp.armeria.numCommonWorkers=")
           .append(numWorkers)
+          .append(" ")
+          .append("-Dio.netty.availableProcessors=")
+          .append(numCpus)
           .append(" ");
       if (!type.equals("prod")) {
         javaOpts.append("-Dcom.linecorp.armeria.verboseExceptions=true ");
