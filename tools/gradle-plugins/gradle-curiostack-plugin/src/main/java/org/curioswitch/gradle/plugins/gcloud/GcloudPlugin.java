@@ -233,11 +233,15 @@ public class GcloudPlugin implements Plugin<Project> {
                             proj.getConvention()
                                 .getPlugin(BasePluginConvention.class)
                                 .getArchivesBaseName();
-                        String imageId = "curio-generated-build-" + archivesBaseName + "-image";
-                        String pushId = "curio-generated-push-" + archivesBaseName + "-image";
+                        String buildImageId = "curio-generated-build-" + archivesBaseName + "-image";
+                        String tagRevisionId = "curio-generated-tag-" + archivesBaseName + "-image";
+                        String pushLatestTagId = "curio-generated-push-" + archivesBaseName + "-latest";
+                        String pushRevisionTagId = "curio-generated-push-" + archivesBaseName + "-revision";
                         String deployId = "curio-generated-deploy-" + archivesBaseName;
-                        String imageTag =
+                        String latestTag =
                             config.containerRegistry() + "/$PROJECT_ID/" + archivesBaseName;
+                        String revisionTag =
+                            config.containerRegistry() + "/$PROJECT_ID/" + archivesBaseName + ":$REVISION_ID";
                         String dockerPath =
                             Paths.get(rootProject.getProjectDir().getAbsolutePath())
                                 .relativize(
@@ -252,7 +256,7 @@ public class GcloudPlugin implements Plugin<Project> {
                         ImmutableList.Builder<CloudBuildStep> steps = ImmutableList.builder();
                         steps.add(
                             ImmutableCloudBuildStep.builder()
-                                .id(imageId)
+                                .id(buildImageId)
                                 .addWaitFor(buildAllImageId)
                                 .name(dockerBuilder)
                                 .entrypoint("/bin/bash")
@@ -262,15 +266,32 @@ public class GcloudPlugin implements Plugin<Project> {
                                         "test -e "
                                             + dockerPath
                                             + " && docker build --tag="
-                                            + imageTag
+                                            + latestTag
                                             + " "
                                             + dockerPath
                                             + " || echo Skipping..."))
                                 .build());
                         steps.add(
                             ImmutableCloudBuildStep.builder()
-                                .id(pushId)
-                                .addWaitFor(imageId)
+                                .id(tagRevisionId)
+                                .addWaitFor(buildImageId)
+                                .name(dockerBuilder)
+                                .entrypoint("/bin/bash")
+                                .args(
+                                    ImmutableList.of(
+                                        "-c",
+                                        "test -e "
+                                            + dockerPath
+                                            + " && docker tag "
+                                            + latestTag
+                                            + " "
+                                            + revisionTag
+                                            + " || echo Skipping..."))
+                                .build());
+                        steps.add(
+                            ImmutableCloudBuildStep.builder()
+                                .id(pushLatestTagId)
+                                .addWaitFor(buildImageId)
                                 .name(dockerBuilder)
                                 .entrypoint("/bin/bash")
                                 .args(
@@ -279,14 +300,29 @@ public class GcloudPlugin implements Plugin<Project> {
                                         "test -e "
                                             + dockerPath
                                             + " && docker push "
-                                            + imageTag
+                                            + latestTag
+                                            + " || echo Skipping..."))
+                                .build());
+                        steps.add(
+                            ImmutableCloudBuildStep.builder()
+                                .id(pushRevisionTagId)
+                                .addWaitFor(tagRevisionId)
+                                .name(dockerBuilder)
+                                .entrypoint("/bin/bash")
+                                .args(
+                                    ImmutableList.of(
+                                        "-c",
+                                        "test -e "
+                                            + dockerPath
+                                            + " && docker push "
+                                            + revisionTag
                                             + " || echo Skipping..."))
                                 .build());
                         if (deployment.autoDeployAlpha()) {
                           steps.add(
                               ImmutableCloudBuildStep.builder()
                                   .id(deployId)
-                                  .addWaitFor(pushId)
+                                  .addWaitFor(pushLatestTagId)
                                   .name(kubectlBuilder)
                                   .entrypoint("/bin/bash")
                                   .args(
