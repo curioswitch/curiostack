@@ -233,15 +233,20 @@ public class GcloudPlugin implements Plugin<Project> {
                             proj.getConvention()
                                 .getPlugin(BasePluginConvention.class)
                                 .getArchivesBaseName();
-                        String buildImageId = "curio-generated-build-" + archivesBaseName + "-image";
-                        String tagRevisionId = "curio-generated-tag-" + archivesBaseName + "-image";
-                        String pushLatestTagId = "curio-generated-push-" + archivesBaseName + "-latest";
-                        String pushRevisionTagId = "curio-generated-push-" + archivesBaseName + "-revision";
+                        String buildImageId =
+                            "curio-generated-build-" + archivesBaseName + "-image";
+                        String pushLatestTagId =
+                            "curio-generated-push-" + archivesBaseName + "-latest";
+                        String pushRevisionTagId =
+                            "curio-generated-push-" + archivesBaseName + "-revision";
                         String deployId = "curio-generated-deploy-" + archivesBaseName;
                         String latestTag =
                             config.containerRegistry() + "/$PROJECT_ID/" + archivesBaseName;
                         String revisionTag =
-                            config.containerRegistry() + "/$PROJECT_ID/" + archivesBaseName + ":$REVISION_ID";
+                            config.containerRegistry()
+                                + "/$PROJECT_ID/"
+                                + archivesBaseName
+                                + ":$REVISION_ID";
                         String dockerPath =
                             Paths.get(rootProject.getProjectDir().getAbsolutePath())
                                 .relativize(
@@ -267,25 +272,10 @@ public class GcloudPlugin implements Plugin<Project> {
                                             + dockerPath
                                             + " && docker build --tag="
                                             + latestTag
-                                            + " "
-                                            + dockerPath
-                                            + " || echo Skipping..."))
-                                .build());
-                        steps.add(
-                            ImmutableCloudBuildStep.builder()
-                                .id(tagRevisionId)
-                                .addWaitFor(buildImageId)
-                                .name(dockerBuilder)
-                                .entrypoint("/bin/bash")
-                                .args(
-                                    ImmutableList.of(
-                                        "-c",
-                                        "test -e "
-                                            + dockerPath
-                                            + " && docker tag "
-                                            + latestTag
-                                            + " "
+                                            + " --tag="
                                             + revisionTag
+                                            + " "
+                                            + dockerPath
                                             + " || echo Skipping..."))
                                 .build());
                         steps.add(
@@ -306,7 +296,7 @@ public class GcloudPlugin implements Plugin<Project> {
                         steps.add(
                             ImmutableCloudBuildStep.builder()
                                 .id(pushRevisionTagId)
-                                .addWaitFor(tagRevisionId)
+                                .addWaitFor(buildImageId)
                                 .name(dockerBuilder)
                                 .entrypoint("/bin/bash")
                                 .args(
