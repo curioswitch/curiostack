@@ -47,6 +47,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.tools.ant.taskdefs.condition.Os;
 import org.codehaus.groovy.runtime.GStringImpl;
 import org.curioswitch.gradle.common.LambdaClosure;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -69,6 +70,8 @@ import org.gradle.api.tasks.SourceSetContainer;
  */
 public class GrpcApiPlugin implements Plugin<Project> {
 
+  private static final boolean IS_WINDOWS = Os.isFamily(Os.FAMILY_WINDOWS);
+
   private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.1";
   private static final String GOOGLE_PROTOBUF_VERSION = "3.5.0";
   private static final String GRPC_WEB_CLIENT_VERSION = "0.3.1";
@@ -78,6 +81,9 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
   private static final String RESOLVED_PLUGIN_SCRIPT_TEMPLATE =
       "#!|NODE_PATH|\n" + "" + "require('|IMPORTED_MODULE|');";
+
+  private static final String RESOLVED_PLUGIN_CMD_TEMPLATE =
+      "@echo off\r\n\"|NODE_PATH|\" \"%~dp0\\..\\ts-protoc-gen\\bin\\protoc-gen-ts\" %*";
 
   private static final String PACKAGE_JSON_TEMPLATE;
   private static final String TSCONFIG_TEMPLATE;
@@ -140,13 +146,9 @@ public class GrpcApiPlugin implements Plugin<Project> {
                           .create("ts")
                           .setPath(
                               project
-                                  .file("node_modules/.bin/protoc-gen-ts-resolved")
-                                  .getAbsolutePath());
-                      locators
-                          .create("flow")
-                          .setPath(
-                              project
-                                  .file("node_modules/.bin/protoc-gen-flow-resolved")
+                                  .file(
+                                      "node_modules/.bin/protoc-gen-ts-resolved"
+                                          + (IS_WINDOWS ? ".cmd" : ""))
                                   .getAbsolutePath());
                     }
                   }));
@@ -248,7 +250,10 @@ public class GrpcApiPlugin implements Plugin<Project> {
                 .getOutputs()
                 .files(
                     ImmutableMap.of(
-                        "protoc-gen-ts-resolved", "node_modules/.bin/protoc-gen-ts-resolved"));
+                        "protoc-gen-ts-resolved",
+                        "node_modules/.bin/protoc-gen-ts-resolved",
+                        "protoc-gen-ts-resolved-cmd",
+                        "node_modules/.bin/protoc-gen-ts-resolved.cmd"));
 
             String packageName =
                 config.webPackageName().isEmpty()
@@ -321,19 +326,27 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
   private static void writeResolvedScript(
       Project project, String nodePath, String outputFilename, String importedModule) {
-    Path path;
     try {
-      path =
+      Path path =
           Files.write(
               Paths.get(
                   project.getProjectDir().getAbsolutePath(), "node_modules/.bin/" + outputFilename),
               RESOLVED_PLUGIN_SCRIPT_TEMPLATE
-                  .replaceFirst("\\|NODE_PATH\\|", nodePath)
-                  .replaceFirst("\\|IMPORTED_MODULE\\|", importedModule)
+                  .replace("|NODE_PATH|", nodePath)
+                  .replace("|IMPORTED_MODULE|", importedModule)
                   .getBytes(StandardCharsets.UTF_8));
+      path.toFile().setExecutable(true);
+      path =
+          Files.write(
+              Paths.get(
+                  project.getProjectDir().getAbsolutePath(),
+                  "node_modules/.bin/" + outputFilename + ".cmd"),
+              RESOLVED_PLUGIN_CMD_TEMPLATE
+                  .replace("|NODE_PATH|", nodePath)
+                  .getBytes(StandardCharsets.UTF_8));
+      path.toFile().setExecutable(true);
     } catch (IOException e) {
       throw new UncheckedIOException("Could not write resolved plugin script.", e);
     }
-    path.toFile().setExecutable(true);
   }
 }
