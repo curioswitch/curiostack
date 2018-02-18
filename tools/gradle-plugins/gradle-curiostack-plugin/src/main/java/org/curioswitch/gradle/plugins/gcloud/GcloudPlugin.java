@@ -191,6 +191,28 @@ public class GcloudPlugin implements Plugin<Project> {
                   config.clusterZone()));
 
           project.getTasks().create("createBuildCacheBucket", CreateBuildCacheBucket.class);
+
+          GcloudTask installBetaComponents =
+              project
+                  .getTasks()
+                  .create(
+                      "gcloudInstallBetaComponents",
+                      GcloudTask.class,
+                      t -> t.setArgs(ImmutableList.of("components", "install", "beta")));
+          installBetaComponents.dependsOn(setupTask);
+          GcloudTask installKubectl =
+              project
+                  .getTasks()
+                  .create(
+                      "gcloudInstallKubectl",
+                      GcloudTask.class,
+                      t -> t.setArgs(ImmutableList.of("components", "install", "kubectl")));
+          installKubectl.dependsOn(setupTask);
+          project
+              .getTasks()
+              .create(
+                  "gcloudSetup",
+                  t -> t.dependsOn(setupTask, installBetaComponents, installKubectl));
         });
 
     addGenerateCloudBuildTask(project);

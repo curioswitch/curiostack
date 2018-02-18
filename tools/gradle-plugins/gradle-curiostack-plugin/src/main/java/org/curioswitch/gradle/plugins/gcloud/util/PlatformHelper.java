@@ -25,7 +25,7 @@
 package org.curioswitch.gradle.plugins.gcloud.util;
 
 import java.util.Properties;
-import org.codehaus.plexus.util.Os;
+import org.apache.tools.ant.taskdefs.condition.Os;
 
 public class PlatformHelper {
 

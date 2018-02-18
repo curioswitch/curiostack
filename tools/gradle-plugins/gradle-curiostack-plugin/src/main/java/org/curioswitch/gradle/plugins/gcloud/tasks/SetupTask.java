@@ -24,32 +24,34 @@
 
 package org.curioswitch.gradle.plugins.gcloud.tasks;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.stream.Stream;
 import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
 import org.curioswitch.gradle.plugins.gcloud.ImmutableGcloudExtension;
 import org.curioswitch.gradle.plugins.gcloud.PlatformConfig;
+import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.repositories.ArtifactRepository;
 import org.gradle.api.artifacts.repositories.IvyPatternRepositoryLayout;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.OutputDirectories;
 import org.gradle.api.tasks.TaskAction;
 
 public class SetupTask extends DefaultTask {
 
-  public static final String NAME = "gcloudSetup";
+  public static final String NAME = "gcloudDownloadSdk";
 
   private final ImmutableGcloudExtension config;
   private final PlatformConfig platformConfig;
@@ -60,7 +62,18 @@ public class SetupTask extends DefaultTask {
     platformConfig = config.platformConfig();
     repositoriesBackup = new ArrayList<>(getProject().getRepositories());
 
-    onlyIf(unused -> !getProject().file(platformConfig.sdkDir()).exists());
+    onlyIf(
+        unused -> {
+          Path sdkDir = CommandUtil.getGcloudSdkDir(getProject());
+          if (!Files.exists(sdkDir)) {
+            return true;
+          }
+          try {
+            return !Files.readAllLines(sdkDir.resolve("VERSION")).contains(config.version());
+          } catch (IOException e) {
+            throw new UncheckedIOException("Could not read VERSION file.", e);
+          }
+        });
   }
 
   @TaskAction
@@ -71,18 +84,32 @@ public class SetupTask extends DefaultTask {
   }
 
   @Input
-  public Set<String> getInput() {
-    Set<String> inputs = new HashSet<>();
-    inputs.add(platformConfig.dependency());
-    return inputs;
+  public String getInput() {
+    return platformConfig.dependency();
   }
 
-  @OutputDirectory
-  public File getSdkDir() {
-    return platformConfig.sdkDir();
+  @OutputDirectories
+  public Map<String, Path> getSdkDir() {
+    return ImmutableMap.of("gcloud-sdk", CommandUtil.getGcloudSdkDir(getProject()));
   }
 
   private void unpackArchive() {
+    Path gcloudSdkDir = CommandUtil.getGcloudSdkDir(getProject());
+    if (Files.exists(gcloudSdkDir)) {
+      try (Stream<Path> s = Files.walk(gcloudSdkDir)) {
+        s.sorted(Comparator.reverseOrder())
+            .forEach(
+                p -> {
+                  try {
+                    Files.delete(p);
+                  } catch (IOException e) {
+                    throw new UncheckedIOException("Could not delete sdk file.", e);
+                  }
+                });
+      } catch (IOException e) {
+        throw new UncheckedIOException("Could not walk sdk dir.", e);
+      }
+    }
     getProject()
         .copy(
             copy -> {
@@ -91,15 +118,8 @@ public class SetupTask extends DefaultTask {
               } else {
                 copy.from(getProject().tarTree(resolveAndFetchArchive()));
               }
-              copy.into(config.workDir());
+              copy.into(CommandUtil.getGcloudDir(getProject()));
             });
-    Path extracted = config.workDir().toPath().resolve("google-cloud-sdk");
-    Path destination = platformConfig.sdkDir().toPath();
-    try {
-      Files.move(extracted, destination, StandardCopyOption.REPLACE_EXISTING);
-    } catch (IOException e) {
-      throw new UncheckedIOException("Could not rename extracted gcloud sdk directory.", e);
-    }
   }
 
   private File resolveAndFetchArchive() {
