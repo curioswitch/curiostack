@@ -25,6 +25,7 @@
 package org.curioswitch.gradle.plugins.gcloud;
 
 import java.io.File;
+import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.plugins.gcloud.util.PlatformHelper;
 import org.immutables.value.Value.Derived;
 import org.immutables.value.Value.Immutable;
@@ -43,10 +44,6 @@ public interface PlatformConfig {
   static PlatformConfig fromExtension(ImmutableGcloudExtension config) {
     PlatformHelper platformHelper = new PlatformHelper();
 
-    if (platformHelper.isWindows()) {
-      config.gradleProject().getLogger().info("GCloud not supported on windows yet, skipping...");
-    }
-
     String osName = platformHelper.getOsName();
     String osArch = platformHelper.getOsArch();
 
@@ -58,7 +55,8 @@ public interface PlatformConfig {
                 + osName
                 + "-"
                 + osArch
-                + "@tar.gz")
+                + "@"
+                + (Os.isFamily(Os.FAMILY_WINDOWS) ? "zip" : "tar.gz"))
         .sdkDir(
             new File(config.workDir(), "gcloud-" + config.version() + "-" + osName + "-" + osArch))
         .gcloudExec("gcloud")

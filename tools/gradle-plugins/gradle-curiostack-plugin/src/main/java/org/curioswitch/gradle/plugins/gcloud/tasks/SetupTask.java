@@ -25,10 +25,16 @@
 package org.curioswitch.gradle.plugins.gcloud.tasks;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
 import org.curioswitch.gradle.plugins.gcloud.ImmutableGcloudExtension;
 import org.curioswitch.gradle.plugins.gcloud.PlatformConfig;
@@ -80,11 +86,19 @@ public class SetupTask extends DefaultTask {
     getProject()
         .copy(
             copy -> {
-              copy.from(getProject().tarTree(resolveAndFetchArchive()));
+              if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                copy.from(getProject().zipTree(resolveAndFetchArchive()));
+              } else {
+                copy.from(getProject().tarTree(resolveAndFetchArchive()));
+              }
               copy.into(config.workDir());
             });
-    if (!new File(config.workDir(), "google-cloud-sdk").renameTo(platformConfig.sdkDir())) {
-      throw new IllegalStateException("Could not rename extracted gcloud sdk directory.");
+    Path extracted = config.workDir().toPath().resolve("google-cloud-sdk");
+    Path destination = platformConfig.sdkDir().toPath();
+    try {
+      Files.move(extracted, destination, StandardCopyOption.REPLACE_EXISTING);
+    } catch (IOException e) {
+      throw new UncheckedIOException("Could not rename extracted gcloud sdk directory.", e);
     }
   }
 
