@@ -25,6 +25,7 @@
 package org.curioswitch.gradle.plugins.shared;
 
 import java.nio.file.Path;
+import org.apache.tools.ant.taskdefs.condition.Os;
 import org.gradle.api.Project;
 
 public final class CommandUtil {
@@ -34,7 +35,8 @@ public final class CommandUtil {
   }
 
   public static Path getPythonBinDir(Project project, String envName) {
-    return getPythonDir(project).resolve("envs/" + envName + "/Scripts");
+    String binDir = Os.isFamily(Os.FAMILY_WINDOWS) ? "Scripts" : "bin";
+    return getPythonDir(project).resolve("envs/" + envName + "/" + binDir);
   }
 
   public static Path getPythonExecutable(Project project, String envName) {

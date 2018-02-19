@@ -26,22 +26,27 @@ package org.curioswitch.gradle.plugins.curiostack.tasks;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
-import com.diffplug.common.io.Files;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.tools.ant.taskdefs.condition.Os;
-import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 public class CreateShellConfigTask extends DefaultTask {
+
+  private static final String MARKER =
+      "#### curio-generated - Edits may be overwritten at any time. ####";
+
+  private static final ImmutableList<String> SHELL_RCS = ImmutableList.of(".zshrc", ".bashrc");
 
   List<Path> paths = ImmutableList.of();
 
@@ -55,14 +60,9 @@ public class CreateShellConfigTask extends DefaultTask {
     return paths.stream().map(Path::toAbsolutePath).map(Path::toString).collect(toImmutableList());
   }
 
-  @OutputFile
-  public Path getConfigPath() {
-    return CommandUtil.getCuriostackDir(getProject()).resolve("curiostack_config");
-  }
-
   @TaskAction
   public void exec() {
-    String joined =
+    String joinedPath =
         getPaths()
             .stream()
             .map(
@@ -78,13 +78,48 @@ public class CreateShellConfigTask extends DefaultTask {
                   }
                 })
             .collect(Collectors.joining(":"));
-    try {
-      Files.write(
-          "export PATH=" + joined + ":$PATH\n" + "export CLOUDSDK_PYTHON_SITEPACKAGES=1",
-          getConfigPath().toFile(),
-          StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      throw new UncheckedIOException("Could not write config.", e);
+
+    String homeDir = System.getProperty("user.home", "");
+    if (homeDir.isEmpty()) {
+      return;
+    }
+    List<String> configLines =
+        ImmutableList.of(
+            MARKER,
+            "export PATH=" + joinedPath + ":$PATH",
+            "export CLOUDSDK_PYTHON_SITEPACKAGES=1",
+            MARKER);
+
+    for (String rcFile : SHELL_RCS) {
+      Path rcPath = Paths.get(homeDir, rcFile);
+      if (!Files.exists(rcPath)) {
+        continue;
+      }
+      final List<String> lines;
+      try {
+        lines = Files.readAllLines(rcPath, StandardCharsets.UTF_8);
+      } catch (IOException e) {
+        throw new UncheckedIOException("Could not read shell file.", e);
+      }
+      int firstMarkerIndex = lines.indexOf(MARKER);
+
+      final Iterable<String> rcLines;
+      if (firstMarkerIndex == -1) {
+        rcLines = Iterables.concat(lines, ImmutableList.of("\n"), configLines);
+      } else {
+        int lastMarkerIndex = lines.lastIndexOf(MARKER);
+        rcLines =
+            Iterables.concat(
+                lines.subList(0, firstMarkerIndex),
+                configLines,
+                lines.subList(lastMarkerIndex + 1, lines.size()));
+      }
+
+      try {
+        Files.write(rcPath, rcLines, StandardCharsets.UTF_8);
+      } catch (IOException e) {
+        throw new UncheckedIOException("Could not write to shell file.", e);
+      }
     }
   }
 }

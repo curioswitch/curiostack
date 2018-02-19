@@ -38,8 +38,12 @@ import com.jetbrains.python.envs.PythonEnvsExtension;
 import com.jetbrains.python.envs.PythonEnvsPlugin;
 import com.moowork.gradle.node.NodeExtension;
 import com.moowork.gradle.node.NodePlugin;
+import com.moowork.gradle.node.npm.NpmTask;
+import com.moowork.gradle.node.task.NodeTask;
 import com.moowork.gradle.node.yarn.YarnInstallTask;
+import com.moowork.gradle.node.yarn.YarnTask;
 import com.palantir.baseline.plugins.BaselineIdea;
+import groovy.lang.Closure;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.File;
@@ -60,6 +64,7 @@ import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
 import nu.studer.gradle.jooq.JooqTask;
+import org.curioswitch.gradle.common.LambdaClosure;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
 import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
@@ -90,6 +95,7 @@ import org.gradle.external.javadoc.CoreJavadocOptions;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
+import org.gradle.process.ExecSpec;
 
 public class CuriostackPlugin implements Plugin<Project> {
 
@@ -152,6 +158,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             t -> {
               t.dependsOn("gcloudSetup");
               t.dependsOn("pythonSetup");
+              t.dependsOn("nodeSetup");
               t.dependsOn("rehash");
             });
 
@@ -227,6 +234,27 @@ public class CuriostackPlugin implements Plugin<Project> {
                     node.setVersion(NODE_VERSION);
                     node.setYarnVersion(YARN_VERSION);
                     node.setDownload(true);
+
+                    Closure<?> pathOverrider =
+                        LambdaClosure.of(
+                            (ExecSpec exec) -> {
+                              exec.getEnvironment()
+                                  .put(
+                                      "PATH",
+                                      CommandUtil.getPythonBinDir(project, "build")
+                                          + File.pathSeparator
+                                          + exec.getEnvironment().get("PATH"));
+                            });
+
+                    project
+                        .getTasks()
+                        .withType(NodeTask.class, t -> t.setExecOverrides(pathOverrider));
+                    project
+                        .getTasks()
+                        .withType(NpmTask.class, t -> t.setExecOverrides(pathOverrider));
+                    project
+                        .getTasks()
+                        .withType(YarnTask.class, t -> t.setExecOverrides(pathOverrider));
 
                     if (project != project.getRootProject()) {
                       // We only execute yarn in the root task since we use workspaces.

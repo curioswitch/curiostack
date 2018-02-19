@@ -107,10 +107,10 @@ public class GcloudPlugin implements Plugin<Project> {
 
     project.afterEvaluate(
         p -> {
-          SetupTask setupTask = project.getTasks().create(SetupTask.NAME, SetupTask.class);
+          SetupTask downloadSdkTask = project.getTasks().create(SetupTask.NAME, SetupTask.class);
           ImmutableGcloudExtension config =
               project.getExtensions().getByType(GcloudExtension.class);
-          setupTask.setEnabled(config.download());
+          downloadSdkTask.setEnabled(config.download());
 
           project.allprojects(
               proj -> {
@@ -199,7 +199,7 @@ public class GcloudPlugin implements Plugin<Project> {
                       "gcloudInstallBetaComponents",
                       GcloudTask.class,
                       t -> t.setArgs(ImmutableList.of("components", "install", "beta")));
-          installBetaComponents.dependsOn(setupTask);
+          installBetaComponents.dependsOn(downloadSdkTask);
           GcloudTask installKubectl =
               project
                   .getTasks()
@@ -207,12 +207,12 @@ public class GcloudPlugin implements Plugin<Project> {
                       "gcloudInstallKubectl",
                       GcloudTask.class,
                       t -> t.setArgs(ImmutableList.of("components", "install", "kubectl")));
-          installKubectl.dependsOn(setupTask);
+          installKubectl.dependsOn(downloadSdkTask);
           project
               .getTasks()
               .create(
                   "gcloudSetup",
-                  t -> t.dependsOn(setupTask, installBetaComponents, installKubectl));
+                  t -> t.dependsOn(downloadSdkTask, installBetaComponents, installKubectl));
         });
 
     addGenerateCloudBuildTask(project);

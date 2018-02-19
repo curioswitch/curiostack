@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2018 Choko (choko@curioswitch.org)
@@ -75,10 +75,19 @@ public abstract class DatabaseModule {
     hikari.setJdbcUrl(config.getJdbcUrl());
     hikari.setUsername(config.getUsername());
     hikari.setPassword(config.getPassword());
-    hikari.addDataSourceProperty("cachePrepStmts", "true");
+    hikari.addDataSourceProperty("cachePrepStmts", true);
+    hikari.addDataSourceProperty("prepStmtCacheSize", 250);
+    hikari.addDataSourceProperty("prepStmtCacheSqlLimit", 2048);
+    hikari.addDataSourceProperty("useServerPrepStmts", true);
+    hikari.addDataSourceProperty("useLocalSessionState", true);
+    hikari.addDataSourceProperty("useLocalTransactionState", true);
+    hikari.addDataSourceProperty("rewriteBatchedStatements", true);
+    hikari.addDataSourceProperty("cacheResultSetMetadata", true);
+    hikari.addDataSourceProperty("cacheServerConfiguration", true);
+    hikari.addDataSourceProperty("elideSetAutoCommits", true);
+    hikari.addDataSourceProperty("maintainTimeStats", false);
     hikari.addDataSourceProperty(
         "statementInterceptors", "brave.mysql.TracingStatementInterceptor");
-    hikari.addDataSourceProperty("useUnicode", "yes");
     hikari.setMetricsTrackerFactory(new PrometheusMetricsTrackerFactory());
     return new HikariDataSource(hikari);
   }

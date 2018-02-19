@@ -62,6 +62,8 @@ public class SetupTask extends DefaultTask {
     platformConfig = config.platformConfig();
     repositoriesBackup = new ArrayList<>(getProject().getRepositories());
 
+    dependsOn("pythonSetup");
+
     onlyIf(
         unused -> {
           Path sdkDir = CommandUtil.getGcloudSdkDir(getProject());
