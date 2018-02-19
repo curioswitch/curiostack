@@ -75,6 +75,7 @@ dependencies {
     compile 'com.palantir:gradle-baseline-java'
     compile 'gradle.plugin.com.boxfuse.client:flyway-release'
     compile 'gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties'
+    compile 'gradle.plugin.com.jetbrains.python:gradle-python-envs'
     compile 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin'
     compile 'io.fabric8:kubernetes-client'
     compile 'io.spring.gradle:dependency-management-plugin'

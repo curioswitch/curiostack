@@ -34,10 +34,16 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import com.google.protobuf.gradle.ProtobufPlugin;
 import com.google.protobuf.gradle.ProtobufSourceDirectorySet;
+import com.jetbrains.python.envs.PythonEnvsExtension;
+import com.jetbrains.python.envs.PythonEnvsPlugin;
 import com.moowork.gradle.node.NodeExtension;
 import com.moowork.gradle.node.NodePlugin;
+import com.moowork.gradle.node.npm.NpmTask;
+import com.moowork.gradle.node.task.NodeTask;
 import com.moowork.gradle.node.yarn.YarnInstallTask;
+import com.moowork.gradle.node.yarn.YarnTask;
 import com.palantir.baseline.plugins.BaselineIdea;
+import groovy.lang.Closure;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.File;
@@ -58,10 +64,13 @@ import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
 import nu.studer.gradle.jooq.JooqTask;
+import org.curioswitch.gradle.common.LambdaClosure;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
+import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
+import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -86,6 +95,7 @@ import org.gradle.external.javadoc.CoreJavadocOptions;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
+import org.gradle.process.ExecSpec;
 
 public class CuriostackPlugin implements Plugin<Project> {
 
@@ -104,6 +114,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
     plugins.apply(NodePlugin.class);
+    plugins.apply(PythonEnvsPlugin.class);
 
     YarnInstallTask yarnTask =
         rootProject.getTasks().withType(YarnInstallTask.class).getByName("yarn");
@@ -130,6 +141,26 @@ public class CuriostackPlugin implements Plugin<Project> {
     yarnTask.finalizedBy(yarnWarning);
 
     rootProject.getTasks().create("setupGitHooks", SetupGitHooks.class);
+    CreateShellConfigTask rehash =
+        rootProject
+            .getTasks()
+            .create(
+                "rehash",
+                CreateShellConfigTask.class,
+                t ->
+                    t.path(CommandUtil.getPythonBinDir(rootProject, "dev"))
+                        .path(CommandUtil.getGcloudSdkBinDir(rootProject)));
+
+    rootProject
+        .getTasks()
+        .create(
+            "setup",
+            t -> {
+              t.dependsOn("gcloudSetup");
+              t.dependsOn("pythonSetup");
+              t.dependsOn("nodeSetup");
+              t.dependsOn("rehash");
+            });
 
     String baselineFiles;
     try {
@@ -169,6 +200,8 @@ public class CuriostackPlugin implements Plugin<Project> {
       rootProject.getTasks().getByName("ideaProject").dependsOn(baselineUpdateConfig);
     }
 
+    setupPyenvs(rootProject);
+
     rootProject.allprojects(
         project -> {
           setupRepositories(project);
@@ -202,9 +235,41 @@ public class CuriostackPlugin implements Plugin<Project> {
                     node.setYarnVersion(YARN_VERSION);
                     node.setDownload(true);
 
+                    Closure<?> pathOverrider =
+                        LambdaClosure.of(
+                            (ExecSpec exec) -> {
+                              exec.getEnvironment()
+                                  .put(
+                                      "PATH",
+                                      CommandUtil.getPythonBinDir(project, "build")
+                                          + File.pathSeparator
+                                          + exec.getEnvironment().get("PATH"));
+                            });
+
+                    project
+                        .getTasks()
+                        .withType(NodeTask.class, t -> t.setExecOverrides(pathOverrider));
+                    project
+                        .getTasks()
+                        .withType(NpmTask.class, t -> t.setExecOverrides(pathOverrider));
+                    project
+                        .getTasks()
+                        .withType(YarnTask.class, t -> t.setExecOverrides(pathOverrider));
+
                     if (project != project.getRootProject()) {
                       // We only execute yarn in the root task since we use workspaces.
                       project.getTasks().findByName("yarn").setEnabled(false);
+                    } else {
+                      node.setWorkDir(CommandUtil.getNodeDir(project).toFile());
+                      node.setNpmWorkDir(CommandUtil.getNpmDir(project).toFile());
+                      node.setYarnWorkDir(CommandUtil.getYarnDir(project).toFile());
+
+                      project.afterEvaluate(
+                          n -> {
+                            rehash.path(node.getVariant().getNodeBinDir().toPath());
+                            rehash.path(node.getVariant().getYarnBinDir().toPath());
+                            rehash.path(node.getVariant().getNpmBinDir().toPath());
+                          });
                     }
 
                     // Since yarn is very fast, go ahead and clean node_modules too to prevent
@@ -517,5 +582,20 @@ public class CuriostackPlugin implements Plugin<Project> {
               t.from(configuration);
               t.into(".ideaDataSources/drivers");
             });
+  }
+
+  private static void setupPyenvs(Project rootProject) {
+    PythonEnvsExtension envs = rootProject.getExtensions().getByType(PythonEnvsExtension.class);
+
+    Path pythonDir = CommandUtil.getPythonDir(rootProject);
+
+    envs.setBootstrapDirectory(pythonDir.resolve("bootstrap").toFile());
+    envs.setEnvsDirectory(pythonDir.resolve("envs").toFile());
+
+    envs.python("python2", "2.7.14");
+    envs.virtualenv("build", "python2");
+    envs.virtualenv("dev", "python2");
+
+    rootProject.getTasks().create("pythonSetup", t -> t.dependsOn("build_envs"));
   }
 }

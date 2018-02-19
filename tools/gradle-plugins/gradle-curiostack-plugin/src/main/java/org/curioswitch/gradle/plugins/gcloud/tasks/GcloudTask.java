@@ -27,8 +27,10 @@ package org.curioswitch.gradle.plugins.gcloud.tasks;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.util.List;
+import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
 import org.curioswitch.gradle.plugins.gcloud.ImmutableGcloudExtension;
+import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
@@ -48,23 +50,28 @@ public class GcloudTask extends DefaultTask {
     ImmutableGcloudExtension config =
         getProject().getRootProject().getExtensions().getByType(GcloudExtension.class);
 
-    String command =
-        config.download()
-            ? new File(config.platformConfig().gcloudBinDir(), COMMAND).getAbsolutePath()
-            : COMMAND;
+    String command = Os.isFamily(Os.FAMILY_WINDOWS) ? COMMAND + ".cmd" : COMMAND;
+    String executable = CommandUtil.getGcloudSdkBinDir(getProject()).resolve(command).toString();
     List<Object> fullArgs =
-        ImmutableList.builder().add("--project=" + config.clusterProject()).addAll(args).build();
+        ImmutableList.builder()
+            .add("--project=" + config.clusterProject())
+            .add("--quiet")
+            .addAll(args)
+            .build();
     getProject()
         .exec(
             exec -> {
-              exec.executable(command);
+              exec.executable(executable);
               exec.args(fullArgs);
               if (config.download()) {
                 exec.environment(
                     "PATH",
-                    config.platformConfig().gcloudBinDir()
+                    CommandUtil.getGcloudSdkBinDir(getProject())
                         + File.pathSeparator
                         + exec.getEnvironment().get("PATH"));
+                exec.environment(
+                    "CLOUDSDK_PYTHON", CommandUtil.getPythonExecutable(getProject(), "build"));
+                exec.environment("CLOUDSDK_PYTHON_SITEPACKAGES", "1");
               }
               exec.setStandardInput(System.in);
             });
