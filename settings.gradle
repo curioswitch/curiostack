@@ -59,6 +59,7 @@ buildCache {
 }
 
 include ':auth:api', ':auth:server'
+include ':common:google-cloud:armeria-cloud-storage'
 include ':common:grpc:protobuf-jackson'
 include ':common:server:framework'
 include ':common:testing:framework'
