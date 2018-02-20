@@ -223,7 +223,8 @@ public class FileWriter {
                   && responseHeaders.status().code() != 308) {
                 chunk.release();
                 throw new RuntimeException(
-                    "Unsuccessful response uploading chunk: "
+                    "Unsuccessful response uploading chunk: endOfFile: " + endOfFile
+                        + " Request headers: " + headers + "\n" + " Response headers: "
                         + responseHeaders
                         + "\n"
                         + msg.content().toStringUtf8());
