@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package curiostack.gcloud.storage;
+
+option java_package = "org.curioswitch.curiostack.gcloud.storage";
+option java_multiple_files = true;
+
+message FileWriterState {
+
+  string upload_url = 1;
+
+  uint32 file_position = 2;
+
+  bytes unfinished = 3;
+}
