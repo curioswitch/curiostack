@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2018 Choko (choko@curioswitch.org)
@@ -21,12 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package org.curioswitch.common.server.framework.armeria;
 
 import brave.Tracing;
+import com.google.common.base.Strings;
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.ClientFactoryBuilder;
+import com.linecorp.armeria.client.endpoint.EndpointGroupRegistry;
+import com.linecorp.armeria.client.endpoint.EndpointSelectionStrategy;
+import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroup;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
 import com.linecorp.armeria.client.tracing.HttpTracingClient;
 import com.linecorp.armeria.common.HttpRequest;
@@ -35,6 +40,8 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import java.net.URI;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Consumer;
 import javax.inject.Inject;
@@ -57,6 +64,7 @@ public class ClientBuilderFactory {
 
   private final ClientFactory clientFactory;
   private final Tracing tracing;
+  private final MeterRegistry meterRegistry;
 
   @Inject
   public ClientBuilderFactory(
@@ -66,6 +74,7 @@ public class ClientBuilderFactory {
       Optional<TrustManagerFactory> caTrustManager,
       ServerConfig serverConfig) {
     this.tracing = tracing;
+    this.meterRegistry = meterRegistry;
     final TrustManagerFactory trustManagerFactory;
     if (serverConfig.isDisableClientCertificateVerification()) {
       logger.warn("Disabling client SSL verification. This should only happen on local!");
@@ -111,8 +120,19 @@ public class ClientBuilderFactory {
             .build();
   }
 
-  public ClientBuilder create(String url) {
-    return new ClientBuilder(url)
+  public ClientBuilder create(String name, String url) {
+    URI uri = URI.create(url);
+    DnsAddressEndpointGroup dnsEndpointGroup =
+        DnsAddressEndpointGroup.of(uri.getHost(), uri.getPort());
+    dnsEndpointGroup.start();
+    HttpsHealthCheckedEndpointGroup endpointGroup =
+        HttpsHealthCheckedEndpointGroup.of(
+            clientFactory, dnsEndpointGroup, "/internal/health", Duration.ofSeconds(3));
+    EndpointGroupRegistry.register(name, endpointGroup, EndpointSelectionStrategy.ROUND_ROBIN);
+    endpointGroup.newMeterBinder(name).bindTo(meterRegistry);
+
+    return new ClientBuilder(
+            uri.getScheme() + "://group:" + name + Strings.nullToEmpty(uri.getPath()))
         .factory(clientFactory)
         .decorator(
             HttpRequest.class,
