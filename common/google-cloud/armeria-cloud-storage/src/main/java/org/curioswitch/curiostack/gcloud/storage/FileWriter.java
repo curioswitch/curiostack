@@ -201,17 +201,25 @@ public class FileWriter {
 
   private CompletableFuture<Void> doUploadChunk(ByteBuf chunk, boolean endOfFile) {
     ByteBufHttpData data = new ByteBufHttpData(chunk, true);
-    long limit = filePosition + chunk.readableBytes() - 1;
+    int length = chunk.readableBytes();
+    long limit = filePosition + length;
+
+    StringBuilder range = new StringBuilder("bytes ");
+    if (length == 0) {
+      range.append('*');
+    } else {
+      range.append(filePosition).append('-').append(limit - 1);
+    }
+    range.append('/');
+    if (endOfFile) {
+      range.append(limit);
+    } else {
+      range.append('*');
+    }
+
     HttpHeaders headers =
         HttpHeaders.of(HttpMethod.PUT, uploadUrl)
-            .set(
-                HttpHeaderNames.CONTENT_RANGE,
-                "bytes "
-                    + String.valueOf(filePosition)
-                    + '-'
-                    + String.valueOf(limit)
-                    + '/'
-                    + (endOfFile ? String.valueOf(limit + 1) : '*'));
+            .set(HttpHeaderNames.CONTENT_RANGE, range.toString());
     chunk.retain();
     return httpClient
         .execute(headers, data)
@@ -223,8 +231,12 @@ public class FileWriter {
                   && responseHeaders.status().code() != 308) {
                 chunk.release();
                 throw new RuntimeException(
-                    "Unsuccessful response uploading chunk: endOfFile: " + endOfFile
-                        + " Request headers: " + headers + "\n" + " Response headers: "
+                    "Unsuccessful response uploading chunk: endOfFile: "
+                        + endOfFile
+                        + " Request headers: "
+                        + headers
+                        + "\n"
+                        + " Response headers: "
                         + responseHeaders
                         + "\n"
                         + msg.content().toStringUtf8());

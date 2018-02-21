@@ -29,7 +29,6 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.collect.ImmutableList;
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.HttpClient;
-import com.linecorp.armeria.client.retry.RetryStrategy;
 import com.linecorp.armeria.client.retry.RetryingHttpClient;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
@@ -95,7 +94,7 @@ public abstract class StorageModule {
         .decorator(
             HttpRequest.class,
             HttpResponse.class,
-            RetryingHttpClient.newDecorator(RetryStrategy.onServerErrorStatus()))
+            RetryingHttpClient.newDecorator(ErrorRetryStrategy.INSTANCE))
         .build(HttpClient.class);
   }
 }
