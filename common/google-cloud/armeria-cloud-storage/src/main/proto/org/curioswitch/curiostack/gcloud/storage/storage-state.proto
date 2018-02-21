@@ -9,7 +9,7 @@ message FileWriterState {
 
   string upload_url = 1;
 
-  uint32 file_position = 2;
+  uint64 file_position = 2;
 
   bytes unfinished = 3;
 }
