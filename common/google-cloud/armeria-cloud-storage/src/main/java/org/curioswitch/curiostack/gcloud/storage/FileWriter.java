@@ -248,7 +248,7 @@ public class FileWriter {
                 return completedFuture(null);
               }
 
-              int responseLimit = rangeHeaderLimit(responseHeaders.get(HttpHeaderNames.RANGE));
+              long responseLimit = rangeHeaderLimit(responseHeaders.get(HttpHeaderNames.RANGE));
               filePosition = responseLimit + 1;
               int notUploaded = (int) (limit - responseLimit);
               if (notUploaded > 0) {
@@ -279,8 +279,8 @@ public class FileWriter {
     unfinishedChunk.writeBytes(buf);
   }
 
-  private static int rangeHeaderLimit(String range) {
-    return Integer.parseInt(range.substring(range.indexOf('-') + 1));
+  private static long rangeHeaderLimit(String range) {
+    return Long.parseLong(range.substring(range.indexOf('-') + 1));
   }
 
   private static int alignedSize(int num) {
