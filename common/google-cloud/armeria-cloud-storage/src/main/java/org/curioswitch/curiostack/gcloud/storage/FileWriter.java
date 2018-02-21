@@ -250,7 +250,7 @@ public class FileWriter {
 
               long responseLimit = rangeHeaderLimit(responseHeaders.get(HttpHeaderNames.RANGE));
               filePosition = responseLimit + 1;
-              int notUploaded = (int) (limit - responseLimit);
+              int notUploaded = (int) (limit - 1 - responseLimit);
               if (notUploaded > 0) {
                 chunk.readerIndex(chunk.writerIndex() - notUploaded);
 
