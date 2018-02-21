@@ -32,7 +32,6 @@ import com.linecorp.armeria.client.ClientFactoryBuilder;
 import com.linecorp.armeria.client.endpoint.EndpointGroupRegistry;
 import com.linecorp.armeria.client.endpoint.EndpointSelectionStrategy;
 import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroup;
-import com.linecorp.armeria.client.endpoint.healthcheck.HttpHealthCheckedEndpointGroup;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
 import com.linecorp.armeria.client.tracing.HttpTracingClient;
 import com.linecorp.armeria.common.HttpRequest;
@@ -42,6 +41,7 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import java.net.URI;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Consumer;
 import javax.inject.Inject;
@@ -122,9 +122,12 @@ public class ClientBuilderFactory {
 
   public ClientBuilder create(String name, String url) {
     URI uri = URI.create(url);
-    HttpHealthCheckedEndpointGroup endpointGroup =
-        HttpHealthCheckedEndpointGroup.of(
-            DnsAddressEndpointGroup.of(uri.getAuthority(), uri.getPort()), "/internal/health");
+    DnsAddressEndpointGroup dnsEndpointGroup =
+        DnsAddressEndpointGroup.of(uri.getHost(), uri.getPort());
+    dnsEndpointGroup.start();
+    HttpsHealthCheckedEndpointGroup endpointGroup =
+        HttpsHealthCheckedEndpointGroup.of(
+            clientFactory, dnsEndpointGroup, "/internal/health", Duration.ofSeconds(3));
     EndpointGroupRegistry.register(name, endpointGroup, EndpointSelectionStrategy.ROUND_ROBIN);
     endpointGroup.newMeterBinder(name).bindTo(meterRegistry);
 
