@@ -100,7 +100,7 @@ public class FileWriter {
   private final ByteBufAllocator alloc;
   private final EventLoop eventLoop;
 
-  private int filePosition;
+  private long filePosition;
   @Nullable private ByteBuf unfinishedChunk;
 
   FileWriter(String uploadUrl, RequestContext ctx, HttpClient httpClient) {
@@ -114,7 +114,7 @@ public class FileWriter {
       String uploadUrl,
       RequestContext ctx,
       HttpClient httpClient,
-      int filePosition,
+      long filePosition,
       @Nullable ByteBuf unfinishedChunk) {
     this.uploadUrl = uploadUrl;
     this.httpClient = httpClient;
@@ -201,7 +201,7 @@ public class FileWriter {
 
   private CompletableFuture<Void> doUploadChunk(ByteBuf chunk, boolean endOfFile) {
     ByteBufHttpData data = new ByteBufHttpData(chunk, true);
-    int limit = filePosition + chunk.readableBytes() - 1;
+    long limit = filePosition + chunk.readableBytes() - 1;
     HttpHeaders headers =
         HttpHeaders.of(HttpMethod.PUT, uploadUrl)
             .set(
@@ -238,7 +238,7 @@ public class FileWriter {
 
               int responseLimit = rangeHeaderLimit(responseHeaders.get(HttpHeaderNames.RANGE));
               filePosition = responseLimit + 1;
-              int notUploaded = limit - responseLimit;
+              int notUploaded = (int) (limit - responseLimit);
               if (notUploaded > 0) {
                 chunk.readerIndex(chunk.writerIndex() - notUploaded);
 
