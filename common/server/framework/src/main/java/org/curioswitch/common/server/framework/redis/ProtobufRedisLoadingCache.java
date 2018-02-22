@@ -38,6 +38,7 @@ import io.lettuce.core.RedisException;
 import io.lettuce.core.SetArgs;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -66,11 +67,14 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
 
     private final Lazy<RedisClusterClient> redisClient;
     private final RedisConfig config;
+    private final MeterRegistry meterRegistry;
 
     @Inject
-    public Factory(Lazy<RedisClusterClient> redisClient, RedisConfig config) {
+    public Factory(
+        Lazy<RedisClusterClient> redisClient, RedisConfig config, MeterRegistry meterRegistry) {
       this.redisClient = redisClient;
       this.config = config;
+      this.meterRegistry = meterRegistry;
     }
 
     /**
@@ -145,7 +149,7 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
               new ProtobufRedisCodec<>(
                   (name + ":").getBytes(StandardCharsets.UTF_8), keyPrototype, valuePrototype));
       connection.setReadFrom(readFrom);
-      return new RedisClusterRemoteCache<>(connection.async());
+      return new RedisClusterRemoteCache<>(connection.async(), name, meterRegistry);
     }
   }
 

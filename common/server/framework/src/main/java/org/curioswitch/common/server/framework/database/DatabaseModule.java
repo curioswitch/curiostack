@@ -24,7 +24,6 @@
 package org.curioswitch.common.server.framework.database;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
@@ -38,6 +37,7 @@ import java.util.concurrent.Executors;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
 import org.curioswitch.common.server.framework.ApplicationModule;
+import org.curioswitch.common.server.framework.armeria.CurrentRequestContextForwardingExecutorService;
 import org.curioswitch.common.server.framework.config.DatabaseConfig;
 import org.curioswitch.common.server.framework.config.ModifiableDatabaseConfig;
 import org.curioswitch.common.server.framework.inject.EagerInit;
@@ -63,7 +63,7 @@ public abstract class DatabaseModule {
   @ForDatabase
   @Singleton
   static ListeningExecutorService dbExecutor() {
-    return MoreExecutors.listeningDecorator(
+    return new CurrentRequestContextForwardingExecutorService(
         Executors.newFixedThreadPool(
             20, new ThreadFactoryBuilder().setNameFormat("dbio-%d").setDaemon(true).build()));
   }
