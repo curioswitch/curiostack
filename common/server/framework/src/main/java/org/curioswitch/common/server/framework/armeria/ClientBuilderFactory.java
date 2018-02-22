@@ -29,6 +29,7 @@ import com.google.common.base.Strings;
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.ClientFactoryBuilder;
+import com.linecorp.armeria.client.Endpoint;
 import com.linecorp.armeria.client.endpoint.EndpointGroupRegistry;
 import com.linecorp.armeria.client.endpoint.EndpointSelectionStrategy;
 import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroup;
@@ -44,6 +45,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.net.ssl.TrustManagerFactory;
@@ -124,6 +126,12 @@ public class ClientBuilderFactory {
     URI uri = URI.create(url);
     DnsAddressEndpointGroup dnsEndpointGroup =
         DnsAddressEndpointGroup.of(uri.getHost(), uri.getPort());
+    dnsEndpointGroup.addListener(
+        endpoints ->
+            logger.info(
+                "Resolved new endpoints for {} : [ {} ]",
+                name,
+                endpoints.stream().map(Endpoint::authority).collect(Collectors.joining(","))));
     dnsEndpointGroup.start();
     HttpsHealthCheckedEndpointGroup endpointGroup =
         HttpsHealthCheckedEndpointGroup.of(

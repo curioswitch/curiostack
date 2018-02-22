@@ -24,30 +24,88 @@
 
 package org.curioswitch.common.server.framework.redis;
 
+import static org.curioswitch.common.server.framework.redis.RedisConstants.DEFAULT_METER_ID_PREFIX;
+
+import brave.Span;
+import brave.Span.Kind;
+import brave.Tracer;
+import brave.Tracing;
 import io.lettuce.core.SetArgs;
 import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.util.concurrent.CompletionStage;
+import javax.annotation.Nullable;
 
 class RedisClusterRemoteCache<K, V> implements RemoteCache<K, V> {
 
   private final RedisClusterAsyncCommands<K, V> redis;
+  private final String name;
 
-  RedisClusterRemoteCache(RedisClusterAsyncCommands<K, V> redis) {
+  private final Counter success;
+  private final Counter failure;
+
+  RedisClusterRemoteCache(
+      RedisClusterAsyncCommands<K, V> redis, String name, MeterRegistry registry) {
     this.redis = redis;
+    this.name = name;
+
+    String requests = DEFAULT_METER_ID_PREFIX.name("requests");
+    success =
+        registry.counter(
+            requests, DEFAULT_METER_ID_PREFIX.tags("result", "success", "cache", name));
+    failure =
+        registry.counter(
+            requests, DEFAULT_METER_ID_PREFIX.tags("result", "failure", "cache", name));
   }
 
   @Override
   public CompletionStage<V> get(K key) {
-    return redis.get(key);
+    Span span = newSpan("get");
+    return record(redis.get(key), span, true);
   }
 
   @Override
   public CompletionStage<String> set(K key, V value, SetArgs setArgs) {
-    return redis.set(key, value, setArgs);
+    Span span = newSpan("set");
+    return record(redis.set(key, value, setArgs), span, false);
   }
 
   @Override
   public CompletionStage<Long> del(K key) {
-    return redis.del(key);
+    Span span = newSpan("del");
+    return record(redis.del(key), span, false);
+  }
+
+  @Nullable
+  Span newSpan(String method) {
+    Tracer tracer = Tracing.currentTracer();
+    if (tracer == null) {
+      return null;
+    }
+    return tracer.nextSpan().kind(Kind.CLIENT).name(method).tag("component", name).start();
+  }
+
+  private <T> CompletionStage<T> record(
+      CompletionStage<T> stage, @Nullable Span span, boolean recordHit) {
+    return stage.whenComplete(
+        (val, t) -> {
+          if (t != null) {
+            failure.increment();
+          } else {
+            success.increment();
+          }
+          if (span != null) {
+            if (t != null) {
+              span.tag("result", "error");
+            } else {
+              span.tag("result", "success");
+            }
+            if (recordHit) {
+              span.tag("hit", val != null ? "true" : "false");
+            }
+            span.finish();
+          }
+        });
   }
 }
