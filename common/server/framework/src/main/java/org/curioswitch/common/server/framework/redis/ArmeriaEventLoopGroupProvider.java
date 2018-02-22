@@ -30,6 +30,7 @@ import io.lettuce.core.resource.EventLoopGroupProvider;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.ImmediateEventExecutor;
 import java.util.concurrent.TimeUnit;
 
 public enum ArmeriaEventLoopGroupProvider implements EventLoopGroupProvider {
@@ -54,11 +55,11 @@ public enum ArmeriaEventLoopGroupProvider implements EventLoopGroupProvider {
   @Override
   public Future<Boolean> release(
       EventExecutorGroup eventLoopGroup, long quietPeriod, long timeout, TimeUnit unit) {
-    return null;
+    return ImmediateEventExecutor.INSTANCE.newSucceededFuture(true);
   }
 
   @Override
   public Future<Boolean> shutdown(long quietPeriod, long timeout, TimeUnit timeUnit) {
-    return null;
+    return ImmediateEventExecutor.INSTANCE.newSucceededFuture(true);
   }
 }
