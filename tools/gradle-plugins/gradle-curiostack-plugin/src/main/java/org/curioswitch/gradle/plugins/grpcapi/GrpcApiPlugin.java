@@ -72,12 +72,11 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
   private static final boolean IS_WINDOWS = Os.isFamily(Os.FAMILY_WINDOWS);
 
-  private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.1";
+  private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.3";
   private static final String GOOGLE_PROTOBUF_VERSION = "3.5.0";
-  private static final String GRPC_WEB_CLIENT_VERSION = "0.3.1";
+  private static final String GRPC_WEB_CLIENT_VERSION = "0.5.0";
   private static final String TS_PROTOC_GEN_VERSION = "0.4.0";
   private static final String TYPES_GOOGLE_PROTOBUF_VERSION = "3.2.7";
-  private static final String TYPESCRIPT_VERSION = "2.6.2";
 
   private static final String RESOLVED_PLUGIN_SCRIPT_TEMPLATE =
       "#!|NODE_PATH|\n" + "" + "require('|IMPORTED_MODULE|');";
@@ -290,7 +289,6 @@ public class GrpcApiPlugin implements Plugin<Project> {
                                     .replaceFirst(
                                         "\\|CURIOSTACK_BASE_NODE_DEV_VERSION\\|",
                                         CURIOSTACK_BASE_NODE_DEV_VERSION)
-                                    .replaceFirst("\\|TYPESCRIPT_VERSION\\|", TYPESCRIPT_VERSION)
                                     .getBytes(StandardCharsets.UTF_8));
                             Files.write(
                                 tsConfigPath, TSCONFIG_TEMPLATE.getBytes(StandardCharsets.UTF_8));

@@ -29,4 +29,7 @@ export = {
     'tslint-react',
     'tslint-config-prettier',
   ],
+  rules: {
+    'no-sparse-arrays': 'off',
+  },
 };
