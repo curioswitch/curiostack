@@ -151,6 +151,8 @@ public class CuriostackPlugin implements Plugin<Project> {
                     t.path(CommandUtil.getPythonBinDir(rootProject, "dev"))
                         .path(CommandUtil.getGcloudSdkBinDir(rootProject)));
 
+    setupNode(rootProject, rehash);
+
     rootProject
         .getTasks()
         .create(
@@ -225,66 +227,6 @@ public class CuriostackPlugin implements Plugin<Project> {
                             "java", "SLASHSTAR_STYLE",
                             "proto", "SLASHSTAR_STYLE",
                             "yml", "SCRIPT_STYLE"));
-                  });
-
-          project
-              .getPlugins()
-              .withType(
-                  NodePlugin.class,
-                  unused -> {
-                    NodeExtension node = project.getExtensions().getByType(NodeExtension.class);
-                    node.setVersion(NODE_VERSION);
-                    node.setYarnVersion(YARN_VERSION);
-                    node.setDownload(true);
-
-                    Closure<?> pathOverrider =
-                        LambdaClosure.of(
-                            (ExecSpec exec) -> {
-                              exec.getEnvironment()
-                                  .put(
-                                      "PATH",
-                                      CommandUtil.getPythonBinDir(project, "build")
-                                          + File.pathSeparator
-                                          + exec.getEnvironment().get("PATH"));
-                            });
-
-                    project
-                        .getTasks()
-                        .withType(NodeTask.class, t -> t.setExecOverrides(pathOverrider));
-                    project
-                        .getTasks()
-                        .withType(NpmTask.class, t -> t.setExecOverrides(pathOverrider));
-                    project
-                        .getTasks()
-                        .withType(YarnTask.class, t -> t.setExecOverrides(pathOverrider));
-
-                    if (project != project.getRootProject()) {
-                      // We only execute yarn in the root task since we use workspaces.
-                      project.getTasks().findByName("yarn").setEnabled(false);
-                    } else {
-                      node.setWorkDir(CommandUtil.getNodeDir(project).toFile());
-                      node.setNpmWorkDir(CommandUtil.getNpmDir(project).toFile());
-                      node.setYarnWorkDir(CommandUtil.getYarnDir(project).toFile());
-
-                      project.afterEvaluate(
-                          n -> {
-                            rehash.path(node.getVariant().getNodeBinDir().toPath());
-                            rehash.path(node.getVariant().getYarnBinDir().toPath());
-                            rehash.path(node.getVariant().getNpmBinDir().toPath());
-                          });
-                    }
-
-                    // Since yarn is very fast, go ahead and clean node_modules too to prevent
-                    // inconsistency.
-                    project.getPluginManager().apply(BasePlugin.class);
-                    project
-                        .getTasks()
-                        .getByName(
-                            BasePlugin.CLEAN_TASK_NAME,
-                            task -> {
-                              Delete castTask = (Delete) task;
-                              castTask.delete(project.file("node_modules"));
-                            });
                   });
         });
 
@@ -584,6 +526,51 @@ public class CuriostackPlugin implements Plugin<Project> {
               t.from(configuration);
               t.into(".ideaDataSources/drivers");
             });
+  }
+
+  private static void setupNode(Project project, CreateShellConfigTask rehash) {
+    NodeExtension node = project.getExtensions().getByType(NodeExtension.class);
+    node.setVersion(NODE_VERSION);
+    node.setYarnVersion(YARN_VERSION);
+    node.setDownload(true);
+
+    Closure<?> pathOverrider =
+        LambdaClosure.of(
+            (ExecSpec exec) -> {
+              exec.getEnvironment()
+                  .put(
+                      "PATH",
+                      CommandUtil.getPythonBinDir(project, "build")
+                          + File.pathSeparator
+                          + exec.getEnvironment().get("PATH"));
+            });
+
+    project.getTasks().withType(NodeTask.class, t -> t.setExecOverrides(pathOverrider));
+    project.getTasks().withType(NpmTask.class, t -> t.setExecOverrides(pathOverrider));
+    project.getTasks().withType(YarnTask.class, t -> t.setExecOverrides(pathOverrider));
+
+    node.setWorkDir(CommandUtil.getNodeDir(project).toFile());
+    node.setNpmWorkDir(CommandUtil.getNpmDir(project).toFile());
+    node.setYarnWorkDir(CommandUtil.getYarnDir(project).toFile());
+
+    project.afterEvaluate(
+        n -> {
+          rehash.path(node.getVariant().getNodeBinDir().toPath());
+          rehash.path(node.getVariant().getYarnBinDir().toPath());
+          rehash.path(node.getVariant().getNpmBinDir().toPath());
+        });
+
+    project.getTasks().findByName("nodeSetup").onlyIf(t -> !node.getWorkDir().exists());
+    project.getTasks().findByName("yarnSetup").onlyIf(t -> !node.getYarnWorkDir().exists());
+
+    // Since yarn is very fast, go ahead and clean node_modules too to prevent
+    // inconsistency.
+    project.getPluginManager().apply(BasePlugin.class);
+    project
+        .getTasks()
+        .getByName(
+            BasePlugin.CLEAN_TASK_NAME,
+            task -> ((Delete) task).delete(project.file("node_modules")));
   }
 
   private static void setupPyenvs(Project rootProject) {

@@ -217,8 +217,13 @@ public class GrpcApiPlugin implements Plugin<Project> {
             // property, so just disable some popular automatic tasks.
             project.getTasks().getByName("nodeSetup").setEnabled(false);
           } else {
+            String currentProjectPath = project.getPath().replace(':', '_');
             NpmTask installTsProtocGen =
-                project.getTasks().create("installTsProtocGen", NpmTask.class);
+                project
+                    .getRootProject()
+                    .getTasks()
+                    .create("installTsProtocGen_" + currentProjectPath, NpmTask.class);
+            installTsProtocGen.setWorkingDir(project.getProjectDir());
             installTsProtocGen.setArgs(
                 ImmutableList.of("install", "--no-save", "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION));
             installTsProtocGen.getInputs().property("ts-protoc-gen-version", TS_PROTOC_GEN_VERSION);
@@ -233,7 +238,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
                 project
                     .getTasks()
                     .create("addResolvedPluginScript")
-                    .dependsOn("installTsProtocGen")
+                    .dependsOn(installTsProtocGen)
                     .doFirst(
                         t -> {
                           String nodePath =

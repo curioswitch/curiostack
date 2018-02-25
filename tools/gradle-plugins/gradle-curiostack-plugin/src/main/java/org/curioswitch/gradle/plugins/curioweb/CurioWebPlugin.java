@@ -26,7 +26,6 @@ package org.curioswitch.gradle.plugins.curioweb;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.moowork.gradle.node.NodePlugin;
 import com.moowork.gradle.node.yarn.YarnTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -46,7 +45,6 @@ public class CurioWebPlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getExtensions().create("web", WebExtension.class);
 
-    project.getPlugins().apply(NodePlugin.class);
     project.getPlugins().apply(JavaLibraryPlugin.class);
 
     JavaPluginConvention java = project.getConvention().getPlugin(JavaPluginConvention.class);
@@ -55,9 +53,14 @@ public class CurioWebPlugin implements Plugin<Project> {
         .getOutput()
         .dir(ImmutableMap.of("builtBy", "copyWeb"), "build/javaweb");
 
-    CacheableYarnTask buildWeb = project.getTasks().create("buildWeb", CacheableYarnTask.class);
+    CacheableYarnTask buildWeb =
+        project
+            .getRootProject()
+            .getTasks()
+            .create("buildWeb_" + project.getPath().replace(':', '_'), CacheableYarnTask.class);
     buildWeb.dependsOn(project.getRootProject().getTasks().findByName("yarn"));
     buildWeb.setArgs(ImmutableList.of("run", "build"));
+    buildWeb.setWorkingDir(project.getProjectDir());
     buildWeb.getInputs().dir("app");
     buildWeb.getInputs().dir("internals");
     // We assume the yarn task correctly handles up-to-date checks for node_modules, so only
