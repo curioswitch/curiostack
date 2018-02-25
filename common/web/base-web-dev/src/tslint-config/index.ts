@@ -28,8 +28,5 @@ export = {
     'tslint-config-airbnb',
     'tslint-react',
     'tslint-config-prettier',
-  ],
-  rules: {
-    'no-sparse-arrays': 'off',
-  },
+  ]
 };
