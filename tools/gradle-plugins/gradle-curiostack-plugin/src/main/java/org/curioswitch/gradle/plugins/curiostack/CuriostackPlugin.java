@@ -100,8 +100,8 @@ import org.gradle.process.ExecSpec;
 public class CuriostackPlugin implements Plugin<Project> {
 
   private static final String GOOGLE_JAVA_FORMAT_VERSION = "1.5";
-  private static final String NODE_VERSION = "9.2.0";
-  private static final String YARN_VERSION = "1.3.2";
+  private static final String NODE_VERSION = "9.6.1";
+  private static final String YARN_VERSION = "1.5.0";
 
   @Override
   public void apply(Project rootProject) {
