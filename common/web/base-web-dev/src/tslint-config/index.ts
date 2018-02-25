@@ -29,4 +29,9 @@ export = {
     'tslint-react',
     'tslint-config-prettier',
   ],
+  rules: {
+    'import-name': false,
+    'jsx-boolean-value': false,
+    'no-magic-numbers': ['error', { ignore: [-1, 0, 1] }],
+  },
 };

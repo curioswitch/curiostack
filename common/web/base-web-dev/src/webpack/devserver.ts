@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * MIT License
  *
@@ -22,26 +23,12 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    'tslint:latest',
-    'tslint-config-airbnb-base',
-    'tslint-config-prettier',
-  ],
-  rules: {
-    'cyclomatic-complexity': false,
-    'import-name': false,
-    'interface-name': false,
-    'no-console': false,
-    'object-literal-sort-keys': false,
-    prettier: [
-      true,
-      {
-        arrowParens: 'always',
-        singleQuote: true,
-        trailingComma: 'all',
-      },
-    ],
-  },
-  rulesDirectory: ['tslint-plugin-prettier'],
-};
+import serve from 'webpack-serve';
+
+import config from './dev';
+
+serve({
+  config,
+  http2: true,
+  port: 3000,
+});

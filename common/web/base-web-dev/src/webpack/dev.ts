@@ -22,26 +22,33 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    'tslint:latest',
-    'tslint-config-airbnb-base',
-    'tslint-config-prettier',
+import path from 'path';
+
+import { CheckerPlugin } from 'awesome-typescript-loader';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+
+import configureBase, { Webpack4Configuration } from './base';
+
+const plugins = [
+  new HtmlWebpackPlugin({
+    inject: true,
+    template: 'src/index.html',
+  }),
+  new CheckerPlugin(),
+];
+
+const configuration: Webpack4Configuration = configureBase({
+  plugins,
+  entry: [
+    'webpack-hot-middleware/client',
+    path.join(process.cwd(), 'app/app.tsx'),
   ],
-  rules: {
-    'cyclomatic-complexity': false,
-    'import-name': false,
-    'interface-name': false,
-    'no-console': false,
-    'object-literal-sort-keys': false,
-    prettier: [
-      true,
-      {
-        arrowParens: 'always',
-        singleQuote: true,
-        trailingComma: 'all',
-      },
-    ],
+  // Don't use hashes in dev mode for better performance
+  output: {
+    filename: '[name].js',
+    chunkFilename: '[name].chunk.js',
   },
-  rulesDirectory: ['tslint-plugin-prettier'],
-};
+  devtool: 'eval-source-map',
+});
+
+export default configuration;
