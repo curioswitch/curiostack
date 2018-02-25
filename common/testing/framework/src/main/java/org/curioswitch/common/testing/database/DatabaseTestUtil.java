@@ -30,14 +30,12 @@ import org.jooq.impl.DSL;
 import org.jooq.tools.jdbc.MockConnection;
 import org.jooq.tools.jdbc.MockDataProvider;
 
-/**
- * Utilities for working with a mock database in tests.
- */
+/** Utilities for working with a mock database in tests. */
 public final class DatabaseTestUtil {
 
   /**
-   * Returns a {@link DSLContext} with a mock connection using the provided
-   * {@link MockDataProvider}.
+   * Returns a {@link DSLContext} with a mock connection using the provided {@link
+   * MockDataProvider}.
    */
   public static DSLContext newDbContext(MockDataProvider dataProvider) {
     MockConnection connection = new MockConnection(dataProvider);

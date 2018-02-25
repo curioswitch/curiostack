@@ -35,7 +35,8 @@ import java.util.function.Function;
  * A {@link Executor} that will run tasks on a delegate, making callbacks context-aware when a
  * {@link RequestContext} is available.
  */
-public class CurrentRequestContextForwardingExecutorService extends ForwardingListeningExecutorService {
+public class CurrentRequestContextForwardingExecutorService
+    extends ForwardingListeningExecutorService {
 
   private final ListeningExecutorService delegate;
 

@@ -29,5 +29,3 @@ archivesBaseName = 'eggworld-client-web'
 web {
     javaPackage = 'org.curioswitch.eggworld.web'
 }
-
-yarn.dependsOn ':eggworld:api:generateProto'
