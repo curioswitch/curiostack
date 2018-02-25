@@ -1,23 +1,25 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "alwaysStrict": true,
-    "declaration": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": false,
+    "esModuleInterop": true,
     "experimentalDecorators": true,
-    "lib": ["ESNext"],
-    "module": "commonjs",
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "lib": ["esnext", "es2017", "es2016", "es2015", "dom"],
+    "module": "esnext",
     "moduleResolution": "node",
     "noEmit": true,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
     "noImplicitReturns": true,
-    "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "pretty": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "strictNullChecks": true,
+    "strict": true,
     "target": "esnext"
   }
 }
