@@ -159,6 +159,7 @@ public class CuriostackPlugin implements Plugin<Project> {
               t.dependsOn("gcloudSetup");
               t.dependsOn("pythonSetup");
               t.dependsOn("nodeSetup");
+              t.dependsOn("yarnSetup");
               t.dependsOn("rehash");
             });
 
