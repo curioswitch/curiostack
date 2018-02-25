@@ -44,6 +44,7 @@ import com.moowork.gradle.node.yarn.YarnInstallTask;
 import com.moowork.gradle.node.yarn.YarnTask;
 import com.palantir.baseline.plugins.BaselineIdea;
 import groovy.lang.Closure;
+import groovy.util.Node;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.File;
@@ -54,6 +55,11 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
 import me.champeau.gradle.JMHPlugin;
 import me.champeau.gradle.JMHPluginExtension;
 import nebula.plugin.resolutionrules.ResolutionRulesPlugin;
@@ -75,6 +81,7 @@ import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.internal.plugins.DslObject;
@@ -202,6 +209,25 @@ public class CuriostackPlugin implements Plugin<Project> {
     if (!rootProject.file(".baseline").exists()) {
       rootProject.getTasks().getByName("ideaProject").dependsOn(baselineUpdateConfig);
     }
+
+    rootProject.afterEvaluate(
+        (p) ->
+            rootProject
+                .getPlugins()
+                .withType(
+                    IdeaPlugin.class,
+                    plugin -> {
+                      plugin
+                          .getModel()
+                          .getProject()
+                          .getIpr()
+                          .withXml(provider -> setupProjectXml(rootProject, provider));
+                      plugin
+                          .getModel()
+                          .getWorkspace()
+                          .getIws()
+                          .withXml(provider -> setupWorkspaceXml(rootProject, provider));
+                    }));
 
     setupPyenvs(rootProject);
 
@@ -586,5 +612,80 @@ public class CuriostackPlugin implements Plugin<Project> {
     envs.virtualenv("dev", "python2");
 
     rootProject.getTasks().create("pythonSetup", t -> t.dependsOn("build_envs"));
+  }
+
+  private static Optional<Node> findChild(Node node, Predicate<Node> predicate) {
+    // Should work.
+    @SuppressWarnings("unchecked")
+    List<Node> children = (List<Node>) node.children();
+    return children.stream().filter(predicate).findFirst();
+  }
+
+  private static Node findOrCreateChild(Node parent, String type, String name) {
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("name", name);
+    return findChild(
+            parent, node -> node.name().equals(type) && node.attribute("name").equals(name))
+        .orElseGet(() -> parent.appendNode(type, attributes));
+  }
+
+  private static void setOption(Node component, String name, String value) {
+    findOrCreateChild(component, "option", name).attributes().put("value", value);
+  }
+
+  private static void setProperty(Node component, String name, String value) {
+    findOrCreateChild(component, "property", name).attributes().put("value", value);
+  }
+
+  private static void setupProjectXml(Project project, XmlProvider xml) {
+    NodeExtension nodeConfig = project.getExtensions().getByType(NodeExtension.class);
+    Node typescriptCompiler = findOrCreateChild(xml.asNode(), "component", "TypeScriptCompiler");
+    setOption(
+        typescriptCompiler,
+        "typeScriptServiceDirectory",
+        project.file("node_modules/typescript").getAbsolutePath());
+    setOption(
+        typescriptCompiler, "nodeInterpreterTextField", nodeConfig.getVariant().getNodeExec());
+    setOption(typescriptCompiler, "versionType", "SERVICE_DIRECTORY");
+
+    Node angularComponent = findOrCreateChild(xml.asNode(), "component", "AngularJSSettings");
+    setOption(angularComponent, "useService", "false");
+
+    Node inspectionManager =
+        findOrCreateChild(xml.asNode(), "component", "InspectionProjectProfileManager");
+    Node profile =
+        findChild(inspectionManager, n -> n.name().equals("profile"))
+            .orElseGet(
+                () -> inspectionManager.appendNode("profile", ImmutableMap.of("version", "1.0")));
+    setOption(profile, "myName", "Project Default");
+    findChild(
+            profile,
+            n -> n.name().equals("inspection_tool") && "TsLint".equals(n.attribute("class")))
+        .orElseGet(
+            () ->
+                profile.appendNode(
+                    "inspection_tool",
+                    ImmutableMap.of(
+                        "class",
+                        "TsLint",
+                        "enabled",
+                        "true",
+                        "level",
+                        "ERROR",
+                        "enabled_by_default",
+                        "true")));
+  }
+
+  private static void setupWorkspaceXml(Project project, XmlProvider xml) {
+    NodeExtension nodeConfig = project.getExtensions().getByType(NodeExtension.class);
+    Node properties = findOrCreateChild(xml.asNode(), "component", "PropertiesComponent");
+    setProperty(
+        properties, "node.js.path.for.package.tslint", nodeConfig.getVariant().getNodeExec());
+    setProperty(properties, "node.js.detected.package.tslint", "true");
+    setProperty(
+        properties,
+        "node.js.selected.package.tslint",
+        project.file("node_modules/tslint").getAbsolutePath());
+    setProperty(properties, "typescript-compiler-editor-notification", "false");
   }
 }
