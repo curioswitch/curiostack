@@ -260,6 +260,11 @@ class StandardDependencies {
               .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
+              .group("io.zipkin.gcp")
+              .version("0.1.0")
+              .addModules("zipkin-storage-stackdriver")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("javax.inject")
               .version("1")
               .addModules("javax.inject")

@@ -63,6 +63,7 @@ dependencies {
     implementation 'io.grpc:grpc-services'
     implementation 'io.prometheus:simpleclient_hotspot'
     implementation 'io.prometheus:simpleclient_log4j2'
+    implementation 'io.zipkin.gcp:zipkin-storage-stackdriver'
     implementation 'org.apache.logging.log4j:log4j-core'
     implementation 'org.apache.logging.log4j:log4j-jcl'
     implementation 'org.apache.logging.log4j:log4j-jul'
@@ -101,9 +102,4 @@ publishing {
             }
         }
     }
-}
-
-// TODO(choko): Remove after stackdriver-zipkin is released
-license {
-    exclude 'com/google/**'
 }
