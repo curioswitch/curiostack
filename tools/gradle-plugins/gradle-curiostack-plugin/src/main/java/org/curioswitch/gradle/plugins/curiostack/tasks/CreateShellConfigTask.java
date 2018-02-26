@@ -79,7 +79,7 @@ public class CreateShellConfigTask extends DefaultTask {
                 })
             .collect(Collectors.joining(":"));
 
-    String homeDir = System.getProperty("user.home", "");
+    String homeDir = System.getProperty("user.shellHome", System.getProperty("user.home", ""));
     if (homeDir.isEmpty()) {
       return;
     }

@@ -28,5 +28,5 @@ export = {
     'tslint-config-airbnb',
     'tslint-react',
     'tslint-config-prettier',
-  ],
+  ]
 };

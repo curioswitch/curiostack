@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.server.framework.armeria;
 
 import com.google.common.util.concurrent.ForwardingListeningExecutorService;
@@ -36,7 +35,8 @@ import java.util.function.Function;
  * A {@link Executor} that will run tasks on a delegate, making callbacks context-aware when a
  * {@link RequestContext} is available.
  */
-public class CurrentRequestContextForwardingExecutorService extends ForwardingListeningExecutorService {
+public class CurrentRequestContextForwardingExecutorService
+    extends ForwardingListeningExecutorService {
 
   private final ListeningExecutorService delegate;
 

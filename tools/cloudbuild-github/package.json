@@ -45,16 +45,12 @@
     "source-map-support": "0.5.3"
   },
   "devDependencies": {
-    "//": "Declare bin transitive dependencies here until https://github.com/yarnpkg/yarn/pull/4848",
-    "@curiostack/base-node-dev": "0.0.1",
+    "@curiostack/base-node-dev": "0.0.3",
     "@types/es6-promisify": "5.0.0",
     "@types/http-status": "0.2.30",
     "@types/inquirer": "0.0.36",
     "@types/js-yaml": "3.10.1",
     "@types/request-promise-native": "1.0.13",
-    "@types/source-map-support": "0.4.0",
-    "rimraf": "2.6.2",
-    "tslint": "5.9.1",
-    "typescript": "2.7.1"
+    "@types/source-map-support": "0.4.0"
   }
 }

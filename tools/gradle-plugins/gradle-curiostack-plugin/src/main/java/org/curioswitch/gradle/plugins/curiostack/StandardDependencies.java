@@ -88,7 +88,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.github.ben-manes.caffeine")
-              .version("2.6.1")
+              .version("2.6.2")
               .addModules("caffeine")
               .build(),
           ImmutableDependencySet.builder()
@@ -103,17 +103,17 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.16.0")
+              .version("1.17.0")
               .addModules("google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.34.0-alpha")
+              .version("0.35.0-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.34.0-beta")
+              .version("0.35.0-beta")
               .addModules("google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
@@ -133,7 +133,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.firebase")
-              .version("5.8.0")
+              .version("5.9.0")
               .addModules("firebase-admin")
               .build(),
           ImmutableDependencySet.builder()
@@ -154,7 +154,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.58.0")
+              .version("0.58.1")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -180,12 +180,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.typesafe")
-              .version("1.3.2")
+              .version("1.3.3")
               .addModules("config")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.zaxxer")
-              .version("2.7.6")
+              .version("2.7.8")
               .addModules("HikariCP")
               .build(),
           ImmutableDependencySet.builder()
@@ -205,12 +205,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.lettuce")
-              .version("5.0.1.RELEASE")
+              .version("5.0.2.RELEASE")
               .addModules("lettuce-core")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.grpc")
-              .version("1.9.0")
+              .version("1.10.0")
               .addModules(
                   "grpc-all",
                   "grpc-auth",
@@ -251,13 +251,18 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.prometheus")
-              .version("0.1.0")
+              .version("0.2.0")
               .addModules("simpleclient_hotspot", "simpleclient_log4j2")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("4.13.4")
+              .version("4.16.1")
               .addModules("brave", "brave-instrumentation-mysql")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("io.zipkin.gcp")
+              .version("0.1.0")
+              .addModules("zipkin-storage-stackdriver")
               .build(),
           ImmutableDependencySet.builder()
               .group("javax.inject")
@@ -291,7 +296,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.assertj")
-              .version("3.9.0")
+              .version("3.9.1")
               .addModules("assertj-core")
               .build(),
           ImmutableDependencySet.builder()
@@ -311,7 +316,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.57")
+              .version("0.0.61")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -341,12 +346,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jooq")
-              .version("3.10.4")
+              .version("3.10.5")
               .addModules("jooq")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")
-              .version("2.13.0")
+              .version("2.15.0")
               .addModules("mockito-core")
               .build(),
           ImmutableDependencySet.builder()
@@ -363,12 +368,12 @@ class StandardDependencies {
   static final List<String> DEPENDENCIES =
       ImmutableList.of(
           "com.bmuschko:gradle-docker-plugin:3.2.4",
-          "com.diffplug.spotless:spotless-plugin-gradle:3.9.0",
+          "com.diffplug.spotless:spotless-plugin-gradle:3.10.0",
           "com.github.ben-manes:gradle-versions-plugin:0.17.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.4",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0",
           "com.moowork.gradle:gradle-node-plugin:1.2.0",
-          "com.netflix.nebula:gradle-dependency-lock-plugin:5.0.2",
+          "com.netflix.nebula:gradle-dependency-lock-plugin:5.0.4",
           "com.netflix.nebula:gradle-resolution-rules-plugin:5.1.1",
           "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.boxfuse.client:flyway-release:5.0.2",
@@ -377,10 +382,10 @@ class StandardDependencies {
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
           "io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE",
           "javax.activation:activation:1.1.1",
-          "javax.annotation:javax.annotation-api:1.3.1",
+          "javax.annotation:javax.annotation-api:1.3.2",
           "javax.xml.bind:jaxb-api:2.3.0",
           "me.champeau.gradle:jmh-gradle-plugin:0.4.5",
           "mysql:mysql-connector-java:5.1.45",
-          "net.ltgt.gradle:gradle-apt-plugin:0.13",
-          "nu.studer:gradle-jooq-plugin:2.0.9");
+          "net.ltgt.gradle:gradle-apt-plugin:0.14",
+          "nu.studer:gradle-jooq-plugin:2.0.11");
 }

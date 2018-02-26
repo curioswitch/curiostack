@@ -11,8 +11,6 @@
     "grpc-web-client": "|GRPC_WEB_CLIENT_VERSION|"
   },
   "devDependencies": {
-    "@curiostack/base-node-dev": "|CURIOSTACK_BASE_NODE_DEV_VERSION|",
-    "//": "Declare bin transitive dependencies here until https://github.com/yarnpkg/yarn/pull/4848",
-    "typescript": "|TYPESCRIPT_VERSION|"
+    "@curiostack/base-node-dev": "|CURIOSTACK_BASE_NODE_DEV_VERSION|"
   }
 }
