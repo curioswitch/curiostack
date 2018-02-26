@@ -216,6 +216,7 @@ class StandardDependencies {
                   "grpc-auth",
                   "grpc-core",
                   "grpc-netty",
+                  "grpc-netty-shaded",
                   "grpc-okhttp",
                   "grpc-protobuf",
                   "grpc-services",
