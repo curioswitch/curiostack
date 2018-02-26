@@ -131,7 +131,7 @@ public class DeployPodTask extends DefaultTask {
       int heapSize = (int) (deploymentConfig.memoryMb() * 0.5);
       StringBuilder javaOpts = new StringBuilder();
       javaOpts
-          .append("-XX:+PrintFlagsFinal -Xms")
+          .append("-Xms")
           .append(heapSize)
           .append("m ")
           .append("-Xmx")

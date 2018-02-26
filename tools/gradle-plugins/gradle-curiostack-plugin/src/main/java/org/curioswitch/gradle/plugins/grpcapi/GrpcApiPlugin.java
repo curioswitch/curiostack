@@ -34,7 +34,6 @@ import com.google.protobuf.gradle.ProtobufConfigurator.JavaGenerateProtoTaskColl
 import com.google.protobuf.gradle.ProtobufConvention;
 import com.google.protobuf.gradle.ProtobufPlugin;
 import com.moowork.gradle.node.NodeExtension;
-import com.moowork.gradle.node.NodePlugin;
 import com.moowork.gradle.node.npm.NpmTask;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.IOException;
@@ -106,7 +105,6 @@ public class GrpcApiPlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.getPluginManager().apply(JavaLibraryPlugin.class);
-    project.getPluginManager().apply(NodePlugin.class);
 
     project.getExtensions().create(ImmutableGrpcExtension.NAME, GrpcExtension.class);
 
@@ -207,16 +205,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
         p -> {
           ImmutableGrpcExtension config = project.getExtensions().getByType(GrpcExtension.class);
 
-          // We expect using yarn workspaces, so these should not be necessary even for web
-          // projects.
-          project.getTasks().getByName("yarn").setEnabled(false);
-          project.getTasks().getByName("yarnSetup").setEnabled(false);
-
-          if (!config.web()) {
-            // There isn't a good way to control the application of the node plugin via the web
-            // property, so just disable some popular automatic tasks.
-            project.getTasks().getByName("nodeSetup").setEnabled(false);
-          } else {
+          if (config.web()) {
             String currentProjectPath = project.getPath().replace(':', '_');
             NpmTask installTsProtocGen =
                 project
@@ -243,12 +232,16 @@ public class GrpcApiPlugin implements Plugin<Project> {
                         t -> {
                           String nodePath =
                               project
+                                  .getRootProject()
                                   .getExtensions()
                                   .getByType(NodeExtension.class)
                                   .getVariant()
                                   .getNodeExec();
                           writeResolvedScript(
-                              project, nodePath, "protoc-gen-ts-resolved", "./protoc-gen-ts");
+                              project,
+                              nodePath,
+                              "protoc-gen-ts-resolved",
+                              "ts-protoc-gen/lib/ts_index");
                         });
             addResolvedPluginScript
                 .getOutputs()
