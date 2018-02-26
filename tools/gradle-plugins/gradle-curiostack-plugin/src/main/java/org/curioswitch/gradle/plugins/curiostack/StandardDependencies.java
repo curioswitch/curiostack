@@ -223,7 +223,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.micrometer")
-              .version("1.0.0")
+              .version("1.0.0-rc.9")
               .addModules("micrometer-registry-prometheus")
               .build(),
           ImmutableDependencySet.builder()
