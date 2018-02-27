@@ -99,12 +99,16 @@ public interface ImmutableDeploymentExtension {
       return 256;
     }
 
+    default boolean request() {
+      return false;
+    }
+
     default String image() {
       return "deployment:latest";
     }
 
     default int jvmHeapMb() {
-      return (int) (memoryMb() * 0.8);
+      return (int) (memoryMb() * 0.5);
     }
 
     default String healthCheckPath() {
