@@ -586,8 +586,14 @@ public class CuriostackPlugin implements Plugin<Project> {
           rehash.path(node.getVariant().getNpmBinDir().toPath());
         });
 
-    project.getTasks().findByName("nodeSetup").onlyIf(t -> !node.getWorkDir().exists());
-    project.getTasks().findByName("yarnSetup").onlyIf(t -> !node.getYarnWorkDir().exists());
+    project
+        .getTasks()
+        .findByName("nodeSetup")
+        .onlyIf(t -> !node.getVariant().getNodeDir().exists());
+    project
+        .getTasks()
+        .findByName("yarnSetup")
+        .onlyIf(t -> !node.getVariant().getYarnDir().exists());
 
     // Since yarn is very fast, go ahead and clean node_modules too to prevent
     // inconsistency.
