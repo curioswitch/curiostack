@@ -71,8 +71,8 @@ public class FileWriter {
       this.httpClient = httpClient;
     }
 
-    /** Restore a {@link FileWriter} based on the serialized state. */
-    public FileWriter restore(ByteString serializedState, RequestContext ctx) {
+    /** Resume a {@link FileWriter} based on the serialized state. */
+    public ListenableFuture<FileWriter> resume(ByteString serializedState, RequestContext ctx) {
       final FileWriterState state;
       try {
         state = FileWriterState.parseFrom(serializedState);
@@ -86,8 +86,10 @@ public class FileWriter {
       } else {
         unfinishedChunk = null;
       }
-      return new FileWriter(
-          state.getUploadUrl(), ctx, httpClient, state.getFilePosition(), unfinishedChunk);
+      FileWriter writer =
+          new FileWriter(
+              state.getUploadUrl(), ctx, httpClient, state.getFilePosition(), unfinishedChunk);
+      return immediateFuture(writer);
     }
   }
 
@@ -192,6 +194,16 @@ public class FileWriter {
       builder.setUnfinished(ByteString.copyFrom(unfinishedChunk.nioBuffer().slice()));
     }
     return builder.build().toByteString();
+  }
+
+  /**
+   * Releases any buffers owned by this {@link FileWriter}. This should be called in error-cases
+   * where the file upload will be resumed with a different {@link FileWriter}.
+   */
+  public void release() {
+    if (unfinishedChunk != null) {
+      unfinishedChunk.release();
+    }
   }
 
   private ListenableFuture<Void> uploadChunk(ByteBuf chunk, boolean endOfFile) {
