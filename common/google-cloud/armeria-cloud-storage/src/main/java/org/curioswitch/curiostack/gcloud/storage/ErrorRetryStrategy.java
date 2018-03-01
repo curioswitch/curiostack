@@ -33,9 +33,13 @@ import com.linecorp.armeria.common.HttpStatusClass;
 import com.linecorp.armeria.internal.HttpHeaderSubscriber;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 enum ErrorRetryStrategy implements RetryStrategy<HttpRequest, HttpResponse> {
   INSTANCE;
+
+  private static final Logger logger = LoggerFactory.getLogger(ErrorRetryStrategy.class);
 
   private static final Optional<Backoff> DEFAULT_BACKOFF =
       Optional.of(RetryStrategy.defaultBackoff);
@@ -51,11 +55,13 @@ enum ErrorRetryStrategy implements RetryStrategy<HttpRequest, HttpResponse> {
     return future.handle(
         (headers, t) -> {
           if (t != null) {
+            logger.info("Exception when handling response, retrying.", t);
             return DEFAULT_BACKOFF;
           }
           if (headers != null) {
             final HttpStatus resStatus = headers.status();
             if (resStatus.codeClass().equals(HttpStatusClass.SERVER_ERROR)) {
+              logger.info("HTTP Error {} when handling response, retrying.", resStatus, t);
               return DEFAULT_BACKOFF;
             }
           }
