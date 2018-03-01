@@ -30,12 +30,12 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpHeaders;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpStatusClass;
 import com.linecorp.armeria.common.RequestContext;
-import com.linecorp.armeria.unsafe.ByteBufHttpData;
 import com.spotify.futures.CompletableFuturesExtra;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -211,7 +211,7 @@ public class FileWriter {
   }
 
   private CompletableFuture<Void> doUploadChunk(ByteBuf chunk, boolean endOfFile) {
-    ByteBufHttpData data = new ByteBufHttpData(chunk, true);
+
     int length = chunk.readableBytes();
     long limit = filePosition + length;
 
@@ -231,6 +231,14 @@ public class FileWriter {
     HttpHeaders headers =
         HttpHeaders.of(HttpMethod.PUT, uploadUrl)
             .set(HttpHeaderNames.CONTENT_RANGE, range.toString());
+
+
+
+    // TODO(choko): Switch back to this after https://github.com/line/armeria/pull/1038
+    // and https://github.com/line/armeria/pull/1012 are released.
+    // HttpData data = new ByteBufHttpData(chunk, true);
+    HttpData data  = HttpData.of(chunk);
+
     chunk.retain();
     return httpClient
         .execute(headers, data)
