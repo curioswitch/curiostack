@@ -37,7 +37,6 @@ import io.fabric8.kubernetes.api.model.SecretBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
@@ -73,6 +72,7 @@ import org.curioswitch.gradle.plugins.gcloud.ClusterExtension;
 import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
 import org.curioswitch.gradle.plugins.gcloud.ImmutableClusterExtension;
 import org.curioswitch.gradle.plugins.gcloud.ImmutableGcloudExtension;
+import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
@@ -169,7 +169,10 @@ public class RequestNamespaceCertTask extends DefaultTask {
 
     String command =
         config.download()
-            ? new File(config.platformConfig().gcloudBinDir(), "kubectl").getAbsolutePath()
+            ? CommandUtil.getGcloudSdkBinDir(getProject())
+                .resolve("kubectl")
+                .toAbsolutePath()
+                .toString()
             : "kubectl";
     getProject()
         .exec(

@@ -44,6 +44,7 @@ import com.moowork.gradle.node.yarn.YarnInstallTask;
 import com.moowork.gradle.node.yarn.YarnTask;
 import com.palantir.baseline.plugins.BaselineIdea;
 import groovy.lang.Closure;
+import groovy.util.Node;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.File;
@@ -54,6 +55,11 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
 import me.champeau.gradle.JMHPlugin;
 import me.champeau.gradle.JMHPluginExtension;
 import nebula.plugin.resolutionrules.ResolutionRulesPlugin;
@@ -75,6 +81,7 @@ import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.internal.plugins.DslObject;
@@ -100,8 +107,8 @@ import org.gradle.process.ExecSpec;
 public class CuriostackPlugin implements Plugin<Project> {
 
   private static final String GOOGLE_JAVA_FORMAT_VERSION = "1.5";
-  private static final String NODE_VERSION = "9.2.0";
-  private static final String YARN_VERSION = "1.3.2";
+  private static final String NODE_VERSION = "9.6.1";
+  private static final String YARN_VERSION = "1.5.0";
 
   @Override
   public void apply(Project rootProject) {
@@ -151,6 +158,8 @@ public class CuriostackPlugin implements Plugin<Project> {
                     t.path(CommandUtil.getPythonBinDir(rootProject, "dev"))
                         .path(CommandUtil.getGcloudSdkBinDir(rootProject)));
 
+    setupNode(rootProject, rehash);
+
     rootProject
         .getTasks()
         .create(
@@ -159,6 +168,7 @@ public class CuriostackPlugin implements Plugin<Project> {
               t.dependsOn("gcloudSetup");
               t.dependsOn("pythonSetup");
               t.dependsOn("nodeSetup");
+              t.dependsOn("yarnSetup");
               t.dependsOn("rehash");
             });
 
@@ -200,6 +210,25 @@ public class CuriostackPlugin implements Plugin<Project> {
       rootProject.getTasks().getByName("ideaProject").dependsOn(baselineUpdateConfig);
     }
 
+    rootProject.afterEvaluate(
+        (p) ->
+            rootProject
+                .getPlugins()
+                .withType(
+                    IdeaPlugin.class,
+                    plugin -> {
+                      plugin
+                          .getModel()
+                          .getProject()
+                          .getIpr()
+                          .withXml(provider -> setupProjectXml(rootProject, provider));
+                      plugin
+                          .getModel()
+                          .getWorkspace()
+                          .getIws()
+                          .withXml(provider -> setupWorkspaceXml(rootProject, provider));
+                    }));
+
     setupPyenvs(rootProject);
 
     rootProject.allprojects(
@@ -221,68 +250,9 @@ public class CuriostackPlugin implements Plugin<Project> {
                     license.mapping(
                         ImmutableMap.of(
                             "conf", "DOUBLESLASH_STYLE",
-                            "proto", "JAVADOC_STYLE",
+                            "java", "SLASHSTAR_STYLE",
+                            "proto", "SLASHSTAR_STYLE",
                             "yml", "SCRIPT_STYLE"));
-                  });
-
-          project
-              .getPlugins()
-              .withType(
-                  NodePlugin.class,
-                  unused -> {
-                    NodeExtension node = project.getExtensions().getByType(NodeExtension.class);
-                    node.setVersion(NODE_VERSION);
-                    node.setYarnVersion(YARN_VERSION);
-                    node.setDownload(true);
-
-                    Closure<?> pathOverrider =
-                        LambdaClosure.of(
-                            (ExecSpec exec) -> {
-                              exec.getEnvironment()
-                                  .put(
-                                      "PATH",
-                                      CommandUtil.getPythonBinDir(project, "build")
-                                          + File.pathSeparator
-                                          + exec.getEnvironment().get("PATH"));
-                            });
-
-                    project
-                        .getTasks()
-                        .withType(NodeTask.class, t -> t.setExecOverrides(pathOverrider));
-                    project
-                        .getTasks()
-                        .withType(NpmTask.class, t -> t.setExecOverrides(pathOverrider));
-                    project
-                        .getTasks()
-                        .withType(YarnTask.class, t -> t.setExecOverrides(pathOverrider));
-
-                    if (project != project.getRootProject()) {
-                      // We only execute yarn in the root task since we use workspaces.
-                      project.getTasks().findByName("yarn").setEnabled(false);
-                    } else {
-                      node.setWorkDir(CommandUtil.getNodeDir(project).toFile());
-                      node.setNpmWorkDir(CommandUtil.getNpmDir(project).toFile());
-                      node.setYarnWorkDir(CommandUtil.getYarnDir(project).toFile());
-
-                      project.afterEvaluate(
-                          n -> {
-                            rehash.path(node.getVariant().getNodeBinDir().toPath());
-                            rehash.path(node.getVariant().getYarnBinDir().toPath());
-                            rehash.path(node.getVariant().getNpmBinDir().toPath());
-                          });
-                    }
-
-                    // Since yarn is very fast, go ahead and clean node_modules too to prevent
-                    // inconsistency.
-                    project.getPluginManager().apply(BasePlugin.class);
-                    project
-                        .getTasks()
-                        .getByName(
-                            BasePlugin.CLEAN_TASK_NAME,
-                            task -> {
-                              Delete castTask = (Delete) task;
-                              castTask.delete(project.file("node_modules"));
-                            });
                   });
         });
 
@@ -584,6 +554,57 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
   }
 
+  private static void setupNode(Project project, CreateShellConfigTask rehash) {
+    NodeExtension node = project.getExtensions().getByType(NodeExtension.class);
+    node.setVersion(NODE_VERSION);
+    node.setYarnVersion(YARN_VERSION);
+    node.setDownload(true);
+
+    Closure<?> pathOverrider =
+        LambdaClosure.of(
+            (ExecSpec exec) -> {
+              exec.getEnvironment()
+                  .put(
+                      "PATH",
+                      CommandUtil.getPythonBinDir(project, "build")
+                          + File.pathSeparator
+                          + exec.getEnvironment().get("PATH"));
+            });
+
+    project.getTasks().withType(NodeTask.class, t -> t.setExecOverrides(pathOverrider));
+    project.getTasks().withType(NpmTask.class, t -> t.setExecOverrides(pathOverrider));
+    project.getTasks().withType(YarnTask.class, t -> t.setExecOverrides(pathOverrider));
+
+    node.setWorkDir(CommandUtil.getNodeDir(project).toFile());
+    node.setNpmWorkDir(CommandUtil.getNpmDir(project).toFile());
+    node.setYarnWorkDir(CommandUtil.getYarnDir(project).toFile());
+
+    project.afterEvaluate(
+        n -> {
+          rehash.path(node.getVariant().getNodeBinDir().toPath());
+          rehash.path(node.getVariant().getYarnBinDir().toPath());
+          rehash.path(node.getVariant().getNpmBinDir().toPath());
+        });
+
+    project
+        .getTasks()
+        .findByName("nodeSetup")
+        .onlyIf(t -> !node.getVariant().getNodeDir().exists());
+    project
+        .getTasks()
+        .findByName("yarnSetup")
+        .onlyIf(t -> !node.getVariant().getYarnDir().exists());
+
+    // Since yarn is very fast, go ahead and clean node_modules too to prevent
+    // inconsistency.
+    project.getPluginManager().apply(BasePlugin.class);
+    project
+        .getTasks()
+        .getByName(
+            BasePlugin.CLEAN_TASK_NAME,
+            task -> ((Delete) task).delete(project.file("node_modules")));
+  }
+
   private static void setupPyenvs(Project rootProject) {
     PythonEnvsExtension envs = rootProject.getExtensions().getByType(PythonEnvsExtension.class);
 
@@ -597,5 +618,80 @@ public class CuriostackPlugin implements Plugin<Project> {
     envs.virtualenv("dev", "python2");
 
     rootProject.getTasks().create("pythonSetup", t -> t.dependsOn("build_envs"));
+  }
+
+  private static Optional<Node> findChild(Node node, Predicate<Node> predicate) {
+    // Should work.
+    @SuppressWarnings("unchecked")
+    List<Node> children = (List<Node>) node.children();
+    return children.stream().filter(predicate).findFirst();
+  }
+
+  private static Node findOrCreateChild(Node parent, String type, String name) {
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("name", name);
+    return findChild(
+            parent, node -> node.name().equals(type) && node.attribute("name").equals(name))
+        .orElseGet(() -> parent.appendNode(type, attributes));
+  }
+
+  private static void setOption(Node component, String name, String value) {
+    findOrCreateChild(component, "option", name).attributes().put("value", value);
+  }
+
+  private static void setProperty(Node component, String name, String value) {
+    findOrCreateChild(component, "property", name).attributes().put("value", value);
+  }
+
+  private static void setupProjectXml(Project project, XmlProvider xml) {
+    NodeExtension nodeConfig = project.getExtensions().getByType(NodeExtension.class);
+    Node typescriptCompiler = findOrCreateChild(xml.asNode(), "component", "TypeScriptCompiler");
+    setOption(
+        typescriptCompiler,
+        "typeScriptServiceDirectory",
+        project.file("node_modules/typescript").getAbsolutePath());
+    setOption(
+        typescriptCompiler, "nodeInterpreterTextField", nodeConfig.getVariant().getNodeExec());
+    setOption(typescriptCompiler, "versionType", "SERVICE_DIRECTORY");
+
+    Node angularComponent = findOrCreateChild(xml.asNode(), "component", "AngularJSSettings");
+    setOption(angularComponent, "useService", "false");
+
+    Node inspectionManager =
+        findOrCreateChild(xml.asNode(), "component", "InspectionProjectProfileManager");
+    Node profile =
+        findChild(inspectionManager, n -> n.name().equals("profile"))
+            .orElseGet(
+                () -> inspectionManager.appendNode("profile", ImmutableMap.of("version", "1.0")));
+    setOption(profile, "myName", "Project Default");
+    findChild(
+            profile,
+            n -> n.name().equals("inspection_tool") && "TsLint".equals(n.attribute("class")))
+        .orElseGet(
+            () ->
+                profile.appendNode(
+                    "inspection_tool",
+                    ImmutableMap.of(
+                        "class",
+                        "TsLint",
+                        "enabled",
+                        "true",
+                        "level",
+                        "ERROR",
+                        "enabled_by_default",
+                        "true")));
+  }
+
+  private static void setupWorkspaceXml(Project project, XmlProvider xml) {
+    NodeExtension nodeConfig = project.getExtensions().getByType(NodeExtension.class);
+    Node properties = findOrCreateChild(xml.asNode(), "component", "PropertiesComponent");
+    setProperty(
+        properties, "node.js.path.for.package.tslint", nodeConfig.getVariant().getNodeExec());
+    setProperty(properties, "node.js.detected.package.tslint", "true");
+    setProperty(
+        properties,
+        "node.js.selected.package.tslint",
+        project.file("node_modules/tslint").getAbsolutePath());
+    setProperty(properties, "typescript-compiler-editor-notification", "false");
   }
 }

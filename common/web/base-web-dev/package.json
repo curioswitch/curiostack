@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-web-dev",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Curiostack's base dev dependencies for browser applications.",
   "main": "build/index.js",
   "bin": {
@@ -16,7 +16,7 @@
     "//": "Normally we would lint before build, but we are actually building the lint config here.",
     "postbuild": "yarn run lint",
     "prepublish": "yarn run build",
-    "lint": "yarn run tslint --project tsconfig.json"
+    "lint": "tslint --project tsconfig.json"
   },
   "dependencies": {
     "@curiostack/base-node-dev": "0.0.3",

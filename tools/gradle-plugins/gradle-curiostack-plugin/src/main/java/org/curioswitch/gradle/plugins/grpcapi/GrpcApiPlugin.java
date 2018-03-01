@@ -34,7 +34,6 @@ import com.google.protobuf.gradle.ProtobufConfigurator.JavaGenerateProtoTaskColl
 import com.google.protobuf.gradle.ProtobufConvention;
 import com.google.protobuf.gradle.ProtobufPlugin;
 import com.moowork.gradle.node.NodeExtension;
-import com.moowork.gradle.node.NodePlugin;
 import com.moowork.gradle.node.npm.NpmTask;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.IOException;
@@ -72,12 +71,11 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
   private static final boolean IS_WINDOWS = Os.isFamily(Os.FAMILY_WINDOWS);
 
-  private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.1";
+  private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.3";
   private static final String GOOGLE_PROTOBUF_VERSION = "3.5.0";
-  private static final String GRPC_WEB_CLIENT_VERSION = "0.3.1";
+  private static final String GRPC_WEB_CLIENT_VERSION = "0.5.0";
   private static final String TS_PROTOC_GEN_VERSION = "0.4.0";
   private static final String TYPES_GOOGLE_PROTOBUF_VERSION = "3.2.7";
-  private static final String TYPESCRIPT_VERSION = "2.6.2";
 
   private static final String RESOLVED_PLUGIN_SCRIPT_TEMPLATE =
       "#!|NODE_PATH|\n" + "" + "require('|IMPORTED_MODULE|');";
@@ -107,7 +105,6 @@ public class GrpcApiPlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.getPluginManager().apply(JavaLibraryPlugin.class);
-    project.getPluginManager().apply(NodePlugin.class);
 
     project.getExtensions().create(ImmutableGrpcExtension.NAME, GrpcExtension.class);
 
@@ -208,18 +205,14 @@ public class GrpcApiPlugin implements Plugin<Project> {
         p -> {
           ImmutableGrpcExtension config = project.getExtensions().getByType(GrpcExtension.class);
 
-          // We expect using yarn workspaces, so these should not be necessary even for web
-          // projects.
-          project.getTasks().getByName("yarn").setEnabled(false);
-          project.getTasks().getByName("yarnSetup").setEnabled(false);
-
-          if (!config.web()) {
-            // There isn't a good way to control the application of the node plugin via the web
-            // property, so just disable some popular automatic tasks.
-            project.getTasks().getByName("nodeSetup").setEnabled(false);
-          } else {
+          if (config.web()) {
+            String currentProjectPath = project.getPath().replace(':', '_');
             NpmTask installTsProtocGen =
-                project.getTasks().create("installTsProtocGen", NpmTask.class);
+                project
+                    .getRootProject()
+                    .getTasks()
+                    .create("installTsProtocGen_" + currentProjectPath, NpmTask.class);
+            installTsProtocGen.setWorkingDir(project.getProjectDir());
             installTsProtocGen.setArgs(
                 ImmutableList.of("install", "--no-save", "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION));
             installTsProtocGen.getInputs().property("ts-protoc-gen-version", TS_PROTOC_GEN_VERSION);
@@ -234,17 +227,21 @@ public class GrpcApiPlugin implements Plugin<Project> {
                 project
                     .getTasks()
                     .create("addResolvedPluginScript")
-                    .dependsOn("installTsProtocGen")
+                    .dependsOn(installTsProtocGen)
                     .doFirst(
                         t -> {
                           String nodePath =
                               project
+                                  .getRootProject()
                                   .getExtensions()
                                   .getByType(NodeExtension.class)
                                   .getVariant()
                                   .getNodeExec();
                           writeResolvedScript(
-                              project, nodePath, "protoc-gen-ts-resolved", "./protoc-gen-ts");
+                              project,
+                              nodePath,
+                              "protoc-gen-ts-resolved",
+                              "ts-protoc-gen/lib/ts_index");
                         });
             addResolvedPluginScript
                 .getOutputs()
@@ -290,7 +287,6 @@ public class GrpcApiPlugin implements Plugin<Project> {
                                     .replaceFirst(
                                         "\\|CURIOSTACK_BASE_NODE_DEV_VERSION\\|",
                                         CURIOSTACK_BASE_NODE_DEV_VERSION)
-                                    .replaceFirst("\\|TYPESCRIPT_VERSION\\|", TYPESCRIPT_VERSION)
                                     .getBytes(StandardCharsets.UTF_8));
                             Files.write(
                                 tsConfigPath, TSCONFIG_TEMPLATE.getBytes(StandardCharsets.UTF_8));
