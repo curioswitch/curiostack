@@ -28,6 +28,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.collect.ImmutableList;
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.logging.LoggingClientBuilder;
 import com.linecorp.armeria.client.retry.RetryingHttpClient;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
@@ -88,7 +89,8 @@ public abstract class StorageModule {
   @Singleton
   @ForStorage
   static HttpClient httpClient(GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
-    return new ClientBuilder("none+https://www.googleapis.com/upload/storage/v1/")
+    return new ClientBuilder("none+h1://www.googleapis.com/upload/storage/v1/")
+        .decorator(HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator())
         .decorator(HttpRequest.class, HttpResponse.class, credentialsDecorator.newDecorator())
         .decorator(
             HttpRequest.class,
