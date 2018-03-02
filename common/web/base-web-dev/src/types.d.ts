@@ -23,5 +23,5 @@
  */
 
 declare module 'webpack-serve' {
-  export default function serve(config: Webpack4Configuration): void;
+  export default function serve(config: Webpack4Configuration): Promise<{}>;
 }

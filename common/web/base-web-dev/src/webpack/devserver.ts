@@ -27,8 +27,14 @@ import serve from 'webpack-serve';
 
 import config from './dev';
 
+process.on('SIGINT', () => {
+  console.log('sigint');
+  process.exit();
+});
+
 serve({
   config,
-  http2: true,
   port: 3000,
+}).catch(() => {
+  process.exit(1);
 });

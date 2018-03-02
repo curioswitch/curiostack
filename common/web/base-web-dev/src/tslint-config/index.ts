@@ -31,6 +31,7 @@ export = {
   ],
   rules: {
     'import-name': false,
+    'interface-name': false,
     'jsx-boolean-value': false,
     'no-magic-numbers': ['error', { ignore: [-1, 0, 1] }],
   },
