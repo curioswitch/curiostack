@@ -31,7 +31,6 @@ import com.typesafe.config.ConfigBeanFactory;
 import dagger.Module;
 import dagger.Provides;
 import io.lettuce.core.cluster.ClusterClientOptions;
-import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.resource.DefaultClientResources;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -62,12 +61,7 @@ public abstract class RedisModule {
                     new MicrometerCommandLatencyCollector(DEFAULT_METER_ID_PREFIX, registry))
                 .build(),
             config.getUrl());
-    client.setOptions(
-        ClusterClientOptions.builder()
-            .topologyRefreshOptions(
-                ClusterTopologyRefreshOptions.builder().enablePeriodicRefresh().build())
-            .validateClusterNodeMembership(false)
-            .build());
+    client.setOptions(ClusterClientOptions.builder().validateClusterNodeMembership(false).build());
     return client;
   }
 }

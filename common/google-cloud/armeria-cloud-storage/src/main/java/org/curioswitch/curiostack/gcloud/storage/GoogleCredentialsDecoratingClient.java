@@ -90,7 +90,8 @@ class GoogleCredentialsDecoratingClient extends SimpleDecoratingClient<HttpReque
                   }
                 });
             try {
-              resFuture.complete(delegate().execute(ctx, req));
+              ctx.contextAwareEventLoop()
+                  .submit(() -> resFuture.complete(delegate().execute(ctx, req)));
             } catch (Exception e) {
               resFuture.completeExceptionally(e);
             }
