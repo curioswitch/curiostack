@@ -68,7 +68,7 @@ const configure = (options: any): Webpack4Configuration => ({
         use: 'raw-loader',
       },
       {
-        test: /\.(eot|svg|otf|ttf|woff|woff2)$/,
+        test: /\.(eot|svg|otf|ttf|woff|woff2|webm|m4a|mp4)$/,
         use: 'file-loader',
       },
       {
@@ -103,19 +103,6 @@ const configure = (options: any): Webpack4Configuration => ({
       {
         test: /\.html$/,
         use: 'html-loader',
-      },
-      {
-        test: /\.json$/,
-        use: 'json-loader',
-      },
-      {
-        test: /\.(mp4|webm)$/,
-        use: {
-          loader: 'url-loader',
-          options: {
-            limit: 10000,
-          },
-        },
       },
     ],
   },

@@ -22,20 +22,6 @@ import App from 'containers/App';
 // Import Language Provider
 import LanguageProvider from 'containers/LanguageProvider';
 
-// Load the favicon and the manifest.json file
-/* eslint-disable import/no-unresolved, import/extensions */
-import '!file-loader?name=[name].[ext]!./images/favicon.ico';
-import '!file-loader?name=[name].[ext]!./images/icon-72x72.png';
-import '!file-loader?name=[name].[ext]!./images/icon-96x96.png';
-import '!file-loader?name=[name].[ext]!./images/icon-128x128.png';
-import '!file-loader?name=[name].[ext]!./images/icon-144x144.png';
-import '!file-loader?name=[name].[ext]!./images/icon-152x152.png';
-import '!file-loader?name=[name].[ext]!./images/icon-192x192.png';
-import '!file-loader?name=[name].[ext]!./images/icon-384x384.png';
-import '!file-loader?name=[name].[ext]!./images/icon-512x512.png';
-import '!file-loader?name=[name].[ext]!./manifest.json';
-/* eslint-enable import/no-unresolved, import/extensions */
-
 import configureStore from './store';
 
 // Import i18n messages

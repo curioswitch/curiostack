@@ -39,10 +39,8 @@ const plugins = [
 
 const configuration: Webpack4Configuration = configureBase({
   plugins,
-  entry: [
-    'webpack-hot-middleware/client',
-    path.join(process.cwd(), 'src/app.js'),
-  ],
+  mode: 'development',
+  entry: [path.join(process.cwd(), 'src/app.js')],
   // Don't use hashes in dev mode for better performance
   output: {
     filename: '[name].js',
