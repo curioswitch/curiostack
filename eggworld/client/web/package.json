@@ -1,5 +1,5 @@
 {
-  "name": "react-boilerplate",
+  "name": "@curiostack/eggs-world",
   "version": "3.4.0",
   "description": "A highly scalable, offline-first foundation with the best DX and a focus on performance and best practices",
   "repository": {
@@ -219,7 +219,7 @@
     "express": "4.16.2",
     "fontfaceobserver": "2.0.13",
     "google-protobuf": "3.5.0",
-    "grpc-web-client": "0.3.1",
+    "grpc-web-client": "0.5.0",
     "history": "4.7.2",
     "immutable": "3.8.2",
     "intl": "1.2.5",
