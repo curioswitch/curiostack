@@ -1,0 +1,41 @@
+{
+  "name": "@curiostack/base-web",
+  "version": "0.0.1",
+  "description": "Curiostack's base runtime dependencies for browser applications.",
+  "repository": "curioswitch/curiostack",
+  "author": "Choko <choko@curioswitch.org>",
+  "license": "MIT",
+  "scripts": {
+    "prebuild": "yarn run lint",
+    "build": "tsc",
+    "lint": "tslint --project ."
+  },
+  "dependencies": {
+    "immutable": "4.0.0-rc.9",
+    "react": "16.2.0",
+    "react-dom": "16.2.0",
+    "react-helmet": "5.2.0",
+    "react-intl": "2.4.0",
+    "react-loadable": "5.3.1",
+    "react-redux": "5.0.6",
+    "react-router-dom": "4.2.2",
+    "react-router-redux": "5.0.0-alpha.9",
+    "redux": "4.0.0-beta.2",
+    "redux-immutable": "4.0.0",
+    "redux-saga": "0.16.0",
+    "styled-components": "3.1.6",
+    "styled-components-ts": "0.0.8",
+    "typesafe-actions": "1.1.2",
+    "utility-types": "1.0.0"
+  },
+  "devDependencies": {
+    "@curiostack/base-node-dev": "0.0.3",
+    "@types/history": "4.6.2",
+    "@types/react-redux": "5.0.14",
+    "@types/react-router-dom": "4.2.3",
+    "@types/react-router-redux": "5.0.11",
+    "@types/react-intl": "2.3.5",
+    "@types/redux-immutable": "3.0.38",
+    "@types/webpack-env": "1.13.5"
+  }
+}

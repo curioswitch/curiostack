@@ -9,6 +9,7 @@
 import 'babel-polyfill';
 
 // Import all the third party stuff
+import LanguageProvider from '@curiostack/base-web/containers/LanguageProvider';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
@@ -18,9 +19,6 @@ import 'sanitize.css/sanitize.css';
 
 // Import root app
 import App from 'containers/App';
-
-// Import Language Provider
-import LanguageProvider from 'containers/LanguageProvider';
 
 import configureStore from './store';
 
@@ -33,7 +31,7 @@ import './global-styles';
 // Create redux store with history
 const initialState = {};
 const history = createHistory();
-const store = configureStore(initialState, history);
+const store = configureStore(history);
 const MOUNT_NODE = document.getElementById('app');
 
 const render = (messages) => {

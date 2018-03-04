@@ -22,20 +22,16 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    '@curiostack/base-node-dev/build/tslint-config',
-    'tslint-config-airbnb',
-    'tslint-react',
-    'tslint-config-prettier',
-  ],
-  rules: {
-    'import-name': false,
-    'interface-name': false,
-    'jsx-boolean-value': false,
-    'no-implicit-dependencies': false,
-    'no-submodule-imports': false,
-    'no-magic-numbers': ['error', { ignore: [-1, 0, 1] }],
-    'variable-name': false,
-  },
-};
+import { Record } from 'immutable';
+import { RouterState } from 'react-router-redux';
+
+import { LanguageState } from '../containers/LanguageProvider/reducer';
+
+export interface GlobalStateBase {
+  readonly language: LanguageState;
+  readonly route: RouterState;
+}
+
+export interface GlobalStateRecordBase
+  extends Record<GlobalStateBase>,
+    GlobalStateBase {}

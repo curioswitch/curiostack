@@ -22,20 +22,22 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    '@curiostack/base-node-dev/build/tslint-config',
-    'tslint-config-airbnb',
-    'tslint-react',
-    'tslint-config-prettier',
-  ],
-  rules: {
-    'import-name': false,
-    'interface-name': false,
-    'jsx-boolean-value': false,
-    'no-implicit-dependencies': false,
-    'no-submodule-imports': false,
-    'no-magic-numbers': ['error', { ignore: [-1, 0, 1] }],
-    'variable-name': false,
-  },
-};
+import { GlobalStateBase } from './index';
+
+import { Record } from 'immutable';
+
+export const LOCALES: string[] = [];
+export const DEFAULT_LOCALE = '';
+
+// tslint:disable-next-line:no-empty-interface
+export interface GlobalState extends GlobalStateBase {}
+
+interface InitialStates {
+  [key: string]: Record<any>;
+}
+
+export const initialStates: InitialStates = {};
+
+throw new Error(
+  'base-web/curiostack is a stub and should not be imported. Did you define curiostsck.ts?',
+);

@@ -30,6 +30,21 @@ export interface Webpack4Configuration extends Configuration {
   mode: 'development' | 'production';
 }
 
+const typescriptLoader = [
+  'babel-loader',
+  {
+    loader: 'ts-loader',
+    options: {
+      compilerOptions: {
+        noEmit: false,
+      },
+      transpileOnly: process.env.NODE_ENV === 'production',
+      onlyCompileBundledFiles: true,
+      reportFiles: ['src/**/*.{ts,tsx}'],
+    },
+  },
+];
+
 const configure = (options: any): Webpack4Configuration => ({
   mode: options.mode,
   entry: options.entry,
@@ -50,17 +65,12 @@ const configure = (options: any): Webpack4Configuration => ({
       {
         test: /\.ts(x?)$/,
         exclude: /node_modules/,
-        use: [
-          {
-            loader: 'awesome-typescript-loader',
-            options: {
-              transpileOnly: process.env.NODE_ENV === 'production',
-              forceIsolatedModules: true,
-              useBabel: true,
-              reportFiles: ['src/**/*.{ts,tsx}'],
-            },
-          },
-        ],
+        use: typescriptLoader,
+      },
+      {
+        test: /\.ts(x?)$/,
+        include: /node_modules\/@curiostack\/base-web/,
+        use: typescriptLoader,
       },
       {
         test: /\.css$/,
@@ -117,7 +127,7 @@ const configure = (options: any): Webpack4Configuration => ({
   resolve: {
     modules: ['src', 'node_modules'],
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
-    mainFields: ['browser', 'jsnext:main', 'main'],
+    mainFields: ['browser', 'module', 'jsnext:main', 'main'],
   },
   devtool: options.devtool,
   target: 'web',
