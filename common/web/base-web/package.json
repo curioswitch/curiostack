@@ -11,7 +11,9 @@
     "lint": "tslint --project ."
   },
   "dependencies": {
+    "babel-polyfill": "6.26.0",
     "immutable": "4.0.0-rc.9",
+    "intl": "1.2.5",
     "react": "16.2.0",
     "react-dom": "16.2.0",
     "react-helmet": "5.2.0",
@@ -31,10 +33,10 @@
   "devDependencies": {
     "@curiostack/base-node-dev": "0.0.3",
     "@types/history": "4.6.2",
+    "@types/react-intl": "2.3.5",
     "@types/react-redux": "5.0.14",
     "@types/react-router-dom": "4.2.3",
     "@types/react-router-redux": "5.0.11",
-    "@types/react-intl": "2.3.5",
     "@types/redux-immutable": "3.0.38",
     "@types/webpack-env": "1.13.5"
   }

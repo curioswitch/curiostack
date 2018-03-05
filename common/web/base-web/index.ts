@@ -21,3 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+import React from 'react';
+
+import { LocaleMessages } from "./containers/LanguageProvider";
+
+export interface WebappConfig {
+  component: React.ComponentClass | React.StatelessComponent;
+  messages: LocaleMessages;
+  defaultLocale: string;
+  initialState: any;
+  mountNode?: string | HTMLElement;
+}
