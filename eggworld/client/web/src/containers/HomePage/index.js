@@ -20,8 +20,8 @@ import { connect } from 'react-redux';
 import { Stage } from 'react-konva';
 import { compose } from 'redux';
 
-import injectSaga from 'utils/injectSaga';
-import injectReducer from 'utils/injectReducer';
+import injectSaga from '@curiostack/base-web/hoc/injectSaga';
+import injectReducer from '@curiostack/base-web/hoc/injectReducer';
 
 import AnimationLayer from 'components/AnimationLayer';
 import FlowerLayer from 'components/FlowerLayer';

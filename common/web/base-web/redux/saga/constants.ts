@@ -22,16 +22,6 @@
  * SOFTWARE.
  */
 
-import { addLocaleData } from 'react-intl';
-
-interface Args {
-  locales: string[];
-  defaultLocale: string;
-}
-
-export default function init({ locales, defaultLocale }: Args) {
-  // TODO(choko): Try code-splitting of non-default locale data.
-  for (const locale of locales) {
-    addLocaleData(require(`react-intl/locale-data/${locale}`));
-  }
-}
+export const RESTART_ON_REMOUNT = '@@saga-injector/restart-on-remount';
+export const DAEMON = '@@saga-injector/daemon';
+export const ONCE_TILL_UNMOUNT = '@@saga-injector/once-till-unmount';

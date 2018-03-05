@@ -22,16 +22,48 @@
  * SOFTWARE.
  */
 
-import { addLocaleData } from 'react-intl';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Reducer } from 'redux';
 
-interface Args {
-  locales: string[];
-  defaultLocale: string;
+import getInjectors from '../redux/injector';
+
+interface Options {
+  key: string;
+  reducer: Reducer;
 }
 
-export default function init({ locales, defaultLocale }: Args) {
-  // TODO(choko): Try code-splitting of non-default locale data.
-  for (const locale of locales) {
-    addLocaleData(require(`react-intl/locale-data/${locale}`));
+/**
+ * Dynamically injects a reducer
+ *
+ * @param {string} key A key of the reducer
+ * @param {function} reducer A reducer that will be injected
+ *
+ */
+export default ({ key, reducer }: Options) => <TOriginalProps extends {}>(
+  WrappedComponent:
+    | React.ComponentClass<TOriginalProps>
+    | React.StatelessComponent<TOriginalProps>,
+) => {
+  class ReducerInjector extends React.Component<TOriginalProps> {
+    public static contextTypes = {
+      store: PropTypes.object.isRequired,
+    };
+
+    public static displayName = `withReducer(${WrappedComponent.displayName ||
+      WrappedComponent.name ||
+      'Component'})`;
+
+    private injectors = getInjectors(this.context.store);
+
+    public componentWillMount() {
+      const { injectReducer } = this.injectors;
+      injectReducer(key, reducer);
+    }
+
+    public render() {
+      return <WrappedComponent {...this.props} />;
+    }
   }
-}
+  return ReducerInjector;
+};

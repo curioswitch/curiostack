@@ -53,7 +53,7 @@ import createReducer, {
 
 const sagaMiddleware = createSagaMiddleware();
 
-export interface InjectableStore<S> extends Store<S> {
+export interface InjectableStore<S = any> extends Store<S> {
   runSaga: any;
   identityReducers: ReducersMapObject;
   injectedReducers: ReducersMapObject;
