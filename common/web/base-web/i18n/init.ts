@@ -24,14 +24,50 @@
 
 import { addLocaleData } from 'react-intl';
 
-interface Args {
-  locales: string[];
-  defaultLocale: string;
+import { LocaleMessages, Messages } from '../containers/LanguageProvider';
+
+function formatTranslationMessages(
+  messages: Messages,
+  defaultMessages: Messages,
+) {
+  return Object.keys(messages).reduce((formattedMessages, key) => {
+    let message = messages[key];
+    if (!message) {
+      message = defaultMessages[key];
+    }
+    return {
+      ...formattedMessages,
+      [key]: message,
+    };
+  }, {});
 }
 
-export default function init({ locales, defaultLocale }: Args) {
+export default function init(
+  defaultLocale: string,
+  translations: LocaleMessages,
+): LocaleMessages {
   // TODO(choko): Try code-splitting of non-default locale data.
-  for (const locale of locales) {
+  for (const locale of Object.keys(translations)) {
     addLocaleData(require(`react-intl/locale-data/${locale}`));
   }
+  const defaultMessages = formatTranslationMessages(
+    translations[defaultLocale],
+    {},
+  );
+  const formattedMessages = Object.keys(translations)
+    .filter((locale) => locale !== defaultLocale)
+    .reduce(
+      (localeMessages, locale) => ({
+        ...localeMessages,
+        [locale]: formatTranslationMessages(
+          translations[locale],
+          defaultMessages,
+        ),
+      }),
+      {},
+    );
+  return {
+    ...formattedMessages,
+    [defaultLocale]: defaultMessages,
+  };
 }

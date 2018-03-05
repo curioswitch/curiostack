@@ -22,8 +22,8 @@ import App from 'containers/App';
 
 import configureStore from './store';
 
-// Import i18n messages
-import { translationMessages } from './i18n';
+import initI18n from '@curiostack/base-web/i18n/init';
+import enTranslations from 'translations/en.json';
 
 // Import CSS reset and Global Styles
 import './global-styles';
@@ -33,6 +33,10 @@ const initialState = {};
 const history = createHistory();
 const store = configureStore(history);
 const MOUNT_NODE = document.getElementById('app');
+
+const translationMessages = initI18n('en', {
+  en: enTranslations,
+});
 
 const render = (messages) => {
   ReactDOM.render(
