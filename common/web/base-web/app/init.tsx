@@ -22,8 +22,6 @@
  * SOFTWARE.
  */
 
-import path from 'path';
-
 import 'babel-polyfill';
 
 import { createBrowserHistory, History } from 'history';

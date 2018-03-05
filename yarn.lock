@@ -144,6 +144,12 @@
   version "2.3.5"
   resolved "https://registry.yarnpkg.com/@types/react-intl/-/react-intl-2.3.5.tgz#eafa170d83c06302416075867a6fd219c1cf84d8"
 
+"@types/react-loadable@5.3.3":
+  version "5.3.3"
+  resolved "https://registry.yarnpkg.com/@types/react-loadable/-/react-loadable-5.3.3.tgz#ca0625ab41fb222083adcf767de36f0be329acec"
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-redux@5.0.14":
   version "5.0.14"
   resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-5.0.14.tgz#f3fc30dcbb2d20455a714f591cc27f77b4df09bb"

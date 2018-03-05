@@ -22,30 +22,11 @@
  * SOFTWARE.
  */
 
-import HtmlWebpackPlugin from 'html-webpack-plugin';
+declare module '*.json' {
+  const value: any;
+  export default value;
+}
 
-import configureBase, { Webpack4Configuration } from './base';
+declare module 'intl/locale-data/jsonp/*.js' {
 
-// tslint:disable-next-line:no-var-requires
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-
-const plugins = [
-  new ForkTsCheckerWebpackPlugin(),
-  new HtmlWebpackPlugin({
-    inject: true,
-    template: 'src/index.html',
-  }),
-];
-
-const configuration: Webpack4Configuration = configureBase({
-  plugins,
-  mode: 'development',
-  // Don't use hashes in dev mode for better performance
-  output: {
-    filename: '[name].js',
-    chunkFilename: '[name].chunk.js',
-  },
-  devtool: 'eval-source-map',
-});
-
-export default configuration;
+}

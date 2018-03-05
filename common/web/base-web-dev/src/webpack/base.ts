@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import fs from 'fs';
 import path from 'path';
 
 import { Configuration, DefinePlugin } from 'webpack';
@@ -45,9 +46,13 @@ const typescriptLoader = [
   },
 ];
 
+const entrypoint = ['src/app.js', 'src/app.ts']
+  .map((relativePath) => path.join(process.cwd(), relativePath))
+  .filter((p) => fs.existsSync(p))[0]!;
+
 const configure = (options: any): Webpack4Configuration => ({
   mode: options.mode,
-  entry: options.entry,
+  entry: [entrypoint],
   output: {
     path: path.resolve(process.cwd(), 'build/web'),
     publicPath: '/',
