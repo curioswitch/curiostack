@@ -23,19 +23,28 @@
  * SOFTWARE.
  */
 
+import path from 'path';
+import { promisify } from 'util';
+
+import rimraf from 'rimraf';
 import webpack from 'webpack';
 
 import config from '../webpack/prod';
 
-webpack(config, (err, stats) => {
-  console.log(
-    stats.toString({
-      colors: true,
-    }),
-  );
-  if (err !== null && err !== undefined) {
-    process.exit(1);
-  } else {
-    process.exit();
-  }
-});
+async function run() {
+  await promisify(rimraf)(path.resolve(process.cwd(), 'build'));
+
+  webpack(config, (err, stats) => {
+    console.log(
+      stats.toString({
+        colors: true,
+      }),
+    );
+    if (err !== null && err !== undefined) {
+      process.exit(1);
+    } else {
+      process.exit();
+    }
+  });
+}
+run();

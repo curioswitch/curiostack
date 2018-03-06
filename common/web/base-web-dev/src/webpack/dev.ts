@@ -22,13 +22,18 @@
  * SOFTWARE.
  */
 
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import { DefinePlugin } from 'webpack';
 
 import configureBase, { Webpack4Configuration } from './base';
 
-import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
-
 const plugins = [
+  new DefinePlugin({
+    'process.env': {
+      NODE_ENV: 'development',
+    },
+  }),
   new ForkTsCheckerWebpackPlugin(),
   new HtmlWebpackPlugin({
     inject: true,

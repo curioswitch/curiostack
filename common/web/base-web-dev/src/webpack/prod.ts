@@ -25,11 +25,17 @@
 import BrotliPlugin from 'brotli-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import WebappPlugin from 'webapp-webpack-plugin';
+import { DefinePlugin } from 'webpack';
 import ZopfliPlugin from 'zopfli-webpack-plugin';
 
 import configureBase, { Webpack4Configuration } from './base';
 
 const plugins = [
+  new DefinePlugin({
+    'process.env': {
+      NODE_ENV: 'production',
+    },
+  }),
   new HtmlWebpackPlugin({
     template: 'src/index.html',
     chunksSortMode: 'none',
