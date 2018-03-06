@@ -22,20 +22,30 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    '@curiostack/base-node-dev/build/tslint-config',
-    'tslint-config-airbnb',
-    'tslint-react',
-    'tslint-config-prettier',
-  ],
-  rules: {
-    'import-name': false,
-    'interface-name': false,
-    'jsx-boolean-value': false,
-    'no-implicit-dependencies': false,
-    'no-submodule-imports': false,
-    'no-magic-numbers': ['error', { ignore: [-1, 0, 1] }],
-    'variable-name': false,
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+
+import configureBase, { Webpack4Configuration } from './base';
+
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
+
+const plugins = [
+  new ForkTsCheckerWebpackPlugin(),
+  new HtmlWebpackPlugin({
+    inject: true,
+    template: 'src/index.html',
+    chunksSortMode: 'none',
+  }),
+];
+
+const configuration: Webpack4Configuration = configureBase({
+  plugins,
+  mode: 'development',
+  // Don't use hashes in dev mode for better performance
+  output: {
+    filename: '[name].js',
+    chunkFilename: '[name].chunk.js',
   },
-};
+  devtool: 'eval-source-map',
+});
+
+export default configuration;

@@ -22,20 +22,50 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    '@curiostack/base-node-dev/build/tslint-config',
-    'tslint-config-airbnb',
-    'tslint-react',
-    'tslint-config-prettier',
-  ],
-  rules: {
-    'import-name': false,
-    'interface-name': false,
-    'jsx-boolean-value': false,
-    'no-implicit-dependencies': false,
-    'no-submodule-imports': false,
-    'no-magic-numbers': ['error', { ignore: [-1, 0, 1] }],
-    'variable-name': false,
-  },
-};
+/**
+ *
+ * LanguageProvider
+ *
+ * this component connects the redux state language locale to the
+ * IntlProvider component and i18n messages (loaded from `app/translations`)
+ */
+
+import React from 'react';
+import { IntlProvider } from 'react-intl';
+import { connect } from 'react-redux';
+import { createSelector } from 'reselect';
+
+import { makeSelectLocale } from './selectors';
+
+export interface Messages {
+  [key: string]: string;
+}
+
+export interface LocaleMessages {
+  [locale: string]: Messages;
+}
+
+interface Props {
+  locale: string;
+  messages: LocaleMessages;
+}
+
+export class LanguageProvider extends React.PureComponent<Props> {
+  public render() {
+    return (
+      <IntlProvider
+        locale={this.props.locale}
+        key={this.props.locale}
+        messages={this.props.messages[this.props.locale]}
+      >
+        {React.Children.only(this.props.children)}
+      </IntlProvider>
+    );
+  }
+}
+
+const mapStateToProps = createSelector(makeSelectLocale(), (locale) => ({
+  locale,
+}));
+
+export default connect(mapStateToProps)(LanguageProvider);

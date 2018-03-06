@@ -22,20 +22,20 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    '@curiostack/base-node-dev/build/tslint-config',
-    'tslint-config-airbnb',
-    'tslint-react',
-    'tslint-config-prettier',
-  ],
-  rules: {
-    'import-name': false,
-    'interface-name': false,
-    'jsx-boolean-value': false,
-    'no-implicit-dependencies': false,
-    'no-submodule-imports': false,
-    'no-magic-numbers': ['error', { ignore: [-1, 0, 1] }],
-    'variable-name': false,
-  },
-};
+import React from 'react';
+
+import initApp from './app/init';
+import { LocaleMessages } from './containers/LanguageProvider';
+
+export interface WebappConfig {
+  component: React.ComponentClass | React.StatelessComponent;
+  messages: LocaleMessages;
+  defaultLocale: string;
+  initialState: any;
+  mountNode?: string | HTMLElement;
+  theme?: any;
+}
+
+export { GlobalStateBase } from './redux';
+
+export default initApp;

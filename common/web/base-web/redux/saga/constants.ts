@@ -22,20 +22,6 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    '@curiostack/base-node-dev/build/tslint-config',
-    'tslint-config-airbnb',
-    'tslint-react',
-    'tslint-config-prettier',
-  ],
-  rules: {
-    'import-name': false,
-    'interface-name': false,
-    'jsx-boolean-value': false,
-    'no-implicit-dependencies': false,
-    'no-submodule-imports': false,
-    'no-magic-numbers': ['error', { ignore: [-1, 0, 1] }],
-    'variable-name': false,
-  },
-};
+export const RESTART_ON_REMOUNT = '@@saga-injector/restart-on-remount';
+export const DAEMON = '@@saga-injector/daemon';
+export const ONCE_TILL_UNMOUNT = '@@saga-injector/once-till-unmount';

@@ -1,0 +1,6 @@
+{
+  "extends": "@curiostack/base-web-dev/build/tslint-config",
+  "rules": {
+    "no-implicit-dependencies": false
+  }
+}

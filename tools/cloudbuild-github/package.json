@@ -30,7 +30,7 @@
   "dependencies": {
     "@octokit/webhooks": "3.1.0",
     "child-process-promise": "2.2.1",
-    "commander": "2.13.0",
+    "commander": "2.14.1",
     "es6-promisify": "6.0.0",
     "express-serve-static-core": "0.1.1",
     "github-webhook-event-types": "1.0.0",
@@ -46,11 +46,11 @@
   },
   "devDependencies": {
     "@curiostack/base-node-dev": "0.0.3",
-    "@types/es6-promisify": "5.0.0",
+    "@types/es6-promisify": "6.0.0",
     "@types/http-status": "0.2.30",
     "@types/inquirer": "0.0.36",
     "@types/js-yaml": "3.10.1",
-    "@types/request-promise-native": "1.0.13",
+    "@types/request-promise-native": "1.0.14",
     "@types/source-map-support": "0.4.0"
   }
 }

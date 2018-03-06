@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * MIT License
  *
@@ -22,20 +23,19 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    '@curiostack/base-node-dev/build/tslint-config',
-    'tslint-config-airbnb',
-    'tslint-react',
-    'tslint-config-prettier',
-  ],
-  rules: {
-    'import-name': false,
-    'interface-name': false,
-    'jsx-boolean-value': false,
-    'no-implicit-dependencies': false,
-    'no-submodule-imports': false,
-    'no-magic-numbers': ['error', { ignore: [-1, 0, 1] }],
-    'variable-name': false,
-  },
-};
+import webpack from 'webpack';
+
+import config from '../webpack/prod';
+
+webpack(config, (err, stats) => {
+  console.log(
+    stats.toString({
+      colors: true,
+    }),
+  );
+  if (err !== null && err !== undefined) {
+    process.exit(1);
+  } else {
+    process.exit();
+  }
+});

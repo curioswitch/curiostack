@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * MIT License
  *
@@ -22,20 +23,45 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    '@curiostack/base-node-dev/build/tslint-config',
-    'tslint-config-airbnb',
-    'tslint-react',
-    'tslint-config-prettier',
-  ],
-  rules: {
-    'import-name': false,
-    'interface-name': false,
-    'jsx-boolean-value': false,
-    'no-implicit-dependencies': false,
-    'no-submodule-imports': false,
-    'no-magic-numbers': ['error', { ignore: [-1, 0, 1] }],
-    'variable-name': false,
-  },
-};
+import path from 'path';
+
+import proxy from 'koa-proxies';
+import serve from 'webpack-serve';
+
+import config from '../webpack/dev';
+
+// tslint:disable-next-line:no-var-requires
+const pkg = require(path.resolve(process.cwd(), 'package.json'));
+
+let add;
+if (pkg.devServer && pkg.devServer.proxy) {
+  add = (app: any, middleware: any) => {
+    middleware.webpack();
+    middleware.content();
+
+    for (const urlPath of Object.keys(pkg.devServer.proxy)) {
+      const target = pkg.devServer.proxy[urlPath];
+      app.use(
+        (proxy as any)(urlPath, {
+          target,
+          changeOrigin: true,
+          secure: false,
+        }),
+      );
+    }
+  };
+}
+
+process.on('SIGINT', () => {
+  console.log('sigint');
+  process.exit();
+});
+
+serve({
+  config,
+  add,
+  port: 3000,
+}).catch((err) => {
+  console.log('Error starting dev server.', err);
+  process.exit(1);
+});

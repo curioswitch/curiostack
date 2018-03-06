@@ -22,20 +22,41 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    '@curiostack/base-node-dev/build/tslint-config',
-    'tslint-config-airbnb',
-    'tslint-react',
-    'tslint-config-prettier',
-  ],
-  rules: {
-    'import-name': false,
-    'interface-name': false,
-    'jsx-boolean-value': false,
-    'no-implicit-dependencies': false,
-    'no-submodule-imports': false,
-    'no-magic-numbers': ['error', { ignore: [-1, 0, 1] }],
-    'variable-name': false,
-  },
-};
+/**
+ * LanguageProvider reducer
+ *
+ */
+
+import { Record } from 'immutable';
+import { getType } from 'typesafe-actions';
+
+import * as actions from './actions';
+
+export interface LanguageState {
+  readonly locale: string;
+}
+
+export interface LanguageStateRecord
+  extends Record<LanguageState>,
+    LanguageState {}
+
+export const initialState: LanguageStateRecord = Record<LanguageState>({
+  locale: 'en',
+})();
+
+export default function reducer(
+  state: LanguageStateRecord,
+  action: Actions,
+): LanguageStateRecord {
+  switch (action.type) {
+    case getType(actions.changeLocale):
+      return state.set('locale', action.payload);
+    default:
+      return state;
+  }
+}
+
+// inferring union type of actions
+import { $call } from 'utility-types';
+const returnsOfActions = Object.values(actions).map($call);
+type Actions = typeof returnsOfActions[number];

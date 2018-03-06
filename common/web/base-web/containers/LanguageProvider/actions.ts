@@ -22,20 +22,16 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    '@curiostack/base-node-dev/build/tslint-config',
-    'tslint-config-airbnb',
-    'tslint-react',
-    'tslint-config-prettier',
-  ],
-  rules: {
-    'import-name': false,
-    'interface-name': false,
-    'jsx-boolean-value': false,
-    'no-implicit-dependencies': false,
-    'no-submodule-imports': false,
-    'no-magic-numbers': ['error', { ignore: [-1, 0, 1] }],
-    'variable-name': false,
-  },
-};
+/**
+ *
+ * LanguageProvider actions
+ *
+ */
+
+import { createAction } from 'typesafe-actions';
+
+const CHANGE_LOCALE = '@curiostack/base-web/containers/LanguageProvider/CHANGE_LOCALE';
+export const changeLocale = createAction(CHANGE_LOCALE, (locale: string) => ({
+  type: CHANGE_LOCALE,
+  payload: locale,
+}));

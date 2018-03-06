@@ -22,20 +22,48 @@
  * SOFTWARE.
  */
 
-export = {
-  extends: [
-    '@curiostack/base-node-dev/build/tslint-config',
-    'tslint-config-airbnb',
-    'tslint-react',
-    'tslint-config-prettier',
-  ],
-  rules: {
-    'import-name': false,
-    'interface-name': false,
-    'jsx-boolean-value': false,
-    'no-implicit-dependencies': false,
-    'no-submodule-imports': false,
-    'no-magic-numbers': ['error', { ignore: [-1, 0, 1] }],
-    'variable-name': false,
-  },
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Reducer } from 'redux';
+
+import getInjectors from '../redux/injector';
+
+interface Options {
+  key: string;
+  reducer: Reducer;
+}
+
+/**
+ * Dynamically injects a reducer
+ *
+ * @param {string} key A key of the reducer
+ * @param {function} reducer A reducer that will be injected
+ *
+ */
+export default ({ key, reducer }: Options) => <TOriginalProps extends {}>(
+  WrappedComponent:
+    | React.ComponentClass<TOriginalProps>
+    | React.StatelessComponent<TOriginalProps>,
+) => {
+  class ReducerInjector extends React.Component<TOriginalProps> {
+    public static contextTypes = {
+      store: PropTypes.object.isRequired,
+    };
+
+    public static displayName = `withReducer(${WrappedComponent.displayName ||
+      WrappedComponent.name ||
+      'Component'})`;
+
+    private injectors = getInjectors(this.context.store);
+
+    public componentWillMount() {
+      const { injectReducer } = this.injectors;
+      injectReducer(key, reducer);
+    }
+
+    public render() {
+      return <WrappedComponent {...this.props} />;
+    }
+  }
+  return ReducerInjector;
 };
