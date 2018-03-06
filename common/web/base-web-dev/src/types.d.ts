@@ -22,6 +22,88 @@
  * SOFTWARE.
  */
 
+// tslint:disable:max-classes-per-file
+
+declare module 'autodll-webpack-plugin' {
+  import { Plugin } from 'webpack';
+  interface Entry {
+    [key: string]: string[];
+  }
+  interface Args {
+    entry?: Entry;
+    filename?: string;
+    context?: string;
+    inject?: boolean;
+    path?: string;
+    debug?: boolean;
+    plugins?: Plugin[];
+    inherit?: boolean;
+  }
+  class AutoDllPlugin extends Plugin {
+    constructor(args: Args);
+  }
+  export = AutoDllPlugin;
+}
+
+declare module 'brotli-webpack-plugin' {
+  import { Plugin } from 'webpack';
+  interface Args {
+    asset: string;
+    test: RegExp;
+    threshold: number;
+    minRatio: number;
+  }
+  class BrotliPlugin extends Plugin {
+    constructor(args: Args);
+  }
+  export = BrotliPlugin;
+}
+
+declare module 'fork-ts-checker-webpack-plugin' {
+  import { Plugin } from 'webpack';
+  class ForkTsCheckerWebpackPlugin extends Plugin {}
+  export = ForkTsCheckerWebpackPlugin;
+}
+
+declare module 'koa-proxies' {
+
+}
+
+declare module 'webapp-webpack-plugin' {
+  import { Plugin } from 'webpack';
+  interface Args {
+    logo: string;
+    prefix?: string;
+    emitStats?: boolean;
+    statsFilename?: string;
+  }
+  class WebappPlugin extends Plugin {
+    constructor(args: Args);
+  }
+  export = WebappPlugin;
+}
+
 declare module 'webpack-serve' {
-  export default function serve(config: Webpack4Configuration): Promise<{}>;
+  import { Webpack4Configuration } from './webpack/base';
+  export interface Args {
+    config: Webpack4Configuration;
+    port: number;
+    add?: (any, any, any) => void;
+  }
+  export default function serve(args: Args): Promise<{}>;
+}
+
+declare module 'zopfli-webpack-plugin' {
+  import { Plugin } from 'webpack';
+  interface Args {
+    asset: string;
+    algorithm: string;
+    test: RegExp;
+    threshold: number;
+    minRatio: number;
+  }
+  class ZopfliPlugin extends Plugin {
+    constructor(args: Args);
+  }
+  export = ZopfliPlugin;
 }

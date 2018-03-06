@@ -24,7 +24,8 @@
 
 import React from 'react';
 
-import { LocaleMessages } from "./containers/LanguageProvider";
+import initApp from './app/init';
+import { LocaleMessages } from './containers/LanguageProvider';
 
 export interface WebappConfig {
   component: React.ComponentClass | React.StatelessComponent;
@@ -32,4 +33,9 @@ export interface WebappConfig {
   defaultLocale: string;
   initialState: any;
   mountNode?: string | HTMLElement;
+  theme?: any;
 }
+
+export { GlobalStateBase } from './redux';
+
+export default initApp;

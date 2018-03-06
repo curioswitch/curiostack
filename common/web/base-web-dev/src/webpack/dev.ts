@@ -26,14 +26,14 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 import configureBase, { Webpack4Configuration } from './base';
 
-// tslint:disable-next-line:no-var-requires
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 
 const plugins = [
   new ForkTsCheckerWebpackPlugin(),
   new HtmlWebpackPlugin({
     inject: true,
     template: 'src/index.html',
+    chunksSortMode: 'none',
   }),
 ];
 

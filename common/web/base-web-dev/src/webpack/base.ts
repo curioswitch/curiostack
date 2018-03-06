@@ -39,7 +39,7 @@ const typescriptLoader = [
       compilerOptions: {
         noEmit: false,
       },
-      transpileOnly: process.env.NODE_ENV === 'production',
+      transpileOnly: true,
       onlyCompileBundledFiles: true,
       reportFiles: ['src/**/*.{ts,tsx}'],
     },

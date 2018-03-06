@@ -30,6 +30,7 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
 import { Store } from 'redux';
+import { ThemeProvider } from 'styled-components';
 
 import LanguageProvider, {
   LocaleMessages,
@@ -44,13 +45,16 @@ function render(
   history: History,
   mountNode: HTMLElement,
   Component: React.ComponentClass | React.StatelessComponent,
+  theme: any,
 ) {
   ReactDOM.render(
     <Provider store={store}>
       <LanguageProvider messages={messages}>
-        <ConnectedRouter history={history}>
-          <Component />
-        </ConnectedRouter>
+        <ThemeProvider theme={theme || {}}>
+          <ConnectedRouter history={history}>
+            <Component />
+          </ConnectedRouter>
+        </ThemeProvider>
       </LanguageProvider>
     </Provider>,
     mountNode,
@@ -69,7 +73,15 @@ export default function init(config: WebappConfig) {
 
   const doRender = (
     component: React.ComponentClass | React.StatelessComponent,
-  ) => render(formattedMessages, store, history, mountNode, component);
+  ) =>
+    render(
+      formattedMessages,
+      store,
+      history,
+      mountNode,
+      component,
+      config.theme || {},
+    );
 
   if (!(window as any).Intl) {
     import('intl')

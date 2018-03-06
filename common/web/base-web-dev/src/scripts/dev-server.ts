@@ -23,9 +23,34 @@
  * SOFTWARE.
  */
 
+import path from 'path';
+
+import proxy from 'koa-proxies';
 import serve from 'webpack-serve';
 
-import config from './dev';
+import config from '../webpack/dev';
+
+// tslint:disable-next-line:no-var-requires
+const pkg = require(path.resolve(process.cwd(), 'package.json'));
+
+let add;
+if (pkg.devServer && pkg.devServer.proxy) {
+  add = (app: any, middleware: any) => {
+    middleware.webpack();
+    middleware.content();
+
+    for (const urlPath of Object.keys(pkg.devServer.proxy)) {
+      const target = pkg.devServer.proxy[urlPath];
+      app.use(
+        (proxy as any)(urlPath, {
+          target,
+          changeOrigin: true,
+          secure: false,
+        }),
+      );
+    }
+  };
+}
 
 process.on('SIGINT', () => {
   console.log('sigint');
@@ -34,7 +59,9 @@ process.on('SIGINT', () => {
 
 serve({
   config,
+  add,
   port: 3000,
-}).catch(() => {
+}).catch((err) => {
+  console.log('Error starting dev server.', err);
   process.exit(1);
 });
