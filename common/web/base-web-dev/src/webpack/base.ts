@@ -119,6 +119,10 @@ const configure = (options: any): Webpack4Configuration => ({
         test: /\.html$/,
         use: 'html-loader',
       },
+      {
+        test: /\.md$/,
+        use: ['babel-loader', '@hugmanrique/react-markdown-loader'],
+      },
     ],
   },
   plugins: [

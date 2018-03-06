@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "babel-polyfill": "6.26.0",
+    "fontfaceobserver": "2.0.13",
     "immutable": "4.0.0-rc.9",
     "intl": "1.2.5",
     "react": "16.2.0",
