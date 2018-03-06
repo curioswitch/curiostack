@@ -4,7 +4,8 @@
   "description": "Curiostack's base dev dependencies for browser applications.",
   "main": "build/index.js",
   "bin": {
-    "devserver": "./build/webpack/devserver.js"
+    "build-app": "./build/scripts/build-app.js",
+    "dev-server": "./build/scripts/dev-server.js"
   },
   "repository": "curioswitch/curiostack",
   "author": "Choko <choko@curioswitch.org>",
@@ -26,7 +27,6 @@
     "@types/react-dom": "16.0.4",
     "@types/react-loadable": "5.3.3",
     "@types/webpack-env": "1.13.5",
-    "autodll-webpack-plugin": "0.3.9",
     "babel-core": "6.26.0",
     "babel-loader": "7.1.3",
     "babel-plugin-dynamic-import-node": "1.2.0",
@@ -39,7 +39,9 @@
     "babel-preset-env": "1.6.1",
     "babel-preset-react": "6.24.1",
     "babel-preset-stage-0": "6.24.1",
+    "brotli-webpack-plugin": "0.5.0",
     "file-loader": "1.1.11",
+    "fork-ts-checker-webpack-plugin": "0.4.0",
     "html-webpack-plugin": "3.0.4",
     "http-proxy-middleware": "0.17.4",
     "raw-loader": "0.5.1",
@@ -47,9 +49,11 @@
     "tsconfig-paths-webpack-plugin": "2.0.0",
     "tslint-config-airbnb": "5.7.0",
     "tslint-react": "3.5.1",
+    "webapp-webpack-plugin": "1.1.0",
     "webpack": "4.0.1",
     "webpack-cli": "2.0.10",
-    "webpack-serve": "0.1.5"
+    "webpack-serve": "0.1.5",
+    "zopfli-webpack-plugin": "0.1.0"
   },
   "devDependencies": {
     "@types/html-webpack-plugin": "2.30.2",
