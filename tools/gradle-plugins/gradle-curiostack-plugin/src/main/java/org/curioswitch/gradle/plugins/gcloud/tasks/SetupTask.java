@@ -24,13 +24,13 @@
 
 package org.curioswitch.gradle.plugins.gcloud.tasks;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +41,7 @@ import org.curioswitch.gradle.plugins.gcloud.ImmutableGcloudExtension;
 import org.curioswitch.gradle.plugins.gcloud.PlatformConfig;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.repositories.ArtifactRepository;
@@ -57,16 +58,18 @@ public class SetupTask extends DefaultTask {
   private final PlatformConfig platformConfig;
   private final List<ArtifactRepository> repositoriesBackup;
 
+  @SuppressWarnings("ConstructorInvokesOverridable")
   public SetupTask() {
-    this.config = getProject().getExtensions().getByType(GcloudExtension.class);
+    Project project = getProject();
+    this.config = project.getExtensions().getByType(GcloudExtension.class);
     platformConfig = config.platformConfig();
-    repositoriesBackup = new ArrayList<>(getProject().getRepositories());
+    repositoriesBackup = ImmutableList.copyOf(project.getRepositories());
 
     dependsOn("pythonSetup");
 
     onlyIf(
         unused -> {
-          Path sdkDir = CommandUtil.getGcloudSdkDir(getProject());
+          Path sdkDir = CommandUtil.getGcloudSdkDir(project);
           if (!Files.exists(sdkDir)) {
             return true;
           }

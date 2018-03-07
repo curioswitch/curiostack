@@ -43,4 +43,6 @@ public final class GrpcGraphUtil {
         },
         observer::onError);
   }
+
+  private GrpcGraphUtil() {}
 }

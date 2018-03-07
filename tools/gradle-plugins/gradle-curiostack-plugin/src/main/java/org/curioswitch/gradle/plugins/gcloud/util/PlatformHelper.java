@@ -32,11 +32,7 @@ public class PlatformHelper {
   private final Properties props;
 
   public PlatformHelper() {
-    this(System.getProperties());
-  }
-
-  PlatformHelper(Properties props) {
-    this.props = props;
+    this.props = System.getProperties();
   }
 
   public String getOsName() {

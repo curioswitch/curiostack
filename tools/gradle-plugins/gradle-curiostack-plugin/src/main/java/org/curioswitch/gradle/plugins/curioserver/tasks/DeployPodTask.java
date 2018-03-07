@@ -367,7 +367,8 @@ public class DeployPodTask extends DefaultTask {
     }
   }
 
-  private Probe createProbe(ImmutableDeploymentConfiguration deploymentConfig, Duration period) {
+  private static Probe createProbe(
+      ImmutableDeploymentConfiguration deploymentConfig, Duration period) {
     return new ProbeBuilder()
         .withHttpGet(
             new HTTPGetActionBuilder()
@@ -381,7 +382,7 @@ public class DeployPodTask extends DefaultTask {
         .build();
   }
 
-  private ServiceSpec createServiceSpec(ImmutableDeploymentConfiguration deploymentConfig) {
+  private static ServiceSpec createServiceSpec(ImmutableDeploymentConfiguration deploymentConfig) {
     return new ServiceSpecBuilder()
         .withPorts(
             new ServicePortBuilder()
@@ -394,7 +395,7 @@ public class DeployPodTask extends DefaultTask {
         .build();
   }
 
-  private HTTPIngressPath createIngressPath(
+  private static HTTPIngressPath createIngressPath(
       String path, String serviceName, ImmutableDeploymentConfiguration deploymentConfig) {
     return new HTTPIngressPathBuilder()
         .withPath(path)
@@ -406,7 +407,7 @@ public class DeployPodTask extends DefaultTask {
         .build();
   }
 
-  private void deployService(Service service, KubernetesClient client) {
+  private static void deployService(Service service, KubernetesClient client) {
     try {
       if (client.resource(service).fromServer().get() == null) {
         client.resource(service).createOrReplace();

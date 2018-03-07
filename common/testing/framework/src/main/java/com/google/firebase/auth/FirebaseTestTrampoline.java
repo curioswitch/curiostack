@@ -41,4 +41,6 @@ public class FirebaseTestTrampoline {
       throw new UncheckedIOException("Could not parse firebase token.", e);
     }
   }
+
+  private FirebaseTestTrampoline() {}
 }

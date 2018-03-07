@@ -24,12 +24,14 @@
 
 package org.curioswitch.gradle.plugins.curiostack.tasks;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 public class SetupGitHooks extends DefaultTask {
@@ -40,8 +42,9 @@ public class SetupGitHooks extends DefaultTask {
           + "git push --no-verify instead.'\n"
           + "./gradlew continuousCheck -Pci=true";
 
-  public SetupGitHooks() {
-    getOutputs().file(".git/hooks/pre-push");
+  @OutputFile
+  File prePushFile() {
+    return getProject().file(".git/hooks/pre-push");
   }
 
   @TaskAction

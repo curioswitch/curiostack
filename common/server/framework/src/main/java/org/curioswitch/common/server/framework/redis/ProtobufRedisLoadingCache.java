@@ -115,6 +115,8 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
      * @param localCacheSpec a {@link CaffeineSpec} to control the local cache layer. If {@code
      *     null}, local caching will be disabled.
      */
+    // TODO(choko): Fix this later since it breaks the API.
+    @SuppressWarnings("InconsistentOverloads")
     public <K extends Message, V extends Message> ProtobufRedisLoadingCache<K, V> create(
         String name,
         K keyPrototype,
@@ -218,6 +220,7 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
     remoteCache.del(key);
   }
 
+  @SuppressWarnings("FutureReturnValueIgnored")  // Intentional
   private CompletableFuture<V> loadWithCache(
       K key, Executor executor, Function<K, ListenableFuture<V>> loader) {
     final CompletionStage<V> fromCache;

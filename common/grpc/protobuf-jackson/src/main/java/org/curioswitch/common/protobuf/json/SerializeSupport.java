@@ -169,14 +169,6 @@ final class SerializeSupport {
     gen.writeBinary(value.toByteArray());
   }
 
-  static void printEnum(EnumValueDescriptor value, JsonGenerator gen) throws IOException {
-    if (value.getIndex() == -1) {
-      gen.writeString(Integer.toString(value.getNumber()));
-    } else {
-      gen.writeString(value.getName());
-    }
-  }
-
   // Note: I hope no one ever actually calls this method...
   static void printRepeatedNull(List<Integer> values, JsonGenerator gen) throws IOException {
     int numElements = values.size();
@@ -208,6 +200,14 @@ final class SerializeSupport {
       gen.writeNumber(value);
     } else {
       gen.writeString(valueDescriptor.getName());
+    }
+  }
+
+  static void printEnum(EnumValueDescriptor value, JsonGenerator gen) throws IOException {
+    if (value.getIndex() == -1) {
+      gen.writeString(Integer.toString(value.getNumber()));
+    } else {
+      gen.writeString(value.getName());
     }
   }
 

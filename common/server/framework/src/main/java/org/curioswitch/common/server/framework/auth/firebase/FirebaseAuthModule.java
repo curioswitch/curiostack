@@ -23,6 +23,8 @@
  */
 package org.curioswitch.common.server.framework.auth.firebase;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -65,7 +67,7 @@ public class FirebaseAuthModule {
       throw new UncheckedIOException("Could not read certificate.", e);
     }
     FirebaseApp.initializeApp(options);
-    return FirebaseApp.getInstance();
+    return checkNotNull(FirebaseApp.getInstance());
   }
 
   @Provides
@@ -73,4 +75,6 @@ public class FirebaseAuthModule {
   static FirebaseAuth firebaseAuth(FirebaseApp app) {
     return FirebaseAuth.getInstance(app);
   }
+
+  private FirebaseAuthModule() {}
 }

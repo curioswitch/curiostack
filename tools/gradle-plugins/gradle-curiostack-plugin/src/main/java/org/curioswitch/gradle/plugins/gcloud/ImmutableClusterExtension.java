@@ -26,6 +26,7 @@ package org.curioswitch.gradle.plugins.gcloud;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.gradle.api.Project;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Modifiable;
@@ -42,6 +43,7 @@ public interface ImmutableClusterExtension {
   Project gradleProject();
 
   /** The name of a namespace to create, or {@code null} if no namespace to create. */
+  @Nullable
   default String namespace() {
     return null;
   }

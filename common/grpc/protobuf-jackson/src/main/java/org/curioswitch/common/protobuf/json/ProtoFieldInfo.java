@@ -93,6 +93,7 @@ class ProtoFieldInfo {
   }
 
   /** Returns the {@link ProtoFieldInfo} of the key for this map field. */
+  @Nullable
   ProtoFieldInfo mapKeyField() {
     checkState(isMapField(), "Not a map field: %s", field);
     return mapKeyField;
@@ -102,6 +103,7 @@ class ProtoFieldInfo {
    * Returns the {@link ProtoFieldInfo} describing the actual value of this field, which for map
    * fields is the map's value.
    */
+  @Nullable
   ProtoFieldInfo valueField() {
     return mapValueField != null ? mapValueField : this;
   }

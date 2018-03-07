@@ -41,4 +41,6 @@ public abstract class SecurityModule {
     return ConfigBeanFactory.create(config.getConfig("security"), ModifiableSecurityConfig.class)
         .toImmutable();
   }
+
+  private SecurityModule() {}
 }

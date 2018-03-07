@@ -255,6 +255,8 @@ public abstract class ServerModule {
     }
   }
 
+  // TODO(choko): Understand this rule better.
+  @SuppressWarnings("FutureReturnValueIgnored")
   @Provides
   @Singleton
   static Server armeriaServer(

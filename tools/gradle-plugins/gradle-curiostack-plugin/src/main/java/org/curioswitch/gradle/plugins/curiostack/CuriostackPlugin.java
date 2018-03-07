@@ -28,6 +28,7 @@ import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
 import com.diffplug.gradle.spotless.SpotlessTask;
 import com.github.benmanes.gradle.versions.VersionsPlugin;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
@@ -66,6 +67,7 @@ import nebula.plugin.resolutionrules.ResolutionRulesPlugin;
 import net.ltgt.gradle.apt.AptIdeaPlugin;
 import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleAptConvention;
 import net.ltgt.gradle.apt.AptPlugin;
+import net.ltgt.gradle.errorprone.ErrorPronePlugin;
 import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
@@ -107,8 +109,10 @@ import org.gradle.process.ExecSpec;
 public class CuriostackPlugin implements Plugin<Project> {
 
   private static final String GOOGLE_JAVA_FORMAT_VERSION = "1.5";
-  private static final String NODE_VERSION = "9.6.1";
-  private static final String YARN_VERSION = "1.5.0";
+  private static final String NODE_VERSION = "9.7.1";
+  private static final String YARN_VERSION = "1.5.1";
+
+  private static final Splitter NEW_LINE_SPLITTER = Splitter.on('\n');
 
   @Override
   public void apply(Project rootProject) {
@@ -190,7 +194,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                 task -> {
                   File baselineDir = rootProject.file(".baseline");
                   baselineDir.mkdirs();
-                  for (String filePath : baselineFiles.split("\n")) {
+                  for (String filePath : NEW_LINE_SPLITTER.split(baselineFiles)) {
                     Path path = Paths.get(filePath);
                     Path outputDirectory =
                         Paths.get(baselineDir.getAbsolutePath()).resolve(path.getParent());
@@ -283,6 +287,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(AptIdeaPlugin.class);
     plugins.apply(BaselineIdea.class);
     plugins.apply(DependencyManagementPlugin.class);
+    plugins.apply(ErrorPronePlugin.class);
     plugins.apply(LicensePlugin.class);
     plugins.apply(SpotlessPlugin.class);
     plugins.apply(VersionsPlugin.class);
@@ -293,6 +298,57 @@ public class CuriostackPlugin implements Plugin<Project> {
             JavaCompile.class,
             task -> {
               task.getOptions().setIncremental(true);
+              task.getOptions()
+                  .getCompilerArgs()
+                  .addAll(
+                      ImmutableList.of(
+                          "-XepDisableWarningsInGeneratedCode",
+                          "-XepExcludedPaths:(.*/build/generated/.*|.*/gen-src/.*)",
+                          "-Xep:AutoFactoryAtInject:ERROR",
+                          "-Xep:ClassName:ERROR",
+                          "-Xep:ComparisonContractViolated:ERROR",
+                          "-Xep:DepAnn:ERROR",
+                          "-Xep:DivZero:ERROR",
+                          "-Xep:EmptyIf:WARN",
+                          "-Xep:FuzzyEqualsShouldNotBeUsedInEqualsMethod:ERROR",
+                          "-Xep:InjectInvalidTargetingOnScopingAnnotation:ERROR",
+                          "-Xep:InjectScopeAnnotationOnInterfaceOrAbstractClass:ERROR",
+                          "-Xep:InsecureCryptoUsage:ERROR",
+                          "-Xep:IterablePathParameter:WARN",
+                          "-Xep:LongLiteralLowerCaseSuffix:WARN",
+                          "-Xep:NumericEquality:ERROR",
+                          "-Xep:ParameterPackage:ERROR",
+                          "-Xep:ProtoStringFieldReferenceEquality:ERROR",
+                          "-Xep:AssistedInjectAndInjectOnConstructors:ERROR",
+                          "-Xep:BigDecimalLiteralDouble:WARN",
+                          "-Xep:ConstructorInvokesOverridable:WARN",
+                          "-Xep:ConstructorLeaksThis:WARN",
+                          "-Xep:InconsistentOverloads:WARN",
+                          "-Xep:MissingDefault:ERROR",
+                          "-Xep:PrimitiveArrayPassedToVarargsMethod:WARN",
+                          "-Xep:RedundantThrows:WARN",
+                          "-Xep:StaticQualifiedUsingExpression:WARN",
+                          "-Xep:StringEquality:WARN",
+                          "-Xep:TestExceptionChecker:ERROR",
+                          "-Xep:FieldMissingNullable:ERROR",
+                          "-Xep:LambdaFunctionalInterface:WARN",
+                          "-Xep:MethodCanBeStatic:WARN",
+                          "-Xep:MixedArrayDimensions:WARN",
+                          "-Xep:MultiVariableDeclaration:WARN",
+                          "-Xep:MultipleTopLevelClasses:ERROR",
+                          "-Xep:MultipleUnaryOperatorsInMethodCall:WARN",
+                          "-Xep:PackageLocation:ERROR",
+                          "-Xep:ParameterComment:WARN",
+                          "-Xep:ParameterNotNullable:ERROR",
+                          "-Xep:PrivateConstructorForUtilityClass:ERROR",
+                          "-Xep:RemoveUnusedImports:ERROR",
+                          "-Xep:ReturnMissingNullable:ERROR",
+                          "-Xep:SwitchDefault:WARN",
+                          "-Xep:ThrowsUncheckedException:ERROR",
+                          "-Xep:UngroupedOverloads:WARN",
+                          "-Xep:UnnecessaryStaticImport:ERROR",
+                          "-Xep:UseBinds:WARN",
+                          "-Xep:WildcardImport:ERROR"));
               project
                   .getTasks()
                   .withType(SpotlessTask.class, spotlessTask -> spotlessTask.dependsOn(task));

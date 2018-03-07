@@ -478,7 +478,7 @@ final class DoWrite implements ByteCodeAppender, Implementation {
    *   // afterSerializeField
    * }</pre>
    */
-  private StackManipulation checkDefaultValue(
+  private static StackManipulation checkDefaultValue(
       ProtoFieldInfo info,
       LocalVariables<LocalVariable> locals,
       StackManipulation getValue,
@@ -563,7 +563,7 @@ final class DoWrite implements ByteCodeAppender, Implementation {
     }
   }
 
-  private StackManipulation unbox(ProtoFieldInfo field) {
+  private static StackManipulation unbox(ProtoFieldInfo field) {
     switch (field.valueJavaType()) {
       case INT:
       case ENUM:
@@ -592,7 +592,7 @@ final class DoWrite implements ByteCodeAppender, Implementation {
     }
   }
 
-  private StackManipulation printValue(
+  private static StackManipulation printValue(
       Map<String, FieldDescription> fieldsByName, ProtoFieldInfo info) {
     boolean repeated = !info.isMapField() && info.isRepeated();
     switch (info.valueType()) {
@@ -651,7 +651,7 @@ final class DoWrite implements ByteCodeAppender, Implementation {
     }
   }
 
-  private StackManipulation checkPrimitiveDefault(
+  private static StackManipulation checkPrimitiveDefault(
       StackManipulation getValue,
       StackManipulation loadDefault,
       Class<?> variableType,

@@ -61,7 +61,7 @@ public class CurioWebPlugin implements Plugin<Project> {
         project
             .getRootProject()
             .getTasks()
-            .create(rootTaskName("buildWeb", project) , CacheableYarnTask.class);
+            .create(rootTaskName("buildWeb", project), CacheableYarnTask.class);
     buildWeb.dependsOn(project.getRootProject().getTasks().findByName("yarn"));
     buildWeb.setArgs(ImmutableList.of("run", "build"));
     buildWeb.setWorkingDir(project.getProjectDir());
@@ -82,17 +82,25 @@ public class CurioWebPlugin implements Plugin<Project> {
         });
 
     // Copy in yarn rule from node plugin since we don't directly apply the plugin here.
-    project.getTasks().addRule("Pattern: \"yarn_<command>\": Executes an Yarn command.", taskName -> {
-      if (taskName.startsWith("yarn_")) {
-        YarnTask yarnTask = project.getRootProject().getTasks()
-            .create(rootTaskName(taskName, project), YarnTask.class);
-        yarnTask.setWorkingDir(project.getProjectDir());
-        List<String> tokens = YARN_TASK_SPLITTER.splitToList(taskName);
-        yarnTask.setYarnCommand(tokens.subList(1, tokens.size()).stream().toArray(String[]::new));
+    project
+        .getTasks()
+        .addRule(
+            "Pattern: \"yarn_<command>\": Executes an Yarn command.",
+            taskName -> {
+              if (taskName.startsWith("yarn_")) {
+                YarnTask yarnTask =
+                    project
+                        .getRootProject()
+                        .getTasks()
+                        .create(rootTaskName(taskName, project), YarnTask.class);
+                yarnTask.setWorkingDir(project.getProjectDir());
+                List<String> tokens = YARN_TASK_SPLITTER.splitToList(taskName);
+                yarnTask.setYarnCommand(
+                    tokens.subList(1, tokens.size()).stream().toArray(String[]::new));
 
-        project.getTasks().create(taskName).dependsOn(yarnTask);
-      }
-    });
+                project.getTasks().create(taskName).dependsOn(yarnTask);
+              }
+            });
   }
 
   private static String rootTaskName(String prefix, Project project) {

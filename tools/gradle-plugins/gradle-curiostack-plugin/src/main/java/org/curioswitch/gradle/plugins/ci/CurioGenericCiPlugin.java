@@ -56,7 +56,7 @@ import org.gradle.api.plugins.JavaPlugin;
 
 public class CurioGenericCiPlugin implements Plugin<Project> {
 
-  private static final List<String> CONTINUOUS_TASK_TYPES =
+  private static final ImmutableList<String> CONTINUOUS_TASK_TYPES =
       ImmutableList.of("build", "check", "test");
 
   @Override
@@ -136,7 +136,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
     }
   }
 
-  private Set<Project> computeAffectedProjects(Project project) {
+  private static Set<Project> computeAffectedProjects(Project project) {
     final Set<String> affectedRelativeFilePaths;
     try (Git git = Git.open(project.getRootDir())) {
       // TODO(choko): Validate the remote of the branch, which matters if there are forks.
@@ -171,7 +171,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
         .collect(Collectors.toSet());
   }
 
-  private Project getProjectForFile(Path filePath, Map<Path, Project> projectsByPath) {
+  private static Project getProjectForFile(Path filePath, Map<Path, Project> projectsByPath) {
     Path currentDirectory = filePath.getParent();
     while (!currentDirectory.toAbsolutePath().toString().isEmpty()) {
       Project project = projectsByPath.get(currentDirectory);
@@ -184,7 +184,8 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
         "Could not find project for a file in the project, this cannot happen: " + filePath);
   }
 
-  private Set<String> computeAffectedFilesForBranch(Git git, String branch) throws IOException {
+  private static Set<String> computeAffectedFilesForBranch(Git git, String branch)
+      throws IOException {
     String masterRemote =
         git.getRepository().getRemoteNames().contains("upstream") ? "upstream" : "origin";
     CanonicalTreeParser oldTreeParser =
@@ -196,7 +197,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
   }
 
   // Assume all tested changes are in a single commit, which works when commits are always squashed.
-  private Set<String> computeAffectedFilesForMaster(Git git) throws IOException {
+  private static Set<String> computeAffectedFilesForMaster(Git git) throws IOException {
     ObjectId oldTreeId = git.getRepository().resolve("HEAD^{tree}");
     ObjectId newTreeId = git.getRepository().resolve("HEAD^^{tree}");
 
@@ -210,7 +211,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
     return computeAffectedFiles(git, oldTreeParser, newTreeParser);
   }
 
-  private Set<String> computeAffectedFiles(
+  private static Set<String> computeAffectedFiles(
       Git git, CanonicalTreeParser oldTreeParser, CanonicalTreeParser newTreeParser) {
     final List<DiffEntry> diffs;
     try {
@@ -246,7 +247,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
         .collect(toImmutableSet());
   }
 
-  private CanonicalTreeParser parserForBranch(Git git, Ref branch) throws IOException {
+  private static CanonicalTreeParser parserForBranch(Git git, Ref branch) throws IOException {
     try (RevWalk walk = new RevWalk(git.getRepository())) {
       RevCommit commit = walk.parseCommit(branch.getObjectId());
       RevTree tree = walk.parseTree(commit.getTree().getId());
@@ -262,7 +263,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
     }
   }
 
-  private CanonicalTreeParser parser(ObjectReader reader, ObjectId id) throws IOException {
+  private static CanonicalTreeParser parser(ObjectReader reader, ObjectId id) throws IOException {
     CanonicalTreeParser parser = new CanonicalTreeParser();
     parser.reset(reader, id);
     return parser;

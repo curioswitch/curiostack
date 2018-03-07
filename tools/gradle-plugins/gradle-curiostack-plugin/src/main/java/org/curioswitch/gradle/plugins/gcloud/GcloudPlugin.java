@@ -218,7 +218,7 @@ public class GcloudPlugin implements Plugin<Project> {
     addGenerateCloudBuildTask(project);
   }
 
-  private void addGenerateCloudBuildTask(Project rootProject) {
+  private static void addGenerateCloudBuildTask(Project rootProject) {
     Task generateCloudBuild = rootProject.getTasks().create("gcloudGenerateCloudBuild");
     generateCloudBuild.doLast(
         t -> {

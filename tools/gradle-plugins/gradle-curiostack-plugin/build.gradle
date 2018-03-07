@@ -73,7 +73,7 @@ dependencies {
     compile 'com.netflix.nebula:gradle-dependency-lock-plugin'
     compile 'com.netflix.nebula:gradle-resolution-rules-plugin'
     compile 'com.palantir:gradle-baseline-java'
-    compile 'gradle.plugin.com.boxfuse.client:flyway-release'
+    compile 'gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.0.7'
     compile 'gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties'
     compile 'gradle.plugin.com.jetbrains.python:gradle-python-envs'
     compile 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin'
@@ -81,6 +81,7 @@ dependencies {
     compile 'io.spring.gradle:dependency-management-plugin'
     compile 'me.champeau.gradle:jmh-gradle-plugin'
     compile 'net.ltgt.gradle:gradle-apt-plugin'
+    compile 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.13'
     compile 'nu.studer:gradle-jooq-plugin'
     compile 'org.bouncycastle:bcpkix-jdk15on'
 

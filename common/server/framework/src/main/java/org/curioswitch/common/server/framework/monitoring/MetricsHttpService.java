@@ -26,13 +26,10 @@ package org.curioswitch.common.server.framework.monitoring;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.json.MetricsModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.linecorp.armeria.common.AggregatedHttpMessage;
-import com.linecorp.armeria.common.HttpData;
-import com.linecorp.armeria.common.HttpHeaderNames;
-import com.linecorp.armeria.common.HttpHeaders;
 import com.linecorp.armeria.common.HttpRequest;
-import com.linecorp.armeria.common.HttpResponseWriter;
+import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
+import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.server.AbstractHttpService;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import java.util.concurrent.TimeUnit;
@@ -56,11 +53,11 @@ public class MetricsHttpService extends AbstractHttpService {
   }
 
   @Override
-  protected void doGet(ServiceRequestContext ctx, HttpRequest req, HttpResponseWriter res)
+  protected HttpResponse doGet(ServiceRequestContext ctx, HttpRequest req)
       throws Exception {
-    res.respond(
-        AggregatedHttpMessage.of(
-            HttpHeaders.of(HttpStatus.OK).set(HttpHeaderNames.CONTENT_TYPE, "application/json"),
-            HttpData.of(OBJECT_MAPPER.writeValueAsBytes(registry))));
+    return HttpResponse.of(
+        HttpStatus.OK,
+        MediaType.JSON_UTF_8,
+        OBJECT_MAPPER.writeValueAsBytes(registry));
   }
 }

@@ -50,4 +50,6 @@ public class Main {
   public static void main(String[] args) {
     DaggerMain_ServerComponent.builder().build().server();
   }
+
+  private Main() {}
 }

@@ -24,6 +24,7 @@
 package org.curioswitch.gradle.common;
 
 import groovy.lang.Closure;
+import javax.annotation.Nullable;
 
 /**
  * A utility class for creating groovy-compatible {@link Closure}s from Java lambdas. As Java
@@ -55,6 +56,7 @@ public final class LambdaClosure {
       this.function = function;
     }
 
+    @Nullable
     protected Object doCall(Object arguments) {
       @SuppressWarnings("unchecked")
       T arg = (T) arguments;

@@ -177,7 +177,7 @@ public class MessageMarshallerTest {
     assertRejects("optionalUint64", "1.5");
   }
 
-  private void assertRejects(String name, String value) {
+  private static void assertRejects(String name, String value) {
     TestAllTypes.Builder builder = TestAllTypes.newBuilder();
     // Numeric form is rejected.
     assertThatThrownBy(() -> mergeFromJson("{\"" + name + "\":" + value + "}", builder))
@@ -187,7 +187,7 @@ public class MessageMarshallerTest {
         .isInstanceOf(IOException.class);
   }
 
-  private void assertAccepts(String name, String value) throws IOException {
+  private static void assertAccepts(String name, String value) throws IOException {
     TestAllTypes.Builder builder = TestAllTypes.newBuilder();
     // Both numeric form and string form are accepted.
     mergeFromJson("{\"" + name + "\":" + value + "}", builder);
@@ -283,12 +283,15 @@ public class MessageMarshallerTest {
     // Repeated field elements cannot be null.
     TestAllTypes.Builder builder2 = TestAllTypes.newBuilder();
     assertThatThrownBy(
-        () -> mergeFromJson("{\n" + "  \"repeatedInt32\": [null, null],\n" + "}", builder2));
+            () -> mergeFromJson("{\n" + "  \"repeatedInt32\": [null, null],\n" + "}", builder2))
+        .isInstanceOf(IOException.class);
 
     TestAllTypes.Builder builder3 = TestAllTypes.newBuilder();
     assertThatThrownBy(
-        () ->
-            mergeFromJson("{\n" + "  \"repeatedNestedMessage\": [null, null],\n" + "}", builder3));
+            () ->
+                mergeFromJson(
+                    "{\n" + "  \"repeatedNestedMessage\": [null, null],\n" + "}", builder3))
+        .isInstanceOf(IOException.class);
   }
 
   @Test
@@ -668,7 +671,7 @@ public class MessageMarshallerTest {
   public void parserIgnoringUnknownFields() throws Exception {
     TestAllTypes.Builder builder = TestAllTypes.newBuilder();
     String json = "{\n" + " \"optionalInt32\": 10, \n" + "  \"unknownField\": \"XXX\"\n" + "}";
-    mergeFromJson(json, true, builder);
+    mergeFromJson(true, json, builder);
     assertThat(builder.getOptionalInt32()).isEqualTo(10);
   }
 
@@ -773,7 +776,7 @@ public class MessageMarshallerTest {
     assertMatchesUpstream(TestRegression.newBuilder().addFeedIds(1).build());
   }
 
-  private String recursiveJson(int numRecursions) {
+  private static String recursiveJson(int numRecursions) {
     StringBuilder input = new StringBuilder("{\n");
     for (int i = 0; i < numRecursions; i++) {
       input.append(Strings.repeat(" ", (i + 1) * 2));
@@ -789,12 +792,12 @@ public class MessageMarshallerTest {
     return input.toString();
   }
 
-  private void assertMatchesUpstream(Message message, Message... additionalTypes)
+  private static void assertMatchesUpstream(Message message, Message... additionalTypes)
       throws IOException {
     assertMatchesUpstream(message, false, false, false, additionalTypes);
   }
 
-  private void assertMatchesUpstream(
+  private static void assertMatchesUpstream(
       Message message,
       boolean includingDefaultValueFields,
       boolean preservingProtoFieldNames,
@@ -843,13 +846,14 @@ public class MessageMarshallerTest {
     assertThat(builder.build()).isEqualTo(message);
   }
 
-  private void mergeFromJson(String json, Message.Builder builder, Message... additionalTypes)
-      throws IOException {
-    mergeFromJson(json, false, builder, additionalTypes);
+  private static void mergeFromJson(
+      String json, Message.Builder builder, Message... additionalTypes) throws IOException {
+    mergeFromJson(false, json, builder, additionalTypes);
   }
 
-  private void mergeFromJson(
-      String json, boolean ignoringUnknownFields, Builder builder, Message... additionalTypes)
+  @SuppressWarnings("InconsistentOverloads")
+  private static void mergeFromJson(
+      boolean ignoringUnknownFields, String json, Builder builder, Message... additionalTypes)
       throws IOException {
     MessageMarshaller.Builder marshallerBuilder =
         MessageMarshaller.builder()
