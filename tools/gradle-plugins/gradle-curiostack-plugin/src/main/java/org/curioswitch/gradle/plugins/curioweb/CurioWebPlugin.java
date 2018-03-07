@@ -24,9 +24,11 @@
 
 package org.curioswitch.gradle.plugins.curioweb;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.moowork.gradle.node.yarn.YarnTask;
+import java.util.List;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaLibraryPlugin;
@@ -40,6 +42,8 @@ import org.gradle.api.tasks.SourceSet;
  * application and bundling it into a jar for serving from a Java server.
  */
 public class CurioWebPlugin implements Plugin<Project> {
+
+  private static final Splitter YARN_TASK_SPLITTER = Splitter.on('_');
 
   @Override
   public void apply(Project project) {
@@ -57,11 +61,11 @@ public class CurioWebPlugin implements Plugin<Project> {
         project
             .getRootProject()
             .getTasks()
-            .create("buildWeb_" + project.getPath().replace(':', '_'), CacheableYarnTask.class);
+            .create(rootTaskName("buildWeb", project) , CacheableYarnTask.class);
     buildWeb.dependsOn(project.getRootProject().getTasks().findByName("yarn"));
     buildWeb.setArgs(ImmutableList.of("run", "build"));
     buildWeb.setWorkingDir(project.getProjectDir());
-    buildWeb.getInputs().dir(project.file("app"));
+    buildWeb.getInputs().dir(project.file("src"));
     buildWeb.getInputs().dir(project.file("internals"));
     // We assume the yarn task correctly handles up-to-date checks for node_modules, so only
     // need to look at yarn.lock here.
@@ -76,6 +80,23 @@ public class CurioWebPlugin implements Plugin<Project> {
           ImmutableWebExtension web = project.getExtensions().getByType(WebExtension.class);
           copyWeb.into("build/javaweb/" + web.javaPackage().replace('.', '/'));
         });
+
+    // Copy in yarn rule from node plugin since we don't directly apply the plugin here.
+    project.getTasks().addRule("Pattern: \"yarn_<command>\": Executes an Yarn command.", taskName -> {
+      if (taskName.startsWith("yarn_")) {
+        YarnTask yarnTask = project.getRootProject().getTasks()
+            .create(rootTaskName(taskName, project), YarnTask.class);
+        yarnTask.setWorkingDir(project.getProjectDir());
+        List<String> tokens = YARN_TASK_SPLITTER.splitToList(taskName);
+        yarnTask.setYarnCommand(tokens.subList(1, tokens.size()).stream().toArray(String[]::new));
+
+        project.getTasks().create(taskName).dependsOn(yarnTask);
+      }
+    });
+  }
+
+  private static String rootTaskName(String prefix, Project project) {
+    return prefix + '_' + project.getPath().replace(':', '_');
   }
 
   @CacheableTask
