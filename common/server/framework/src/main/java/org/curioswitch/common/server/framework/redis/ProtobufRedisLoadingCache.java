@@ -220,7 +220,7 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
     remoteCache.del(key);
   }
 
-  @SuppressWarnings("FutureReturnValueIgnored")  // Intentional
+  @SuppressWarnings("FutureReturnValueIgnored") // Intentional
   private CompletableFuture<V> loadWithCache(
       K key, Executor executor, Function<K, ListenableFuture<V>> loader) {
     final CompletionStage<V> fromCache;

@@ -53,11 +53,8 @@ public class MetricsHttpService extends AbstractHttpService {
   }
 
   @Override
-  protected HttpResponse doGet(ServiceRequestContext ctx, HttpRequest req)
-      throws Exception {
+  protected HttpResponse doGet(ServiceRequestContext ctx, HttpRequest req) throws Exception {
     return HttpResponse.of(
-        HttpStatus.OK,
-        MediaType.JSON_UTF_8,
-        OBJECT_MAPPER.writeValueAsBytes(registry));
+        HttpStatus.OK, MediaType.JSON_UTF_8, OBJECT_MAPPER.writeValueAsBytes(registry));
   }
 }
