@@ -35,16 +35,24 @@ async function run() {
   await promisify(rimraf)(path.resolve(process.cwd(), 'build'));
 
   webpack(config, (err, stats) => {
-    console.log(
-      stats.toString({
-        colors: true,
-      }),
-    );
-    if (err !== null && err !== undefined) {
+    // tslint:disable-next-line:strict-boolean-expressions
+    if (stats) {
+      console.log(
+        stats.toString({
+          colors: true,
+        }),
+      );
+    }
+
+    // tslint:disable-next-line:strict-boolean-expressions
+    if ((stats && stats.hasErrors()) || err) {
       process.exit(1);
     } else {
       process.exit();
     }
   });
 }
-run();
+run().catch((err) => {
+  console.log('Unexpected error running webpack.', err);
+  process.exit(1);
+});
