@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * MIT License
  *
@@ -22,35 +23,44 @@
  * SOFTWARE.
  */
 
-import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-import { DefinePlugin } from 'webpack';
+import path from 'path';
+import { promisify } from 'util';
 
-import configureBase, { Webpack4Configuration } from './base';
+import rimraf from 'rimraf';
+import webpack from 'webpack';
 
-const plugins = [
-  new DefinePlugin({
-    'process.env': {
-      NODE_ENV: 'development',
-    },
-  }),
-  new ForkTsCheckerWebpackPlugin(),
-  new HtmlWebpackPlugin({
-    inject: true,
-    template: 'src/index.html',
-    chunksSortMode: 'none',
-  }),
-];
+import config from '../webpack/prod';
 
-const configuration: Webpack4Configuration = configureBase({
-  plugins,
-  mode: 'development',
-  // Don't use hashes in dev mode for better performance
-  output: {
-    filename: '[name].js',
-    chunkFilename: '[name].chunk.js',
-  },
-  devtool: 'eval-source-map',
-});
+import { lint } from './check';
 
-export default configuration;
+async function run() {
+  await promisify(rimraf)(path.resolve(process.cwd(), 'build'));
+
+  if (!lint()) {
+    process.exit(1);
+  }
+
+  webpack(config, (err, stats) => {
+    // tslint:disable-next-line:strict-boolean-expressions
+    if (stats) {
+      console.log(
+        stats.toString({
+          colors: true,
+        }),
+      );
+    }
+
+    // tslint:disable-next-line:strict-boolean-expressions
+    if ((stats && stats.hasErrors()) || err) {
+      process.exit(1);
+    } else {
+      process.exit();
+    }
+  });
+}
+if (require.main === module) {
+  run().catch((err) => {
+    console.log('Unexpected error running webpack.', err);
+    process.exit(1);
+  });
+}

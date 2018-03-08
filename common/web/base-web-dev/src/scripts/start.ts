@@ -31,6 +31,9 @@ import serve from 'webpack-serve';
 import config from '../webpack/dev';
 
 // tslint:disable-next-line:no-var-requires
+const historyFallback = require('koa2-history-api-fallback');
+
+// tslint:disable-next-line:no-var-requires
 const pkg = require(path.resolve(process.cwd(), 'package.json'));
 
 let add;
@@ -49,6 +52,8 @@ if (pkg.devServer && pkg.devServer.proxy) {
         }),
       );
     }
+
+    app.use(historyFallback());
   };
 }
 

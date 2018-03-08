@@ -25,7 +25,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { Configuration, DefinePlugin } from 'webpack';
+import { Configuration } from 'webpack';
 
 export interface Webpack4Configuration extends Configuration {
   mode: 'development' | 'production';
@@ -119,16 +119,13 @@ const configure = (options: any): Webpack4Configuration => ({
         test: /\.html$/,
         use: 'html-loader',
       },
+      {
+        test: /\.md$/,
+        use: ['babel-loader', '@hugmanrique/react-markdown-loader'],
+      },
     ],
   },
-  plugins: [
-    ...options.plugins,
-    new DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify(process.env.NODE_ENV),
-      },
-    }),
-  ],
+  plugins: [...options.plugins],
   resolve: {
     modules: ['src', 'node_modules'],
     extensions: ['.js', '.jsx', '.ts', '.tsx'],

@@ -23,19 +23,8 @@
  * SOFTWARE.
  */
 
-import webpack from 'webpack';
+import { lint } from './check';
 
-import config from '../webpack/prod';
-
-webpack(config, (err, stats) => {
-  console.log(
-    stats.toString({
-      colors: true,
-    }),
-  );
-  if (err !== null && err !== undefined) {
-    process.exit(1);
-  } else {
-    process.exit();
-  }
-});
+if (require.main === module) {
+  lint(true);
+}
