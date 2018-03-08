@@ -23,42 +23,8 @@
  * SOFTWARE.
  */
 
-import path from 'path';
-import { promisify } from 'util';
-
-import rimraf from 'rimraf';
-import webpack from 'webpack';
-
-import config from '../webpack/prod';
-
 import { lint } from './check';
 
-async function run() {
-  await promisify(rimraf)(path.resolve(process.cwd(), 'build'));
-
-  if (!lint()) {
-    process.exit(1);
-  }
-
-  webpack(config, (err, stats) => {
-    // tslint:disable-next-line:strict-boolean-expressions
-    if (stats) {
-      console.log(
-        stats.toString({
-          colors: true,
-        }),
-      );
-    }
-
-    // tslint:disable-next-line:strict-boolean-expressions
-    if ((stats && stats.hasErrors()) || err) {
-      process.exit(1);
-    } else {
-      process.exit();
-    }
-  });
+if (require.main === module) {
+  lint(true);
 }
-run().catch((err) => {
-  console.log('Unexpected error running webpack.', err);
-  process.exit(1);
-});

@@ -24,14 +24,9 @@
  */
 
 import path from 'path';
-import { promisify } from 'util';
 
-import rimraf from 'rimraf';
 import { Configuration, Linter } from 'tslint';
 import typescript, { FormatDiagnosticsHost } from 'typescript';
-import webpack from 'webpack';
-
-import config from '../webpack/prod';
 
 class FormatTypescriptHost implements FormatDiagnosticsHost {
   public getCurrentDirectory(): string {
@@ -47,14 +42,15 @@ class FormatTypescriptHost implements FormatDiagnosticsHost {
   }
 }
 
-function lint() {
+export function lint(fix?: boolean) {
   const program = Linter.createProgram(
     path.resolve(process.cwd(), 'tsconfig.json'),
     process.cwd(),
   );
+
   const linter = new Linter(
     {
-      fix: false,
+      fix: !!fix,
     },
     program,
   );
@@ -85,32 +81,10 @@ function lint() {
   return results.errorCount === 0;
 }
 
-async function run() {
-  await promisify(rimraf)(path.resolve(process.cwd(), 'build'));
-
+if (require.main === module) {
   if (!lint()) {
     process.exit(1);
+  } else {
+    process.exit();
   }
-
-  webpack(config, (err, stats) => {
-    // tslint:disable-next-line:strict-boolean-expressions
-    if (stats) {
-      console.log(
-        stats.toString({
-          colors: true,
-        }),
-      );
-    }
-
-    // tslint:disable-next-line:strict-boolean-expressions
-    if ((stats && stats.hasErrors()) || err) {
-      process.exit(1);
-    } else {
-      process.exit();
-    }
-  });
 }
-run().catch((err) => {
-  console.log('Unexpected error running webpack.', err);
-  process.exit(1);
-});

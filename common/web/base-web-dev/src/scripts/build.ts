@@ -31,8 +31,14 @@ import webpack from 'webpack';
 
 import config from '../webpack/prod';
 
+import { lint } from './check';
+
 async function run() {
   await promisify(rimraf)(path.resolve(process.cwd(), 'build'));
+
+  if (!lint()) {
+    process.exit(1);
+  }
 
   webpack(config, (err, stats) => {
     // tslint:disable-next-line:strict-boolean-expressions
@@ -52,7 +58,9 @@ async function run() {
     }
   });
 }
-run().catch((err) => {
-  console.log('Unexpected error running webpack.', err);
-  process.exit(1);
-});
+if (require.main === module) {
+  run().catch((err) => {
+    console.log('Unexpected error running webpack.', err);
+    process.exit(1);
+  });
+}
