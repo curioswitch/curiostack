@@ -1,10 +1,12 @@
 {
   "name": "@curiostack/base-web-dev",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Curiostack's base dev dependencies for browser applications.",
   "main": "build/index.js",
   "bin": {
     "build": "./build/scripts/build.js",
+    "check": "./build/scripts/check.js",
+    "fix": "./build/scripts/fix.js",
     "start": "./build/scripts/start.js"
   },
   "repository": "curioswitch/curiostack",
