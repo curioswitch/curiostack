@@ -101,6 +101,7 @@ public class FileWatcher implements AutoCloseable {
     executor = Executors.newSingleThreadScheduledExecutor();
   }
 
+  @SuppressWarnings("FutureReturnValueIgnored")
   public void start() {
     executor.submit(this::listenForFileEvents);
   }

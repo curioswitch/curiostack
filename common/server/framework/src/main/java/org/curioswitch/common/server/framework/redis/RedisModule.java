@@ -64,4 +64,6 @@ public abstract class RedisModule {
     client.setOptions(ClusterClientOptions.builder().validateClusterNodeMembership(false).build());
     return client;
   }
+
+  private RedisModule() {}
 }

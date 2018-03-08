@@ -98,4 +98,6 @@ public abstract class StorageModule {
             RetryingHttpClient.newDecorator(ErrorRetryStrategy.INSTANCE))
         .build(HttpClient.class);
   }
+
+  private StorageModule() {}
 }

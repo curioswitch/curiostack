@@ -69,4 +69,6 @@ public abstract class YummlyApiModule {
         .build()
         .create(YummlyApi.class);
   }
+
+  private YummlyApiModule() {}
 }

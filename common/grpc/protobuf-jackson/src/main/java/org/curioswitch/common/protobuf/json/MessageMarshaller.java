@@ -373,7 +373,7 @@ public class MessageMarshaller {
           omittingInsignificantWhitespace ? null : new MessagePrettyPrinter(), registry);
     }
 
-    private <T extends Message> void addStandardParser(
+    private static <T extends Message> void addStandardParser(
         TypeSpecificMarshaller<T> marshaller,
         Map<Descriptor, TypeSpecificMarshaller<?>> marshallers) {
       marshallers.put(marshaller.getDescriptorForMarshalledType(), marshaller);

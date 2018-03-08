@@ -30,6 +30,7 @@ import com.typesafe.config.ConfigBeanFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory;
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoSet;
@@ -109,10 +110,10 @@ public abstract class DatabaseModule {
     return ctx;
   }
 
-  @Provides
+  @Binds
   @EagerInit
   @IntoSet
-  static Object init(DSLContext dslContext) {
-    return dslContext;
-  }
+  abstract Object init(DSLContext dslContext);
+
+  private DatabaseModule() {}
 }

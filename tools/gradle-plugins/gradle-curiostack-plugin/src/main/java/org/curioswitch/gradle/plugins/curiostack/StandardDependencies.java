@@ -49,7 +49,7 @@ class StandardDependencies {
 
   private static final String JACKSON_VERSION = "2.9.4";
 
-  static final List<DependencySet> DEPENDENCY_SETS =
+  static final ImmutableList<DependencySet> DEPENDENCY_SETS =
       ImmutableList.of(
           ImmutableDependencySet.builder()
               .group("commons-codec")
@@ -103,17 +103,17 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.17.0")
+              .version("1.20.0")
               .addModules("google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.35.0-alpha")
+              .version("0.38.0-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.35.0-beta")
+              .version("0.38.0-beta")
               .addModules("google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
@@ -257,7 +257,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("4.16.1")
+              .version("4.17.2")
               .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
@@ -277,7 +277,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.7.10")
+              .version("1.7.11")
               .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
@@ -302,7 +302,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.awaitility")
-              .version("3.0.0")
+              .version("3.1.0")
               .addModules("awaitility")
               .build(),
           ImmutableDependencySet.builder()
@@ -366,9 +366,9 @@ class StandardDependencies {
               .addModules("snakeyaml")
               .build());
 
-  static final List<String> DEPENDENCIES =
+  static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:3.2.4",
+          "com.bmuschko:gradle-docker-plugin:3.2.5",
           "com.diffplug.spotless:spotless-plugin-gradle:3.10.0",
           "com.github.ben-manes:gradle-versions-plugin:0.17.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.4",
@@ -377,8 +377,8 @@ class StandardDependencies {
           "com.netflix.nebula:gradle-dependency-lock-plugin:5.0.4",
           "com.netflix.nebula:gradle-resolution-rules-plugin:5.1.1",
           "com.palantir:gradle-baseline-java:0.10.0",
-          "gradle.plugin.com.boxfuse.client:flyway-release:5.0.2",
-          "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17",
+          "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.0.7",
+          "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.21",
           "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
           "io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE",
@@ -387,6 +387,9 @@ class StandardDependencies {
           "javax.xml.bind:jaxb-api:2.3.0",
           "me.champeau.gradle:jmh-gradle-plugin:0.4.5",
           "mysql:mysql-connector-java:5.1.45",
-          "net.ltgt.gradle:gradle-apt-plugin:0.14",
+          "net.ltgt.gradle:gradle-apt-plugin:0.15",
+          "net.ltgt.gradle:gradle-errorprone-plugin:0.0.13",
           "nu.studer:gradle-jooq-plugin:2.0.11");
+
+  private StandardDependencies() {}
 }

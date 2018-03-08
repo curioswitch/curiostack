@@ -34,4 +34,6 @@ public class FirebaseTestUtil {
   public static FirebaseToken parse(String serialized) {
     return FirebaseTestTrampoline.parseToken(JacksonFactory.getDefaultInstance(), serialized);
   }
+
+  private FirebaseTestUtil() {}
 }

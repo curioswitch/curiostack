@@ -40,12 +40,8 @@ public class CreateProjectTask extends DefaultTask {
 
   private String projectName;
 
-  public CreateProjectTask() {
-    this(ResourceManagerOptions.getDefaultInstance().getService());
-  }
-
-  CreateProjectTask(ResourceManager resourceManager) {
-    this.resourceManager = resourceManager;
+  public CreateProjectTask(ResourceManager resourceManager) {
+    this.resourceManager = ResourceManagerOptions.getDefaultInstance().getService();
   }
 
   public void setProjectName(String projectName) {

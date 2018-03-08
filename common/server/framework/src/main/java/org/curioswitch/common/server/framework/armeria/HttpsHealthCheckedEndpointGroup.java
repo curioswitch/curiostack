@@ -38,6 +38,7 @@ import java.util.concurrent.CompletableFuture;
  * Fork of {@link com.linecorp.armeria.client.endpoint.healthcheck.HttpHealthCheckedEndpointGroup}
  * which uses HTTPS.
  */
+@SuppressWarnings("InconsistentOverloads")
 public class HttpsHealthCheckedEndpointGroup extends HealthCheckedEndpointGroup {
 
   private final String healthCheckPath;
@@ -64,6 +65,7 @@ public class HttpsHealthCheckedEndpointGroup extends HealthCheckedEndpointGroup 
   }
 
   /** Creates a new {@link HttpsHealthCheckedEndpointGroup} instance. */
+  @SuppressWarnings("ConstructorInvokesOverridable")
   private HttpsHealthCheckedEndpointGroup(
       ClientFactory clientFactory,
       EndpointGroup delegate,

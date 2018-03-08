@@ -22,10 +22,4 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-web-plugin'
-
-web {
-    javaPackage = 'org.curioswitch.portal.client.web'
-}
-
-//TODO(choko): Fix npm command gets corrupted bug.
+// TODO(choko): Migrate to firebase site + static build.

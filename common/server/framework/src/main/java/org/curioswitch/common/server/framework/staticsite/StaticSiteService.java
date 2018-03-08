@@ -87,6 +87,7 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
     return new StaticSiteService(staticPath, fileService);
   }
 
+  @SuppressWarnings("ConstructorInvokesOverridable")
   private StaticSiteService(String staticPath, HttpFileService fileService) {
     super(
         CompositeServiceEntry.ofPrefix(

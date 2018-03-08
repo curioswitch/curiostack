@@ -67,6 +67,8 @@ public class Main {
     static Supplier<Random> randomSupplier() {
       return ThreadLocalRandom::current;
     }
+
+    private MainModule() {}
   }
 
   @Singleton
@@ -78,4 +80,6 @@ public class Main {
   public static void main(String[] args) {
     DaggerMain_MainComponent.create().server();
   }
+
+  private Main() {}
 }

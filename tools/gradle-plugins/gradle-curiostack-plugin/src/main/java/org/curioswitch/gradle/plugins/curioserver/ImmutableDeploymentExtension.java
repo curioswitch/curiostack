@@ -24,6 +24,8 @@
 
 package org.curioswitch.gradle.plugins.curioserver;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableMap;
 import groovy.lang.Closure;
 import java.util.List;
@@ -141,6 +143,7 @@ public interface ImmutableDeploymentExtension {
       @SuppressWarnings("unchecked")
       NamedDomainObjectContainer<DeploymentConfiguration> types =
           (NamedDomainObjectContainer<DeploymentConfiguration>) props.get(DEPLOYMENT_TYPES);
+      checkNotNull(types, "types");
       return types;
     }
 

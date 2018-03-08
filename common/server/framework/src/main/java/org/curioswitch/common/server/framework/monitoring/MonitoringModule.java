@@ -152,4 +152,6 @@ public abstract class MonitoringModule {
     config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).addAppender(appender, null, null);
     context.updateLoggers(config);
   }
+
+  private MonitoringModule() {}
 }

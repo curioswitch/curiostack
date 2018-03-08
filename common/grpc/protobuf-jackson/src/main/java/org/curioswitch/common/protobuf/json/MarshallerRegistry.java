@@ -81,6 +81,7 @@ final class MarshallerRegistry {
     return marshaller;
   }
 
+  @SuppressWarnings("StringSplitter")
   private static String getTypeName(String typeUrl) throws InvalidProtocolBufferException {
     String[] parts = typeUrl.split("/");
     if (parts.length == 1) {

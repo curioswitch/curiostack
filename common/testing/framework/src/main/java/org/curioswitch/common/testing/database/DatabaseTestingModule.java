@@ -52,4 +52,6 @@ public abstract class DatabaseTestingModule {
   static DSLContext db(MockDataProvider dataProvider) {
     return DatabaseTestUtil.newDbContext(dataProvider);
   }
+
+  private DatabaseTestingModule() {}
 }
