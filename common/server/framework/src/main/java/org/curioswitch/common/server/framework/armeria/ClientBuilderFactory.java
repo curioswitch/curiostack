@@ -32,10 +32,13 @@ import com.linecorp.armeria.client.Endpoint;
 import com.linecorp.armeria.client.endpoint.EndpointGroupRegistry;
 import com.linecorp.armeria.client.endpoint.EndpointSelectionStrategy;
 import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroup;
+import com.linecorp.armeria.client.endpoint.healthcheck.HttpHealthCheckedEndpointGroup;
+import com.linecorp.armeria.client.endpoint.healthcheck.HttpHealthCheckedEndpointGroupBuilder;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
 import com.linecorp.armeria.client.tracing.HttpTracingClient;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.common.SessionProtocol;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
@@ -132,9 +135,12 @@ public class ClientBuilderFactory {
                 name,
                 endpoints.stream().map(Endpoint::authority).collect(Collectors.joining(","))));
     dnsEndpointGroup.start();
-    HttpsHealthCheckedEndpointGroup endpointGroup =
-        HttpsHealthCheckedEndpointGroup.of(
-            clientFactory, dnsEndpointGroup, "/internal/health", Duration.ofSeconds(3));
+    HttpHealthCheckedEndpointGroup endpointGroup =
+        new HttpHealthCheckedEndpointGroupBuilder(dnsEndpointGroup, "/internal/health")
+            .clientFactory(clientFactory)
+            .protocol(SessionProtocol.HTTPS)
+            .retryInterval(Duration.ofSeconds(3))
+            .build();
     EndpointGroupRegistry.register(name, endpointGroup, EndpointSelectionStrategy.ROUND_ROBIN);
     endpointGroup.newMeterBinder(name).bindTo(meterRegistry);
 

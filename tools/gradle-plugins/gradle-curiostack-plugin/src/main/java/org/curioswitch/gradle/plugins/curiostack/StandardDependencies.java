@@ -114,7 +114,7 @@ class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
               .version("0.38.0-beta")
-              .addModules("google-cloud-trace")
+              .addModules("google-cloud-bigquery", "google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud.sql")
@@ -128,7 +128,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.dagger")
-              .version("2.14.1")
+              .version("2.15")
               .addModules("dagger", "dagger-compiler", "dagger-producers")
               .build(),
           ImmutableDependencySet.builder()
@@ -154,7 +154,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.58.1")
+              .version("0.59.0")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -224,12 +224,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.micrometer")
-              .version("1.0.0-rc.9")
+              .version("1.0.1")
               .addModules("micrometer-registry-prometheus")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("4.1.21.Final")
+              .version("4.1.22.Final")
               .addModules(
                   "netty-buffer",
                   "netty-codec",
@@ -252,7 +252,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.prometheus")
-              .version("0.2.0")
+              .version("0.3.0")
               .addModules("simpleclient_hotspot", "simpleclient_log4j2")
               .build(),
           ImmutableDependencySet.builder()
@@ -317,7 +317,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.61")
+              .version("0.0.63")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()

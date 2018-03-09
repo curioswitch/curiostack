@@ -30,7 +30,6 @@ import com.linecorp.armeria.common.Flags;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.RequestContext;
-import com.linecorp.armeria.common.SessionProtocol;
 import com.linecorp.armeria.common.grpc.GrpcSerializationFormats;
 import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
@@ -296,7 +295,7 @@ public abstract class ServerModule {
       sslCommonNamesProvider = Optional.of(commonNamesProvider);
     }
 
-    ServerBuilder sb = new ServerBuilder().port(serverConfig.getPort(), SessionProtocol.HTTPS);
+    ServerBuilder sb = new ServerBuilder().https(serverConfig.getPort());
 
     if (selfSignedCertificate.isPresent()) {
       SelfSignedCertificate certificate = selfSignedCertificate.get();
@@ -309,7 +308,7 @@ public abstract class ServerModule {
         if (!serverConfig.isDisableSslAuthorization()) {
           sslContext.clientAuth(ClientAuth.OPTIONAL);
         }
-        sb.sslContext(sslContext.build());
+        sb.tls(sslContext.build());
       } catch (SSLException e) {
         // Can't happen.
         throw new IllegalStateException(e);
@@ -330,7 +329,7 @@ public abstract class ServerModule {
         if (!serverConfig.isDisableSslAuthorization()) {
           sslContext.clientAuth(ClientAuth.OPTIONAL);
         }
-        sb.sslContext(sslContext.build());
+        sb.tls(sslContext.build());
       } catch (SSLException e) {
         throw new IllegalStateException("Could not load TLS certificate.", e);
       }
