@@ -33,7 +33,7 @@ import configureBase, { Webpack4Configuration } from './base';
 const plugins = [
   new DefinePlugin({
     'process.env': {
-      NODE_ENV: 'production',
+      NODE_ENV: JSON.stringify('production'),
     },
   }),
   new HtmlWebpackPlugin({
