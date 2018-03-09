@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import 'babel-polyfill';
+import '@babel/polyfill';
 
 import { createBrowserHistory, History } from 'history';
 import React from 'react';

@@ -31,7 +31,7 @@ import configureBase, { Webpack4Configuration } from './base';
 const plugins = [
   new DefinePlugin({
     'process.env': {
-      NODE_ENV: 'development',
+      NODE_ENV: JSON.stringify('development'),
     },
   }),
   new ForkTsCheckerWebpackPlugin(),
