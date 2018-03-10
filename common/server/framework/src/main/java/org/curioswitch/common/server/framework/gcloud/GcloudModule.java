@@ -21,18 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.curioswitch.curiostack.gcloud.storage;
+
+package org.curioswitch.common.server.framework.gcloud;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.common.collect.ImmutableList;
-import com.linecorp.armeria.client.ClientBuilder;
-import com.linecorp.armeria.client.HttpClient;
-import com.linecorp.armeria.client.logging.LoggingClientBuilder;
-import com.linecorp.armeria.client.retry.RetryStrategy;
-import com.linecorp.armeria.client.retry.RetryingHttpClient;
-import com.linecorp.armeria.common.HttpRequest;
-import com.linecorp.armeria.common.HttpResponse;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.Module;
@@ -43,26 +36,23 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import javax.inject.Qualifier;
 import javax.inject.Singleton;
+import org.curioswitch.common.server.framework.config.GcloudConfig;
+import org.curioswitch.common.server.framework.config.ModifiableGcloudConfig;
 
-/** A {@link Module} to setup a {@link StorageClient}. */
 @Module
-public abstract class StorageModule {
-
-  @Qualifier
-  @interface ForStorage {}
+public abstract class GcloudModule {
 
   @Provides
   @Singleton
-  static StorageConfig config(Config config) {
-    return ConfigBeanFactory.create(config.getConfig("storage"), ModifiableStorageConfig.class)
+  static GcloudConfig config(Config config) {
+    return ConfigBeanFactory.create(config.getConfig("gcloud"), ModifiableGcloudConfig.class)
         .toImmutable();
   }
 
   @Provides
   @Singleton
-  static Credentials credentials(StorageConfig config) {
+  static Credentials gcloudCredentials(GcloudConfig config) {
     final GoogleCredentials credentials;
     try {
       if (config.getServiceAccountBase64().isEmpty()) {
@@ -80,25 +70,10 @@ public abstract class StorageModule {
       throw new UncheckedIOException("Could not read credentials.", e);
     }
     if (credentials.createScopedRequired()) {
-      return credentials.createScoped(
-          ImmutableList.of("https://www.googleapis.com/auth/devstorage.read_write"));
+      return credentials.createScoped(config.getCredentialScopes());
     }
     return credentials;
   }
 
-  @Provides
-  @Singleton
-  @ForStorage
-  static HttpClient httpClient(GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
-    return new ClientBuilder("none+h1://www.googleapis.com/upload/storage/v1/")
-        .decorator(HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator())
-        .decorator(HttpRequest.class, HttpResponse.class, credentialsDecorator.newDecorator())
-        .decorator(
-            HttpRequest.class,
-            HttpResponse.class,
-            RetryingHttpClient.newDecorator(RetryStrategy.onServerErrorStatus()))
-        .build(HttpClient.class);
-  }
-
-  private StorageModule() {}
+  private GcloudModule() {}
 }

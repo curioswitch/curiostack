@@ -75,6 +75,7 @@ class GoogleCredentialsDecoratingClient extends SimpleDecoratingClient<HttpReque
   }
 
   @Override
+  @SuppressWarnings("FutureReturnValueIgnored")
   public HttpResponse execute(ClientRequestContext ctx, HttpRequest req) {
     CompletableFuture<HttpResponse> resFuture = new CompletableFuture<>();
     credentials.getRequestMetadata(
