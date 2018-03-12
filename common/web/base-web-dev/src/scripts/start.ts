@@ -39,6 +39,7 @@ const pkg = require(path.resolve(process.cwd(), 'package.json'));
 let add;
 if (pkg.devServer && pkg.devServer.proxy) {
   add = (app: any, middleware: any) => {
+    app.use(historyFallback());
     middleware.webpack();
     middleware.content();
 
@@ -52,8 +53,6 @@ if (pkg.devServer && pkg.devServer.proxy) {
         }),
       );
     }
-
-    app.use(historyFallback());
   };
 }
 
