@@ -27,6 +27,7 @@ package org.curioswitch.gradle.plugins.ci;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
@@ -58,6 +59,9 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
 
   private static final ImmutableList<String> CONTINUOUS_TASK_TYPES =
       ImmutableList.of("build", "check", "test");
+
+  private static final ImmutableSet<String> IGNORED_ROOT_FILES =
+      ImmutableSet.of("settings.gradle", "yarn.lock", ".gitignore");
 
   @Override
   public void apply(Project project) {
@@ -243,7 +247,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
     }
     return affectedRelativePaths
         .stream()
-        .filter(path -> !path.equals("settings.gradle"))
+        .filter(path -> !IGNORED_ROOT_FILES.contains(path))
         .collect(toImmutableSet());
   }
 

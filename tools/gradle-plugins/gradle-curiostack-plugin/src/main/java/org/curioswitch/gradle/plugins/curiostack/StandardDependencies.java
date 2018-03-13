@@ -159,7 +159,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.spotify")
-              .version("3.0.0")
+              .version("3.1.1")
               .addModules("futures-extra")
               .build(),
           ImmutableDependencySet.builder()
@@ -317,12 +317,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.63")
+              .version("0.0.64")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.3")
+              .version("0.0.4")
               .addModules("curio-testing-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -342,13 +342,23 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jctools")
-              .version("2.1.1")
+              .version("2.1.2")
               .addModules("jctools-core")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jooq")
               .version("3.10.5")
               .addModules("jooq")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("org.junit.jupiter")
+              .version("5.1.0")
+              .addModules("junit-jupiter-api", "junit-jupiter-engine")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("org.junit.vintage")
+              .version("5.1.0")
+              .addModules("junit-vintage-engine")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")

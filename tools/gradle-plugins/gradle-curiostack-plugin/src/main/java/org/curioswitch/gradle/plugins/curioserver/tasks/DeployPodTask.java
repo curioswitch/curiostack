@@ -129,6 +129,8 @@ public class DeployPodTask extends DefaultTask {
       int heapSize = deploymentConfig.jvmHeapMb();
       StringBuilder javaOpts = new StringBuilder();
       javaOpts
+          .append("--add-opens java.base/jdk.internal.misc=ALL-UNNAMED ")
+          .append("--add-opens jdk.unsupported/sun.misc=ALL-UNNAMED ")
           .append("-Xms")
           .append(heapSize)
           .append("m ")

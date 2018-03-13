@@ -95,7 +95,7 @@ dependencies {
     runtime 'com.sun.xml.bind:jaxb-core'
     runtime 'com.sun.xml.bind:jaxb-impl'
 
-    apt 'org.immutables:value'
+    annotationProcessor 'org.immutables:value'
     compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
 }
 
