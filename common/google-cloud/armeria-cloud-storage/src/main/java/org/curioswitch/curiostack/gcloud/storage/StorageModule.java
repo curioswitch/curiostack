@@ -90,7 +90,11 @@ public abstract class StorageModule {
   @Singleton
   @ForStorage
   static HttpClient httpClient(GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
-    return new ClientBuilder("none+h1://www.googleapis.com/upload/storage/v1/")
+    String protocol =
+        System.getProperty("org.curioswitch.cloudStorage.useH1", "false").equals("true")
+            ? "h1"
+            : "https";
+    return new ClientBuilder("none+" + protocol + "://www.googleapis.com/upload/storage/v1/")
         .decorator(HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator())
         .decorator(HttpRequest.class, HttpResponse.class, credentialsDecorator.newDecorator())
         .decorator(
