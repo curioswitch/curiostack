@@ -24,6 +24,13 @@
 
 // tslint:disable:max-classes-per-file
 
+declare module '*.json' {
+  const value: {
+    version: string;
+  };
+  export = value;
+}
+
 declare module 'autodll-webpack-plugin' {
   import { Plugin } from 'webpack';
   interface Entry {
