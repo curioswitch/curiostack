@@ -30,7 +30,15 @@ archivesBaseName = 'curio-testing-framework'
 dependencies {
     api project(':common:server:framework')
 
-    apt 'com.google.dagger:dagger-compiler'
+    api 'org.junit.jupiter:junit-jupiter-api'
+
+    implementation 'org.assertj:assertj-core'
+    implementation 'org.mockito:mockito-core'
+
+    annotationProcessor 'com.google.auto.service:auto-service'
+    compileOnly 'com.google.auto.service:auto-service'
+
+    annotationProcessor 'com.google.dagger:dagger-compiler'
 }
 
 publishing {

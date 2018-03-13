@@ -29,7 +29,7 @@ archivesBaseName = 'curio-server-framework'
 
 // Spring dependencies plugin is not aware of classifiers. Eventually see if netflix plugins work
 // better (it is possibly a limitation of gradle itself).
-def sfmVersion = '3.15.11'
+def sfmVersion = '3.16.0'
 
 dependencies {
     api 'com.google.cloud:google-cloud-trace'
@@ -75,12 +75,12 @@ dependencies {
 
     runtime 'mysql:mysql-connector-java'
 
-    apt 'com.google.auto.service:auto-service'
+    annotationProcessor 'com.google.auto.service:auto-service'
     compileOnly 'com.google.auto.service:auto-service'
 
-    apt 'com.google.dagger:dagger-compiler'
+    annotationProcessor 'com.google.dagger:dagger-compiler'
 
-    apt 'org.immutables:value'
+    annotationProcessor 'org.immutables:value'
     compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
 }
 

@@ -100,6 +100,7 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.javadoc.Javadoc;
+import org.gradle.api.tasks.testing.Test;
 import org.gradle.external.javadoc.CoreJavadocOptions;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
@@ -358,6 +359,15 @@ public class CuriostackPlugin implements Plugin<Project> {
     javaPlugin.setSourceCompatibility(JavaVersion.VERSION_1_9);
     javaPlugin.setTargetCompatibility(JavaVersion.VERSION_1_9);
 
+    project
+        .getTasks()
+        .withType(Test.class)
+        .getByName("test")
+        .useJUnitPlatform(
+            platform -> {
+              platform.includeEngines("junit-jupiter", "junit-vintage");
+            });
+
     // While Gradle attempts to generate a unique module name automatically,
     // it doesn't seem to always work properly, so we just always use unique
     // module names.
@@ -591,6 +601,12 @@ public class CuriostackPlugin implements Plugin<Project> {
     dependencies.add(testConfiguration.getName(), "junit:junit");
     dependencies.add(testConfiguration.getName(), "org.mockito:mockito-core");
     dependencies.add(testConfiguration.getName(), "info.solidsoft.mockito:mockito-java8");
+
+    dependencies.add(testConfiguration.getName(), "org.junit.jupiter:junit-jupiter-api");
+    dependencies.add(
+        JavaPlugin.TEST_RUNTIME_ONLY_CONFIGURATION_NAME, "org.junit.jupiter:junit-jupiter-engine");
+    dependencies.add(
+        JavaPlugin.TEST_RUNTIME_ONLY_CONFIGURATION_NAME, "org.junit.vintage:junit-vintage-engine");
   }
 
   private static void setupDataSources(Project project) {
