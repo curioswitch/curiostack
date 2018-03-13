@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.linecorp.armeria.client.HttpClient;
-import com.linecorp.armeria.common.DefaultHttpData;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpHeaders;
@@ -37,10 +36,10 @@ import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.common.RequestContext;
+import com.linecorp.armeria.unsafe.ByteBufHttpData;
 import com.spotify.futures.CompletableFuturesExtra;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
-import io.netty.buffer.ByteBufUtil;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -83,10 +82,7 @@ public class StorageClient {
       throw new UncheckedIOException("Could not serialize resource JSON to buffer.", e);
     }
 
-    // ByteBufHttpData data = new ByteBufHttpData(buf, true);
-    byte[] bytes = ByteBufUtil.getBytes(buf);
-    HttpData data = new DefaultHttpData(bytes, 0, bytes.length, true);
-    buf.release();
+    HttpData data = new ByteBufHttpData(buf, true);
 
     HttpHeaders headers =
         HttpHeaders.of(HttpMethod.POST, uploadUrl).contentType(MediaType.JSON_UTF_8);
