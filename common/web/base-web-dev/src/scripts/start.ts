@@ -39,10 +39,6 @@ const pkg = require(path.resolve(process.cwd(), 'package.json'));
 let add;
 if (pkg.devServer && pkg.devServer.proxy) {
   add = (app: any, middleware: any) => {
-    app.use(historyFallback());
-    middleware.webpack();
-    middleware.content();
-
     for (const urlPath of Object.keys(pkg.devServer.proxy)) {
       const target = pkg.devServer.proxy[urlPath];
       app.use(
@@ -53,6 +49,9 @@ if (pkg.devServer && pkg.devServer.proxy) {
         }),
       );
     }
+    app.use(historyFallback());
+    middleware.webpack();
+    middleware.content();
   };
 }
 
