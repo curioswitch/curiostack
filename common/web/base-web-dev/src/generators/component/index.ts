@@ -31,26 +31,18 @@ import { promisify } from 'util';
 import program from 'commander';
 import inquirer, { Question } from 'inquirer';
 
-import { componentExists, renderTemplate } from '../utils';
+import {
+  componentExists,
+  convertTypeArg,
+  renderTemplate,
+  Type,
+} from '../utils';
 
 import packageJson from '../../../package.json';
 
 const readFile = promisify(fs.readFile);
 
 let argName: string | undefined;
-
-function convertType(type: 'normal' | 'stateless' | 'pure'): string {
-  switch (type) {
-    case 'normal':
-      return 'React.Component';
-    case 'stateless':
-      return 'Stateless Function';
-    case 'pure':
-      return 'React.PureComponent';
-    default:
-      throw new Error('Unknown type: ' + type);
-  }
-}
 
 program
   .version(packageJson.version)
@@ -59,7 +51,7 @@ program
   .option(
     '-t, --type <type>',
     'type of the component (normal|stateless|pure)',
-    convertType,
+    convertTypeArg,
   )
   .option('-m, --messages', 'whether to generate i18n messages')
   .parse(process.argv);
@@ -74,7 +66,7 @@ async function run() {
   const testTemplate = await readFile(require.resolve('./test.tsx.hbs'));
 
   const questions: Question[] = [];
-  let type = program.type;
+  let type: Type | undefined = program.type;
   if (!type) {
     questions.push({
       type: 'list',

@@ -1,4 +1,4 @@
-/*
+/**
  *
  * {{properCase name }}
  *
@@ -8,27 +8,34 @@ import React from 'react';
 {{#if wantHeaders}}
 import Helmet from 'react-helmet';
 {{/if}}
+import { hot } from 'react-hot-loader';
 {{#if wantMessages}}
 import { FormattedMessage } from 'react-intl';
 {{/if}}
 import { connect, Dispatch } from 'react-redux';
 import { bindActionCreators, compose } from 'redux';
 
+{{#if wantActionsAndReducer}}
+import injectReducer from '@curiostack/base-web/hoc/injectReducer';
+{{/if}}
 {{#if wantSaga}}
-const injectSaga = require('utils/injectSaga').default;
+import injectSaga from '@curiostack/base-web/hoc/injectSaga';
 {{/if}}
 
 {{#if wantActionsAndReducer}}
-const injectReducer = require('utils/injectReducer').default;
 import * as actions from './actions';
+{{/if}}
+{{#if wantMessages}}
+import messages from './messages';
+{{/if}}
+{{#if wantActionsAndReducer}}
 import reducer from './reducer';
-import select{{properCase name}} from './selectors';
 {{/if}}
 {{#if wantSaga}}
 import saga from './saga';
 {{/if}}
-{{#if wantMessages}}
-import messages from './messages';
+{{#if wantActionsAndReducer}}
+import select{{properCase name}} from './selectors';
 {{/if}}
 
 interface DispatchProps {
@@ -82,4 +89,5 @@ export default compose(
   withSaga,
 {{/if}}
   withConnect,
+  hot(module),
 )({{ properCase name }});

@@ -51,6 +51,17 @@ handlebars.registerHelper(
     val.length > 0 ? val[0].toUpperCase() + val.substring(1) : '',
 );
 
+handlebars.registerHelper(
+  'camelCase',
+  (val: string) =>
+    val.length > 0 ? val[0].toLowerCase() + val.substring(1) : '',
+);
+
+handlebars.registerHelper(
+  'curly',
+  (_: any, open: boolean) => (open ? '{' : '}'),
+);
+
 export async function renderTemplate(
   template: Buffer,
   outPath: string,
@@ -58,4 +69,23 @@ export async function renderTemplate(
 ) {
   const rendered = handlebars.compile(template.toString())(context);
   return writeFile(outPath, rendered);
+}
+
+export type TypeArg = 'normal' | 'stateless' | 'pure';
+export type Type =
+  | 'React.Component'
+  | 'Stateless Function'
+  | 'React.PureComponent';
+
+export function convertTypeArg(type: TypeArg): Type {
+  switch (type) {
+    case 'normal':
+      return 'React.Component';
+    case 'stateless':
+      return 'Stateless Function';
+    case 'pure':
+      return 'React.PureComponent';
+    default:
+      throw new Error('Unknown type: ' + type);
+  }
 }

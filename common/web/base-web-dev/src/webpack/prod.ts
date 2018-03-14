@@ -22,13 +22,15 @@
  * SOFTWARE.
  */
 
+process.env.NODE_ENV = 'production';
+
 import BrotliPlugin from 'brotli-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import WebappPlugin from 'webapp-webpack-plugin';
-import { DefinePlugin } from 'webpack';
+import { Configuration, DefinePlugin } from 'webpack';
 import ZopfliPlugin from 'zopfli-webpack-plugin';
 
-import configureBase, { Webpack4Configuration } from './base';
+import configureBase from './base';
 
 const plugins = [
   new DefinePlugin({
@@ -77,9 +79,13 @@ const plugins = [
   }),
 ];
 
-const configuration: Webpack4Configuration = configureBase({
+const configuration: Configuration = configureBase({
   plugins,
   mode: 'production',
+  babelPlugins: [
+    '@babel/transform-react-constant-elements',
+    '@babel/transform-react-inline-elements',
+  ],
   output: {
     filename: '[name].[chunkhash].js',
     chunkFilename: '[name].[chunkhash].chunk.js',

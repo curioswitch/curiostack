@@ -27,112 +27,144 @@ import path from 'path';
 
 import { Configuration } from 'webpack';
 
-export interface Webpack4Configuration extends Configuration {
-  mode: 'development' | 'production';
-}
-
-const typescriptLoader = [
-  'babel-loader',
-  {
-    loader: 'ts-loader',
-    options: {
-      compilerOptions: {
-        noEmit: false,
-      },
-      transpileOnly: true,
-      onlyCompileBundledFiles: true,
-      reportFiles: ['src/**/*.{ts,tsx}'],
-    },
-  },
-];
+// tslint:disable-next-line:no-var-requires
+const packageJson = require(path.resolve(process.cwd(), 'package.json'));
 
 const entrypoint = ['src/app.js', 'src/app.ts']
   .map((relativePath) => path.join(process.cwd(), relativePath))
   .filter((p) => fs.existsSync(p))[0]!;
 
-const configure = (options: any): Webpack4Configuration => ({
-  mode: options.mode,
-  entry: [entrypoint],
-  output: {
-    path: path.resolve(process.cwd(), 'build/web'),
-    publicPath: '/',
-    ...options.output,
-  },
-  module: {
-    rules: [
-      {
-        test: /\.js$/, // Transform all .js files required somewhere with Babel
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-        },
-      },
-      {
-        test: /\.ts(x?)$/,
-        exclude: /node_modules/,
-        use: typescriptLoader,
-      },
-      {
-        test: /\.ts(x?)$/,
-        include: /node_modules\/@curiostack\/base-web/,
-        use: typescriptLoader,
-      },
-      {
-        test: /\.css$/,
-        include: /node_modules/,
-        use: 'raw-loader',
-      },
-      {
-        test: /\.(eot|svg|otf|ttf|woff|woff2|webm|m4a|mp4)$/,
-        use: 'file-loader',
-      },
-      {
-        test: /\.(jpg|png|gif)$/,
-        use: [
-          'file-loader',
-          {
-            loader: 'image-webpack-loader',
-            options: {
-              mozjpeg: {
-                quality: 65,
-                progressive: true,
-              },
-              gifsicle: {
-                optimizationLevel: 7,
-                interlaced: false,
-              },
-              optipng: {
-                enabled: false,
-                optimizationLevel: 7,
-                interlaced: false,
-              },
-              pngquant: {
-                enabled: false,
-                quality: '65-90',
-                speed: 4,
+const browsers = (packageJson.curiostack &&
+  // tslint:disable-next-line:strict-boolean-expressions
+  packageJson.curiostack.browsers) || ['last 2 versions'];
+
+function configure(options: any): Configuration {
+  const typescriptLoader = [
+    {
+      loader: 'babel-loader',
+      options: {
+        presets: [
+          [
+            '@babel/env',
+            {
+              modules: false,
+              useBuiltins: true,
+              targets: {
+                browsers,
               },
             },
-          },
+          ],
+          '@babel/react',
+          '@babel/stage-0',
+        ],
+        plugins: [
+          'react-hot-loader/babel',
+          [
+            'react-intl-auto',
+            {
+              removePrefix: 'src/',
+            },
+          ],
+          ...options.babelPlugins,
         ],
       },
-      {
-        test: /\.html$/,
-        use: 'html-loader',
+    },
+    {
+      loader: 'ts-loader',
+      options: {
+        compilerOptions: {
+          noEmit: false,
+        },
+        transpileOnly: true,
+        onlyCompileBundledFiles: true,
+        reportFiles: ['src/**/*.{ts,tsx}'],
       },
-      {
-        test: /\.md$/,
-        use: ['babel-loader', '@hugmanrique/react-markdown-loader'],
-      },
-    ],
-  },
-  plugins: [...options.plugins],
-  resolve: {
-    modules: ['src', 'node_modules'],
-    extensions: ['.js', '.jsx', '.ts', '.tsx'],
-    mainFields: ['browser', 'module', 'jsnext:main', 'main'],
-  },
-  devtool: options.devtool,
-  target: 'web',
-});
+    },
+  ];
+  return {
+    mode: options.mode,
+    entry: [entrypoint],
+    output: {
+      path: path.resolve(process.cwd(), 'build/web'),
+      publicPath: '/',
+      ...options.output,
+    },
+    module: {
+      rules: [
+        {
+          test: /\.js$/, // Transform all .js files required somewhere with Babel
+          exclude: /node_modules/,
+          use: {
+            loader: 'babel-loader',
+          },
+        },
+        {
+          test: /\.ts(x?)$/,
+          exclude: /node_modules/,
+          use: typescriptLoader,
+        },
+        {
+          test: /\.ts(x?)$/,
+          include: /node_modules\/@curiostack\/base-web/,
+          use: typescriptLoader,
+        },
+        {
+          test: /\.css$/,
+          include: /node_modules/,
+          use: 'raw-loader',
+        },
+        {
+          test: /\.(eot|svg|otf|ttf|woff|woff2|webm|m4a|mp4)$/,
+          use: 'file-loader',
+        },
+        {
+          test: /\.(jpg|png|gif)$/,
+          use: [
+            'file-loader',
+            {
+              loader: 'image-webpack-loader',
+              options: {
+                mozjpeg: {
+                  quality: 65,
+                  progressive: true,
+                },
+                gifsicle: {
+                  optimizationLevel: 7,
+                  interlaced: false,
+                },
+                optipng: {
+                  enabled: false,
+                  optimizationLevel: 7,
+                  interlaced: false,
+                },
+                pngquant: {
+                  enabled: false,
+                  quality: '65-90',
+                  speed: 4,
+                },
+              },
+            },
+          ],
+        },
+        {
+          test: /\.html$/,
+          use: 'html-loader',
+        },
+        {
+          test: /\.md$/,
+          use: ['babel-loader', '@hugmanrique/react-markdown-loader'],
+        },
+      ],
+    },
+    plugins: [...options.plugins],
+    resolve: {
+      modules: ['src', 'node_modules'],
+      extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      mainFields: ['browser', 'module', 'jsnext:main', 'main'],
+    },
+    devtool: options.devtool,
+    target: 'web',
+  };
+}
 
 export default configure;

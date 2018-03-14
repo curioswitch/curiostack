@@ -37,10 +37,15 @@ const historyFallback = require('koa2-history-api-fallback');
 const pkg = require(path.resolve(process.cwd(), 'package.json'));
 
 let add;
-if (pkg.devServer && pkg.devServer.proxy) {
+if (
+  pkg.curiostack &&
+  pkg.curiostack.devServer &&
+  pkg.curiostack.devServer.proxy
+) {
+  const proxyConfig = pkg.curiostack.devServer.proxy;
   add = (app: any, middleware: any) => {
-    for (const urlPath of Object.keys(pkg.devServer.proxy)) {
-      const target = pkg.devServer.proxy[urlPath];
+    for (const urlPath of Object.keys(proxyConfig)) {
+      const target = proxyConfig[urlPath];
       app.use(
         (proxy as any)(urlPath, {
           target,

@@ -1,12 +1,11 @@
-import { Map } from 'immutable';
+import { GlobalState } from '../../app';
 
-import { StateProps } from './reducer';
+import { State } from './reducer';
 
 /**
  * Default selector used by {{ properCase name }}
  */
-export default (state: Map<string, any>): StateProps =>
-  state.get('{{ camelCase name }}');
+export default (state: GlobalState): State => state.{{ camelCase name }};
 
 /**
  * Other specific selectors

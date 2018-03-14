@@ -1,20 +1,20 @@
-/*
+/**
  *
  * {{ properCase name }} reducer
  *
  */
 
 import { Record } from 'immutable';
-import { getType } from 'typesafe-actions/es5-module';
+import { getType } from 'typesafe-actions';
 
 import * as actions from './actions';
 
 export interface StateProps {
 }
 
-export type State = Record<StateProps>;
+export type State = Record<StateProps> & StateProps;
 
-export const initialState = State({
+export const initialState = Record<StateProps>({
 })();
 
 export default function {{ camelCase name }}Reducer(
