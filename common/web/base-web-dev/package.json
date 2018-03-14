@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-web-dev",
-  "version": "0.0.10",
+  "version": "0.0.12",
   "description": "Curiostack's base dev dependencies for browser applications.",
   "main": "build/index.js",
   "bin": {
@@ -9,6 +9,7 @@
     "fix": "./build/scripts/fix.js",
     "generate": "./build/scripts/generate.js",
     "generate-component": "./build/scripts/generate-component.js",
+    "generate-container": "./build/scripts/generate-container.js",
     "start": "./build/scripts/start.js"
   },
   "repository": "curioswitch/curiostack",
@@ -47,10 +48,11 @@
     "@types/redux-immutable": "3.0.38",
     "@types/webpack-env": "1.13.5",
     "babel-loader": "8.0.0-beta.2",
-    "babel-plugin-react-intl": "2.4.0",
+    "babel-plugin-react-intl-auto": "1.1.0",
     "babel-plugin-styled-components": "1.5.1",
     "brotli-webpack-plugin": "0.5.0",
     "commander": "2.15.0",
+    "extract-react-intl-messages": "0.8.2",
     "file-loader": "1.1.11",
     "fork-ts-checker-webpack-plugin": "0.4.0",
     "fs-extra": "5.0.0",
@@ -79,10 +81,10 @@
   "devDependencies": {
     "@types/fontfaceobserver": "0.0.6",
     "@types/fs-extra": "5.0.1",
-    "@types/inquirer": "0.0.37",
     "@types/handlebars": "4.0.36",
     "@types/html-webpack-plugin": "2.30.2",
     "@types/http-proxy-middleware": "0.17.4",
+    "@types/inquirer": "0.0.37",
     "@types/rimraf": "2.0.2",
     "@types/webpack": "4.0.0",
     "copyfiles": "2.0.0"

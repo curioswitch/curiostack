@@ -1,0 +1,12 @@
+import { ForkEffect, select, takeLatest } from 'redux-saga/effects';
+import { getType } from 'typesafe-actions/es5-module';
+
+import { defaultAction } from './actions';
+
+function* doDefaultAction() {
+  // See example in containers/HomePage/sagas.js
+}
+
+export default function* rootSaga(): IterableIterator<ForkEffect[]> {
+  yield [takeLatest(getType(defaultAction), doDefaultAction)];
+}

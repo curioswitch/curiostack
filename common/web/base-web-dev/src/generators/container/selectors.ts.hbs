@@ -1,0 +1,13 @@
+import { Map } from 'immutable';
+
+import { StateProps } from './reducer';
+
+/**
+ * Default selector used by {{ properCase name }}
+ */
+export default (state: Map<string, any>): StateProps =>
+  state.get('{{ camelCase name }}');
+
+/**
+ * Other specific selectors
+ */
