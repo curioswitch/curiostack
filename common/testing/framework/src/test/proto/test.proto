@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "org.curioswitch.testing";
+option java_multiple_files = true;
+
+message TestProto {
+  string string_value = 1;
+
+  int32 int_value = 2;
+
+  bool bool_value = 3;
+}

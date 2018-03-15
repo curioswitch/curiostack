@@ -359,14 +359,17 @@ public class CuriostackPlugin implements Plugin<Project> {
     javaPlugin.setSourceCompatibility(JavaVersion.VERSION_1_9);
     javaPlugin.setTargetCompatibility(JavaVersion.VERSION_1_9);
 
-    project
+    Test test = project
         .getTasks()
         .withType(Test.class)
-        .getByName("test")
-        .useJUnitPlatform(
-            platform -> {
-              platform.includeEngines("junit-jupiter", "junit-vintage");
-            });
+        .getByName("test");
+    test.setJvmArgs(
+        ImmutableList.of(
+            project.getRootProject().hasProperty("updateSnapshots")
+                ? "-Dorg.curioswitch.testing.updateSnapshots=true"
+                : ""));
+    test.useJUnitPlatform(
+        platform -> platform.includeEngines("junit-jupiter", "junit-vintage"));
 
     // While Gradle attempts to generate a unique module name automatically,
     // it doesn't seem to always work properly, so we just always use unique
