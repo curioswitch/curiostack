@@ -51,11 +51,16 @@ program
 
 async function run() {
   const packageJsonTemplate = await readFile(
-    require.resolve('./class.tsx.hbs'),
+    path.join(__dirname, 'package.json.hbs'),
   );
-  const tsconfigTemplate = await readFile(require.resolve('./messages.ts.hbs'));
+  const tsconfigTemplate = await readFile(
+    path.join(__dirname, 'tsconfig.json.hbs'),
+  );
   const baseTsConfigTemplate = await readFile(
-    require.resolve('./base-tsconfig.json'),
+    path.join(__dirname, 'tsconfig.json'),
+  );
+  const tslintConfigTemplate = await readFile(
+    path.join(__dirname, 'tslint.json.hbs'),
   );
 
   const questions: Question[] = [];
@@ -100,6 +105,11 @@ async function run() {
     path.resolve(packageDir, 'package.json'),
     context,
   );
+  await renderTemplate(
+    tslintConfigTemplate,
+    path.resolve(packageDir, 'tslint.json'),
+    context,
+  );
   if (packageDir === path.resolve(process.cwd())) {
     await renderTemplate(
       baseTsConfigTemplate,
@@ -114,7 +124,7 @@ async function run() {
     );
   }
   await copy(
-    require.resolve('./src-template'),
+    path.join(__dirname, 'src-template'),
     path.resolve(packageDir, 'src'),
   );
 }

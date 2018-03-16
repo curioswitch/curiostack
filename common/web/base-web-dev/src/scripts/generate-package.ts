@@ -23,4 +23,4 @@
  * SOFTWARE.
  */
 
-import '../generators/container';
+import '../generators/package';

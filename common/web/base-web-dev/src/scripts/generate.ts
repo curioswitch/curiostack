@@ -31,4 +31,5 @@ program
   .version(packageJson.version)
   .command('component')
   .command('container')
+  .command('package')
   .parse(process.argv);
