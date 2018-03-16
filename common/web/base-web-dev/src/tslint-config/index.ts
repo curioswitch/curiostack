@@ -30,12 +30,14 @@ export = {
     'tslint-config-prettier',
   ],
   rules: {
+    'function-name': false,
     'import-name': false,
     'interface-name': false,
     'jsx-boolean-value': false,
     'no-implicit-dependencies': false,
-    'no-submodule-imports': false,
     'no-magic-numbers': ['error', { ignore: [-1, 0, 1] }],
+    'no-submodule-imports': false,
+    'strict-boolean-expressions': false,
     'variable-name': false,
   },
 };
