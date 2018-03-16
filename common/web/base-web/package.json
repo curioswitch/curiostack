@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-web",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Curiostack's base runtime dependencies for browser applications.",
   "repository": "curioswitch/curiostack",
   "author": "Choko <choko@curioswitch.org>",
@@ -27,6 +27,7 @@
     "redux": "4.0.0-beta.2",
     "redux-immutable": "4.0.0",
     "redux-saga": "0.16.0",
+    "reselect": "3.0.1",
     "styled-components": "3.2.1",
     "styled-components-ts": "0.0.8",
     "typesafe-actions": "1.1.2",
