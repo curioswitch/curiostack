@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-web-dev",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Curiostack's base dev dependencies for browser applications.",
   "main": "build/index.js",
   "bin": {
@@ -10,6 +10,7 @@
     "generate": "./build/scripts/generate.js",
     "generate-component": "./build/scripts/generate-component.js",
     "generate-container": "./build/scripts/generate-container.js",
+    "generate-package": "./build/scripts/generate-package.js",
     "start": "./build/scripts/start.js"
   },
   "repository": "curioswitch/curiostack",
@@ -17,7 +18,7 @@
   "license": "MIT",
   "scripts": {
     "prebuild": "yarn run build:clean",
-    "build": "tsc --outDir ./build --noEmit false --target es2016 && copyfiles -u 1 src/**/*.hbs build && copyfiles -u 3 src/package/src-template/** build/generators/package/src",
+    "build": "tsc --outDir ./build --noEmit false --target es2016 && copyfiles -u 1 src/**/*.hbs build && copyfiles -u 1 src/**/src-template/** build && copyfiles -u 3 ../../../tsconfig.json build/generators/package",
     "build:clean": "rimraf ./build",
     "//": "Normally we would lint before build, but we are actually building the lint config here.",
     "postbuild": "yarn run lint",
