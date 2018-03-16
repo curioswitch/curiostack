@@ -3,17 +3,11 @@ import { createAction } from 'typesafe-actions';
 import { $call } from 'utility-types';
 
 const types = {
-  setGlobalErrorMessage: 'App/SET_GLOBAL_ERROR_MESSAGE',
+  sampleAction: 'HomePage/SAMPLE_ACTION',
 };
 
 const actions = {
-  setGlobalErrorMessage: createAction(
-    types.setGlobalErrorMessage,
-    (errorMessage: string) => ({
-      type: types.setGlobalErrorMessage,
-      payload: errorMessage,
-    }),
-  ),
+  sampleAction: createAction(types.sampleAction),
 };
 
 export type DispatchProps = typeof actions;

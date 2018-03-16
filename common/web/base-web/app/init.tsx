@@ -44,7 +44,7 @@ function render(
   store: Store,
   history: History,
   mountNode: HTMLElement,
-  Component: React.ComponentClass | React.StatelessComponent,
+  Component: React.ComponentClass<any> | React.StatelessComponent<any>,
   theme: any,
 ) {
   ReactDOM.render(

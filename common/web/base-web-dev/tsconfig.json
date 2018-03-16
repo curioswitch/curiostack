@@ -6,6 +6,9 @@
     "lib": ["es2016", "es2015"],
     "module": "commonjs"
   },
+  "exclude": [
+    "**/src-template/**"
+  ],
   "include": [
     "src/**/*"
   ]

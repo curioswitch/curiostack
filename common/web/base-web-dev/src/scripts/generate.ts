@@ -23,4 +23,12 @@
  * SOFTWARE.
  */
 
-import '../generators';
+import program from 'commander';
+
+import packageJson from '../../package.json';
+
+program
+  .version(packageJson.version)
+  .command('component')
+  .command('container')
+  .parse(process.argv);

@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-web",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Curiostack's base runtime dependencies for browser applications.",
   "repository": "curioswitch/curiostack",
   "author": "Choko <choko@curioswitch.org>",
@@ -11,7 +11,7 @@
     "lint": "tslint --project ."
   },
   "dependencies": {
-    "@babel/polyfill": "7.0.0-beta.40",
+    "@babel/polyfill": "7.0.0-beta.42",
     "fontfaceobserver": "2.0.13",
     "immutable": "4.0.0-rc.9",
     "intl": "1.2.5",
@@ -21,14 +21,14 @@
     "react-hot-loader": "4.0.0",
     "react-intl": "2.4.0",
     "react-loadable": "5.3.1",
-    "react-redux": "5.0.6",
+    "react-redux": "5.0.7",
     "react-router-dom": "4.2.2",
     "react-router-redux": "5.0.0-alpha.9",
     "redux": "4.0.0-beta.2",
     "redux-immutable": "4.0.0",
     "redux-saga": "0.16.0",
     "reselect": "3.0.1",
-    "styled-components": "3.2.1",
+    "styled-components": "3.2.3",
     "styled-components-ts": "0.0.8",
     "typesafe-actions": "1.1.2",
     "utility-types": "1.1.0"
@@ -38,7 +38,7 @@
     "@types/history": "4.6.2",
     "@types/react-intl": "2.3.5",
     "@types/react-redux": "5.0.15",
-    "@types/react-router-dom": "4.2.4",
+    "@types/react-router-dom": "4.2.5",
     "@types/react-router-redux": "5.0.12",
     "@types/redux-immutable": "3.0.38",
     "@types/webpack-env": "1.13.5"

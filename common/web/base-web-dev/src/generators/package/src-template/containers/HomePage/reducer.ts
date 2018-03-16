@@ -4,19 +4,19 @@ import { getType } from 'typesafe-actions';
 import actions, { Action } from './actions';
 
 export interface StateProps {
-  globalErrorMessage: string;
+  sampleProp: string;
 }
 
 export type State = Readonly<StateProps> & Record<StateProps>;
 
 export const initialState = Record<StateProps>({
-  globalErrorMessage: '',
+  sampleProp: '',
 })();
 
 export default function(state: State, action: Action): State {
   switch (action.type) {
-    case getType(actions.setGlobalErrorMessage):
-      return state.set('globalErrorMessage', action.payload);
+    case getType(actions.sampleAction):
+      return state;
     default:
       return state;
   }
