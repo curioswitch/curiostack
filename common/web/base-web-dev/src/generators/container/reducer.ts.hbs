@@ -1,0 +1,35 @@
+/**
+ *
+ * {{ properCase name }} reducer
+ *
+ */
+
+import { Record } from 'immutable';
+import { getType } from 'typesafe-actions';
+
+import * as actions from './actions';
+
+export interface StateProps {
+}
+
+export type State = Record<StateProps> & StateProps;
+
+export const initialState = Record<StateProps>({
+})();
+
+export default function {{ camelCase name }}Reducer(
+  state: State,
+  action: Actions,
+) {
+  switch (action.type) {
+    case getType(actions.defaultAction):
+      return state;
+    default:
+      return state;
+  }
+}
+
+// inferring union type of actions
+import { $call } from 'utility-types';
+const returnsOfActions = Object.values(actions).map($call);
+type Actions = typeof returnsOfActions[number];

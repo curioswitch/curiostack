@@ -1,0 +1,93 @@
+/**
+ *
+ * {{properCase name }}
+ *
+ */
+
+import React from 'react';
+{{#if wantHeaders}}
+import Helmet from 'react-helmet';
+{{/if}}
+import { hot } from 'react-hot-loader';
+{{#if wantMessages}}
+import { FormattedMessage } from 'react-intl';
+{{/if}}
+import { connect, Dispatch } from 'react-redux';
+import { bindActionCreators, compose } from 'redux';
+
+{{#if wantActionsAndReducer}}
+import injectReducer from '@curiostack/base-web/hoc/injectReducer';
+{{/if}}
+{{#if wantSaga}}
+import injectSaga from '@curiostack/base-web/hoc/injectSaga';
+{{/if}}
+
+{{#if wantActionsAndReducer}}
+import * as actions from './actions';
+{{/if}}
+{{#if wantMessages}}
+import messages from './messages';
+{{/if}}
+{{#if wantActionsAndReducer}}
+import reducer from './reducer';
+{{/if}}
+{{#if wantSaga}}
+import saga from './saga';
+{{/if}}
+{{#if wantActionsAndReducer}}
+import select{{properCase name}} from './selectors';
+{{/if}}
+
+interface DispatchProps {
+}
+
+type Props = DispatchProps;
+
+export class {{ properCase name }} extends {{{ type }}}<Props> {
+  public render() {
+    return (
+      <div>
+      {{#if wantHeaders}}
+        <Helmet
+          title="{{properCase name}}"
+          meta={{curly true}}[
+            {{curly true}} name: 'description', content: 'Description of {{properCase name}}' {{curly}},
+          ]{{curly}}
+        />
+      {{/if}}
+      {{#if wantMessages}}
+        <FormattedMessage {...messages.header} />
+      {{/if}}
+      </div>
+    );
+  }
+}
+
+const mapDispatchToProps = (dispatch: Dispatch<{}>): DispatchProps =>
+  bindActionCreators(
+    {
+    },
+    dispatch,
+  );
+
+{{#if wantActionsAndReducer}}
+const withConnect = connect<{}, DispatchProps>(select{{properCase name}}, mapDispatchToProps);
+
+const withReducer = injectReducer({ reducer, key: '{{ camelCase name }}' });
+{{else}}
+const withConnect = connect(null, mapDispatchToProps);
+{{/if}}
+{{#if wantSaga}}
+const withSaga = injectSaga({ saga, key: '{{ camelCase name }}' });
+{{/if}}
+
+export default compose(
+{{#if wantActionsAndReducer}}
+  withReducer,
+{{/if}}
+{{#if wantSaga}}
+  withSaga,
+{{/if}}
+  withConnect,
+  hot(module),
+)({{ properCase name }});

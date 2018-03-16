@@ -22,11 +22,13 @@
  * SOFTWARE.
  */
 
+process.env.NODE_ENV = 'development';
+
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import { DefinePlugin } from 'webpack';
+import { Configuration, DefinePlugin } from 'webpack';
 
-import configureBase, { Webpack4Configuration } from './base';
+import configureBase from './base';
 
 const plugins = [
   new DefinePlugin({
@@ -42,9 +44,10 @@ const plugins = [
   }),
 ];
 
-const configuration: Webpack4Configuration = configureBase({
+const configuration: Configuration = configureBase({
   plugins,
   mode: 'development',
+  babelPlugins: [],
   // Don't use hashes in dev mode for better performance
   output: {
     filename: '[name].js',
