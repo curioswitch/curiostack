@@ -682,9 +682,13 @@ public class CuriostackPlugin implements Plugin<Project> {
     envs.setBootstrapDirectory(pythonDir.resolve("bootstrap").toFile());
     envs.setEnvsDirectory(pythonDir.resolve("envs").toFile());
 
-    envs.python("python2", "2.7.14");
-    envs.virtualenv("build", "python2");
-    envs.virtualenv("dev", "python2");
+    ImmutableList.Builder<String> condaPackages = ImmutableList.builder();
+
+    envs.conda("miniconda2", "Miniconda2-4.4.10", ImmutableList.of(
+        envs.condaPackage("git")
+    ));
+    envs.condaenv("build", "2.7", "miniconda2");
+    envs.condaenv("dev", "2.7", "miniconda2");
 
     rootProject.getTasks().create("pythonSetup", t -> t.dependsOn("build_envs"));
   }
