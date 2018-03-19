@@ -70,8 +70,7 @@ function findLicenseHeader() {
     if (fs.existsSync(licensePath)) {
       const licenseFile = fs.readFileSync(licensePath, { encoding: 'utf8' });
       const lineEnd = licenseFile.indexOf('\r\n') < 0 ? '\n' : '\r\n';
-      return `/**
- * @license
+      return `/*
 ${licenseFile
         .split(lineEnd)
         .map((line) => ` ${line ? `* ${line}` : '*'}`)
@@ -88,7 +87,7 @@ ${licenseFile
   return '';
 }
 
-const licenseHeader = findLicenseHeader();
+export const licenseHeader = findLicenseHeader();
 
 export async function renderTemplate(
   template: Buffer,
@@ -96,7 +95,10 @@ export async function renderTemplate(
   context: object,
 ) {
   const rendered = handlebars.compile(template.toString())(context);
-  return writeFile(outPath, licenseHeader + rendered);
+  return writeFile(
+    outPath,
+    outPath.endsWith('.json') ? rendered : licenseHeader + rendered,
+  );
 }
 
 export type TypeArg = 'normal' | 'stateless' | 'pure';
