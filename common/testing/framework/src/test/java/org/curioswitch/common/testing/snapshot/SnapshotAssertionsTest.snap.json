@@ -1,0 +1,40 @@
+{
+  "SnapshotAssertionsTest.SnapshotMatches.once/0" : {
+    "value1" : "obj2",
+    "value2" : 5,
+    "value3" : 20
+  },
+  "SnapshotAssertionsTest.SnapshotMatches.thrice/0" : {
+    "value1" : "obj2",
+    "value2" : 5,
+    "value3" : 20
+  },
+  "SnapshotAssertionsTest.SnapshotMatches.thrice/1" : {
+    "value1" : "obj3",
+    "value2" : 1000,
+    "value3" : -275
+  },
+  "SnapshotAssertionsTest.SnapshotMatches.thrice/2" : {
+    "value1" : "obj4",
+    "value2" : 3,
+    "value3" : 1
+  },
+  "SnapshotAssertionsTest.SnapshotMatches.twice/0" : {
+    "value1" : "obj1",
+    "value2" : 10,
+    "value3" : 30
+  },
+  "SnapshotAssertionsTest.SnapshotMatches.twice/1" : {
+    "value1" : "obj3",
+    "value2" : 1000,
+    "value3" : -275
+  },
+  "SnapshotAssertionsTest.proto/0" : {
+    "stringValue" : "proto1"
+  },
+  "SnapshotAssertionsTest.topLevel/0" : {
+    "value1" : "obj1",
+    "value2" : 10,
+    "value3" : 30
+  }
+}
