@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-web-dev",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Curiostack's base dev dependencies for browser applications.",
   "main": "build/index.js",
   "bin": {
