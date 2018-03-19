@@ -81,7 +81,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
       "#!|NODE_PATH|\n" + "" + "require('|IMPORTED_MODULE|');";
 
   private static final String RESOLVED_PLUGIN_CMD_TEMPLATE =
-      "@echo off\r\n\"|NODE_PATH|\" \"%~dp0\\..\\ts-protoc-gen\\bin\\protoc-gen-ts\" %*";
+      "@echo off\r\n\"|NODE_PATH|\" \"%~dp0\\protoc-gen-ts-resolved\" %*";
 
   private static final String PACKAGE_JSON_TEMPLATE;
   private static final String TSCONFIG_TEMPLATE;
