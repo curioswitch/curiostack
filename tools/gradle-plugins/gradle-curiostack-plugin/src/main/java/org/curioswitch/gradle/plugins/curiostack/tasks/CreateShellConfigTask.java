@@ -37,6 +37,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.tools.ant.taskdefs.condition.Os;
+import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
@@ -87,6 +88,7 @@ public class CreateShellConfigTask extends DefaultTask {
         ImmutableList.of(
             MARKER,
             "export PATH=" + joinedPath + ":$PATH",
+            "export CLOUDSDK_PYTHON=" + CommandUtil.getPythonExecutable(getProject(), "dev"),
             "export CLOUDSDK_PYTHON_SITEPACKAGES=1",
             MARKER);
 

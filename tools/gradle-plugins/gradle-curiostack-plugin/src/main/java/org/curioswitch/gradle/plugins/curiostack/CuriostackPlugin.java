@@ -72,6 +72,7 @@ import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
 import nu.studer.gradle.jooq.JooqTask;
+import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.common.LambdaClosure;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
@@ -110,7 +111,7 @@ import org.gradle.process.ExecSpec;
 public class CuriostackPlugin implements Plugin<Project> {
 
   private static final String GOOGLE_JAVA_FORMAT_VERSION = "1.5";
-  private static final String NODE_VERSION = "9.7.1";
+  private static final String NODE_VERSION = "9.8.0";
   private static final String YARN_VERSION = "1.5.1";
 
   private static final Splitter NEW_LINE_SPLITTER = Splitter.on('\n');
@@ -682,11 +683,15 @@ public class CuriostackPlugin implements Plugin<Project> {
     envs.setBootstrapDirectory(pythonDir.resolve("bootstrap").toFile());
     envs.setEnvsDirectory(pythonDir.resolve("envs").toFile());
 
-    ImmutableList.Builder<String> condaPackages = ImmutableList.builder();
+    ImmutableList.Builder<String> condaPackages = ImmutableList.<String>builder()
+        .add("git");
+    if (Os.isFamily(Os.FAMILY_MAC)) {
+      condaPackages.add("clang_osx-64", "clangxx_osx-64", "gfortran_osx-64");
+    } else if (Os.isFamily(Os.FAMILY_UNIX)) {
+      condaPackages.add("gcc_linux-64", "gxx_linux-64", "gfortran_linux-64");
+    }
 
-    envs.conda("miniconda2", "Miniconda2-4.4.10", ImmutableList.of(
-        envs.condaPackage("git")
-    ));
+    envs.conda("miniconda2", "Miniconda2-4.4.10", condaPackages.build());
     envs.condaenv("build", "2.7", "miniconda2");
     envs.condaenv("dev", "2.7", "miniconda2");
 

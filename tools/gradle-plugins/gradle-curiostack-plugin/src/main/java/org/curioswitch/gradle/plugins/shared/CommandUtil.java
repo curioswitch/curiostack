@@ -35,7 +35,7 @@ public final class CommandUtil {
   }
 
   public static Path getPythonBinDir(Project project, String envName) {
-    String binDir = Os.isFamily(Os.FAMILY_WINDOWS) ? "Scripts" : "bin";
+    String binDir = Os.isFamily(Os.FAMILY_WINDOWS) ? "" : "bin";
     return getPythonDir(project).resolve("envs/" + envName + "/" + binDir);
   }
 
