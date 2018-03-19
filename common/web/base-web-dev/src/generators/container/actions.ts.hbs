@@ -1,10 +1,20 @@
-/**
- *
- * {{ properCase name }} actions
- *
- */
-
+import { bindActionCreators, Dispatch } from 'redux';
 import { createAction } from 'typesafe-actions';
+import { $call } from 'utility-types';
 
-const DEFAULT_ACTION = 'app/{{ properCase name }}/DEFAULT_ACTION';
-export const defaultAction = createAction(DEFAULT_ACTION);
+const types = {
+};
+
+const actions = {
+};
+
+export type DispatchProps = typeof actions;
+
+export function mapDispatchToProps(dispatch: Dispatch<any>): any {
+  return bindActionCreators(actions, dispatch);
+}
+
+const returnsOfActions = Object.values(actions).map($call);
+export type Action = typeof returnsOfActions[number];
+
+export default actions;

@@ -23,22 +23,19 @@
  * SOFTWARE.
  */
 
-import fs from 'fs';
-import { copy, mkdirs } from 'fs-extra';
+import { mkdirs, readFile, writeFile } from 'fs-extra';
 import path from 'path';
-import { promisify } from 'util';
 
 import program from 'commander';
 import inquirer, { Question } from 'inquirer';
+import klawSync from 'klaw-sync';
 
-import { renderTemplate } from '../utils';
+import { licenseHeader, renderTemplate } from '../utils';
 
 import baseWebDevPackageJson from '../../../../base-web-dev/package.json';
 import baseWebPackageJson from '../../../../base-web/package.json';
 
 import packageJson from '../../../package.json';
-
-const readFile = promisify(fs.readFile);
 
 let argDir: string | undefined;
 
@@ -123,10 +120,21 @@ async function run() {
       context,
     );
   }
-  await copy(
-    path.join(__dirname, 'src-template'),
-    path.resolve(packageDir, 'src'),
-  );
+
+  const appTemplateDir = path.join(__dirname, 'src-template');
+  for (const { path: p } of klawSync(appTemplateDir, { nodir: true })) {
+    const contents = await readFile(p);
+    const relativePath = path.relative(appTemplateDir, p);
+    const extension = path.extname(p);
+
+    await mkdirs(path.resolve(packageDir, 'src', path.dirname(relativePath)));
+    await writeFile(
+      path.resolve(packageDir, 'src', relativePath),
+      ['.ts', '.tsx'].includes(extension)
+        ? licenseHeader + contents.toString()
+        : contents,
+    );
+  }
 }
 
 run()

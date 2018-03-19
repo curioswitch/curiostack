@@ -29,7 +29,7 @@ import packageJson from '../../package.json';
 
 program
   .version(packageJson.version)
-  .command('component')
-  .command('container')
-  .command('package')
+  .command('component [name]', 'generate a component')
+  .command('container [name]', 'generate a container')
+  .command('package [name]', 'generate a package')
   .parse(process.argv);

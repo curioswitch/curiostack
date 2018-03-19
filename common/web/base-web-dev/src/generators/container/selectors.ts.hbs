@@ -5,8 +5,5 @@ import { State } from './reducer';
 /**
  * Default selector used by {{ properCase name }}
  */
-export default (state: GlobalState): State => state.{{ camelCase name }};
-
-/**
- * Other specific selectors
- */
+export default (state: GlobalState): State =>
+  state.{{ camelCase name }}.toObject();
