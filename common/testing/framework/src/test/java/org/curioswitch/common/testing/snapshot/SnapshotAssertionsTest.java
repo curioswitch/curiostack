@@ -61,9 +61,7 @@ class SnapshotAssertionsTest {
   private static final TestType OBJ4 =
       ImmutableTestType.builder().value1("obj4").value2(3).value3(1).build();
 
-  private static final TestProto PROTO1 = TestProto.newBuilder()
-      .setStringValue("proto1")
-      .build();
+  private static final TestProto PROTO1 = TestProto.newBuilder().setStringValue("proto1").build();
 
   @Test
   void topLevel() {
