@@ -675,6 +675,7 @@ public class CuriostackPlugin implements Plugin<Project> {
         .getByName(
             "nodeSetup",
             t -> {
+              t.dependsOn("pythonSetup");
               t.onlyIf(unused -> !node.getVariant().getNodeDir().exists());
             });
     project
