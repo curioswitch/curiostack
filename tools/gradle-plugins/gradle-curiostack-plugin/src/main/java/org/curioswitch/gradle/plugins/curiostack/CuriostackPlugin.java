@@ -307,7 +307,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                   .addAll(
                       ImmutableList.of(
                           "-XepDisableWarningsInGeneratedCode",
-                          "-XepExcludedPaths:(.*/build/generated/.*|.*/gen-src/.*)",
+                          "-XepExcludedPaths:(.*/build/.*|.*/gen-src/.*)",
                           "-Xep:AutoFactoryAtInject:ERROR",
                           "-Xep:ClassName:ERROR",
                           "-Xep:ComparisonContractViolated:ERROR",
