@@ -40,6 +40,7 @@ steps:
   name: openjdk:9-jdk-slim
   entrypoint: bash
   args:
+  - -c
   - "(test -e .gradle/cloudbuild-cache.tar && tar -xpPf .gradle/cloudbuild-cache.tar || echo No build cache yet.) && ./gradlew continuousBuild --stacktrace --no-daemon && tar -cpPf .gradle/cloudbuild-cache.tar /root/.gradle/wrapper /root/.npm /usr/local/share/.cache /root/.gradle/caches"
   env:
   - CI=true
