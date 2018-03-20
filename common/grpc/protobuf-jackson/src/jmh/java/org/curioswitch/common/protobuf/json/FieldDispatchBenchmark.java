@@ -33,7 +33,7 @@ import org.openjdk.jmh.infra.Blackhole;
  * Taking advantage of the fact that Jackson returns interned strings means string identity
  * comparison is the fastest.
  */
-@SuppressWarnings("ReferenceEquality")
+@SuppressWarnings({ "ReferenceEquality", "StringEquality" })
 public class FieldDispatchBenchmark {
 
   private static final ImmutableMap<String, Integer> FIELDS =
