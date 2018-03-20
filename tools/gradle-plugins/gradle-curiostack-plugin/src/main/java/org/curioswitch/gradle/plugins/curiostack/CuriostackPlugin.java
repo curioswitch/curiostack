@@ -254,6 +254,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                   unused -> {
                     LicenseExtension license =
                         project.getExtensions().getByType(LicenseExtension.class);
+                    license.exclude("**/*.json");
                     license.setHeader(rootProject.file("LICENSE"));
                     license.mapping(
                         ImmutableMap.of(
