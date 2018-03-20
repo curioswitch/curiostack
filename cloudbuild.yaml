@@ -34,9 +34,18 @@ steps:
   - --depth=10
   env:
   - CI=true
+- id: curio-generated-fetch-build-cache
+  waitFor:
+  - '-'
+  name: gcr.io/cloud-builders/gsutil
+  args:
+  - cp
+  - gs://curioswitch-gradle-build-cache/cloudbuild-cache.tar.gz
+  - .gradle/cloudbuild-cache.tar
 - id: curio-generated-build-all
   waitFor:
   - curio-generated-deepen-git-repo
+  - curio-generated-fetch-build-cache
   name: openjdk:9-jdk-slim
   entrypoint: bash
   args:
