@@ -29,6 +29,7 @@ import static org.mockito.Mockito.mock;
 import com.google.auto.service.AutoService;
 import java.lang.reflect.Parameter;
 import javax.annotation.Nullable;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
@@ -42,14 +43,15 @@ import org.mockito.MockitoAnnotations;
 /**
  * TODO(choko): Remove once mockito adds official junit5 support.
  *
- * {@code MockitoExtension} showcases the {@link TestInstancePostProcessor} and {@link
+ * <p>{@code MockitoExtension} showcases the {@link TestInstancePostProcessor} and {@link
  * ParameterResolver} extension APIs of JUnit 5 by providing dependency injection support at the
  * field level and at the method parameter level via Mockito 2.x's {@link Mock @Mock} annotation.
  *
  * @since 5.0
  */
 @AutoService(Extension.class)
-public class MockitoExtension implements TestInstancePostProcessor, ParameterResolver {
+public class MockitoExtension
+    implements BeforeEachCallback, TestInstancePostProcessor, ParameterResolver {
 
   @Override
   public void postProcessTestInstance(Object testInstance, ExtensionContext context) {
@@ -57,14 +59,14 @@ public class MockitoExtension implements TestInstancePostProcessor, ParameterRes
   }
 
   @Override
-  public boolean supportsParameter(ParameterContext parameterContext,
-      ExtensionContext extensionContext) {
+  public boolean supportsParameter(
+      ParameterContext parameterContext, ExtensionContext extensionContext) {
     return parameterContext.getParameter().isAnnotationPresent(Mock.class);
   }
 
   @Override
-  public Object resolveParameter(ParameterContext parameterContext,
-      ExtensionContext extensionContext) {
+  public Object resolveParameter(
+      ParameterContext parameterContext, ExtensionContext extensionContext) {
     return getMock(parameterContext.getParameter(), extensionContext);
   }
 
@@ -91,4 +93,13 @@ public class MockitoExtension implements TestInstancePostProcessor, ParameterRes
     return null;
   }
 
+  @Override
+  public void beforeEach(ExtensionContext context) throws Exception {
+    MockitoAnnotations.initMocks(context.getRequiredTestInstance());
+    while (context.getParent().isPresent()
+        && context.getParent().get().getTestInstance().isPresent()) {
+      context = context.getParent().get();
+      MockitoAnnotations.initMocks(context.getRequiredTestInstance());
+    }
+  }
 }
