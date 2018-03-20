@@ -43,6 +43,10 @@ public final class CommandUtil {
     return getPythonBinDir(project, envName).resolve("python");
   }
 
+  public static Path getCondaBaseDir(Project project) {
+    return getPythonDir(project).resolve("bootstrap/miniconda2");
+  }
+
   public static Path getGcloudDir(Project project) {
     return getCuriostackDir(project).resolve("gcloud");
   }

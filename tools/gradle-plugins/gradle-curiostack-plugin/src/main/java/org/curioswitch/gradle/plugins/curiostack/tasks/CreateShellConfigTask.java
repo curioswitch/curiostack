@@ -90,6 +90,10 @@ public class CreateShellConfigTask extends DefaultTask {
             "export PATH=" + joinedPath + ":$PATH",
             "export CLOUDSDK_PYTHON=" + CommandUtil.getPythonExecutable(getProject(), "dev"),
             "export CLOUDSDK_PYTHON_SITEPACKAGES=1",
+            ". "
+                + CommandUtil.getCondaBaseDir(getProject())
+                    .resolve("etc/profile.d/conda.sh")
+                    .toString(),
             MARKER);
 
     for (String rcFile : SHELL_RCS) {

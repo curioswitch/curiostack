@@ -24,6 +24,8 @@
 
 package org.curioswitch.gradle.plugins.curiostack;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
 import com.diffplug.gradle.spotless.SpotlessTask;
@@ -128,6 +130,8 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(GcloudPlugin.class);
     plugins.apply(NodePlugin.class);
     plugins.apply(PythonEnvsPlugin.class);
+
+    setupPyenvs(rootProject);
 
     YarnInstallTask yarnTask =
         rootProject.getTasks().withType(YarnInstallTask.class).getByName("yarn");
@@ -234,8 +238,6 @@ public class CuriostackPlugin implements Plugin<Project> {
                           .getIws()
                           .withXml(provider -> setupWorkspaceXml(rootProject, provider));
                     }));
-
-    setupPyenvs(rootProject);
 
     rootProject.allprojects(
         project -> {
@@ -633,6 +635,18 @@ public class CuriostackPlugin implements Plugin<Project> {
     Closure<?> pathOverrider =
         LambdaClosure.of(
             (ExecSpec exec) -> {
+              String actualCommand = exec.getExecutable() + " " + String.join(" ", exec.getArgs());
+              exec.setCommandLine(
+                  "bash",
+                  "-c",
+                  ". "
+                      + CommandUtil.getCondaBaseDir(project)
+                          .resolve("etc/profile.d/conda.sh")
+                          .toString()
+                      + " && conda activate > /dev/null && cd "
+                      + exec.getWorkingDir().toString()
+                      + " && "
+                      + actualCommand);
               exec.getEnvironment()
                   .put(
                       "PATH",
@@ -658,8 +672,12 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     project
         .getTasks()
-        .findByName("nodeSetup")
-        .onlyIf(t -> !node.getVariant().getNodeDir().exists());
+        .getByName(
+            "nodeSetup",
+            t -> {
+              t.dependsOn(project.getRootProject().getTasks().getByName("pythonSetup"));
+              t.onlyIf(unused -> !node.getVariant().getNodeDir().exists());
+            });
     project
         .getTasks()
         .findByName("yarnSetup")
@@ -683,15 +701,18 @@ public class CuriostackPlugin implements Plugin<Project> {
     envs.setBootstrapDirectory(pythonDir.resolve("bootstrap").toFile());
     envs.setEnvsDirectory(pythonDir.resolve("envs").toFile());
 
-    ImmutableList.Builder<String> condaPackages = ImmutableList.<String>builder()
-        .add("git");
+    ImmutableList.Builder<String> condaPackages =
+        ImmutableList.<String>builder().add("git").add("automake").add("autoconf").add("make");
     if (Os.isFamily(Os.FAMILY_MAC)) {
       condaPackages.add("clang_osx-64", "clangxx_osx-64", "gfortran_osx-64");
     } else if (Os.isFamily(Os.FAMILY_UNIX)) {
       condaPackages.add("gcc_linux-64", "gxx_linux-64", "gfortran_linux-64");
     }
 
-    envs.conda("miniconda2", "Miniconda2-4.4.10", condaPackages.build());
+    envs.conda(
+        "miniconda2",
+        "Miniconda2-4.4.10",
+        condaPackages.build().stream().map(envs::condaPackage).collect(toImmutableList()));
     envs.condaenv("build", "2.7", "miniconda2");
     envs.condaenv("dev", "2.7", "miniconda2");
 
