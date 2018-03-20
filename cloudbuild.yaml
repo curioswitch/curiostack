@@ -23,69 +23,33 @@
 #
 ---
 steps:
-- id: refresh-build-image
+- id: curio-generated-deepen-git-repo
   waitFor:
   - '-'
-  name: gcr.io/cloud-builders/docker
+  name: gcr.io/cloud-builders/git
   args:
-  - build
-  - --build-arg=cluster=$PROJECT_ID
-  - --tag=gcr.io/$PROJECT_ID/java-cloud-builder:latest
-  - --file=./tools/build-images/java-cloud-builder/Dockerfile
-  - .
+  - fetch
+  - origin
+  - master
+  - --depth=10
   env:
   - CI=true
-- id: login-to-cluster
+- id: curio-generated-build-all
   waitFor:
-  - '-'
-  name: gcr.io/cloud-builders/gcloud
+  - curio-generated-deepen-git-repo
+  name: openjdk:9-jdk-slim
   entrypoint: bash
   args:
-  - -c
-  - "gsutil cp gs://curioswitch-cluster-kubepush-key/kubepush.json . \ngcloud auth\
-    \ activate-service-account --key-file ./kubepush.json \ngcloud container clusters\
-    \ get-credentials curioswitch-cluster --zone asia-northeast1-a"
-  env:
-  - CLOUDSDK_CONTAINER_USE_CLIENT_CERTIFICATE=True
-  - KUBECONFIG=/workspace/kubeconfig
-- id: build-curio-auth-server-dist
-  waitFor:
-  - refresh-build-image
-  name: gcr.io/$PROJECT_ID/java-cloud-builder:latest
-  entrypoint: ./gradlew
-  args:
-  - :auth:server:dockerDistTar
+  - "(test -e .gradle/cloudbuild-cache.tar && tar -xpPf .gradle/cloudbuild-cache.tar || echo No build cache yet.) && ./gradlew continuousBuild --stacktrace --no-daemon && tar -cpPf .gradle/cloudbuild-cache.tar /root/.gradle/wrapper /root/.npm /usr/local/share/.cache /root/.gradle/caches"
   env:
   - CI=true
-- id: build-curio-auth-server-image
-  waitFor:
-  - build-curio-auth-server-dist
-  name: gcr.io/cloud-builders/docker
+  - CI_MASTER=true
+- id: curio-generated-update-build-cache
+  name: gcr.io/cloud-builders/gsutil
   args:
-  - build
-  - --tag=asia.gcr.io/$PROJECT_ID/curio-auth-server:latest
-  - auth/server/build/docker
-  env:
-  - CI=true
-- id: push-curio-auth-server-image
-  waitFor:
-  - build-curio-auth-server-image
-  name: gcr.io/cloud-builders/docker
-  args:
-  - push
-  - asia.gcr.io/$PROJECT_ID/curio-auth-server:latest
-  env:
-  - CI=true
-- id: deploy-curio-auth-server
-  waitFor:
-  - push-curio-auth-server-image
-  - login-to-cluster
-  name: gcr.io/$PROJECT_ID/java-cloud-builder:latest
-  entrypoint: ./gradlew
-  args:
-  - :auth:server:deployAlpha
-  env:
-  - KUBECONFIG=/workspace/kubeconfig
-images:
-- gcr.io/$PROJECT_ID/java-cloud-builder:latest
+  - -o
+  - GSUtil:parallel_composite_upload_threshold=150M
+  - cp
+  - .gradle/cloudbuild-cache.tar
+  - gs://curioswitch-gradle-build-cache/cloudbuild-cache.tar.gz
 timeout: 60m

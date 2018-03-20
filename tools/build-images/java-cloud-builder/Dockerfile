@@ -30,8 +30,7 @@
 # approach would look at the current source repositories dependencies and compare with the cached
 # dependencies, a basic approach would be to store the original build timestamp and look at it
 
-ARG cluster
-FROM gcr.io/${cluster}/java-cloud-builder
+FROM openjdk:9-jdk-slim
 
 ADD . /src
 RUN cd /src && ./gradlew resolveDependencies yarn --stacktrace
