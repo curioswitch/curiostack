@@ -35,12 +35,16 @@ public final class CommandUtil {
   }
 
   public static Path getPythonBinDir(Project project, String envName) {
-    String binDir = Os.isFamily(Os.FAMILY_WINDOWS) ? "Scripts" : "bin";
+    String binDir = Os.isFamily(Os.FAMILY_WINDOWS) ? "" : "bin";
     return getPythonDir(project).resolve("envs/" + envName + "/" + binDir);
   }
 
   public static Path getPythonExecutable(Project project, String envName) {
     return getPythonBinDir(project, envName).resolve("python");
+  }
+
+  public static Path getCondaBaseDir(Project project) {
+    return getPythonDir(project).resolve("bootstrap/miniconda2");
   }
 
   public static Path getGcloudDir(Project project) {
