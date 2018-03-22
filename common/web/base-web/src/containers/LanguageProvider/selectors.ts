@@ -24,7 +24,7 @@
 
 import { createSelector } from 'reselect';
 
-import { GlobalStateBase } from '../../redux';
+import { GlobalStateBase } from '../../state';
 import { LanguageState } from './reducer';
 
 /**

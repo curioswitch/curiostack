@@ -37,7 +37,7 @@ import LanguageProvider, {
 } from '../containers/LanguageProvider';
 import initI18n from '../i18n/init';
 import { WebappConfig } from '../index';
-import initRedux from '../redux/init';
+import initRedux from '../state/init';
 
 function render(
   messages: LocaleMessages,

@@ -42,4 +42,4 @@ export interface WebappConfig {
   theme?: any;
 }
 
-export { GlobalStateBase } from './redux';
+export { GlobalStateBase } from './state';

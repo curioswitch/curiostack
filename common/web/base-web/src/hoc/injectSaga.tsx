@@ -25,7 +25,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import getInjectors from '../redux/saga/injector';
+import getInjectors from '../state/saga/injector';
 
 interface Options {
   key: string;
