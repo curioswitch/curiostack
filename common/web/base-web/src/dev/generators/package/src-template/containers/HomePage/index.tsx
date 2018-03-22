@@ -1,5 +1,4 @@
-import injectReducer from '@curiostack/base-web/hoc/injectReducer';
-import injectSaga from '@curiostack/base-web/hoc/injectSaga';
+import { injectReducer, injectSaga } from '@curiostack/base-web';
 
 import React from 'react';
 import Helmet from 'react-helmet';

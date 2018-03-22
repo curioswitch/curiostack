@@ -1,4 +1,4 @@
-import LoadingIndicator from '@curiostack/base-web/components/LoadingIndicator';
+import { LoadingIndicator } from '@curiostack/base-web';
 
 // tslint:disable-next-line:no-var-requires
 const Loadable = require('react-loadable');

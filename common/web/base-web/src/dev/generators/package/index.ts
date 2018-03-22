@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
  * MIT License
  *
@@ -32,10 +31,7 @@ import klawSync from 'klaw-sync';
 
 import { licenseHeader, renderTemplate } from '../utils';
 
-import baseWebDevPackageJson from '../../../../base-web-dev/package.json';
-import baseWebPackageJson from '../../../../base-web/package.json';
-
-import packageJson from '../../../package.json';
+import packageJson from '../../../../package.json';
 
 let argDir: string | undefined;
 
@@ -89,8 +85,8 @@ async function run() {
   const packageDir = path.resolve(process.cwd(), dir);
   const context = {
     name,
-    baseWebVersion: baseWebPackageJson.version,
-    baseWebDevVersion: baseWebDevPackageJson.version,
+    baseWebVersion: packageJson.version,
+    baseWebDevVersion: packageJson.version,
     baseTsConfigLocation: path.join(
       path.relative(packageDir, process.cwd()),
       'tsconfig.json',

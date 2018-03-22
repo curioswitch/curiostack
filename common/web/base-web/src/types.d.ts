@@ -33,7 +33,6 @@ declare module 'intl/locale-data/jsonp/*.js' {
 
 }
 
-
 declare module '*.json' {
   const value: {
     version: string;

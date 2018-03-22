@@ -1,4 +1,4 @@
-import injectReducer from '@curiostack/base-web/hoc/injectReducer';
+import { injectReducer } from '@curiostack/base-web';
 
 import React from 'react';
 import Helmet from 'react-helmet';

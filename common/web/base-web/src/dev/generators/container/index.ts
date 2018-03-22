@@ -41,7 +41,7 @@ import {
   Type,
 } from '../utils';
 
-import packageJson from '../../../package.json';
+import packageJson from '../../../../package.json';
 
 const readFile = promisify(fs.readFile);
 

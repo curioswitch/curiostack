@@ -1,4 +1,4 @@
-import initApp, { GlobalStateBase } from '@curiostack/base-web';
+import { GlobalStateBase, initApp } from '@curiostack/base-web';
 
 import enMessages from './translations/en.json';
 

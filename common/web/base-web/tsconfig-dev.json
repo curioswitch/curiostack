@@ -1,9 +1,15 @@
 {
   "extends": "../../../tsconfig.json",
   "compilerOptions": {
-    "isolatedModules": false
+    "declaration": true,
+    "isolatedModules": false,
+    "lib": ["es2016", "es2015"],
+    "module": "commonjs"
   },
+  "exclude": [
+    "**/src-template/**"
+  ],
   "include": [
-    "dev/**/*"
+    "src/dev/**/*"
   ]
 }

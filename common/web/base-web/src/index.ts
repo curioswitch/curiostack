@@ -24,8 +24,14 @@
 
 import React from 'react';
 
-import initApp from './app/init';
+export { default as initApp } from './app/init';
+
 import { LocaleMessages } from './containers/LanguageProvider';
+
+export { default as injectReducer } from './hoc/injectReducer';
+export { default as injectSaga } from './hoc/injectSaga';
+
+export { default as LoadingIndicator } from './components/LoadingIndicator';
 
 export interface WebappConfig {
   component: React.ComponentClass | React.StatelessComponent;
@@ -37,5 +43,3 @@ export interface WebappConfig {
 }
 
 export { GlobalStateBase } from './redux';
-
-export default initApp;
