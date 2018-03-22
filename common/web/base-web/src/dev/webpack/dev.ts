@@ -24,6 +24,8 @@
 
 process.env.NODE_ENV = 'development';
 
+import path from 'path';
+
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { Configuration, DefinePlugin } from 'webpack';
@@ -33,6 +35,7 @@ import configureBase from './base';
 const plugins = [
   new DefinePlugin({
     'process.env': {
+      APP_CONFIG_PATH: JSON.stringify(path.resolve(process.cwd(), 'src/app')),
       NODE_ENV: JSON.stringify('development'),
     },
   }),
@@ -47,6 +50,7 @@ const plugins = [
 const configuration: Configuration = configureBase({
   plugins,
   mode: 'development',
+  additionalEntrypoints: {},
   babelPlugins: [],
   // Don't use hashes in dev mode for better performance
   output: {

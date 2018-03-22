@@ -83,7 +83,10 @@ function configure(options: any): Configuration {
   ];
   return {
     mode: options.mode,
-    entry: [entrypoint],
+    entry: {
+      ...options.additionalEntrypoints,
+      main: entrypoint,
+    },
     output: {
       path: path.resolve(process.cwd(), 'build/web'),
       publicPath: '/',

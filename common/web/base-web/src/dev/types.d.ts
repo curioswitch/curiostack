@@ -85,6 +85,19 @@ declare module 'koa-proxies' {
 
 }
 
+declare module 'static-site-generator-webpack-plugin' {
+  import { Plugin } from 'webpack';
+  interface Args {
+    entry: string;
+    paths: string[];
+    globals: any;
+  }
+  class StaticSiteGeneratorPlugin extends Plugin {
+    constructor(args: Args);
+  }
+  export = StaticSiteGeneratorPlugin;
+}
+
 declare module 'webapp-webpack-plugin' {
   import { Plugin } from 'webpack';
   interface Args {

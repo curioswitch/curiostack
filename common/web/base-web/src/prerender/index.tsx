@@ -22,10 +22,6 @@
  * SOFTWARE.
  */
 
-// We use webpack require to avoid exposing the web dependencies to typescript, as we don't want
-// to transpile them.
-// tslint:disable:no-var-requires
-
 import {
   createMemoryHistory as createHistory,
   LocationDescriptor,
@@ -38,14 +34,16 @@ import { StaticRouter } from 'react-router-dom';
 import { Store } from 'redux';
 import { ServerStyleSheet, ThemeProvider } from 'styled-components';
 
-const appConfig = require('../../../app').appConfig;
-const LanguageProvider = require('../../../containers/LanguageProvider');
-const initRedux = require('../../../redux/init');
+import { appConfig } from '../app';
+import LanguageProvider, {
+  LocaleMessages,
+} from '../containers/LanguageProvider';
+import initRedux from '../redux';
 
 import Template from './template';
 
 interface Props {
-  messages: any;
+  messages: LocaleMessages;
   store: Store;
   location: LocationDescriptor;
   Component: React.ComponentClass<any> | React.StatelessComponent<any>;
@@ -67,6 +65,7 @@ function RenderedPage({ messages, store, location, Component, theme }: Props) {
 }
 
 export default function(locals: any) {
+  console.log(locals);
   const path = locals.path.replace('.html', '');
   // Create redux store with history
   const initialState = {
@@ -92,6 +91,7 @@ export default function(locals: any) {
   );
   const renderedContent = ReactDOMServer.renderToString(page);
   const helmet = Helmet.renderStatic();
+  console.log(renderedContent);
   return ReactDOMServer.renderToStaticMarkup(
     <Template
       content={renderedContent}

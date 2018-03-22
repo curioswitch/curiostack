@@ -24,8 +24,10 @@
 
 process.env.NODE_ENV = 'production';
 
+import path from 'path';
+
 import BrotliPlugin from 'brotli-webpack-plugin';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
+import StaticSiteGeneratorPlugin from 'static-site-generator-webpack-plugin';
 import WebappPlugin from 'webapp-webpack-plugin';
 import { Configuration, DefinePlugin } from 'webpack';
 import ZopfliPlugin from 'zopfli-webpack-plugin';
@@ -35,25 +37,17 @@ import configureBase from './base';
 const plugins = [
   new DefinePlugin({
     'process.env': {
+      APP_CONFIG_PATH: JSON.stringify(path.resolve(process.cwd(), 'src/app')),
       NODE_ENV: JSON.stringify('production'),
     },
   }),
-  new HtmlWebpackPlugin({
-    template: 'src/index.html',
-    chunksSortMode: 'none',
-    minify: {
-      removeComments: true,
-      collapseWhitespace: true,
-      removeRedundantAttributes: true,
-      useShortDoctype: true,
-      removeEmptyAttributes: true,
-      removeStyleLinkTypeAttributes: true,
-      keepClosingSlash: true,
-      minifyJS: true,
-      minifyCSS: true,
-      minifyURLs: true,
+
+  new StaticSiteGeneratorPlugin({
+    entry: 'prerender',
+    paths: ['/'],
+    globals: {
+      window: {},
     },
-    inject: true,
   }),
 
   new WebappPlugin({
@@ -82,6 +76,9 @@ const plugins = [
 const configuration: Configuration = configureBase({
   plugins,
   mode: 'production',
+  additionalEntrypoints: {
+    prerender: path.resolve(__dirname, '../../prerender/index.tsx'),
+  },
   babelPlugins: [
     '@babel/transform-react-constant-elements',
     '@babel/transform-react-inline-elements',
