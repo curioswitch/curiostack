@@ -22,4 +22,24 @@
  * SOFTWARE.
  */
 
-export * from './build';
+import React from 'react';
+
+export { default as initApp } from './app/init';
+
+import { LocaleMessages } from './containers/LanguageProvider';
+
+export { default as injectReducer } from './hoc/injectReducer';
+export { default as injectSaga } from './hoc/injectSaga';
+
+export { default as LoadingIndicator } from './components/LoadingIndicator';
+
+export interface WebappConfig {
+  component: React.ComponentClass | React.StatelessComponent;
+  messages: LocaleMessages;
+  defaultLocale: string;
+  initialState: any;
+  mountNode?: string | HTMLElement;
+  theme?: any;
+}
+
+export { GlobalStateBase } from './redux';

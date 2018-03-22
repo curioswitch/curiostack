@@ -22,4 +22,17 @@
  * SOFTWARE.
  */
 
-export * from './build';
+/**
+ *
+ * LanguageProvider actions
+ *
+ */
+
+import { createAction } from 'typesafe-actions';
+
+const CHANGE_LOCALE =
+  '@curiostack/base-web/containers/LanguageProvider/CHANGE_LOCALE';
+export const changeLocale = createAction(CHANGE_LOCALE, (locale: string) => ({
+  type: CHANGE_LOCALE,
+  payload: locale,
+}));

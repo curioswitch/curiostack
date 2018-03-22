@@ -22,4 +22,29 @@
  * SOFTWARE.
  */
 
-export * from './build';
+import React from 'react';
+import { HelmetData } from 'react-helmet';
+
+export interface Args {
+  content: string;
+  mainScriptSrc: string;
+  helmet: HelmetData;
+}
+
+export default function({ content, mainScriptSrc, helmet }: Args) {
+  return (
+    <html {...helmet.htmlAttributes.toComponent()}>
+      <head>
+        {helmet.title.toComponent()}
+        {helmet.meta.toComponent()}
+        {helmet.link.toComponent()}
+        {helmet.style.toComponent()}
+        {helmet.script.toComponent()}
+      </head>
+      <body>
+        <div id="app" dangerouslySetInnerHTML={{ __html: content }} />
+        <script src={mainScriptSrc} async defer />
+      </body>
+    </html>
+  );
+}

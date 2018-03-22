@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * MIT License
  *
@@ -22,4 +23,13 @@
  * SOFTWARE.
  */
 
-export * from './build';
+import program from 'commander';
+
+import packageJson from '../../../package.json';
+
+program
+  .version(packageJson.version)
+  .command('component [name]', 'generate a component')
+  .command('container [name]', 'generate a container')
+  .command('package [name]', 'generate a package')
+  .parse(process.argv);

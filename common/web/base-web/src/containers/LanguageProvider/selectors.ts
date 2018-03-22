@@ -22,4 +22,22 @@
  * SOFTWARE.
  */
 
-export * from './build';
+import { createSelector } from 'reselect';
+
+import { GlobalStateBase } from '../../redux';
+import { LanguageState } from './reducer';
+
+/**
+ * Direct selector to the LanguageProvider state domain
+ */
+const selectLanguage = (state: GlobalStateBase): LanguageState =>
+  state.language;
+
+/**
+ * Select the language locale
+ */
+
+const makeSelectLocale = () =>
+  createSelector(selectLanguage, (languageState) => languageState.locale);
+
+export { selectLanguage, makeSelectLocale };

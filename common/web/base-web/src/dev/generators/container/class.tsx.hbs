@@ -1,0 +1,75 @@
+{{#if wantActionsAndReducer}}
+import { injectReducer } from '@curiostack/base-web';
+{{/if}}
+{{#if wantSaga}}
+import { injectSaga } from '@curiostack/base-web';
+{{/if}}
+
+import React from 'react';
+{{#if wantHeaders}}
+import Helmet from 'react-helmet';
+{{/if}}
+import { hot } from 'react-hot-loader';
+{{#if wantMessages}}
+import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl';
+{{/if}}
+import { connect } from 'react-redux';
+import { compose } from 'redux';
+
+{{#if wantActionsAndReducer}}
+import { DispatchProps, mapDispatchToProps } from './actions';
+{{/if}}
+{{#if wantMessages}}
+import messages from './messages';
+{{/if}}
+{{#if wantActionsAndReducer}}
+import reducer from './reducer';
+{{/if}}
+{{#if wantSaga}}
+import saga from './saga';
+{{/if}}
+{{#if wantActionsAndReducer}}
+import select{{properCase name}} from './selectors';
+{{/if}}
+
+type Props = DispatchProps & InjectedIntlProps;
+
+export class {{ properCase name }} extends {{{ type }}}<Props> {
+  public render() {
+    const { intl: { formatMessage: _ } } = this.props;
+    return (
+      <>
+      {{#if wantHeaders}}
+        <Helmet title={_(messages.title)} />
+      {{/if}}
+      {{#if wantMessages}}
+        <FormattedMessage {...messages.header} />
+      {{/if}}
+      </>
+    );
+  }
+}
+
+{{#if wantActionsAndReducer}}
+const withConnect = connect(select{{properCase name}}, mapDispatchToProps);
+const withReducer = injectReducer({ reducer, key: '{{ camelCase name }}' });
+{{else}}
+const withConnect = connect(null, mapDispatchToProps);
+{{/if}}
+{{#if wantSaga}}
+const withSaga = injectSaga({ saga, key: '{{ camelCase name }}' });
+{{/if}}
+
+export default compose(
+{{#if wantMessages}}
+  injectIntl,
+{{/if}}
+{{#if wantActionsAndReducer}}
+  withReducer,
+{{/if}}
+{{#if wantSaga}}
+  withSaga,
+{{/if}}
+  withConnect,
+  hot(module),
+)({{ properCase name }});
