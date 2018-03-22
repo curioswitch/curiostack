@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * MIT License
  *
@@ -22,21 +23,53 @@
  * SOFTWARE.
  */
 
-import { createSelector } from 'reselect';
+import path from 'path';
 
-import { GlobalStateBase } from '../../redux';
-import { LanguageState } from './reducer';
+import proxy from 'koa-proxies';
+import serve from 'webpack-serve';
 
-/**
- * Direct selector to the LanguageProvider state domain
- */
-const selectLanguage = (state: GlobalStateBase): LanguageState => state.language;
+import config from '../webpack/dev';
 
-/**
- * Select the language locale
- */
+// tslint:disable-next-line:no-var-requires
+const historyFallback = require('koa2-history-api-fallback');
 
-const makeSelectLocale = () =>
-  createSelector(selectLanguage, (languageState) => languageState.locale);
+// tslint:disable-next-line:no-var-requires
+const pkg = require(path.resolve(process.cwd(), 'package.json'));
 
-export { selectLanguage, makeSelectLocale };
+let add;
+if (
+  pkg.curiostack &&
+  pkg.curiostack.devServer &&
+  pkg.curiostack.devServer.proxy
+) {
+  const proxyConfig = pkg.curiostack.devServer.proxy;
+  add = (app: any, middleware: any) => {
+    for (const urlPath of Object.keys(proxyConfig)) {
+      const target = proxyConfig[urlPath];
+      app.use(
+        (proxy as any)(urlPath, {
+          target,
+          changeOrigin: true,
+          secure: false,
+        }),
+      );
+    }
+    app.use(historyFallback());
+    middleware.webpack();
+    middleware.content();
+  };
+}
+
+process.on('SIGINT', () => {
+  console.log('sigint');
+  process.exit();
+});
+
+serve({
+  config,
+  add,
+  port: 3000,
+}).catch((err) => {
+  console.log('Error starting dev server.', err);
+  process.exit(1);
+});

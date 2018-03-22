@@ -1,0 +1,20 @@
+import { bindActionCreators, Dispatch } from 'redux';
+import { createAction } from 'typesafe-actions';
+import { $call } from 'utility-types';
+
+const types = {
+};
+
+const actions = {
+};
+
+export type DispatchProps = typeof actions;
+
+export function mapDispatchToProps(dispatch: Dispatch<any>): any {
+  return bindActionCreators(actions, dispatch);
+}
+
+const returnsOfActions = Object.values(actions).map($call);
+export type Action = typeof returnsOfActions[number];
+
+export default actions;

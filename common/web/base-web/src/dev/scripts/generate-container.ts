@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * MIT License
  *
@@ -22,11 +23,4 @@
  * SOFTWARE.
  */
 
-// TODO(choko): Figure out why @types/intl isn't enough.
-declare module 'intl' {
-
-}
-
-declare module 'intl/locale-data/jsonp/*.js' {
-
-}
+import '../generators/container';

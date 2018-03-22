@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * MIT License
  *
@@ -22,22 +23,13 @@
  * SOFTWARE.
  */
 
-import { GlobalStateBase } from './index';
+import program from 'commander';
 
-import { Record } from 'immutable';
+import packageJson from '../../package.json';
 
-export const LOCALES: string[] = [];
-export const DEFAULT_LOCALE = '';
-
-// tslint:disable-next-line:no-empty-interface
-export interface GlobalState extends GlobalStateBase {}
-
-interface InitialStates {
-  [key: string]: Record<any>;
-}
-
-export const initialStates: InitialStates = {};
-
-throw new Error(
-  'base-web/curiostack is a stub and should not be imported. Did you define curiostsck.ts?',
-);
+program
+  .version(packageJson.version)
+  .command('component [name]', 'generate a component')
+  .command('container [name]', 'generate a container')
+  .command('package [name]', 'generate a package')
+  .parse(process.argv);
