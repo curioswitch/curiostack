@@ -42,7 +42,12 @@ export interface WebappConfig {
   theme?: any;
 }
 
+export class PrerenderedPaths {
+  [path: string]: object;
+}
+
 export interface PrerenderConfig {
+  paths: PrerenderedPaths;
   globals: object;
 }
 

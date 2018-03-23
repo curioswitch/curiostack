@@ -26,10 +26,19 @@
 
 process.env.NODE_ENV = 'production';
 
+require('tsconfig-paths').register();
+require('ts-node').register({
+  compilerOptions: {
+    module: 'commonjs',
+  },
+});
+
 import fs from 'fs';
 import path from 'path';
 
+import AssetsPlugin from 'assets-webpack-plugin';
 import BrotliPlugin from 'brotli-webpack-plugin';
+import { ReactLoadablePlugin } from 'react-loadable/webpack';
 import StaticSiteGeneratorPlugin from 'static-site-generator-webpack-plugin';
 import WebappPlugin from 'webapp-webpack-plugin';
 import { Configuration, DefinePlugin } from 'webpack';
@@ -38,11 +47,20 @@ import ZopfliPlugin from 'zopfli-webpack-plugin';
 import configureBase from './base';
 
 const prerenderConfigPath = path.resolve(process.cwd(), 'src/prerender');
-const prerenderConfig = fs.existsSync(prerenderConfigPath)
-  ? require(prerenderConfigPath)
-  : {
-      globals: {},
-    };
+const prerenderConfig =
+  fs.existsSync(prerenderConfigPath) + '.ts' ||
+  fs.existsSync(prerenderConfigPath + '.js')
+    ? require(prerenderConfigPath).default
+    : {
+        paths: {
+          '/': {},
+        },
+        globals: {},
+      };
+
+const assetsPlugin = new AssetsPlugin({
+  includeManifest: true,
+});
 
 const plugins = [
   new DefinePlugin({
@@ -52,16 +70,11 @@ const plugins = [
     },
   }),
 
-  new StaticSiteGeneratorPlugin({
-    entry: 'prerender',
-    paths: ['/'],
-    globals: {
-      window: {
-        ga: () => undefined,
-      },
-      ...prerenderConfig.globals,
-    },
+  new ReactLoadablePlugin({
+    filename: './build/react-loadable.json',
   }),
+
+  assetsPlugin,
 
   new WebappPlugin({
     logo: 'favicon.png',
@@ -86,15 +99,42 @@ const plugins = [
   }),
 ];
 
-const configuration: Configuration = configureBase({
+const prerenderPlugins = [
+  new DefinePlugin({
+    'process.env': {
+      APP_CONFIG_PATH: JSON.stringify(path.resolve(process.cwd(), 'src/app')),
+      NODE_ENV: JSON.stringify('production'),
+    },
+  }),
+
+  new ReactLoadablePlugin({
+    filename: './build/react-loadable.json',
+  }),
+
+  assetsPlugin,
+
+  new StaticSiteGeneratorPlugin({
+    entry: 'prerender',
+    paths: Object.keys(prerenderConfig.paths),
+    locals: {
+      pathStates: prerenderConfig.paths,
+    },
+    globals: {
+      window: {
+        ga: () => undefined,
+      },
+      ...prerenderConfig.globals,
+    },
+  }),
+];
+
+const appConfiguration: Configuration = configureBase({
   plugins,
   mode: 'production',
-  additionalEntrypoints: {
-    prerender: path.resolve(__dirname, '../../prerender/index.tsx'),
-  },
   babelPlugins: [
     '@babel/transform-react-constant-elements',
     '@babel/transform-react-inline-elements',
+    'react-loadable/babel',
   ],
   output: {
     filename: '[name].[chunkhash].js',
@@ -103,4 +143,26 @@ const configuration: Configuration = configureBase({
     libraryTarget: 'commonjs',
   },
 });
-export default configuration;
+
+const prerenderConfiguration: Configuration = configureBase({
+  plugins: prerenderPlugins,
+  mode: 'production',
+  target: 'node',
+  entrypoints: {
+    prerender: path.resolve(__dirname, '../../prerender/index.tsx'),
+  },
+  babelPlugins: [
+    '@babel/transform-react-constant-elements',
+    '@babel/transform-react-inline-elements',
+    'react-loadable/babel',
+    'babel-plugin-dynamic-import-node',
+  ],
+  output: {
+    filename: '[name].[chunkhash].js',
+    chunkFilename: '[name].[chunkhash].chunk.js',
+    publicPath: '/static/',
+    libraryTarget: 'commonjs',
+  },
+});
+
+export default [appConfiguration, prerenderConfiguration];

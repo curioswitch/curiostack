@@ -22,16 +22,18 @@
  * SOFTWARE.
  */
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { HelmetData } from 'react-helmet';
 
 export interface Args {
   content: string;
   mainScriptSrc: string;
   helmet: HelmetData;
+  // tslint:disable-next-line:array-type
+  styles: ReactElement<{}>[];
 }
 
-export default function({ content, mainScriptSrc, helmet }: Args) {
+export default function({ content, mainScriptSrc, helmet, styles }: Args) {
   return (
     <html {...helmet.htmlAttributes.toComponent()}>
       <head>
@@ -40,6 +42,7 @@ export default function({ content, mainScriptSrc, helmet }: Args) {
         {helmet.link.toComponent()}
         {helmet.style.toComponent()}
         {helmet.script.toComponent()}
+        {styles}
       </head>
       <body>
         <div id="app" dangerouslySetInnerHTML={{ __html: content }} />

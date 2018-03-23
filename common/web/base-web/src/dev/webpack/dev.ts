@@ -50,7 +50,6 @@ const plugins = [
 const configuration: Configuration = configureBase({
   plugins,
   mode: 'development',
-  additionalEntrypoints: {},
   babelPlugins: [],
   // Don't use hashes in dev mode for better performance
   output: {

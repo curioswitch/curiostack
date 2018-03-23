@@ -31,6 +31,7 @@ import {
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { Helmet } from 'react-helmet';
+import Loadable from 'react-loadable';
 import { Provider } from 'react-redux';
 import { StaticRouter } from 'react-router-dom';
 import { Store } from 'redux';
@@ -40,7 +41,7 @@ import { appConfig } from '../app';
 import LanguageProvider, {
   LocaleMessages,
 } from '../containers/LanguageProvider';
-import initRedux from '../redux';
+import initRedux from '../state/init';
 
 import Template from './template';
 
@@ -66,7 +67,9 @@ function RenderedPage({ messages, store, location, Component, theme }: Props) {
   );
 }
 
-export default function(locals: any) {
+async function run(locals: any) {
+  await Loadable.preloadAll();
+
   const path = locals.path.replace('.html', '');
   // Create redux store with history
   const initialState = {
@@ -76,6 +79,7 @@ export default function(locals: any) {
         pathname: path,
       },
     },
+    ...locals.pathStates[locals.path],
   };
   const history = createHistory();
   const store = initRedux(initialState, history);
@@ -92,12 +96,16 @@ export default function(locals: any) {
   );
   const renderedContent = ReactDOMServer.renderToString(page);
   const helmet = Helmet.renderStatic();
-  console.log(renderedContent);
   return ReactDOMServer.renderToStaticMarkup(
     <Template
       content={renderedContent}
       mainScriptSrc={locals.assets.main}
       helmet={helmet}
+      styles={sheet.getStyleElement()}
     />,
   );
+}
+
+export default function(locals: any) {
+  return run(locals);
 }

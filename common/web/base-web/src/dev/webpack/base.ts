@@ -65,6 +65,12 @@ function configure(options: any): Configuration {
               removePrefix: 'src/',
             },
           ],
+          [
+            'babel-plugin-styled-components',
+            {
+              ssr: true,
+            },
+          ],
           ...options.babelPlugins,
         ],
       },
@@ -83,8 +89,7 @@ function configure(options: any): Configuration {
   ];
   return {
     mode: options.mode,
-    entry: {
-      ...options.additionalEntrypoints,
+    entry: options.entrypoints || {
       main: entrypoint,
     },
     output: {

@@ -85,11 +85,22 @@ declare module 'koa-proxies' {
 
 }
 
+declare module 'react-loadable/webpack' {
+  import { Plugin } from 'webpack';
+  interface Args {
+    filename: string;
+  }
+  export class ReactLoadablePlugin extends Plugin {
+    constructor(args: Args);
+  }
+}
+
 declare module 'static-site-generator-webpack-plugin' {
   import { Plugin } from 'webpack';
   interface Args {
     entry: string;
     paths: string[];
+    locals: any;
     globals: any;
   }
   class StaticSiteGeneratorPlugin extends Plugin {
