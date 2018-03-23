@@ -42,4 +42,8 @@ export interface WebappConfig {
   theme?: any;
 }
 
+export interface PrerenderConfig {
+  globals: object;
+}
+
 export { GlobalStateBase } from './state';

@@ -22,8 +22,11 @@
  * SOFTWARE.
  */
 
+// tslint:disable:no-var-requires
+
 process.env.NODE_ENV = 'production';
 
+import fs from 'fs';
 import path from 'path';
 
 import BrotliPlugin from 'brotli-webpack-plugin';
@@ -33,6 +36,13 @@ import { Configuration, DefinePlugin } from 'webpack';
 import ZopfliPlugin from 'zopfli-webpack-plugin';
 
 import configureBase from './base';
+
+const prerenderConfigPath = path.resolve(process.cwd(), 'src/prerender');
+const prerenderConfig = fs.existsSync(prerenderConfigPath)
+  ? require(prerenderConfigPath)
+  : {
+      globals: {},
+    };
 
 const plugins = [
   new DefinePlugin({
@@ -46,7 +56,10 @@ const plugins = [
     entry: 'prerender',
     paths: ['/'],
     globals: {
-      window: {},
+      window: {
+        ga: () => undefined,
+      },
+      ...prerenderConfig.globals,
     },
   }),
 
@@ -87,6 +100,7 @@ const configuration: Configuration = configureBase({
     filename: '[name].[chunkhash].js',
     chunkFilename: '[name].[chunkhash].chunk.js',
     publicPath: '/static/',
+    libraryTarget: 'commonjs',
   },
 });
 export default configuration;

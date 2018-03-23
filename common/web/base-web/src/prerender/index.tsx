@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+import '@babel/polyfill';
+
 import {
   createMemoryHistory as createHistory,
   LocationDescriptor,
@@ -65,7 +67,6 @@ function RenderedPage({ messages, store, location, Component, theme }: Props) {
 }
 
 export default function(locals: any) {
-  console.log(locals);
   const path = locals.path.replace('.html', '');
   // Create redux store with history
   const initialState = {
