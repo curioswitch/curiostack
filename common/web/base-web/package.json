@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-web",
-  "version": "0.0.13-alpha.2",
+  "version": "0.0.13-alpha.3",
   "description": "Curiostack's base dependencies for browser applications.",
   "repository": "curioswitch/curiostack",
   "author": "Choko <choko@curioswitch.org>",
@@ -93,6 +93,7 @@
     "tslint-config-airbnb": "5.7.0",
     "tslint-react": "3.5.1",
     "typesafe-actions": "1.1.2",
+    "typescript-register": "1.1.0",
     "utility-types": "1.1.0",
     "webapp-webpack-plugin": "1.1.2",
     "webpack": "4.1.1",
