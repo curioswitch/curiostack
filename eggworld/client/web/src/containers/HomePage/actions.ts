@@ -1,75 +1,80 @@
-/**
- *
- * HomePage actions
- *
- */
-
 import { Node } from 'konva';
+import { Dispatch } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { createAction } from 'typesafe-actions';
+import { $call } from 'utility-types';
 
 import {
   CheckIngredientsResponse,
   Ingredient,
 } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb';
 
-export const checkIngredients = createAction(
-  'app/containers/HomePage/CHECK_INGREDIENTS',
-);
+const types = {
+  checkIngredients: 'HomePage/CHECK_INGREDIENTS',
+  checkIngredientsResponse: 'HomePage/CHECK_INGREDIENTS_RESPONSE',
+  cook: 'HomePage/COOK',
+  cookResponse: 'HomePage/COOK_RESPONSE',
+  drawStage: 'HomePage/DRAW_STAGE',
+  eggBreakingDone: 'HomePage/EGG_BREAKING_DONE',
+  foodDragged: 'HomePage/FOOD_DRAGGED',
+  mouthAnimationFrame: 'HomePage/MOUTH_ANIMATION_FRAME',
+  rotateHammer: 'HomePage/ROTATE_HAMMER',
+  selectTab: 'HomePage/SELECT_TAB',
+};
 
-const CHECK_INGREDIENTS_RESPONSE =
-  'app/containers/HomePage/CHECK_INGREDIENTS_RESPONSE';
-export const checkIngredientsResponse = createAction(
-  CHECK_INGREDIENTS_RESPONSE,
-  (response: CheckIngredientsResponse) => ({
-    type: CHECK_INGREDIENTS_RESPONSE,
-    payload: response,
-  }),
-);
-
-export const cook = createAction('app/containers/HomePage/COOK');
-
-const COOK_RESPONSE = 'app/containers/HomePage/COOK_RESPONSE';
-export const cookResponse = createAction(
-  COOK_RESPONSE,
-  (recipeUrl: string) => ({
-    type: COOK_RESPONSE,
+const actions = {
+  checkIngredients: createAction(
+    types.checkIngredients,
+    (ingredients: Ingredient[]) => ({
+      type: types.checkIngredients,
+      payload: ingredients,
+    }),
+  ),
+  checkIngredientsResponse: createAction(
+    types.checkIngredientsResponse,
+    (response: CheckIngredientsResponse) => ({
+      type: types.checkIngredientsResponse,
+      payload: response,
+    }),
+  ),
+  cook: createAction(types.cook),
+  cookResponse: createAction(types.cookResponse, (recipeUrl: string) => ({
+    type: types.cookResponse,
     payload: recipeUrl,
-  }),
-);
+  })),
+  drawStage: createAction(types.drawStage),
+  eggBreakingDone: createAction(types.eggBreakingDone),
+  foodDragged: createAction(
+    types.foodDragged,
+    (ingredient: Ingredient, node: Node) => ({
+      type: types.foodDragged,
+      payload: {
+        ingredient,
+        node,
+      },
+    }),
+  ),
+  mouthAnimationFrame: createAction(types.mouthAnimationFrame),
+  rotateHammer: createAction(types.rotateHammer, (delta: number) => ({
+    type: types.rotateHammer,
+    payload: delta,
+  })),
+  selectTab: createAction(
+    types.selectTab,
+    (tab: 'fruit' | 'meat' | 'other') => ({
+      type: types.selectTab,
+      payload: tab,
+    }),
+  ),
+};
 
-export const drawStage = createAction('app/containers/HomePage/DRAW_STAGE');
+export type DispatchProps = typeof actions;
 
-export const eggBreakingDone = createAction(
-  'app/containers/HomePage/EGG_BREAKING_DONE',
-);
+export function mapDispatchToProps(dispatch: Dispatch<{}>): DispatchProps {
+  return bindActionCreators(actions, dispatch);
+}
 
-const FOOD_DRAGGED = 'app/containers/HomePage/FOOD_DRAGGED';
-export const foodDragged = createAction(
-  FOOD_DRAGGED,
-  (ingredient: Ingredient, node: Node) => ({
-    type: FOOD_DRAGGED,
-    payload: {
-      ingredient,
-      node,
-    },
-  }),
-);
+const returnsOfActions = Object.values(actions).map($call);
+export type Action = typeof returnsOfActions[number];
 
-export const mouthAnimationFrame = createAction(
-  'app/containers/HomePage/MOUTH_ANIMATION_FRAME',
-);
-
-const ROTATE_HAMMER = 'app/containers/HomePage/ROTATE_HAMMER';
-export const rotateHammer = createAction(ROTATE_HAMMER, (delta: number) => ({
-  type: ROTATE_HAMMER,
-  payload: delta,
-}));
-
-const SELECT_TAB = 'app/containers/HomePage/SELECT_TAB';
-export const selectTab = createAction(
-  SELECT_TAB,
-  (tab: 'fruit' | 'meat' | 'other') => ({
-    type: SELECT_TAB,
-    payload: tab,
-  }),
-);
+export default actions;

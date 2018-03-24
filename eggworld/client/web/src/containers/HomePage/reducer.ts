@@ -34,21 +34,23 @@ import { getType } from 'typesafe-actions';
 
 import { Ingredient } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb';
 
-import * as actions from './actions';
+import actions, { Action } from './actions';
 
-export interface State {
-  readonly cooking: boolean;
-  readonly drawStageCount: number;
-  readonly eatenFood: Set<Ingredient>;
-  readonly eggBreakingDone: boolean;
-  readonly foodBeingEaten?: Ingredient;
-  readonly hammerRotation: number;
-  readonly recipeUrl?: string;
-  readonly selectedTab: 'fruit' | 'meat' | 'other';
-  readonly usableFood: Set<any>;
+interface StateProps {
+  cooking: boolean;
+  drawStageCount: number;
+  eatenFood: Set<Ingredient>;
+  eggBreakingDone: boolean;
+  foodBeingEaten?: Ingredient;
+  hammerRotation: number;
+  recipeUrl?: string;
+  selectedTab: 'fruit' | 'meat' | 'other';
+  usableFood: Set<any>;
 }
 
-export const initialState = Record<State>({
+export type State = Readonly<StateProps> & Record<StateProps>;
+
+export const initialState = Record<StateProps>({
   cooking: false,
   drawStageCount: 0,
   eatenFood: Set(),
@@ -79,7 +81,7 @@ function isInsideMouth(node: Node) {
 // We don't keep this in state since we don't need it to influence rendering.
 let mouthAnimationFrameCount = 0;
 
-export default function reducer(state: Record<State>, action: Actions) {
+export default function reducer(state: State, action: Action) {
   switch (action.type) {
     case getType(actions.checkIngredientsResponse):
       return state.set(
@@ -89,14 +91,14 @@ export default function reducer(state: Record<State>, action: Actions) {
     case getType(actions.cook):
       return state.set('cooking', true);
     case getType(actions.cookResponse):
-      if (state.get('eggBreakingDone', false)) {
+      if (state.eggBreakingDone) {
         window.location.href = action.payload;
       }
       return state.set('recipeUrl', action.payload);
     case getType(actions.drawStage):
       return state.update('drawStageCount', (count) => count + 1);
     case getType(actions.eggBreakingDone):
-      const recipeUrl = state.get('recipeUrl', '');
+      const recipeUrl = state.recipeUrl;
       if (recipeUrl) {
         window.location.href = recipeUrl;
       }
@@ -109,7 +111,7 @@ export default function reducer(state: Record<State>, action: Actions) {
     case getType(actions.mouthAnimationFrame):
       let newState = state;
       if (mouthAnimationFrameCount === 12) {
-        const ingredient = state.get('foodBeingEaten', undefined)!;
+        const ingredient = state.foodBeingEaten!;
         newState = state.update('eatenFood', (eatenFood) =>
           eatenFood.add(ingredient),
         );
@@ -132,7 +134,3 @@ export default function reducer(state: Record<State>, action: Actions) {
       return state;
   }
 }
-
-import { $call } from 'utility-types';
-const returnsOfActions = Object.values(actions).map($call);
-type Actions = typeof returnsOfActions[number];

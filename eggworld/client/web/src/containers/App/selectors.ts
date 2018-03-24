@@ -22,33 +22,14 @@
  * SOFTWARE.
  */
 
-import { injectGlobal } from 'styled-components';
+import { RouterState } from 'react-router-redux';
+import { createSelector } from 'reselect';
 
-// tslint:disable-next-line:no-unused-expression
-injectGlobal`
-  html,
-  body {
-    height: 100%;
-    width: 100%;
-  }
+import { GlobalState } from '../../app';
 
-  body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
+const selectRoute = (state: GlobalState): RouterState => state.route;
 
-  body.fontLoaded {
-    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
+const makeSelectLocation = () =>
+  createSelector(selectRoute, (routeState) => routeState.location);
 
-  #app {
-    background-color: #fafafa;
-    min-height: 100%;
-    min-width: 100%;
-  }
-
-  p,
-  label {
-    font-family: Georgia, Times, 'Times New Roman', serif;
-    line-height: 1.5em;
-  }
-`;
+export { makeSelectLocation };

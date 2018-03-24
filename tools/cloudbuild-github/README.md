@@ -23,7 +23,7 @@ project ID.
 Start by creating a new project with a dependency on the library.
 
 ```bash
-$ yarn init # main: index.js, private: true
+$ yarn init # main: index.tsx, private: true
 $ yarn add @curiostack/cloudbuild-github
 $ yarn
 ```
@@ -39,7 +39,7 @@ $ yarn run cloudbuild-cli deploy
 
 This will prompt you for information about your repository, including an access token for working with
 your GitHub repository (see details about tokens [here](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)).
-It will then write out an `index.js` and `config.yml` file that will be used by the webhook, deploy
+It will then write out an `index.tsx` and `config.yml` file that will be used by the webhook, deploy
 the cloud functions, and set up the repository webhook. That's it.
 
 If you update the configuration, just run deploy again.

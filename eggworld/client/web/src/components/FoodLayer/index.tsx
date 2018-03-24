@@ -22,33 +22,43 @@
  * SOFTWARE.
  */
 
-import { injectGlobal } from 'styled-components';
+import { Set } from 'immutable';
+import React from 'react';
+import { Layer } from 'react-konva';
 
-// tslint:disable-next-line:no-unused-expression
-injectGlobal`
-  html,
-  body {
-    height: 100%;
-    width: 100%;
-  }
+import { IngredientDescriptor } from '../../containers/HomePage/constants';
+import Food, { FoodDraggedHandler } from '../Food';
 
-  body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
+interface Props {
+  eatenFood: Set<number>;
+  ingredients: IngredientDescriptor[];
+  onFoodDragged: FoodDraggedHandler;
+  usableFood: Set<number>;
+  visible: boolean;
+}
 
-  body.fontLoaded {
-    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+export default class FoodLayer extends React.PureComponent<Props> {
+  public render() {
+    const startingX = 20;
+    const deltaX = 380;
+    const topRowY = 800;
+    const bottomRowY = 1150;
+    return (
+      <Layer visible={this.props.visible}>
+        {this.props.ingredients.map(({ key, name, imageSrc }, i) => (
+          <Food
+            key={key}
+            ingredient={key}
+            x={startingX + (i % 3) * deltaX}
+            y={i < 3 ? topRowY : bottomRowY}
+            imageSrc={imageSrc}
+            name={name}
+            removed={this.props.eatenFood.includes(key)}
+            unusable={!this.props.usableFood.includes(key)}
+            onFoodDragged={this.props.onFoodDragged}
+          />
+        ))}
+      </Layer>
+    );
   }
-
-  #app {
-    background-color: #fafafa;
-    min-height: 100%;
-    min-width: 100%;
-  }
-
-  p,
-  label {
-    font-family: Georgia, Times, 'Times New Roman', serif;
-    line-height: 1.5em;
-  }
-`;
+}

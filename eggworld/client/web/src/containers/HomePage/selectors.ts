@@ -22,33 +22,27 @@
  * SOFTWARE.
  */
 
-import { injectGlobal } from 'styled-components';
+import { createSelector } from 'reselect';
 
-// tslint:disable-next-line:no-unused-expression
-injectGlobal`
-  html,
-  body {
-    height: 100%;
-    width: 100%;
-  }
+import { GlobalState } from '../../app';
 
-  body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
+import { State } from './reducer';
 
-  body.fontLoaded {
-    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
+/**
+ * Direct selector to the homePage state domain
+ */
+const selectHomePageDomain = (state: GlobalState) => state.homePage;
 
-  #app {
-    background-color: #fafafa;
-    min-height: 100%;
-    min-width: 100%;
-  }
+/**
+ * Other specific selectors
+ */
 
-  p,
-  label {
-    font-family: Georgia, Times, 'Times New Roman', serif;
-    line-height: 1.5em;
-  }
-`;
+/**
+ * Default selector used by HomePage
+ */
+
+const selectHomePage = createSelector(selectHomePageDomain, (substate: State) =>
+  substate.toObject(),
+);
+
+export default selectHomePage;

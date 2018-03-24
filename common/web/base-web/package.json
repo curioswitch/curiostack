@@ -19,7 +19,7 @@
   "scripts": {
     "clean": "rimraf ./build",
     "prebuild": "yarn run clean",
-    "build": "tsc --project tsconfig-dev.json  --outDir ./build/dev --noEmit false --target es2016 && copyfiles -s --exclude 'src/dev/**/*' -u 1 'src/**/*' build && copyfiles -u 1 src/**/*.hbs build && copyfiles -u 1 src/**/src-template/** build && copyfiles -u 3 ../../../tsconfig.json build/dev/generators/package",
+    "build": "tsc --project tsconfig-dev.json  --outDir ./build/dev --noEmit false --target es2016 && copyfiles -s --exclude src/dev/**/* -u 1 src/**/* build && copyfiles -u 1 src/**/*.hbs build && copyfiles -u 1 src/**/src-template/** build && copyfiles -u 3 ../../../tsconfig.json build/dev/generators/package",
     "//": "Normally we would lint before build, but we are actually building the lint config here.",
     "postbuild": "yarn run lint",
     "prepublish": "yarn run build",
