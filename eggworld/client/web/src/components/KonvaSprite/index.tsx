@@ -75,7 +75,7 @@ class KonvaSprite extends React.PureComponent<Props, State> {
     const { onFrameIndexChange, src, ...others } = this.props;
     return (
       <>
-        {this.state.image && (
+        {this.state.image ? (
           <Sprite
             // TODO(choko): See if this any can be avoided.
             ref={(node: any) => {
@@ -84,7 +84,7 @@ class KonvaSprite extends React.PureComponent<Props, State> {
             image={this.state.image}
             {...others}
           />
-        )}
+        ) : null}
       </>
     );
   }

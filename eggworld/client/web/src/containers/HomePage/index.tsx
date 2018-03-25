@@ -22,11 +22,11 @@
  * SOFTWARE.
  */
 
-import 'soundjs/lib/soundjs';
-
+import { Howl } from 'howler';
 import { Animation } from 'konva';
 import React from 'react';
 import { Helmet } from 'react-helmet';
+import { hot } from 'react-hot-loader';
 import { Stage } from 'react-konva';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
@@ -48,9 +48,17 @@ import mogmogChokoSoundSrc from './assets/mogmog_choko.m4a';
 import mogmogCute1SoundSrc from './assets/mogmog_cute1.m4a';
 import mogmogNormal1SoundSrc from './assets/mogmog_normal1.m4a';
 
-createjs.Sound.registerSound(mogmogChokoSoundSrc, 'mogmog1');
-createjs.Sound.registerSound(mogmogCute1SoundSrc, 'mogmog2');
-createjs.Sound.registerSound(mogmogNormal1SoundSrc, 'mogmog3');
+const SOUNDS = [
+  new Howl({
+    src: [mogmogChokoSoundSrc],
+  }),
+  new Howl({
+    src: [mogmogCute1SoundSrc],
+  }),
+  new Howl({
+    src: [mogmogNormal1SoundSrc],
+  }),
+];
 
 function getRandomInt(min: number, max: number) {
   const minCeil = Math.ceil(min);
@@ -93,7 +101,7 @@ export class HomePage extends React.PureComponent<Props> {
       this.hammerAnimation.stop();
     }
     if (!this.props.foodBeingEaten && nextProps.foodBeingEaten) {
-      createjs.Sound.play(`mogmog${getRandomInt(1, 3)}`);
+      SOUNDS[getRandomInt(0, 2)].play();
     }
   }
 
@@ -153,4 +161,6 @@ const withConnect = connect(selectHomePage, mapDispatchToProps);
 const withReducer = injectReducer({ reducer, key: 'homePage' });
 const withSaga = injectSaga({ saga, key: 'homePage' });
 
-export default compose(withReducer, withSaga, withConnect)(HomePage);
+export default compose(hot(module), withReducer, withSaga, withConnect)(
+  HomePage,
+);

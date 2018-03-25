@@ -43,7 +43,7 @@ interface Props {
   unusable: boolean;
 }
 
-export default class Food extends React.PureComponent<Props> {
+export default class Food extends React.Component<Props> {
   private node?: GroupImpl;
   private removed = false;
 

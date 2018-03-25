@@ -61,9 +61,9 @@ class KonvaImage extends React.PureComponent<Props, State> {
   public render() {
     return (
       <>
-        {this.state.image && (
+        {this.state.image ? (
           <ReactKonvaImage image={this.state.image} {...this.props} />
-        )}
+        ) : null}
       </>
     );
   }

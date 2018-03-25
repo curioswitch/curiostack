@@ -40,7 +40,6 @@ import {
   select,
   takeLatest,
 } from 'redux-saga/effects';
-import { getType } from 'typesafe-actions';
 
 import { Actions, ActionTypes } from './actions';
 
@@ -102,8 +101,6 @@ function* unionSaga(action: Actions) {
 // Individual exports for testing
 export default function* rootSaga(): IterableIterator<AllEffect> {
   yield all(
-    Object.values(Actions).map((action) =>
-      takeLatest(getType(action), unionSaga),
-    ),
+    Object.values(ActionTypes).map((type) => takeLatest(type, unionSaga)),
   );
 }
