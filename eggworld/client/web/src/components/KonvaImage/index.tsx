@@ -22,33 +22,51 @@
  * SOFTWARE.
  */
 
-import { injectGlobal } from 'styled-components';
+import { ShapeConfig } from 'konva';
+import React from 'react';
+import { Image as ReactKonvaImage, KonvaNodeProps } from 'react-konva';
 
-// tslint:disable-next-line:no-unused-expression
-injectGlobal`
-  html,
-  body {
-    height: 100%;
-    width: 100%;
+interface Props extends ShapeConfig, KonvaNodeProps {
+  src: string;
+}
+
+interface State {
+  image?: HTMLImageElement;
+}
+
+class KonvaImage extends React.PureComponent<Props, State> {
+  public state: State = {
+    image: undefined,
+  };
+
+  public componentDidMount() {
+    const image = new Image();
+    image.onload = () => {
+      if (!this.state.image) {
+        this.setState({
+          image,
+        });
+      }
+    };
+    image.src = this.props.src;
   }
 
-  body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  public componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.src === this.props.src || !this.state.image) {
+      return;
+    }
+    this.state.image.src = nextProps.src;
   }
 
-  body.fontLoaded {
-    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  public render() {
+    return (
+      <>
+        {this.state.image ? (
+          <ReactKonvaImage image={this.state.image} {...this.props} />
+        ) : null}
+      </>
+    );
   }
+}
 
-  #app {
-    background-color: #fafafa;
-    min-height: 100%;
-    min-width: 100%;
-  }
-
-  p,
-  label {
-    font-family: Georgia, Times, 'Times New Roman', serif;
-    line-height: 1.5em;
-  }
-`;
+export default KonvaImage;

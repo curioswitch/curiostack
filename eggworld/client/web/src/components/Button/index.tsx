@@ -22,33 +22,48 @@
  * SOFTWARE.
  */
 
-import { injectGlobal } from 'styled-components';
+import React from 'react';
+import { Group, Text } from 'react-konva';
 
-// tslint:disable-next-line:no-unused-expression
-injectGlobal`
-  html,
-  body {
-    height: 100%;
-    width: 100%;
-  }
+import KonvaImage from '../KonvaImage';
 
-  body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
+import buttonPressedSrc from './assets/button_pressed.png';
+import buttonUnpressedSrc from './assets/button_unpressed.png';
 
-  body.fontLoaded {
-    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
+interface Props {
+  selected: boolean;
+  x: number;
+  y: number;
+  label: string;
+  onClick: () => void;
+}
 
-  #app {
-    background-color: #fafafa;
-    min-height: 100%;
-    min-width: 100%;
+export default class Button extends React.PureComponent<Props> {
+  public render() {
+    return (
+      <Group
+        x={this.props.x}
+        y={this.props.y}
+        width={362}
+        height={200}
+        onClick={this.props.onClick}
+      >
+        <KonvaImage
+          src={this.props.selected ? buttonPressedSrc : buttonUnpressedSrc}
+          width={362}
+          height={100}
+        />
+        <Text
+          y={30}
+          width={362}
+          height={100}
+          align="center"
+          text={this.props.label}
+          fontSize={40}
+          fontFamily="Arial"
+          fill="black"
+        />
+      </Group>
+    );
   }
-
-  p,
-  label {
-    font-family: Georgia, Times, 'Times New Roman', serif;
-    line-height: 1.5em;
-  }
-`;
+}

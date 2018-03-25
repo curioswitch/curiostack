@@ -22,33 +22,25 @@
  * SOFTWARE.
  */
 
-import { injectGlobal } from 'styled-components';
+import { ActionCreatorsMapObject } from 'redux';
 
-// tslint:disable-next-line:no-unused-expression
-injectGlobal`
-  html,
-  body {
-    height: 100%;
-    width: 100%;
-  }
+// Same as redux except forces T to be string.
+export interface Action<T extends string> {
+  type: T;
+}
+export interface ActionWithPayload<T extends string, P> extends Action<T> {
+  payload: P;
+}
 
-  body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
+export function createAction<T extends string>(type: T): Action<T>;
+export function createAction<T extends string, P>(
+  type: T,
+  payload: P,
+): ActionWithPayload<T, P>;
+export function createAction<T extends string, P>(type: T, payload?: P) {
+  return payload ? { type, payload } : { type };
+}
 
-  body.fontLoaded {
-    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
-
-  #app {
-    background-color: #fafafa;
-    min-height: 100%;
-    min-width: 100%;
-  }
-
-  p,
-  label {
-    font-family: Georgia, Times, 'Times New Roman', serif;
-    line-height: 1.5em;
-  }
-`;
+export type ActionsUnion<A extends ActionCreatorsMapObject> = ReturnType<
+  A[keyof A]
+>;

@@ -43,3 +43,4 @@ export interface WebappConfig {
 }
 
 export { GlobalStateBase } from './state';
+export * from './state/actions';
