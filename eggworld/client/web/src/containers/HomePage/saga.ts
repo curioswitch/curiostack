@@ -42,7 +42,7 @@ import {
 } from 'redux-saga/effects';
 import { getType } from 'typesafe-actions';
 
-import actions, { Action } from './actions';
+import { Actions, ActionTypes } from './actions';
 
 import selectHomePage from './selectors';
 
@@ -74,7 +74,7 @@ function* doCheckIngredients(ingredients: Ingredient[]) {
   const response: CheckIngredientsResponse = yield call(() =>
     execute(EggworldService.CheckIngredients, request),
   );
-  yield put(actions.checkIngredientsResponse(response));
+  yield put(Actions.checkIngredientsResponse(response));
 }
 
 function* doCook() {
@@ -84,15 +84,15 @@ function* doCook() {
   const response: FindRecipeResponse = yield call(() =>
     execute(EggworldService.FindRecipe, request),
   );
-  yield put(actions.cookResponse(response.getRecipeUrl()));
+  yield put(Actions.cookResponse(response.getRecipeUrl()));
 }
 
-function* unionSaga(action: Action) {
+function* unionSaga(action: Actions) {
   switch (action.type) {
-    case getType(actions.checkIngredients):
+    case ActionTypes.CHECK_INGREDIENTS:
       yield doCheckIngredients(action.payload);
       break;
-    case getType(actions.cook):
+    case ActionTypes.COOK:
       yield doCook();
       break;
     default:
@@ -102,7 +102,7 @@ function* unionSaga(action: Action) {
 // Individual exports for testing
 export default function* rootSaga(): IterableIterator<AllEffect> {
   yield all(
-    Object.values(actions).map((action) =>
+    Object.values(Actions).map((action) =>
       takeLatest(getType(action), unionSaga),
     ),
   );

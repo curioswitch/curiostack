@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import LoadingIndicator from '@curiostack/base-web';
+import { LoadingIndicator } from '@curiostack/base-web';
 
 import Loadable from 'react-loadable';
 

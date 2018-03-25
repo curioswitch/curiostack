@@ -30,11 +30,10 @@
 
 import { Record, Set } from 'immutable';
 import { Node } from 'konva';
-import { getType } from 'typesafe-actions';
 
 import { Ingredient } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb';
 
-import actions, { Action } from './actions';
+import { Actions, ActionTypes } from './actions';
 
 interface StateProps {
   cooking: boolean;
@@ -81,34 +80,34 @@ function isInsideMouth(node: Node) {
 // We don't keep this in state since we don't need it to influence rendering.
 let mouthAnimationFrameCount = 0;
 
-export default function reducer(state: State, action: Action) {
+export default function reducer(state: State, action: Actions) {
   switch (action.type) {
-    case getType(actions.checkIngredientsResponse):
+    case ActionTypes.CHECK_INGREDIENTS_RESPONSE:
       return state.set(
         'usableFood',
         Set(action.payload.getSelectableIngredientList()),
       );
-    case getType(actions.cook):
+    case ActionTypes.COOK:
       return state.set('cooking', true);
-    case getType(actions.cookResponse):
+    case ActionTypes.COOK_RESPONSE:
       if (state.eggBreakingDone) {
         window.location.href = action.payload;
       }
       return state.set('recipeUrl', action.payload);
-    case getType(actions.drawStage):
+    case ActionTypes.DRAW_STAGE:
       return state.update('drawStageCount', (count) => count + 1);
-    case getType(actions.eggBreakingDone):
+    case ActionTypes.EGG_BREAKING_DONE:
       const recipeUrl = state.recipeUrl;
       if (recipeUrl) {
         window.location.href = recipeUrl;
       }
       return state.set('eggBreakingDone', true);
-    case getType(actions.foodDragged):
+    case ActionTypes.FOOD_DRAGGED:
       if (isInsideMouth(action.payload.node)) {
         return state.set('foodBeingEaten', action.payload.ingredient);
       }
       return state;
-    case getType(actions.mouthAnimationFrame):
+    case ActionTypes.MOUTH_ANIMATION_FRAME:
       let newState = state;
       if (mouthAnimationFrameCount === 12) {
         const ingredient = state.foodBeingEaten!;
@@ -123,12 +122,12 @@ export default function reducer(state: State, action: Action) {
         mouthAnimationFrameCount += 1;
       }
       return newState;
-    case getType(actions.rotateHammer):
+    case ActionTypes.ROTATE_HAMMER:
       return state.update(
         'hammerRotation',
         (rotation) => rotation + action.payload,
       );
-    case getType(actions.selectTab):
+    case ActionTypes.SELECT_TAB:
       return state.set('selectedTab', action.payload);
     default:
       return state;

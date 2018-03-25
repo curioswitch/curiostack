@@ -153,6 +153,9 @@
     "konva": "2.0.2",
     "react-konva": "1.7.1",
     "sanitize.css": "5.0.0",
-    "yuki-createjs": "0.0.3"
+    "soundjs": "1.0.1"
+  },
+  "devDependencies": {
+    "@types/soundjs": "0.6.27"
   }
 }

@@ -22,32 +22,25 @@
  * SOFTWARE.
  */
 
-/**
- * Create the store with dynamic reducers
- */
+import { ActionCreatorsMapObject } from 'redux';
 
-import { History } from 'history';
-
-import { GlobalStateBase } from '@curiostack/base-web/redux';
-import configureStore, {
-  InjectableStore,
-} from '@curiostack/base-web/redux/store';
-
-import {
-  initialState as homePageInitialState,
-  State as HomePageState,
-} from './containers/HomePage/reducer';
-
-interface State {
-  readonly homePage: HomePageState;
+// Same as redux except forces T to be string.
+export interface Action<T extends string> {
+  type: T;
+}
+export interface ActionWithPayload<T extends string, P> extends Action<T> {
+  payload: P;
 }
 
-export type GlobalState = State & GlobalStateBase;
-
-export default function setup(history: History): InjectableStore<GlobalState> {
-  const initialState: State = {
-    homePage: homePageInitialState,
-  };
-
-  return configureStore(initialState, history);
+export function createAction<T extends string>(type: T): Action<T>;
+export function createAction<T extends string, P>(
+  type: T,
+  payload: P,
+): ActionWithPayload<T, P>;
+export function createAction<T extends string, P>(type: T, payload?: P) {
+  return payload ? { type, payload } : { type };
 }
+
+export type ActionsUnion<A extends ActionCreatorsMapObject> = ReturnType<
+  A[keyof A]
+>;

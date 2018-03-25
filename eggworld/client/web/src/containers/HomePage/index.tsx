@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import 'yuki-createjs/lib/soundjs-0.6.2.combined';
+import 'soundjs/lib/soundjs';
 
 import { Animation } from 'konva';
 import React from 'react';
@@ -47,8 +47,6 @@ import selectHomePage from './selectors';
 import mogmogChokoSoundSrc from './assets/mogmog_choko.m4a';
 import mogmogCute1SoundSrc from './assets/mogmog_cute1.m4a';
 import mogmogNormal1SoundSrc from './assets/mogmog_normal1.m4a';
-
-const createjs = global.createjs;
 
 createjs.Sound.registerSound(mogmogChokoSoundSrc, 'mogmog1');
 createjs.Sound.registerSound(mogmogCute1SoundSrc, 'mogmog2');

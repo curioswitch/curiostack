@@ -22,11 +22,11 @@
  * SOFTWARE.
  */
 
-import LoadingIndicator from '@curiostack/base-web';
+import { LoadingIndicator } from '@curiostack/base-web';
 
 import Loadable from 'react-loadable';
 
 export default Loadable({
   loader: () => import('./index'),
   loading: LoadingIndicator,
-} as any);
+});
