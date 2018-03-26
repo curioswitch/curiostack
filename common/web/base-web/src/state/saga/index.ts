@@ -22,26 +22,18 @@
  * SOFTWARE.
  */
 
-import React from 'react';
+import {
+  ForkEffect,
+  takeLatest as reduxSagaTakeLatest,
+} from 'redux-saga/effects';
 
-export { default as initApp } from './app/init';
+import { Action } from '../actions';
 
-import { LocaleMessages } from './containers/LanguageProvider';
+type HelperFunc0<A> = (action: A) => any;
 
-export { default as injectReducer } from './hoc/injectReducer';
-export { default as injectSaga } from './hoc/injectSaga';
-
-export { default as LoadingIndicator } from './components/LoadingIndicator';
-
-export interface WebappConfig {
-  component: React.ComponentClass | React.StatelessComponent;
-  messages: LocaleMessages;
-  defaultLocale: string;
-  initialState: any;
-  mountNode?: string | HTMLElement;
-  theme?: any;
-}
-
-export { GlobalStateBase } from './state';
-export * from './state/actions';
-export * from './state/saga';
+// TODO(choko): Revisit after redux-saga 1.0.0-beta.2+. The typing have improved significantly since
+// the current most recent release.
+export const takeLatest: <T extends string, A extends Action<T>>(
+  type: T,
+  func: HelperFunc0<A>,
+) => ForkEffect = reduxSagaTakeLatest;

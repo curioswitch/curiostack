@@ -22,24 +22,18 @@
  * SOFTWARE.
  */
 
+import { takeLatest } from '@curiostack/base-web';
+
+import { grpc } from 'grpc-web-client';
+import { all, AllEffect, call, put, select } from 'redux-saga/effects';
+
 import {
   CheckIngredientsRequest,
   CheckIngredientsResponse,
   FindRecipeRequest,
   FindRecipeResponse,
-  Ingredient,
 } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb';
 import { EggworldService } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb_service';
-
-import { grpc } from 'grpc-web-client';
-import {
-  all,
-  AllEffect,
-  call,
-  put,
-  select,
-  takeLatest,
-} from 'redux-saga/effects';
 
 import { Actions, ActionTypes } from './actions';
 
@@ -67,7 +61,9 @@ async function execute(method: any, request: any) {
   );
 }
 
-function* doCheckIngredients(ingredients: Ingredient[]) {
+function* doCheckIngredients({
+  payload: ingredients,
+}: ReturnType<typeof Actions.checkIngredients>) {
   const request = new CheckIngredientsRequest();
   request.setSelectedIngredientList(ingredients);
   const response: CheckIngredientsResponse = yield call(() =>
@@ -86,21 +82,10 @@ function* doCook() {
   yield put(Actions.cookResponse(response.getRecipeUrl()));
 }
 
-function* unionSaga(action: Actions) {
-  switch (action.type) {
-    case ActionTypes.CHECK_INGREDIENTS:
-      yield doCheckIngredients(action.payload);
-      break;
-    case ActionTypes.COOK:
-      yield doCook();
-      break;
-    default:
-  }
-}
-
 // Individual exports for testing
 export default function* rootSaga(): IterableIterator<AllEffect> {
-  yield all(
-    Object.values(ActionTypes).map((type) => takeLatest(type, unionSaga)),
-  );
+  yield all([
+    takeLatest(ActionTypes.CHECK_INGREDIENTS, doCheckIngredients),
+    takeLatest(ActionTypes.COOK, doCook),
+  ]);
 }
