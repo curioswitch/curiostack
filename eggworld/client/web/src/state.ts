@@ -22,14 +22,19 @@
  * SOFTWARE.
  */
 
-import { RouterState } from 'react-router-redux';
-import { createSelector } from 'reselect';
+import { GlobalStateBase } from '@curiostack/base-web';
 
-import { GlobalState } from '../../state';
+import {
+  initialState as homePageInitialState,
+  State as HomePageState,
+} from './containers/HomePage/reducer';
 
-const selectRoute = (state: GlobalState): RouterState => state.route;
+interface OwnGlobalState {
+  homePage: HomePageState;
+}
 
-const makeSelectLocation = () =>
-  createSelector(selectRoute, (routeState) => routeState.location);
+export type GlobalState = GlobalStateBase & OwnGlobalState;
 
-export { makeSelectLocation };
+export const initialState: OwnGlobalState = {
+  homePage: homePageInitialState,
+};

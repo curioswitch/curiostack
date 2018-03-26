@@ -27,11 +27,34 @@ import path from 'path';
 import { promisify } from 'util';
 
 import rimraf from 'rimraf';
-import webpack from 'webpack';
+import webpack, { Configuration } from 'webpack';
 
-import config from '../webpack/prod';
+import { appConfiguration, prerenderConfiguration } from '../webpack/prod';
 
 import { lint } from './check';
+
+async function runWebpack(config: Configuration) {
+  return new Promise((resolve, reject) => {
+    webpack(config, (err, stats) => {
+      // tslint:disable-next-line:strict-boolean-expressions
+      if (stats) {
+        console.log(
+          stats.toString({
+            colors: true,
+          }),
+        );
+      }
+
+      // tslint:disable-next-line:strict-boolean-expressions
+      if ((stats && stats.hasErrors()) || err) {
+        reject(err || new Error('Webpack compilation failed'));
+        process.exit(1);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
 
 async function run() {
   await promisify(rimraf)(path.resolve(process.cwd(), 'build'));
@@ -40,23 +63,13 @@ async function run() {
     process.exit(1);
   }
 
-  webpack(config, (err, stats) => {
-    // tslint:disable-next-line:strict-boolean-expressions
-    if (stats) {
-      console.log(
-        stats.toString({
-          colors: true,
-        }),
-      );
-    }
-
-    // tslint:disable-next-line:strict-boolean-expressions
-    if ((stats && stats.hasErrors()) || err) {
-      process.exit(1);
-    } else {
-      process.exit();
-    }
-  });
+  try {
+    await runWebpack(appConfiguration);
+    await runWebpack(prerenderConfiguration);
+    process.exit(0);
+  } catch (e) {
+    process.exit(1);
+  }
 }
 if (require.main === module) {
   run().catch((err) => {

@@ -96,10 +96,15 @@ async function run(locals: any) {
   );
   const renderedContent = ReactDOMServer.renderToString(page);
   const helmet = Helmet.renderStatic();
+
+  const scriptFilename = Object.keys(
+    locals.webpackStats.compilation.assets,
+  ).find((name) => name.startsWith('main.') && name.endsWith('.js'));
+
   return ReactDOMServer.renderToStaticMarkup(
     <Template
       content={renderedContent}
-      mainScriptSrc={locals.assets.main}
+      mainScriptSrc={`/static/${scriptFilename!}`}
       helmet={helmet}
       styles={sheet.getStyleElement()}
     />,

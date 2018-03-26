@@ -22,14 +22,27 @@
  * SOFTWARE.
  */
 
-import { RouterState } from 'react-router-redux';
-import { createSelector } from 'reselect';
+import { compilation, Compiler, Plugin } from 'webpack';
 
-import { GlobalState } from '../../state';
+export default class AssetCollectorPlugin implements Plugin {
+  private assets = {};
 
-const selectRoute = (state: GlobalState): RouterState => state.route;
+  public apply(c: Compiler) {
+    c.hooks.compilation.tap(this.constructor.name, this.handleCompilation);
+    c.hooks.emit.tap(this.constructor.name, this.handleEmit);
+  }
 
-const makeSelectLocation = () =>
-  createSelector(selectRoute, (routeState) => routeState.location);
+  private handleCompilation = (c: compilation.Compilation) => {
+    c.assets = {
+      ...this.assets,
+      ...c.assets,
+    };
+  };
 
-export { makeSelectLocation };
+  private handleEmit = (c: compilation.Compilation) => {
+    this.assets = {
+      ...this.assets,
+      ...c.assets,
+    };
+  };
+}

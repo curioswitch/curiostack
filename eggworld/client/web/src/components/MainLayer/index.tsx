@@ -25,9 +25,9 @@
 import React from 'react';
 import { Layer } from 'react-konva';
 
-import Button from 'components/Button';
-import KonvaImage from 'components/KonvaImage';
-import KonvaSprite from 'components/KonvaSprite';
+import Button from '../Button';
+import KonvaImage from '../KonvaImage';
+import KonvaSprite from '../KonvaSprite';
 
 import eggImageSrc from './assets/egg.png';
 import eggBreakingSpriteSrc from './assets/eggbreaking-sprite.jpg';

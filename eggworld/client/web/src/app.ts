@@ -22,42 +22,24 @@
  * SOFTWARE.
  */
 
-/**
- * app.ts
- *
- * This is the entry file for the application, only setup and boilerplate
- * code.
- */
-
-import { GlobalStateBase, initApp } from '@curiostack/base-web';
+import { WebappConfig } from '@curiostack/base-web';
 import 'sanitize.css/sanitize.css';
 
 import enMessages from './translations/en.json';
 
-import {
-  initialState as homePageInitialState,
-  State as HomePageState,
-} from './containers/HomePage/reducer';
+import { initialState } from './state';
 
 // Import root app
 // tslint:disable-next-line:no-var-requires
 const App = require('containers/App').default;
 
-interface OwnGlobalState {
-  homePage: HomePageState;
-}
-
-export type GlobalState = GlobalStateBase & OwnGlobalState;
-
-const initialState: OwnGlobalState = {
-  homePage: homePageInitialState,
-};
-
-initApp({
+const config: WebappConfig = {
   initialState,
   component: App,
   messages: {
     en: enMessages,
   },
   defaultLocale: 'en',
-});
+};
+
+export default config;

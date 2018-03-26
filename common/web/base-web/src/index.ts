@@ -24,8 +24,6 @@
 
 import React from 'react';
 
-export { default as initApp } from './app/init';
-
 import { LocaleMessages } from './containers/LanguageProvider';
 
 export { default as injectReducer } from './hoc/injectReducer';

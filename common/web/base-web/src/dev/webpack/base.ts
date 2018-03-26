@@ -49,7 +49,7 @@ function configure(options: any): Configuration {
             {
               modules: false,
               useBuiltins: true,
-              targets: {
+              targets: options.babelTargets || {
                 browsers,
               },
             },

@@ -22,14 +22,26 @@
  * SOFTWARE.
  */
 
-import { RouterState } from 'react-router-redux';
-import { createSelector } from 'reselect';
+// tslint:disable:max-classes-per-file
 
-import { GlobalState } from '../../state';
+import { PrerenderConfig } from '@curiostack/base-web';
 
-const selectRoute = (state: GlobalState): RouterState => state.route;
+import { initialState } from './state';
 
-const makeSelectLocation = () =>
-  createSelector(selectRoute, (routeState) => routeState.location);
+// Need to manually setup howler's global objects for prerendering
+class HowlerGlobal {}
+class Howl {}
+class Sound {}
 
-export { makeSelectLocation };
+const config: PrerenderConfig = {
+  paths: {
+    '/': initialState,
+  },
+  globals: {
+    HowlerGlobal,
+    Howl,
+    Sound,
+  },
+};
+
+export default config;

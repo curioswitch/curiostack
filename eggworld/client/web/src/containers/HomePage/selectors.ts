@@ -24,7 +24,7 @@
 
 import { createSelector } from 'reselect';
 
-import { GlobalState } from '../../app';
+import { GlobalState } from '../../state';
 
 import { State } from './reducer';
 

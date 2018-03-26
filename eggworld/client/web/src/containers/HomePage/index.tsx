@@ -33,10 +33,10 @@ import { compose } from 'redux';
 
 import { injectReducer, injectSaga } from '@curiostack/base-web';
 
-import AnimationLayer from 'components/AnimationLayer';
-import FlowerLayer from 'components/FlowerLayer';
-import FoodLayer from 'components/FoodLayer';
-import MainLayer from 'components/MainLayer';
+import AnimationLayer from '../../components/AnimationLayer';
+import FlowerLayer from '../../components/FlowerLayer';
+import FoodLayer from '../../components/FoodLayer';
+import MainLayer from '../../components/MainLayer';
 
 import { DispatchProps, mapDispatchToProps } from './actions';
 import { INGREDIENTS } from './constants';

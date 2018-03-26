@@ -26,17 +26,17 @@
 
 process.env.NODE_ENV = 'production';
 
-require('tsconfig-paths').register();
 require('ts-node').register({
   compilerOptions: {
     module: 'commonjs',
+    jsx: 'react',
+    target: 'es2016',
   },
 });
 
 import fs from 'fs';
 import path from 'path';
 
-import AssetsPlugin from 'assets-webpack-plugin';
 import BrotliPlugin from 'brotli-webpack-plugin';
 import { ReactLoadablePlugin } from 'react-loadable/webpack';
 import StaticSiteGeneratorPlugin from 'static-site-generator-webpack-plugin';
@@ -45,6 +45,8 @@ import { Configuration, DefinePlugin } from 'webpack';
 import ZopfliPlugin from 'zopfli-webpack-plugin';
 
 import configureBase from './base';
+
+import AssetCollectorPlugin from './assetcollector';
 
 const prerenderConfigPath = path.resolve(process.cwd(), 'src/prerender');
 const prerenderConfig =
@@ -58,9 +60,7 @@ const prerenderConfig =
         globals: {},
       };
 
-const assetsPlugin = new AssetsPlugin({
-  includeManifest: true,
-});
+const assetCollector = new AssetCollectorPlugin();
 
 const plugins = [
   new DefinePlugin({
@@ -74,7 +74,7 @@ const plugins = [
     filename: './build/react-loadable.json',
   }),
 
-  assetsPlugin,
+  assetCollector,
 
   new WebappPlugin({
     logo: 'favicon.png',
@@ -111,7 +111,7 @@ const prerenderPlugins = [
     filename: './build/react-loadable.json',
   }),
 
-  assetsPlugin,
+  assetCollector,
 
   new StaticSiteGeneratorPlugin({
     entry: 'prerender',
@@ -128,9 +128,9 @@ const prerenderPlugins = [
   }),
 ];
 
-const appConfiguration: Configuration = configureBase({
+export const appConfiguration: Configuration = configureBase({
   plugins,
-  mode: 'production',
+  mode: 'development',
   babelPlugins: [
     '@babel/transform-react-constant-elements',
     '@babel/transform-react-inline-elements',
@@ -144,9 +144,9 @@ const appConfiguration: Configuration = configureBase({
   },
 });
 
-const prerenderConfiguration: Configuration = configureBase({
+export const prerenderConfiguration: Configuration = configureBase({
   plugins: prerenderPlugins,
-  mode: 'production',
+  mode: 'development',
   target: 'node',
   entrypoints: {
     prerender: path.resolve(__dirname, '../../prerender/index.tsx'),
@@ -155,8 +155,11 @@ const prerenderConfiguration: Configuration = configureBase({
     '@babel/transform-react-constant-elements',
     '@babel/transform-react-inline-elements',
     'react-loadable/babel',
-    'babel-plugin-dynamic-import-node',
+    'dynamic-import-node',
   ],
+  babelTargets: {
+    node: 'current',
+  },
   output: {
     filename: '[name].[chunkhash].js',
     chunkFilename: '[name].[chunkhash].chunk.js',
