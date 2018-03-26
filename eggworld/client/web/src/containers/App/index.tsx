@@ -22,33 +22,21 @@
  * SOFTWARE.
  */
 
-import { injectGlobal } from 'styled-components';
+import React from 'react';
+import { Route, Switch } from 'react-router-dom';
 
-// tslint:disable-next-line:no-unused-expression
-injectGlobal`
-  html,
-  body {
-    height: 100%;
-    width: 100%;
-  }
+import HomePage from '../HomePage/loader';
+import NotFoundPage from '../NotFoundPage/loader';
 
-  body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+export default class App extends React.Component {
+  public render() {
+    return (
+      <>
+        <Switch>
+          <Route exact path="/" component={HomePage} />
+          <Route path="" component={NotFoundPage} />
+        </Switch>
+      </>
+    );
   }
-
-  body.fontLoaded {
-    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
-
-  #app {
-    background-color: #fafafa;
-    min-height: 100%;
-    min-width: 100%;
-  }
-
-  p,
-  label {
-    font-family: Georgia, Times, 'Times New Roman', serif;
-    line-height: 1.5em;
-  }
-`;
+}

@@ -22,33 +22,18 @@
  * SOFTWARE.
  */
 
-import { injectGlobal } from 'styled-components';
+import {
+  ForkEffect,
+  takeLatest as reduxSagaTakeLatest,
+} from 'redux-saga/effects';
 
-// tslint:disable-next-line:no-unused-expression
-injectGlobal`
-  html,
-  body {
-    height: 100%;
-    width: 100%;
-  }
+import { Action } from '../actions';
 
-  body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
+type HelperFunc0<A> = (action: A) => any;
 
-  body.fontLoaded {
-    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
-
-  #app {
-    background-color: #fafafa;
-    min-height: 100%;
-    min-width: 100%;
-  }
-
-  p,
-  label {
-    font-family: Georgia, Times, 'Times New Roman', serif;
-    line-height: 1.5em;
-  }
-`;
+// TODO(choko): Revisit after redux-saga 1.0.0-beta.2+. The typing have improved significantly since
+// the current most recent release.
+export const takeLatest: <T extends string, A extends Action<T>>(
+  type: T,
+  func: HelperFunc0<A>,
+) => ForkEffect = reduxSagaTakeLatest;

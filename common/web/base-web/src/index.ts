@@ -52,3 +52,5 @@ export interface PrerenderConfig {
 }
 
 export { GlobalStateBase } from './state';
+export * from './state/actions';
+export * from './state/saga';
