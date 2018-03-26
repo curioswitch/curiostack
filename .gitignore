@@ -81,6 +81,8 @@ typings/
 # dotenv environment variables file
 .env
 
+.wwp-cache
+
 ### Gradle template
 .gradle
 build/

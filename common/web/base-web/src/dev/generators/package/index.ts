@@ -82,7 +82,7 @@ async function run() {
     }
   }
 
-  const packageDir = path.resolve(process.cwd(), dir);
+  const packageDir = path.resolve(process.cwd(), dir!);
   const context = {
     name,
     baseWebVersion: packageJson.version,

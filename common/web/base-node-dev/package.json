@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-node-dev",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Curiostack's base dev dependencies for non-browser applications.",
   "main": "build/index.js",
   "repository": "curioswitch/curiostack",
