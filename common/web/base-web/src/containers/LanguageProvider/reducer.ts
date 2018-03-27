@@ -28,9 +28,8 @@
  */
 
 import { Record } from 'immutable';
-import { getType } from 'typesafe-actions';
 
-import * as actions from './actions';
+import { Actions, ActionTypes } from './actions';
 
 export interface LanguageState {
   readonly locale: string;
@@ -49,14 +48,9 @@ export default function reducer(
   action: Actions,
 ): LanguageStateRecord {
   switch (action.type) {
-    case getType(actions.changeLocale):
+    case ActionTypes.CHANGE_LOCALE:
       return state.set('locale', action.payload);
     default:
       return state;
   }
 }
-
-// inferring union type of actions
-import { $call } from 'utility-types';
-const returnsOfActions = Object.values(actions).map($call);
-type Actions = typeof returnsOfActions[number];

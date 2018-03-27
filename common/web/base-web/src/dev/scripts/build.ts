@@ -27,33 +27,18 @@ import path from 'path';
 import { promisify } from 'util';
 
 import rimraf from 'rimraf';
-import webpack, { Configuration } from 'webpack';
+import { Configuration } from 'webpack';
+import saneWebpack from 'webpack-sane-compiler';
+import startReporting from 'webpack-sane-compiler-reporter';
 
 import { appConfiguration, prerenderConfiguration } from '../webpack/prod';
 
 import { lint } from './check';
 
 async function runWebpack(config: Configuration) {
-  return new Promise((resolve, reject) => {
-    webpack(config, (err, stats) => {
-      // tslint:disable-next-line:strict-boolean-expressions
-      if (stats) {
-        console.log(
-          stats.toString({
-            colors: true,
-          }),
-        );
-      }
-
-      // tslint:disable-next-line:strict-boolean-expressions
-      if ((stats && stats.hasErrors()) || err) {
-        reject(err || new Error('Webpack compilation failed'));
-        process.exit(1);
-      } else {
-        resolve();
-      }
-    });
-  });
+  const compiler = saneWebpack(config);
+  startReporting(compiler);
+  await compiler.run();
 }
 
 async function run() {
@@ -63,17 +48,14 @@ async function run() {
     process.exit(1);
   }
 
-  try {
-    await runWebpack(appConfiguration);
-    await runWebpack(prerenderConfiguration);
-    process.exit(0);
-  } catch (e) {
-    process.exit(1);
-  }
+  await runWebpack(appConfiguration);
+  await runWebpack(prerenderConfiguration);
 }
 if (require.main === module) {
-  run().catch((err) => {
-    console.log('Unexpected error running webpack.', err);
-    process.exit(1);
-  });
+  run()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.log('Error running webpack.', err);
+      process.exit(1);
+    });
 }

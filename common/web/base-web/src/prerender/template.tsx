@@ -27,18 +27,27 @@ import { HelmetData } from 'react-helmet';
 
 export interface Args {
   content: string;
-  mainScriptSrc: string;
+  delayedScriptSrcs: string[];
   helmet: HelmetData;
+  links: React.Component[];
+
   // tslint:disable-next-line:array-type
   styles: ReactElement<{}>[];
 }
 
-export default function({ content, mainScriptSrc, helmet, styles }: Args) {
+export default function({
+  content,
+  delayedScriptSrcs,
+  helmet,
+  links,
+  styles,
+}: Args) {
   return (
     <html {...helmet.htmlAttributes.toComponent()}>
       <head>
         {helmet.title.toComponent()}
         {helmet.meta.toComponent()}
+        {links.map((link) => link)}
         {helmet.link.toComponent()}
         {helmet.style.toComponent()}
         {helmet.script.toComponent()}
@@ -46,7 +55,7 @@ export default function({ content, mainScriptSrc, helmet, styles }: Args) {
       </head>
       <body>
         <div id="app" dangerouslySetInnerHTML={{ __html: content }} />
-        <script src={mainScriptSrc} async defer />
+        {delayedScriptSrcs.map((src) => <script key={src} src={src} />)}
       </body>
     </html>
   );

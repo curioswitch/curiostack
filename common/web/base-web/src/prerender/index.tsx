@@ -22,12 +22,13 @@
  * SOFTWARE.
  */
 
-import '@babel/polyfill';
+// tslint:disable:jsx-no-lambda
 
 import {
   createMemoryHistory as createHistory,
   LocationDescriptor,
 } from 'history';
+import { Parser } from 'html-to-react';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { Helmet } from 'react-helmet';
@@ -45,21 +46,35 @@ import initRedux from '../state/init';
 
 import Template from './template';
 
+// tslint:disable:no-var-requires
+const LOADED_MODULES = require(process.env.LOADABLE_JSON_PATH!);
+const ICON_STATS = require(process.env.ICONSTATS_JSON_PATH!);
+
 interface Props {
   messages: LocaleMessages;
   store: Store;
   location: LocationDescriptor;
   Component: React.ComponentClass<any> | React.StatelessComponent<any>;
   theme: any;
+  modules: string[];
 }
 
-function RenderedPage({ messages, store, location, Component, theme }: Props) {
+function RenderedPage({
+  messages,
+  store,
+  location,
+  modules,
+  Component,
+  theme,
+}: Props) {
   return (
     <Provider store={store}>
       <LanguageProvider messages={messages}>
         <ThemeProvider theme={theme || {}}>
           <StaticRouter location={location} context={{}}>
-            <Component />
+            <Loadable.Capture report={(name) => modules.push(name)}>
+              <Component />
+            </Loadable.Capture>
           </StaticRouter>
         </ThemeProvider>
       </LanguageProvider>
@@ -67,16 +82,23 @@ function RenderedPage({ messages, store, location, Component, theme }: Props) {
   );
 }
 
+function getBundles(manifest: any, moduleIds: string[]): any {
+  return moduleIds.reduce(
+    (bundles, moduleId) => bundles.concat(manifest[moduleId]),
+    [],
+  );
+}
+
 async function run(locals: any) {
   await Loadable.preloadAll();
 
-  const path = locals.path.replace('.html', '');
+  const p = locals.path.replace('.html', '');
   // Create redux store with history
   const initialState = {
     ...appConfig.initialState,
     route: {
       location: {
-        pathname: path,
+        pathname: p,
       },
     },
     ...locals.pathStates[locals.path],
@@ -85,27 +107,54 @@ async function run(locals: any) {
   const store = initRedux(initialState, history);
 
   const sheet = new ServerStyleSheet();
+  const modules: string[] = [];
   const page = sheet.collectStyles(
     <RenderedPage
       messages={appConfig.messages}
       store={store}
       location={initialState.route.location}
+      modules={modules}
       Component={appConfig.component}
       theme={appConfig.theme || {}}
     />,
   );
+
   const renderedContent = ReactDOMServer.renderToString(page);
   const helmet = Helmet.renderStatic();
 
-  const scriptFilename = Object.keys(
-    locals.webpackStats.compilation.assets,
-  ).find((name) => name.startsWith('main.') && name.endsWith('.js'));
+  const prerenderedBundleSources = getBundles(LOADED_MODULES, modules).map(
+    (bundle: any) => `/static/${bundle.file}`,
+  );
+
+  // There is only one entry called main, so if we find a match we know it's filename.
+  let mainScriptFilename;
+  for (const chunkList of Object.values(LOADED_MODULES)) {
+    for (const chunk of chunkList) {
+      if (chunk.file.startsWith('main.') && chunk.file.endsWith('.js')) {
+        mainScriptFilename = chunk.file;
+        break;
+      }
+    }
+    if (mainScriptFilename) {
+      break;
+    }
+  }
+  const scripts = [
+    ...prerenderedBundleSources,
+    `/static/${mainScriptFilename!}`,
+  ];
+
+  const htmlParser = new Parser();
+  const iconLinks = ICON_STATS.html.map((link: string) =>
+    htmlParser.parse(link),
+  );
 
   return ReactDOMServer.renderToStaticMarkup(
     <Template
       content={renderedContent}
-      mainScriptSrc={`/static/${scriptFilename!}`}
+      delayedScriptSrcs={scripts}
       helmet={helmet}
+      links={iconLinks}
       styles={sheet.getStyleElement()}
     />,
   );

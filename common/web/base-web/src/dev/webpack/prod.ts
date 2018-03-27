@@ -38,15 +38,13 @@ import fs from 'fs';
 import path from 'path';
 
 import BrotliPlugin from 'brotli-webpack-plugin';
+import FaviconPlugin from 'favicons-webpack-plugin';
 import { ReactLoadablePlugin } from 'react-loadable/webpack';
 import StaticSiteGeneratorPlugin from 'static-site-generator-webpack-plugin';
-import WebappPlugin from 'webapp-webpack-plugin';
 import { Configuration, DefinePlugin } from 'webpack';
 import ZopfliPlugin from 'zopfli-webpack-plugin';
 
 import configureBase from './base';
-
-import AssetCollectorPlugin from './assetcollector';
 
 const prerenderConfigPath = path.resolve(process.cwd(), 'src/prerender');
 const prerenderConfig =
@@ -60,7 +58,10 @@ const prerenderConfig =
         globals: {},
       };
 
-const assetCollector = new AssetCollectorPlugin();
+const loadableJsonPath = path.resolve(
+  process.cwd(),
+  'build/react-loadable.json',
+);
 
 const plugins = [
   new DefinePlugin({
@@ -71,12 +72,11 @@ const plugins = [
   }),
 
   new ReactLoadablePlugin({
-    filename: './build/react-loadable.json',
+    filename: loadableJsonPath,
   }),
 
-  assetCollector,
-
-  new WebappPlugin({
+  new FaviconPlugin({
+    inject: false,
     logo: 'favicon.png',
     prefix: 'icons-[hash]/',
     emitStats: true,
@@ -104,14 +104,12 @@ const prerenderPlugins = [
     'process.env': {
       APP_CONFIG_PATH: JSON.stringify(path.resolve(process.cwd(), 'src/app')),
       NODE_ENV: JSON.stringify('production'),
+      LOADABLE_JSON_PATH: JSON.stringify(loadableJsonPath),
+      ICONSTATS_JSON_PATH: JSON.stringify(
+        path.resolve(process.cwd(), 'build/web/iconstats.json'),
+      ),
     },
   }),
-
-  new ReactLoadablePlugin({
-    filename: './build/react-loadable.json',
-  }),
-
-  assetCollector,
 
   new StaticSiteGeneratorPlugin({
     entry: 'prerender',
@@ -120,17 +118,30 @@ const prerenderPlugins = [
       pathStates: prerenderConfig.paths,
     },
     globals: {
-      window: {
-        ga: () => undefined,
-      },
+      window: {},
       ...prerenderConfig.globals,
     },
+  }),
+
+  new ZopfliPlugin({
+    asset: '[path].gz[query]',
+    algorithm: 'zopfli',
+    test: /\.(html)$/,
+    threshold: 1024,
+    minRatio: 0.9,
+  }),
+
+  new BrotliPlugin({
+    asset: '[path].br[query]',
+    test: /\.(html)$/,
+    threshold: 1024,
+    minRatio: 0.9,
   }),
 ];
 
 export const appConfiguration: Configuration = configureBase({
   plugins,
-  mode: 'development',
+  mode: 'production',
   babelPlugins: [
     '@babel/transform-react-constant-elements',
     '@babel/transform-react-inline-elements',
@@ -140,13 +151,12 @@ export const appConfiguration: Configuration = configureBase({
     filename: '[name].[chunkhash].js',
     chunkFilename: '[name].[chunkhash].chunk.js',
     publicPath: '/static/',
-    libraryTarget: 'commonjs',
   },
 });
 
 export const prerenderConfiguration: Configuration = configureBase({
   plugins: prerenderPlugins,
-  mode: 'development',
+  mode: 'production',
   target: 'node',
   entrypoints: {
     prerender: path.resolve(__dirname, '../../prerender/index.tsx'),
@@ -161,8 +171,8 @@ export const prerenderConfiguration: Configuration = configureBase({
     node: 'current',
   },
   output: {
-    filename: '[name].[chunkhash].js',
-    chunkFilename: '[name].[chunkhash].chunk.js',
+    filename: '../prerender/[name].js',
+    chunkFilename: '../prerender/[name].chunk.js',
     publicPath: '/static/',
     libraryTarget: 'commonjs',
   },

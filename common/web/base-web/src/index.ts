@@ -31,6 +31,10 @@ export { default as injectSaga } from './hoc/injectSaga';
 
 export { default as LoadingIndicator } from './components/LoadingIndicator';
 
+export { GlobalStateBase } from './state';
+export * from './state/actions';
+export * from './state/saga';
+
 export interface WebappConfig {
   component: React.ComponentClass | React.StatelessComponent;
   messages: LocaleMessages;
@@ -48,7 +52,3 @@ export interface PrerenderConfig {
   paths: PrerenderedPaths;
   globals: object;
 }
-
-export { GlobalStateBase } from './state';
-export * from './state/actions';
-export * from './state/saga';

@@ -22,17 +22,15 @@
  * SOFTWARE.
  */
 
-/**
- *
- * LanguageProvider actions
- *
- */
+import { ActionsUnion, createAction } from '../../';
 
-import { createAction } from 'typesafe-actions';
+export enum ActionTypes {
+  CHANGE_LOCALE = 'LanguageProvider/CHANGE_LOCALE',
+}
 
-const CHANGE_LOCALE =
-  '@curiostack/base-web/containers/LanguageProvider/CHANGE_LOCALE';
-export const changeLocale = createAction(CHANGE_LOCALE, (locale: string) => ({
-  type: CHANGE_LOCALE,
-  payload: locale,
-}));
+export const Actions = {
+  changeLocale: (locale: string) =>
+    createAction(ActionTypes.CHANGE_LOCALE, locale),
+};
+
+export type Actions = ActionsUnion<typeof Actions>;

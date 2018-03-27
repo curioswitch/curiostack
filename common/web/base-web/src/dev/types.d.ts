@@ -81,6 +81,14 @@ declare module 'fork-ts-checker-webpack-plugin' {
   export = ForkTsCheckerWebpackPlugin;
 }
 
+declare module 'html-to-react' {
+  import { Component } from 'react';
+
+  class Parser {
+    public parse(html: string): Component;
+  }
+}
+
 declare module 'koa-proxies' {
 
 }
@@ -109,18 +117,36 @@ declare module 'static-site-generator-webpack-plugin' {
   export = StaticSiteGeneratorPlugin;
 }
 
-declare module 'webapp-webpack-plugin' {
+declare module 'favicons-webpack-plugin' {
   import { Plugin } from 'webpack';
   interface Args {
     logo: string;
+    inject?: boolean;
     prefix?: string;
     emitStats?: boolean;
     statsFilename?: string;
+    persistentCache?: boolean;
   }
-  class WebappPlugin extends Plugin {
+  class FaviconsPlugin extends Plugin {
     constructor(args: Args);
   }
-  export = WebappPlugin;
+  export = FaviconsPlugin;
+}
+
+declare module 'webpack-sane-compiler' {
+  import { Configuration, Stats } from 'webpack';
+  class SaneCompiler {
+    public run(): Promise<{ stats: Stats }>;
+  }
+  function saneWebpack(config: Configuration): SaneCompiler;
+  export = saneWebpack;
+}
+
+declare module 'webpack-sane-compiler-reporter' {
+  import { SaneCompiler } from 'webpack-sane-compiler';
+
+  function startReporting(compiler: SaneCompiler): any;
+  export = startReporting;
 }
 
 declare module 'webpack-serve' {

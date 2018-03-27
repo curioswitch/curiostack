@@ -22,11 +22,10 @@
  * SOFTWARE.
  */
 
-import '@babel/polyfill';
-
 import { createBrowserHistory, History } from 'history';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Loadable from 'react-loadable';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
 import { Store } from 'redux';
@@ -47,17 +46,19 @@ function render(
   Component: React.ComponentClass<any> | React.StatelessComponent<any>,
   theme: any,
 ) {
-  ReactDOM.render(
-    <Provider store={store}>
-      <LanguageProvider messages={messages}>
-        <ThemeProvider theme={theme || {}}>
-          <ConnectedRouter history={history}>
-            <Component />
-          </ConnectedRouter>
-        </ThemeProvider>
-      </LanguageProvider>
-    </Provider>,
-    mountNode,
+  Loadable.preloadReady().then(() =>
+    ReactDOM.hydrate(
+      <Provider store={store}>
+        <LanguageProvider messages={messages}>
+          <ThemeProvider theme={theme || {}}>
+            <ConnectedRouter history={history}>
+              <Component />
+            </ConnectedRouter>
+          </ThemeProvider>
+        </LanguageProvider>
+      </Provider>,
+      mountNode,
+    ),
   );
 }
 
@@ -95,9 +96,4 @@ export default function init(config: WebappConfig) {
   } else {
     doRender(config.component);
   }
-
-  return (component: React.ComponentClass | React.StatelessComponent) => {
-    ReactDOM.unmountComponentAtNode(mountNode);
-    doRender(component);
-  };
 }
