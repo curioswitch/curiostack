@@ -22,12 +22,6 @@
  * SOFTWARE.
  */
 
-/**
- *
- * HomePage reducer
- *
- */
-
 import { Record, Set } from 'immutable';
 import { Node } from 'konva';
 

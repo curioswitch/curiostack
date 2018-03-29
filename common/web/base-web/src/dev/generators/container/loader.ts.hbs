@@ -4,6 +4,6 @@ import { LoadingIndicator } from '@curiostack/base-web';
 const Loadable = require('react-loadable');
 
 export default Loadable({
-  loader: () => import('./index'),
+  loader: () => import('../{{properCase name}}'),
   loading: LoadingIndicator,
 });

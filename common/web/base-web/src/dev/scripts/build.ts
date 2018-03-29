@@ -27,11 +27,19 @@ import path from 'path';
 import { promisify } from 'util';
 
 import rimraf from 'rimraf';
-import webpack from 'webpack';
+import { Configuration } from 'webpack';
+import saneWebpack from 'webpack-sane-compiler';
+import startReporting from 'webpack-sane-compiler-reporter';
 
-import config from '../webpack/prod';
+import { appConfiguration, prerenderConfiguration } from '../webpack/prod';
 
 import { lint } from './check';
+
+async function runWebpack(config: Configuration) {
+  const compiler = saneWebpack(config);
+  startReporting(compiler);
+  await compiler.run();
+}
 
 async function run() {
   await promisify(rimraf)(path.resolve(process.cwd(), 'build'));
@@ -40,27 +48,16 @@ async function run() {
     process.exit(1);
   }
 
-  webpack(config, (err, stats) => {
-    // tslint:disable-next-line:strict-boolean-expressions
-    if (stats) {
-      console.log(
-        stats.toString({
-          colors: true,
-        }),
-      );
-    }
-
-    // tslint:disable-next-line:strict-boolean-expressions
-    if ((stats && stats.hasErrors()) || err) {
-      process.exit(1);
-    } else {
-      process.exit();
-    }
-  });
+  await runWebpack(appConfiguration);
+  if (prerenderConfiguration) {
+    await runWebpack(prerenderConfiguration);
+  }
 }
 if (require.main === module) {
-  run().catch((err) => {
-    console.log('Unexpected error running webpack.', err);
-    process.exit(1);
-  });
+  run()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.log('Error running webpack.', err);
+      process.exit(1);
+    });
 }

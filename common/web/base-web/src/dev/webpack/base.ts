@@ -22,17 +22,12 @@
  * SOFTWARE.
  */
 
-import fs from 'fs';
 import path from 'path';
 
 import { Configuration } from 'webpack';
 
 // tslint:disable-next-line:no-var-requires
 const packageJson = require(path.resolve(process.cwd(), 'package.json'));
-
-const entrypoint = ['src/app.js', 'src/app.ts']
-  .map((relativePath) => path.join(process.cwd(), relativePath))
-  .filter((p) => fs.existsSync(p))[0]!;
 
 const browsers = (packageJson.curiostack &&
   // tslint:disable-next-line:strict-boolean-expressions
@@ -49,7 +44,7 @@ function configure(options: any): Configuration {
             {
               modules: false,
               useBuiltins: true,
-              targets: {
+              targets: options.babelTargets || {
                 browsers,
               },
             },
@@ -63,6 +58,12 @@ function configure(options: any): Configuration {
             'react-intl-auto',
             {
               removePrefix: 'src/',
+            },
+          ],
+          [
+            'babel-plugin-styled-components',
+            {
+              ssr: true,
             },
           ],
           ...options.babelPlugins,
@@ -83,7 +84,9 @@ function configure(options: any): Configuration {
   ];
   return {
     mode: options.mode,
-    entry: [entrypoint],
+    entry: options.entrypoints || {
+      main: [path.resolve(__dirname, '../../app/entrypoint')],
+    },
     output: {
       path: path.resolve(process.cwd(), 'build/web'),
       publicPath: '/',
@@ -163,7 +166,8 @@ function configure(options: any): Configuration {
       mainFields: ['browser', 'module', 'jsnext:main', 'main'],
     },
     devtool: options.devtool,
-    target: 'web',
+    target: options.target || 'web',
+    ...options.optimizataion,
   };
 }
 

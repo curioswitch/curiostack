@@ -25,7 +25,7 @@
 import { RouterState } from 'react-router-redux';
 import { createSelector } from 'reselect';
 
-import { GlobalState } from '../../app';
+import { GlobalState } from '../../state';
 
 const selectRoute = (state: GlobalState): RouterState => state.route;
 

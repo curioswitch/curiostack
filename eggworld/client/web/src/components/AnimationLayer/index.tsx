@@ -25,8 +25,8 @@
 import React from 'react';
 import { Layer } from 'react-konva';
 
-import KonvaImage from 'components/KonvaImage';
-import KonvaSprite from 'components/KonvaSprite';
+import KonvaImage from '../KonvaImage';
+import KonvaSprite from '../KonvaSprite';
 
 import hammerImageSrc from './assets/hammer.png';
 import mouthSpriteSrc from './assets/mouth-sprite.png';

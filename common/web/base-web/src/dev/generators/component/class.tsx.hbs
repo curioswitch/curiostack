@@ -5,7 +5,6 @@
  */
 
 import React from 'react';
-import { hot } from 'react-hot-loader';
 {{#if wantMessages}}
 import { FormattedMessage } from 'react-intl';
 {{/if}}
@@ -18,7 +17,7 @@ import messages from './messages';
 interface Props {
 }
 
-class {{ properCase name }} extends {{{ type }}}<Props> {
+export default class {{ properCase name }} extends {{{ type }}}<Props> {
   public render() {
     return (
       <div>
@@ -29,5 +28,3 @@ class {{ properCase name }} extends {{{ type }}}<Props> {
     );
   }
 }
-
-export default hot(module)({{ properCase name }});

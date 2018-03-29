@@ -22,35 +22,8 @@
  * SOFTWARE.
  */
 
-/**
- * LanguageProvider reducer
- *
- */
+import { WebappConfig } from '../index';
 
-import { Record } from 'immutable';
-
-import { Actions, ActionTypes } from './actions';
-
-export interface LanguageState {
-  readonly locale: string;
-}
-
-export interface LanguageStateRecord
-  extends Record<LanguageState>,
-    LanguageState {}
-
-export const initialState: LanguageStateRecord = Record<LanguageState>({
-  locale: 'en',
-})();
-
-export default function reducer(
-  state: LanguageStateRecord,
-  action: Actions,
-): LanguageStateRecord {
-  switch (action.type) {
-    case ActionTypes.CHANGE_LOCALE:
-      return state.set('locale', action.payload);
-    default:
-      return state;
-  }
-}
+// tslint:disable-next-line:no-var-requires
+export const appConfig: WebappConfig = require(process.env.APP_CONFIG_PATH!)
+  .default;

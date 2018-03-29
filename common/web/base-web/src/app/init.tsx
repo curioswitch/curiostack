@@ -22,11 +22,10 @@
  * SOFTWARE.
  */
 
-import '@babel/polyfill';
-
 import { createBrowserHistory, History } from 'history';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Loadable from 'react-loadable';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
 import { Store } from 'redux';
@@ -35,9 +34,11 @@ import { ThemeProvider } from 'styled-components';
 import LanguageProvider, {
   LocaleMessages,
 } from '../containers/LanguageProvider';
+import { initialState as languageProviderInitialState } from '../containers/LanguageProvider/reducer';
 import initI18n from '../i18n/init';
 import { WebappConfig } from '../index';
 import initRedux from '../state/init';
+import { routeInitialState } from '../state/reducers';
 
 function render(
   messages: LocaleMessages,
@@ -47,23 +48,46 @@ function render(
   Component: React.ComponentClass<any> | React.StatelessComponent<any>,
   theme: any,
 ) {
-  ReactDOM.render(
-    <Provider store={store}>
-      <LanguageProvider messages={messages}>
-        <ThemeProvider theme={theme || {}}>
-          <ConnectedRouter history={history}>
-            <Component />
-          </ConnectedRouter>
-        </ThemeProvider>
-      </LanguageProvider>
-    </Provider>,
-    mountNode,
+  Loadable.preloadReady().then(() =>
+    ReactDOM.hydrate(
+      <Provider store={store}>
+        <LanguageProvider messages={messages}>
+          <ThemeProvider theme={theme || {}}>
+            <ConnectedRouter history={history}>
+              <Component />
+            </ConnectedRouter>
+          </ThemeProvider>
+        </LanguageProvider>
+      </Provider>,
+      mountNode,
+    ),
   );
 }
 
 export default function init(config: WebappConfig) {
   const history = createBrowserHistory();
-  const store = initRedux(config.initialState, history);
+
+  const preloadedState = (window as any).__PRELOADED_STATE__;
+  const initialState = config.initialState;
+  if (preloadedState) {
+    // We need to merge it into the provided initial state to make sure records are records.
+    for (const key of Object.keys(preloadedState)) {
+      // Specially handle the initial state set up by us.
+      if (key === 'language') {
+        initialState[key] = languageProviderInitialState.merge(
+          preloadedState[key],
+        );
+      } else if (key === 'route') {
+        initialState[key] = routeInitialState.merge(preloadedState[key]);
+      } else if (initialState[key] && initialState[key].mergeDeep) {
+        initialState[key] = initialState[key].mergeDeep(preloadedState[key]);
+      } else {
+        initialState[key] = preloadedState[key];
+      }
+    }
+  }
+
+  const store = initRedux(initialState, history);
   const mountNode = config.mountNode
     ? typeof config.mountNode === 'string'
       ? document.getElementById(config.mountNode)!
@@ -95,9 +119,4 @@ export default function init(config: WebappConfig) {
   } else {
     doRender(config.component);
   }
-
-  return (component: React.ComponentClass | React.StatelessComponent) => {
-    ReactDOM.unmountComponentAtNode(mountNode);
-    doRender(component);
-  };
 }

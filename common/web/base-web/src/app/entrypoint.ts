@@ -22,29 +22,13 @@
  * SOFTWARE.
  */
 
-import React from 'react';
-import { HelmetData } from 'react-helmet';
+import '@babel/polyfill';
 
-export interface Args {
-  content: string;
-  mainScriptSrc: string;
-  helmet: HelmetData;
-}
+import initApp from './init';
 
-export default function({ content, mainScriptSrc, helmet }: Args) {
-  return (
-    <html {...helmet.htmlAttributes.toComponent()}>
-      <head>
-        {helmet.title.toComponent()}
-        {helmet.meta.toComponent()}
-        {helmet.link.toComponent()}
-        {helmet.style.toComponent()}
-        {helmet.script.toComponent()}
-      </head>
-      <body>
-        <div id="app" dangerouslySetInnerHTML={{ __html: content }} />
-        <script src={mainScriptSrc} async defer />
-      </body>
-    </html>
-  );
+// tslint:disable-next-line:no-var-requires
+const appConfig = require(process.env.APP_CONFIG_PATH!).default;
+
+if (appConfig) {
+  initApp(appConfig);
 }

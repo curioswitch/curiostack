@@ -24,14 +24,16 @@
 
 import React from 'react';
 
-export { default as initApp } from './app/init';
-
 import { LocaleMessages } from './containers/LanguageProvider';
 
 export { default as injectReducer } from './hoc/injectReducer';
 export { default as injectSaga } from './hoc/injectSaga';
 
 export { default as LoadingIndicator } from './components/LoadingIndicator';
+
+export { GlobalStateBase } from './state';
+export * from './state/actions';
+export * from './state/saga';
 
 export interface WebappConfig {
   component: React.ComponentClass | React.StatelessComponent;
@@ -42,6 +44,15 @@ export interface WebappConfig {
   theme?: any;
 }
 
-export { GlobalStateBase } from './state';
-export * from './state/actions';
-export * from './state/saga';
+export class PrerenderedPaths {
+  [path: string]: object;
+}
+
+export interface PrerenderConfig {
+  wrappingComponent?:
+    | React.ComponentClass<{ children: JSX.Element }>
+    | React.StatelessComponent<{ children: JSX.Element }>;
+  paths: PrerenderedPaths;
+  globals: object;
+  extraStylesExtractor?: () => JSX.Element[];
+}

@@ -22,35 +22,19 @@
  * SOFTWARE.
  */
 
-/**
- * LanguageProvider reducer
- *
- */
+import { GlobalStateBase } from '@curiostack/base-web';
 
-import { Record } from 'immutable';
+import {
+  initialState as homePageInitialState,
+  State as HomePageState,
+} from './containers/HomePage/reducer';
 
-import { Actions, ActionTypes } from './actions';
-
-export interface LanguageState {
-  readonly locale: string;
+interface OwnGlobalState {
+  homePage: HomePageState;
 }
 
-export interface LanguageStateRecord
-  extends Record<LanguageState>,
-    LanguageState {}
+export type GlobalState = GlobalStateBase & OwnGlobalState;
 
-export const initialState: LanguageStateRecord = Record<LanguageState>({
-  locale: 'en',
-})();
-
-export default function reducer(
-  state: LanguageStateRecord,
-  action: Actions,
-): LanguageStateRecord {
-  switch (action.type) {
-    case ActionTypes.CHANGE_LOCALE:
-      return state.set('locale', action.payload);
-    default:
-      return state;
-  }
-}
+export const initialState: OwnGlobalState = {
+  homePage: homePageInitialState,
+};

@@ -22,35 +22,26 @@
  * SOFTWARE.
  */
 
-/**
- * LanguageProvider reducer
- *
- */
+// tslint:disable:max-classes-per-file
 
-import { Record } from 'immutable';
+import { PrerenderConfig } from '@curiostack/base-web';
 
-import { Actions, ActionTypes } from './actions';
+import { initialState } from './state';
 
-export interface LanguageState {
-  readonly locale: string;
-}
+// Need to manually setup howler's global objects for prerendering
+class HowlerGlobal {}
+class Howl {}
+class Sound {}
 
-export interface LanguageStateRecord
-  extends Record<LanguageState>,
-    LanguageState {}
+const config: PrerenderConfig = {
+  paths: {
+    '/': initialState,
+  },
+  globals: {
+    HowlerGlobal,
+    Howl,
+    Sound,
+  },
+};
 
-export const initialState: LanguageStateRecord = Record<LanguageState>({
-  locale: 'en',
-})();
-
-export default function reducer(
-  state: LanguageStateRecord,
-  action: Actions,
-): LanguageStateRecord {
-  switch (action.type) {
-    case ActionTypes.CHANGE_LOCALE:
-      return state.set('locale', action.payload);
-    default:
-      return state;
-  }
-}
+export default config;
