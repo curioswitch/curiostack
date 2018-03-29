@@ -49,6 +49,10 @@ export class PrerenderedPaths {
 }
 
 export interface PrerenderConfig {
+  wrappingComponent?:
+    | React.ComponentClass<{ children: JSX.Element }>
+    | React.StatelessComponent<{ children: JSX.Element }>;
   paths: PrerenderedPaths;
   globals: object;
+  extraStylesExtractor?: () => JSX.Element[];
 }

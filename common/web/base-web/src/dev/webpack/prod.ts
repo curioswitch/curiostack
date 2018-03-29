@@ -27,6 +27,7 @@
 process.env.NODE_ENV = 'production';
 
 require('ts-node').register({
+  ignore: [],
   compilerOptions: {
     module: 'commonjs',
     jsx: 'react',
@@ -39,6 +40,7 @@ import path from 'path';
 
 import BrotliPlugin from 'brotli-webpack-plugin';
 import FaviconPlugin from 'favicons-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { ReactLoadablePlugin } from 'react-loadable/webpack';
 import StaticSiteGeneratorPlugin from 'static-site-generator-webpack-plugin';
 import { Configuration, DefinePlugin } from 'webpack';
@@ -47,16 +49,11 @@ import ZopfliPlugin from 'zopfli-webpack-plugin';
 import configureBase from './base';
 
 const prerenderConfigPath = path.resolve(process.cwd(), 'src/prerender');
-const prerenderConfig =
-  fs.existsSync(prerenderConfigPath) + '.ts' ||
-  fs.existsSync(prerenderConfigPath + '.js')
-    ? require(prerenderConfigPath).default
-    : {
-        paths: {
-          '/': {},
-        },
-        globals: {},
-      };
+const prerenderConfig = ['.ts', '.tsx', '.js', '.jsx']
+  .map((ext) => `${prerenderConfigPath}${ext}`)
+  .some((p) => fs.existsSync(p))
+  ? require(prerenderConfigPath).default
+  : undefined;
 
 const loadableJsonPath = path.resolve(
   process.cwd(),
@@ -69,10 +66,17 @@ const plugins = [
       APP_CONFIG_PATH: JSON.stringify(path.resolve(process.cwd(), 'src/app')),
       NODE_ENV: JSON.stringify('production'),
     },
+    WEBPACK_PRERENDERING: false,
   }),
 
   new ReactLoadablePlugin({
     filename: loadableJsonPath,
+  }),
+
+  new HtmlWebpackPlugin({
+    inject: true,
+    template: 'src/index.html',
+    chunksSortMode: 'none',
   }),
 
   new FaviconPlugin({
@@ -99,46 +103,6 @@ const plugins = [
   }),
 ];
 
-const prerenderPlugins = [
-  new DefinePlugin({
-    'process.env': {
-      APP_CONFIG_PATH: JSON.stringify(path.resolve(process.cwd(), 'src/app')),
-      NODE_ENV: JSON.stringify('production'),
-      LOADABLE_JSON_PATH: JSON.stringify(loadableJsonPath),
-      ICONSTATS_JSON_PATH: JSON.stringify(
-        path.resolve(process.cwd(), 'build/web/iconstats.json'),
-      ),
-    },
-  }),
-
-  new StaticSiteGeneratorPlugin({
-    entry: 'prerender',
-    paths: Object.keys(prerenderConfig.paths),
-    locals: {
-      pathStates: prerenderConfig.paths,
-    },
-    globals: {
-      window: {},
-      ...prerenderConfig.globals,
-    },
-  }),
-
-  new ZopfliPlugin({
-    asset: '[path].gz[query]',
-    algorithm: 'zopfli',
-    test: /\.(html)$/,
-    threshold: 1024,
-    minRatio: 0.9,
-  }),
-
-  new BrotliPlugin({
-    asset: '[path].br[query]',
-    test: /\.(html)$/,
-    threshold: 1024,
-    minRatio: 0.9,
-  }),
-];
-
 export const appConfiguration: Configuration = configureBase({
   plugins,
   mode: 'production',
@@ -154,28 +118,77 @@ export const appConfiguration: Configuration = configureBase({
   },
 });
 
-export const prerenderConfiguration: Configuration = configureBase({
-  plugins: prerenderPlugins,
-  mode: 'production',
-  target: 'node',
-  entrypoints: {
-    prerender: path.resolve(__dirname, '../../prerender/index.tsx'),
-  },
-  babelPlugins: [
-    '@babel/transform-react-constant-elements',
-    '@babel/transform-react-inline-elements',
-    'react-loadable/babel',
-    'dynamic-import-node',
-  ],
-  babelTargets: {
-    node: 'current',
-  },
-  output: {
-    filename: '../prerender/[name].js',
-    chunkFilename: '../prerender/[name].chunk.js',
-    publicPath: '/static/',
-    libraryTarget: 'commonjs',
-  },
-});
+function createPrerenderConfiguration(): Configuration {
+  const prerenderPlugins = [
+    new DefinePlugin({
+      'process.env': {
+        APP_CONFIG_PATH: JSON.stringify(path.resolve(process.cwd(), 'src/app')),
+        PRERENDER_CONFIG_PATH: JSON.stringify(
+          path.resolve(process.cwd(), 'src/prerender'),
+        ),
+        NODE_ENV: JSON.stringify('production'),
+        LOADABLE_JSON_PATH: JSON.stringify(loadableJsonPath),
+        ICONSTATS_JSON_PATH: JSON.stringify(
+          path.resolve(process.cwd(), 'build/web/iconstats.json'),
+        ),
+      },
+      WEBPACK_PRERENDERING: true,
+    }),
 
-export default [appConfiguration, prerenderConfiguration];
+    new StaticSiteGeneratorPlugin({
+      entry: 'prerender',
+      paths: Object.keys(prerenderConfig.paths),
+      locals: {
+        pathStates: prerenderConfig.paths,
+      },
+      globals: {
+        window: {},
+        ...prerenderConfig.globals,
+      },
+    }),
+
+    new ZopfliPlugin({
+      asset: '[path].gz[query]',
+      algorithm: 'zopfli',
+      test: /\.(html)$/,
+      threshold: 1024,
+      minRatio: 0.9,
+    }),
+
+    new BrotliPlugin({
+      asset: '[path].br[query]',
+      test: /\.(html)$/,
+      threshold: 1024,
+      minRatio: 0.9,
+    }),
+  ];
+
+  return configureBase({
+    plugins: prerenderPlugins,
+    // This is only run during the build, so development mode is better to provide stacktraces.
+    mode: 'development',
+    target: 'node',
+    entrypoints: {
+      prerender: path.resolve(__dirname, '../../prerender/index.tsx'),
+    },
+    babelPlugins: [
+      '@babel/transform-react-constant-elements',
+      '@babel/transform-react-inline-elements',
+      'react-loadable/babel',
+      'dynamic-import-node',
+    ],
+    babelTargets: {
+      node: 'current',
+    },
+    output: {
+      filename: '../prerender/[name].js',
+      chunkFilename: '../prerender/[name].chunk.js',
+      publicPath: '/static/',
+      libraryTarget: 'commonjs',
+    },
+  });
+}
+
+export const prerenderConfiguration = prerenderConfig
+  ? createPrerenderConfiguration()
+  : undefined;

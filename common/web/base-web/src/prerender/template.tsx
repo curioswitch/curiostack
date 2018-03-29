@@ -31,8 +31,10 @@ export interface Args {
   helmet: HelmetData;
   links: React.Component[];
 
+  serializedStateJs: string;
   // tslint:disable-next-line:array-type
   styles: ReactElement<{}>[];
+  extraStyles: JSX.Element[];
 }
 
 export default function({
@@ -40,7 +42,9 @@ export default function({
   delayedScriptSrcs,
   helmet,
   links,
+  serializedStateJs,
   styles,
+  extraStyles,
 }: Args) {
   return (
     <html {...helmet.htmlAttributes.toComponent()}>
@@ -50,8 +54,14 @@ export default function({
         {links.map((link) => link)}
         {helmet.link.toComponent()}
         {helmet.style.toComponent()}
-        {helmet.script.toComponent()}
         {styles}
+        {extraStyles.map((style) => style)}
+        {helmet.script.toComponent()}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.__PRELOADED_STATE__ = ${serializedStateJs};`,
+          }}
+        />
       </head>
       <body>
         <div id="app" dangerouslySetInnerHTML={{ __html: content }} />

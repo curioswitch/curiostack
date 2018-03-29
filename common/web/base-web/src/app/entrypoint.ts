@@ -29,4 +29,6 @@ import initApp from './init';
 // tslint:disable-next-line:no-var-requires
 const appConfig = require(process.env.APP_CONFIG_PATH!).default;
 
-initApp(appConfig);
+if (appConfig) {
+  initApp(appConfig);
+}

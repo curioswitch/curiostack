@@ -33,7 +33,7 @@ import { Configuration, DefinePlugin } from 'webpack';
 
 import configureBase from './base';
 
-const APP_CONFIG_PATH = ['.ts', 'js']
+const APP_CONFIG_PATH = ['.ts', '.js']
   .map((ext) => path.resolve(process.cwd(), `src/app${ext}`))
   .find((p) => fs.existsSync(p));
 
@@ -43,6 +43,7 @@ const plugins = [
       APP_CONFIG_PATH: JSON.stringify(APP_CONFIG_PATH),
       NODE_ENV: JSON.stringify('development'),
     },
+    WEBPACK_PRERENDERING: false,
   }),
   new ForkTsCheckerWebpackPlugin(),
   new HtmlWebpackPlugin({

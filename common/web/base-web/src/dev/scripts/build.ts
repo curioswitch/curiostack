@@ -49,7 +49,9 @@ async function run() {
   }
 
   await runWebpack(appConfiguration);
-  await runWebpack(prerenderConfiguration);
+  if (prerenderConfiguration) {
+    await runWebpack(prerenderConfiguration);
+  }
 }
 if (require.main === module) {
   run()

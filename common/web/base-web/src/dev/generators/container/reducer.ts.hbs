@@ -1,7 +1,7 @@
 import { Record } from 'immutable';
 import { getType } from 'typesafe-actions';
 
-import actions, { Action } from './actions';
+import { Actions, ActionTypes } from './actions';
 
 export interface StateProps {
 }
@@ -13,7 +13,7 @@ export const initialState = Record<StateProps>({
 
 export default function {{ camelCase name }}Reducer(
   state: State,
-  action: Action,
+  action: Actions,
 ) {
   switch (action.type) {
     default:

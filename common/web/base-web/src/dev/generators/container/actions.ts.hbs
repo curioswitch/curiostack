@@ -1,20 +1,17 @@
-import { bindActionCreators, Dispatch } from 'redux';
-import { createAction } from 'typesafe-actions';
-import { $call } from 'utility-types';
+import { ActionsUnion, createAction } from '@curiostack/base-web';
+import { Dispatch } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-const types = {
-};
-
-const actions = {
-};
-
-export type DispatchProps = typeof actions;
-
-export function mapDispatchToProps(dispatch: Dispatch<any>): any {
-  return bindActionCreators(actions, dispatch);
+export enum ActionTypes {
 }
 
-const returnsOfActions = Object.values(actions).map($call);
-export type Action = typeof returnsOfActions[number];
+export const Actions = {
+};
 
-export default actions;
+export type Actions = ActionsUnion<typeof Actions>;
+
+export type DispatchProps = typeof Actions;
+
+export function mapDispatchToProps(dispatch: Dispatch<{}>): DispatchProps {
+  return bindActionCreators(Actions, dispatch);
+}

@@ -25,6 +25,7 @@
 // tslint:disable:jsx-no-lambda
 
 import {
+  createLocation,
   createMemoryHistory as createHistory,
   LocationDescriptor,
 } from 'history';
@@ -36,25 +37,30 @@ import Loadable from 'react-loadable';
 import { Provider } from 'react-redux';
 import { StaticRouter } from 'react-router-dom';
 import { Store } from 'redux';
+import serialize from 'serialize-javascript';
 import { ServerStyleSheet, ThemeProvider } from 'styled-components';
 
 import { appConfig } from '../app';
 import LanguageProvider, {
   LocaleMessages,
 } from '../containers/LanguageProvider';
+import { PrerenderConfig } from '../index';
 import initRedux from '../state/init';
+import { routeInitialState } from '../state/reducers';
 
 import Template from './template';
 
 // tslint:disable:no-var-requires
 const LOADED_MODULES = require(process.env.LOADABLE_JSON_PATH!);
 const ICON_STATS = require(process.env.ICONSTATS_JSON_PATH!);
+const PRERENDER_CONFIG: PrerenderConfig = require(process.env
+  .PRERENDER_CONFIG_PATH!).default;
 
 interface Props {
   messages: LocaleMessages;
   store: Store;
   location: LocationDescriptor;
-  Component: React.ComponentClass<any> | React.StatelessComponent<any>;
+  component: JSX.Element;
   theme: any;
   modules: string[];
 }
@@ -64,7 +70,7 @@ function RenderedPage({
   store,
   location,
   modules,
-  Component,
+  component,
   theme,
 }: Props) {
   return (
@@ -73,7 +79,7 @@ function RenderedPage({
         <ThemeProvider theme={theme || {}}>
           <StaticRouter location={location} context={{}}>
             <Loadable.Capture report={(name) => modules.push(name)}>
-              <Component />
+              {component}
             </Loadable.Capture>
           </StaticRouter>
         </ThemeProvider>
@@ -96,11 +102,7 @@ async function run(locals: any) {
   // Create redux store with history
   const initialState = {
     ...appConfig.initialState,
-    route: {
-      location: {
-        pathname: p,
-      },
-    },
+    route: routeInitialState.set('location', createLocation(p)),
     ...locals.pathStates[locals.path],
   };
   const history = createHistory();
@@ -108,13 +110,20 @@ async function run(locals: any) {
 
   const sheet = new ServerStyleSheet();
   const modules: string[] = [];
+  const component = PRERENDER_CONFIG.wrappingComponent ? (
+    <PRERENDER_CONFIG.wrappingComponent>
+      <appConfig.component />
+    </PRERENDER_CONFIG.wrappingComponent>
+  ) : (
+    <appConfig.component />
+  );
   const page = sheet.collectStyles(
     <RenderedPage
       messages={appConfig.messages}
       store={store}
       location={initialState.route.location}
       modules={modules}
-      Component={appConfig.component}
+      component={component}
       theme={appConfig.theme || {}}
     />,
   );
@@ -155,7 +164,13 @@ async function run(locals: any) {
       delayedScriptSrcs={scripts}
       helmet={helmet}
       links={iconLinks}
+      serializedStateJs={serialize(initialState)}
       styles={sheet.getStyleElement()}
+      extraStyles={
+        PRERENDER_CONFIG.extraStylesExtractor
+          ? PRERENDER_CONFIG.extraStylesExtractor()
+          : []
+      }
     />,
   );
 }
