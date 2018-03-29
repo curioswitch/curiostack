@@ -24,20 +24,30 @@
 
 package org.curioswitch.gradle.plugins.curiostack;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
 import com.diffplug.gradle.spotless.SpotlessTask;
 import com.github.benmanes.gradle.versions.VersionsPlugin;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import com.google.protobuf.gradle.ProtobufPlugin;
 import com.google.protobuf.gradle.ProtobufSourceDirectorySet;
+import com.jetbrains.python.envs.PythonEnvsExtension;
+import com.jetbrains.python.envs.PythonEnvsPlugin;
 import com.moowork.gradle.node.NodeExtension;
 import com.moowork.gradle.node.NodePlugin;
+import com.moowork.gradle.node.npm.NpmTask;
+import com.moowork.gradle.node.task.NodeTask;
 import com.moowork.gradle.node.yarn.YarnInstallTask;
+import com.moowork.gradle.node.yarn.YarnTask;
 import com.palantir.baseline.plugins.BaselineIdea;
+import groovy.lang.Closure;
+import groovy.util.Node;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.File;
@@ -48,24 +58,35 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
 import me.champeau.gradle.JMHPlugin;
 import me.champeau.gradle.JMHPluginExtension;
 import nebula.plugin.resolutionrules.ResolutionRulesPlugin;
 import net.ltgt.gradle.apt.AptIdeaPlugin;
 import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleAptConvention;
 import net.ltgt.gradle.apt.AptPlugin;
+import net.ltgt.gradle.errorprone.ErrorPronePlugin;
 import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
 import nu.studer.gradle.jooq.JooqTask;
+import org.apache.tools.ant.taskdefs.condition.Os;
+import org.curioswitch.gradle.common.LambdaClosure;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
+import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
+import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.internal.plugins.DslObject;
@@ -82,16 +103,20 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.javadoc.Javadoc;
+import org.gradle.api.tasks.testing.Test;
 import org.gradle.external.javadoc.CoreJavadocOptions;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
+import org.gradle.process.ExecSpec;
 
 public class CuriostackPlugin implements Plugin<Project> {
 
   private static final String GOOGLE_JAVA_FORMAT_VERSION = "1.5";
-  private static final String NODE_VERSION = "9.2.0";
-  private static final String YARN_VERSION = "1.3.2";
+  private static final String NODE_VERSION = "9.8.0";
+  private static final String YARN_VERSION = "1.5.1";
+
+  private static final Splitter NEW_LINE_SPLITTER = Splitter.on('\n');
 
   @Override
   public void apply(Project rootProject) {
@@ -104,6 +129,9 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
     plugins.apply(NodePlugin.class);
+    plugins.apply(PythonEnvsPlugin.class);
+
+    setupPyenvs(rootProject);
 
     YarnInstallTask yarnTask =
         rootProject.getTasks().withType(YarnInstallTask.class).getByName("yarn");
@@ -130,6 +158,29 @@ public class CuriostackPlugin implements Plugin<Project> {
     yarnTask.finalizedBy(yarnWarning);
 
     rootProject.getTasks().create("setupGitHooks", SetupGitHooks.class);
+    CreateShellConfigTask rehash =
+        rootProject
+            .getTasks()
+            .create(
+                "rehash",
+                CreateShellConfigTask.class,
+                t ->
+                    t.path(CommandUtil.getPythonBinDir(rootProject, "dev"))
+                        .path(CommandUtil.getGcloudSdkBinDir(rootProject)));
+
+    setupNode(rootProject, rehash);
+
+    rootProject
+        .getTasks()
+        .create(
+            "setup",
+            t -> {
+              t.dependsOn("gcloudSetup");
+              t.dependsOn("pythonSetup");
+              t.dependsOn("nodeSetup");
+              t.dependsOn("yarnSetup");
+              t.dependsOn("rehash");
+            });
 
     String baselineFiles;
     try {
@@ -149,7 +200,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                 task -> {
                   File baselineDir = rootProject.file(".baseline");
                   baselineDir.mkdirs();
-                  for (String filePath : baselineFiles.split("\n")) {
+                  for (String filePath : NEW_LINE_SPLITTER.split(baselineFiles)) {
                     Path path = Paths.get(filePath);
                     Path outputDirectory =
                         Paths.get(baselineDir.getAbsolutePath()).resolve(path.getParent());
@@ -169,6 +220,25 @@ public class CuriostackPlugin implements Plugin<Project> {
       rootProject.getTasks().getByName("ideaProject").dependsOn(baselineUpdateConfig);
     }
 
+    rootProject.afterEvaluate(
+        (p) ->
+            rootProject
+                .getPlugins()
+                .withType(
+                    IdeaPlugin.class,
+                    plugin -> {
+                      plugin
+                          .getModel()
+                          .getProject()
+                          .getIpr()
+                          .withXml(provider -> setupProjectXml(rootProject, provider));
+                      plugin
+                          .getModel()
+                          .getWorkspace()
+                          .getIws()
+                          .withXml(provider -> setupWorkspaceXml(rootProject, provider));
+                    }));
+
     rootProject.allprojects(
         project -> {
           setupRepositories(project);
@@ -184,40 +254,14 @@ public class CuriostackPlugin implements Plugin<Project> {
                   unused -> {
                     LicenseExtension license =
                         project.getExtensions().getByType(LicenseExtension.class);
+                    license.exclude("**/*.json");
                     license.setHeader(rootProject.file("LICENSE"));
                     license.mapping(
                         ImmutableMap.of(
                             "conf", "DOUBLESLASH_STYLE",
-                            "proto", "JAVADOC_STYLE",
+                            "java", "SLASHSTAR_STYLE",
+                            "proto", "SLASHSTAR_STYLE",
                             "yml", "SCRIPT_STYLE"));
-                  });
-
-          project
-              .getPlugins()
-              .withType(
-                  NodePlugin.class,
-                  unused -> {
-                    NodeExtension node = project.getExtensions().getByType(NodeExtension.class);
-                    node.setVersion(NODE_VERSION);
-                    node.setYarnVersion(YARN_VERSION);
-                    node.setDownload(true);
-
-                    if (project != project.getRootProject()) {
-                      // We only execute yarn in the root task since we use workspaces.
-                      project.getTasks().findByName("yarn").setEnabled(false);
-                    }
-
-                    // Since yarn is very fast, go ahead and clean node_modules too to prevent
-                    // inconsistency.
-                    project.getPluginManager().apply(BasePlugin.class);
-                    project
-                        .getTasks()
-                        .getByName(
-                            BasePlugin.CLEAN_TASK_NAME,
-                            task -> {
-                              Delete castTask = (Delete) task;
-                              castTask.delete(project.file("node_modules"));
-                            });
                   });
         });
 
@@ -248,6 +292,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(AptIdeaPlugin.class);
     plugins.apply(BaselineIdea.class);
     plugins.apply(DependencyManagementPlugin.class);
+    plugins.apply(ErrorPronePlugin.class);
     plugins.apply(LicensePlugin.class);
     plugins.apply(SpotlessPlugin.class);
     plugins.apply(VersionsPlugin.class);
@@ -258,6 +303,56 @@ public class CuriostackPlugin implements Plugin<Project> {
             JavaCompile.class,
             task -> {
               task.getOptions().setIncremental(true);
+              task.getOptions()
+                  .getCompilerArgs()
+                  .addAll(
+                      ImmutableList.of(
+                          "-XepDisableWarningsInGeneratedCode",
+                          "-XepExcludedPaths:(.*/build/.*|.*/gen-src/.*)",
+                          "-Xep:AutoFactoryAtInject:ERROR",
+                          "-Xep:ClassName:ERROR",
+                          "-Xep:ComparisonContractViolated:ERROR",
+                          "-Xep:DepAnn:ERROR",
+                          "-Xep:DivZero:ERROR",
+                          "-Xep:EmptyIf:ERROR",
+                          "-Xep:FuzzyEqualsShouldNotBeUsedInEqualsMethod:ERROR",
+                          "-Xep:InjectInvalidTargetingOnScopingAnnotation:ERROR",
+                          "-Xep:InjectScopeAnnotationOnInterfaceOrAbstractClass:ERROR",
+                          "-Xep:InsecureCryptoUsage:ERROR",
+                          "-Xep:IterablePathParameter:ERROR",
+                          "-Xep:LongLiteralLowerCaseSuffix:ERROR",
+                          "-Xep:NumericEquality:ERROR",
+                          "-Xep:ParameterPackage:ERROR",
+                          "-Xep:ProtoStringFieldReferenceEquality:ERROR",
+                          "-Xep:AssistedInjectAndInjectOnConstructors:ERROR",
+                          "-Xep:BigDecimalLiteralDouble:ERROR",
+                          "-Xep:ConstructorLeaksThis:ERROR",
+                          "-Xep:InconsistentOverloads:ERROR",
+                          "-Xep:MissingDefault:ERROR",
+                          "-Xep:PrimitiveArrayPassedToVarargsMethod:ERROR",
+                          "-Xep:RedundantThrows:ERROR",
+                          "-Xep:StaticQualifiedUsingExpression:ERROR",
+                          "-Xep:StringEquality:ERROR",
+                          "-Xep:TestExceptionChecker:ERROR",
+                          "-Xep:FieldMissingNullable:ERROR",
+                          "-Xep:LambdaFunctionalInterface:ERROR",
+                          "-Xep:MethodCanBeStatic:ERROR",
+                          "-Xep:MixedArrayDimensions:ERROR",
+                          "-Xep:MultiVariableDeclaration:ERROR",
+                          "-Xep:MultipleTopLevelClasses:ERROR",
+                          "-Xep:MultipleUnaryOperatorsInMethodCall:ERROR",
+                          "-Xep:PackageLocation:ERROR",
+                          "-Xep:ParameterComment:ERROR",
+                          "-Xep:ParameterNotNullable:ERROR",
+                          "-Xep:PrivateConstructorForUtilityClass:ERROR",
+                          "-Xep:RemoveUnusedImports:ERROR",
+                          "-Xep:ReturnMissingNullable:ERROR",
+                          "-Xep:SwitchDefault:ERROR",
+                          "-Xep:ThrowsUncheckedException:ERROR",
+                          "-Xep:UngroupedOverloads:ERROR",
+                          "-Xep:UnnecessaryStaticImport:ERROR",
+                          "-Xep:UseBinds:ERROR",
+                          "-Xep:WildcardImport:ERROR"));
               project
                   .getTasks()
                   .withType(SpotlessTask.class, spotlessTask -> spotlessTask.dependsOn(task));
@@ -266,6 +361,12 @@ public class CuriostackPlugin implements Plugin<Project> {
     JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
     javaPlugin.setSourceCompatibility(JavaVersion.VERSION_1_9);
     javaPlugin.setTargetCompatibility(JavaVersion.VERSION_1_9);
+
+    Test test = project.getTasks().withType(Test.class).getByName("test");
+    if (project.getRootProject().hasProperty("updateSnapshots")) {
+      test.jvmArgs(ImmutableList.of("-Dorg.curioswitch.testing.updateSnapshots=true"));
+    }
+    test.useJUnitPlatform(platform -> platform.includeEngines("junit-jupiter", "junit-vintage"));
 
     // While Gradle attempts to generate a unique module name automatically,
     // it doesn't seem to always work properly, so we just always use unique
@@ -500,6 +601,12 @@ public class CuriostackPlugin implements Plugin<Project> {
     dependencies.add(testConfiguration.getName(), "junit:junit");
     dependencies.add(testConfiguration.getName(), "org.mockito:mockito-core");
     dependencies.add(testConfiguration.getName(), "info.solidsoft.mockito:mockito-java8");
+
+    dependencies.add(testConfiguration.getName(), "org.junit.jupiter:junit-jupiter-api");
+    dependencies.add(
+        JavaPlugin.TEST_RUNTIME_ONLY_CONFIGURATION_NAME, "org.junit.jupiter:junit-jupiter-engine");
+    dependencies.add(
+        JavaPlugin.TEST_RUNTIME_ONLY_CONFIGURATION_NAME, "org.junit.vintage:junit-vintage-engine");
   }
 
   private static void setupDataSources(Project project) {
@@ -517,5 +624,173 @@ public class CuriostackPlugin implements Plugin<Project> {
               t.from(configuration);
               t.into(".ideaDataSources/drivers");
             });
+  }
+
+  private static void setupNode(Project project, CreateShellConfigTask rehash) {
+    NodeExtension node = project.getExtensions().getByType(NodeExtension.class);
+    node.setVersion(NODE_VERSION);
+    node.setYarnVersion(YARN_VERSION);
+    node.setDownload(true);
+
+    Closure<?> pathOverrider =
+        LambdaClosure.of(
+            (ExecSpec exec) -> {
+              String actualCommand = exec.getExecutable() + " " + String.join(" ", exec.getArgs());
+              exec.setCommandLine(
+                  "bash",
+                  "-c",
+                  ". "
+                      + CommandUtil.getCondaBaseDir(project)
+                          .resolve("etc/profile.d/conda.sh")
+                          .toString()
+                      + " && conda activate > /dev/null && cd "
+                      + exec.getWorkingDir().toString()
+                      + " && "
+                      + actualCommand);
+              exec.getEnvironment()
+                  .put(
+                      "PATH",
+                      CommandUtil.getPythonBinDir(project, "build")
+                          + File.pathSeparator
+                          + exec.getEnvironment().get("PATH"));
+            });
+
+    project.getTasks().withType(NodeTask.class, t -> t.setExecOverrides(pathOverrider));
+    project.getTasks().withType(NpmTask.class, t -> t.setExecOverrides(pathOverrider));
+    project.getTasks().withType(YarnTask.class, t -> t.setExecOverrides(pathOverrider));
+
+    node.setWorkDir(CommandUtil.getNodeDir(project).toFile());
+    node.setNpmWorkDir(CommandUtil.getNpmDir(project).toFile());
+    node.setYarnWorkDir(CommandUtil.getYarnDir(project).toFile());
+
+    project.afterEvaluate(
+        n -> {
+          rehash.path(node.getVariant().getNodeBinDir().toPath());
+          rehash.path(node.getVariant().getYarnBinDir().toPath());
+          rehash.path(node.getVariant().getNpmBinDir().toPath());
+        });
+
+    project
+        .getTasks()
+        .getByName(
+            "nodeSetup",
+            t -> {
+              t.dependsOn("pythonSetup");
+              t.onlyIf(unused -> !node.getVariant().getNodeDir().exists());
+            });
+    project
+        .getTasks()
+        .findByName("yarnSetup")
+        .onlyIf(t -> !node.getVariant().getYarnDir().exists());
+
+    // Since yarn is very fast, go ahead and clean node_modules too to prevent
+    // inconsistency.
+    project.getPluginManager().apply(BasePlugin.class);
+    project
+        .getTasks()
+        .getByName(
+            BasePlugin.CLEAN_TASK_NAME,
+            task -> ((Delete) task).delete(project.file("node_modules")));
+  }
+
+  private static void setupPyenvs(Project rootProject) {
+    PythonEnvsExtension envs = rootProject.getExtensions().getByType(PythonEnvsExtension.class);
+
+    Path pythonDir = CommandUtil.getPythonDir(rootProject);
+
+    envs.setBootstrapDirectory(pythonDir.resolve("bootstrap").toFile());
+    envs.setEnvsDirectory(pythonDir.resolve("envs").toFile());
+
+    ImmutableList.Builder<String> condaPackages =
+        ImmutableList.<String>builder().add("git").add("automake").add("autoconf").add("make");
+    if (Os.isFamily(Os.FAMILY_MAC)) {
+      condaPackages.add("clang_osx-64", "clangxx_osx-64", "gfortran_osx-64");
+    } else if (Os.isFamily(Os.FAMILY_UNIX)) {
+      condaPackages.add("gcc_linux-64", "gxx_linux-64", "gfortran_linux-64");
+    }
+
+    envs.conda(
+        "miniconda2",
+        "Miniconda2-4.4.10",
+        condaPackages.build().stream().map(envs::condaPackage).collect(toImmutableList()));
+    envs.condaenv("build", "2.7", "miniconda2");
+    envs.condaenv("dev", "2.7", "miniconda2");
+
+    rootProject.getTasks().create("pythonSetup", t -> t.dependsOn("build_envs"));
+  }
+
+  private static Optional<Node> findChild(Node node, Predicate<Node> predicate) {
+    // Should work.
+    @SuppressWarnings("unchecked")
+    List<Node> children = (List<Node>) node.children();
+    return children.stream().filter(predicate).findFirst();
+  }
+
+  private static Node findOrCreateChild(Node parent, String type, String name) {
+    Map<String, String> attributes = new HashMap<>();
+    attributes.put("name", name);
+    return findChild(
+            parent, node -> node.name().equals(type) && node.attribute("name").equals(name))
+        .orElseGet(() -> parent.appendNode(type, attributes));
+  }
+
+  private static void setOption(Node component, String name, String value) {
+    findOrCreateChild(component, "option", name).attributes().put("value", value);
+  }
+
+  private static void setProperty(Node component, String name, String value) {
+    findOrCreateChild(component, "property", name).attributes().put("value", value);
+  }
+
+  private static void setupProjectXml(Project project, XmlProvider xml) {
+    NodeExtension nodeConfig = project.getExtensions().getByType(NodeExtension.class);
+    Node typescriptCompiler = findOrCreateChild(xml.asNode(), "component", "TypeScriptCompiler");
+    setOption(
+        typescriptCompiler,
+        "typeScriptServiceDirectory",
+        project.file("node_modules/typescript").getAbsolutePath());
+    setOption(
+        typescriptCompiler, "nodeInterpreterTextField", nodeConfig.getVariant().getNodeExec());
+    setOption(typescriptCompiler, "versionType", "SERVICE_DIRECTORY");
+
+    Node angularComponent = findOrCreateChild(xml.asNode(), "component", "AngularJSSettings");
+    setOption(angularComponent, "useService", "false");
+
+    Node inspectionManager =
+        findOrCreateChild(xml.asNode(), "component", "InspectionProjectProfileManager");
+    Node profile =
+        findChild(inspectionManager, n -> n.name().equals("profile"))
+            .orElseGet(
+                () -> inspectionManager.appendNode("profile", ImmutableMap.of("version", "1.0")));
+    setOption(profile, "myName", "Project Default");
+    findChild(
+            profile,
+            n -> n.name().equals("inspection_tool") && "TsLint".equals(n.attribute("class")))
+        .orElseGet(
+            () ->
+                profile.appendNode(
+                    "inspection_tool",
+                    ImmutableMap.of(
+                        "class",
+                        "TsLint",
+                        "enabled",
+                        "true",
+                        "level",
+                        "ERROR",
+                        "enabled_by_default",
+                        "true")));
+  }
+
+  private static void setupWorkspaceXml(Project project, XmlProvider xml) {
+    NodeExtension nodeConfig = project.getExtensions().getByType(NodeExtension.class);
+    Node properties = findOrCreateChild(xml.asNode(), "component", "PropertiesComponent");
+    setProperty(
+        properties, "node.js.path.for.package.tslint", nodeConfig.getVariant().getNodeExec());
+    setProperty(properties, "node.js.detected.package.tslint", "true");
+    setProperty(
+        properties,
+        "node.js.selected.package.tslint",
+        project.file("node_modules/tslint").getAbsolutePath());
+    setProperty(properties, "typescript-compiler-editor-notification", "false");
   }
 }

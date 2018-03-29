@@ -1,0 +1,9 @@
+import { takeLatest } from '@curiostack/base-web';
+import { all, AllEffect } from 'redux-saga/effects';
+import { getType } from 'typesafe-actions';
+
+import { Actions, ActionTypes } from './actions';
+
+export default function* rootSaga(): IterableIterator<AllEffect> {
+  yield all([]);
+}

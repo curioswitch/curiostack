@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.protobuf.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -170,14 +169,6 @@ final class SerializeSupport {
     gen.writeBinary(value.toByteArray());
   }
 
-  static void printEnum(EnumValueDescriptor value, JsonGenerator gen) throws IOException {
-    if (value.getIndex() == -1) {
-      gen.writeString(Integer.toString(value.getNumber()));
-    } else {
-      gen.writeString(value.getName());
-    }
-  }
-
   // Note: I hope no one ever actually calls this method...
   static void printRepeatedNull(List<Integer> values, JsonGenerator gen) throws IOException {
     int numElements = values.size();
@@ -209,6 +200,14 @@ final class SerializeSupport {
       gen.writeNumber(value);
     } else {
       gen.writeString(valueDescriptor.getName());
+    }
+  }
+
+  static void printEnum(EnumValueDescriptor value, JsonGenerator gen) throws IOException {
+    if (value.getIndex() == -1) {
+      gen.writeString(Integer.toString(value.getNumber()));
+    } else {
+      gen.writeString(value.getName());
     }
   }
 

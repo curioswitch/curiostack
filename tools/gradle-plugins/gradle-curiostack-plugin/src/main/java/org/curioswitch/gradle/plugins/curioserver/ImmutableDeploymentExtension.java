@@ -24,6 +24,8 @@
 
 package org.curioswitch.gradle.plugins.curioserver;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableMap;
 import groovy.lang.Closure;
 import java.util.List;
@@ -77,6 +79,8 @@ public interface ImmutableDeploymentExtension {
       return null;
     }
 
+    List<String> additionalServicePaths();
+
     default String namespace() {
       return "default";
     }
@@ -97,12 +101,16 @@ public interface ImmutableDeploymentExtension {
       return 256;
     }
 
+    default boolean request() {
+      return false;
+    }
+
     default String image() {
       return "deployment:latest";
     }
 
     default int jvmHeapMb() {
-      return (int) (memoryMb() * 0.8);
+      return (int) (memoryMb() * 0.5);
     }
 
     default String healthCheckPath() {
@@ -135,6 +143,7 @@ public interface ImmutableDeploymentExtension {
       @SuppressWarnings("unchecked")
       NamedDomainObjectContainer<DeploymentConfiguration> types =
           (NamedDomainObjectContainer<DeploymentConfiguration>) props.get(DEPLOYMENT_TYPES);
+      checkNotNull(types, "types");
       return types;
     }
 

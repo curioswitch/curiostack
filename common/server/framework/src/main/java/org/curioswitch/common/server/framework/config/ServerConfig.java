@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.server.framework.config;
 
 import java.util.List;
@@ -49,6 +48,12 @@ public interface ServerConfig {
    * for local development.
    */
   boolean isDisableClientCertificateVerification();
+
+  /**
+   * Whether backend service SSL certificates should be verified. This should only be enabled for
+   * local development.
+   */
+  boolean isDisableServerCertificateVerification();
 
   /** Path to the file containing the TLS certificate for this server. */
   String getTlsCertificatePath();
@@ -102,4 +107,17 @@ public interface ServerConfig {
    * non-empty, only requests that match these rules will be allowed to access the server.
    */
   List<String> getIpFilterRules();
+
+  /**
+   * Sets whether IP filter rules should only be applied to internal services. If not set, IP filter
+   * rules are applied to all requests.
+   */
+  boolean getIpFilterInternalOnly();
+
+  /**
+   * Sets whether to shutdown gracefully, by first disabling health check and then wait some time
+   * for requests to go away before shutting down. This should always be set in non-local
+   * deployments.
+   */
+  boolean getEnableGracefulShutdown();
 }

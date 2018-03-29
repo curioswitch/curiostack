@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,22 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.server.framework.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import org.junit.Test;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
-public class ProtoTimestampsTest {
+@SuppressWarnings("ClassCanBeStatic")
+class ProtoTimestampsTest {
 
   private static final LocalDateTime LOCAL_DATE_TIME =
       LocalDateTime.parse("2017-07-04T10:15:30.123456789");
+
+  private static final Instant INSTANT = Instant.parse("2017-07-04T10:15:30.123456789Z");
 
   private static final LocalDate LOCAL_DATE = LocalDate.parse("2017-07-04");
 
@@ -45,26 +49,48 @@ public class ProtoTimestampsTest {
 
   private static final Timestamp TIMESTAMP_START_OF_DAY = Timestamps.fromSeconds(1499126400);
 
-  @Test
-  public void toLocalDateTime() {
-    assertThat(ProtoTimestamps.toLocalDateTime(TIMESTAMP, ZoneOffset.UTC))
-        .isEqualTo(LOCAL_DATE_TIME);
+  @Nested
+  class ForLocalDateTime {
+
+    @Test
+    void to() {
+      assertThat(ProtoTimestamps.toLocalDateTime(TIMESTAMP, ZoneOffset.UTC))
+          .isEqualTo(LOCAL_DATE_TIME);
+    }
+
+    @Test
+    void from() {
+      assertThat(ProtoTimestamps.fromLocalDateTime(LOCAL_DATE_TIME, ZoneOffset.UTC))
+          .isEqualTo(TIMESTAMP);
+    }
   }
 
-  @Test
-  public void fromLocalDateTime() {
-    assertThat(ProtoTimestamps.fromLocalDateTime(LOCAL_DATE_TIME, ZoneOffset.UTC))
-        .isEqualTo(TIMESTAMP);
+  @Nested
+  class ForLocalDate {
+
+    @Test
+    void to() {
+      assertThat(ProtoTimestamps.toLocalDate(TIMESTAMP, ZoneOffset.UTC)).isEqualTo(LOCAL_DATE);
+    }
+
+    @Test
+    void from() {
+      assertThat(ProtoTimestamps.fromLocalDate(LOCAL_DATE_TIME.toLocalDate(), ZoneOffset.UTC))
+          .isEqualTo(TIMESTAMP_START_OF_DAY);
+    }
   }
 
-  @Test
-  public void toLocalDate() {
-    assertThat(ProtoTimestamps.toLocalDate(TIMESTAMP, ZoneOffset.UTC)).isEqualTo(LOCAL_DATE);
-  }
+  @Nested
+  class ForInstant {
 
-  @Test
-  public void fromLocalDate() {
-    assertThat(ProtoTimestamps.fromLocalDate(LOCAL_DATE_TIME.toLocalDate(), ZoneOffset.UTC))
-        .isEqualTo(TIMESTAMP_START_OF_DAY);
+    @Test
+    void to() {
+      assertThat(ProtoTimestamps.toInstant(TIMESTAMP)).isEqualTo(INSTANT);
+    }
+
+    @Test
+    void from() {
+      assertThat(ProtoTimestamps.fromInstant(INSTANT)).isEqualTo(TIMESTAMP);
+    }
   }
 }

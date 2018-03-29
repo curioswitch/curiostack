@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.protobuf.json;
 
 import static org.curioswitch.common.protobuf.json.CodeGenUtil.invoke;
@@ -408,7 +407,7 @@ final class DoParse implements ByteCodeAppender, Implementation {
    * @param locals the method local variables
    * @param fieldsByName the instance fields
    */
-  private StackManipulation setFieldValue(
+  private static StackManipulation setFieldValue(
       ProtoFieldInfo info,
       Label beforeReadField,
       LocalVariables<LocalVariable> locals,
@@ -453,7 +452,7 @@ final class DoParse implements ByteCodeAppender, Implementation {
    * }
    * }</pre>
    */
-  private StackManipulation setRepeatedFieldValue(
+  private static StackManipulation setRepeatedFieldValue(
       ProtoFieldInfo info,
       Label beforeReadField,
       LocalVariables<LocalVariable> locals,
@@ -492,7 +491,7 @@ final class DoParse implements ByteCodeAppender, Implementation {
    * }
    * }</pre>
    */
-  private StackManipulation setMapFieldValue(
+  private static StackManipulation setMapFieldValue(
       ProtoFieldInfo info,
       Label beforeReadField,
       LocalVariables<LocalVariable> locals,
@@ -545,7 +544,7 @@ final class DoParse implements ByteCodeAppender, Implementation {
    * Returns the {@link StackManipulation} for reading the JSON encoded value for the field. Just
    * dispatches to {@link ParseSupport} based on the field type.
    */
-  private StackManipulation readValue(
+  private static StackManipulation readValue(
       ProtoFieldInfo field,
       Map<String, FieldDescription> fieldsByName,
       LocalVariables<LocalVariable> locals) {
@@ -597,7 +596,7 @@ final class DoParse implements ByteCodeAppender, Implementation {
    * in the JSON to treat them as default, but must actually process the null for {@link Value} and
    * {@link NullValue} because it means their value must be set.
    */
-  private boolean mustSkipNull(FieldDescriptor field) {
+  private static boolean mustSkipNull(FieldDescriptor field) {
     if (field.isRepeated()) {
       return true;
     }

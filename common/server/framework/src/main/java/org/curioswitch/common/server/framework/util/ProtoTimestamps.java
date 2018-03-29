@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,11 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.server.framework.util;
 
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -62,6 +62,17 @@ public final class ProtoTimestamps {
    */
   public static Timestamp fromLocalDate(LocalDate localDate, ZoneOffset zone) {
     return fromLocalDateTime(localDate.atStartOfDay(), zone);
+  }
+
+  /** Converts a {@link Timestamp} to {@link Instant}. */
+  public static Instant toInstant(Timestamp timestamp) {
+    return Instant.ofEpochSecond(Timestamps.toSeconds(timestamp), timestamp.getNanos());
+  }
+
+  /** Converts a {@link Instant} to {@link Timestamp}. */
+  public static Timestamp fromInstant(Instant instant) {
+    return Timestamps.fromNanos(
+        TimeUnit.SECONDS.toNanos(instant.getEpochSecond()) + instant.getNano());
   }
 
   private ProtoTimestamps() {}

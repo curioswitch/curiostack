@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,24 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.server.framework.armeria;
 
 import brave.Tracing;
+import com.google.common.base.Strings;
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.ClientFactoryBuilder;
+import com.linecorp.armeria.client.Endpoint;
+import com.linecorp.armeria.client.endpoint.EndpointGroupRegistry;
+import com.linecorp.armeria.client.endpoint.EndpointSelectionStrategy;
+import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroup;
+import com.linecorp.armeria.client.endpoint.healthcheck.HttpHealthCheckedEndpointGroup;
+import com.linecorp.armeria.client.endpoint.healthcheck.HttpHealthCheckedEndpointGroupBuilder;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
 import com.linecorp.armeria.client.tracing.HttpTracingClient;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.common.SessionProtocol;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-import java.io.File;
+import java.net.URI;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.net.ssl.TrustManagerFactory;
@@ -46,6 +55,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
+import org.curioswitch.common.server.framework.util.ResourceUtil;
 
 /**
  * A convenience factory that sets up a {@link ClientBuilder} with appropriate default parameters.
@@ -58,6 +68,7 @@ public class ClientBuilderFactory {
 
   private final ClientFactory clientFactory;
   private final Tracing tracing;
+  private final MeterRegistry meterRegistry;
 
   @Inject
   public ClientBuilderFactory(
@@ -67,6 +78,7 @@ public class ClientBuilderFactory {
       Optional<TrustManagerFactory> caTrustManager,
       ServerConfig serverConfig) {
     this.tracing = tracing;
+    this.meterRegistry = meterRegistry;
     final TrustManagerFactory trustManagerFactory;
     if (serverConfig.isDisableClientCertificateVerification()) {
       logger.warn("Disabling client SSL verification. This should only happen on local!");
@@ -91,8 +103,8 @@ public class ClientBuilderFactory {
       clientCertificateCustomizer =
           sslContext ->
               sslContext.keyManager(
-                  new File(serverConfig.getTlsCertificatePath()),
-                  new File(serverConfig.getTlsPrivateKeyPath()));
+                  ResourceUtil.openStream(serverConfig.getTlsCertificatePath()),
+                  ResourceUtil.openStream(serverConfig.getTlsPrivateKeyPath()));
     }
 
     final Consumer<SslContextBuilder> clientTlsCustomizer;
@@ -112,8 +124,28 @@ public class ClientBuilderFactory {
             .build();
   }
 
-  public ClientBuilder create(String url) {
-    return new ClientBuilder(url)
+  public ClientBuilder create(String name, String url) {
+    URI uri = URI.create(url);
+    DnsAddressEndpointGroup dnsEndpointGroup =
+        DnsAddressEndpointGroup.of(uri.getHost(), uri.getPort());
+    dnsEndpointGroup.addListener(
+        endpoints ->
+            logger.info(
+                "Resolved new endpoints for {} : [ {} ]",
+                name,
+                endpoints.stream().map(Endpoint::authority).collect(Collectors.joining(","))));
+    dnsEndpointGroup.start();
+    HttpHealthCheckedEndpointGroup endpointGroup =
+        new HttpHealthCheckedEndpointGroupBuilder(dnsEndpointGroup, "/internal/health")
+            .clientFactory(clientFactory)
+            .protocol(SessionProtocol.HTTPS)
+            .retryInterval(Duration.ofSeconds(3))
+            .build();
+    EndpointGroupRegistry.register(name, endpointGroup, EndpointSelectionStrategy.ROUND_ROBIN);
+    endpointGroup.newMeterBinder(name).bindTo(meterRegistry);
+
+    return new ClientBuilder(
+            uri.getScheme() + "://group:" + name + Strings.nullToEmpty(uri.getPath()))
         .factory(clientFactory)
         .decorator(
             HttpRequest.class,

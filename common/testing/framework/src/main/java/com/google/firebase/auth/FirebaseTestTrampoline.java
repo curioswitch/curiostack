@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package com.google.firebase.auth;
 
 import com.google.api.client.json.JsonFactory;
@@ -42,4 +41,6 @@ public class FirebaseTestTrampoline {
       throw new UncheckedIOException("Could not parse firebase token.", e);
     }
   }
+
+  private FirebaseTestTrampoline() {}
 }

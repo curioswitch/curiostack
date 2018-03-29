@@ -37,7 +37,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.100'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.130'
     }
 }
 
@@ -59,11 +59,11 @@ buildCache {
 }
 
 include ':auth:api', ':auth:server'
+include ':common:google-cloud:armeria-cloud-storage'
 include ':common:grpc:protobuf-jackson'
 include ':common:server:framework'
 include ':common:testing:framework'
 include ':cluster:namespaces:auth-dev'
-include ':curioswitch:portal:server'
 include ':curioswitch:portal:client:web'
 include ':database:yourmakedb:dev'
 include ':eggworld:api', 'eggworld:client:web', ':eggworld:server'

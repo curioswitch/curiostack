@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,23 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.server.framework;
 
 import brave.Tracing;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.Resources;
 import com.linecorp.armeria.common.Flags;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.RequestContext;
-import com.linecorp.armeria.common.SessionProtocol;
 import com.linecorp.armeria.common.grpc.GrpcSerializationFormats;
 import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.Service;
 import com.linecorp.armeria.server.ServiceRequestContext;
+import com.linecorp.armeria.server.auth.AuthTokenExtractors;
 import com.linecorp.armeria.server.auth.HttpAuthServiceBuilder;
+import com.linecorp.armeria.server.auth.OAuth2Token;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import com.linecorp.armeria.server.healthcheck.HttpHealthCheckService;
@@ -69,10 +69,8 @@ import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.prometheus.client.CollectorRegistry;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
@@ -81,8 +79,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -94,6 +95,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthConfig;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthModule;
+import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthService;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthorizer;
 import org.curioswitch.common.server.framework.auth.ssl.RpcAclsCommonNamesProvider;
 import org.curioswitch.common.server.framework.auth.ssl.SslAuthorizer;
@@ -102,6 +104,7 @@ import org.curioswitch.common.server.framework.config.JavascriptStaticConfig;
 import org.curioswitch.common.server.framework.config.ModifiableJavascriptStaticConfig;
 import org.curioswitch.common.server.framework.config.ModifiableServerConfig;
 import org.curioswitch.common.server.framework.config.MonitoringConfig;
+import org.curioswitch.common.server.framework.config.SecurityConfig;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.files.FileWatcher;
 import org.curioswitch.common.server.framework.filter.IpFilteringService;
@@ -111,9 +114,13 @@ import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
 import org.curioswitch.common.server.framework.monitoring.StackdriverReporter;
+import org.curioswitch.common.server.framework.security.HttpsOnlyService;
+import org.curioswitch.common.server.framework.security.SecurityModule;
+import org.curioswitch.common.server.framework.staticsite.InfiniteCachingService;
 import org.curioswitch.common.server.framework.staticsite.JavascriptStaticService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
+import org.curioswitch.common.server.framework.util.ResourceUtil;
 import org.jooq.DSLContext;
 
 /**
@@ -136,7 +143,14 @@ import org.jooq.DSLContext;
  * }
  * }</pre>
  */
-@Module(includes = {ApplicationModule.class, FirebaseAuthModule.class, MonitoringModule.class})
+@Module(
+  includes = {
+    ApplicationModule.class,
+    FirebaseAuthModule.class,
+    MonitoringModule.class,
+    SecurityModule.class
+  }
+)
 public abstract class ServerModule {
 
   private static final Logger logger = LogManager.getLogger();
@@ -212,13 +226,16 @@ public abstract class ServerModule {
 
   @Provides
   static Optional<TrustManagerFactory> caTrustManager(ServerConfig serverConfig) {
+    if (serverConfig.isDisableServerCertificateVerification()) {
+      return Optional.of(InsecureTrustManagerFactory.INSTANCE);
+    }
     if (serverConfig.getCaCertificatePath().isEmpty()) {
       return Optional.empty();
     }
     try {
       CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
       final X509Certificate certificate;
-      try (InputStream is = fileOrClasspathStream(serverConfig.getCaCertificatePath())) {
+      try (InputStream is = ResourceUtil.openStream(serverConfig.getCaCertificatePath())) {
         certificate = (X509Certificate) certificateFactory.generateCertificate(is);
       }
 
@@ -237,6 +254,8 @@ public abstract class ServerModule {
     }
   }
 
+  // TODO(choko): Understand this rule better.
+  @SuppressWarnings("FutureReturnValueIgnored")
   @Provides
   @Singleton
   static Server armeriaServer(
@@ -257,8 +276,11 @@ public abstract class ServerModule {
       Lazy<StackdriverReporter> stackdriverReporter,
       ServerConfig serverConfig,
       FirebaseAuthConfig authConfig,
+      FirebaseAuthService.Factory firebaseAuthServiceFactory,
+      HttpsOnlyService.Factory httpsOnlyServiceFactory,
       JavascriptStaticConfig javascriptStaticConfig,
       MonitoringConfig monitoringConfig,
+      SecurityConfig securityConfig,
       // Eagerly trigger bindings that are present, not actually used here.
       @EagerInit Set<Object> eagerInitializedDependencies) {
     if (!sslCommonNamesProvider.isPresent()
@@ -273,20 +295,20 @@ public abstract class ServerModule {
       sslCommonNamesProvider = Optional.of(commonNamesProvider);
     }
 
-    ServerBuilder sb = new ServerBuilder().port(serverConfig.getPort(), SessionProtocol.HTTPS);
+    ServerBuilder sb = new ServerBuilder().https(serverConfig.getPort());
 
     if (selfSignedCertificate.isPresent()) {
       SelfSignedCertificate certificate = selfSignedCertificate.get();
       try {
         SslContextBuilder sslContext =
             serverSslContext(
-                    fileOrClasspathStream(certificate.certificate().getAbsolutePath()),
-                    fileOrClasspathStream(certificate.privateKey().getAbsolutePath()))
+                    ResourceUtil.openStream(certificate.certificate().getAbsolutePath()),
+                    ResourceUtil.openStream(certificate.privateKey().getAbsolutePath()))
                 .trustManager(InsecureTrustManagerFactory.INSTANCE);
         if (!serverConfig.isDisableSslAuthorization()) {
           sslContext.clientAuth(ClientAuth.OPTIONAL);
         }
-        sb.sslContext(sslContext.build());
+        sb.tls(sslContext.build());
       } catch (SSLException e) {
         // Can't happen.
         throw new IllegalStateException(e);
@@ -301,13 +323,13 @@ public abstract class ServerModule {
       try {
         SslContextBuilder sslContext =
             serverSslContext(
-                    fileOrClasspathStream(serverConfig.getTlsCertificatePath()),
-                    fileOrClasspathStream(serverConfig.getTlsPrivateKeyPath()))
+                    ResourceUtil.openStream(serverConfig.getTlsCertificatePath()),
+                    ResourceUtil.openStream(serverConfig.getTlsPrivateKeyPath()))
                 .trustManager(caTrustManager.get());
         if (!serverConfig.isDisableSslAuthorization()) {
           sslContext.clientAuth(ClientAuth.OPTIONAL);
         }
-        sb.sslContext(sslContext.build());
+        sb.tls(sslContext.build());
       } catch (SSLException e) {
         throw new IllegalStateException("Could not load TLS certificate.", e);
       }
@@ -315,12 +337,24 @@ public abstract class ServerModule {
 
     serverCustomizers.forEach(c -> c.accept(sb));
 
-    if (!serverConfig.isDisableDocService()) {
-      sb.serviceUnder("/internal/docs", new DocServiceBuilder().build());
+    Optional<Function<Service<HttpRequest, HttpResponse>, IpFilteringService>> ipFilter =
+        Optional.empty();
+    if (!serverConfig.getIpFilterRules().isEmpty()) {
+      ipFilter = Optional.of(IpFilteringService.newDecorator(serverConfig.getIpFilterRules()));
     }
-    sb.service("/internal/health", new HttpHealthCheckService());
-    sb.service("/internal/dropwizard", metricsHttpService);
-    sb.service("/internal/metrics", new PrometheusExpositionService(collectorRegistry));
+
+    if (!serverConfig.isDisableDocService()) {
+      sb.serviceUnder(
+          "/internal/docs",
+          internalService(new DocServiceBuilder().build(), ipFilter, serverConfig));
+    }
+    sb.service(
+        "/internal/health", internalService(new HttpHealthCheckService(), ipFilter, serverConfig));
+    sb.service("/internal/dropwizard", internalService(metricsHttpService, ipFilter, serverConfig));
+    sb.service(
+        "/internal/metrics",
+        internalService(
+            new PrometheusExpositionService(collectorRegistry), ipFilter, serverConfig));
 
     if (!grpcServices.isEmpty()) {
       GrpcServiceDefinition definition =
@@ -345,6 +379,7 @@ public abstract class ServerModule {
       if (!serverConfig.isDisableGrpcServiceDiscovery()) {
         serviceBuilder.addService(ProtoReflectionService.newInstance());
       }
+      definition.customizer().accept(serviceBuilder);
       Service<HttpRequest, HttpResponse> service =
           serviceBuilder.build().decorate(definition.decorator());
       if (sslCommonNamesProvider.isPresent() && !serverConfig.isDisableSslAuthorization()) {
@@ -354,7 +389,18 @@ public abstract class ServerModule {
                 .build(service);
       }
       if (!authConfig.getServiceAccountBase64().isEmpty()) {
-        service = new HttpAuthServiceBuilder().addOAuth2(firebaseAuthorizer.get()).build(service);
+        FirebaseAuthorizer authorizer = firebaseAuthorizer.get();
+        service =
+            service.decorate(
+                firebaseAuthServiceFactory.newDecorator(
+                    ImmutableList.of(
+                        (ctx, req) -> {
+                          OAuth2Token token = AuthTokenExtractors.OAUTH2.apply(req.headers());
+                          if (token == null) {
+                            return CompletableFuture.completedFuture(false);
+                          }
+                          return authorizer.authorize(ctx, token);
+                        })));
       }
 
       service =
@@ -368,7 +414,8 @@ public abstract class ServerModule {
 
     if (javascriptStaticConfig.getVersion() != 0) {
       sb.service(
-          "/static/jsconfig-" + javascriptStaticConfig.getVersion(), javascriptStaticService.get());
+          "/static/jsconfig-" + javascriptStaticConfig.getVersion(),
+          javascriptStaticService.get().decorate(InfiniteCachingService.newDecorator()));
     }
 
     for (StaticSiteServiceDefinition staticSite : staticSites) {
@@ -376,12 +423,21 @@ public abstract class ServerModule {
           staticSite.urlRoot(),
           StaticSiteService.of(staticSite.staticPath(), staticSite.classpathRoot()));
     }
-    if (!serverConfig.getIpFilterRules().isEmpty()) {
-      sb.decorator(IpFilteringService.newDecorator(serverConfig.getIpFilterRules()));
+
+    if (ipFilter.isPresent() && !serverConfig.getIpFilterInternalOnly()) {
+      sb.decorator(ipFilter.get());
+    }
+
+    if (securityConfig.getHttpsOnly()) {
+      sb.decorator(httpsOnlyServiceFactory.newDecorator());
     }
 
     sb.decorator(new LoggingServiceBuilder().newDecorator());
     sb.meterRegistry(meterRegistry);
+
+    if (serverConfig.getEnableGracefulShutdown()) {
+      sb.gracefulShutdownTimeout(Duration.ofSeconds(10), Duration.ofSeconds(30));
+    }
 
     Server server = sb.build();
     server
@@ -394,6 +450,18 @@ public abstract class ServerModule {
                 logger.info("Server started on ports: " + server.activePorts());
               }
             });
+
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  logger.info("Shutting down server.");
+                  try {
+                    server.stop().get();
+                  } catch (InterruptedException | ExecutionException e) {
+                    logger.warn("Error shutting down server.", e);
+                  }
+                }));
 
     if (!fileWatcherBuilder.isEmpty()) {
       FileWatcher fileWatcher = fileWatcherBuilder.build();
@@ -422,15 +490,13 @@ public abstract class ServerModule {
         .applicationProtocolConfig(HTTPS_ALPN_CFG);
   }
 
-  private static InputStream fileOrClasspathStream(String path) {
-    try {
-      if (path.startsWith("classpath:")) {
-        return Resources.getResource(path.substring("classpath:".length())).openStream();
-      } else {
-        return new FileInputStream(path);
-      }
-    } catch (IOException e) {
-      throw new UncheckedIOException("Could not open path: " + path, e);
+  private static Service<HttpRequest, HttpResponse> internalService(
+      Service<HttpRequest, HttpResponse> service,
+      Optional<Function<Service<HttpRequest, HttpResponse>, IpFilteringService>> ipFilter,
+      ServerConfig config) {
+    if (!ipFilter.isPresent() || !config.getIpFilterInternalOnly()) {
+      return service;
     }
+    return service.decorate(ipFilter.get());
   }
 }

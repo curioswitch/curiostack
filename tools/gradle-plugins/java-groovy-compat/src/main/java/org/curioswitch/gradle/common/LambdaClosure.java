@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,10 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.gradle.common;
 
 import groovy.lang.Closure;
+import javax.annotation.Nullable;
 
 /**
  * A utility class for creating groovy-compatible {@link Closure}s from Java lambdas. As Java
@@ -56,6 +56,7 @@ public final class LambdaClosure {
       this.function = function;
     }
 
+    @Nullable
     protected Object doCall(Object arguments) {
       @SuppressWarnings("unchecked")
       T arg = (T) arguments;

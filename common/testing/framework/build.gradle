@@ -25,14 +25,32 @@
 apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 
+apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
+
 archivesBaseName = 'curio-testing-framework'
 
 dependencies {
     api project(':common:server:framework')
+    implementation project(':common:grpc:protobuf-jackson')
 
-    apt 'com.google.dagger:dagger-compiler'
+    api 'org.junit.jupiter:junit-jupiter-api'
 
-    implementation 'org.simpleflatmapper:sfm-jooq'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+    implementation 'org.assertj:assertj-core'
+    implementation 'org.mockito:mockito-core'
+
+    annotationProcessor 'com.google.auto.service:auto-service'
+    compileOnly 'com.google.auto.service:auto-service'
+
+    annotationProcessor 'com.google.dagger:dagger-compiler'
+
+    annotationProcessor 'org.immutables:value'
+    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
+    testAnnotationProcessor 'org.immutables:value'
+    testCompileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
 }
 
 publishing {

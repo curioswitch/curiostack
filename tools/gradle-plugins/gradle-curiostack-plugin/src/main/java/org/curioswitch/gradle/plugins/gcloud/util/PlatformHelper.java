@@ -25,32 +25,27 @@
 package org.curioswitch.gradle.plugins.gcloud.util;
 
 import java.util.Properties;
+import org.apache.tools.ant.taskdefs.condition.Os;
 
 public class PlatformHelper {
 
   private final Properties props;
 
   public PlatformHelper() {
-    this(System.getProperties());
-  }
-
-  PlatformHelper(Properties props) {
-    this.props = props;
+    this.props = System.getProperties();
   }
 
   public String getOsName() {
-    final String name = props.getProperty("os.name").toLowerCase();
-    if (name.contains("windows")) {
-      return "win";
-    }
-    if (name.contains("mac")) {
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+      return "windows";
+    } else if (Os.isFamily(Os.FAMILY_MAC)) {
       return "darwin";
-    }
-    if (name.contains("linux")) {
+    } else if (Os.isFamily(Os.FAMILY_UNIX)) {
+      // Assume linux version works on any unix until told otherwise.
       return "linux";
     }
 
-    throw new IllegalArgumentException("Unsupported OS: " + name);
+    throw new IllegalArgumentException("Unsupported OS.");
   }
 
   public String getOsArch() {
@@ -59,9 +54,5 @@ public class PlatformHelper {
       return "x86_64";
     }
     return "x86";
-  }
-
-  public boolean isWindows() {
-    return getOsName().equals("win");
   }
 }

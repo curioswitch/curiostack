@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,13 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.server.framework.monitoring;
 
 import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
 import com.google.cloud.trace.v1.TraceServiceClient;
-import com.google.cloud.trace.zipkin.translation.TraceTranslator;
 import com.google.devtools.cloudtrace.v1.PatchTracesRequest;
 import com.google.devtools.cloudtrace.v1.Traces;
 import com.google.protobuf.Empty;
@@ -43,6 +41,7 @@ import org.jctools.queues.MessagePassingQueue;
 import org.jctools.queues.MpscCompoundQueue;
 import zipkin2.Span;
 import zipkin2.reporter.Reporter;
+import zipkin2.stackdriver.translation.TraceTranslator;
 
 @Singleton
 public class StackdriverReporter implements Reporter<Span>, Flushable, AutoCloseable {
@@ -51,14 +50,12 @@ public class StackdriverReporter implements Reporter<Span>, Flushable, AutoClose
 
   private final TraceServiceClient traceServiceClient;
   private final MessagePassingQueue<Span> queue;
-  private final TraceTranslator translator;
   private final String projectId;
 
   @Inject
   public StackdriverReporter(TraceServiceClient traceServiceClient, MonitoringConfig config) {
     this.traceServiceClient = traceServiceClient;
     queue = new MpscCompoundQueue<>(config.getTraceQueueSize());
-    translator = new TraceTranslator(config.getStackdriverProjectId());
     projectId = config.getStackdriverProjectId();
   }
 
@@ -77,7 +74,8 @@ public class StackdriverReporter implements Reporter<Span>, Flushable, AutoClose
     PatchTracesRequest request =
         PatchTracesRequest.newBuilder()
             .setProjectId(projectId)
-            .setTraces(Traces.newBuilder().addAllTraces(translator.translateSpans(spans)))
+            .setTraces(
+                Traces.newBuilder().addAllTraces(TraceTranslator.translateSpans(projectId, spans)))
             .build();
     ApiFutures.addCallback(
         traceServiceClient.patchTracesCallable().futureCall(request),
@@ -89,7 +87,7 @@ public class StackdriverReporter implements Reporter<Span>, Flushable, AutoClose
 
           @Override
           public void onSuccess(Empty result) {
-            logger.info("Successfully reported traces.");
+            logger.trace("Successfully reported traces.");
           }
         });
   }

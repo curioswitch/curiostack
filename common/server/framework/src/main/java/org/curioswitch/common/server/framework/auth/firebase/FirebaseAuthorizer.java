@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,9 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.server.framework.auth.firebase;
 
+import com.google.api.core.ApiFutureCallback;
+import com.google.api.core.ApiFutures;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.linecorp.armeria.server.ServiceRequestContext;
@@ -40,6 +41,9 @@ public class FirebaseAuthorizer implements Authorizer<OAuth2Token> {
   public static final AttributeKey<FirebaseToken> FIREBASE_TOKEN =
       AttributeKey.valueOf(FirebaseAuthorizer.class, "FIREBASE_TOKEN");
 
+  public static final AttributeKey<String> RAW_FIREBASE_TOKEN =
+      AttributeKey.valueOf(FirebaseAuthorizer.class, "RAW_FIREBASE_TOKEN");
+
   private final FirebaseAuth firebaseAuth;
   private final FirebaseAuthConfig config;
 
@@ -52,30 +56,35 @@ public class FirebaseAuthorizer implements Authorizer<OAuth2Token> {
   @Override
   public CompletionStage<Boolean> authorize(ServiceRequestContext ctx, OAuth2Token data) {
     CompletableFuture<Boolean> result = new CompletableFuture<>();
-    firebaseAuth
-        .verifyIdToken(data.accessToken())
-        .addOnFailureListener(ignored -> result.complete(false))
-        .addOnSuccessListener(
-            token -> {
-              if (!token.isEmailVerified() && !config.isAllowUnverifiedEmail()) {
+    ApiFutures.addCallback(
+        firebaseAuth.verifyIdTokenAsync(data.accessToken()),
+        new ApiFutureCallback<>() {
+          @Override
+          public void onFailure(Throwable t) {
+            result.complete(false);
+          }
+
+          @Override
+          public void onSuccess(FirebaseToken token) {
+            if (!token.isEmailVerified() && !config.isAllowUnverifiedEmail()) {
+              result.complete(false);
+              return;
+            }
+            if (!config.getAllowedGoogleDomains().isEmpty()) {
+              @SuppressWarnings("unchecked")
+              Map<String, Object> firebaseClaims =
+                  (Map<String, Object>) token.getClaims().get("firebase");
+              if (!firebaseClaims.get("sign_in_provider").equals("google.com")
+                  || !config.getAllowedGoogleDomains().contains(getEmailDomain(token.getEmail()))) {
                 result.complete(false);
                 return;
               }
-              if (!config.getAllowedGoogleDomains().isEmpty()) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> firebaseClaims =
-                    (Map<String, Object>) token.getClaims().get("firebase");
-                if (!firebaseClaims.get("sign_in_provider").equals("google.com")
-                    || !config
-                        .getAllowedGoogleDomains()
-                        .contains(getEmailDomain(token.getEmail()))) {
-                  result.complete(false);
-                  return;
-                }
-              }
-              ctx.attr(FIREBASE_TOKEN).set(token);
-              result.complete(true);
-            });
+            }
+            ctx.attr(FIREBASE_TOKEN).set(token);
+            ctx.attr(RAW_FIREBASE_TOKEN).set(data.accessToken());
+            result.complete(true);
+          }
+        });
     return result;
   }
 

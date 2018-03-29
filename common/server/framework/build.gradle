@@ -27,8 +27,9 @@ apply plugin: 'maven-publish'
 
 archivesBaseName = 'curio-server-framework'
 
-// TODO(choko): Figure out why the POM is invalid when using dependency management with classifier.
-def sfmVersion = '3.15.3'
+// Spring dependencies plugin is not aware of classifiers. Eventually see if netflix plugins work
+// better (it is possibly a limitation of gradle itself).
+def sfmVersion = '3.16.2'
 
 dependencies {
     api 'com.google.cloud:google-cloud-trace'
@@ -41,10 +42,11 @@ dependencies {
     api 'io.dropwizard.metrics:metrics-core'
     api 'io.grpc:grpc-core'
     api 'io.lettuce:lettuce-core'
+    api 'io.micrometer:micrometer-registry-prometheus'
     api 'io.zipkin.brave:brave'
     api 'org.apache.logging.log4j:log4j-api'
     api 'org.jooq:jooq'
-    api group: 'org.simpleflatmapper', name: 'sfm-jooq', classifier: 'jdk9', version: sfmVersion
+    api "org.simpleflatmapper:sfm-jooq:${sfmVersion}:jdk9"
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
@@ -61,22 +63,24 @@ dependencies {
     implementation 'io.grpc:grpc-services'
     implementation 'io.prometheus:simpleclient_hotspot'
     implementation 'io.prometheus:simpleclient_log4j2'
+    implementation 'io.zipkin.gcp:zipkin-storage-stackdriver'
     implementation 'org.apache.logging.log4j:log4j-core'
     implementation 'org.apache.logging.log4j:log4j-jcl'
     implementation 'org.apache.logging.log4j:log4j-jul'
     implementation 'org.apache.logging.log4j:log4j-slf4j-impl'
     implementation 'org.jctools:jctools-core'
-    implementation group: 'org.simpleflatmapper', name: 'sfm-converter-protobuf', classifier: 'jdk9', version: sfmVersion
-    implementation group: 'org.simpleflatmapper', name: 'sfm-reflect', classifier: 'jdk9', version: sfmVersion
+    ['sfm-converter', 'sfm-jdbc', 'sfm-map', 'sfm-reflect', 'sfm-util'].each {
+        implementation "org.simpleflatmapper:${it}:${sfmVersion}:jdk9"
+    }
 
     runtime 'mysql:mysql-connector-java'
 
-    apt 'com.google.auto.service:auto-service'
+    annotationProcessor 'com.google.auto.service:auto-service'
     compileOnly 'com.google.auto.service:auto-service'
 
-    apt 'com.google.dagger:dagger-compiler'
+    annotationProcessor 'com.google.dagger:dagger-compiler'
 
-    apt 'org.immutables:value'
+    annotationProcessor 'org.immutables:value'
     compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
 }
 
@@ -98,9 +102,4 @@ publishing {
             }
         }
     }
-}
-
-// TODO(choko): Remove after stackdriver-zipkin is released
-license {
-    exclude 'com/google/**'
 }

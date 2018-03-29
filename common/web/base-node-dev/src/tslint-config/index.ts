@@ -30,6 +30,8 @@ export = {
   ],
   rules: {
     'cyclomatic-complexity': false,
+    'import-name': false,
+    'interface-name': false,
     'no-console': false,
     'object-literal-sort-keys': false,
     prettier: [

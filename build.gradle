@@ -37,7 +37,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.100'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.130'
     }
 }
 
@@ -131,6 +131,6 @@ gcloud {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.4.1'
+    gradleVersion = '4.6'
     distributionType = 'ALL'
 }

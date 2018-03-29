@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.server.framework.config;
 
 import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
@@ -36,7 +35,13 @@ public interface RedisConfig {
 
   /**
    * The redis connection url, including password and namespace, e.g.
-   * 'redis://password@localhost:6379/0'
+   * 'redis://password@localhost:6379/0'.
    */
   String getUrl();
+
+  /**
+   * Whether a noop cache should be used instead of redis. Should only be enabled for local
+   * development.
+   */
+  boolean isNoop();
 }

@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.testing.auth.firebase;
 
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -35,4 +34,6 @@ public class FirebaseTestUtil {
   public static FirebaseToken parse(String serialized) {
     return FirebaseTestTrampoline.parseToken(JacksonFactory.getDefaultInstance(), serialized);
   }
+
+  private FirebaseTestUtil() {}
 }

@@ -37,6 +37,7 @@ import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.PodSpecBuilder;
 import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder;
+import io.fabric8.kubernetes.api.model.Probe;
 import io.fabric8.kubernetes.api.model.ProbeBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.ResourceRequirementsBuilder;
@@ -45,6 +46,7 @@ import io.fabric8.kubernetes.api.model.SecretVolumeSourceBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServicePortBuilder;
+import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.kubernetes.api.model.ServiceSpecBuilder;
 import io.fabric8.kubernetes.api.model.VolumeBuilder;
 import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
@@ -52,6 +54,7 @@ import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentSpecBuilder;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentStrategyBuilder;
+import io.fabric8.kubernetes.api.model.extensions.HTTPIngressPath;
 import io.fabric8.kubernetes.api.model.extensions.HTTPIngressPathBuilder;
 import io.fabric8.kubernetes.api.model.extensions.HTTPIngressRuleValueBuilder;
 import io.fabric8.kubernetes.api.model.extensions.Ingress;
@@ -63,6 +66,11 @@ import io.fabric8.kubernetes.api.model.extensions.IngressTLSBuilder;
 import io.fabric8.kubernetes.api.model.extensions.RollingUpdateDeploymentBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
 import org.curioswitch.gradle.plugins.curioserver.ImmutableDeploymentExtension;
 import org.curioswitch.gradle.plugins.curioserver.ImmutableDeploymentExtension.ImmutableDeploymentConfiguration;
@@ -118,10 +126,17 @@ public class DeployPodTask extends DefaultTask {
                                         .build()))
                     ::iterator);
     if (!deploymentConfig.envVars().containsKey("JAVA_OPTS")) {
-      int numWorkers = (int) (Math.ceil(Double.parseDouble(deploymentConfig.cpu())) * 2);
+      int heapSize = deploymentConfig.jvmHeapMb();
       StringBuilder javaOpts = new StringBuilder();
       javaOpts
-          .append("-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap ")
+          .append("--add-opens java.base/jdk.internal.misc=ALL-UNNAMED ")
+          .append("--add-opens jdk.unsupported/sun.misc=ALL-UNNAMED ")
+          .append("-Xms")
+          .append(heapSize)
+          .append("m ")
+          .append("-Xmx")
+          .append(heapSize)
+          .append("m ")
           .append("-Dconfig.resource=application-")
           .append(type)
           .append(".conf ")
@@ -130,15 +145,33 @@ public class DeployPodTask extends DefaultTask {
           .append(" ")
           .append("-Dmonitoring.serverName=")
           .append(deploymentConfig.deploymentName())
-          .append(" ")
-          .append("-Dcom.linecorp.armeria.numCommonWorkers=")
-          .append(numWorkers)
           .append(" ");
+      if (!deploymentConfig.request()) {
+        int numCpus = (int) Math.ceil(Double.parseDouble(deploymentConfig.cpu()));
+        int numWorkers = numCpus * 2;
+        javaOpts
+            .append("-XX:ParallelGCThreads=")
+            .append(numCpus)
+            .append(" ")
+            .append("-Dcom.linecorp.armeria.numCommonWorkers=")
+            .append(numWorkers)
+            .append(" ")
+            .append("-Dio.netty.availableProcessors=")
+            .append(numCpus)
+            .append(" ");
+      }
       if (!type.equals("prod")) {
         javaOpts.append("-Dcom.linecorp.armeria.verboseExceptions=true ");
       }
       envVars.add(new EnvVar("JAVA_OPTS", javaOpts.toString(), null));
     }
+
+    Map<String, Quantity> resources =
+        ImmutableMap.of(
+            "cpu",
+            new Quantity(deploymentConfig.cpu()),
+            "memory",
+            new Quantity(deploymentConfig.memoryMb() + "Mi"));
 
     Deployment deployment =
         new DeploymentBuilder()
@@ -190,32 +223,24 @@ public class DeployPodTask extends DefaultTask {
                                             .withResources(
                                                 new ResourceRequirementsBuilder()
                                                     .withLimits(
-                                                        ImmutableMap.of(
-                                                            "cpu",
-                                                                new Quantity(
-                                                                    deploymentConfig.cpu()),
-                                                            "memory",
-                                                                new Quantity(
-                                                                    deploymentConfig.memoryMb()
-                                                                        + "Mi")))
+                                                        !deploymentConfig.request()
+                                                            ? resources
+                                                            : ImmutableMap.of())
+                                                    .withRequests(
+                                                        deploymentConfig.request()
+                                                            ? resources
+                                                            : ImmutableMap.of())
                                                     .build())
                                             .withImage(deploymentConfig.image())
                                             .withName(deploymentConfig.deploymentName())
                                             .withEnv(envVars.build())
                                             .withImagePullPolicy("Always")
                                             .withReadinessProbe(
-                                                new ProbeBuilder()
-                                                    .withHttpGet(
-                                                        new HTTPGetActionBuilder()
-                                                            .withScheme("HTTPS")
-                                                            .withPath(
-                                                                deploymentConfig.healthCheckPath())
-                                                            .withNewPort(
-                                                                deploymentConfig.containerPort())
-                                                            .build())
-                                                    .withInitialDelaySeconds(30)
-                                                    .withTimeoutSeconds(1)
-                                                    .build())
+                                                createProbe(
+                                                    deploymentConfig, Duration.ofSeconds(5)))
+                                            .withLivenessProbe(
+                                                createProbe(
+                                                    deploymentConfig, Duration.ofSeconds(15)))
                                             .withPorts(
                                                 ImmutableList.of(
                                                     new ContainerPortBuilder()
@@ -255,6 +280,8 @@ public class DeployPodTask extends DefaultTask {
                     .build())
             .build();
 
+    KubernetesClient client = new DefaultKubernetesClient();
+
     Service service =
         new ServiceBuilder()
             .withMetadata(
@@ -275,32 +302,42 @@ public class DeployPodTask extends DefaultTask {
                             .put("prometheus.io/probe", "true")
                             .build())
                     .build())
-            .withSpec(
-                new ServiceSpecBuilder()
-                    .withPorts(
-                        new ServicePortBuilder()
-                            .withPort(deploymentConfig.containerPort())
-                            .withName("https")
-                            .build())
-                    .withSelector(ImmutableMap.of("name", deploymentConfig.deploymentName()))
-                    .withType(deploymentConfig.externalHost() != null ? "NodePort" : "ClusterIP")
-                    .withClusterIP(deploymentConfig.externalHost() == null ? "None" : null)
-                    .build())
+            .withSpec(createServiceSpec(deploymentConfig))
             .build();
-
-    KubernetesClient client = new DefaultKubernetesClient();
-
-    client.resource(deployment).createOrReplace();
-    try {
-      if (client.resource(service).fromServer().get() == null) {
-        client.resource(service).createOrReplace();
+    Map<String, Service> additionalServices = new HashMap<>();
+    for (String path : deploymentConfig.additionalServicePaths()) {
+      String sanitizedPath = path;
+      if (sanitizedPath.endsWith("/*")) {
+        sanitizedPath = sanitizedPath.substring(0, path.length() - 2);
       }
-    } catch (ClassCastException e) {
-      // TODO(choko): Kubernetes client is throwing this on get() for some reason. Seems like a bug
-      // but it works to skip existing services to just live with it for now, but try to fix it.
+      String serviceName = deploymentConfig.deploymentName() + sanitizedPath.replace('/', '-');
+      additionalServices.put(
+          path,
+          new ServiceBuilder()
+              .withMetadata(
+                  new ObjectMetaBuilder()
+                      .withName(serviceName)
+                      .withNamespace(deploymentConfig.namespace())
+                      .withAnnotations(
+                          ImmutableMap.of(
+                              "service.alpha.kubernetes.io/app-protocols", "{\"https\":\"HTTPS\"}"))
+                      .build())
+              .withSpec(createServiceSpec(deploymentConfig))
+              .build());
     }
 
+    client.resource(deployment).createOrReplace();
+    deployService(service, client);
+    additionalServices.values().forEach(s -> deployService(s, client));
+
     if (deploymentConfig.externalHost() != null) {
+      List<HTTPIngressPath> ingressPaths = new ArrayList<>();
+      additionalServices.forEach(
+          (path, s) ->
+              ingressPaths.add(
+                  createIngressPath(path, s.getMetadata().getName(), deploymentConfig)));
+      ingressPaths.add(
+          createIngressPath("/*", deploymentConfig.deploymentName(), deploymentConfig));
       Ingress ingress =
           new IngressBuilder()
               .withMetadata(
@@ -323,25 +360,63 @@ public class DeployPodTask extends DefaultTask {
                           new IngressRuleBuilder()
                               .withHost(deploymentConfig.externalHost())
                               .withHttp(
-                                  new HTTPIngressRuleValueBuilder()
-                                      .withPaths(
-                                          new HTTPIngressPathBuilder()
-                                              .withPath("/*")
-                                              .withBackend(
-                                                  new IngressBackendBuilder()
-                                                      .withServiceName(
-                                                          deploymentConfig.deploymentName())
-                                                      .withServicePort(
-                                                          new IntOrString(
-                                                              deploymentConfig.containerPort()))
-                                                      .build())
-                                              .build())
-                                      .build())
+                                  new HTTPIngressRuleValueBuilder().withPaths(ingressPaths).build())
                               .build())
                       .build())
               .build();
 
       client.resource(ingress).createOrReplace();
+    }
+  }
+
+  private static Probe createProbe(
+      ImmutableDeploymentConfiguration deploymentConfig, Duration period) {
+    return new ProbeBuilder()
+        .withHttpGet(
+            new HTTPGetActionBuilder()
+                .withScheme("HTTPS")
+                .withPath(deploymentConfig.healthCheckPath())
+                .withNewPort(deploymentConfig.containerPort())
+                .build())
+        .withPeriodSeconds((int) period.toSeconds())
+        .withInitialDelaySeconds(30)
+        .withTimeoutSeconds(5)
+        .build();
+  }
+
+  private static ServiceSpec createServiceSpec(ImmutableDeploymentConfiguration deploymentConfig) {
+    return new ServiceSpecBuilder()
+        .withPorts(
+            new ServicePortBuilder()
+                .withPort(deploymentConfig.containerPort())
+                .withName("https")
+                .build())
+        .withSelector(ImmutableMap.of("name", deploymentConfig.deploymentName()))
+        .withType(deploymentConfig.externalHost() != null ? "NodePort" : "ClusterIP")
+        .withClusterIP(deploymentConfig.externalHost() == null ? "None" : null)
+        .build();
+  }
+
+  private static HTTPIngressPath createIngressPath(
+      String path, String serviceName, ImmutableDeploymentConfiguration deploymentConfig) {
+    return new HTTPIngressPathBuilder()
+        .withPath(path)
+        .withBackend(
+            new IngressBackendBuilder()
+                .withServiceName(serviceName)
+                .withServicePort(new IntOrString(deploymentConfig.containerPort()))
+                .build())
+        .build();
+  }
+
+  private static void deployService(Service service, KubernetesClient client) {
+    try {
+      if (client.resource(service).fromServer().get() == null) {
+        client.resource(service).createOrReplace();
+      }
+    } catch (ClassCastException e) {
+      // TODO(choko): Kubernetes client is throwing this on get() for some reason. Seems like a bug
+      // but it works to skip existing services to just live with it for now, but try to fix it.
     }
   }
 }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,13 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.server.framework.auth.firebase;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseCredentials;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.Module;
@@ -56,8 +57,8 @@ public class FirebaseAuthModule {
     try {
       options =
           new FirebaseOptions.Builder()
-              .setCredential(
-                  FirebaseCredentials.fromCertificate(
+              .setCredentials(
+                  GoogleCredentials.fromStream(
                       new ByteArrayInputStream(
                           Base64.getDecoder().decode(config.getServiceAccountBase64()))))
               .setDatabaseUrl("https://" + config.getProjectId() + ".firebaseio.com")
@@ -66,7 +67,7 @@ public class FirebaseAuthModule {
       throw new UncheckedIOException("Could not read certificate.", e);
     }
     FirebaseApp.initializeApp(options);
-    return FirebaseApp.getInstance();
+    return checkNotNull(FirebaseApp.getInstance());
   }
 
   @Provides
@@ -74,4 +75,6 @@ public class FirebaseAuthModule {
   static FirebaseAuth firebaseAuth(FirebaseApp app) {
     return FirebaseAuth.getInstance(app);
   }
+
+  private FirebaseAuthModule() {}
 }

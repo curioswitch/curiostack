@@ -1,0 +1,17 @@
+import { ActionsUnion, createAction } from '@curiostack/base-web';
+import { Dispatch } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+export enum ActionTypes {
+}
+
+export const Actions = {
+};
+
+export type Actions = ActionsUnion<typeof Actions>;
+
+export type DispatchProps = typeof Actions;
+
+export function mapDispatchToProps(dispatch: Dispatch<{}>): DispatchProps {
+  return bindActionCreators(Actions, dispatch);
+}

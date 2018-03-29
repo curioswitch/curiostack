@@ -28,6 +28,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.gradle.api.Project;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Derived;
@@ -59,6 +60,7 @@ public interface ImmutableGcloudExtension {
     return 1;
   }
 
+  @Nullable
   default String clusterKubernetesVersion() {
     return null;
   }
@@ -107,7 +109,7 @@ public interface ImmutableGcloudExtension {
   }
 
   default String version() {
-    return "183.0.0";
+    return "193.0.0";
   }
 
   default String distBaseUrl() {

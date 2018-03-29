@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.protobuf.json;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -374,7 +373,7 @@ public class MessageMarshaller {
           omittingInsignificantWhitespace ? null : new MessagePrettyPrinter(), registry);
     }
 
-    private <T extends Message> void addStandardParser(
+    private static <T extends Message> void addStandardParser(
         TypeSpecificMarshaller<T> marshaller,
         Map<Descriptor, TypeSpecificMarshaller<?>> marshallers) {
       marshallers.put(marshaller.getDescriptorForMarshalledType(), marshaller);

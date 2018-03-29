@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.protobuf.json;
 
 import com.google.common.collect.ImmutableMap;
@@ -82,6 +81,7 @@ final class MarshallerRegistry {
     return marshaller;
   }
 
+  @SuppressWarnings("StringSplitter")
   private static String getTypeName(String typeUrl) throws InvalidProtocolBufferException {
     String[] parts = typeUrl.split("/");
     if (parts.length == 1) {

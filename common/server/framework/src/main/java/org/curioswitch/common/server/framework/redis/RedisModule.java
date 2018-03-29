@@ -21,21 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.server.framework.redis;
 
+import static org.curioswitch.common.server.framework.redis.RedisConstants.DEFAULT_METER_ID_PREFIX;
+
+import com.linecorp.armeria.common.CommonPools;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.Module;
 import dagger.Provides;
-import dagger.multibindings.IntoSet;
+import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
+import io.lettuce.core.resource.DefaultClientResources;
+import io.micrometer.core.instrument.MeterRegistry;
 import javax.inject.Singleton;
 import org.curioswitch.common.server.framework.config.ModifiableRedisConfig;
 import org.curioswitch.common.server.framework.config.RedisConfig;
-import org.curioswitch.common.server.framework.inject.EagerInit;
+import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
 
-@Module
+@Module(includes = MonitoringModule.class)
 public abstract class RedisModule {
 
   @Provides
@@ -47,14 +51,19 @@ public abstract class RedisModule {
 
   @Provides
   @Singleton
-  static RedisClusterClient redisClient(RedisConfig config) {
-    return RedisClusterClient.create(config.getUrl());
+  static RedisClusterClient redisClient(RedisConfig config, MeterRegistry registry) {
+    RedisClusterClient client =
+        RedisClusterClient.create(
+            DefaultClientResources.builder()
+                .eventExecutorGroup(CommonPools.workerGroup())
+                .eventLoopGroupProvider(ArmeriaEventLoopGroupProvider.INSTANCE)
+                .commandLatencyCollector(
+                    new MicrometerCommandLatencyCollector(DEFAULT_METER_ID_PREFIX, registry))
+                .build(),
+            config.getUrl());
+    client.setOptions(ClusterClientOptions.builder().validateClusterNodeMembership(false).build());
+    return client;
   }
 
-  @Provides
-  @EagerInit
-  @IntoSet
-  static Object init(RedisClusterClient redisClient) {
-    return redisClient;
-  }
+  private RedisModule() {}
 }

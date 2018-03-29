@@ -26,7 +26,6 @@ package org.curioswitch.gradle.plugins.cloudbuild;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.moowork.gradle.node.NodePlugin;
 import com.moowork.gradle.node.yarn.YarnTask;
 import java.io.File;
 import java.util.Map;
@@ -41,9 +40,9 @@ public class CloudbuildGithubPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    project.getPlugins().apply(NodePlugin.class);
-
-    YarnTask initTask = project.getTasks().create("init", YarnTask.class);
+    String path = project.getPath().replace(':', '_');
+    YarnTask initTask = project.getRootProject().getTasks().create("init_" + path, YarnTask.class);
+    initTask.setWorkingDir(project.getProjectDir());
     initTask.setArgs(ImmutableList.of("init", "--yes", "--private"));
     initTask.finalizedBy(
         project
@@ -63,7 +62,9 @@ public class CloudbuildGithubPlugin implements Plugin<Project> {
     Map<String, String> defaultEnvironment =
         ImmutableMap.of("GCLOUD_PROJECT", gcloudConfig.clusterProject());
 
-    YarnTask setupTask = project.getTasks().create("setup", YarnTask.class);
+    YarnTask setupTask =
+        project.getRootProject().getTasks().create("setup_" + path, YarnTask.class);
+    setupTask.setWorkingDir(project.getProjectDir());
     setupTask.setArgs(ImmutableList.of("run", "cloudbuild-cli", "setup", "--defaults"));
     setupTask.dependsOn(initTask);
     setupTask.onlyIf(t -> !project.file("config.yml").exists());
@@ -84,7 +85,8 @@ public class CloudbuildGithubPlugin implements Plugin<Project> {
                 .build()
             : defaultEnvironment;
 
-    YarnTask deployTask = project.getTasks().create("deploy", YarnTask.class);
+    YarnTask deployTask = project.getTasks().create("deploy_" + path, YarnTask.class);
+    deployTask.setWorkingDir(project.getProjectDir());
     deployTask.setArgs(ImmutableList.of("run", "cloudbuild-cli", "deploy", "--delete"));
     deployTask.dependsOn(setupTask);
     deployTask.setEnvironment(environment);

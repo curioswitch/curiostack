@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,20 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.eggworld.server.graphs;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ListenableFuture;
 import dagger.producers.ProducerModule;
 import dagger.producers.Produces;
 import dagger.producers.ProductionSubcomponent;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import org.curioswitch.eggworld.api.CheckIngredientsRequest;
 import org.curioswitch.eggworld.api.CheckIngredientsResponse;
 import org.curioswitch.eggworld.api.Ingredient;
@@ -46,9 +45,9 @@ import org.curioswitch.eggworld.server.yummly.models.SearchResponse;
 @ProducerModule
 public class CheckIngredientsGraph {
 
-  private static final List<String> INGREDIENT_FACET = ImmutableList.of("ingredient");
+  private static final ImmutableList<String> INGREDIENT_FACET = ImmutableList.of("ingredient");
 
-  private static final Set<String> SUPPORTED_INGREDIENTS =
+  private static final ImmutableSet<String> SUPPORTED_INGREDIENTS =
       Arrays.stream(Ingredient.values())
           .filter(i -> i != Ingredient.UNRECOGNIZED)
           .map(IngredientConverter.FORWARD::convert)

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,12 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.server.framework.staticsite;
 
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpRequest;
-import com.linecorp.armeria.common.HttpResponseWriter;
+import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.server.AbstractHttpService;
@@ -47,8 +46,7 @@ public class JavascriptStaticService extends AbstractHttpService {
   }
 
   @Override
-  protected void doGet(ServiceRequestContext ctx, HttpRequest req, HttpResponseWriter res)
-      throws Exception {
-    res.respond(HttpStatus.OK, MediaType.JAVASCRIPT_UTF_8, response);
+  protected HttpResponse doGet(ServiceRequestContext ctx, HttpRequest req) {
+    return HttpResponse.of(HttpStatus.OK, MediaType.JAVASCRIPT_UTF_8, response);
   }
 }

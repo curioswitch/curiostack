@@ -35,7 +35,6 @@ import java.io.UncheckedIOException;
 import java.nio.channels.Channels;
 import org.gradle.caching.BuildCacheEntryReader;
 import org.gradle.caching.BuildCacheEntryWriter;
-import org.gradle.caching.BuildCacheException;
 import org.gradle.caching.BuildCacheKey;
 import org.gradle.caching.BuildCacheService;
 import org.slf4j.Logger;
@@ -51,14 +50,13 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
   private final Storage cloudStorage;
   private final String bucket;
 
-  public CloudStorageBuildCacheService(Storage cloudStorage, String bucket) {
+  CloudStorageBuildCacheService(Storage cloudStorage, String bucket) {
     this.cloudStorage = cloudStorage;
     this.bucket = bucket;
   }
 
   @Override
-  public boolean load(BuildCacheKey buildCacheKey, BuildCacheEntryReader buildCacheEntryReader)
-      throws BuildCacheException {
+  public boolean load(BuildCacheKey buildCacheKey, BuildCacheEntryReader buildCacheEntryReader) {
     try {
       Blob blob = cloudStorage.get(cacheKeyToBlobId(buildCacheKey));
       if (blob == null || !blob.exists()) {
@@ -78,8 +76,7 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
   }
 
   @Override
-  public void store(BuildCacheKey buildCacheKey, BuildCacheEntryWriter buildCacheEntryWriter)
-      throws BuildCacheException {
+  public void store(BuildCacheKey buildCacheKey, BuildCacheEntryWriter buildCacheEntryWriter) {
     Blob blob = cloudStorage.get(cacheKeyToBlobId(buildCacheKey));
     if (blob == null || !blob.exists()) {
       blob =

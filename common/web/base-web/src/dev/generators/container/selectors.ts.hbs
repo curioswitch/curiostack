@@ -1,0 +1,9 @@
+import { GlobalState } from '../../app';
+
+import { State } from './reducer';
+
+/**
+ * Default selector used by {{ properCase name }}
+ */
+export default (state: GlobalState): State =>
+  state.{{ camelCase name }}.toObject();

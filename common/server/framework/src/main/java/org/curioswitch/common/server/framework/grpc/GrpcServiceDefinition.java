@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,14 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.server.framework.grpc;
 
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.server.Service;
+import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import io.grpc.BindableService;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import org.curioswitch.common.server.framework.immutables.CurioStyle;
 import org.immutables.value.Value.Immutable;
@@ -43,6 +44,8 @@ import org.immutables.value.Value.Immutable;
 @CurioStyle
 public interface GrpcServiceDefinition {
 
+  Consumer<GrpcServiceBuilder> NO_OP = (unused) -> {};
+
   class Builder extends ImmutableGrpcServiceDefinition.Builder {}
 
   /** The gRPC services to bind. */
@@ -55,5 +58,13 @@ public interface GrpcServiceDefinition {
   /** The URL path to bind the service to. */
   default String path() {
     return "/api/";
+  }
+
+  /**
+   * A {@link Consumer} to customize settings of the {@link GrpcServiceBuilder} this service is
+   * bound to.
+   */
+  default Consumer<GrpcServiceBuilder> customizer() {
+    return NO_OP;
   }
 }

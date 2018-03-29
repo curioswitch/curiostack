@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,11 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.protobuf.json;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Map;
 import java.util.function.Consumer;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.infra.Blackhole;
@@ -35,9 +33,10 @@ import org.openjdk.jmh.infra.Blackhole;
  * Taking advantage of the fact that Jackson returns interned strings means string identity
  * comparison is the fastest.
  */
+@SuppressWarnings({"ReferenceEquality", "OperatorPrecedence", "StringEquality"})
 public class FieldDispatchBenchmark {
 
-  private static final Map<String, Integer> FIELDS =
+  private static final ImmutableMap<String, Integer> FIELDS =
       ImmutableMap.<String, Integer>builder()
           .put("optionalInt32", 1)
           .put("optional_int32", 1)
@@ -61,7 +60,7 @@ public class FieldDispatchBenchmark {
           .put("optional_sfixed64", 10)
           .build();
 
-  private static final Map<String, Consumer<Blackhole>> CONSUMERS =
+  private static final ImmutableMap<String, Consumer<Blackhole>> CONSUMERS =
       ImmutableMap.<String, Consumer<Blackhole>>builder()
           .put("optionalInt32", (bh) -> bh.consume(1))
           .put("optional_int32", (bh) -> bh.consume(1))

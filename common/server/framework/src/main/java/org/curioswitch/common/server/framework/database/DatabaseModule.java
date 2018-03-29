@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,17 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.server.framework.database;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory;
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoSet;
@@ -39,6 +38,7 @@ import java.util.concurrent.Executors;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
 import org.curioswitch.common.server.framework.ApplicationModule;
+import org.curioswitch.common.server.framework.armeria.CurrentRequestContextForwardingExecutorService;
 import org.curioswitch.common.server.framework.config.DatabaseConfig;
 import org.curioswitch.common.server.framework.config.ModifiableDatabaseConfig;
 import org.curioswitch.common.server.framework.inject.EagerInit;
@@ -64,7 +64,7 @@ public abstract class DatabaseModule {
   @ForDatabase
   @Singleton
   static ListeningExecutorService dbExecutor() {
-    return MoreExecutors.listeningDecorator(
+    return new CurrentRequestContextForwardingExecutorService(
         Executors.newFixedThreadPool(
             20, new ThreadFactoryBuilder().setNameFormat("dbio-%d").setDaemon(true).build()));
   }
@@ -76,10 +76,19 @@ public abstract class DatabaseModule {
     hikari.setJdbcUrl(config.getJdbcUrl());
     hikari.setUsername(config.getUsername());
     hikari.setPassword(config.getPassword());
-    hikari.addDataSourceProperty("cachePrepStmts", "true");
+    hikari.addDataSourceProperty("cachePrepStmts", true);
+    hikari.addDataSourceProperty("prepStmtCacheSize", 250);
+    hikari.addDataSourceProperty("prepStmtCacheSqlLimit", 2048);
+    hikari.addDataSourceProperty("useServerPrepStmts", true);
+    hikari.addDataSourceProperty("useLocalSessionState", true);
+    hikari.addDataSourceProperty("useLocalTransactionState", true);
+    hikari.addDataSourceProperty("rewriteBatchedStatements", true);
+    hikari.addDataSourceProperty("cacheResultSetMetadata", true);
+    hikari.addDataSourceProperty("cacheServerConfiguration", true);
+    hikari.addDataSourceProperty("elideSetAutoCommits", true);
+    hikari.addDataSourceProperty("maintainTimeStats", false);
     hikari.addDataSourceProperty(
         "statementInterceptors", "brave.mysql.TracingStatementInterceptor");
-    hikari.addDataSourceProperty("useUnicode", "yes");
     hikari.setMetricsTrackerFactory(new PrometheusMetricsTrackerFactory());
     return new HikariDataSource(hikari);
   }
@@ -101,10 +110,10 @@ public abstract class DatabaseModule {
     return ctx;
   }
 
-  @Provides
+  @Binds
   @EagerInit
   @IntoSet
-  static Object init(DSLContext dslContext) {
-    return dslContext;
-  }
+  abstract Object init(DSLContext dslContext);
+
+  private DatabaseModule() {}
 }
