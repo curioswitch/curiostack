@@ -326,7 +326,6 @@ public class CuriostackPlugin implements Plugin<Project> {
                           "-Xep:ProtoStringFieldReferenceEquality:ERROR",
                           "-Xep:AssistedInjectAndInjectOnConstructors:ERROR",
                           "-Xep:BigDecimalLiteralDouble:ERROR",
-                          "-Xep:ConstructorInvokesOverridable:ERROR",
                           "-Xep:ConstructorLeaksThis:ERROR",
                           "-Xep:InconsistentOverloads:ERROR",
                           "-Xep:MissingDefault:ERROR",

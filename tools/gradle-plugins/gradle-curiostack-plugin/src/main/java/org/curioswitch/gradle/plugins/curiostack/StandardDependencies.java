@@ -104,7 +104,7 @@ class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
               .version("1.24.0")
-              .addModules("google-cloud-storage")
+              .addModules("google-cloud-bigquery", "google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
@@ -114,7 +114,7 @@ class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
               .version("0.42.0-beta")
-              .addModules("google-cloud-bigquery", "google-cloud-trace")
+              .addModules("google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud.sql")
@@ -317,7 +317,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.64")
+              .version("0.0.65")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()

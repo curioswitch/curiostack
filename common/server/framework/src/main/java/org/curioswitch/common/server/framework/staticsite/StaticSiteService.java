@@ -93,14 +93,50 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
         CompositeServiceEntry.ofPrefix(
             staticPath, fileService.decorate(InfiniteCachingService.newDecorator())),
         CompositeServiceEntry.ofExact("/sw.js", fileService),
-        CompositeServiceEntry.ofCatchAll(fileService.decorate(IndexService::new)));
+        CompositeServiceEntry.ofCatchAll(
+            fileService
+                .orElse(fileService.decorate(HistoryFallbackService::new))
+                .decorate(IndexHtmlService::new)));
   }
 
-  // TODO(choko): Remove after path mapping for redirects works again.
-  private static class IndexService extends SimpleDecoratingService<HttpRequest, HttpResponse> {
+  private static class IndexHtmlService extends SimpleDecoratingService<HttpRequest, HttpResponse> {
 
-    /** Creates a new instance that decorates the specified {@link Service}. */
-    private IndexService(Service<HttpRequest, HttpResponse> delegate) {
+    private IndexHtmlService(Service<HttpRequest, HttpResponse> delegate) {
+      super(delegate);
+    }
+
+    @Override
+    public HttpResponse serve(ServiceRequestContext ctx, HttpRequest req) throws Exception {
+      if (ctx.mappedPath().indexOf('.', ctx.mappedPath().lastIndexOf('/') + 1) != -1
+          || ctx.mappedPath().charAt(ctx.mappedPath().length() - 1) == '/') {
+        // A path that ends with '/' will be handled by HttpFileService correctly, and otherwise if
+        // it has a '.' in the last path segment, assume it is a filename.
+        return delegate().serve(ctx, req);
+      }
+      return delegate().serve(new ContextWrapper(ctx), req);
+    }
+
+    private static class ContextWrapper extends ServiceRequestContextWrapper {
+
+      private final String indexPath;
+
+      /** Creates a new instance. */
+      private ContextWrapper(ServiceRequestContext delegate) {
+        super(delegate);
+        indexPath = delegate.mappedPath() + "/index.html";
+      }
+
+      @Override
+      public String mappedPath() {
+        return indexPath;
+      }
+    }
+  }
+
+  private static class HistoryFallbackService
+      extends SimpleDecoratingService<HttpRequest, HttpResponse> {
+
+    private HistoryFallbackService(Service<HttpRequest, HttpResponse> delegate) {
       super(delegate);
     }
 
