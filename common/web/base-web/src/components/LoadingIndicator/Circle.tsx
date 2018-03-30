@@ -1,5 +1,5 @@
-import React from 'react';
 import styled, { keyframes } from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const circleFadeDelay = keyframes`
   0%,
@@ -18,28 +18,23 @@ export interface Props {
   rotate?: number;
 }
 
-const Circle: React.StatelessComponent<Props> = (props) => {
-  const CirclePrimitive = styled.div`
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    left: 0;
-    top: 0;
-    transform: rotate(${props.rotate || 0}deg);
+export default styledTS<Props>(styled.div)`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: rotate(${({ rotate }) => rotate || 0}deg);
 
-    &::before {
-      content: '';
-      display: block;
-      margin: 0 auto;
-      width: 15%;
-      height: 15%;
-      background-color: #999;
-      border-radius: 100%;
-      animation: ${circleFadeDelay} 1.2s infinite ease-in-out both;
-      animation-delay: ${props.delay || 0}s;
-    }
-  `;
-  return <CirclePrimitive />;
-};
-
-export default Circle;
+  &::before {
+    content: '';
+    display: block;
+    margin: 0 auto;
+    width: 15%;
+    height: 15%;
+    background-color: #999;
+    border-radius: 100%;
+    animation: ${circleFadeDelay} 1.2s infinite ease-in-out both;
+    animation-delay: ${({ delay }) => delay || 0}s;
+  }
+`;
