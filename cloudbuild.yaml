@@ -55,6 +55,8 @@ steps:
   - CI=true
   - CI_MASTER=true
 - id: curio-generated-update-build-cache
+  waitFor:
+  - curio-generated-build-all
   name: gcr.io/cloud-builders/gsutil
   args:
   - -o
