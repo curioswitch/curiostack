@@ -100,6 +100,9 @@ public class DeployPodTask extends DefaultTask {
 
     ImmutableList.Builder<EnvVar> envVars =
         ImmutableList.<EnvVar>builder()
+            .add(
+                new EnvVar(
+                    "GOOGLE_APPLICATION_CREDENTIALS", "/etc/gcloud/service-account.json", null))
             .addAll(
                 deploymentConfig
                         .envVars()
@@ -250,6 +253,11 @@ public class DeployPodTask extends DefaultTask {
                                                         .build()))
                                             .withVolumeMounts(
                                                 new VolumeMountBuilder()
+                                                    .withName("gcloud")
+                                                    .withMountPath("/etc/gcloud")
+                                                    .withReadOnly(true)
+                                                    .build(),
+                                                new VolumeMountBuilder()
                                                     .withName("tls")
                                                     .withMountPath("/etc/tls")
                                                     .withReadOnly(true)
@@ -266,6 +274,13 @@ public class DeployPodTask extends DefaultTask {
                                             .withSecret(
                                                 new SecretVolumeSourceBuilder()
                                                     .withSecretName("server-tls")
+                                                    .build())
+                                            .build(),
+                                        new VolumeBuilder()
+                                            .withName("gcloud")
+                                            .withSecret(
+                                                new SecretVolumeSourceBuilder()
+                                                    .withSecretName("gcloud")
                                                     .build())
                                             .build(),
                                         new VolumeBuilder()
