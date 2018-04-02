@@ -51,4 +51,12 @@ public interface ImmutableClusterExtension {
   default List<String> extraNamespaceTlsHosts() {
     return ImmutableList.of();
   }
+
+  @Nullable
+  default String serviceAccountName() {
+    if (namespace() == null) {
+      return null;
+    }
+    return "cluster-" + namespace();
+  }
 }
