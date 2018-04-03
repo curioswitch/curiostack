@@ -103,6 +103,12 @@ public interface ServerConfig {
   boolean isDisableSslAuthorization();
 
   /**
+   * Whether to use IAM-based authorization. SSL authorization should generally be disabled when
+   * enabling this.
+   */
+  boolean isEnableIamAuthorization();
+
+  /**
    * List of IP filtering rules, as IP Addresses with subnet range (e.g., 121.121.0.0/16). If
    * non-empty, only requests that match these rules will be allowed to access the server.
    */

@@ -61,6 +61,7 @@ buildCache {
 include ':auth:api', ':auth:server'
 include ':common:google-cloud:cloud-storage'
 include ':common:google-cloud:core'
+include ':common:google-cloud:iam'
 include ':common:grpc:protobuf-jackson'
 include ':common:server:framework'
 include ':common:testing:framework'

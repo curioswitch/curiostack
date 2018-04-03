@@ -22,33 +22,35 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.curiostack.gcloud.core.auth;
+package org.curioswitch.common.server.framework.auth.iam;
 
+import com.linecorp.armeria.client.Clients;
+import com.linecorp.armeria.common.HttpHeaderNames;
+import com.linecorp.armeria.common.util.SafeCloseable;
 import java.util.List;
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Modifiable;
-import org.immutables.value.Value.Style;
-import org.immutables.value.Value.Style.BuilderVisibility;
+import java.util.concurrent.CompletableFuture;
+import javax.inject.Inject;
+import org.curioswitch.curiostack.gcloud.core.iam.IamPermissions;
+import org.curioswitch.curiostack.gcloud.iam.ServiceAccountsClient;
 
-/** Configuration for the Google Cloud auth client. */
-@Immutable
-@Modifiable
-@Style(
-  create = "new",
-  get = {"get*", "is*"},
-  beanFriendlyModifiables = true,
-  isInitialized = "initialized",
-  builderVisibility = BuilderVisibility.PACKAGE,
-  defaultAsDefault = true
-)
-public interface GoogleAuthConfig {
+public class IamPermissionChecker {
 
-  /**
-   * Base64-encoded Google service account JSON file. If empty, application default credentials will
-   * be used.
-   */
-  String getServiceAccountBase64();
+  private final ServiceAccountsClient client;
 
-  /** Scopes that should be applied to the service account credential. */
-  List<String> getCredentialScopes();
+  @Inject
+  public IamPermissionChecker(ServiceAccountsClient client) {
+    this.client = client;
+  }
+
+  public CompletableFuture<Boolean> test(
+      String accessToken, String serviceAccount, List<String> permissionsToTest) {
+    try (SafeCloseable sc =
+        Clients.withHttpHeader(HttpHeaderNames.AUTHORIZATION, "Bearer " + accessToken)) {
+      return client
+          .testIamPermissions(
+              serviceAccount,
+              new IamPermissions.Builder().addAllPermissions(permissionsToTest).build())
+          .thenApply(t -> permissionsToTest.equals(t.getPermissions()));
+    }
+  }
 }

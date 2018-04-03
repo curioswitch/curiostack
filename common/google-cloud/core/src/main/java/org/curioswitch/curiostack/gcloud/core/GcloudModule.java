@@ -22,25 +22,16 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.common.server.framework.gcloud;
+package org.curioswitch.curiostack.gcloud.core;
 
-import com.google.auth.Credentials;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.Module;
 import dagger.Provides;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import javax.inject.Singleton;
-import org.curioswitch.common.server.framework.config.GcloudConfig;
-import org.curioswitch.common.server.framework.config.ModifiableGcloudConfig;
+import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
 
-@Module
+@Module(includes = GcloudAuthModule.class)
 public abstract class GcloudModule {
 
   @Provides
@@ -48,31 +39,6 @@ public abstract class GcloudModule {
   static GcloudConfig config(Config config) {
     return ConfigBeanFactory.create(config.getConfig("gcloud"), ModifiableGcloudConfig.class)
         .toImmutable();
-  }
-
-  @Provides
-  @Singleton
-  static Credentials gcloudCredentials(GcloudConfig config) {
-    final GoogleCredentials credentials;
-    try {
-      if (config.getServiceAccountBase64().isEmpty()) {
-        credentials = GoogleCredentials.getApplicationDefault();
-      } else {
-        try (InputStream s =
-            Base64.getDecoder()
-                .wrap(
-                    new ByteArrayInputStream(
-                        config.getServiceAccountBase64().getBytes(StandardCharsets.UTF_8)))) {
-          credentials = GoogleCredentials.fromStream(s);
-        }
-      }
-    } catch (IOException e) {
-      throw new UncheckedIOException("Could not read credentials.", e);
-    }
-    if (credentials.createScopedRequired()) {
-      return credentials.createScoped(config.getCredentialScopes());
-    }
-    return credentials;
   }
 
   private GcloudModule() {}

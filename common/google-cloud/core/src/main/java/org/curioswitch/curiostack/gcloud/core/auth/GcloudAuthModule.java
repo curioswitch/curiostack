@@ -52,7 +52,7 @@ import javax.inject.Qualifier;
 import javax.inject.Singleton;
 
 @Module
-public class GoogleAuthModule {
+public abstract class GcloudAuthModule {
 
   @Qualifier
   @Retention(RetentionPolicy.CLASS)
@@ -60,15 +60,15 @@ public class GoogleAuthModule {
 
   @Provides
   @Singleton
-  static GoogleAuthConfig config(Config config) {
+  static GcloudAuthConfig config(Config config) {
     return ConfigBeanFactory.create(
-            config.getConfig("gcloud.auth"), ModifiableGoogleAuthConfig.class)
+            config.getConfig("gcloud.auth"), ModifiableGcloudAuthConfig.class)
         .toImmutable();
   }
 
   @Provides
   @Singleton
-  static Credentials credentials(GoogleAuthConfig config) {
+  static Credentials credentials(GcloudAuthConfig config) {
     final GoogleCredentials credentials;
     try {
       if (config.getServiceAccountBase64().isEmpty()) {
@@ -116,5 +116,5 @@ public class GoogleAuthModule {
         .build(HttpClient.class);
   }
 
-  private GoogleAuthModule() {}
+  private GcloudAuthModule() {}
 }

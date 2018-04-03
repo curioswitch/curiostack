@@ -62,7 +62,13 @@ public class GoogleCredentialsDecoratingClient
 
   @Override
   @SuppressWarnings("FutureReturnValueIgnored")
-  public HttpResponse execute(ClientRequestContext ctx, HttpRequest req) {
+  public HttpResponse execute(ClientRequestContext ctx, HttpRequest req) throws Exception {
+    if (ctx.hasAttr(ClientRequestContext.HTTP_HEADERS)
+        && ctx.attr(ClientRequestContext.HTTP_HEADERS)
+            .get()
+            .contains(HttpHeaderNames.AUTHORIZATION)) {
+      return delegate().execute(ctx, req);
+    }
     return HttpResponse.from(
         accessTokenProvider
             .get()

@@ -97,6 +97,7 @@ import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthConfig;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthModule;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthService;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthorizer;
+import org.curioswitch.common.server.framework.auth.iam.IamAuthorizer;
 import org.curioswitch.common.server.framework.auth.ssl.RpcAclsCommonNamesProvider;
 import org.curioswitch.common.server.framework.auth.ssl.SslAuthorizer;
 import org.curioswitch.common.server.framework.auth.ssl.SslCommonNamesProvider;
@@ -121,6 +122,7 @@ import org.curioswitch.common.server.framework.staticsite.JavascriptStaticServic
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
 import org.curioswitch.common.server.framework.util.ResourceUtil;
+import org.curioswitch.curiostack.gcloud.iam.GcloudIamModule;
 import org.jooq.DSLContext;
 
 /**
@@ -147,6 +149,7 @@ import org.jooq.DSLContext;
   includes = {
     ApplicationModule.class,
     FirebaseAuthModule.class,
+    GcloudIamModule.class,
     MonitoringModule.class,
     SecurityModule.class
   }
@@ -268,6 +271,7 @@ public abstract class ServerModule {
       MeterRegistry meterRegistry,
       Tracing tracing,
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
+      Lazy<IamAuthorizer> iamAuthorizer,
       Lazy<JavascriptStaticService> javascriptStaticService,
       Optional<SelfSignedCertificate> selfSignedCertificate,
       Optional<TrustManagerFactory> caTrustManager,
@@ -387,6 +391,9 @@ public abstract class ServerModule {
             new HttpAuthServiceBuilder()
                 .add(new SslAuthorizer(sslCommonNamesProvider.get()))
                 .build(service);
+      }
+      if (serverConfig.isEnableIamAuthorization()) {
+        service = new HttpAuthServiceBuilder().addOAuth2(iamAuthorizer.get()).build(service);
       }
       if (!authConfig.getServiceAccountBase64().isEmpty()) {
         FirebaseAuthorizer authorizer = firebaseAuthorizer.get();

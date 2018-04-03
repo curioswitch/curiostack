@@ -32,6 +32,8 @@ archivesBaseName = 'curio-server-framework'
 def sfmVersion = '3.16.2'
 
 dependencies {
+    api project(':common:google-cloud:iam')
+
     api 'com.google.cloud:google-cloud-trace'
     api 'com.google.dagger:dagger'
     api 'com.google.dagger:dagger-producers'
