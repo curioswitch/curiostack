@@ -22,21 +22,28 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.common.server.framework.config;
+package org.curioswitch.curiostack.gcloud.core.iam;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.List;
-import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
 import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Modifiable;
+import org.immutables.value.Value.Style;
+import org.immutables.value.Value.Style.BuilderVisibility;
+import org.immutables.value.Value.Style.ImplementationVisibility;
 
-/** Configuration properties for using Google Cloud services. */
 @Immutable
-@Modifiable
-@JavaBeanStyle
-public interface GcloudConfig {
-  /** Base64-encoded google service account. */
-  String getServiceAccountBase64();
+@Style(
+  deepImmutablesDetection = true,
+  defaultAsDefault = true,
+  builderVisibility = BuilderVisibility.PACKAGE,
+  visibility = ImplementationVisibility.PACKAGE
+)
+@JsonDeserialize(as = ImmutableIamPermissions.class)
+@JsonSerialize(as = ImmutableIamPermissions.class)
+public interface IamPermissions {
 
-  /** Scopes that should be applied to the service account credential. */
-  List<String> getCredentialScopes();
+  class Builder extends ImmutableIamPermissions.Builder {}
+
+  List<String> getPermissions();
 }

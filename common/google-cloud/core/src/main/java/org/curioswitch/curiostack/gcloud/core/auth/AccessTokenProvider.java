@@ -32,7 +32,7 @@ import com.linecorp.armeria.client.HttpClient;
 import java.time.Clock;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
-import org.curioswitch.curiostack.gcloud.core.auth.GoogleAuthModule.GoogleAccounts;
+import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule.GoogleAccounts;
 
 public interface AccessTokenProvider {
 
