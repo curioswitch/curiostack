@@ -29,6 +29,8 @@ apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
 archivesBaseName = 'armeria-google-cloud-storage'
 
 dependencies {
+    api project(':common:google-cloud:core')
+
     api 'com.google.guava:guava'
     api 'com.google.protobuf:protobuf-java'
     api 'com.linecorp.armeria:armeria'

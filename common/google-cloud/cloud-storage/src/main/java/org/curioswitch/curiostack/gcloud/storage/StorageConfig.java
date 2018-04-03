@@ -43,12 +43,4 @@ public interface StorageConfig {
 
   /** The bucket to upload files to. */
   String getBucket();
-
-  /**
-   * A base64-encoded service account JSON file. If empty, application default credentials will be
-   * used.
-   */
-  default String getServiceAccountBase64() {
-    return "";
-  }
 }
