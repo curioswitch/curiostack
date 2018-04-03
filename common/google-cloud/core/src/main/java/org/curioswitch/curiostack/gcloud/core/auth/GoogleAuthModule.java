@@ -21,18 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.curioswitch.curiostack.gcloud.storage;
+
+package org.curioswitch.curiostack.gcloud.core.auth;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.common.collect.ImmutableList;
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.client.logging.LoggingClientBuilder;
+import com.linecorp.armeria.client.metric.MetricCollectingClient;
 import com.linecorp.armeria.client.retry.RetryStrategy;
 import com.linecorp.armeria.client.retry.RetryingHttpClient;
+import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.common.metric.MeterIdPrefixFunction;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.Module;
@@ -41,28 +44,31 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import javax.inject.Qualifier;
 import javax.inject.Singleton;
 
-/** A {@link Module} to setup a {@link StorageClient}. */
 @Module
-public abstract class StorageModule {
+public class GoogleAuthModule {
 
   @Qualifier
-  @interface ForStorage {}
+  @Retention(RetentionPolicy.CLASS)
+  @interface GoogleAccounts {}
 
   @Provides
   @Singleton
-  static StorageConfig config(Config config) {
-    return ConfigBeanFactory.create(config.getConfig("storage"), ModifiableStorageConfig.class)
+  static GoogleAuthConfig config(Config config) {
+    return ConfigBeanFactory.create(
+            config.getConfig("gcloud.auth"), ModifiableGoogleAuthConfig.class)
         .toImmutable();
   }
 
   @Provides
   @Singleton
-  static Credentials credentials(StorageConfig config) {
+  static Credentials credentials(GoogleAuthConfig config) {
     final GoogleCredentials credentials;
     try {
       if (config.getServiceAccountBase64().isEmpty()) {
@@ -79,30 +85,36 @@ public abstract class StorageModule {
     } catch (IOException e) {
       throw new UncheckedIOException("Could not read credentials.", e);
     }
-    if (credentials.createScopedRequired()) {
-      return credentials.createScoped(
-          ImmutableList.of("https://www.googleapis.com/auth/devstorage.read_write"));
+    if (credentials.createScopedRequired() && !config.getCredentialScopes().isEmpty()) {
+      return credentials.createScoped(config.getCredentialScopes());
     }
     return credentials;
   }
 
   @Provides
   @Singleton
-  @ForStorage
-  static HttpClient httpClient(GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
-    String protocol =
-        System.getProperty("org.curioswitch.cloudStorage.useH1", "false").equals("true")
-            ? "h1"
-            : "https";
-    return new ClientBuilder("none+" + protocol + "://www.googleapis.com/upload/storage/v1/")
+  static AccessTokenProvider accessTokenProvider(
+      AccessTokenProvider.Factory factory, Credentials credentials) {
+    return factory.create(credentials);
+  }
+
+  @Provides
+  @Singleton
+  @GoogleAccounts
+  static HttpClient googleAccountsClient() {
+    return new ClientBuilder("none+https://accounts.google.com/")
+        .decorator(
+            HttpRequest.class,
+            HttpResponse.class,
+            MetricCollectingClient.newDecorator(MeterIdPrefixFunction.ofDefault("googleaccounts")))
         .decorator(HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator())
-        .decorator(HttpRequest.class, HttpResponse.class, credentialsDecorator.newDecorator())
         .decorator(
             HttpRequest.class,
             HttpResponse.class,
             RetryingHttpClient.newDecorator(RetryStrategy.onServerErrorStatus()))
+        .addHttpHeader(HttpHeaderNames.CONTENT_TYPE, "application/x-www-form-urlencoded")
         .build(HttpClient.class);
   }
 
-  private StorageModule() {}
+  private GoogleAuthModule() {}
 }
