@@ -38,13 +38,14 @@ import io.netty.handler.codec.http.QueryStringEncoder;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Clock;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 class ServiceAccountAccessTokenProvider extends AbstractAccessTokenProvider {
 
   private static final String GRANT_TYPE = "urn:ietf:params:oauth:grant-type:jwt-bearer";
 
-  private static final String AUDIENCE = "https://accounts.google.com/o/oauth2/token";
+  private static final String AUDIENCE = "https://www.googleapis.com/oauth2/v4/token";
 
   private final ServiceAccountCredentials credentials;
 
@@ -55,9 +56,9 @@ class ServiceAccountAccessTokenProvider extends AbstractAccessTokenProvider {
   }
 
   @Override
-  ByteBuf refreshRequestContent() {
+  ByteBuf refreshRequestContent(Type type) {
     long currentTimeMillis = clock().millis();
-    String assertion = createAssertion(currentTimeMillis);
+    String assertion = createAssertion(type, currentTimeMillis);
     QueryStringEncoder formEncoder = new QueryStringEncoder("");
     formEncoder.addParam("grant_type", GRANT_TYPE);
     formEncoder.addParam("assertion", assertion);
@@ -71,7 +72,7 @@ class ServiceAccountAccessTokenProvider extends AbstractAccessTokenProvider {
     return content;
   }
 
-  private String createAssertion(long currentTimeMillis) {
+  private String createAssertion(Type type, long currentTimeMillis) {
     JsonWebSignature.Header header = new JsonWebSignature.Header();
     header.setAlgorithm("RS256");
     header.setType("JWT");
@@ -80,12 +81,21 @@ class ServiceAccountAccessTokenProvider extends AbstractAccessTokenProvider {
     long currentTimeSecs = TimeUnit.MILLISECONDS.toSeconds(currentTimeMillis);
 
     JsonWebToken.Payload payload = new JsonWebToken.Payload();
-    payload.setIssuer(credentials.getClientEmail());
+
+    String serviceAccount =
+        Objects.requireNonNullElse(
+            credentials.getServiceAccountUser(), credentials.getClientEmail());
+
+    payload.setIssuer(serviceAccount);
     payload.setAudience(AUDIENCE);
     payload.setIssuedAtTimeSeconds(currentTimeSecs);
     payload.setExpirationTimeSeconds(currentTimeSecs + 3600);
-    payload.setSubject(credentials.getServiceAccountUser());
-    payload.put("scope", String.join(" ", credentials.getScopes()));
+    payload.setSubject(serviceAccount);
+    payload.put(
+        "scope",
+        type == Type.ID_TOKEN
+            ? credentials.getClientEmail()
+            : String.join(" ", credentials.getScopes()));
 
     String assertion;
     try {

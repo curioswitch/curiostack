@@ -24,8 +24,11 @@
 
 package org.curioswitch.curiostack.gcloud.core.auth;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.immutables.value.Value.Check;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Style;
 import org.immutables.value.Value.Style.BuilderVisibility;
@@ -42,8 +45,22 @@ import org.immutables.value.Value.Style.ImplementationVisibility;
 public interface TokenResponse {
 
   @JsonProperty("access_token")
-  String accessToken();
+  default String accessToken() {
+    return "";
+  }
+
+  @JsonProperty("id_token")
+  default String idToken() {
+    return "";
+  }
 
   @JsonProperty("expires_in")
-  int expiresIn();
+  default int expiresIn() {
+    return 0;
+  }
+
+  @Check
+  default void check() {
+    checkState(!accessToken().isEmpty() || !idToken().isEmpty());
+  }
 }

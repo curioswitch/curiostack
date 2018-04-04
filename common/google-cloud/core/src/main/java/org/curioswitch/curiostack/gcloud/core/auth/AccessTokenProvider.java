@@ -25,14 +25,13 @@
 package org.curioswitch.curiostack.gcloud.core.auth;
 
 import com.google.auth.Credentials;
-import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
 import com.linecorp.armeria.client.HttpClient;
 import java.time.Clock;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
-import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule.GoogleAccounts;
+import org.curioswitch.curiostack.gcloud.core.RetryingGoogleApis;
 
 public interface AccessTokenProvider {
 
@@ -41,8 +40,8 @@ public interface AccessTokenProvider {
     private final Clock clock;
 
     @Inject
-    public Factory(@GoogleAccounts HttpClient googleAccountsClient, Clock clock) {
-      this.googleAccountsClient = googleAccountsClient;
+    public Factory(@RetryingGoogleApis HttpClient googleApisClient, Clock clock) {
+      this.googleAccountsClient = googleApisClient;
       this.clock = clock;
     }
 
@@ -58,5 +57,7 @@ public interface AccessTokenProvider {
     }
   }
 
-  CompletableFuture<AccessToken> get();
+  CompletableFuture<String> getAccessToken();
+
+  CompletableFuture<String> getGoogleIdToken();
 }

@@ -21,28 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.curioswitch.curiostack.gcloud.storage;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigBeanFactory;
-import dagger.Module;
-import dagger.Provides;
+package org.curioswitch.curiostack.gcloud.core;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import javax.inject.Qualifier;
-import javax.inject.Singleton;
 
-/** A {@link Module} to setup a {@link StorageClient}. */
-@Module
-public abstract class StorageModule {
-
-  @Qualifier
-  @interface ForStorage {}
-
-  @Provides
-  @Singleton
-  static StorageConfig config(Config config) {
-    return ConfigBeanFactory.create(config.getConfig("storage"), ModifiableStorageConfig.class)
-        .toImmutable();
-  }
-
-  private StorageModule() {}
-}
+@Qualifier
+@Retention(RetentionPolicy.CLASS)
+@Target({ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
+public @interface GoogleApis {}

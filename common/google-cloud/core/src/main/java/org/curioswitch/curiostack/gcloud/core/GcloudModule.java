@@ -24,6 +24,16 @@
 
 package org.curioswitch.curiostack.gcloud.core;
 
+import com.linecorp.armeria.client.ClientBuilder;
+import com.linecorp.armeria.client.ClientDecoration;
+import com.linecorp.armeria.client.ClientOption;
+import com.linecorp.armeria.client.Clients;
+import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.logging.LoggingClientBuilder;
+import com.linecorp.armeria.client.retry.RetryStrategy;
+import com.linecorp.armeria.client.retry.RetryingHttpClient;
+import com.linecorp.armeria.common.HttpRequest;
+import com.linecorp.armeria.common.HttpResponse;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.Module;
@@ -39,6 +49,28 @@ public abstract class GcloudModule {
   static GcloudConfig config(Config config) {
     return ConfigBeanFactory.create(config.getConfig("gcloud"), ModifiableGcloudConfig.class)
         .toImmutable();
+  }
+
+  @Provides
+  @Singleton
+  @GoogleApis
+  static HttpClient googleApisClient() {
+    return new ClientBuilder("none+https://www.googleapis.com/")
+        .decorator(HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator())
+        .build(HttpClient.class);
+  }
+
+  @Provides
+  @Singleton
+  @RetryingGoogleApis
+  static HttpClient retryingGoogleApisClient(@GoogleApis HttpClient googleApisClient) {
+    return Clients.newDerivedClient(
+        googleApisClient,
+        ClientOption.DECORATION.newValue(
+            ClientDecoration.of(
+                HttpRequest.class,
+                HttpResponse.class,
+                RetryingHttpClient.newDecorator(RetryStrategy.onServerErrorStatus()))));
   }
 
   private GcloudModule() {}

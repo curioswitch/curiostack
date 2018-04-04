@@ -97,6 +97,7 @@ import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthConfig;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthModule;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthService;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthorizer;
+import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthorizer;
 import org.curioswitch.common.server.framework.auth.iam.IamAuthorizer;
 import org.curioswitch.common.server.framework.auth.ssl.RpcAclsCommonNamesProvider;
 import org.curioswitch.common.server.framework.auth.ssl.SslAuthorizer;
@@ -122,6 +123,7 @@ import org.curioswitch.common.server.framework.staticsite.JavascriptStaticServic
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
 import org.curioswitch.common.server.framework.util.ResourceUtil;
+import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
 import org.curioswitch.curiostack.gcloud.iam.GcloudIamModule;
 import org.jooq.DSLContext;
 
@@ -149,6 +151,7 @@ import org.jooq.DSLContext;
   includes = {
     ApplicationModule.class,
     FirebaseAuthModule.class,
+    GcloudAuthModule.class,
     GcloudIamModule.class,
     MonitoringModule.class,
     SecurityModule.class
@@ -206,9 +209,13 @@ public abstract class ServerModule {
   }
 
   @Provides
+  static ServiceRequestContext context() {
+    return RequestContext.current();
+  }
+
+  @Provides
   @Production
-  static Executor executor() {
-    ServiceRequestContext ctx = RequestContext.current();
+  static Executor executor(ServiceRequestContext ctx) {
     return ctx.contextAwareEventLoop();
   }
 
@@ -271,6 +278,7 @@ public abstract class ServerModule {
       MeterRegistry meterRegistry,
       Tracing tracing,
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
+      Lazy<GoogleIdAuthorizer.Factory> googleIdAuthorizer,
       Lazy<IamAuthorizer> iamAuthorizer,
       Lazy<JavascriptStaticService> javascriptStaticService,
       Optional<SelfSignedCertificate> selfSignedCertificate,
@@ -386,11 +394,18 @@ public abstract class ServerModule {
       definition.customizer().accept(serviceBuilder);
       Service<HttpRequest, HttpResponse> service =
           serviceBuilder.build().decorate(definition.decorator());
-      if (sslCommonNamesProvider.isPresent() && !serverConfig.isDisableSslAuthorization()) {
-        service =
-            new HttpAuthServiceBuilder()
-                .add(new SslAuthorizer(sslCommonNamesProvider.get()))
-                .build(service);
+      if (sslCommonNamesProvider.isPresent()) {
+        if (!serverConfig.isDisableGoogleIdAuthorization()) {
+          service =
+              new HttpAuthServiceBuilder()
+                  .addOAuth2(googleIdAuthorizer.get().create(sslCommonNamesProvider.get()))
+                  .build(service);
+        } else if (!serverConfig.isDisableSslAuthorization()) {
+          service =
+              new HttpAuthServiceBuilder()
+                  .add(new SslAuthorizer(sslCommonNamesProvider.get()))
+                  .build(service);
+        }
       }
       if (serverConfig.isEnableIamAuthorization()) {
         service = new HttpAuthServiceBuilder().addOAuth2(iamAuthorizer.get()).build(service);

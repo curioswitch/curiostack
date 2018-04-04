@@ -26,16 +26,12 @@ package org.curioswitch.curiostack.gcloud.core.auth;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.linecorp.armeria.client.ClientBuilder;
+import com.linecorp.armeria.client.ClientDecoration;
+import com.linecorp.armeria.client.ClientOption;
+import com.linecorp.armeria.client.Clients;
 import com.linecorp.armeria.client.HttpClient;
-import com.linecorp.armeria.client.logging.LoggingClientBuilder;
-import com.linecorp.armeria.client.metric.MetricCollectingClient;
-import com.linecorp.armeria.client.retry.RetryStrategy;
-import com.linecorp.armeria.client.retry.RetryingHttpClient;
-import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
-import com.linecorp.armeria.common.metric.MeterIdPrefixFunction;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.Module;
@@ -50,6 +46,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import javax.inject.Qualifier;
 import javax.inject.Singleton;
+import org.curioswitch.curiostack.gcloud.core.GoogleApis;
+import org.curioswitch.curiostack.gcloud.core.RetryingGoogleApis;
 
 @Module
 public abstract class GcloudAuthModule {
@@ -100,20 +98,31 @@ public abstract class GcloudAuthModule {
 
   @Provides
   @Singleton
-  @GoogleAccounts
-  static HttpClient googleAccountsClient() {
-    return new ClientBuilder("none+https://accounts.google.com/")
-        .decorator(
-            HttpRequest.class,
-            HttpResponse.class,
-            MetricCollectingClient.newDecorator(MeterIdPrefixFunction.ofDefault("googleaccounts")))
-        .decorator(HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator())
-        .decorator(
-            HttpRequest.class,
-            HttpResponse.class,
-            RetryingHttpClient.newDecorator(RetryStrategy.onServerErrorStatus()))
-        .addHttpHeader(HttpHeaderNames.CONTENT_TYPE, "application/x-www-form-urlencoded")
-        .build(HttpClient.class);
+  @AuthenticatedGoogleApis
+  static HttpClient authenticatedGoogleApisClient(
+      @GoogleApis HttpClient googleApisClient,
+      GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
+    return authenticated(googleApisClient, credentialsDecorator);
+  }
+
+  @Provides
+  @Singleton
+  @RetryingAuthenticatedGoogleApis
+  static HttpClient retryingAuthenticatedGoogleApisClient(
+      @RetryingGoogleApis HttpClient googleApisClient,
+      GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
+    return authenticated(googleApisClient, credentialsDecorator);
+  }
+
+  private static HttpClient authenticated(
+      HttpClient client, GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
+    return Clients.newDerivedClient(
+        client,
+        ClientOption.DECORATION.newValue(
+            ClientDecoration.of(
+                HttpRequest.class,
+                HttpResponse.class,
+                credentialsDecorator.newAccessTokenDecorator())));
   }
 
   private GcloudAuthModule() {}

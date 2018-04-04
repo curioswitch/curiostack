@@ -27,6 +27,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import dagger.Module;
 import dagger.Provides;
+import java.time.Clock;
 import javax.inject.Singleton;
 
 /**
@@ -36,7 +37,7 @@ import javax.inject.Singleton;
  * separate artifacts.
  */
 @Module
-public class ApplicationModule {
+public abstract class ApplicationModule {
 
   static {
     // Optimistically hope that this module is loaded very early to make sure java.util.Logger uses
@@ -47,7 +48,19 @@ public class ApplicationModule {
 
   @Provides
   @Singleton
-  Config config() {
+  static Config config() {
     return ConfigFactory.load();
   }
+
+  /**
+   * The default {@link Clock} to use in an application. The use of {@link Clock#systemUTC()} should
+   * be reasonable for all users since any time-zone dependent code should use an explicit time zone
+   * instead.
+   */
+  @Provides
+  static Clock clock() {
+    return Clock.systemUTC();
+  }
+
+  private ApplicationModule() {}
 }

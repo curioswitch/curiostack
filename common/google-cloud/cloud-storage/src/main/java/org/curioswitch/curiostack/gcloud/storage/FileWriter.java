@@ -47,7 +47,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import org.curioswitch.curiostack.gcloud.storage.StorageModule.ForStorage;
+import org.curioswitch.curiostack.gcloud.core.auth.RetryingAuthenticatedGoogleApis;
 
 /**
  * A Cloud Storage file writer. Data should be written using {@link #write(ByteBuffer)}, with the
@@ -68,7 +68,7 @@ public class FileWriter {
     private final HttpClient httpClient;
 
     @Inject
-    Resumer(@ForStorage HttpClient httpClient) {
+    Resumer(@RetryingAuthenticatedGoogleApis HttpClient httpClient) {
       this.httpClient = httpClient;
     }
 

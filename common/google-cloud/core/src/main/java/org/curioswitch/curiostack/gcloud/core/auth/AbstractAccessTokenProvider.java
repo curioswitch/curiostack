@@ -31,6 +31,9 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.auth.oauth2.AccessToken;
 import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.common.HttpData;
+import com.linecorp.armeria.common.HttpHeaderNames;
+import com.linecorp.armeria.common.HttpHeaders;
+import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.unsafe.ByteBufHttpData;
 import io.netty.buffer.ByteBuf;
 import java.io.IOException;
@@ -45,59 +48,55 @@ abstract class AbstractAccessTokenProvider implements AccessTokenProvider {
 
   private static final long MINIMUM_TOKEN_MILLISECONDS = 60000L * 5L;
 
-  private static final String TOKEN_PATH = "/o/oauth2/token";
+  private static final String TOKEN_PATH = "/oauth2/v4/token";
 
   private static final ObjectMapper OBJECT_MAPPER =
       new ObjectMapper()
           .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
           .findAndRegisterModules();
 
-  private enum CacheKey {
-    INSTANCE
+  enum Type {
+    ACCESS_TOKEN,
+    ID_TOKEN
   }
 
-  private final HttpClient googleAccountsClient;
+  private final HttpClient googleApisClient;
   private final Clock clock;
-  private final AsyncLoadingCache<CacheKey, AccessToken> cachedAccessToken;
+  private final AsyncLoadingCache<Type, AccessToken> cachedAccessToken;
 
-  AbstractAccessTokenProvider(HttpClient googleAccountsClient, Clock clock) {
-    this.googleAccountsClient = googleAccountsClient;
+  AbstractAccessTokenProvider(HttpClient googleApisClient, Clock clock) {
+    this.googleApisClient = googleApisClient;
     this.clock = clock;
     cachedAccessToken =
         Caffeine.newBuilder()
             // Google access tokens seem to last for an hour.
             .refreshAfterWrite(Duration.ofMinutes(30))
-            .buildAsync((unused, executor) -> refresh());
+            .buildAsync((type, executor) -> refresh(type));
   }
 
   Clock clock() {
     return clock;
   }
 
-  abstract ByteBuf refreshRequestContent();
+  abstract ByteBuf refreshRequestContent(Type type);
 
   @Override
-  public CompletableFuture<AccessToken> get() {
-    return cachedAccessToken
-        .get(CacheKey.INSTANCE)
-        .thenComposeAsync(
-            token -> {
-              if (token.getExpirationTime().getTime() - clock.millis()
-                  <= MINIMUM_TOKEN_MILLISECONDS) {
-                // Since we optimistically refresh, this should never happen but issue a manual
-                // refresh
-                // just in case.
-                cachedAccessToken.synchronous().invalidate(CacheKey.INSTANCE);
-                return cachedAccessToken.get(CacheKey.INSTANCE);
-              }
-              return CompletableFuture.completedFuture(token);
-            });
+  public CompletableFuture<String> getAccessToken() {
+    return cachedAccessToken.get(Type.ACCESS_TOKEN).thenApply(AccessToken::getTokenValue);
   }
 
-  private CompletableFuture<AccessToken> refresh() {
-    HttpData data = new ByteBufHttpData(refreshRequestContent(), true);
-    return googleAccountsClient
-        .post(TOKEN_PATH, data)
+  @Override
+  public CompletableFuture<String> getGoogleIdToken() {
+    return cachedAccessToken.get(Type.ID_TOKEN).thenApply(AccessToken::getTokenValue);
+  }
+
+  private CompletableFuture<AccessToken> refresh(Type type) {
+    HttpData data = new ByteBufHttpData(refreshRequestContent(type), true);
+    return googleApisClient
+        .execute(
+            HttpHeaders.of(HttpMethod.POST, TOKEN_PATH)
+                .set(HttpHeaderNames.CONTENT_TYPE, "application/x-www-form-urlencoded"),
+            data)
         .aggregate()
         .thenApply(
             msg -> {
@@ -109,7 +108,9 @@ abstract class AbstractAccessTokenProvider implements AccessTokenProvider {
               }
               long expiresAtMilliseconds =
                   clock.millis() + TimeUnit.SECONDS.toMillis(response.expiresIn());
-              return new AccessToken(response.accessToken(), new Date(expiresAtMilliseconds));
+              return new AccessToken(
+                  type == Type.ID_TOKEN ? response.idToken() : response.accessToken(),
+                  new Date(expiresAtMilliseconds));
             });
   }
 }

@@ -61,7 +61,9 @@ public class GcloudIamModule {
                         HttpResponse.class,
                         new LoggingClientBuilder().newDecorator())
                     .decorator(
-                        HttpRequest.class, HttpResponse.class, credentialsDecorator.newDecorator()))
+                        HttpRequest.class,
+                        HttpResponse.class,
+                        credentialsDecorator.newAccessTokenDecorator()))
         .build()
         .create(ServiceAccountsClient.class);
   }
