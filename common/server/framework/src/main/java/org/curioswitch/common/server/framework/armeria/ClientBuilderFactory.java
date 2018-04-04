@@ -39,6 +39,7 @@ import com.linecorp.armeria.client.tracing.HttpTracingClient;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.SessionProtocol;
+import dagger.Lazy;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
@@ -48,6 +49,7 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.net.ssl.TrustManagerFactory;
@@ -56,6 +58,7 @@ import org.apache.logging.log4j.Logger;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
 import org.curioswitch.common.server.framework.util.ResourceUtil;
+import org.curioswitch.curiostack.gcloud.core.auth.GoogleCredentialsDecoratingClient;
 
 /**
  * A convenience factory that sets up a {@link ClientBuilder} with appropriate default parameters.
@@ -70,15 +73,23 @@ public class ClientBuilderFactory {
   private final Tracing tracing;
   private final MeterRegistry meterRegistry;
 
+  @Nullable
+  private final GoogleCredentialsDecoratingClient.Factory googleCredentialsDecoratingClient;
+
   @Inject
   public ClientBuilderFactory(
       MeterRegistry meterRegistry,
       Tracing tracing,
       Optional<SelfSignedCertificate> selfSignedCertificate,
       Optional<TrustManagerFactory> caTrustManager,
+      Lazy<GoogleCredentialsDecoratingClient.Factory> googleCredentialsDecoratingClient,
       ServerConfig serverConfig) {
     this.tracing = tracing;
     this.meterRegistry = meterRegistry;
+    this.googleCredentialsDecoratingClient =
+        !serverConfig.isDisableGoogleIdAuthorization()
+            ? googleCredentialsDecoratingClient.get()
+            : null;
     final TrustManagerFactory trustManagerFactory;
     if (serverConfig.isDisableClientCertificateVerification()) {
       logger.warn("Disabling client SSL verification. This should only happen on local!");
@@ -144,9 +155,16 @@ public class ClientBuilderFactory {
     EndpointGroupRegistry.register(name, endpointGroup, EndpointSelectionStrategy.ROUND_ROBIN);
     endpointGroup.newMeterBinder(name).bindTo(meterRegistry);
 
-    return new ClientBuilder(
-            uri.getScheme() + "://group:" + name + Strings.nullToEmpty(uri.getPath()))
-        .factory(clientFactory)
+    ClientBuilder builder =
+        new ClientBuilder(uri.getScheme() + "://group:" + name + Strings.nullToEmpty(uri.getPath()))
+            .factory(clientFactory);
+    if (googleCredentialsDecoratingClient != null) {
+      builder.decorator(
+          HttpRequest.class,
+          HttpResponse.class,
+          googleCredentialsDecoratingClient.newIdTokenDecorator());
+    }
+    return builder
         .decorator(
             HttpRequest.class,
             HttpResponse.class,

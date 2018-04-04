@@ -46,22 +46,38 @@ public class GoogleCredentialsDecoratingClient
     }
 
     public Function<Client<HttpRequest, HttpResponse>, GoogleCredentialsDecoratingClient>
-        newDecorator() {
-      return client -> new GoogleCredentialsDecoratingClient(client, accessTokenProvider);
+        newAccessTokenDecorator() {
+      return client ->
+          new GoogleCredentialsDecoratingClient(
+              client, accessTokenProvider, TokenType.ACCESS_TOKEN);
+    }
+
+    public Function<Client<HttpRequest, HttpResponse>, GoogleCredentialsDecoratingClient>
+        newIdTokenDecorator() {
+      return client ->
+          new GoogleCredentialsDecoratingClient(client, accessTokenProvider, TokenType.ID_TOKEN);
     }
   }
 
+  private enum TokenType {
+    ACCESS_TOKEN,
+    ID_TOKEN,
+  }
+
   private final AccessTokenProvider accessTokenProvider;
+  private final TokenType type;
 
   /** Creates a new instance that decorates the specified {@link Client}. */
   private GoogleCredentialsDecoratingClient(
-      Client<HttpRequest, HttpResponse> delegate, AccessTokenProvider accessTokenProvider) {
+      Client<HttpRequest, HttpResponse> delegate,
+      AccessTokenProvider accessTokenProvider,
+      TokenType type) {
     super(delegate);
     this.accessTokenProvider = accessTokenProvider;
+    this.type = type;
   }
 
   @Override
-  @SuppressWarnings("FutureReturnValueIgnored")
   public HttpResponse execute(ClientRequestContext ctx, HttpRequest req) throws Exception {
     if (ctx.hasAttr(ClientRequestContext.HTTP_HEADERS)
         && ctx.attr(ClientRequestContext.HTTP_HEADERS)
@@ -70,12 +86,12 @@ public class GoogleCredentialsDecoratingClient
       return delegate().execute(ctx, req);
     }
     return HttpResponse.from(
-        accessTokenProvider
-            .get()
+        (type == TokenType.ACCESS_TOKEN
+                ? accessTokenProvider.getAccessToken()
+                : accessTokenProvider.getGoogleIdToken())
             .thenApplyAsync(
                 (token) -> {
-                  req.headers()
-                      .add(HttpHeaderNames.AUTHORIZATION, "Bearer " + token.getTokenValue());
+                  req.headers().add(HttpHeaderNames.AUTHORIZATION, "Bearer " + token);
                   try {
                     return delegate().execute(ctx, req);
                   } catch (Exception e) {

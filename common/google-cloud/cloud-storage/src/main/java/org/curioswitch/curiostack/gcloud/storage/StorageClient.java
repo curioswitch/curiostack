@@ -46,7 +46,7 @@ import java.io.UncheckedIOException;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.curioswitch.curiostack.gcloud.storage.StorageModule.ForStorage;
+import org.curioswitch.curiostack.gcloud.core.auth.RetryingAuthenticatedGoogleApis;
 import org.immutables.value.Value.Immutable;
 
 /**
@@ -64,10 +64,11 @@ public class StorageClient {
   private final String uploadUrl;
 
   @Inject
-  public StorageClient(@ForStorage HttpClient httpClient, StorageConfig config) {
+  public StorageClient(
+      @RetryingAuthenticatedGoogleApis HttpClient httpClient, StorageConfig config) {
     this.httpClient = httpClient;
 
-    uploadUrl = "/b/" + config.getBucket() + "/o?uploadType=resumable";
+    uploadUrl = "/upload/storage/v1/b/" + config.getBucket() + "/o?uploadType=resumable";
   }
 
   /** Create a new file for uploading data to cloud storage. */
@@ -105,8 +106,7 @@ public class StorageClient {
                   }
 
                   String location = responseHeaders.get(HttpHeaderNames.LOCATION);
-                  String pathAndQuery =
-                      location.substring("https://www.googleapis.com/upload/storage/v1".length());
+                  String pathAndQuery = location.substring("https://www.googleapis.com".length());
                   return new FileWriter(pathAndQuery, ctx, httpClient);
                 }));
   }

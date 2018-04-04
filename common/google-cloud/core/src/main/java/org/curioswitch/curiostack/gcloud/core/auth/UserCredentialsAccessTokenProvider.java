@@ -45,7 +45,7 @@ class UserCredentialsAccessTokenProvider extends AbstractAccessTokenProvider {
   }
 
   @Override
-  ByteBuf refreshRequestContent() {
+  ByteBuf refreshRequestContent(Type unused) {
     return refreshRequestContent.retainedDuplicate();
   }
 
