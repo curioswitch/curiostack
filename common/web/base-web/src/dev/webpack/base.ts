@@ -121,31 +121,11 @@ function configure(options: any): Configuration {
           use: 'file-loader',
         },
         {
-          test: /\.(jpg|png|gif)$/,
+          test: /\.(jpg|png)$/,
           use: [
-            'file-loader',
             {
-              loader: 'image-webpack-loader',
-              options: {
-                mozjpeg: {
-                  quality: 65,
-                  progressive: true,
-                },
-                gifsicle: {
-                  optimizationLevel: 7,
-                  interlaced: false,
-                },
-                optipng: {
-                  enabled: false,
-                  optimizationLevel: 7,
-                  interlaced: false,
-                },
-                pngquant: {
-                  enabled: false,
-                  quality: '65-90',
-                  speed: 4,
-                },
-              },
+              loader: path.resolve(__dirname, './curio-image-loader'),
+              options: {},
             },
           ],
         },
