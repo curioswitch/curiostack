@@ -24,36 +24,31 @@
 
 import React from 'react';
 
-import { LocaleMessages } from './containers/LanguageProvider';
-
-export { default as injectReducer } from './hoc/injectReducer';
-export { default as injectSaga } from './hoc/injectSaga';
-
-export { default as Picture, ImageDescriptor } from './components/Picture';
-export { default as LoadingIndicator } from './components/LoadingIndicator';
-
-export { GlobalStateBase } from './state';
-export * from './state/actions';
-export * from './state/saga';
-
-export interface WebappConfig {
-  component: React.ComponentClass | React.StatelessComponent;
-  messages: LocaleMessages;
-  defaultLocale: string;
-  initialState: any;
-  mountNode?: string | HTMLElement;
-  theme?: any;
+export interface Source {
+  sizes: string;
+  type: string;
+  srcset: string;
 }
 
-export class PrerenderedPaths {
-  [path: string]: object;
+export interface ImageDescriptor {
+  sources: Source[];
+  fallback: string;
 }
 
-export interface PrerenderConfig {
-  wrappingComponent?:
-    | React.ComponentClass<{ children: JSX.Element }>
-    | React.StatelessComponent<{ children: JSX.Element }>;
-  paths: PrerenderedPaths;
-  globals: object;
-  extraStylesExtractor?: () => JSX.Element[];
+export interface Props {
+  image: ImageDescriptor;
+}
+
+export default class Picture extends React.PureComponent<Props> {
+  public render() {
+    const { image, ...others } = this.props;
+    return (
+      <picture>
+        {image.sources.map((source) => (
+          <source key={source.type} {...source} />
+        ))}
+        <img src={image.fallback} {...others} />
+      </picture>
+    );
+  }
 }
