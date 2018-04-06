@@ -29,7 +29,7 @@ import { LocaleMessages } from './containers/LanguageProvider';
 export { default as injectReducer } from './hoc/injectReducer';
 export { default as injectSaga } from './hoc/injectSaga';
 
-export { default as Picture, ImageDescriptor } from './components/Picture';
+export { default as Picture } from './components/Picture';
 export { default as LoadingIndicator } from './components/LoadingIndicator';
 
 export { GlobalStateBase } from './state';
