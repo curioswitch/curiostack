@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import React from 'react';
+import React, { ImgHTMLAttributes } from 'react';
 
 export interface Source {
   sizes: string;
@@ -35,7 +35,7 @@ export interface ImageDescriptor {
   fallback: string;
 }
 
-export interface Props {
+export interface Props extends ImgHTMLAttributes<{}> {
   image: ImageDescriptor;
 }
 

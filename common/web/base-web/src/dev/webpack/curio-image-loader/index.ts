@@ -153,7 +153,7 @@ async function run(ctx: LoaderContext, content: Buffer) {
     .map(
       (breakpoint, i) =>
         i !== reversedBreakpoints.length - 1
-          ? `(min-width: ${loaderOptions.breakpoints[breakpoint]} ${
+          ? `(min-width: ${loaderOptions.breakpoints[breakpoint]}) ${
               breakpoints[breakpoint]
             }vw`
           : `${breakpoints[breakpoint]}vw`,
