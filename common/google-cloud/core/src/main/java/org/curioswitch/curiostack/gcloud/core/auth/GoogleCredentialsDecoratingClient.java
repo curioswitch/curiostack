@@ -30,6 +30,7 @@ import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.util.Exceptions;
+import io.netty.util.AsciiString;
 import java.util.function.Function;
 import javax.inject.Inject;
 
@@ -46,16 +47,27 @@ public class GoogleCredentialsDecoratingClient
     }
 
     public Function<Client<HttpRequest, HttpResponse>, GoogleCredentialsDecoratingClient>
-        newAccessTokenDecorator() {
-      return client ->
-          new GoogleCredentialsDecoratingClient(
-              client, accessTokenProvider, TokenType.ACCESS_TOKEN);
+    newAccessTokenDecorator() {
+      return newAccessTokenDecorator(HttpHeaderNames.AUTHORIZATION);
     }
 
     public Function<Client<HttpRequest, HttpResponse>, GoogleCredentialsDecoratingClient>
-        newIdTokenDecorator() {
+    newAccessTokenDecorator(AsciiString header) {
       return client ->
-          new GoogleCredentialsDecoratingClient(client, accessTokenProvider, TokenType.ID_TOKEN);
+          new GoogleCredentialsDecoratingClient(
+              client, accessTokenProvider, TokenType.ACCESS_TOKEN, header);
+    }
+
+    public Function<Client<HttpRequest, HttpResponse>, GoogleCredentialsDecoratingClient>
+    newIdTokenDecorator() {
+      return newIdTokenDecorator(HttpHeaderNames.AUTHORIZATION);
+    }
+
+    public Function<Client<HttpRequest, HttpResponse>, GoogleCredentialsDecoratingClient>
+    newIdTokenDecorator(AsciiString header) {
+      return client ->
+          new GoogleCredentialsDecoratingClient(client, accessTokenProvider, TokenType.ID_TOKEN,
+              header);
     }
   }
 
@@ -66,15 +78,17 @@ public class GoogleCredentialsDecoratingClient
 
   private final AccessTokenProvider accessTokenProvider;
   private final TokenType type;
+  private final AsciiString header;
 
   /** Creates a new instance that decorates the specified {@link Client}. */
   private GoogleCredentialsDecoratingClient(
       Client<HttpRequest, HttpResponse> delegate,
       AccessTokenProvider accessTokenProvider,
-      TokenType type) {
+      TokenType type, AsciiString header) {
     super(delegate);
     this.accessTokenProvider = accessTokenProvider;
     this.type = type;
+    this.header = header;
   }
 
   @Override
@@ -82,7 +96,7 @@ public class GoogleCredentialsDecoratingClient
     if (ctx.hasAttr(ClientRequestContext.HTTP_HEADERS)
         && ctx.attr(ClientRequestContext.HTTP_HEADERS)
             .get()
-            .contains(HttpHeaderNames.AUTHORIZATION)) {
+            .contains(header)) {
       return delegate().execute(ctx, req);
     }
     return HttpResponse.from(
@@ -91,7 +105,7 @@ public class GoogleCredentialsDecoratingClient
                 : accessTokenProvider.getGoogleIdToken())
             .thenApplyAsync(
                 (token) -> {
-                  req.headers().add(HttpHeaderNames.AUTHORIZATION, "Bearer " + token);
+                  req.headers().add(header, "Bearer " + token);
                   try {
                     return delegate().execute(ctx, req);
                   } catch (Exception e) {

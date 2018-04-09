@@ -162,7 +162,7 @@ public class ClientBuilderFactory {
       builder.decorator(
           HttpRequest.class,
           HttpResponse.class,
-          googleCredentialsDecoratingClient.newIdTokenDecorator());
+          googleCredentialsDecoratingClient.newIdTokenDecorator(Constants.X_CLUSTER_AUTHORIZATION));
     }
     return builder
         .decorator(

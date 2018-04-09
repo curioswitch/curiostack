@@ -93,10 +93,12 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.curioswitch.common.server.framework.armeria.Constants;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthConfig;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthModule;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthService;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthorizer;
+import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthServiceBuilder;
 import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthorizer;
 import org.curioswitch.common.server.framework.auth.iam.IamAuthorizer;
 import org.curioswitch.common.server.framework.auth.ssl.RpcAclsCommonNamesProvider;
@@ -397,9 +399,12 @@ public abstract class ServerModule {
       if (sslCommonNamesProvider.isPresent()) {
         if (!serverConfig.isDisableGoogleIdAuthorization()) {
           service =
-              new HttpAuthServiceBuilder()
-                  .addOAuth2(googleIdAuthorizer.get().create(sslCommonNamesProvider.get()))
-                  .build(service);
+              service.decorate(
+                  new GoogleIdAuthServiceBuilder()
+                      .addOAuth2(
+                          googleIdAuthorizer.get().create(sslCommonNamesProvider.get()),
+                          Constants.X_CLUSTER_AUTHORIZATION)
+                      .newDecorator());
         } else if (!serverConfig.isDisableSslAuthorization()) {
           service =
               new HttpAuthServiceBuilder()
