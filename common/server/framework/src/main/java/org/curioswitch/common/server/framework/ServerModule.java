@@ -397,20 +397,15 @@ public abstract class ServerModule {
       Service<HttpRequest, HttpResponse> service =
           serviceBuilder.build().decorate(definition.decorator());
       if (sslCommonNamesProvider.isPresent()) {
+        GoogleIdAuthServiceBuilder authServiceBuilder = new GoogleIdAuthServiceBuilder();
         if (!serverConfig.isDisableGoogleIdAuthorization()) {
-          service =
-              service.decorate(
-                  new GoogleIdAuthServiceBuilder()
-                      .addOAuth2(
-                          googleIdAuthorizer.get().create(sslCommonNamesProvider.get()),
-                          Constants.X_CLUSTER_AUTHORIZATION)
-                      .newDecorator());
+          authServiceBuilder.addOAuth2(
+              googleIdAuthorizer.get().create(sslCommonNamesProvider.get()),
+              Constants.X_CLUSTER_AUTHORIZATION);
         } else if (!serverConfig.isDisableSslAuthorization()) {
-          service =
-              new HttpAuthServiceBuilder()
-                  .add(new SslAuthorizer(sslCommonNamesProvider.get()))
-                  .build(service);
+          authServiceBuilder.add(new SslAuthorizer(sslCommonNamesProvider.get()));
         }
+        service = service.decorate(authServiceBuilder.newDecorator());
       }
       if (serverConfig.isEnableIamAuthorization()) {
         service = new HttpAuthServiceBuilder().addOAuth2(iamAuthorizer.get()).build(service);

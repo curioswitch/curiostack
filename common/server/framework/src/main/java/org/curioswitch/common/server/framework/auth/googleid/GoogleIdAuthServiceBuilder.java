@@ -59,6 +59,12 @@ import java.util.function.Function;
 public class GoogleIdAuthServiceBuilder {
   private final List<Authorizer<HttpRequest>> authorizers = new ArrayList<>();
 
+  /** Adds an {@link Authorizer}. */
+  public GoogleIdAuthServiceBuilder add(Authorizer<HttpRequest> authorizer) {
+    authorizers.add(requireNonNull(authorizer, "authorizer"));
+    return this;
+  }
+
   /** Adds an OAuth2 {@link Authorizer}. */
   public GoogleIdAuthServiceBuilder addOAuth2(Authorizer<? super OAuth2Token> authorizer) {
     return addTokenAuthorizer(AuthTokenExtractors.OAUTH2, requireNonNull(authorizer, "authorizer"));

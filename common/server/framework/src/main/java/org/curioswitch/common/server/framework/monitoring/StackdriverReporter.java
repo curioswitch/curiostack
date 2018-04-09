@@ -41,7 +41,7 @@ import org.jctools.queues.MessagePassingQueue;
 import org.jctools.queues.MpscCompoundQueue;
 import zipkin2.Span;
 import zipkin2.reporter.Reporter;
-import zipkin2.stackdriver.translation.TraceTranslator;
+import zipkin2.translation.stackdriver.TraceTranslator;
 
 @Singleton
 public class StackdriverReporter implements Reporter<Span>, Flushable, AutoCloseable {
