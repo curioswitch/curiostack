@@ -47,27 +47,27 @@ public class GoogleCredentialsDecoratingClient
     }
 
     public Function<Client<HttpRequest, HttpResponse>, GoogleCredentialsDecoratingClient>
-    newAccessTokenDecorator() {
+        newAccessTokenDecorator() {
       return newAccessTokenDecorator(HttpHeaderNames.AUTHORIZATION);
     }
 
     public Function<Client<HttpRequest, HttpResponse>, GoogleCredentialsDecoratingClient>
-    newAccessTokenDecorator(AsciiString header) {
+        newAccessTokenDecorator(AsciiString header) {
       return client ->
           new GoogleCredentialsDecoratingClient(
               client, accessTokenProvider, TokenType.ACCESS_TOKEN, header);
     }
 
     public Function<Client<HttpRequest, HttpResponse>, GoogleCredentialsDecoratingClient>
-    newIdTokenDecorator() {
+        newIdTokenDecorator() {
       return newIdTokenDecorator(HttpHeaderNames.AUTHORIZATION);
     }
 
     public Function<Client<HttpRequest, HttpResponse>, GoogleCredentialsDecoratingClient>
-    newIdTokenDecorator(AsciiString header) {
+        newIdTokenDecorator(AsciiString header) {
       return client ->
-          new GoogleCredentialsDecoratingClient(client, accessTokenProvider, TokenType.ID_TOKEN,
-              header);
+          new GoogleCredentialsDecoratingClient(
+              client, accessTokenProvider, TokenType.ID_TOKEN, header);
     }
   }
 
@@ -84,7 +84,8 @@ public class GoogleCredentialsDecoratingClient
   private GoogleCredentialsDecoratingClient(
       Client<HttpRequest, HttpResponse> delegate,
       AccessTokenProvider accessTokenProvider,
-      TokenType type, AsciiString header) {
+      TokenType type,
+      AsciiString header) {
     super(delegate);
     this.accessTokenProvider = accessTokenProvider;
     this.type = type;
@@ -94,9 +95,7 @@ public class GoogleCredentialsDecoratingClient
   @Override
   public HttpResponse execute(ClientRequestContext ctx, HttpRequest req) throws Exception {
     if (ctx.hasAttr(ClientRequestContext.HTTP_HEADERS)
-        && ctx.attr(ClientRequestContext.HTTP_HEADERS)
-            .get()
-            .contains(header)) {
+        && ctx.attr(ClientRequestContext.HTTP_HEADERS).get().contains(header)) {
       return delegate().execute(ctx, req);
     }
     return HttpResponse.from(
