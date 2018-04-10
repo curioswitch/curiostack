@@ -28,3 +28,7 @@ to generate initial IntelliJ configuration. Then open up the folder in IntelliJ 
 asks you to link the project.
 
 All code-style, license, etc setup will be done automatically, and you're ready to code.
+
+## Set up
+
+See gradle-curiostack-plugin [README](tools/gradle-plugins/gradle-curiostack-plugin/README.md) for setting up the gradle plugins.
