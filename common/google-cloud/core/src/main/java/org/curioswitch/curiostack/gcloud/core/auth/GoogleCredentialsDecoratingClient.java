@@ -42,7 +42,7 @@ public class GoogleCredentialsDecoratingClient
     private final AccessTokenProvider accessTokenProvider;
 
     @Inject
-    Factory(AccessTokenProvider accessTokenProvider) {
+    public Factory(AccessTokenProvider accessTokenProvider) {
       this.accessTokenProvider = accessTokenProvider;
     }
 

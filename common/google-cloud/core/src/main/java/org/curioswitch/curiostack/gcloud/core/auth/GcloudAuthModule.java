@@ -58,7 +58,7 @@ public abstract class GcloudAuthModule {
 
   @Provides
   @Singleton
-  static GcloudAuthConfig config(Config config) {
+  public static GcloudAuthConfig config(Config config) {
     return ConfigBeanFactory.create(
             config.getConfig("gcloud.auth"), ModifiableGcloudAuthConfig.class)
         .toImmutable();
@@ -66,7 +66,7 @@ public abstract class GcloudAuthModule {
 
   @Provides
   @Singleton
-  static Credentials credentials(GcloudAuthConfig config) {
+  public static Credentials credentials(GcloudAuthConfig config) {
     final GoogleCredentials credentials;
     try {
       if (config.getServiceAccountBase64().isEmpty()) {
@@ -91,7 +91,7 @@ public abstract class GcloudAuthModule {
 
   @Provides
   @Singleton
-  static AccessTokenProvider accessTokenProvider(
+  public static AccessTokenProvider accessTokenProvider(
       AccessTokenProvider.Factory factory, Credentials credentials) {
     return factory.create(credentials);
   }
@@ -99,7 +99,7 @@ public abstract class GcloudAuthModule {
   @Provides
   @Singleton
   @AuthenticatedGoogleApis
-  static HttpClient authenticatedGoogleApisClient(
+  public static HttpClient authenticatedGoogleApisClient(
       @GoogleApis HttpClient googleApisClient,
       GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
     return authenticated(googleApisClient, credentialsDecorator);
@@ -108,7 +108,7 @@ public abstract class GcloudAuthModule {
   @Provides
   @Singleton
   @RetryingAuthenticatedGoogleApis
-  static HttpClient retryingAuthenticatedGoogleApisClient(
+  public static HttpClient retryingAuthenticatedGoogleApisClient(
       @RetryingGoogleApis HttpClient googleApisClient,
       GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
     return authenticated(googleApisClient, credentialsDecorator);

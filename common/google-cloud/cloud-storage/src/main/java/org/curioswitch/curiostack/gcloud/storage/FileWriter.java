@@ -105,11 +105,11 @@ public class FileWriter {
   private long filePosition;
   @Nullable private ByteBuf unfinishedChunk;
 
-  FileWriter(String uploadUrl, RequestContext ctx, HttpClient httpClient) {
+  FileWriter(String uploadUrl, ByteBufAllocator alloc, EventLoop eventLoop, HttpClient httpClient) {
     this.uploadUrl = uploadUrl;
     this.httpClient = httpClient;
-    alloc = ctx.alloc();
-    eventLoop = ctx.contextAwareEventLoop();
+    this.alloc = alloc;
+    this.eventLoop = eventLoop;
   }
 
   FileWriter(
@@ -149,7 +149,7 @@ public class FileWriter {
 
     int alignedWritableBytes = alignedSize(buf.readableBytes());
     if (alignedWritableBytes == buf.readableBytes()) {
-      return uploadChunk(buf, false);
+      return CompletableFuturesExtra.toListenableFuture(uploadChunk(buf, false));
     }
 
     if (alignedWritableBytes == 0) {
@@ -160,7 +160,7 @@ public class FileWriter {
 
     ByteBuf nextChunk = buf.readSlice(alignedWritableBytes);
     copyUnfinishedBuffer(buf);
-    return uploadChunk(nextChunk, false);
+    return CompletableFuturesExtra.toListenableFuture(uploadChunk(nextChunk, false));
   }
 
   /**
@@ -170,10 +170,12 @@ public class FileWriter {
    * increasing a reference count as appropriate.
    */
   public ListenableFuture<Void> writeAndClose(ByteBuffer data) {
-    ByteBuf nextBuf = Unpooled.wrappedBuffer(data);
+    return CompletableFuturesExtra.toListenableFuture(writeAndClose(Unpooled.wrappedBuffer(data)));
+  }
 
+  public CompletableFuture<Void> writeAndClose(ByteBuf data) {
     if (unfinishedChunk == null) {
-      return uploadChunk(nextBuf, true);
+      return uploadChunk(data, true);
     } else {
       ByteBuf nextChunk = unfinishedChunk;
       unfinishedChunk = null;
@@ -207,8 +209,8 @@ public class FileWriter {
     }
   }
 
-  private ListenableFuture<Void> uploadChunk(ByteBuf chunk, boolean endOfFile) {
-    return CompletableFuturesExtra.toListenableFuture(doUploadChunk(chunk, endOfFile));
+  private CompletableFuture<Void> uploadChunk(ByteBuf chunk, boolean endOfFile) {
+    return doUploadChunk(chunk, endOfFile);
   }
 
   private CompletableFuture<Void> doUploadChunk(ByteBuf chunk, boolean endOfFile) {

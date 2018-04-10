@@ -46,7 +46,7 @@ public abstract class GcloudModule {
 
   @Provides
   @Singleton
-  static GcloudConfig config(Config config) {
+  public static GcloudConfig config(Config config) {
     return ConfigBeanFactory.create(config.getConfig("gcloud"), ModifiableGcloudConfig.class)
         .toImmutable();
   }
@@ -54,7 +54,7 @@ public abstract class GcloudModule {
   @Provides
   @Singleton
   @GoogleApis
-  static HttpClient googleApisClient() {
+  public static HttpClient googleApisClient() {
     return new ClientBuilder("none+https://www.googleapis.com/")
         .decorator(HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator())
         .build(HttpClient.class);
@@ -63,7 +63,7 @@ public abstract class GcloudModule {
   @Provides
   @Singleton
   @RetryingGoogleApis
-  static HttpClient retryingGoogleApisClient(@GoogleApis HttpClient googleApisClient) {
+  public static HttpClient retryingGoogleApisClient(@GoogleApis HttpClient googleApisClient) {
     return Clients.newDerivedClient(
         googleApisClient,
         ClientOption.DECORATION.newValue(

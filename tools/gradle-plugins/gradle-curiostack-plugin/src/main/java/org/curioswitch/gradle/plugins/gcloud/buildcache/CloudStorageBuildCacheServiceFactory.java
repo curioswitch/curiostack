@@ -26,13 +26,28 @@ package org.curioswitch.gradle.plugins.gcloud.buildcache;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
+import com.google.auth.Credentials;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.linecorp.armeria.client.HttpClient;
+import java.io.IOException;
+import java.time.Clock;
+import org.curioswitch.curiostack.gcloud.core.GcloudModule;
+import org.curioswitch.curiostack.gcloud.core.auth.AccessTokenProvider;
+import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
+import org.curioswitch.curiostack.gcloud.core.auth.GoogleCredentialsDecoratingClient;
+import org.curioswitch.curiostack.gcloud.storage.StorageClient;
+import org.curioswitch.curiostack.gcloud.storage.StorageConfig;
 import org.gradle.caching.BuildCacheService;
 import org.gradle.caching.BuildCacheServiceFactory;
+import org.gradle.caching.internal.NoOpBuildCacheService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CloudStorageBuildCacheServiceFactory
     implements BuildCacheServiceFactory<CloudStorageBuildCache> {
+
+  private static final Logger logger =
+      LoggerFactory.getLogger(CloudStorageBuildCacheServiceFactory.class);
 
   @Override
   public BuildCacheService createBuildCacheService(
@@ -41,9 +56,28 @@ public class CloudStorageBuildCacheServiceFactory
 
     describer.type("Google Cloud Storage Build Cache").config("bucket", buildCache.getBucket());
 
-    Storage cloudStorage =
-        StorageOptions.newBuilder().setProjectId(buildCache.getProject()).build().getService();
+    final Credentials credentials;
+    try {
+      credentials = GoogleCredentials.getApplicationDefault();
+    } catch (IOException e) {
+      logger.warn(
+          "Could not load Google credentials - did you run "
+              + "./gradlew :gcloud_auth_application-default_login? Disabling build cache.");
+      return new NoOpBuildCacheService();
+    }
+    HttpClient googleApis = GcloudModule.googleApisClient();
+    AccessTokenProvider.Factory accessTokenProviderFactory =
+        new AccessTokenProvider.Factory(googleApis, Clock.systemUTC());
+    AccessTokenProvider accessTokenProvider = accessTokenProviderFactory.create(credentials);
+    GoogleCredentialsDecoratingClient.Factory credentialsDecoratorFactory =
+        new GoogleCredentialsDecoratingClient.Factory(accessTokenProvider);
+    HttpClient authenticatedGoogleApis =
+        GcloudAuthModule.authenticatedGoogleApisClient(googleApis, credentialsDecoratorFactory);
 
-    return new CloudStorageBuildCacheService(cloudStorage, buildCache.getBucket());
+    StorageClient storageClient =
+        new StorageClient(
+            authenticatedGoogleApis,
+            new StorageConfig.Builder().bucket(buildCache.getBucket()).build());
+    return new CloudStorageBuildCacheService(storageClient);
   }
 }

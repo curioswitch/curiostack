@@ -41,6 +41,8 @@ import org.immutables.value.Value.Style.BuilderVisibility;
 )
 public interface StorageConfig {
 
+  class Builder extends ImmutableStorageConfig.Builder {}
+
   /** The bucket to upload files to. */
   String getBucket();
 }

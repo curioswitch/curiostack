@@ -24,15 +24,14 @@
 
 package org.curioswitch.gradle.plugins.gcloud.buildcache;
 
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
+import com.google.common.collect.ImmutableMap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.PooledByteBufAllocator;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
-import java.nio.channels.Channels;
+import org.curioswitch.curiostack.gcloud.storage.FileWriter;
+import org.curioswitch.curiostack.gcloud.storage.StorageClient;
 import org.gradle.caching.BuildCacheEntryReader;
 import org.gradle.caching.BuildCacheEntryWriter;
 import org.gradle.caching.BuildCacheKey;
@@ -42,58 +41,52 @@ import org.slf4j.LoggerFactory;
 
 public class CloudStorageBuildCacheService implements BuildCacheService {
 
-  private static final String BUILD_CACHE_CONTENT_TYPE =
-      "application/vnd.gradle.build-cache-artifact";
-
   private static final Logger logger = LoggerFactory.getLogger(CloudStorageBuildCacheService.class);
 
-  private final Storage cloudStorage;
-  private final String bucket;
+  private final StorageClient cloudStorage;
 
-  CloudStorageBuildCacheService(Storage cloudStorage, String bucket) {
+  CloudStorageBuildCacheService(StorageClient cloudStorage) {
     this.cloudStorage = cloudStorage;
-    this.bucket = bucket;
   }
 
   @Override
   public boolean load(BuildCacheKey buildCacheKey, BuildCacheEntryReader buildCacheEntryReader) {
-    try {
-      Blob blob = cloudStorage.get(cacheKeyToBlobId(buildCacheKey));
-      if (blob == null || !blob.exists()) {
-        return false;
-      }
-      try (InputStream is = Channels.newInputStream(blob.reader())) {
-        buildCacheEntryReader.readFrom(is);
-      }
-    } catch (Exception e) {
-      logger.warn(
-          "Exception when trying to read from cloud storage, this usually means gcloud "
-              + "auth application-default login has not been called. Builds may be slower.",
-          e);
+    ByteBuf data = cloudStorage.readFile(buildCacheKey.getHashCode()).join();
+    if (data == null) {
       return false;
+    }
+    try (ByteBufInputStream s = new ByteBufInputStream(data)) {
+      buildCacheEntryReader.readFrom(s);
+    } catch (IOException e) {
+      logger.warn("Exception processing cloud storage data.", e);
+      return false;
+    } finally {
+      data.release();
     }
     return true;
   }
 
   @Override
   public void store(BuildCacheKey buildCacheKey, BuildCacheEntryWriter buildCacheEntryWriter) {
-    Blob blob = cloudStorage.get(cacheKeyToBlobId(buildCacheKey));
-    if (blob == null || !blob.exists()) {
-      blob =
-          cloudStorage.create(
-              BlobInfo.newBuilder(cacheKeyToBlobId(buildCacheKey))
-                  .setContentType(BUILD_CACHE_CONTENT_TYPE)
-                  .build());
-    }
-    try (OutputStream os = Channels.newOutputStream(blob.writer())) {
-      buildCacheEntryWriter.writeTo(os);
-    } catch (IOException e) {
-      throw new UncheckedIOException("Error writing file from cloud storage.", e);
-    }
-  }
+    ByteBuf buf = PooledByteBufAllocator.DEFAULT.buffer((int) buildCacheEntryWriter.getSize());
+    boolean success = false;
+    try {
+      try (ByteBufOutputStream os = new ByteBufOutputStream(buf)) {
+        buildCacheEntryWriter.writeTo(os);
+      } catch (IOException e) {
+        logger.warn("Couldn't write cache entry to buffer.", e);
+        return;
+      }
 
-  private BlobId cacheKeyToBlobId(BuildCacheKey buildCacheKey) {
-    return BlobId.of(bucket, buildCacheKey.getHashCode());
+      FileWriter writer =
+          cloudStorage.createFile(buildCacheKey.getHashCode(), ImmutableMap.of()).join();
+      writer.writeAndClose(buf).join();
+      success = true;
+    } finally {
+      if (!success) {
+        buf.release();
+      }
+    }
   }
 
   @Override

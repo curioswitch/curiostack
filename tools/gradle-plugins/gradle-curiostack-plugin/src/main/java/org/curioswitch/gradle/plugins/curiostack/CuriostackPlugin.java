@@ -719,11 +719,6 @@ public class CuriostackPlugin implements Plugin<Project> {
     envs.condaenv("build", "2.7", "miniconda2");
     envs.condaenv("dev", "2.7", "miniconda2");
 
-    rootProject
-        .getTasks()
-        .getByName("build_envs")
-        .doLast(t -> rootProject.delete(CommandUtil.getCondaBaseDir(rootProject).resolve("pkgs")));
-
     rootProject.getTasks().create("pythonSetup", t -> t.dependsOn("build_envs"));
   }
 
