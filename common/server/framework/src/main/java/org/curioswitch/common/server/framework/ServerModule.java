@@ -402,7 +402,8 @@ public abstract class ServerModule {
           authServiceBuilder.addOAuth2(
               googleIdAuthorizer.get().create(sslCommonNamesProvider.get()),
               Constants.X_CLUSTER_AUTHORIZATION);
-        } else if (!serverConfig.isDisableSslAuthorization()) {
+        }
+        if (!serverConfig.isDisableSslAuthorization()) {
           authServiceBuilder.add(new SslAuthorizer(sslCommonNamesProvider.get()));
         }
         service = service.decorate(authServiceBuilder.newDecorator());
