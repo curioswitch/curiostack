@@ -70,7 +70,7 @@ public class CurioServerPlugin implements Plugin<Project> {
           GroovyObject docker = project.getExtensions().getByType(DockerExtension.class);
           DockerJavaApplication javaApplication =
               (DockerJavaApplication) docker.getProperty("javaApplication");
-          javaApplication.setBaseImage("openjdk:10-jre-slim");
+          javaApplication.setBaseImage("openjdk:9-jre-slim");
 
           project.getTasks().getByName("build").dependsOn("dockerDistTar");
 
