@@ -87,9 +87,14 @@ public class FileWriter {
       } else {
         unfinishedChunk = null;
       }
+
+      String url =
+          state.getUploadUrl().startsWith("/upload/storage/v1")
+              ? state.getUploadUrl()
+              : "/upload/storage/v1" + state.getUploadUrl();
+
       FileWriter writer =
-          new FileWriter(
-              state.getUploadUrl(), ctx, httpClient, state.getFilePosition(), unfinishedChunk);
+          new FileWriter(url, ctx, httpClient, state.getFilePosition(), unfinishedChunk);
       return immediateFuture(writer);
     }
   }
