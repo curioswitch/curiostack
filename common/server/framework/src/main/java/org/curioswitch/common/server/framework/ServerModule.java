@@ -111,6 +111,7 @@ import org.curioswitch.common.server.framework.config.MonitoringConfig;
 import org.curioswitch.common.server.framework.config.SecurityConfig;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.files.FileWatcher;
+import org.curioswitch.common.server.framework.files.WatchedPath;
 import org.curioswitch.common.server.framework.filter.IpFilteringService;
 import org.curioswitch.common.server.framework.grpc.GrpcServiceDefinition;
 import org.curioswitch.common.server.framework.inject.EagerInit;
@@ -275,6 +276,7 @@ public abstract class ServerModule {
       Set<GrpcServiceDefinition> grpcServiceDefinitions,
       Set<StaticSiteServiceDefinition> staticSites,
       Set<Consumer<ServerBuilder>> serverCustomizers,
+      Set<WatchedPath> watchedPaths,
       MetricsHttpService metricsHttpService,
       CollectorRegistry collectorRegistry,
       MeterRegistry meterRegistry,
@@ -297,6 +299,10 @@ public abstract class ServerModule {
       SecurityConfig securityConfig,
       // Eagerly trigger bindings that are present, not actually used here.
       @EagerInit Set<Object> eagerInitializedDependencies) {
+    for (WatchedPath watched : watchedPaths) {
+      fileWatcherBuilder.registerPath(watched.getPath(), watched.getHandler());
+    }
+
     if (!sslCommonNamesProvider.isPresent()
         && !serverConfig.getRpcAclsPath().isEmpty()
         && !serverConfig.isDisableSslAuthorization()) {
