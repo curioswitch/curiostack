@@ -41,6 +41,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -52,6 +53,7 @@ public class FileWatcher implements AutoCloseable {
 
   private static final Logger logger = LogManager.getLogger();
 
+  @Singleton
   public static class Builder {
     private final Map<Path, Consumer<Path>> registeredPaths;
 

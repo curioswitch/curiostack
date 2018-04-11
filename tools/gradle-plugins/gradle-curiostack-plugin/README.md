@@ -95,7 +95,7 @@ gcloud {
   clusterBaseName = 'curioswitch'
   cloudRegion = 'asia-northeast1'
   clusterZone = 'asia-northeast1-a' // default value
-  clusterAdditionalZones = 'asia-northeast1-c' // default value
+  clusterAdditionalZones = ['asia-northeast1-c'] // default value
   clusterNumNodesPerZone = 2
   // Check release notes to see what the latest version of Kubernetes is. By default, it will use
   // the GKE default, which is not always the latest version.
@@ -126,6 +126,9 @@ open to the tasks themselves to make it easier to activate the APIs.
 ```bash
 # Downloads and sets up the gcloud sdk
 $ ./gradlew :gcloudSetup
+
+# Login to your Google account
+$ ./gradlew :gcloud_auth_login
 
 # Creates the GCP project that will host the cluster, continuous build, etc
 $ ./gradlew :gcloudCreateClusterProject
