@@ -112,7 +112,7 @@
     "zopfli-webpack-plugin": "0.1.0"
   },
   "devDependencies": {
-    "@curiostack/base-node-dev": "0.0.3",
+    "@curiostack/base-node-dev": "0.0.4",
     "@types/fontfaceobserver": "0.0.6",
     "@types/fs-extra": "5.0.1",
     "@types/handlebars": "4.0.36",
