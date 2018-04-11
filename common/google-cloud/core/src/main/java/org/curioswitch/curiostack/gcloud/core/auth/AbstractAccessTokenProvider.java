@@ -30,6 +30,7 @@ import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.auth.oauth2.AccessToken;
 import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.common.AggregatedHttpMessage;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpHeaders;
@@ -90,14 +91,19 @@ abstract class AbstractAccessTokenProvider implements AccessTokenProvider {
     return cachedAccessToken.get(Type.ID_TOKEN).thenApply(AccessToken::getTokenValue);
   }
 
-  private CompletableFuture<AccessToken> refresh(Type type) {
+  protected CompletableFuture<AggregatedHttpMessage> fetchToken(
+      Type type, HttpClient googleApisClient) {
     HttpData data = new ByteBufHttpData(refreshRequestContent(type), true);
     return googleApisClient
         .execute(
             HttpHeaders.of(HttpMethod.POST, TOKEN_PATH)
                 .set(HttpHeaderNames.CONTENT_TYPE, "application/x-www-form-urlencoded"),
             data)
-        .aggregate()
+        .aggregate();
+  }
+
+  private CompletableFuture<AccessToken> refresh(Type type) {
+    return fetchToken(type, googleApisClient)
         .thenApply(
             msg -> {
               final TokenResponse response;
