@@ -187,6 +187,9 @@ public abstract class ServerModule {
   abstract Set<Consumer<ServerBuilder>> serverCustomizers();
 
   @Multibinds
+  abstract Set<WatchedPath> watchedPaths();
+
+  @Multibinds
   @EagerInit
   abstract Set<Object> eagerInitializedDependencies();
 
