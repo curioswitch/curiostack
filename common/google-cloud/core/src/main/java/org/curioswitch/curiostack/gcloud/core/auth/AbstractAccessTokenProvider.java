@@ -91,8 +91,7 @@ abstract class AbstractAccessTokenProvider implements AccessTokenProvider {
     return cachedAccessToken.get(Type.ID_TOKEN).thenApply(AccessToken::getTokenValue);
   }
 
-  protected CompletableFuture<AggregatedHttpMessage> fetchToken(
-      Type type, HttpClient googleApisClient) {
+  protected CompletableFuture<AggregatedHttpMessage> fetchToken(Type type) {
     HttpData data = new ByteBufHttpData(refreshRequestContent(type), true);
     return googleApisClient
         .execute(
@@ -103,7 +102,7 @@ abstract class AbstractAccessTokenProvider implements AccessTokenProvider {
   }
 
   private CompletableFuture<AccessToken> refresh(Type type) {
-    return fetchToken(type, googleApisClient)
+    return fetchToken(type)
         .thenApply(
             msg -> {
               final TokenResponse response;

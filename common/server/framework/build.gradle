@@ -29,7 +29,7 @@ archivesBaseName = 'curio-server-framework'
 
 // Spring dependencies plugin is not aware of classifiers. Eventually see if netflix plugins work
 // better (it is possibly a limitation of gradle itself).
-def sfmVersion = '3.17.1'
+def sfmVersion = '3.17.2'
 
 dependencies {
     api project(':common:google-cloud:iam')

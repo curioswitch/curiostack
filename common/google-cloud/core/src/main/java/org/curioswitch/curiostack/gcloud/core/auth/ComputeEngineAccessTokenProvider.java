@@ -32,6 +32,7 @@ import com.linecorp.armeria.common.HttpHeaders;
 import com.linecorp.armeria.common.HttpMethod;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.AsciiString;
+import java.net.URI;
 import java.time.Clock;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -51,12 +52,14 @@ class ComputeEngineAccessTokenProvider extends AbstractAccessTokenProvider {
   }
 
   @Override
-  protected CompletableFuture<AggregatedHttpMessage> fetchToken(
-      Type type, HttpClient googleApisClient) {
-    return googleApisClient
+  protected CompletableFuture<AggregatedHttpMessage> fetchToken(Type type) {
+    URI uri = URI.create(ComputeEngineCredentials.getTokenServerEncodedUrl());
+    // In practice, this URL shouldn't change at runtime but it's not infeasible, and since this
+    // shouldn't be executed often, just create a client every time.
+    HttpClient client = HttpClient.of(uri.resolve("/"));
+    return client
         .execute(
-            HttpHeaders.of(HttpMethod.GET, ComputeEngineCredentials.getTokenServerEncodedUrl())
-                .set(METADATA_FLAVOR_HEADER, "Google"))
+            HttpHeaders.of(HttpMethod.GET, uri.getPath()).set(METADATA_FLAVOR_HEADER, "Google"))
         .aggregate();
   }
 }
