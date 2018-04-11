@@ -26,8 +26,10 @@ package org.curioswitch.curiostack.gcloud.storage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.net.UrlEscapers;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpHeaders;
@@ -39,11 +41,16 @@ import com.linecorp.armeria.common.RequestContext;
 import com.linecorp.armeria.unsafe.ByteBufHttpData;
 import com.spotify.futures.CompletableFuturesExtra;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.EventLoop;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.curioswitch.curiostack.gcloud.core.auth.RetryingAuthenticatedGoogleApis;
@@ -62,6 +69,7 @@ public class StorageClient {
   private final HttpClient httpClient;
 
   private final String uploadUrl;
+  private final String readUrlPrefix;
 
   @Inject
   public StorageClient(
@@ -69,13 +77,26 @@ public class StorageClient {
     this.httpClient = httpClient;
 
     uploadUrl = "/upload/storage/v1/b/" + config.getBucket() + "/o?uploadType=resumable";
+    readUrlPrefix = "/storage/v1/b/" + config.getBucket() + "/o/";
   }
 
   /** Create a new file for uploading data to cloud storage. */
   public ListenableFuture<FileWriter> createFile(
       String filename, Map<String, String> metadata, RequestContext ctx) {
+    return CompletableFuturesExtra.toListenableFuture(
+        createFile(filename, metadata, ctx.eventLoop(), ctx.alloc()));
+  }
+
+  public CompletableFuture<FileWriter> createFile(String filename, Map<String, String> metadata) {
+    return createFile(
+        filename, metadata, CommonPools.workerGroup().next(), PooledByteBufAllocator.DEFAULT);
+  }
+
+  /** Create a new file for uploading data to cloud storage. */
+  public CompletableFuture<FileWriter> createFile(
+      String filename, Map<String, String> metadata, EventLoop eventLoop, ByteBufAllocator alloc) {
     FileRequest request = ImmutableFileRequest.builder().name(filename).metadata(metadata).build();
-    ByteBuf buf = ctx.alloc().buffer();
+    ByteBuf buf = alloc.buffer();
     try (ByteBufOutputStream os = new ByteBufOutputStream(buf)) {
       OBJECT_MAPPER.writeValue((DataOutput) os, request);
     } catch (IOException e) {
@@ -88,27 +109,64 @@ public class StorageClient {
     HttpHeaders headers =
         HttpHeaders.of(HttpMethod.POST, uploadUrl).contentType(MediaType.JSON_UTF_8);
     HttpResponse res = httpClient.execute(headers, data);
-    return CompletableFuturesExtra.toListenableFuture(
-        res.aggregate(ctx.contextAwareEventLoop())
-            .handle(
-                (msg, t) -> {
-                  if (t != null) {
-                    throw new RuntimeException("Unexpected error creating new file.", t);
-                  }
+    return res.aggregate(eventLoop)
+        .handle(
+            (msg, t) -> {
+              if (t != null) {
+                throw new RuntimeException("Unexpected error creating new file.", t);
+              }
 
-                  HttpHeaders responseHeaders = msg.headers();
-                  if (!responseHeaders.status().equals(HttpStatus.OK)) {
-                    throw new RuntimeException(
-                        "Non-successful response when creating new file: "
-                            + responseHeaders
-                            + "\n"
-                            + msg.content().toStringUtf8());
-                  }
+              HttpHeaders responseHeaders = msg.headers();
+              if (!responseHeaders.status().equals(HttpStatus.OK)) {
+                throw new RuntimeException(
+                    "Non-successful response when creating new file: "
+                        + responseHeaders
+                        + "\n"
+                        + msg.content().toStringUtf8());
+              }
 
-                  String location = responseHeaders.get(HttpHeaderNames.LOCATION);
-                  String pathAndQuery = location.substring("https://www.googleapis.com".length());
-                  return new FileWriter(pathAndQuery, ctx, httpClient);
-                }));
+              String location = responseHeaders.get(HttpHeaderNames.LOCATION);
+              String pathAndQuery = location.substring("https://www.googleapis.com".length());
+              return new FileWriter(pathAndQuery, alloc, eventLoop, httpClient);
+            });
+  }
+
+  /**
+   * Reads the contents of a file from cloud storage. Ownership of the returned {@link ByteBuf} is
+   * transferred to the caller, which must release it. The future will complete with {@code null} if
+   * the file is not found.
+   */
+  public CompletableFuture<ByteBuf> readFile(String filename) {
+    return readFile(filename, CommonPools.workerGroup().next(), PooledByteBufAllocator.DEFAULT);
+  }
+
+  /**
+   * Reads the contents of a file from cloud storage. Ownership of the returned {@link ByteBuf} is
+   * transferred to the caller, which must release it. The future will complete with {@code null} if
+   * the file is not found.
+   */
+  public CompletableFuture<ByteBuf> readFile(
+      String filename, EventLoop eventLoop, ByteBufAllocator alloc) {
+    String url =
+        readUrlPrefix + UrlEscapers.urlPathSegmentEscaper().escape(filename) + "?alt=media";
+
+    return httpClient
+        .get(url)
+        .aggregateWithPooledObjects(eventLoop, alloc)
+        .thenApply(
+            msg -> {
+              if (msg.status().equals(HttpStatus.NOT_FOUND)) {
+                return null;
+              }
+              HttpData data = msg.content();
+              if (data instanceof ByteBufHolder) {
+                return ((ByteBufHolder) msg.content()).content();
+              } else {
+                ByteBuf buf = alloc.buffer(data.length());
+                buf.writeBytes(data.array(), data.offset(), data.length());
+                return buf;
+              }
+            });
   }
 
   @Immutable

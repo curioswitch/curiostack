@@ -88,6 +88,7 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ResolutionStrategy;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.plugins.BasePlugin;
@@ -420,9 +421,11 @@ public class CuriostackPlugin implements Plugin<Project> {
     project
         .getConfigurations()
         .all(
-            configuration ->
-                configuration.exclude(
-                    ImmutableMap.of("group", "com.google.guava", "module", "guava-jdk5")));
+            configuration -> {
+              configuration.resolutionStrategy(ResolutionStrategy::preferProjectModules);
+              configuration.exclude(
+                  ImmutableMap.of("group", "com.google.guava", "module", "guava-jdk5"));
+            });
 
     Javadoc javadoc = (Javadoc) project.getTasks().getByName("javadoc");
     CoreJavadocOptions options = (CoreJavadocOptions) javadoc.getOptions();

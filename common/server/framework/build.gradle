@@ -29,7 +29,7 @@ archivesBaseName = 'curio-server-framework'
 
 // Spring dependencies plugin is not aware of classifiers. Eventually see if netflix plugins work
 // better (it is possibly a limitation of gradle itself).
-def sfmVersion = '3.16.2'
+def sfmVersion = '3.17.2'
 
 dependencies {
     api project(':common:google-cloud:iam')
@@ -65,7 +65,7 @@ dependencies {
     implementation 'io.grpc:grpc-services'
     implementation 'io.prometheus:simpleclient_hotspot'
     implementation 'io.prometheus:simpleclient_log4j2'
-    implementation 'io.zipkin.gcp:zipkin-storage-stackdriver'
+    implementation 'io.zipkin.gcp:zipkin-translation-stackdriver'
     implementation 'org.apache.logging.log4j:log4j-core'
     implementation 'org.apache.logging.log4j:log4j-jcl'
     implementation 'org.apache.logging.log4j:log4j-jul'

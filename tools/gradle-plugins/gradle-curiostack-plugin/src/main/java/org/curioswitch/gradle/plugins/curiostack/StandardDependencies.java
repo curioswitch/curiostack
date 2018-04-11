@@ -103,17 +103,17 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.24.0")
+              .version("1.25.0")
               .addModules("google-cloud-bigquery", "google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.42.0-alpha")
+              .version("0.43.0-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.42.0-beta")
+              .version("0.43.0-beta")
               .addModules("google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
@@ -154,7 +154,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.59.0")
+              .version("0.62.0")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -185,7 +185,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.zaxxer")
-              .version("2.7.8")
+              .version("3.0.0")
               .addModules("HikariCP")
               .build(),
           ImmutableDependencySet.builder()
@@ -224,12 +224,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.micrometer")
-              .version("1.0.2")
+              .version("1.0.3")
               .addModules("micrometer-core", "micrometer-registry-prometheus")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("4.1.22.Final")
+              .version("4.1.23.Final")
               .addModules(
                   "netty-buffer",
                   "netty-codec",
@@ -247,7 +247,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("2.0.7.Final")
+              .version("2.0.8.Final")
               .addModules("netty-tcnative-boringssl-static")
               .build(),
           ImmutableDependencySet.builder()
@@ -257,13 +257,13 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("4.18.2")
+              .version("4.19.0")
               .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.gcp")
-              .version("0.1.0")
-              .addModules("zipkin-storage-stackdriver")
+              .version("0.3.1")
+              .addModules("zipkin-translation-stackdriver")
               .build(),
           ImmutableDependencySet.builder()
               .group("javax.inject")
@@ -277,7 +277,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.8.1")
+              .version("1.8.3")
               .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
@@ -317,7 +317,15 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.65")
+              .version("0.0.22")
+              .addModules(
+                  "armeria-google-cloud-core",
+                  "armeria-google-cloud-iam",
+                  "armeria-google-cloud-storage")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("org.curioswitch.curiostack")
+              .version("0.0.67")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -352,17 +360,17 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.junit.jupiter")
-              .version("5.1.0")
+              .version("5.1.1")
               .addModules("junit-jupiter-api", "junit-jupiter-engine")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.junit.vintage")
-              .version("5.1.0")
+              .version("5.1.1")
               .addModules("junit-vintage-engine")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")
-              .version("2.17.0")
+              .version("2.18.0")
               .addModules("mockito-core", "mockito-junit-jupiter")
               .build(),
           ImmutableDependencySet.builder()
@@ -391,7 +399,7 @@ class StandardDependencies {
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.21",
           "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
-          "io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE",
+          "io.spring.gradle:dependency-management-plugin:1.0.5.RELEASE",
           "javax.activation:activation:1.1.1",
           "javax.annotation:javax.annotation-api:1.3.2",
           "javax.xml.bind:jaxb-api:2.3.0",

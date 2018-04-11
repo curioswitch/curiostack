@@ -24,43 +24,42 @@
 
 package org.curioswitch.curiostack.gcloud.core.auth;
 
-import com.google.auth.Credentials;
 import com.google.auth.oauth2.ComputeEngineCredentials;
-import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.auth.oauth2.UserCredentials;
 import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.common.AggregatedHttpMessage;
+import com.linecorp.armeria.common.HttpHeaderNames;
+import com.linecorp.armeria.common.HttpHeaders;
+import com.linecorp.armeria.common.HttpMethod;
+import io.netty.buffer.ByteBuf;
+import io.netty.util.AsciiString;
+import java.net.URI;
 import java.time.Clock;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
-import org.curioswitch.curiostack.gcloud.core.RetryingGoogleApis;
 
-public interface AccessTokenProvider {
+class ComputeEngineAccessTokenProvider extends AbstractAccessTokenProvider {
 
-  class Factory {
-    private final HttpClient googleAccountsClient;
-    private final Clock clock;
+  private static final AsciiString METADATA_FLAVOR_HEADER = HttpHeaderNames.of("Metadata-Flavor");
 
-    @Inject
-    public Factory(@RetryingGoogleApis HttpClient googleApisClient, Clock clock) {
-      this.googleAccountsClient = googleApisClient;
-      this.clock = clock;
-    }
-
-    public AccessTokenProvider create(Credentials credentials) {
-      if (credentials instanceof UserCredentials) {
-        return new UserCredentialsAccessTokenProvider(
-            googleAccountsClient, clock, (UserCredentials) credentials);
-      } else if (credentials instanceof ServiceAccountCredentials) {
-        return new ServiceAccountAccessTokenProvider(
-            googleAccountsClient, clock, (ServiceAccountCredentials) credentials);
-      } else if (credentials instanceof ComputeEngineCredentials) {
-        return new ComputeEngineAccessTokenProvider(googleAccountsClient, clock);
-      }
-      throw new IllegalArgumentException("Unsupported credentials type: " + credentials);
-    }
+  @Inject
+  ComputeEngineAccessTokenProvider(HttpClient googleApisClient, Clock clock) {
+    super(googleApisClient, clock);
   }
 
-  CompletableFuture<String> getAccessToken();
+  @Override
+  ByteBuf refreshRequestContent(Type type) {
+    throw new UnsupportedOperationException("Compute Engine access token uses GET request.");
+  }
 
-  CompletableFuture<String> getGoogleIdToken();
+  @Override
+  protected CompletableFuture<AggregatedHttpMessage> fetchToken(Type type) {
+    URI uri = URI.create(ComputeEngineCredentials.getTokenServerEncodedUrl());
+    // In practice, this URL shouldn't change at runtime but it's not infeasible, and since this
+    // shouldn't be executed often, just create a client every time.
+    HttpClient client = HttpClient.of(uri.resolve("/"));
+    return client
+        .execute(
+            HttpHeaders.of(HttpMethod.GET, uri.getPath()).set(METADATA_FLAVOR_HEADER, "Google"))
+        .aggregate();
+  }
 }
