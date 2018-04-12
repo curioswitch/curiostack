@@ -33,6 +33,14 @@ declare module 'intl/locale-data/jsonp/*.js' {
 
 }
 
+declare module 'jest-cli' {
+  export interface Argv {
+    config: string;
+    watch: boolean;
+  }
+  export async function run(maybeArgv?: string[]);
+}
+
 declare module '*.json' {
   const value: {
     version: string;
