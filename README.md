@@ -1,6 +1,10 @@
 # curiostack
 Full stack to help satisfy curiosity
 
+## Set up
+
+See gradle-curiostack-plugin [README](tools/gradle-plugins/gradle-curiostack-plugin/README.md) for setting up the gradle plugins.
+
 ## Developing
 
 Curiostack requires JDK9. For Ubuntu / Debian users, the included OpenJDK9 will not work due to an
