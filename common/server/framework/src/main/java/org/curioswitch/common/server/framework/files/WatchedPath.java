@@ -29,9 +29,7 @@ import java.util.function.Consumer;
 import org.curioswitch.common.server.framework.immutables.CurioStyle;
 import org.immutables.value.Value.Immutable;
 
-/**
- * A {@link Path} to watch for changes. Any time the file changes, the handler will be called.
- */
+/** A {@link Path} to watch for changes. Any time the file changes, the handler will be called. */
 @Immutable
 @CurioStyle
 public interface WatchedPath {

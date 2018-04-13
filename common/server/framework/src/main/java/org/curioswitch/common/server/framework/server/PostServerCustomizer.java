@@ -22,27 +22,10 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
+package org.curioswitch.common.server.framework.server;
 
-archivesBaseName = 'curio-gateway-server'
-mainClassName = 'org.curioswitch.curiostack.gateway.GatewayMain'
+import com.linecorp.armeria.server.ServerBuilder;
+import java.util.function.Consumer;
 
-dependencies {
-    compile project(':common:server:framework')
-
-    compile 'com.fasterxml.jackson.core:jackson-databind'
-    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
-    compile 'com.google.guava:guava'
-
-    annotationProcessor 'com.google.dagger:dagger-compiler'
-
-    annotationProcessor 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
-}
-
-docker {
-    javaApplication {
-        maintainer = 'Choko (choko@curioswitch.org)'
-    }
-}
+@FunctionalInterface
+public interface PostServerCustomizer extends Consumer<ServerBuilder> {}

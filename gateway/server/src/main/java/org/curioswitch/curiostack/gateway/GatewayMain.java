@@ -24,18 +24,33 @@
 
 package org.curioswitch.curiostack.gateway;
 
+import com.linecorp.armeria.server.PathMapping;
+import com.linecorp.armeria.server.Server;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigBeanFactory;
+import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
+import dagger.multibindings.IntoSet;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.inject.Singleton;
 import org.curioswitch.common.server.framework.ServerModule;
 import org.curioswitch.common.server.framework.files.FileWatcher;
+import org.curioswitch.common.server.framework.server.PostServerCustomizer;
 
 public class GatewayMain {
 
   @Module(includes = ServerModule.class)
   abstract static class GatewayModule {
+
+    @Provides
+    @Singleton
+    static GatewayConfig gatewayConfig(Config config) {
+      return ((ModifiableGatewayConfig)
+              ConfigBeanFactory.create(config.getConfig("gateway"), ModifiableGatewayConfig.class))
+          .toImmutable();
+    }
 
     @Provides
     @Singleton
@@ -46,7 +61,27 @@ public class GatewayMain {
       fileWatcherBuilder.registerPath(configPath, path -> service.updateClients(loader.load(path)));
       return service;
     }
+
+    @Provides
+    @IntoSet
+    static PostServerCustomizer serverCustomizer(RoutingService routingService) {
+      return (sb) -> {
+        sb.service(PathMapping.ofCatchAll(), routingService);
+      };
+    }
+
+    private GatewayModule() {}
   }
 
-  public static void main(String[] args) {}
+  @Singleton
+  @Component(modules = GatewayModule.class)
+  interface ServerComponent {
+    Server server();
+  }
+
+  public static void main(String[] args) {
+    DaggerGatewayMain_ServerComponent.create().server();
+  }
+
+  private GatewayMain() {}
 }

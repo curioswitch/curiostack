@@ -24,7 +24,10 @@
 
 package org.curioswitch.curiostack.gateway;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.common.Flags;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
@@ -38,41 +41,72 @@ import com.linecorp.armeria.server.VirtualHost;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 class RoutingService implements HttpService {
 
+  private static final Logger logger = LogManager.getLogger();
+
+  @Nullable private final LoadingCache<PathOnlyMappingContext, HttpClient> pathClients;
+  private final boolean cachePaths;
+
   private volatile Map<PathMapping, HttpClient> clients;
 
+  @SuppressWarnings("ConstructorLeaksThis")
   RoutingService(Map<PathMapping, HttpClient> clients) {
     this.clients = clients;
+
+    cachePaths = Flags.parsedPathCacheSpec().isPresent();
+    pathClients =
+        Flags.parsedPathCacheSpec().map(spec -> Caffeine.from(spec).build(this::find)).orElse(null);
   }
 
   @Override
   public HttpResponse serve(ServiceRequestContext ctx, HttpRequest req) {
     PathOnlyMappingContext mappingContext = new PathOnlyMappingContext(ctx);
+    final HttpClient client;
+    if (pathClients != null && mappingContext.query() == null) {
+      client = pathClients.get(mappingContext);
+    } else {
+      client = find(mappingContext);
+    }
+    return client == null ? HttpResponse.of(HttpStatus.NOT_FOUND) : client.execute(req);
+  }
 
+  @Override
+  public boolean shouldCachePath(String path, @Nullable String query, PathMapping pathMapping) {
+    return this.cachePaths;
+  }
+
+  @Nullable
+  private HttpClient find(PathOnlyMappingContext mappingContext) {
     return clients
         .entrySet()
         .stream()
         .filter(entry -> entry.getKey().apply(mappingContext).isPresent())
         .map(Entry::getValue)
         .findFirst()
-        .map(httpClient -> httpClient.execute(req))
-        .orElseGet(() -> HttpResponse.of(HttpStatus.NOT_FOUND));
+        .orElse(null);
   }
 
   void updateClients(Map<PathMapping, HttpClient> clients) {
+    logger.info("Updating router targets.");
     this.clients = clients;
+    pathClients.invalidateAll();
   }
 
   private static class PathOnlyMappingContext implements PathMappingContext {
 
-    private final ServiceRequestContext ctx;
+    private final String path;
+    @Nullable private final String query;
 
     private PathOnlyMappingContext(ServiceRequestContext ctx) {
-      this.ctx = ctx;
+      this.path = ctx.path();
+      this.query = ctx.query();
     }
 
     @Override
@@ -92,13 +126,13 @@ class RoutingService implements HttpService {
 
     @Override
     public String path() {
-      return ctx.path();
+      return path;
     }
 
     @Nullable
     @Override
     public String query() {
-      return ctx.query();
+      return query;
     }
 
     @Nullable
@@ -126,6 +160,27 @@ class RoutingService implements HttpService {
     @Override
     public Optional<Throwable> delayedThrowable() {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof PathOnlyMappingContext)) {
+        return false;
+      }
+
+      PathOnlyMappingContext that = (PathOnlyMappingContext) o;
+
+      return path.equals(that.path) && Objects.equals(query, that.query);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = path.hashCode();
+      result = 31 * result + (query != null ? query.hashCode() : 0);
+      return result;
     }
   }
 }

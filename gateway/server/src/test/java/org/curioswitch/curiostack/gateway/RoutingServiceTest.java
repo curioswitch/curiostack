@@ -29,7 +29,5 @@ import org.junit.Test;
 public class RoutingServiceTest {
 
   @Test
-  public void normal() {
-    
-  }
+  public void normal() {}
 }

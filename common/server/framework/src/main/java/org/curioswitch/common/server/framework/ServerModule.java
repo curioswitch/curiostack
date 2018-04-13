@@ -121,6 +121,7 @@ import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
 import org.curioswitch.common.server.framework.monitoring.StackdriverReporter;
 import org.curioswitch.common.server.framework.security.HttpsOnlyService;
 import org.curioswitch.common.server.framework.security.SecurityModule;
+import org.curioswitch.common.server.framework.server.PostServerCustomizer;
 import org.curioswitch.common.server.framework.staticsite.InfiniteCachingService;
 import org.curioswitch.common.server.framework.staticsite.JavascriptStaticService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
@@ -185,6 +186,9 @@ public abstract class ServerModule {
 
   @Multibinds
   abstract Set<Consumer<ServerBuilder>> serverCustomizers();
+
+  @Multibinds
+  abstract Set<PostServerCustomizer> postServerCustomizers();
 
   @Multibinds
   abstract Set<WatchedPath> watchedPaths();
@@ -279,6 +283,7 @@ public abstract class ServerModule {
       Set<GrpcServiceDefinition> grpcServiceDefinitions,
       Set<StaticSiteServiceDefinition> staticSites,
       Set<Consumer<ServerBuilder>> serverCustomizers,
+      Set<PostServerCustomizer> postServerCustomizers,
       Set<WatchedPath> watchedPaths,
       MetricsHttpService metricsHttpService,
       CollectorRegistry collectorRegistry,
@@ -470,6 +475,11 @@ public abstract class ServerModule {
     if (serverConfig.getEnableGracefulShutdown()) {
       sb.gracefulShutdownTimeout(Duration.ofSeconds(10), Duration.ofSeconds(30));
     }
+
+    postServerCustomizers.forEach(
+        (c) -> {
+          c.accept(sb);
+        });
 
     Server server = sb.build();
     server
