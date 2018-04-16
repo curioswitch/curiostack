@@ -22,27 +22,26 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
+package org.curioswitch.common.server.framework.server;
 
-archivesBaseName = 'curio-gateway-server'
-mainClassName = 'org.curioswitch.curiostack.gateway.GatewayMain'
+import com.linecorp.armeria.common.HttpRequest;
+import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.server.PathMapping;
+import com.linecorp.armeria.server.Service;
+import org.curioswitch.common.server.framework.immutables.CurioStyle;
+import org.immutables.value.Value.Immutable;
 
-dependencies {
-    compile project(':common:server:framework')
+/**
+ * A definition of a custom HTTP {@link Service} which will be treated as a business logic service
+ * of the server, applying other decorators like authorization.
+ */
+@Immutable
+@CurioStyle
+public interface HttpServiceDefinition {
 
-    compile 'com.fasterxml.jackson.core:jackson-databind'
-    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
-    compile 'com.google.guava:guava'
+  class Builder extends ImmutableHttpServiceDefinition.Builder {}
 
-    annotationProcessor 'com.google.dagger:dagger-compiler'
+  PathMapping pathMapping();
 
-    annotationProcessor 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
-}
-
-docker {
-    javaApplication {
-        maintainer = 'Choko (choko@curioswitch.org)'
-    }
+  Service<HttpRequest, HttpResponse> service();
 }

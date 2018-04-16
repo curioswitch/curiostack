@@ -27,7 +27,7 @@ package org.curioswitch.curiostack.gateway;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.server.PathMapping;
 import java.io.IOException;
@@ -43,7 +43,7 @@ import org.curioswitch.curiostack.gateway.RoutingConfig.Target;
 class RoutingConfigLoader {
 
   private static final ObjectMapper OBJECT_MAPPER =
-      new ObjectMapper().registerModule(new GuavaModule());
+      new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
 
   private final ClientBuilderFactory clientBuilderFactory;
 
@@ -69,7 +69,7 @@ class RoutingConfigLoader {
                     Target::getName,
                     t ->
                         clientBuilderFactory
-                            .create(t.getName(), t.getUrl())
+                            .create(t.getName(), addSerializationFormat(t.getUrl()))
                             .build(HttpClient.class)));
 
     return config
@@ -78,5 +78,9 @@ class RoutingConfigLoader {
         .collect(
             toImmutableMap(
                 r -> PathMapping.of(r.getPathPattern()), r -> clients.get(r.getTarget())));
+  }
+
+  private static String addSerializationFormat(String url) {
+    return !url.contains("+") ? "none+" + url : url;
   }
 }

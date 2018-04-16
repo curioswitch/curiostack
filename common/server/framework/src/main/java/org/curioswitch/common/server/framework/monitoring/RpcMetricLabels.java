@@ -37,7 +37,11 @@ public final class RpcMetricLabels {
     return (registry, log) -> {
       // The service name and method name will always be the last two path components.
       List<String> methodParts = ImmutableList.copyOf(PATH_SPLITTER.split(log.path())).reverse();
-      return new MeterIdPrefix(name, "service", methodParts.get(1), "method", methodParts.get(0));
+      if (methodParts.size() == 2) {
+        return new MeterIdPrefix(name, "service", methodParts.get(1), "method", methodParts.get(0));
+      } else {
+        return new MeterIdPrefix(name);
+      }
     };
   }
 

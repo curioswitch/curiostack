@@ -32,17 +32,13 @@ import java.util.List;
 import org.curioswitch.common.server.framework.immutables.CurioStyle;
 import org.immutables.value.Value.Immutable;
 
-/**
- * The routing configuration for the gateway.
- */
+/** The routing configuration for the gateway. */
 @Immutable
 @CurioStyle
 @JsonDeserialize(as = ImmutableRoutingConfig.class)
 interface RoutingConfig {
 
-  /**
-   * A routing target, corresponding to a single backend.
-   */
+  /** A routing target, corresponding to a single backend. */
   @Immutable
   @CurioStyle
   @JsonDeserialize(as = ImmutableTarget.class)
@@ -55,16 +51,14 @@ interface RoutingConfig {
     String getName();
 
     /**
-     * URL of the backend. Any URL that can be recognized by
-     * {@link com.linecorp.armeria.client.Clients#newClient(URI, Class, ClientOptions)} can be
-     * specified. DNS load balancing will be enabled for the URL.
+     * URL of the backend. Any URL that can be recognized by {@link
+     * com.linecorp.armeria.client.Clients#newClient(URI, Class, ClientOptions)} can be specified.
+     * DNS load balancing will be enabled for the URL.
      */
     String getUrl();
   }
 
-  /**
-   * The targets to route to. Rules should be specified below using the names of these targets.
-   */
+  /** The targets to route to. Rules should be specified below using the names of these targets. */
   List<Target> getTargets();
 
   /** A single routing rule for the gateway. Each rule corresponds to a backend server. */
@@ -82,14 +76,10 @@ interface RoutingConfig {
      */
     String getPathPattern();
 
-    /**
-     * The name of the target to route requests to the path to.
-     */
+    /** The name of the target to route requests to the path to. */
     String getTarget();
   }
 
-  /**
-   * Get the routing config's rules.
-   */
+  /** Get the routing config's rules. */
   List<Rule> getRules();
 }
