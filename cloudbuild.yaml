@@ -46,7 +46,7 @@ steps:
   waitFor:
   - curio-generated-deepen-git-repo
   - curio-generated-fetch-build-cache
-  name: openjdk:9-jdk-slim
+  name: openjdk:10-jdk-slim
   entrypoint: bash
   args:
   - -c

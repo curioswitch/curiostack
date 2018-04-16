@@ -417,15 +417,17 @@ public class CuriostackPlugin implements Plugin<Project> {
               ErrorProneOptions errorProne =
                   ((ExtensionAware) task.getOptions())
                       .getExtensions()
-                      .getByType(ErrorProneOptions.class);
-              errorProne.setDisableWarningsInGeneratedCode(true);
-              errorProne.setExcludedPaths("(.*/build/.*|.*/gen-src/.*)");
-              errorProne.setChecks(checks);
+                      .findByType(ErrorProneOptions.class);
+              if (errorProne != null) {
+                errorProne.setDisableWarningsInGeneratedCode(true);
+                errorProne.setExcludedPaths("(.*/build/.*|.*/gen-src/.*)");
+                errorProne.setChecks(checks);
+              }
             });
 
     JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
-    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_1_9);
-    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_1_9);
+    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_1_10);
+    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_1_10);
 
     Test test = project.getTasks().withType(Test.class).getByName("test");
     if (project.getRootProject().hasProperty("updateSnapshots")) {
