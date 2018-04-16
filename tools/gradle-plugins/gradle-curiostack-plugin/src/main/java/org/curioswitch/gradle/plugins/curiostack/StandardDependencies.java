@@ -132,6 +132,11 @@ class StandardDependencies {
               .addModules("dagger", "dagger-compiler", "dagger-producers")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.google.errorprone")
+              .version("2.2.0")
+              .addModules("error_prone_core")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.google.firebase")
               .version("5.9.0")
               .addModules("firebase-admin")
@@ -406,6 +411,7 @@ class StandardDependencies {
           "me.champeau.gradle:jmh-gradle-plugin:0.4.5",
           "mysql:mysql-connector-java:5.1.45",
           "net.ltgt.gradle:gradle-apt-plugin:0.15",
+          "net.ltgt.gradle:gradle-errorprone-javacplugin-plugin:0.1",
           "net.ltgt.gradle:gradle-errorprone-plugin:0.0.13",
           "nu.studer:gradle-jooq-plugin:2.0.11");
 

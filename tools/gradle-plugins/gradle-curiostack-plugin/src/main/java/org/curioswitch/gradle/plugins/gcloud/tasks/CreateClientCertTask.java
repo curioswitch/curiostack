@@ -147,9 +147,9 @@ public class CreateClientCertTask extends DefaultTask {
     String command =
         config.download()
             ? CommandUtil.getGcloudSdkBinDir(getProject())
-            .resolve("kubectl")
-            .toAbsolutePath()
-            .toString()
+                .resolve("kubectl")
+                .toAbsolutePath()
+                .toString()
             : "kubectl";
     getProject()
         .exec(
