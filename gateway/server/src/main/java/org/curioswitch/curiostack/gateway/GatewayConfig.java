@@ -31,7 +31,7 @@ import org.immutables.value.Value.Modifiable;
 @Immutable
 @Modifiable
 @JavaBeanStyle
-interface GatewayConfig {
+public interface GatewayConfig {
 
   /** The path to the routing config file. */
   String getConfigPath();

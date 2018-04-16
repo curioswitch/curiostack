@@ -21,29 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.curioswitch.common.server.framework.monitoring;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.linecorp.armeria.common.metric.MeterIdPrefix;
-import com.linecorp.armeria.common.metric.MeterIdPrefixFunction;
-import java.util.List;
+package org.curioswitch.common.server.framework.server;
 
-public final class RpcMetricLabels {
+import com.linecorp.armeria.common.HttpRequest;
+import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.server.PathMapping;
+import com.linecorp.armeria.server.Service;
+import org.curioswitch.common.server.framework.immutables.CurioStyle;
+import org.immutables.value.Value.Immutable;
 
-  private static final Splitter PATH_SPLITTER = Splitter.on('/');
+/**
+ * A definition of a custom HTTP {@link Service} which will be treated as a business logic service
+ * of the server, applying other decorators like authorization.
+ */
+@Immutable
+@CurioStyle
+public interface HttpServiceDefinition {
 
-  public static MeterIdPrefixFunction grpcRequestLabeler(String name) {
-    return (registry, log) -> {
-      // The service name and method name will always be the last two path components.
-      List<String> methodParts = ImmutableList.copyOf(PATH_SPLITTER.split(log.path())).reverse();
-      if (methodParts.size() == 2) {
-        return new MeterIdPrefix(name, "service", methodParts.get(1), "method", methodParts.get(0));
-      } else {
-        return new MeterIdPrefix(name);
-      }
-    };
-  }
+  class Builder extends ImmutableHttpServiceDefinition.Builder {}
 
-  private RpcMetricLabels() {}
+  PathMapping pathMapping();
+
+  Service<HttpRequest, HttpResponse> service();
 }

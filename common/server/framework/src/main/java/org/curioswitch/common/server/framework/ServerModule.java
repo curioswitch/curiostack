@@ -29,6 +29,8 @@ import com.google.common.collect.ImmutableSet;
 import com.linecorp.armeria.common.Flags;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.common.HttpStatus;
+import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.common.RequestContext;
 import com.linecorp.armeria.common.grpc.GrpcSerializationFormats;
 import com.linecorp.armeria.server.Server;
@@ -100,6 +102,7 @@ import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthService
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthorizer;
 import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthServiceBuilder;
 import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthorizer;
+import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthorizer.Factory;
 import org.curioswitch.common.server.framework.auth.iam.IamAuthorizer;
 import org.curioswitch.common.server.framework.auth.ssl.RpcAclsCommonNamesProvider;
 import org.curioswitch.common.server.framework.auth.ssl.SslAuthorizer;
@@ -121,6 +124,7 @@ import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
 import org.curioswitch.common.server.framework.monitoring.StackdriverReporter;
 import org.curioswitch.common.server.framework.security.HttpsOnlyService;
 import org.curioswitch.common.server.framework.security.SecurityModule;
+import org.curioswitch.common.server.framework.server.HttpServiceDefinition;
 import org.curioswitch.common.server.framework.server.PostServerCustomizer;
 import org.curioswitch.common.server.framework.staticsite.InfiniteCachingService;
 import org.curioswitch.common.server.framework.staticsite.JavascriptStaticService;
@@ -180,6 +184,9 @@ public abstract class ServerModule {
 
   @Multibinds
   abstract Set<GrpcServiceDefinition> grpcServiceDefinitions();
+
+  @Multibinds
+  abstract Set<HttpServiceDefinition> httpServiceDefinitions();
 
   @Multibinds
   abstract Set<StaticSiteServiceDefinition> staticSites();
@@ -281,6 +288,7 @@ public abstract class ServerModule {
   static Server armeriaServer(
       Set<BindableService> grpcServices,
       Set<GrpcServiceDefinition> grpcServiceDefinitions,
+      Set<HttpServiceDefinition> httpServiceDefinitions,
       Set<StaticSiteServiceDefinition> staticSites,
       Set<Consumer<ServerBuilder>> serverCustomizers,
       Set<PostServerCustomizer> postServerCustomizers,
@@ -383,6 +391,19 @@ public abstract class ServerModule {
         "/internal/metrics",
         internalService(
             new PrometheusExpositionService(collectorRegistry), ipFilter, serverConfig));
+    if (sslCommonNamesProvider.isPresent()) {
+      SslCommonNamesProvider namesProvider = sslCommonNamesProvider.get();
+      sb.service(
+          "/internal/rpcacls",
+          internalService(
+              (ctx, req) ->
+                  HttpResponse.of(
+                      HttpStatus.OK,
+                      MediaType.PLAIN_TEXT_UTF_8,
+                      String.join("\n", namesProvider.get())),
+              ipFilter,
+              serverConfig));
+    }
 
     if (!grpcServices.isEmpty()) {
       GrpcServiceDefinition definition =
@@ -410,43 +431,33 @@ public abstract class ServerModule {
       definition.customizer().accept(serviceBuilder);
       Service<HttpRequest, HttpResponse> service =
           serviceBuilder.build().decorate(definition.decorator());
-      if (sslCommonNamesProvider.isPresent()) {
-        GoogleIdAuthServiceBuilder authServiceBuilder = new GoogleIdAuthServiceBuilder();
-        if (!serverConfig.isDisableGoogleIdAuthorization()) {
-          authServiceBuilder.addOAuth2(
-              googleIdAuthorizer.get().create(sslCommonNamesProvider.get()),
-              Constants.X_CLUSTER_AUTHORIZATION);
-        }
-        if (!serverConfig.isDisableSslAuthorization()) {
-          authServiceBuilder.add(new SslAuthorizer(sslCommonNamesProvider.get()));
-        }
-        service = service.decorate(authServiceBuilder.newDecorator());
-      }
-      if (serverConfig.isEnableIamAuthorization()) {
-        service = new HttpAuthServiceBuilder().addOAuth2(iamAuthorizer.get()).build(service);
-      }
-      if (!authConfig.getServiceAccountBase64().isEmpty()) {
-        FirebaseAuthorizer authorizer = firebaseAuthorizer.get();
-        service =
-            service.decorate(
-                firebaseAuthServiceFactory.newDecorator(
-                    ImmutableList.of(
-                        (ctx, req) -> {
-                          OAuth2Token token = AuthTokenExtractors.OAUTH2.apply(req.headers());
-                          if (token == null) {
-                            return CompletableFuture.completedFuture(false);
-                          }
-                          return authorizer.authorize(ctx, token);
-                        })));
-      }
-
       service =
-          service
-              .decorate(
-                  MetricCollectingService.newDecorator(
-                      RpcMetricLabels.grpcRequestLabeler("grpc_services")))
-              .decorate(HttpTracingService.newDecorator(tracing));
+          decorateService(
+              service,
+              tracing,
+              firebaseAuthorizer,
+              googleIdAuthorizer,
+              iamAuthorizer,
+              sslCommonNamesProvider,
+              serverConfig,
+              authConfig,
+              firebaseAuthServiceFactory);
       sb.serviceUnder(definition.path(), service);
+    }
+
+    for (HttpServiceDefinition definition : httpServiceDefinitions) {
+      sb.service(
+          definition.pathMapping(),
+          decorateService(
+              definition.service(),
+              tracing,
+              firebaseAuthorizer,
+              googleIdAuthorizer,
+              iamAuthorizer,
+              sslCommonNamesProvider,
+              serverConfig,
+              authConfig,
+              firebaseAuthServiceFactory));
     }
 
     if (javascriptStaticConfig.getVersion() != 0) {
@@ -522,6 +533,55 @@ public abstract class ServerModule {
     }
 
     return server;
+  }
+
+  private static Service<HttpRequest, HttpResponse> decorateService(
+      Service<HttpRequest, HttpResponse> service,
+      Tracing tracing,
+      Lazy<FirebaseAuthorizer> firebaseAuthorizer,
+      Lazy<Factory> googleIdAuthorizer,
+      Lazy<IamAuthorizer> iamAuthorizer,
+      Optional<SslCommonNamesProvider> sslCommonNamesProvider,
+      ServerConfig serverConfig,
+      FirebaseAuthConfig authConfig,
+      FirebaseAuthService.Factory firebaseAuthServiceFactory) {
+    if (sslCommonNamesProvider.isPresent()) {
+      GoogleIdAuthServiceBuilder authServiceBuilder = new GoogleIdAuthServiceBuilder();
+      if (!serverConfig.isDisableGoogleIdAuthorization()) {
+        authServiceBuilder.addOAuth2(
+            googleIdAuthorizer.get().create(sslCommonNamesProvider.get()),
+            Constants.X_CLUSTER_AUTHORIZATION);
+      }
+      if (!serverConfig.isDisableSslAuthorization()) {
+        authServiceBuilder.add(new SslAuthorizer(sslCommonNamesProvider.get()));
+      }
+      service = service.decorate(authServiceBuilder.newDecorator());
+    }
+    if (serverConfig.isEnableIamAuthorization()) {
+      service = new HttpAuthServiceBuilder().addOAuth2(iamAuthorizer.get()).build(service);
+    }
+    if (!authConfig.getServiceAccountBase64().isEmpty()) {
+      FirebaseAuthorizer authorizer = firebaseAuthorizer.get();
+      service =
+          service.decorate(
+              firebaseAuthServiceFactory.newDecorator(
+                  ImmutableList.of(
+                      (ctx, req) -> {
+                        OAuth2Token token = AuthTokenExtractors.OAUTH2.apply(req.headers());
+                        if (token == null) {
+                          return CompletableFuture.completedFuture(false);
+                        }
+                        return authorizer.authorize(ctx, token);
+                      })));
+    }
+
+    service =
+        service
+            .decorate(
+                MetricCollectingService.newDecorator(
+                    RpcMetricLabels.grpcRequestLabeler("grpc_services")))
+            .decorate(HttpTracingService.newDecorator(tracing));
+    return service;
   }
 
   private static SslContextBuilder serverSslContext(

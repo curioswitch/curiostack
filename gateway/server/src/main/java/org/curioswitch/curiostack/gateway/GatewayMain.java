@@ -37,7 +37,7 @@ import java.nio.file.Paths;
 import javax.inject.Singleton;
 import org.curioswitch.common.server.framework.ServerModule;
 import org.curioswitch.common.server.framework.files.FileWatcher;
-import org.curioswitch.common.server.framework.server.PostServerCustomizer;
+import org.curioswitch.common.server.framework.server.HttpServiceDefinition;
 
 public class GatewayMain {
 
@@ -64,10 +64,11 @@ public class GatewayMain {
 
     @Provides
     @IntoSet
-    static PostServerCustomizer serverCustomizer(RoutingService routingService) {
-      return (sb) -> {
-        sb.service(PathMapping.ofCatchAll(), routingService);
-      };
+    static HttpServiceDefinition routingService(RoutingService routingService) {
+      return new HttpServiceDefinition.Builder()
+          .pathMapping(PathMapping.ofCatchAll())
+          .service(routingService)
+          .build();
     }
 
     private GatewayModule() {}
