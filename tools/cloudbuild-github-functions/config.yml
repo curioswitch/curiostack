@@ -9,6 +9,8 @@ repos:
     cloudbuild:
       steps:
         - id: fetch-source
+          waitFor:
+          - '-'
           name: gcr.io/cloud-builders/gcloud
           entrypoint: bash
           args:
@@ -32,13 +34,23 @@ repos:
             - GIT_ASKPASS=/tmp/cloudbuild-github-pass.sh
           secretEnv:
             - GITHUB_TOKEN
-        - id: build-all
-          name: gcr.io/$PROJECT_ID/java-cloud-builder
-          entrypoint: ./gradlew
+        - id: curio-generated-fetch-build-cache
+          waitFor:
+          - '-'
+          name: gcr.io/cloud-builders/gsutil
           args:
-            - continuousTest
-            - '--stacktrace'
-            - '--no-daemon'
+          - cp
+          - gs://curioswitch-gradle-build-cache/cloudbuild-cache.tar.gz
+          - .gradle/cloudbuild-cache.tar
+        - id: build-all
+          waitFor:
+          - fetch-source
+          - curio-generated-fetch-build-cache
+          name: openjdk:10-jdk-slim
+          entrypoint: bash
+          args:
+          - -c
+          - "(test -e .gradle/cloudbuild-cache.tar && tar -xpPf .gradle/cloudbuild-cache.tar || echo No build cache yet.) && ./gradlew continuousBuild --stacktrace --no-daemon"
           env:
             - CI=true
       timeout: 60m

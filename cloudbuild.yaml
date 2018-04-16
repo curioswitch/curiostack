@@ -46,11 +46,11 @@ steps:
   waitFor:
   - curio-generated-deepen-git-repo
   - curio-generated-fetch-build-cache
-  name: openjdk:9-jdk-slim
+  name: openjdk:10-jdk-slim
   entrypoint: bash
   args:
   - -c
-  - "(test -e .gradle/cloudbuild-cache.tar && tar -xpPf .gradle/cloudbuild-cache.tar || echo No build cache yet.) && ./gradlew yarn resolveDependencies continuousBuild --stacktrace --no-daemon && tar -cpPf .gradle/cloudbuild-cache.tar /root/.gradle/wrapper /usr/local/share/.cache /root/.gradle/caches /root/.gradle/curiostack"
+  - "(test -e .gradle/cloudbuild-cache.tar && tar -xpPf .gradle/cloudbuild-cache.tar || echo No build cache yet.) && ./gradlew continuousBuild --stacktrace --no-daemon && tar -cpPf .gradle/cloudbuild-cache.tar /root/.gradle/wrapper /usr/local/share/.cache /root/.gradle/caches /root/.gradle/curiostack"
   env:
   - CI=true
   - CI_MASTER=true

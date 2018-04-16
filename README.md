@@ -7,12 +7,10 @@ See gradle-curiostack-plugin [README](tools/gradle-plugins/gradle-curiostack-plu
 
 ## Developing
 
-Curiostack requires JDK9. For Ubuntu / Debian users, the included OpenJDK9 will not work due to an
-embarrassing [bug](https://bugs.launchpad.net/ubuntu/+source/openjdk-9/+bug/1727002). To work around
-this, install the Oracle JDK9 from a PPA.
+Curiostack requires JDK10.
 
 ```bash
-$ sudo add-apt-repository ppa:webupd8team/java
+$ sudo add-apt-repository ppa:linuxuprising/java
 $ sudo apt-get update
 $ sudo apt-get install oracle-java9-installer
 ```

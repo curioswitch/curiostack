@@ -25,6 +25,8 @@
 package org.curioswitch.gradle.plugins.curiostack;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static net.ltgt.gradle.errorprone.javacplugin.CheckSeverity.ERROR;
+import static net.ltgt.gradle.errorprone.javacplugin.CheckSeverity.OFF;
 
 import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
@@ -69,7 +71,9 @@ import nebula.plugin.resolutionrules.ResolutionRulesPlugin;
 import net.ltgt.gradle.apt.AptIdeaPlugin;
 import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleAptConvention;
 import net.ltgt.gradle.apt.AptPlugin;
-import net.ltgt.gradle.errorprone.ErrorPronePlugin;
+import net.ltgt.gradle.errorprone.javacplugin.CheckSeverity;
+import net.ltgt.gradle.errorprone.javacplugin.ErrorProneJavacPluginPlugin;
+import net.ltgt.gradle.errorprone.javacplugin.ErrorProneOptions;
 import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
@@ -293,10 +297,112 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(AptIdeaPlugin.class);
     plugins.apply(BaselineIdea.class);
     plugins.apply(DependencyManagementPlugin.class);
-    plugins.apply(ErrorPronePlugin.class);
+    plugins.apply(ErrorProneJavacPluginPlugin.class);
     plugins.apply(LicensePlugin.class);
     plugins.apply(SpotlessPlugin.class);
     plugins.apply(VersionsPlugin.class);
+
+    Map<String, CheckSeverity> checks =
+        ImmutableMap.<String, CheckSeverity>builder()
+            .put("BadComparable", ERROR)
+            .put("BoxedPrimitiveConstructor", ERROR)
+            .put("CannotMockFinalClass", OFF)
+            .put("CatchFail", ERROR)
+            .put("ClassCanBeStatic", ERROR)
+            .put("ClassNewInstance", ERROR)
+            .put("CollectionToArraySafeParameter", ERROR)
+            .put("ComparableAndComparator", ERROR)
+            .put("DateFormatConstant", ERROR)
+            .put("DefaultCharset", ERROR)
+            .put("DoubleCheckedLocking", ERROR)
+            .put("EqualsIncompatibleType", ERROR)
+            .put("FallThrough", ERROR)
+            .put("Finally", ERROR)
+            .put("FloatCast", ERROR)
+            .put("FloatingPointLiteralPrecision", ERROR)
+            .put("GetClassOnEnum", ERROR)
+            .put("HidingField", ERROR)
+            .put("ImmutableAnnotationChecker", ERROR)
+            .put("ImmutableEnumChecker", ERROR)
+            .put("IncrementInForLoopAndHeader", ERROR)
+            .put("InjectOnConstructorOfAbstractClass", ERROR)
+            .put("InputStreamSlowMultibyteRead", ERROR)
+            .put("IntLongMath", ERROR)
+            .put("IterableAndIterator", ERROR)
+            .put("JavaLangClash", ERROR)
+            .put("LogicalAssignment", ERROR)
+            .put("MissingCasesInEnumSwitch", ERROR)
+            .put("MissingOverride", ERROR)
+            .put("ModifyCollectionInEnhancedForLoop", ERROR)
+            .put("MultipleParallelOrSequentialCalls", ERROR)
+            .put("MutableConstantField", OFF)
+            .put("NarrowingCompoundAssignment", ERROR)
+            .put("NestedInstanceOfConditions", ERROR)
+            .put("NonAtomicVolatileUpdate", ERROR)
+            .put("NonOverridingEquals", ERROR)
+            .put("NullableConstructor", ERROR)
+            .put("NullablePrimitive", ERROR)
+            .put("NullableVoid", ERROR)
+            .put("OptionalNotPresent", ERROR)
+            .put("OverrideThrowableToString", ERROR)
+            .put("PreconditionsInvalidPlaceholder", ERROR)
+            .put("ProtoFieldPreconditionsCheckNotNull", ERROR)
+            .put("ShortCircuitBoolean", ERROR)
+            .put("StaticGuardedByInstance", ERROR)
+            .put("StreamResourceLeak", ERROR)
+            .put("StringSplitter", ERROR)
+            .put("SynchronizeOnNonFinalField", ERROR)
+            .put("ThreadJoinLoop", ERROR)
+            .put("ThreadLocalUsage", ERROR)
+            .put("ThreeLetterTimeZoneID", ERROR)
+            .put("URLEqualsHashCode", ERROR)
+            .put("UnsynchronizedOverridesSynchronized", ERROR)
+            .put("WaitNotInLoop", ERROR)
+            .put("AutoFactoryAtInject", ERROR)
+            .put("ClassName", ERROR)
+            .put("ComparisonContractViolated", ERROR)
+            .put("DepAnn", ERROR)
+            .put("DivZero", ERROR)
+            .put("EmptyIf", ERROR)
+            .put("FuzzyEqualsShouldNotBeUsedInEqualsMethod", ERROR)
+            .put("InjectInvalidTargetingOnScopingAnnotation", ERROR)
+            .put("InjectScopeAnnotationOnInterfaceOrAbstractClass", ERROR)
+            .put("InsecureCryptoUsage", ERROR)
+            .put("IterablePathParameter", ERROR)
+            .put("LongLiteralLowerCaseSuffix", ERROR)
+            .put("NumericEquality", ERROR)
+            .put("ParameterPackage", ERROR)
+            .put("ProtoStringFieldReferenceEquality", ERROR)
+            .put("AssistedInjectAndInjectOnConstructors", ERROR)
+            .put("BigDecimalLiteralDouble", ERROR)
+            .put("ConstructorLeaksThis", ERROR)
+            .put("InconsistentOverloads", ERROR)
+            .put("MissingDefault", ERROR)
+            .put("PrimitiveArrayPassedToVarargsMethod", ERROR)
+            .put("RedundantThrows", ERROR)
+            .put("StaticQualifiedUsingExpression", ERROR)
+            .put("StringEquality", ERROR)
+            .put("TestExceptionChecker", ERROR)
+            .put("FieldMissingNullable", ERROR)
+            .put("LambdaFunctionalInterface", ERROR)
+            .put("MethodCanBeStatic", ERROR)
+            .put("MixedArrayDimensions", ERROR)
+            .put("MultiVariableDeclaration", ERROR)
+            .put("MultipleTopLevelClasses", ERROR)
+            .put("MultipleUnaryOperatorsInMethodCall", ERROR)
+            .put("PackageLocation", ERROR)
+            .put("ParameterComment", ERROR)
+            .put("ParameterNotNullable", ERROR)
+            .put("PrivateConstructorForUtilityClass", ERROR)
+            .put("RemoveUnusedImports", ERROR)
+            .put("ReturnMissingNullable", ERROR)
+            .put("SwitchDefault", ERROR)
+            .put("ThrowsUncheckedException", ERROR)
+            .put("UngroupedOverloads", ERROR)
+            .put("UnnecessaryStaticImport", ERROR)
+            .put("UseBinds", ERROR)
+            .put("WildcardImport", ERROR)
+            .build();
 
     project
         .getTasks()
@@ -304,64 +410,24 @@ public class CuriostackPlugin implements Plugin<Project> {
             JavaCompile.class,
             task -> {
               task.getOptions().setIncremental(true);
-              task.getOptions()
-                  .getCompilerArgs()
-                  .addAll(
-                      ImmutableList.of(
-                          "-XepDisableWarningsInGeneratedCode",
-                          "-XepExcludedPaths:(.*/build/.*|.*/gen-src/.*)",
-                          "-Xep:AutoFactoryAtInject:ERROR",
-                          "-Xep:ClassName:ERROR",
-                          "-Xep:ComparisonContractViolated:ERROR",
-                          "-Xep:DepAnn:ERROR",
-                          "-Xep:DivZero:ERROR",
-                          "-Xep:EmptyIf:ERROR",
-                          "-Xep:FuzzyEqualsShouldNotBeUsedInEqualsMethod:ERROR",
-                          "-Xep:InjectInvalidTargetingOnScopingAnnotation:ERROR",
-                          "-Xep:InjectScopeAnnotationOnInterfaceOrAbstractClass:ERROR",
-                          "-Xep:InsecureCryptoUsage:ERROR",
-                          "-Xep:IterablePathParameter:ERROR",
-                          "-Xep:LongLiteralLowerCaseSuffix:ERROR",
-                          "-Xep:NumericEquality:ERROR",
-                          "-Xep:ParameterPackage:ERROR",
-                          "-Xep:ProtoStringFieldReferenceEquality:ERROR",
-                          "-Xep:AssistedInjectAndInjectOnConstructors:ERROR",
-                          "-Xep:BigDecimalLiteralDouble:ERROR",
-                          "-Xep:ConstructorLeaksThis:ERROR",
-                          "-Xep:InconsistentOverloads:ERROR",
-                          "-Xep:MissingDefault:ERROR",
-                          "-Xep:PrimitiveArrayPassedToVarargsMethod:ERROR",
-                          "-Xep:RedundantThrows:ERROR",
-                          "-Xep:StaticQualifiedUsingExpression:ERROR",
-                          "-Xep:StringEquality:ERROR",
-                          "-Xep:TestExceptionChecker:ERROR",
-                          "-Xep:FieldMissingNullable:ERROR",
-                          "-Xep:LambdaFunctionalInterface:ERROR",
-                          "-Xep:MethodCanBeStatic:ERROR",
-                          "-Xep:MixedArrayDimensions:ERROR",
-                          "-Xep:MultiVariableDeclaration:ERROR",
-                          "-Xep:MultipleTopLevelClasses:ERROR",
-                          "-Xep:MultipleUnaryOperatorsInMethodCall:ERROR",
-                          "-Xep:PackageLocation:ERROR",
-                          "-Xep:ParameterComment:ERROR",
-                          "-Xep:ParameterNotNullable:ERROR",
-                          "-Xep:PrivateConstructorForUtilityClass:ERROR",
-                          "-Xep:RemoveUnusedImports:ERROR",
-                          "-Xep:ReturnMissingNullable:ERROR",
-                          "-Xep:SwitchDefault:ERROR",
-                          "-Xep:ThrowsUncheckedException:ERROR",
-                          "-Xep:UngroupedOverloads:ERROR",
-                          "-Xep:UnnecessaryStaticImport:ERROR",
-                          "-Xep:UseBinds:ERROR",
-                          "-Xep:WildcardImport:ERROR"));
               project
                   .getTasks()
                   .withType(SpotlessTask.class, spotlessTask -> spotlessTask.dependsOn(task));
+
+              ErrorProneOptions errorProne =
+                  ((ExtensionAware) task.getOptions())
+                      .getExtensions()
+                      .findByType(ErrorProneOptions.class);
+              if (errorProne != null) {
+                errorProne.setDisableWarningsInGeneratedCode(true);
+                errorProne.setExcludedPaths("(.*/build/.*|.*/gen-src/.*)");
+                errorProne.setChecks(checks);
+              }
             });
 
     JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
-    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_1_9);
-    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_1_9);
+    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_1_10);
+    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_1_10);
 
     Test test = project.getTasks().withType(Test.class).getByName("test");
     if (project.getRootProject().hasProperty("updateSnapshots")) {
@@ -416,6 +482,11 @@ public class CuriostackPlugin implements Plugin<Project> {
     project
         .getDependencies()
         .add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, "javax.annotation:javax.annotation-api");
+    project
+        .getDependencies()
+        .add(
+            ErrorProneJavacPluginPlugin.CONFIGURATION_NAME,
+            "com.google.errorprone:error_prone_core");
     project.afterEvaluate(CuriostackPlugin::addStandardJavaTestDependencies);
 
     project
