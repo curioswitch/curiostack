@@ -410,6 +410,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             JavaCompile.class,
             task -> {
               task.getOptions().setIncremental(true);
+              task.getOptions().setCompilerArgs(ImmutableList.of("-XDcompilePolicy=byfile"));
               project
                   .getTasks()
                   .withType(SpotlessTask.class, spotlessTask -> spotlessTask.dependsOn(task));
