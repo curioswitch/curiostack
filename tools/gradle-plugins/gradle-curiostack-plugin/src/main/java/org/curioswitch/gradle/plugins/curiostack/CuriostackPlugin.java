@@ -709,18 +709,21 @@ public class CuriostackPlugin implements Plugin<Project> {
     Closure<?> pathOverrider =
         LambdaClosure.of(
             (ExecSpec exec) -> {
-              String actualCommand = exec.getExecutable() + " " + String.join(" ", exec.getArgs());
-              exec.setCommandLine(
-                  "bash",
-                  "-c",
-                  ". "
-                      + CommandUtil.getCondaBaseDir(project)
-                          .resolve("etc/profile.d/conda.sh")
-                          .toString()
-                      + " && conda activate > /dev/null && cd "
-                      + exec.getWorkingDir().toString()
-                      + " && "
-                      + actualCommand);
+              if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+                String actualCommand =
+                    exec.getExecutable() + " " + String.join(" ", exec.getArgs());
+                exec.setCommandLine(
+                    "bash",
+                    "-c",
+                    ". "
+                        + CommandUtil.getCondaBaseDir(project)
+                            .resolve("etc/profile.d/conda.sh")
+                            .toString()
+                        + " && conda activate > /dev/null && cd "
+                        + exec.getWorkingDir().toString()
+                        + " && "
+                        + actualCommand);
+              }
               exec.getEnvironment()
                   .put(
                       "PATH",
