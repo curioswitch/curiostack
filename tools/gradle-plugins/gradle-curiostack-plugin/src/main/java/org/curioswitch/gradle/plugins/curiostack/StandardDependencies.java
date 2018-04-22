@@ -62,6 +62,11 @@ class StandardDependencies {
               .addModules("commons-logging")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.google.auth")
+              .version("0.9.0")
+              .addModules("google-auth-library-oauth2-http")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.google.auto.factory")
               .version("1.0-beta5")
               .addModules("auto-factory")
