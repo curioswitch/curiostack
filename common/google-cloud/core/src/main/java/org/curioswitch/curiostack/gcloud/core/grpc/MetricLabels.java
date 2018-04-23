@@ -47,4 +47,5 @@ public class MetricLabels {
     };
   }
 
+  private MetricLabels() {}
 }
