@@ -63,7 +63,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.auth")
-              .version("0.9.0")
+              .version("0.9.1")
               .addModules("google-auth-library-oauth2-http")
               .build(),
           ImmutableDependencySet.builder()
@@ -143,12 +143,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.firebase")
-              .version("5.10.0")
+              .version("5.11.0")
               .addModules("firebase-admin")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.guava")
-              .version("24.1-jre")
+              .version("25.0-jre")
               .addModules("guava", "guava-testlib")
               .build(),
           ImmutableDependencySet.builder()
@@ -164,7 +164,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.62.0")
+              .version("0.63.1")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -239,7 +239,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("4.1.23.Final")
+              .version("4.1.24.Final")
               .addModules(
                   "netty-buffer",
                   "netty-codec",
@@ -272,7 +272,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.gcp")
-              .version("0.3.2")
+              .version("0.3.4")
               .addModules("zipkin-translation-stackdriver")
               .build(),
           ImmutableDependencySet.builder()
@@ -327,7 +327,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.22")
+              .version("0.0.23")
               .addModules(
                   "armeria-google-cloud-core",
                   "armeria-google-cloud-iam",
@@ -335,12 +335,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.67")
+              .version("0.0.68")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.5")
+              .version("0.0.6")
               .addModules("curio-testing-framework")
               .build(),
           ImmutableDependencySet.builder()
