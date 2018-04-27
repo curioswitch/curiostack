@@ -26,11 +26,10 @@ package org.curioswitch.curiostack.gcloud.core.auth;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.auth.oauth2.AccessToken;
 import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.common.AggregatedHttpMessage;
+import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpHeaders;
@@ -41,15 +40,17 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import org.curioswitch.curiostack.gcloud.core.util.AsyncRefreshingValue;
 
 abstract class AbstractAccessTokenProvider implements AccessTokenProvider {
 
-  private static final long MINIMUM_TOKEN_MILLISECONDS = 60000L * 5L;
-
   private static final String TOKEN_PATH = "/oauth2/v4/token";
+
+  private static final Duration EXPIRATION_SKEW = Duration.ofMinutes(5);
 
   private static final ObjectMapper OBJECT_MAPPER =
       new ObjectMapper()
@@ -63,16 +64,25 @@ abstract class AbstractAccessTokenProvider implements AccessTokenProvider {
 
   private final HttpClient googleApisClient;
   private final Clock clock;
-  private final AsyncLoadingCache<Type, AccessToken> cachedAccessToken;
+
+  private final AsyncRefreshingValue<AccessToken> cachedAccessToken;
+  private final AsyncRefreshingValue<AccessToken> cachedIdToken;
 
   AbstractAccessTokenProvider(HttpClient googleApisClient, Clock clock) {
     this.googleApisClient = googleApisClient;
     this.clock = clock;
     cachedAccessToken =
-        Caffeine.newBuilder()
-            // Google access tokens seem to last for an hour.
-            .refreshAfterWrite(Duration.ofMinutes(30))
-            .buildAsync((type, executor) -> refresh(type));
+        new AsyncRefreshingValue<>(
+            () -> this.refresh(Type.ACCESS_TOKEN),
+            AbstractAccessTokenProvider::extractExpirationTime,
+            CommonPools.workerGroup().next(),
+            clock);
+    cachedIdToken =
+        new AsyncRefreshingValue<>(
+            () -> this.refresh(Type.ID_TOKEN),
+            AbstractAccessTokenProvider::extractExpirationTime,
+            CommonPools.workerGroup().next(),
+            clock);
   }
 
   Clock clock() {
@@ -83,12 +93,12 @@ abstract class AbstractAccessTokenProvider implements AccessTokenProvider {
 
   @Override
   public CompletableFuture<String> getAccessToken() {
-    return cachedAccessToken.get(Type.ACCESS_TOKEN).thenApply(AccessToken::getTokenValue);
+    return cachedAccessToken.get().thenApply(AccessToken::getTokenValue);
   }
 
   @Override
   public CompletableFuture<String> getGoogleIdToken() {
-    return cachedAccessToken.get(Type.ID_TOKEN).thenApply(AccessToken::getTokenValue);
+    return cachedIdToken.get().thenApply(AccessToken::getTokenValue);
   }
 
   protected CompletableFuture<AggregatedHttpMessage> fetchToken(Type type) {
@@ -103,8 +113,11 @@ abstract class AbstractAccessTokenProvider implements AccessTokenProvider {
 
   private CompletableFuture<AccessToken> refresh(Type type) {
     return fetchToken(type)
-        .thenApply(
-            msg -> {
+        .handle(
+            (msg, t) -> {
+              if (t != null) {
+                throw new IllegalStateException("Failed to refresh GCP access token.", t);
+              }
               final TokenResponse response;
               try {
                 response = OBJECT_MAPPER.readValue(msg.content().array(), TokenResponse.class);
@@ -117,5 +130,9 @@ abstract class AbstractAccessTokenProvider implements AccessTokenProvider {
                   type == Type.ID_TOKEN ? response.idToken() : response.accessToken(),
                   new Date(expiresAtMilliseconds));
             });
+  }
+
+  private static Instant extractExpirationTime(AccessToken token) {
+    return token.getExpirationTime().toInstant().minus(EXPIRATION_SKEW);
   }
 }

@@ -25,16 +25,13 @@
 package org.curioswitch.curiostack.gcloud.core.auth;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static java.time.temporal.ChronoUnit.NANOS;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.Expiry;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Streams;
 import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpHeaders;
 import com.linecorp.armeria.common.HttpStatus;
@@ -52,10 +49,10 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.curioswitch.curiostack.gcloud.core.RetryingGoogleApis;
+import org.curioswitch.curiostack.gcloud.core.util.AsyncRefreshingValue;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Style;
 import org.immutables.value.Value.Style.BuilderVisibility;
@@ -66,7 +63,7 @@ public class GooglePublicKeysManager {
 
   private static final String CERTS_PATH = "/oauth2/v1/certs";
 
-  private static final Duration REFRESH_SKEW = Duration.ofMinutes(5);
+  private static final Duration EXPIRATION_SKEW = Duration.ofMinutes(5);
 
   private static final Splitter CACHE_CONTROL_SPLITTER = Splitter.on(',');
 
@@ -90,61 +87,36 @@ public class GooglePublicKeysManager {
 
   private final HttpClient googleApisClient;
   private final Clock clock;
-  private final AsyncLoadingCache<CacheKey, CachedPublicKeys> keysCache;
+  private final AsyncRefreshingValue<CachedPublicKeys> keysCache;
 
   @Inject
-  @SuppressWarnings("CanonicalDuration") // We want to use seconds like the HTTP response.
+  // We want to use seconds like the HTTP response.
+  @SuppressWarnings({"CanonicalDuration", "ConstructorLeaksThis"})
   public GooglePublicKeysManager(@RetryingGoogleApis HttpClient googleApisClient, Clock clock) {
     this.googleApisClient = googleApisClient;
     this.clock = clock;
+
     keysCache =
-        Caffeine.newBuilder()
-            .expireAfter(
-                new Expiry<>() {
-                  @Override
-                  public long expireAfterCreate(
-                      @Nonnull Object key, @Nonnull Object value, long currentTime) {
-                    CachedPublicKeys keys = (CachedPublicKeys) value;
-                    return currentTime + NANOS.between(clock.instant(), keys.expirationTime());
-                  }
-
-                  @Override
-                  public long expireAfterUpdate(
-                      @Nonnull Object key,
-                      @Nonnull Object value,
-                      long currentTime,
-                      long currentDuration) {
-                    return expireAfterCreate(key, value, currentTime);
-                  }
-
-                  @Override
-                  public long expireAfterRead(
-                      @Nonnull Object key,
-                      @Nonnull Object value,
-                      long currentTime,
-                      long currentDuration) {
-                    return currentDuration;
-                  }
-                })
-            // Currently the max-age is 19560 sec, so optimistically refresh at 18000 (expiration
-            // will
-            // be 19260). If expiration happens to become sooner than refresh, it's fine it just
-            // means
-            // the keys will be refreshed on request instead of in the background.
-            .refreshAfterWrite(Duration.ofSeconds(18000))
-            .buildAsync((unused, executor) -> refresh());
+        new AsyncRefreshingValue<>(
+            this::refresh,
+            CachedPublicKeys::expirationTime,
+            CommonPools.workerGroup().next(),
+            clock);
   }
 
   public CompletableFuture<List<PublicKey>> getKeys() {
-    return keysCache.get(CacheKey.INSTANCE).thenApply(CachedPublicKeys::keys);
+    return keysCache.get().thenApply(CachedPublicKeys::keys);
   }
 
   private CompletableFuture<CachedPublicKeys> refresh() {
     return googleApisClient
         .get(CERTS_PATH)
         .aggregate()
-        .thenApply(
-            msg -> {
+        .handle(
+            (msg, t) -> {
+              if (t != null) {
+                throw new IllegalStateException("Failed to refresh Google public keys.", t);
+              }
               if (!msg.status().equals(HttpStatus.OK)) {
                 throw new IllegalStateException("Non-200 status code when fetching certificates.");
               }
@@ -165,7 +137,7 @@ public class GooglePublicKeysManager {
               cacheTimeSecs = Math.max(0, cacheTimeSecs);
 
               Instant expirationTime =
-                  clock.instant().plusSeconds(cacheTimeSecs).minus(REFRESH_SKEW);
+                  clock.instant().plusSeconds(cacheTimeSecs).minus(EXPIRATION_SKEW);
 
               final JsonNode tree;
               try {

@@ -26,13 +26,17 @@ package org.curioswitch.gcloud.trace;
 
 import com.google.devtools.cloudtrace.v1.TraceServiceGrpc.TraceServiceFutureStub;
 import dagger.Module;
+import dagger.Provides;
 import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
+import org.curioswitch.curiostack.gcloud.core.grpc.GrpcApiClientBuilder;
 
 @Module(includes = GcloudAuthModule.class)
 public abstract class GcloudTraceModule {
 
-  static TraceServiceFutureStub traceService() {
-
+  @Provides
+  static TraceServiceFutureStub traceService(GrpcApiClientBuilder clientBuilder) {
+    return clientBuilder.create(
+        "cloud-trace", "https://cloudtrace.googleapis.com", TraceServiceFutureStub.class);
   }
 
   private GcloudTraceModule() {}

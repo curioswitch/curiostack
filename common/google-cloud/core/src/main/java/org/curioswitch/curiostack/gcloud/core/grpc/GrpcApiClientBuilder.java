@@ -25,47 +25,35 @@
 package org.curioswitch.curiostack.gcloud.core.grpc;
 
 import brave.Tracing;
-import com.google.common.base.Strings;
 import com.linecorp.armeria.client.ClientBuilder;
-import com.linecorp.armeria.client.endpoint.EndpointGroupRegistry;
-import com.linecorp.armeria.client.endpoint.EndpointSelectionStrategy;
-import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroup;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
 import com.linecorp.armeria.client.tracing.HttpTracingClient;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
-import io.micrometer.core.instrument.MeterRegistry;
-import java.net.URI;
 import javax.inject.Inject;
 import org.curioswitch.curiostack.gcloud.core.auth.GoogleCredentialsDecoratingClient;
-import org.curioswitch.curiostack.gcloud.core.auth.GoogleCredentialsDecoratingClient.Factory;
 
 public class GrpcApiClientBuilder {
 
-  private final MeterRegistry meterRegistry;
   private final Tracing tracing;
   private final GoogleCredentialsDecoratingClient.Factory credentialsDecorator;
 
   @Inject
   public GrpcApiClientBuilder(
-      MeterRegistry meterRegistry,
-      Tracing tracing,
-      Factory credentialsDecorator) {
-    this.meterRegistry = meterRegistry;
+      Tracing tracing, GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
     this.tracing = tracing;
     this.credentialsDecorator = credentialsDecorator;
   }
 
   public <T> T create(String name, String url, Class<T> clz) {
-    URI uri = URI.create(url);
-    DnsAddressEndpointGroup endpointGroup =
-        DnsAddressEndpointGroup.of(uri.getHost(), uri.getPort());
-    endpointGroup.start();
-    EndpointGroupRegistry.register(name, endpointGroup, EndpointSelectionStrategy.ROUND_ROBIN);
-    return new ClientBuilder(uri.getScheme() + "://group:" + name + Strings.nullToEmpty(uri.getPath()))
-        .decorator(HttpRequest.class, HttpResponse.class, credentialsDecorator.newAccessTokenDecorator())
+    return new ClientBuilder("gproto+" + url)
+        .decorator(
+            HttpRequest.class, HttpResponse.class, credentialsDecorator.newAccessTokenDecorator())
         .decorator(HttpRequest.class, HttpResponse.class, HttpTracingClient.newDecorator(tracing))
-        .decorator(HttpRequest.class, HttpResponse.class, MetricCollectingClient.newDecorator(MetricLabels.grpcRequestLabeler()))
+        .decorator(
+            HttpRequest.class,
+            HttpResponse.class,
+            MetricCollectingClient.newDecorator(MetricLabels.grpcRequestLabeler()))
         .build(clz);
   }
 }
