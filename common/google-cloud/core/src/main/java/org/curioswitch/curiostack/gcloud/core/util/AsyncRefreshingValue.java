@@ -50,7 +50,9 @@ public class AsyncRefreshingValue<T> {
   private final EventExecutor executor;
   private final Clock clock;
 
+  @Nullable
   private volatile T currentValue;
+  @Nullable
   private volatile Instant expirationTime;
 
   @Nullable private volatile CompletableFuture<T> pendingRefresh;
@@ -67,6 +69,9 @@ public class AsyncRefreshingValue<T> {
   }
 
   public CompletableFuture<T> get() {
+    if (expirationTime == null) {
+      return refreshIfNotRefreshing();
+    }
     if (clock.instant().isBefore(expirationTime)) {
       // Even if the value was updated during this check, it can only be newer and is always safe
       // to return without making this atomic.
@@ -78,15 +83,17 @@ public class AsyncRefreshingValue<T> {
     }
     // Since we eagerly refresh, it should be extremely rare to have to refresh on demand like this
     // so synchronization overhead isn't a big deal.
-    synchronized (this) {
-      pendingRefresh = this.pendingRefresh;
-      if (pendingRefresh != null) {
-        return pendingRefresh;
-      }
-      pendingRefresh = this.refresh();
-      this.pendingRefresh = pendingRefresh;
+    return refreshIfNotRefreshing();
+  }
+
+  private synchronized CompletableFuture<T> refreshIfNotRefreshing() {
+    CompletableFuture<T> pendingRefresh = this.pendingRefresh;
+    if (pendingRefresh != null) {
       return pendingRefresh;
     }
+    pendingRefresh = this.refresh();
+    this.pendingRefresh = pendingRefresh;
+    return pendingRefresh;
   }
 
   @SuppressWarnings("FutureReturnValueIgnored")
