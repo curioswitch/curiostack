@@ -119,7 +119,7 @@ public class CuriostackPlugin implements Plugin<Project> {
 
   private static final String GOOGLE_JAVA_FORMAT_VERSION = "1.5";
   private static final String NODE_VERSION = "9.8.0";
-  private static final String YARN_VERSION = "1.5.1";
+  private static final String YARN_VERSION = "1.6.0";
 
   private static final Splitter NEW_LINE_SPLITTER = Splitter.on('\n');
 

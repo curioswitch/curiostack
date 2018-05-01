@@ -50,10 +50,8 @@ public class AsyncRefreshingValue<T> {
   private final EventExecutor executor;
   private final Clock clock;
 
-  @Nullable
-  private volatile T currentValue;
-  @Nullable
-  private volatile Instant expirationTime;
+  @Nullable private volatile T currentValue;
+  @Nullable private volatile Instant expirationTime;
 
   @Nullable private volatile CompletableFuture<T> pendingRefresh;
 

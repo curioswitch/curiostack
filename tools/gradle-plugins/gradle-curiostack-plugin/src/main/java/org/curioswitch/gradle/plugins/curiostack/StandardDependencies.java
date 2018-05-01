@@ -108,17 +108,17 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.27.0")
+              .version("1.28.0")
               .addModules("google-cloud-bigquery", "google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.45.0-alpha")
+              .version("0.46.0-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.45.0-beta")
+              .version("0.46.0-beta")
               .addModules("google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
@@ -267,12 +267,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("4.19.1")
+              .version("4.19.2")
               .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.gcp")
-              .version("0.3.4")
+              .version("0.4.0")
               .addModules("zipkin-translation-stackdriver")
               .build(),
           ImmutableDependencySet.builder()
@@ -287,7 +287,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.8.8")
+              .version("1.8.10")
               .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
@@ -370,12 +370,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.junit.jupiter")
-              .version("5.1.1")
+              .version("5.2.0")
               .addModules("junit-jupiter-api", "junit-jupiter-engine")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.junit.vintage")
-              .version("5.1.1")
+              .version("5.2.0")
               .addModules("junit-vintage-engine")
               .build(),
           ImmutableDependencySet.builder()
@@ -416,7 +416,7 @@ class StandardDependencies {
           "me.champeau.gradle:jmh-gradle-plugin:0.4.5",
           "mysql:mysql-connector-java:8.0.11",
           "net.ltgt.gradle:gradle-apt-plugin:0.15",
-          "net.ltgt.gradle:gradle-errorprone-javacplugin-plugin:0.1",
+          "net.ltgt.gradle:gradle-errorprone-javacplugin-plugin:0.2",
           "net.ltgt.gradle:gradle-errorprone-plugin:0.0.13",
           "nu.studer:gradle-jooq-plugin:2.0.11");
 

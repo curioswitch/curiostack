@@ -138,11 +138,9 @@ public class ClientBuilderFactory {
 
   public ClientBuilder create(String name, String url) {
     URI uri = URI.create(url);
-    DnsAddressEndpointGroup dnsEndpointGroup = new DnsAddressEndpointGroupBuilder(uri.getHost())
-        .port(uri.getPort())
-        .ttl(1, 10)
-        .build();
-        DnsAddressEndpointGroup.of(uri.getHost(), uri.getPort());
+    DnsAddressEndpointGroup dnsEndpointGroup =
+        new DnsAddressEndpointGroupBuilder(uri.getHost()).port(uri.getPort()).ttl(1, 10).build();
+    DnsAddressEndpointGroup.of(uri.getHost(), uri.getPort());
     dnsEndpointGroup.addListener(
         endpoints ->
             logger.info(
