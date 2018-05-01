@@ -42,7 +42,7 @@ const CONFIG = {
     },
   },
   transform: {
-    '^.+\\.tsx?$': 'ts-jest-babel-7',
+    '^.+\\.tsx?$': 'ts-jest',
   },
   transformIgnorePatterns: ['node_modules/(?!@curiostack)'],
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$',

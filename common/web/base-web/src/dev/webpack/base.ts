@@ -50,7 +50,12 @@ function configure(options: any): Configuration {
             },
           ],
           '@babel/react',
-          '@babel/stage-0',
+          [
+            '@babel/stage-0',
+            {
+              decoratorsLegacy: true,
+            },
+          ],
         ],
         plugins: [
           'react-hot-loader/babel',
