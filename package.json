@@ -7,7 +7,6 @@
   "workspaces": [
     "common/web/base-node-dev",
     "common/web/base-web",
-    "common/web/base-web-dev",
     "eggworld/api/build/web",
     "eggworld/client/web",
     "tools/cloudbuild-github",

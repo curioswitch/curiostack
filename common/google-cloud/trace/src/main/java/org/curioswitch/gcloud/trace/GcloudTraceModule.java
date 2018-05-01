@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,23 +22,22 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
+package org.curioswitch.gcloud.trace;
 
-archivesBaseName = 'eggworld-server'
-mainClassName = 'org.curioswitch.eggworld.server.Main'
+import com.google.devtools.cloudtrace.v1.TraceServiceGrpc.TraceServiceFutureStub;
+import dagger.Module;
+import dagger.Provides;
+import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
+import org.curioswitch.curiostack.gcloud.core.grpc.GrpcApiClientBuilder;
 
-dependencies {
-    compile project(':common:server:framework')
-    compile project(':eggworld:api')
-    compile project(':eggworld:client:web')
+@Module(includes = GcloudAuthModule.class)
+public abstract class GcloudTraceModule {
 
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
-    compile 'com.linecorp.armeria:armeria-retrofit2'
-    compile 'com.squareup.retrofit2:adapter-guava'
-    compile 'com.squareup.retrofit2:converter-jackson'
+  @Provides
+  static TraceServiceFutureStub traceService(GrpcApiClientBuilder clientBuilder) {
+    return clientBuilder.create(
+        "cloud-trace", "https://cloudtrace.googleapis.com", TraceServiceFutureStub.class);
+  }
 
-    annotationProcessor 'com.google.dagger:dagger-compiler'
-
-    annotationProcessor 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
+  private GcloudTraceModule() {}
 }

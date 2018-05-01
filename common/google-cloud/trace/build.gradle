@@ -26,22 +26,17 @@ apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
 
-archivesBaseName = 'armeria-google-cloud-core'
+archivesBaseName = 'armeria-google-cloud-trace'
 
 dependencies {
-    api 'com.google.api-client:google-api-client:1.23.0'
+    api project(':common:google-cloud:core')
+
+    protobuf 'com.google.api.grpc:proto-google-cloud-trace-v1:0.10.0'
+
     api 'com.google.guava:guava'
     api 'com.linecorp.armeria:armeria'
-    api 'com.linecorp.armeria:armeria-retrofit2'
-    api 'com.linecorp.armeria:armeria-zipkin'
     api 'com.typesafe:config'
-    api 'io.zipkin.brave:brave'
     api 'javax.inject:javax.inject'
-
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
-    implementation 'com.github.ben-manes.caffeine:caffeine'
-    implementation 'com.google.auth:google-auth-library-oauth2-http:0.9.0'
 
     annotationProcessor 'com.google.dagger:dagger-compiler'
     compileOnly 'com.google.dagger:dagger'
@@ -59,10 +54,10 @@ publishing {
                 asNode().children()[3] + {
                     resolveStrategy = Closure.DELEGATE_FIRST
 
-                    name 'armeria-google-cloud-core'
-                    description 'Core functionality to support various Google Cloud APIs.'
+                    name 'armeria-google-cloud-storage'
+                    description 'A Stackdriver Trace client, based on Armeria.'
                     url 'https://github.com/curioswitch/curiostack/tree/master/' +
-                            'common/google-cloud/core'
+                            'common/google-cloud/armeria-google-cloud-trace'
                 }
             }
         }

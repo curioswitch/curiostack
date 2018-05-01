@@ -32,6 +32,7 @@ import com.linecorp.armeria.client.Endpoint;
 import com.linecorp.armeria.client.endpoint.EndpointGroupRegistry;
 import com.linecorp.armeria.client.endpoint.EndpointSelectionStrategy;
 import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroup;
+import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroupBuilder;
 import com.linecorp.armeria.client.endpoint.healthcheck.HttpHealthCheckedEndpointGroup;
 import com.linecorp.armeria.client.endpoint.healthcheck.HttpHealthCheckedEndpointGroupBuilder;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
@@ -138,14 +139,14 @@ public class ClientBuilderFactory {
   public ClientBuilder create(String name, String url) {
     URI uri = URI.create(url);
     DnsAddressEndpointGroup dnsEndpointGroup =
-        DnsAddressEndpointGroup.of(uri.getHost(), uri.getPort());
+        new DnsAddressEndpointGroupBuilder(uri.getHost()).port(uri.getPort()).ttl(1, 10).build();
+    DnsAddressEndpointGroup.of(uri.getHost(), uri.getPort());
     dnsEndpointGroup.addListener(
         endpoints ->
             logger.info(
                 "Resolved new endpoints for {} : [ {} ]",
                 name,
                 endpoints.stream().map(Endpoint::authority).collect(Collectors.joining(","))));
-    dnsEndpointGroup.start();
     HttpHealthCheckedEndpointGroup endpointGroup =
         new HttpHealthCheckedEndpointGroupBuilder(dnsEndpointGroup, "/internal/health")
             .clientFactory(clientFactory)

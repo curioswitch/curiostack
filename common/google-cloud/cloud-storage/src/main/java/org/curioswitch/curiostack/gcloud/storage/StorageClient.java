@@ -46,6 +46,7 @@ import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.EventLoop;
+import io.netty.util.ReferenceCountUtil;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -156,6 +157,7 @@ public class StorageClient {
         .thenApply(
             msg -> {
               if (msg.status().equals(HttpStatus.NOT_FOUND)) {
+                ReferenceCountUtil.safeRelease(msg.content());
                 return null;
               }
               HttpData data = msg.content();

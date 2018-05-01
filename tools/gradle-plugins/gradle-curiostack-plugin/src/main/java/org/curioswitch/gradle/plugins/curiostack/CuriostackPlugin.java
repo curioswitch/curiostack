@@ -119,7 +119,7 @@ public class CuriostackPlugin implements Plugin<Project> {
 
   private static final String GOOGLE_JAVA_FORMAT_VERSION = "1.5";
   private static final String NODE_VERSION = "9.8.0";
-  private static final String YARN_VERSION = "1.5.1";
+  private static final String YARN_VERSION = "1.6.0";
 
   private static final Splitter NEW_LINE_SPLITTER = Splitter.on('\n');
 
@@ -410,6 +410,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             JavaCompile.class,
             task -> {
               task.getOptions().setIncremental(true);
+              task.getOptions().setCompilerArgs(ImmutableList.of("-XDcompilePolicy=byfile"));
               project
                   .getTasks()
                   .withType(SpotlessTask.class, spotlessTask -> spotlessTask.dependsOn(task));
@@ -709,18 +710,21 @@ public class CuriostackPlugin implements Plugin<Project> {
     Closure<?> pathOverrider =
         LambdaClosure.of(
             (ExecSpec exec) -> {
-              String actualCommand = exec.getExecutable() + " " + String.join(" ", exec.getArgs());
-              exec.setCommandLine(
-                  "bash",
-                  "-c",
-                  ". "
-                      + CommandUtil.getCondaBaseDir(project)
-                          .resolve("etc/profile.d/conda.sh")
-                          .toString()
-                      + " && conda activate > /dev/null && cd "
-                      + exec.getWorkingDir().toString()
-                      + " && "
-                      + actualCommand);
+              if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+                String actualCommand =
+                    exec.getExecutable() + " " + String.join(" ", exec.getArgs());
+                exec.setCommandLine(
+                    "bash",
+                    "-c",
+                    ". "
+                        + CommandUtil.getCondaBaseDir(project)
+                            .resolve("etc/profile.d/conda.sh")
+                            .toString()
+                        + " && conda activate > /dev/null && cd "
+                        + exec.getWorkingDir().toString()
+                        + " && "
+                        + actualCommand);
+              }
               exec.getEnvironment()
                   .put(
                       "PATH",
