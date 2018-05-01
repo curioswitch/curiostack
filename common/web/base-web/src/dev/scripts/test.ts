@@ -27,7 +27,7 @@ import { run } from 'jest-cli';
 
 const CONFIG = {
   globals: {
-    'ts-jest-babel-7': {
+    'ts-jest': {
       babelConfig: {
         presets: ['stage-0', 'react'],
         plugins: [
