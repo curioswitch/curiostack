@@ -49,6 +49,7 @@ import net.bytebuddy.asm.AsmVisitorWrapper.ForDeclaredMethods;
 import net.bytebuddy.description.type.TypeDefinition;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.jar.asm.ClassWriter;
 
 /**
@@ -265,7 +266,9 @@ abstract class TypeSpecificMarshaller<T extends Message> {
       marshaller =
           buddy
               .make()
-              .load(TypeSpecificMarshaller.class.getClassLoader())
+              .load(
+                  TypeSpecificMarshaller.class.getClassLoader(),
+                  ClassLoadingStrategy.Default.INJECTION)
               .getLoaded()
               .getConstructor(prototype.getClass())
               .newInstance(prototype);

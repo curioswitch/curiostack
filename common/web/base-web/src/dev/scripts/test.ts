@@ -58,4 +58,6 @@ const CONFIG = {
   },
 };
 
-run(['--config', JSON.stringify(CONFIG)]).catch(() => process.exit(1));
+const cli_params = process.argv.slice(2)
+const jest_params = ['--config', JSON.stringify(CONFIG)].concat(cli_params)
+run(jest_params).catch(() => process.exit(1));
