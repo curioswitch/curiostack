@@ -58,6 +58,12 @@ const CONFIG = {
   },
 };
 
-const cli_params = process.argv.slice(2)
-const jest_params = ['--config', JSON.stringify(CONFIG)].concat(cli_params)
-run(jest_params).catch(() => process.exit(1));
+export async function test() {
+  const cli_params = process.argv.slice(2);
+  const jest_params = ['--config', JSON.stringify(CONFIG)].concat(cli_params);
+  return run(jest_params);
+}
+
+if (require.main === module) {
+  test().catch(() => process.exit(1));
+}

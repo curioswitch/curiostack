@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
  * MIT License
  *
@@ -23,39 +22,4 @@
  * SOFTWARE.
  */
 
-import path from 'path';
-import { promisify } from 'util';
-
-import rimraf from 'rimraf';
-import { Configuration } from 'webpack';
-import saneWebpack from 'webpack-sane-compiler';
-import startReporting from 'webpack-sane-compiler-reporter';
-
-import { appConfiguration, prerenderConfiguration } from '../webpack/prod';
-
-import { check } from './check';
-
-async function runWebpack(config: Configuration) {
-  const compiler = saneWebpack(config);
-  startReporting(compiler);
-  await compiler.run();
-}
-
-async function run() {
-  await promisify(rimraf)(path.resolve(process.cwd(), 'build'));
-
-  await check();
-
-  await runWebpack(appConfiguration);
-  if (prerenderConfiguration) {
-    await runWebpack(prerenderConfiguration);
-  }
-}
-if (require.main === module) {
-  run()
-    .then(() => process.exit(0))
-    .catch((err) => {
-      console.log('Error running webpack.', err);
-      process.exit(1);
-    });
-}
+it('does not have a test yet', () => undefined);
