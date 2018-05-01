@@ -27,7 +27,7 @@ import { run } from 'jest-cli';
 
 const CONFIG = {
   globals: {
-    'ts-jest': {
+    'ts-jest-babel-7': {
       babelConfig: {
         presets: ['stage-0', 'react'],
         plugins: [
@@ -42,7 +42,7 @@ const CONFIG = {
     },
   },
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.tsx?$': 'ts-jest-babel-7',
   },
   transformIgnorePatterns: ['node_modules/(?!@curiostack)'],
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$',
@@ -58,6 +58,12 @@ const CONFIG = {
   },
 };
 
-const cli_params = process.argv.slice(2)
-const jest_params = ['--config', JSON.stringify(CONFIG)].concat(cli_params)
-run(jest_params).catch(() => process.exit(1));
+export async function test() {
+  const cli_params = process.argv.slice(2);
+  const jest_params = ['--config', JSON.stringify(CONFIG)].concat(cli_params);
+  return run(jest_params);
+}
+
+if (require.main === module) {
+  test().catch(() => process.exit(1));
+}

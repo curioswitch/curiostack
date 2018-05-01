@@ -28,6 +28,8 @@ import path from 'path';
 import { Configuration, Linter } from 'tslint';
 import typescript, { FormatDiagnosticsHost } from 'typescript';
 
+import { test } from './test';
+
 class FormatTypescriptHost implements FormatDiagnosticsHost {
   public getCurrentDirectory(): string {
     return process.cwd();
@@ -81,10 +83,11 @@ export function lint(fix?: boolean) {
   return results.errorCount === 0;
 }
 
+export async function check() {
+  lint();
+  return test();
+}
+
 if (require.main === module) {
-  if (!lint()) {
-    process.exit(1);
-  } else {
-    process.exit();
-  }
+  check().catch(() => process.exit(1));
 }
