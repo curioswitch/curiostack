@@ -147,7 +147,7 @@
     "testRegex": "tests/.*\\.test\\.js$"
   },
   "dependencies": {
-    "@curiostack/base-web": "0.0.19",
+    "@curiostack/base-web": "0.0.20",
     "@curiostack/eggworld-api": "1.0.0",
     "history": "4.7.2",
     "howler": "2.0.9",
