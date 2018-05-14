@@ -26,6 +26,8 @@ package org.curioswitch.curiostack.gcloud.core;
 
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientDecoration;
+import com.linecorp.armeria.client.ClientFactory;
+import com.linecorp.armeria.client.ClientFactoryBuilder;
 import com.linecorp.armeria.client.ClientOption;
 import com.linecorp.armeria.client.Clients;
 import com.linecorp.armeria.client.HttpClient;
@@ -36,13 +38,19 @@ import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
+import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
+import io.micrometer.core.instrument.MeterRegistry;
+import java.util.Optional;
 import javax.inject.Singleton;
 import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
 
 @Module(includes = GcloudAuthModule.class)
 public abstract class GcloudModule {
+
+  @BindsOptionalOf
+  abstract MeterRegistry meterRegistry();
 
   @Provides
   @Singleton
@@ -54,8 +62,13 @@ public abstract class GcloudModule {
   @Provides
   @Singleton
   @GoogleApis
-  public static HttpClient googleApisClient() {
+  public static HttpClient googleApisClient(Optional<MeterRegistry> meterRegistry) {
+    ClientFactory factory =
+        meterRegistry
+            .map(registry -> new ClientFactoryBuilder().meterRegistry(registry).build())
+            .orElse(ClientFactory.DEFAULT);
     return new ClientBuilder("none+https://www.googleapis.com/")
+        .factory(factory)
         .decorator(HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator())
         .build(HttpClient.class);
   }

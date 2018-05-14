@@ -54,7 +54,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.curioswitch.curiostack.gcloud.core.auth.RetryingAuthenticatedGoogleApis;
+import org.curioswitch.curiostack.gcloud.storage.StorageModule.ForStorage;
 import org.immutables.value.Value.Immutable;
 
 /**
@@ -73,8 +73,7 @@ public class StorageClient {
   private final String readUrlPrefix;
 
   @Inject
-  public StorageClient(
-      @RetryingAuthenticatedGoogleApis HttpClient httpClient, StorageConfig config) {
+  public StorageClient(@ForStorage HttpClient httpClient, StorageConfig config) {
     this.httpClient = httpClient;
 
     uploadUrl = "/upload/storage/v1/b/" + config.getBucket() + "/o?uploadType=resumable";
