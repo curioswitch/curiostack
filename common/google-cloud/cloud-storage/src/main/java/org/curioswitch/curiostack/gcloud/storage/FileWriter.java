@@ -30,6 +30,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpHeaders;
@@ -40,6 +41,7 @@ import com.linecorp.armeria.unsafe.ByteBufHttpData;
 import com.spotify.futures.CompletableFuturesExtra;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.EventLoop;
 import java.io.UncheckedIOException;
@@ -47,7 +49,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import org.curioswitch.curiostack.gcloud.core.auth.RetryingAuthenticatedGoogleApis;
+import org.curioswitch.curiostack.gcloud.storage.StorageModule.ForStorage;
 
 /**
  * A Cloud Storage file writer. Data should be written using {@link #write(ByteBuffer)}, with the
@@ -68,12 +70,24 @@ public class FileWriter {
     private final HttpClient httpClient;
 
     @Inject
-    Resumer(@RetryingAuthenticatedGoogleApis HttpClient httpClient) {
+    Resumer(@ForStorage HttpClient httpClient) {
       this.httpClient = httpClient;
     }
 
     /** Resume a {@link FileWriter} based on the serialized state. */
+    public ListenableFuture<FileWriter> resume(ByteString serializedState) {
+      return resume(
+          serializedState, PooledByteBufAllocator.DEFAULT, CommonPools.workerGroup().next());
+    }
+
+    /** Resume a {@link FileWriter} based on the serialized state. */
     public ListenableFuture<FileWriter> resume(ByteString serializedState, RequestContext ctx) {
+      return resume(serializedState, ctx.alloc(), ctx.eventLoop());
+    }
+
+    /** Resume a {@link FileWriter} based on the serialized state. */
+    public ListenableFuture<FileWriter> resume(
+        ByteString serializedState, ByteBufAllocator alloc, EventLoop eventLoop) {
       final FileWriterState state;
       try {
         state = FileWriterState.parseFrom(serializedState);
@@ -82,7 +96,7 @@ public class FileWriter {
       }
       final ByteBuf unfinishedChunk;
       if (!state.getUnfinished().isEmpty()) {
-        unfinishedChunk = ctx.alloc().buffer(state.getUnfinished().size());
+        unfinishedChunk = alloc.buffer(state.getUnfinished().size());
         unfinishedChunk.writeBytes(state.getUnfinished().asReadOnlyByteBuffer());
       } else {
         unfinishedChunk = null;
@@ -94,7 +108,8 @@ public class FileWriter {
               : "/upload/storage/v1" + state.getUploadUrl();
 
       FileWriter writer =
-          new FileWriter(url, ctx, httpClient, state.getFilePosition(), unfinishedChunk);
+          new FileWriter(
+              url, alloc, eventLoop, httpClient, state.getFilePosition(), unfinishedChunk);
       return immediateFuture(writer);
     }
   }
@@ -119,16 +134,17 @@ public class FileWriter {
 
   FileWriter(
       String uploadUrl,
-      RequestContext ctx,
+      ByteBufAllocator alloc,
+      EventLoop eventLoop,
       HttpClient httpClient,
       long filePosition,
       @Nullable ByteBuf unfinishedChunk) {
     this.uploadUrl = uploadUrl;
+    this.alloc = alloc;
+    this.eventLoop = eventLoop;
     this.httpClient = httpClient;
     this.filePosition = filePosition;
     this.unfinishedChunk = unfinishedChunk;
-    alloc = ctx.alloc();
-    eventLoop = ctx.contextAwareEventLoop();
   }
 
   /**

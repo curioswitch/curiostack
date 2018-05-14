@@ -21,29 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.curioswitch.common.server.framework.monitoring;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
+package org.curioswitch.curiostack.gcloud.storage;
+
+import com.linecorp.armeria.common.logging.RequestLog;
 import com.linecorp.armeria.common.metric.MeterIdPrefix;
 import com.linecorp.armeria.common.metric.MeterIdPrefixFunction;
-import java.util.List;
 
-public final class RpcMetricLabels {
+final class MetricLabels {
 
-  private static final Splitter PATH_SPLITTER = Splitter.on('/').omitEmptyStrings();
-
-  public static MeterIdPrefixFunction grpcRequestLabeler(String name) {
-    return (registry, log) -> {
-      // The service name and method name will always be the last two path components.
-      List<String> methodParts = ImmutableList.copyOf(PATH_SPLITTER.split(log.path())).reverse();
-      if (methodParts.size() >= 2) {
-        return new MeterIdPrefix(name, "service", methodParts.get(1), "method", methodParts.get(0));
-      } else {
-        return new MeterIdPrefix(name + "-unknowntags");
-      }
-    };
+  static MeterIdPrefixFunction storageRequestLabeler() {
+    return ((registry, log) -> {
+      // Not gRPC, but for now just use the standard convention.
+      return new MeterIdPrefix(
+          "grpc_clients", "service", "CloudStorage", "method", serviceMethod(log));
+    });
   }
 
-  private RpcMetricLabels() {}
+  private static String serviceMethod(RequestLog log) {
+    switch (log.method()) {
+      case GET:
+        return "Read";
+      case POST:
+        return "Create";
+      case PUT:
+        return "Upload";
+      case PATCH:
+        return "Update";
+      default:
+        return "__unknown__";
+    }
+  }
+
+  private MetricLabels() {}
 }
