@@ -41,7 +41,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
     implementation 'com.github.ben-manes.caffeine:caffeine'
-    implementation 'com.google.auth:google-auth-library-oauth2-http:0.9.0'
+    implementation 'com.google.auth:google-auth-library-oauth2-http'
 
     annotationProcessor 'com.google.dagger:dagger-compiler'
     compileOnly 'com.google.dagger:dagger'

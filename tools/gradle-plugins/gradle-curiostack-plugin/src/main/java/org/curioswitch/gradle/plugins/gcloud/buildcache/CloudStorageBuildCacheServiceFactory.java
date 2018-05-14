@@ -31,6 +31,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.linecorp.armeria.client.HttpClient;
 import java.io.IOException;
 import java.time.Clock;
+import java.util.Optional;
 import org.curioswitch.curiostack.gcloud.core.GcloudModule;
 import org.curioswitch.curiostack.gcloud.core.auth.AccessTokenProvider;
 import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
@@ -65,7 +66,7 @@ public class CloudStorageBuildCacheServiceFactory
               + "./gradlew :gcloud_auth_application-default_login? Disabling build cache.");
       return new NoOpBuildCacheService();
     }
-    HttpClient googleApis = GcloudModule.googleApisClient();
+    HttpClient googleApis = GcloudModule.googleApisClient(Optional.empty());
     AccessTokenProvider.Factory accessTokenProviderFactory =
         new AccessTokenProvider.Factory(googleApis, Clock.systemUTC());
     AccessTokenProvider accessTokenProvider = accessTokenProviderFactory.create(credentials);

@@ -70,14 +70,14 @@ public class StorageClient {
   private final HttpClient httpClient;
 
   private final String uploadUrl;
-  private final String readUrlPrefix;
+  private final String objectUrlPrefix;
 
   @Inject
   public StorageClient(@ForStorage HttpClient httpClient, StorageConfig config) {
     this.httpClient = httpClient;
 
     uploadUrl = "/upload/storage/v1/b/" + config.getBucket() + "/o?uploadType=resumable";
-    readUrlPrefix = "/storage/v1/b/" + config.getBucket() + "/o/";
+    objectUrlPrefix = "/storage/v1/b/" + config.getBucket() + "/o/";
   }
 
   /** Create a new file for uploading data to cloud storage. */
@@ -95,16 +95,7 @@ public class StorageClient {
   /** Create a new file for uploading data to cloud storage. */
   public CompletableFuture<FileWriter> createFile(
       String filename, Map<String, String> metadata, EventLoop eventLoop, ByteBufAllocator alloc) {
-    FileRequest request = ImmutableFileRequest.builder().name(filename).metadata(metadata).build();
-    ByteBuf buf = alloc.buffer();
-    try (ByteBufOutputStream os = new ByteBufOutputStream(buf)) {
-      OBJECT_MAPPER.writeValue((DataOutput) os, request);
-    } catch (IOException e) {
-      buf.release();
-      throw new UncheckedIOException("Could not serialize resource JSON to buffer.", e);
-    }
-
-    HttpData data = new ByteBufHttpData(buf, true);
+    HttpData data = createFileRequest(filename, metadata, alloc);
 
     HttpHeaders headers =
         HttpHeaders.of(HttpMethod.POST, uploadUrl).contentType(MediaType.JSON_UTF_8);
@@ -148,7 +139,7 @@ public class StorageClient {
   public CompletableFuture<ByteBuf> readFile(
       String filename, EventLoop eventLoop, ByteBufAllocator alloc) {
     String url =
-        readUrlPrefix + UrlEscapers.urlPathSegmentEscaper().escape(filename) + "?alt=media";
+        objectUrlPrefix + UrlEscapers.urlPathSegmentEscaper().escape(filename) + "?alt=media";
 
     return httpClient
         .get(url)
@@ -168,6 +159,50 @@ public class StorageClient {
                 return buf;
               }
             });
+  }
+
+  public CompletableFuture<Void> updateFileMetadata(
+      String filename, Map<String, String> metadata) {
+    return updateFileMetadata(filename, metadata, CommonPools.workerGroup().next(), PooledByteBufAllocator.DEFAULT);
+  }
+
+  public CompletableFuture<Void> updateFileMetadata(
+      String filename, Map<String, String> metadata, EventLoop eventLoop, ByteBufAllocator alloc) {
+    String url = objectUrlPrefix + UrlEscapers.urlPathSegmentEscaper().escape(filename);
+    HttpData data = createFileRequest(filename, metadata, alloc);
+
+    HttpHeaders headers = HttpHeaders.of(HttpMethod.PATCH, url).contentType(MediaType.JSON_UTF_8);
+    HttpResponse res = httpClient.execute(headers, data);
+    return res.aggregate(eventLoop)
+        .handle(
+            (msg, t) -> {
+              if (t != null) {
+                throw new RuntimeException("Unexpected error creating new file.", t);
+              }
+              try {
+                if (msg.status().equals(HttpStatus.OK)) {
+                  return null;
+                } else {
+                  throw new IllegalStateException("Could not update metadata");
+                }
+              } finally {
+                ReferenceCountUtil.safeRelease(msg.content());
+              }
+            });
+  }
+
+  private static HttpData createFileRequest(
+      String filename, Map<String, String> metadata, ByteBufAllocator alloc) {
+    FileRequest request = ImmutableFileRequest.builder().name(filename).metadata(metadata).build();
+    ByteBuf buf = alloc.buffer();
+    try (ByteBufOutputStream os = new ByteBufOutputStream(buf)) {
+      OBJECT_MAPPER.writeValue((DataOutput) os, request);
+    } catch (IOException e) {
+      buf.release();
+      throw new UncheckedIOException("Could not serialize resource JSON to buffer.", e);
+    }
+
+    return new ByteBufHttpData(buf, true);
   }
 
   @Immutable
