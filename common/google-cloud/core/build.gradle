@@ -28,6 +28,9 @@ apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
 
 archivesBaseName = 'armeria-google-cloud-core'
 
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
 dependencies {
     api 'com.google.api-client:google-api-client:1.23.0'
     api 'com.google.guava:guava'

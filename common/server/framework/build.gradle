@@ -27,6 +27,9 @@ apply plugin: 'maven-publish'
 
 archivesBaseName = 'curio-server-framework'
 
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
 // Spring dependencies plugin is not aware of classifiers. Eventually see if netflix plugins work
 // better (it is possibly a limitation of gradle itself).
 def sfmVersion = '3.17.4'
@@ -75,6 +78,9 @@ dependencies {
         implementation "org.simpleflatmapper:${it}:${sfmVersion}:jdk9"
     }
 
+    runtime 'com.google.cloud.sql:mysql-socket-factory'
+    runtime 'javax.xml.bind:jaxb-api'
+    runtime 'com.sun.xml.bind:jaxb-impl'
     runtime 'mysql:mysql-connector-java'
 
     annotationProcessor 'com.google.auto.service:auto-service'

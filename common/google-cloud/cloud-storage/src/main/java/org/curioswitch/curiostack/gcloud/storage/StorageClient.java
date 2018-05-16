@@ -161,9 +161,9 @@ public class StorageClient {
             });
   }
 
-  public CompletableFuture<Void> updateFileMetadata(
-      String filename, Map<String, String> metadata) {
-    return updateFileMetadata(filename, metadata, CommonPools.workerGroup().next(), PooledByteBufAllocator.DEFAULT);
+  public CompletableFuture<Void> updateFileMetadata(String filename, Map<String, String> metadata) {
+    return updateFileMetadata(
+        filename, metadata, CommonPools.workerGroup().next(), PooledByteBufAllocator.DEFAULT);
   }
 
   public CompletableFuture<Void> updateFileMetadata(

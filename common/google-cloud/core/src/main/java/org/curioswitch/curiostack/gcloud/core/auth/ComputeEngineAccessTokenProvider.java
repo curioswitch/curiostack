@@ -25,11 +25,15 @@
 package org.curioswitch.curiostack.gcloud.core.auth;
 
 import com.google.auth.oauth2.ComputeEngineCredentials;
+import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.logging.LoggingClientBuilder;
 import com.linecorp.armeria.common.AggregatedHttpMessage;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpHeaders;
 import com.linecorp.armeria.common.HttpMethod;
+import com.linecorp.armeria.common.HttpRequest;
+import com.linecorp.armeria.common.HttpResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.AsciiString;
 import java.net.URI;
@@ -54,9 +58,14 @@ class ComputeEngineAccessTokenProvider extends AbstractAccessTokenProvider {
   @Override
   protected CompletableFuture<AggregatedHttpMessage> fetchToken(Type type) {
     URI uri = URI.create(ComputeEngineCredentials.getTokenServerEncodedUrl());
+
     // In practice, this URL shouldn't change at runtime but it's not infeasible, and since this
     // shouldn't be executed often, just create a client every time.
-    HttpClient client = HttpClient.of(uri.resolve("/"));
+    HttpClient client =
+        new ClientBuilder("none+h1c://" + uri.getAuthority() + "/")
+            .decorator(
+                HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator())
+            .build(HttpClient.class);
     return client
         .execute(
             HttpHeaders.of(HttpMethod.GET, uri.getPath()).set(METADATA_FLAVOR_HEADER, "Google"))

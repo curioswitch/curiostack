@@ -119,7 +119,7 @@ class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
               .version("0.47.0-beta")
-              .addModules("google-cloud-trace")
+              .addModules("google-cloud-pubsub", "google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud.sql")
@@ -291,6 +291,14 @@ class StandardDependencies {
               .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
+              .group("org.apache.beam")
+              .version("2.4.0")
+              .addModules(
+                  "beam-runners-direct-java",
+                  "beam-runners-google-cloud-dataflow-java",
+                  "beam-sdks-java-io-google-cloud-platform")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("org.apache.httpcomponents")
               .version("4.5.3")
               .addModules("httpclient")
@@ -327,7 +335,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.24")
+              .version("0.0.25")
               .addModules(
                   "armeria-google-cloud-core",
                   "armeria-google-cloud-iam",
@@ -336,7 +344,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.69")
+              .version("0.0.70")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
