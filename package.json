@@ -1,6 +1,8 @@
 {
   "private": true,
   "resolutions": {
+    "@curiostack/base-node-dev": "0.0.4",
+    "@curiostack/base-web": "0.0.20",
     "imagemin-pngquant": "5.0.0",
     "redux": "4.0.0"
   },
