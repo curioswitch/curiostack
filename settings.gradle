@@ -32,9 +32,7 @@ pluginManagement {
     }
     repositories {
         jcenter()
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
+        gradlePluginPortal()
         maven {
             url 'http://dl.bintray.com/curioswitch/curiostack'
         }
@@ -48,9 +46,7 @@ pluginManagement {
 buildscript {
     repositories {
         jcenter()
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
+        gradlePluginPortal()
         maven {
             url 'http://dl.bintray.com/curioswitch/curiostack'
         }
