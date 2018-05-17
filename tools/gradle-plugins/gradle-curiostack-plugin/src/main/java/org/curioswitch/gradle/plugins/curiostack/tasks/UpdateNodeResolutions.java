@@ -38,7 +38,9 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.GradleException;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
@@ -46,20 +48,28 @@ import org.gradle.api.tasks.TaskAction;
 public class UpdateNodeResolutions extends DefaultTask {
 
   public static final String NAME = "updateNodeResolutions";
+  public static final String CHECK_NAME = "checkNodeResolutions";
 
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-      .configure(SerializationFeature.INDENT_OUTPUT, true);
+  private static final ObjectMapper OBJECT_MAPPER =
+      new ObjectMapper().configure(SerializationFeature.INDENT_OUTPUT, true);
 
-  private static final TypeReference<Map<String, String>> NODE_DEPENDENCIES
-      = new TypeReference<>() {};
+  private static final TypeReference<Map<String, String>> NODE_DEPENDENCIES =
+      new TypeReference<>() {};
+
+  private final boolean checkOnly;
+
+  @Inject
+  public UpdateNodeResolutions(boolean checkOnly) {
+    this.checkOnly = checkOnly;
+  }
 
   @InputFile
-  File oldPackageJson() {
+  public File getOldPackageJson() {
     return packageJson();
   }
 
   @OutputFile
-  File newPackageJson() {
+  public File getNewPackageJson() {
     return packageJson();
   }
 
@@ -75,8 +85,8 @@ public class UpdateNodeResolutions extends DefaultTask {
       return;
     }
 
-    Map<String, String> oldResolutions = OBJECT_MAPPER.convertValue(root.get("resolutions"),
-        NODE_DEPENDENCIES);
+    Map<String, String> oldResolutions =
+        OBJECT_MAPPER.convertValue(root.get("resolutions"), NODE_DEPENDENCIES);
     String baseWebVersion = oldResolutions.get("@curiostack/base-web");
 
     if (baseWebVersion == null) {
@@ -84,16 +94,31 @@ public class UpdateNodeResolutions extends DefaultTask {
       return;
     }
 
-    String urlPath = "/curioswitch/curiostack/%40curiostack/base-web-" + baseWebVersion + "/common/web/base-web/package.json";
+    String urlPath =
+        "/curioswitch/curiostack/%40curiostack/base-web-"
+            + baseWebVersion
+            + "/common/web/base-web/package.json";
     var client = HttpClient.of("https://raw.githubusercontent.com/");
     AggregatedHttpMessage msg = client.get(urlPath).aggregate().join();
     if (!msg.status().equals(HttpStatus.OK)) {
       throw new IllegalStateException("Could not fetch base-web package.json.");
     }
 
-    Map<String, String> baseWebDependencies = OBJECT_MAPPER.convertValue(
-        OBJECT_MAPPER.readTree(msg.content().array()).get("dependencies"),
-        NODE_DEPENDENCIES);
+    Map<String, String> baseWebDependencies =
+        OBJECT_MAPPER.convertValue(
+            OBJECT_MAPPER.readTree(msg.content().array()).get("dependencies"), NODE_DEPENDENCIES);
+
+    if (checkOnly) {
+      baseWebDependencies.forEach(
+          (name, version) -> {
+            if (!version.equals(oldResolutions.get(name))) {
+              throw new GradleException(
+                  "Resolutions out of date versus base-web version. "
+                      + "Run updateNodeResolutions to update them.");
+            }
+          });
+      return;
+    }
 
     Map<String, String> newResolutions = new TreeMap<>();
     newResolutions.putAll(oldResolutions);
@@ -114,8 +139,7 @@ public class UpdateNodeResolutions extends DefaultTask {
   }
 
   private void logPackageJsonError() {
-    getProject()
-        .getLogger()
+    getLogger()
         .warn(
             "No resolutions field in package.json. To use this task, there must be a"
                 + " resolutions field with a version specified for @curiostack/base-web");

@@ -771,7 +771,10 @@ public class CuriostackPlugin implements Plugin<Project> {
             BasePlugin.CLEAN_TASK_NAME,
             task -> ((Delete) task).delete(project.file("node_modules")));
 
-    project.getTasks().create(UpdateNodeResolutions.NAME, UpdateNodeResolutions.class);
+    project.getTasks().create(UpdateNodeResolutions.NAME, UpdateNodeResolutions.class, false);
+    Task checkNodeResolutions = project.getTasks().create(UpdateNodeResolutions.CHECK_NAME, UpdateNodeResolutions.class, true);
+    project.getTasks().withType(YarnTask.class, t -> t.dependsOn(checkNodeResolutions));
+
   }
 
   private static void setupPyenvs(Project rootProject) {
