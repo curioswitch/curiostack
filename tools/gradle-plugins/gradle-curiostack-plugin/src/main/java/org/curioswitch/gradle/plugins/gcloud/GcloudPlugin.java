@@ -453,9 +453,9 @@ public class GcloudPlugin implements Plugin<Project> {
 
   @Immutable
   @Style(
-      visibility = ImplementationVisibility.PACKAGE,
-      builderVisibility = BuilderVisibility.PACKAGE,
-      defaultAsDefault = true
+    visibility = ImplementationVisibility.PACKAGE,
+    builderVisibility = BuilderVisibility.PACKAGE,
+    defaultAsDefault = true
   )
   @JsonDeserialize(as = ImmutableCloudBuild.class)
   @JsonSerialize(as = ImmutableCloudBuild.class)
