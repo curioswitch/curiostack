@@ -84,6 +84,7 @@ import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
 import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
+import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateNodeResolutions;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.JavaVersion;
@@ -769,6 +770,8 @@ public class CuriostackPlugin implements Plugin<Project> {
         .getByName(
             BasePlugin.CLEAN_TASK_NAME,
             task -> ((Delete) task).delete(project.file("node_modules")));
+
+    project.getTasks().create(UpdateNodeResolutions.NAME, UpdateNodeResolutions.class);
   }
 
   private static void setupPyenvs(Project rootProject) {
