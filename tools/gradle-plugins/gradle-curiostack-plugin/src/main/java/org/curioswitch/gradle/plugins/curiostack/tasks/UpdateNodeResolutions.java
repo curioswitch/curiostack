@@ -30,8 +30,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
+import com.linecorp.armeria.client.ClientDecoration;
+import com.linecorp.armeria.client.ClientOption;
 import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.retry.RetryStrategy;
+import com.linecorp.armeria.client.retry.RetryingHttpClient;
 import com.linecorp.armeria.common.AggregatedHttpMessage;
+import com.linecorp.armeria.common.HttpRequest;
+import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import java.io.File;
 import java.io.IOException;
@@ -98,7 +104,14 @@ public class UpdateNodeResolutions extends DefaultTask {
         "/curioswitch/curiostack/%40curiostack/base-web-"
             + baseWebVersion
             + "/common/web/base-web/package.json";
-    var client = HttpClient.of("https://raw.githubusercontent.com/");
+    var client =
+        HttpClient.of(
+            "https://raw.githubusercontent.com/",
+            ClientOption.DECORATION.newValue(
+                ClientDecoration.of(
+                    HttpRequest.class,
+                    HttpResponse.class,
+                    RetryingHttpClient.newDecorator(RetryStrategy.onServerErrorStatus()))));
     AggregatedHttpMessage msg = client.get(urlPath).aggregate().join();
     if (!msg.status().equals(HttpStatus.OK)) {
       throw new IllegalStateException("Could not fetch base-web package.json.");

@@ -276,12 +276,7 @@ public class CuriostackPlugin implements Plugin<Project> {
 
   private static void setupRepositories(Project project) {
     project.getRepositories().jcenter();
-    project
-        .getRepositories()
-        .maven(
-            maven -> {
-              maven.setUrl("https://plugins.gradle.org/m2/");
-            });
+    project.getRepositories().gradlePluginPortal();
     project
         .getRepositories()
         .maven(
