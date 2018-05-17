@@ -97,6 +97,11 @@ class StandardDependencies {
               .addModules("caffeine")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.google.api.grpc")
+              .version("0.12.0")
+              .addModules("proto-google-cloud-trace-v1")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.google.auto")
               .version("0.10")
               .addModules("auto-common")
@@ -143,7 +148,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.firebase")
-              .version("6.0.0")
+              .version("6.1.0")
               .addModules("firebase-admin")
               .build(),
           ImmutableDependencySet.builder()
@@ -406,7 +411,7 @@ class StandardDependencies {
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
           "com.bmuschko:gradle-docker-plugin:3.2.8",
-          "com.diffplug.spotless:spotless-plugin-gradle:3.10.0",
+          "com.diffplug.spotless:spotless-plugin-gradle:3.12.0",
           "com.github.ben-manes:gradle-versions-plugin:0.17.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.5",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0",
@@ -423,7 +428,7 @@ class StandardDependencies {
           "javax.annotation:javax.annotation-api:1.3.2",
           "javax.xml.bind:jaxb-api:2.3.0",
           "me.champeau.gradle:jmh-gradle-plugin:0.4.5",
-          "mysql:mysql-connector-java:8.0.11",
+          "mysql:mysql-connector-java:5.1.46",
           "net.ltgt.gradle:gradle-apt-plugin:0.15",
           "net.ltgt.gradle:gradle-errorprone-javacplugin-plugin:0.2",
           "net.ltgt.gradle:gradle-errorprone-plugin:0.0.14",
