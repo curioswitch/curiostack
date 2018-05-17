@@ -58,7 +58,7 @@ public class FirebaseAuthorizer implements Authorizer<OAuth2Token> {
     CompletableFuture<Boolean> result = new CompletableFuture<>();
     ApiFutures.addCallback(
         firebaseAuth.verifyIdTokenAsync(data.accessToken()),
-        new ApiFutureCallback<>() {
+        new ApiFutureCallback<FirebaseToken>() {
           @Override
           public void onFailure(Throwable t) {
             result.complete(false);
