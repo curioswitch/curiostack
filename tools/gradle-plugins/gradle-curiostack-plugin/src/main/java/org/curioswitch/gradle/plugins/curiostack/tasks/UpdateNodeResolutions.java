@@ -41,6 +41,7 @@ import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -100,26 +101,36 @@ public class UpdateNodeResolutions extends DefaultTask {
       return;
     }
 
-    String urlPath =
-        "/curioswitch/curiostack/%40curiostack/base-web-"
-            + baseWebVersion
-            + "/common/web/base-web/package.json";
-    var client =
-        HttpClient.of(
-            "https://raw.githubusercontent.com/",
-            ClientOption.DECORATION.newValue(
-                ClientDecoration.of(
-                    HttpRequest.class,
-                    HttpResponse.class,
-                    RetryingHttpClient.newDecorator(RetryStrategy.onServerErrorStatus()))));
-    AggregatedHttpMessage msg = client.get(urlPath).aggregate().join();
-    if (!msg.status().equals(HttpStatus.OK)) {
-      throw new IllegalStateException("Could not fetch base-web package.json.");
+    var localBaseWebPackageJson =
+        getProject()
+            .file(System.getProperty("packageJsonLocation", "common/web/base-web/package.json"));
+    final byte[] baseWebPackageJson;
+    if (localBaseWebPackageJson.exists()) {
+      baseWebPackageJson = Files.readAllBytes(localBaseWebPackageJson.toPath());
+    } else {
+
+      String urlPath =
+          "/curioswitch/curiostack/%40curiostack/base-web-"
+              + baseWebVersion
+              + "/common/web/base-web/package.json";
+      var client =
+          HttpClient.of(
+              "https://raw.githubusercontent.com/",
+              ClientOption.DECORATION.newValue(
+                  ClientDecoration.of(
+                      HttpRequest.class,
+                      HttpResponse.class,
+                      RetryingHttpClient.newDecorator(RetryStrategy.onServerErrorStatus()))));
+      AggregatedHttpMessage msg = client.get(urlPath).aggregate().join();
+      if (!msg.status().equals(HttpStatus.OK)) {
+        throw new IllegalStateException("Could not fetch base-web package.json.");
+      }
+      baseWebPackageJson = msg.content().array();
     }
 
     Map<String, String> baseWebDependencies =
         OBJECT_MAPPER.convertValue(
-            OBJECT_MAPPER.readTree(msg.content().array()).get("dependencies"), NODE_DEPENDENCIES);
+            OBJECT_MAPPER.readTree(baseWebPackageJson).get("dependencies"), NODE_DEPENDENCIES);
 
     if (checkOnly) {
       baseWebDependencies.forEach(
