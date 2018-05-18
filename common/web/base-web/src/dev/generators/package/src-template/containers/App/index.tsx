@@ -20,7 +20,9 @@ type Props = SelectedProps & DispatchProps & InjectedIntlProps;
 
 class App extends React.PureComponent<Props> {
   public render() {
-    const { intl: { formatMessage: _ } } = this.props;
+    const {
+      intl: { formatMessage: _ },
+    } = this.props;
     return (
       <>
         <Helmet

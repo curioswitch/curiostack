@@ -47,6 +47,6 @@ export type Actions = ActionsUnion<typeof Actions>;
 
 export type DispatchProps = typeof Actions;
 
-export function mapDispatchToProps(dispatch: Dispatch<{}>): DispatchProps {
+export function mapDispatchToProps(dispatch: Dispatch<any>): DispatchProps {
   return bindActionCreators(Actions, dispatch);
 }

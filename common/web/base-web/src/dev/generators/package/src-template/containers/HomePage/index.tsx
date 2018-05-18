@@ -17,7 +17,9 @@ type Props = DispatchProps & InjectedIntlProps;
 
 class HomePage extends React.PureComponent<Props> {
   public render() {
-    const { intl: { formatMessage: _ } } = this.props;
+    const {
+      intl: { formatMessage: _ },
+    } = this.props;
     return (
       <>
         <Helmet title={_(messages.title)} />

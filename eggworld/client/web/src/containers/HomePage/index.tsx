@@ -163,7 +163,7 @@ export class HomePage extends React.PureComponent<Props> {
   }
 }
 
-const withConnect = connect(selectHomePage, mapDispatchToProps);
+const withConnect = connect(selectHomePage, mapDispatchToProps as any);
 
 const withReducer = injectReducer({ reducer, key: 'homePage' });
 const withSaga = injectSaga({ saga, key: 'homePage' });

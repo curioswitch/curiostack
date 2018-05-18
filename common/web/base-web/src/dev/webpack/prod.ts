@@ -27,6 +27,7 @@
 process.env.NODE_ENV = 'production';
 
 require('ts-node').register({
+  transpileOnly: true,
   ignore: [],
   compilerOptions: {
     module: 'commonjs',
