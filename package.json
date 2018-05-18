@@ -9,7 +9,7 @@
     "@babel/preset-react": "7.0.0-beta.47",
     "@babel/preset-stage-0": "7.0.0-beta.47",
     "@curiostack/base-node-dev": "0.0.5",
-    "@curiostack/base-web": "0.0.20",
+    "@curiostack/base-web": "0.0.21-alpha.1",
     "@hugmanrique/react-markdown-loader": "0.0.2",
     "@types/history": "4.6.2",
     "@types/intl": "1.2.0",
