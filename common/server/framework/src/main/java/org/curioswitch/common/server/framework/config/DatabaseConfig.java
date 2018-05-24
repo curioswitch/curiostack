@@ -23,6 +23,7 @@
  */
 package org.curioswitch.common.server.framework.config;
 
+import java.time.Duration;
 import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Modifiable;
@@ -41,4 +42,10 @@ public interface DatabaseConfig {
 
   /** The password to use to connect to the database. */
   String getPassword();
+
+  /**
+   * The duration that a connection is allowed to be out of the pool before being considered leaked.
+   * 0 means no leak detection.
+   */
+  Duration getLeakDetectionThreshold();
 }
