@@ -98,7 +98,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("0.12.0")
+              .version("0.13.0")
               .addModules("proto-google-cloud-trace-v1")
               .build(),
           ImmutableDependencySet.builder()
@@ -113,17 +113,17 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.29.0")
+              .version("1.30.0")
               .addModules("google-cloud-bigquery", "google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.47.0-alpha")
+              .version("0.48.0-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.47.0-beta")
+              .version("0.48.0-beta")
               .addModules("google-cloud-pubsub", "google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
@@ -153,7 +153,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.guava")
-              .version("25.0-jre")
+              .version("25.1-jre")
               .addModules("guava", "guava-testlib")
               .build(),
           ImmutableDependencySet.builder()
@@ -169,7 +169,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.63.1")
+              .version("0.64.0")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -215,7 +215,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.fabric8")
-              .version("3.1.11")
+              .version("3.1.12")
               .addModules("kubernetes-client")
               .build(),
           ImmutableDependencySet.builder()
@@ -272,7 +272,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("4.19.2")
+              .version("5.0.0")
               .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
@@ -364,7 +364,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.immutables")
-              .version("2.5.6")
+              .version("2.6.0")
               .addModules("builder", "value")
               .build(),
           ImmutableDependencySet.builder()
@@ -380,7 +380,7 @@ class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("org.jooq")
               .version("3.10.7")
-              .addModules("jooq")
+              .addModules("jooq", "jooq-codegen", "jooq-meta")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.junit.jupiter")
@@ -416,8 +416,8 @@ class StandardDependencies {
           "com.google.protobuf:protobuf-gradle-plugin:0.8.5",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0",
           "com.moowork.gradle:gradle-node-plugin:1.2.0",
-          "com.netflix.nebula:gradle-dependency-lock-plugin:5.0.5",
-          "com.netflix.nebula:gradle-resolution-rules-plugin:5.2.1",
+          "com.netflix.nebula:gradle-dependency-lock-plugin:5.0.6",
+          "com.netflix.nebula:gradle-resolution-rules-plugin:5.2.2",
           "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.0.7",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.21",
