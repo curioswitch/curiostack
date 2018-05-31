@@ -98,7 +98,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("0.13.0")
+              .version("0.14.0")
               .addModules("proto-google-cloud-trace-v1")
               .build(),
           ImmutableDependencySet.builder()
@@ -113,17 +113,17 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.30.0")
+              .version("1.31.0")
               .addModules("google-cloud-bigquery", "google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.48.0-alpha")
+              .version("0.49.0-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.48.0-beta")
+              .version("0.49.0-beta")
               .addModules("google-cloud-pubsub", "google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
@@ -169,7 +169,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.64.0")
+              .version("0.65.1")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -200,7 +200,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.zaxxer")
-              .version("3.1.0")
+              .version("3.2.0")
               .addModules("HikariCP")
               .build(),
           ImmutableDependencySet.builder()
@@ -277,7 +277,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.gcp")
-              .version("0.4.1")
+              .version("0.5.0")
               .addModules("zipkin-translation-stackdriver")
               .build(),
           ImmutableDependencySet.builder()
@@ -364,7 +364,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.immutables")
-              .version("2.6.0")
+              .version("2.6.1")
               .addModules("builder", "value")
               .build(),
           ImmutableDependencySet.builder()
@@ -410,7 +410,7 @@ class StandardDependencies {
 
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:3.2.8",
+          "com.bmuschko:gradle-docker-plugin:3.2.9",
           "com.diffplug.spotless:spotless-plugin-gradle:3.12.0",
           "com.github.ben-manes:gradle-versions-plugin:0.17.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.5",
@@ -419,7 +419,7 @@ class StandardDependencies {
           "com.netflix.nebula:gradle-dependency-lock-plugin:5.0.6",
           "com.netflix.nebula:gradle-resolution-rules-plugin:5.2.2",
           "com.palantir:gradle-baseline-java:0.10.0",
-          "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.0.7",
+          "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.1.1",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.21",
           "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
