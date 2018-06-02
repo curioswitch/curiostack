@@ -98,7 +98,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("0.14.0")
+              .version("0.15.0")
               .addModules("proto-google-cloud-trace-v1")
               .build(),
           ImmutableDependencySet.builder()
@@ -113,17 +113,17 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.31.0")
+              .version("1.32.0")
               .addModules("google-cloud-bigquery", "google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.49.0-alpha")
+              .version("0.50.0-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.49.0-beta")
+              .version("0.50.0-beta")
               .addModules("google-cloud-pubsub", "google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
@@ -148,7 +148,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.firebase")
-              .version("6.1.0")
+              .version("6.2.0")
               .addModules("firebase-admin")
               .build(),
           ImmutableDependencySet.builder()
@@ -292,7 +292,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.8.11")
+              .version("1.8.12")
               .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
@@ -354,7 +354,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.6")
+              .version("0.0.7")
               .addModules("curio-testing-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -394,7 +394,7 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")
-              .version("2.18.3")
+              .version("2.18.6")
               .addModules("mockito-core", "mockito-junit-jupiter")
               .build(),
           ImmutableDependencySet.builder()
@@ -410,7 +410,7 @@ class StandardDependencies {
 
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:3.2.9",
+          "com.bmuschko:gradle-docker-plugin:3.3.",
           "com.diffplug.spotless:spotless-plugin-gradle:3.12.0",
           "com.github.ben-manes:gradle-versions-plugin:0.17.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.5",

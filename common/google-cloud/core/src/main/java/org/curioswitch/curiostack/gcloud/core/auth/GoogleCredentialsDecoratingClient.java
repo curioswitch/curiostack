@@ -94,9 +94,9 @@ public class GoogleCredentialsDecoratingClient
 
   @Override
   public HttpResponse execute(ClientRequestContext ctx, HttpRequest req) throws Exception {
-    if (ctx.additionalRequestHeaders().contains(header) || req.headers().contains(header)) {
-      return delegate().execute(ctx, req);
-    }
+    //if (ctx.additionalRequestHeaders().contains(header) || req.headers().contains(header)) {
+    //  return delegate().execute(ctx, req);
+    //}
     return HttpResponse.from(
         (type == TokenType.ACCESS_TOKEN
                 ? accessTokenProvider.getAccessToken()
