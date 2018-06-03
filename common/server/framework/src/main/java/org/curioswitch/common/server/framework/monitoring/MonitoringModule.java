@@ -98,6 +98,7 @@ public abstract class MonitoringModule {
         Tracing.newBuilder()
             .localServiceName(config.getServerName())
             .traceId128Bit(true)
+            .supportsJoin(false)
             .sampler(Sampler.ALWAYS_SAMPLE);
     if (config.isReportTraces()) {
       builder.spanReporter(reporter.get());
