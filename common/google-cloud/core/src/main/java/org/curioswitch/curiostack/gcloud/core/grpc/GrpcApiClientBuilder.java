@@ -26,6 +26,7 @@ package org.curioswitch.curiostack.gcloud.core.grpc;
 
 import brave.Tracing;
 import com.linecorp.armeria.client.ClientBuilder;
+import com.linecorp.armeria.client.logging.LoggingClientBuilder;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
 import com.linecorp.armeria.client.tracing.HttpTracingClient;
 import com.linecorp.armeria.common.HttpRequest;
@@ -45,7 +46,7 @@ public class GrpcApiClientBuilder {
     this.credentialsDecorator = credentialsDecorator;
   }
 
-  public <T> T create(String name, String url, Class<T> clz) {
+  public <T> T create(String url, Class<T> clz) {
     return new ClientBuilder("gproto+" + url)
         .decorator(
             HttpRequest.class, HttpResponse.class, credentialsDecorator.newAccessTokenDecorator())
@@ -54,6 +55,7 @@ public class GrpcApiClientBuilder {
             HttpRequest.class,
             HttpResponse.class,
             MetricCollectingClient.newDecorator(MetricLabels.grpcRequestLabeler()))
+        .decorator(HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator())
         .build(clz);
   }
 }
