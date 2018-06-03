@@ -25,7 +25,7 @@
 apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 
-archivesBaseName = 'armeria-google-cloud-trace'
+archivesBaseName = 'armeria-google-cloud-pubsub'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
@@ -33,7 +33,7 @@ targetCompatibility = '1.8'
 dependencies {
     api project(':common:google-cloud:core')
 
-    api 'com.google.api.grpc:grpc-google-cloud-trace-v1:0.15.0'
+    api 'com.google.api.grpc:grpc-google-cloud-pubsub-v1:1.14.0'
 
     annotationProcessor 'com.google.dagger:dagger-compiler'
     compileOnly 'com.google.dagger:dagger'
@@ -49,9 +49,9 @@ publishing {
                     resolveStrategy = Closure.DELEGATE_FIRST
 
                     name 'armeria-google-cloud-storage'
-                    description 'A Stackdriver Trace client, based on Armeria.'
+                    description 'A Pub/Sub client, based on Armeria.'
                     url 'https://github.com/curioswitch/curiostack/tree/master/' +
-                            'common/google-cloud/armeria-google-cloud-trace'
+                            'common/google-cloud/armeria-google-cloud-pubsub'
                 }
             }
         }

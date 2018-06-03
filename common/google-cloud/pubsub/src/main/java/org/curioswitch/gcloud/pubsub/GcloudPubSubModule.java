@@ -22,38 +22,33 @@
  * SOFTWARE.
  */
 
-apply plugin: 'java-library'
-apply plugin: 'maven-publish'
+package org.curioswitch.gcloud.pubsub;
 
-archivesBaseName = 'armeria-google-cloud-trace'
+import com.google.pubsub.v1.PublisherGrpc.PublisherFutureStub;
+import com.google.pubsub.v1.SubscriberGrpc.SubscriberFutureStub;
+import com.google.pubsub.v1.SubscriberGrpc.SubscriberStub;
+import dagger.Module;
+import dagger.Provides;
+import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
+import org.curioswitch.curiostack.gcloud.core.grpc.GrpcApiClientBuilder;
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+@Module(includes = GcloudAuthModule.class)
+public abstract class GcloudPubSubModule {
 
-dependencies {
-    api project(':common:google-cloud:core')
+  @Provides
+  static PublisherFutureStub publisher(GrpcApiClientBuilder clientBuilder) {
+    return clientBuilder.create("https://pubsub.googleapis.com", PublisherFutureStub.class);
+  }
 
-    api 'com.google.api.grpc:grpc-google-cloud-trace-v1:0.15.0'
+  @Provides
+  static SubscriberFutureStub subscriber(GrpcApiClientBuilder clientBuilder) {
+    return clientBuilder.create("https://pubsub.googleapis.com", SubscriberFutureStub.class);
+  }
 
-    annotationProcessor 'com.google.dagger:dagger-compiler'
-    compileOnly 'com.google.dagger:dagger'
-}
+  @Provides
+  static SubscriberStub streamingSubscriber(GrpcApiClientBuilder clientBuilder) {
+    return clientBuilder.create("https://pubsub.googleapis.com", SubscriberStub.class);
+  }
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            pom.withXml {
-                // TODO(choko): Make it simpler to define pom attributes after the artifact, as is
-                // normal, by defining a DSL or something.
-                asNode().children()[3] + {
-                    resolveStrategy = Closure.DELEGATE_FIRST
-
-                    name 'armeria-google-cloud-storage'
-                    description 'A Stackdriver Trace client, based on Armeria.'
-                    url 'https://github.com/curioswitch/curiostack/tree/master/' +
-                            'common/google-cloud/armeria-google-cloud-trace'
-                }
-            }
-        }
-    }
+  private GcloudPubSubModule() {}
 }
