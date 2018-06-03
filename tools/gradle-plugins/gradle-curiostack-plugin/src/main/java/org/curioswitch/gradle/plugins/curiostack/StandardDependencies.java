@@ -99,7 +99,7 @@ class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
               .version("0.15.0")
-              .addModules("proto-google-cloud-trace-v1")
+              .addModules("grpc-google-cloud-pubsub-v1", "grpc-google-cloud-trace-v1")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.auto")

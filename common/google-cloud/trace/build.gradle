@@ -24,7 +24,6 @@
 
 apply plugin: 'java-library'
 apply plugin: 'maven-publish'
-apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
 
 archivesBaseName = 'armeria-google-cloud-trace'
 
@@ -34,8 +33,7 @@ targetCompatibility = '1.8'
 dependencies {
     api project(':common:google-cloud:core')
 
-    protobuf 'com.google.api.grpc:proto-google-cloud-trace-v1:0.15.0'
-
+    api 'com.google.api.grpc:grpc-google-cloud-trace-v1:0.15.0'
     api 'com.google.guava:guava'
     api 'com.linecorp.armeria:armeria'
     api 'com.typesafe:config'
