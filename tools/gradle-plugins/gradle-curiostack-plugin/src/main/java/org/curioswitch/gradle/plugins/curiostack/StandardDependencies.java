@@ -112,6 +112,11 @@ class StandardDependencies {
               .addModules("auto-common")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.google.auto.factory")
+              .version("1.0-beta5")
+              .addModules("auto-factory")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.google.code.findbugs")
               .version("3.0.2")
               .addModules("jsr305")
@@ -349,6 +354,7 @@ class StandardDependencies {
               .addModules(
                   "armeria-google-cloud-core",
                   "armeria-google-cloud-iam",
+                  "armeria-google-cloud-pubsub",
                   "armeria-google-cloud-storage",
                   "armeria-google-cloud-trace")
               .build(),
