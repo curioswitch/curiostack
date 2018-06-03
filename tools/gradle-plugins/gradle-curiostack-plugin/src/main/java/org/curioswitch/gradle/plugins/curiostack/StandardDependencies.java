@@ -124,7 +124,11 @@ class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
               .version("1.32.0")
-              .addModules("google-cloud-bigquery", "google-cloud-storage")
+              .addModules(
+                  "google-cloud-bigquery",
+                  "google-cloud-core",
+                  "google-cloud-core-grpc",
+                  "google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
