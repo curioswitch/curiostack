@@ -279,10 +279,8 @@ public class CuriostackPlugin implements Plugin<Project> {
     project.getRepositories().gradlePluginPortal();
     project
         .getRepositories()
-        .maven(
-            maven -> {
-              maven.setUrl("http://dl.bintray.com/curioswitch/curiostack");
-            });
+        .maven(maven -> maven.setUrl("http://dl.bintray.com/curioswitch/curiostack"));
+    project.getRepositories().maven(maven -> maven.setUrl("http://dl.bintray.com/mockito/maven"));
     project.getRepositories().mavenCentral();
     project.getRepositories().mavenLocal();
   }
