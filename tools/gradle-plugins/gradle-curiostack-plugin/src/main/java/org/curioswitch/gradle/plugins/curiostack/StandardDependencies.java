@@ -128,6 +128,7 @@ class StandardDependencies {
                   "google-cloud-bigquery",
                   "google-cloud-core",
                   "google-cloud-core-grpc",
+                  "google-cloud-pubsub",
                   "google-cloud-storage")
               .build(),
           ImmutableDependencySet.builder()
@@ -138,12 +139,12 @@ class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
               .version("0.50.0-beta")
-              .addModules("google-cloud-pubsub", "google-cloud-trace")
+              .addModules("google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud.sql")
               .version("1.0.8")
-              .addModules("mysql-socket-factory")
+              .addModules("mysql-socket-factory", "mysql-socket-factory-connector-j-6", "mysql-socket-factory-connector-j-8")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud.trace.adapters.zipkin")
@@ -364,12 +365,12 @@ class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.70")
+              .version("0.0.71")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.7")
+              .version("0.0.8")
               .addModules("curio-testing-framework")
               .build(),
           ImmutableDependencySet.builder()

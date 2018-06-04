@@ -31,7 +31,7 @@ import org.assertj.core.api.ObjectAssert;
 
 public class SnapshotObjectAssert<ACTUAL> extends ObjectAssert<ACTUAL> {
 
-  public SnapshotObjectAssert(@Nullable ACTUAL actual) {
+  SnapshotObjectAssert(@Nullable ACTUAL actual) {
     super(actual);
   }
 
