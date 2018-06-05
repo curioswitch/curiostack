@@ -443,7 +443,7 @@ class StandardDependencies {
           "javax.activation:activation:1.1.1",
           "javax.annotation:javax.annotation-api:1.3.2",
           "javax.xml.bind:jaxb-api:2.3.0",
-          "me.champeau.gradle:jmh-gradle-plugin:0.4.5",
+          "me.champeau.gradle:jmh-gradle-plugin:0.4.6",
           "mysql:mysql-connector-java:5.1.46",
           "net.ltgt.gradle:gradle-apt-plugin:0.15",
           "net.ltgt.gradle:gradle-errorprone-javacplugin-plugin:0.2",
