@@ -37,17 +37,17 @@ public abstract class GcloudPubSubModule {
 
   @Provides
   static PublisherFutureStub publisher(GrpcApiClientBuilder clientBuilder) {
-    return clientBuilder.create("https://pubsub.googleapis.com", PublisherFutureStub.class);
+    return clientBuilder.create("https://pubsub.googleapis.com/", PublisherFutureStub.class);
   }
 
   @Provides
   static SubscriberFutureStub subscriber(GrpcApiClientBuilder clientBuilder) {
-    return clientBuilder.create("https://pubsub.googleapis.com", SubscriberFutureStub.class);
+    return clientBuilder.create("https://pubsub.googleapis.com/", SubscriberFutureStub.class);
   }
 
   @Provides
   static SubscriberStub streamingSubscriber(GrpcApiClientBuilder clientBuilder) {
-    return clientBuilder.create("https://pubsub.googleapis.com", SubscriberStub.class);
+    return clientBuilder.create("https://pubsub.googleapis.com/", SubscriberStub.class);
   }
 
   private GcloudPubSubModule() {}

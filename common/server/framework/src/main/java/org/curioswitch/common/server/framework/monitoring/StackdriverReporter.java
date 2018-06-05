@@ -23,11 +23,10 @@
  */
 package org.curioswitch.common.server.framework.monitoring;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.MoreExecutors;
+import com.google.api.core.ApiFutureCallback;
+import com.google.api.core.ApiFutures;
+import com.google.cloud.trace.v1.TraceServiceClient;
 import com.google.devtools.cloudtrace.v1.PatchTracesRequest;
-import com.google.devtools.cloudtrace.v1.TraceServiceGrpc.TraceServiceFutureStub;
 import com.google.devtools.cloudtrace.v1.Traces;
 import com.google.protobuf.Empty;
 import java.io.Flushable;
@@ -49,12 +48,12 @@ public class StackdriverReporter implements Reporter<Span>, Flushable, AutoClose
 
   private static final Logger logger = LogManager.getLogger();
 
-  private final TraceServiceFutureStub traceServiceClient;
+  private final TraceServiceClient traceServiceClient;
   private final MessagePassingQueue<Span> queue;
   private final String projectId;
 
   @Inject
-  public StackdriverReporter(TraceServiceFutureStub traceServiceClient, MonitoringConfig config) {
+  public StackdriverReporter(TraceServiceClient traceServiceClient, MonitoringConfig config) {
     this.traceServiceClient = traceServiceClient;
     queue = new MpscCompoundQueue<>(config.getTraceQueueSize());
     projectId = config.getStackdriverProjectId();
@@ -78,9 +77,9 @@ public class StackdriverReporter implements Reporter<Span>, Flushable, AutoClose
             .setTraces(
                 Traces.newBuilder().addAllTraces(TraceTranslator.translateSpans(projectId, spans)))
             .build();
-    Futures.addCallback(
-        traceServiceClient.patchTraces(request),
-        new FutureCallback<Empty>() {
+    ApiFutures.addCallback(
+        traceServiceClient.patchTracesCallable().futureCall(request),
+        new ApiFutureCallback<Empty>() {
           @Override
           public void onFailure(Throwable t) {
             logger.warn("Error reporting traces.", t);
@@ -90,8 +89,7 @@ public class StackdriverReporter implements Reporter<Span>, Flushable, AutoClose
           public void onSuccess(Empty result) {
             logger.trace("Successfully reported traces.");
           }
-        },
-        MoreExecutors.directExecutor());
+        });
   }
 
   @Override
