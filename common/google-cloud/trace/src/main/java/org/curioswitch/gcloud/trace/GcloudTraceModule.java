@@ -36,7 +36,7 @@ public abstract class GcloudTraceModule {
   @Provides
   static TraceServiceFutureStub traceService(GrpcApiClientBuilder clientBuilder) {
     return clientBuilder.create(
-        "cloud-trace", "https://cloudtrace.googleapis.com", TraceServiceFutureStub.class);
+        "https://cloudtrace.googleapis.com/", TraceServiceFutureStub.class);
   }
 
   private GcloudTraceModule() {}

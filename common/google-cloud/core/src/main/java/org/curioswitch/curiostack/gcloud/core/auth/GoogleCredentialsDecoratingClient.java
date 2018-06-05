@@ -33,11 +33,13 @@ import com.linecorp.armeria.common.util.Exceptions;
 import io.netty.util.AsciiString;
 import java.util.function.Function;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /** A {@link SimpleDecoratingClient} that annotates requests with Google authentication metadata. */
 public class GoogleCredentialsDecoratingClient
     extends SimpleDecoratingClient<HttpRequest, HttpResponse> {
 
+  @Singleton
   public static class Factory {
     private final AccessTokenProvider accessTokenProvider;
 
@@ -94,10 +96,9 @@ public class GoogleCredentialsDecoratingClient
 
   @Override
   public HttpResponse execute(ClientRequestContext ctx, HttpRequest req) throws Exception {
-    if (ctx.hasAttr(ClientRequestContext.HTTP_HEADERS)
-        && ctx.attr(ClientRequestContext.HTTP_HEADERS).get().contains(header)) {
-      return delegate().execute(ctx, req);
-    }
+    //if (ctx.additionalRequestHeaders().contains(header) || req.headers().contains(header)) {
+    //  return delegate().execute(ctx, req);
+    //}
     return HttpResponse.from(
         (type == TokenType.ACCESS_TOKEN
                 ? accessTokenProvider.getAccessToken()

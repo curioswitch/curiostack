@@ -279,10 +279,8 @@ public class CuriostackPlugin implements Plugin<Project> {
     project.getRepositories().gradlePluginPortal();
     project
         .getRepositories()
-        .maven(
-            maven -> {
-              maven.setUrl("http://dl.bintray.com/curioswitch/curiostack");
-            });
+        .maven(maven -> maven.setUrl("http://dl.bintray.com/curioswitch/curiostack"));
+    project.getRepositories().maven(maven -> maven.setUrl("http://dl.bintray.com/mockito/maven"));
     project.getRepositories().mavenCentral();
     project.getRepositories().mavenLocal();
   }
@@ -685,7 +683,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     Configuration configuration = project.getConfigurations().create("jdbcDrivers");
     project
         .getDependencies()
-        .add(configuration.getName(), "com.google.cloud.sql:mysql-socket-factory:1.0.5");
+        .add(configuration.getName(), "com.google.cloud.sql:mysql-socket-factory");
     project
         .getTasks()
         .create(

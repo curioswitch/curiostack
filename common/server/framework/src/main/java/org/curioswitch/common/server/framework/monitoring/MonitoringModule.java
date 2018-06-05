@@ -46,7 +46,6 @@ import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.hotspot.DefaultExports;
 import io.prometheus.client.log4j2.InstrumentedAppender;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.lang.management.ManagementFactory;
 import java.util.Properties;
 import javax.inject.Singleton;
@@ -58,7 +57,7 @@ import org.curioswitch.common.server.framework.ApplicationModule;
 import org.curioswitch.common.server.framework.config.ModifiableMonitoringConfig;
 import org.curioswitch.common.server.framework.config.MonitoringConfig;
 
-@Module(includes = ApplicationModule.class)
+@Module(includes = { ApplicationModule.class })
 public abstract class MonitoringModule {
 
   @Provides
@@ -94,11 +93,11 @@ public abstract class MonitoringModule {
 
   @Provides
   @Singleton
-  static TraceServiceClient traceServiceClient() {
+  static TraceServiceClient traceClient() {
     try {
       return TraceServiceClient.create();
     } catch (IOException e) {
-      throw new UncheckedIOException("Could not create TraceServiceClient.", e);
+      throw new IllegalStateException("Could not initialize trace client.", e);
     }
   }
 
@@ -109,6 +108,7 @@ public abstract class MonitoringModule {
         Tracing.newBuilder()
             .localServiceName(config.getServerName())
             .traceId128Bit(true)
+            .supportsJoin(false)
             .sampler(Sampler.ALWAYS_SAMPLE);
     if (config.isReportTraces()) {
       builder.spanReporter(reporter.get());

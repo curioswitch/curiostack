@@ -32,10 +32,11 @@ targetCompatibility = '1.8'
 
 // Spring dependencies plugin is not aware of classifiers. Eventually see if netflix plugins work
 // better (it is possibly a limitation of gradle itself).
-def sfmVersion = '3.17.5'
+def sfmVersion = '3.18.0'
 
 dependencies {
     api project(':common:google-cloud:iam')
+    api project(':common:google-cloud:trace')
 
     api 'com.google.cloud:google-cloud-trace'
     api 'com.google.dagger:dagger'
@@ -90,6 +91,8 @@ dependencies {
 
     annotationProcessor 'org.immutables:value'
     compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
+
+    testAnnotationProcessor 'com.google.dagger:dagger-compiler'
 }
 
 publishing {

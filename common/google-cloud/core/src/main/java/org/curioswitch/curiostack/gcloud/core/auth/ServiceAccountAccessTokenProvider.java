@@ -28,6 +28,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.json.webtoken.JsonWebSignature;
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.common.base.MoreObjects;
 import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.common.RequestContext;
 import io.netty.buffer.ByteBuf;
@@ -38,7 +39,6 @@ import io.netty.handler.codec.http.QueryStringEncoder;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Clock;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 class ServiceAccountAccessTokenProvider extends AbstractAccessTokenProvider {
@@ -83,8 +83,7 @@ class ServiceAccountAccessTokenProvider extends AbstractAccessTokenProvider {
     JsonWebToken.Payload payload = new JsonWebToken.Payload();
 
     String serviceAccount =
-        Objects.requireNonNullElse(
-            credentials.getServiceAccountUser(), credentials.getClientEmail());
+        MoreObjects.firstNonNull(credentials.getServiceAccountUser(), credentials.getClientEmail());
 
     payload.setIssuer(serviceAccount);
     payload.setAudience(AUDIENCE);

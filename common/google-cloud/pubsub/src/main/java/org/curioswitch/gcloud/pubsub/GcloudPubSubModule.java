@@ -21,31 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.curioswitch.common.server.framework.config;
 
-import java.time.Duration;
-import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Modifiable;
+package org.curioswitch.gcloud.pubsub;
 
-/** Configuration properties for a database accessed by the server. */
-@Immutable
-@Modifiable
-@JavaBeanStyle
-public interface DatabaseConfig {
+import com.google.pubsub.v1.PublisherGrpc.PublisherFutureStub;
+import com.google.pubsub.v1.SubscriberGrpc.SubscriberFutureStub;
+import com.google.pubsub.v1.SubscriberGrpc.SubscriberStub;
+import dagger.Module;
+import dagger.Provides;
+import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
+import org.curioswitch.curiostack.gcloud.core.grpc.GrpcApiClientBuilder;
 
-  /** The JDBC connection URL to connect to. */
-  String getJdbcUrl();
+@Module(includes = GcloudAuthModule.class)
+public abstract class GcloudPubSubModule {
 
-  /** The username to use to connect to the database. */
-  String getUsername();
+  @Provides
+  static PublisherFutureStub publisher(GrpcApiClientBuilder clientBuilder) {
+    return clientBuilder.create("https://pubsub.googleapis.com/", PublisherFutureStub.class);
+  }
 
-  /** The password to use to connect to the database. */
-  String getPassword();
+  @Provides
+  static SubscriberFutureStub subscriber(GrpcApiClientBuilder clientBuilder) {
+    return clientBuilder.create("https://pubsub.googleapis.com/", SubscriberFutureStub.class);
+  }
 
-  /**
-   * The duration that a connection is allowed to be out of the pool before being considered leaked.
-   * 0 means no leak detection.
-   */
-  Duration getLeakDetectionThreshold();
+  @Provides
+  static SubscriberStub streamingSubscriber(GrpcApiClientBuilder clientBuilder) {
+    return clientBuilder.create("https://pubsub.googleapis.com/", SubscriberStub.class);
+  }
+
+  private GcloudPubSubModule() {}
 }

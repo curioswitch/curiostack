@@ -32,10 +32,12 @@ import com.linecorp.armeria.client.HttpClient;
 import java.time.Clock;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.curioswitch.curiostack.gcloud.core.RetryingGoogleApis;
 
 public interface AccessTokenProvider {
 
+  @Singleton
   class Factory {
     private final HttpClient googleAccountsClient;
     private final Clock clock;

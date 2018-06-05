@@ -21,31 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.curioswitch.common.server.framework.config;
 
-import java.time.Duration;
-import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Modifiable;
+apply plugin: 'java-library'
+apply plugin: 'maven-publish'
 
-/** Configuration properties for a database accessed by the server. */
-@Immutable
-@Modifiable
-@JavaBeanStyle
-public interface DatabaseConfig {
+archivesBaseName = 'armeria-google-cloud-pubsub'
 
-  /** The JDBC connection URL to connect to. */
-  String getJdbcUrl();
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
 
-  /** The username to use to connect to the database. */
-  String getUsername();
+dependencies {
+    api project(':common:google-cloud:core')
 
-  /** The password to use to connect to the database. */
-  String getPassword();
+    api 'com.google.api.grpc:grpc-google-cloud-pubsub-v1:1.14.0'
 
-  /**
-   * The duration that a connection is allowed to be out of the pool before being considered leaked.
-   * 0 means no leak detection.
-   */
-  Duration getLeakDetectionThreshold();
+    annotationProcessor 'com.google.dagger:dagger-compiler'
+    compileOnly 'com.google.dagger:dagger'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            pom.withXml {
+                // TODO(choko): Make it simpler to define pom attributes after the artifact, as is
+                // normal, by defining a DSL or something.
+                asNode().children()[3] + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+
+                    name 'armeria-google-cloud-storage'
+                    description 'A Pub/Sub client, based on Armeria.'
+                    url 'https://github.com/curioswitch/curiostack/tree/master/' +
+                            'common/google-cloud/armeria-google-cloud-pubsub'
+                }
+            }
+        }
+    }
 }

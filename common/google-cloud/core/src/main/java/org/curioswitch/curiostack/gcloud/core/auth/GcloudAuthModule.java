@@ -46,10 +46,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import javax.inject.Qualifier;
 import javax.inject.Singleton;
+import org.curioswitch.curiostack.gcloud.core.GcloudModule;
 import org.curioswitch.curiostack.gcloud.core.GoogleApis;
 import org.curioswitch.curiostack.gcloud.core.RetryingGoogleApis;
 
-@Module
+@Module(includes = GcloudModule.class)
 public abstract class GcloudAuthModule {
 
   @Qualifier

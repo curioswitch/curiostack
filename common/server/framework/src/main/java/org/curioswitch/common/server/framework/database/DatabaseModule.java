@@ -90,6 +90,10 @@ public abstract class DatabaseModule {
     hikari.addDataSourceProperty(
         "statementInterceptors", "brave.mysql.TracingStatementInterceptor");
     hikari.setMetricsTrackerFactory(new PrometheusMetricsTrackerFactory());
+    if (!config.getLeakDetectionThreshold().isZero()) {
+      hikari.addDataSourceProperty(
+          "leakDetectionThreshold", config.getLeakDetectionThreshold().getSeconds());
+    }
     return new HikariDataSource(hikari);
   }
 

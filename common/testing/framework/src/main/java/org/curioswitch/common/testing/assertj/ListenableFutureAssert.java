@@ -24,18 +24,32 @@
 
 package org.curioswitch.common.testing.assertj;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.util.concurrent.Futures.getUnchecked;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.curioswitch.common.testing.assertj.CurioAssertions.assertThat;
+
 import com.google.common.util.concurrent.ListenableFuture;
-import org.assertj.core.api.Assertions;
+import java.util.function.Consumer;
+import org.assertj.core.api.ObjectAssert;
 
-public class CurioAssertions extends Assertions {
+public class ListenableFutureAssert<ACTUAL> extends ObjectAssert<ListenableFuture<ACTUAL>> {
 
-  @SuppressWarnings("ParameterPackage")
-  public static <T> SnapshotObjectAssert<T> assertThat(T actual) {
-    return new SnapshotObjectAssert<>(actual);
+  ListenableFutureAssert(ListenableFuture<ACTUAL> future) {
+    super(future);
   }
 
-  @SuppressWarnings("ParameterPackage")
-  public static <T> ListenableFutureAssert<T> assertThat(ListenableFuture<T> actual) {
-    return new ListenableFutureAssert<>(actual);
+  public ListenableFutureAssert<ACTUAL> completesWithValue(ACTUAL value) {
+    assertThat(getUnchecked(actual)).isEqualTo(value);
+    return this;
+  }
+
+  public <T> ListenableFutureAssert<ACTUAL> failsWithInstanceOfSatisfying(
+      Class<T> type, Consumer<T> requirements) {
+    checkNotNull(
+        requirements, "The Consumer<T> expressing the assertions requirements must not be null");
+    Throwable t = catchThrowable(() -> getUnchecked(actual));
+    assertThat(t.getCause()).isInstanceOfSatisfying(type, requirements);
+    return this;
   }
 }
