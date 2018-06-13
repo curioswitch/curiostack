@@ -35,10 +35,9 @@ import org.immutables.value.Value.Style.ImplementationVisibility;
 
 @Immutable
 @Style(
-  visibility = ImplementationVisibility.PACKAGE,
-  builderVisibility = BuilderVisibility.PACKAGE,
-  defaultAsDefault = true
-)
+    visibility = ImplementationVisibility.PACKAGE,
+    builderVisibility = BuilderVisibility.PACKAGE,
+    defaultAsDefault = true)
 public interface PlatformConfig {
 
   static PlatformConfig fromExtension(ImmutableGcloudExtension config) {

@@ -423,10 +423,9 @@ public class GcloudPlugin implements Plugin<Project> {
 
   @Immutable
   @Style(
-    visibility = ImplementationVisibility.PACKAGE,
-    builderVisibility = BuilderVisibility.PACKAGE,
-    defaultAsDefault = true
-  )
+      visibility = ImplementationVisibility.PACKAGE,
+      builderVisibility = BuilderVisibility.PACKAGE,
+      defaultAsDefault = true)
   @JsonDeserialize(as = ImmutableCloudBuildStep.class)
   @JsonSerialize(as = ImmutableCloudBuildStep.class)
   interface CloudBuildStep {
@@ -453,10 +452,9 @@ public class GcloudPlugin implements Plugin<Project> {
 
   @Immutable
   @Style(
-    visibility = ImplementationVisibility.PACKAGE,
-    builderVisibility = BuilderVisibility.PACKAGE,
-    defaultAsDefault = true
-  )
+      visibility = ImplementationVisibility.PACKAGE,
+      builderVisibility = BuilderVisibility.PACKAGE,
+      defaultAsDefault = true)
   @JsonDeserialize(as = ImmutableCloudBuild.class)
   @JsonSerialize(as = ImmutableCloudBuild.class)
   interface CloudBuild {

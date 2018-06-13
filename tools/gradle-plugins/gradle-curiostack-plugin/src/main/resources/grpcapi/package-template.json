@@ -2,9 +2,6 @@
   "name": "|PACKAGE_NAME|",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "postinstall": "tsc --noEmit false --lib es5 --target es5"
-  },
   "dependencies": {
     "@types/google-protobuf": "|TYPES_GOOGLE_PROTOBUF_VERSION|",
     "google-protobuf": "|GOOGLE_PROTOBUF_VERSION|",
