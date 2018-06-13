@@ -71,10 +71,10 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
   private static final boolean IS_WINDOWS = Os.isFamily(Os.FAMILY_WINDOWS);
 
-  private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.4";
+  private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.5";
   private static final String GOOGLE_PROTOBUF_VERSION = "3.5.0";
-  private static final String GRPC_WEB_CLIENT_VERSION = "0.5.0";
-  private static final String TS_PROTOC_GEN_VERSION = "0.4.0";
+  private static final String GRPC_WEB_CLIENT_VERSION = "0.6.2";
+  private static final String TS_PROTOC_GEN_VERSION = "0.7.3";
   private static final String TYPES_GOOGLE_PROTOBUF_VERSION = "3.2.7";
 
   private static final String RESOLVED_PLUGIN_SCRIPT_TEMPLATE =
@@ -84,16 +84,12 @@ public class GrpcApiPlugin implements Plugin<Project> {
       "@echo off\r\n\"|NODE_PATH|\" \"%~dp0\\protoc-gen-ts-resolved\" %*";
 
   private static final String PACKAGE_JSON_TEMPLATE;
-  private static final String TSCONFIG_TEMPLATE;
 
   static {
     try {
       PACKAGE_JSON_TEMPLATE =
           Resources.toString(
               Resources.getResource("grpcapi/package-template.json"), StandardCharsets.UTF_8);
-      TSCONFIG_TEMPLATE =
-          Resources.toString(
-              Resources.getResource("grpcapi/tsconfig-template.json"), StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new UncheckedIOException("Could not read package-template.json", e);
     }
@@ -241,7 +237,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
                               project,
                               nodePath,
                               "protoc-gen-ts-resolved",
-                              "ts-protoc-gen/lib/ts_index");
+                              "ts-protoc-gen/lib/index");
                         });
             addResolvedPluginScript
                 .getOutputs()
@@ -261,10 +257,6 @@ public class GrpcApiPlugin implements Plugin<Project> {
                     : config.webPackageName();
             Path packageJsonPath =
                 Paths.get(project.getBuildDir().getAbsolutePath(), "web", "package.json");
-            Path indexJsPath =
-                Paths.get(project.getBuildDir().getAbsolutePath(), "web", "index.ts");
-            Path tsConfigPath =
-                Paths.get(project.getBuildDir().getAbsolutePath(), "web", "tsconfig.json");
             Task addPackageJson =
                 project
                     .getTasks()
@@ -288,20 +280,13 @@ public class GrpcApiPlugin implements Plugin<Project> {
                                         "\\|CURIOSTACK_BASE_NODE_DEV_VERSION\\|",
                                         CURIOSTACK_BASE_NODE_DEV_VERSION)
                                     .getBytes(StandardCharsets.UTF_8));
-                            Files.write(
-                                tsConfigPath, TSCONFIG_TEMPLATE.getBytes(StandardCharsets.UTF_8));
-                            Files.write(indexJsPath, new byte[0]);
                           } catch (IOException e) {
                             throw new UncheckedIOException("Could not write package.json.", e);
                           }
                         });
             addPackageJson
                 .getOutputs()
-                .files(
-                    ImmutableMap.of(
-                        "PACKAGE_JSON", packageJsonPath.toFile(),
-                        "INDEX_TS", indexJsPath.toFile(),
-                        "TS_CONFIG", tsConfigPath.toFile()));
+                .files(ImmutableMap.of("PACKAGE_JSON", packageJsonPath.toFile()));
 
             Task generateProto = project.getTasks().getByName("generateProto");
             generateProto.dependsOn(addResolvedPluginScript).finalizedBy(addPackageJson);

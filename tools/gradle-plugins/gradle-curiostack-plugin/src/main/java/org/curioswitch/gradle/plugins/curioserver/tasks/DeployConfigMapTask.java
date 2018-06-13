@@ -98,10 +98,9 @@ public class DeployConfigMapTask extends DefaultTask {
 
   @Immutable
   @Style(
-    visibility = ImplementationVisibility.PACKAGE,
-    builderVisibility = BuilderVisibility.PACKAGE,
-    defaultAsDefault = true
-  )
+      visibility = ImplementationVisibility.PACKAGE,
+      builderVisibility = BuilderVisibility.PACKAGE,
+      defaultAsDefault = true)
   @JsonSerialize(as = ImmutableRpcAcl.class)
   interface RpcAcl {
     String rate();

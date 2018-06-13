@@ -27,6 +27,9 @@ package org.curioswitch.gradle.plugins.curiostack;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static net.ltgt.gradle.errorprone.javacplugin.CheckSeverity.ERROR;
 import static net.ltgt.gradle.errorprone.javacplugin.CheckSeverity.OFF;
+import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.GOOGLE_JAVA_FORMAT_VERSION;
+import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.NODE_VERSION;
+import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.YARN_VERSION;
 
 import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
@@ -117,10 +120,6 @@ import org.gradle.plugins.ide.idea.model.IdeaModule;
 import org.gradle.process.ExecSpec;
 
 public class CuriostackPlugin implements Plugin<Project> {
-
-  private static final String GOOGLE_JAVA_FORMAT_VERSION = "1.5";
-  private static final String NODE_VERSION = "9.8.0";
-  private static final String YARN_VERSION = "1.6.0";
 
   private static final Splitter NEW_LINE_SPLITTER = Splitter.on('\n');
 
@@ -789,11 +788,11 @@ public class CuriostackPlugin implements Plugin<Project> {
     }
 
     envs.conda(
-        "miniconda2",
-        "Miniconda2-4.4.10",
+        CommandUtil.DEFAULT_ENV_NAME,
+        "Miniconda2-" + StandardDependencies.MINICONDA_VERSION,
         condaPackages.build().stream().map(envs::condaPackage).collect(toImmutableList()));
-    envs.condaenv("build", "2.7", "miniconda2");
-    envs.condaenv("dev", "2.7", "miniconda2");
+    envs.condaenv("build", "2.7", CommandUtil.DEFAULT_ENV_NAME);
+    envs.condaenv("dev", "2.7", CommandUtil.DEFAULT_ENV_NAME);
 
     rootProject.getTasks().create("pythonSetup", t -> t.dependsOn("build_envs"));
   }
