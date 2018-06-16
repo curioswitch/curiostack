@@ -110,7 +110,8 @@ allprojects {
 gcloud {
     clusterBaseName = 'curioswitch'
     cloudRegion = 'asia-northeast1'
-    clusterKubernetesVersion = '1.6.1'
+    clusterZones = ['asia-northeast1-a', 'asia-northeast1-c']
+    clusterKubernetesVersion = '1.10.4-gke.0'
 }
 
 task wrapper(type: Wrapper) {

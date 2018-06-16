@@ -26,7 +26,6 @@ package org.curioswitch.gradle.plugins.gcloud;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
@@ -48,12 +47,9 @@ public interface ImmutableGcloudExtension {
     throw new IllegalArgumentException("cloudRegion must be specified.");
   }
 
-  default String clusterZone() {
-    return cloudRegion() + "-a";
-  }
-
-  default List<String> clusterAdditionalZones() {
-    return Collections.singletonList(cloudRegion() + "-c");
+  @Nullable
+  default List<String> clusterZones() {
+    return null;
   }
 
   default int clusterNumNodesPerZone() {
