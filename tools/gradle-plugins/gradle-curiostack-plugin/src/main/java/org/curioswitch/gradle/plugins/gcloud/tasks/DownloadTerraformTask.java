@@ -24,15 +24,46 @@
 
 package org.curioswitch.gradle.plugins.gcloud.tasks;
 
+import javax.inject.Inject;
+import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
+import org.curioswitch.gradle.plugins.gcloud.util.PlatformHelper;
 import org.curioswitch.gradle.plugins.shared.tasks.DownloadArchiveTask;
 
 public class DownloadTerraformTask extends DownloadArchiveTask {
 
   public static final String NAME = "gcloudDownloadTerraform";
 
-  public DownloadTerraformTask() {
+  private final PlatformHelper platformHelper;
+
+  @Inject
+  public DownloadTerraformTask(PlatformHelper platformHelper) {
+    this.platformHelper = platformHelper;
+
     setBaseUrl("https://releases.hashicorp.com/");
     setArtifactPattern("[artifact]/[revision]/[artifact]_[revision]_[classifier].[ext]");
-    setDependency("com.hashicorp:terraform:0.11.7:windows_amd64@zip");
+    setDependency(
+        "com.hashicorp:terraform:"
+            + StandardDependencies.TERRAFORM_VERSION
+            + ":"
+            + getClassifier()
+            + "@zip");
+  }
+
+  private String getClassifier() {
+    final String arch;
+    switch (platformHelper.getOsArch()) {
+      case "arm":
+        arch = "arm";
+        break;
+      case "x86_64":
+        arch = "amd64";
+        break;
+      case "x86":
+        arch = "386";
+        break;
+      default:
+        throw new IllegalStateException("Unsupported architecture.");
+    }
+    return platformHelper.getOsName() + "_" + arch;
   }
 }

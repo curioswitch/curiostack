@@ -53,6 +53,7 @@ import org.curioswitch.gradle.plugins.gcloud.tasks.DownloadTerraformTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.SetupTask;
+import org.curioswitch.gradle.plugins.gcloud.util.PlatformHelper;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Rule;
@@ -113,7 +114,9 @@ public class GcloudPlugin implements Plugin<Project> {
         .create(
             CreateClusterTask.NAME, CreateClusterTask.class, Clock.systemUTC(), Sleeper.DEFAULT);
 
-    project.getTasks().create(DownloadTerraformTask.NAME, DownloadTerraformTask.class);
+    project
+        .getTasks()
+        .create(DownloadTerraformTask.NAME, DownloadTerraformTask.class, new PlatformHelper());
 
     project.afterEvaluate(
         p -> {

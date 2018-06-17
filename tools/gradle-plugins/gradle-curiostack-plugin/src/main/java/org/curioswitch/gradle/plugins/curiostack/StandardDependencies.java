@@ -47,6 +47,7 @@ public class StandardDependencies {
   }
 
   public static final String MINICONDA_VERSION = "4.5.4";
+  public static final String TERRAFORM_VERSION = "0.11.7";
 
   static final String GOOGLE_JAVA_FORMAT_VERSION = "1.6";
   static final String NODE_VERSION = "9.9.0";

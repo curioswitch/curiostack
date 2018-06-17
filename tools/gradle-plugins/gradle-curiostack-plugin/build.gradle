@@ -140,6 +140,10 @@ gradlePlugin {
             id = 'org.curioswitch.gradle-curio-server-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin'
         }
+        terraform {
+            id = 'org.curioswitch.gradle-terraform-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.terraform.TerraformPlugin'
+        }
         web {
             id = 'org.curioswitch.gradle-curio-web-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.curioweb.CurioWebPlugin'
