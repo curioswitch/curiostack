@@ -156,15 +156,14 @@ import org.jooq.DSLContext;
  * }</pre>
  */
 @Module(
-  includes = {
-    ApplicationModule.class,
-    FirebaseAuthModule.class,
-    GcloudAuthModule.class,
-    GcloudIamModule.class,
-    MonitoringModule.class,
-    SecurityModule.class
-  }
-)
+    includes = {
+      ApplicationModule.class,
+      FirebaseAuthModule.class,
+      GcloudAuthModule.class,
+      GcloudIamModule.class,
+      MonitoringModule.class,
+      SecurityModule.class
+    })
 public abstract class ServerModule {
 
   private static final Logger logger = LogManager.getLogger();

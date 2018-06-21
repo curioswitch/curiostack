@@ -34,7 +34,6 @@ import com.linecorp.armeria.client.tracing.HttpTracingClient;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
-import com.linecorp.armeria.common.logging.LogLevel;
 import javax.inject.Inject;
 import org.curioswitch.curiostack.gcloud.core.auth.GoogleCredentialsDecoratingClient;
 
@@ -66,7 +65,7 @@ public class GrpcApiClientBuilder {
             HttpRequest.class,
             HttpResponse.class,
             MetricCollectingClient.newDecorator(MetricLabels.grpcRequestLabeler()))
-        .decorator(HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().requestLogLevel(LogLevel.INFO).newDecorator())
+        .decorator(HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator())
         .build(clz);
   }
 }

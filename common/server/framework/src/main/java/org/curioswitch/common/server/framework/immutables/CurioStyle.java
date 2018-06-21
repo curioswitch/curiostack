@@ -53,9 +53,8 @@ import org.immutables.value.Value.Style.ImplementationVisibility;
  */
 @Target(ElementType.TYPE)
 @Style(
-  deepImmutablesDetection = true,
-  defaultAsDefault = true,
-  builderVisibility = BuilderVisibility.PACKAGE,
-  visibility = ImplementationVisibility.PACKAGE
-)
+    deepImmutablesDetection = true,
+    defaultAsDefault = true,
+    builderVisibility = BuilderVisibility.PACKAGE,
+    visibility = ImplementationVisibility.PACKAGE)
 public @interface CurioStyle {}

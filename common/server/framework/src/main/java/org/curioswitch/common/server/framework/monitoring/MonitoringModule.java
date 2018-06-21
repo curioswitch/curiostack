@@ -33,7 +33,6 @@ import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
-import com.google.cloud.trace.v1.TraceServiceClient;
 import com.google.common.io.Resources;
 import com.linecorp.armeria.common.metric.PrometheusMeterRegistries;
 import com.typesafe.config.Config;
@@ -56,8 +55,9 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.curioswitch.common.server.framework.ApplicationModule;
 import org.curioswitch.common.server.framework.config.ModifiableMonitoringConfig;
 import org.curioswitch.common.server.framework.config.MonitoringConfig;
+import org.curioswitch.gcloud.trace.GcloudTraceModule;
 
-@Module(includes = { ApplicationModule.class })
+@Module(includes = {ApplicationModule.class, GcloudTraceModule.class})
 public abstract class MonitoringModule {
 
   @Provides
@@ -89,16 +89,6 @@ public abstract class MonitoringModule {
   @Singleton
   static MeterRegistry meterRegistry(CollectorRegistry collectorRegistry) {
     return PrometheusMeterRegistries.newRegistry(collectorRegistry);
-  }
-
-  @Provides
-  @Singleton
-  static TraceServiceClient traceClient() {
-    try {
-      return TraceServiceClient.create();
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not initialize trace client.", e);
-    }
   }
 
   @Provides
