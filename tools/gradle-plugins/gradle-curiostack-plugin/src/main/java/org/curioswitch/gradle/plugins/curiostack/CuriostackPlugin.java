@@ -510,6 +510,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
 
     SourceSetContainer sourceSets = javaPlugin.getSourceSets();
+    var mainSourceSet = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
     project
         .getTasks()
         .create(
@@ -517,11 +518,20 @@ public class CuriostackPlugin implements Plugin<Project> {
             Jar.class,
             sourceJar -> {
               sourceJar.setClassifier("sources");
-              sourceJar.from(sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME).getAllSource());
+              sourceJar.from(mainSourceSet.getAllSource());
             });
 
     SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
-    spotless.java((extension) -> extension.googleJavaFormat(GOOGLE_JAVA_FORMAT_VERSION));
+    spotless.java(
+        (extension) -> {
+          extension.googleJavaFormat(GOOGLE_JAVA_FORMAT_VERSION);
+          extension.target(
+              mainSourceSet
+                  .getAllJava()
+                  .exclude(
+                      fileSpec ->
+                          fileSpec.getFile().toPath().startsWith(project.getBuildDir().toPath())));
+        });
 
     project
         .getTasks()
