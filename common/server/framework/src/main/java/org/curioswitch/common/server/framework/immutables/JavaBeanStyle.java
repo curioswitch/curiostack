@@ -31,11 +31,10 @@ import org.immutables.value.Value.Style.BuilderVisibility;
 /** A {@link Style} which allows recognizing modifable versions of the type as javabeans. */
 @Target(ElementType.TYPE)
 @Style(
-  create = "new",
-  get = {"get*", "is*"},
-  beanFriendlyModifiables = true,
-  isInitialized = "initialized",
-  builderVisibility = BuilderVisibility.PACKAGE,
-  defaultAsDefault = true
-)
+    create = "new",
+    get = {"get*", "is*"},
+    beanFriendlyModifiables = true,
+    isInitialized = "initialized",
+    builderVisibility = BuilderVisibility.PACKAGE,
+    defaultAsDefault = true)
 public @interface JavaBeanStyle {}

@@ -108,7 +108,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("1.15.0")
+              .version("1.16.0")
               .addModules("grpc-google-cloud-pubsub-v1")
               .build(),
           ImmutableDependencySet.builder()
@@ -128,7 +128,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.33.0")
+              .version("1.34.0")
               .addModules(
                   "google-cloud-bigquery",
                   "google-cloud-core",
@@ -138,17 +138,17 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.51.0-alpha")
+              .version("0.52.0-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.51.0-beta")
+              .version("0.52.0-beta")
               .addModules("google-cloud-iot", "google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud.sql")
-              .version("1.0.8")
+              .version("1.0.9")
               .addModules(
                   "mysql-socket-factory",
                   "mysql-socket-factory-connector-j-6",
@@ -181,18 +181,18 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.protobuf")
-              .version("3.5.1")
+              .version("3.6.0")
               .addModules("protobuf-java", "protobuf-java-util")
               .build(),
           // protoc often diverges from protobuf-java
           ImmutableDependencySet.builder()
               .group("com.google.protobuf")
-              .version("3.5.1-1")
+              .version("3.6.0")
               .addModules("protoc")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.65.1")
+              .version("0.66.0")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -248,7 +248,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.grpc")
-              .version("1.12.0")
+              .version("1.13.1")
               .addModules(
                   "grpc-all",
                   "grpc-auth",
@@ -295,12 +295,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("5.0.0")
+              .version("5.1.1")
               .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.gcp")
-              .version("0.6.0")
+              .version("0.6.2")
               .addModules("zipkin-translation-stackdriver")
               .build(),
           ImmutableDependencySet.builder()
@@ -373,7 +373,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.71")
+              .version("0.0.72")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -403,7 +403,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jooq")
-              .version("3.10.7")
+              .version("3.11.1")
               .addModules("jooq", "jooq-codegen", "jooq-meta")
               .build(),
           ImmutableDependencySet.builder()
@@ -418,7 +418,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")
-              .version("2.18.8")
+              .version("2.19.0")
               .addModules("mockito-core", "mockito-junit-jupiter")
               .build(),
           ImmutableDependencySet.builder()
@@ -434,16 +434,16 @@ public class StandardDependencies {
 
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:3.3.3",
+          "com.bmuschko:gradle-docker-plugin:3.3.5",
           "com.diffplug.spotless:spotless-plugin-gradle:3.13.0",
-          "com.github.ben-manes:gradle-versions-plugin:0.17.0",
+          "com.github.ben-manes:gradle-versions-plugin:0.20.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.5",
-          "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.1",
+          "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.2",
           "com.moowork.gradle:gradle-node-plugin:1.2.0",
           "com.netflix.nebula:gradle-dependency-lock-plugin:5.0.6",
           "com.netflix.nebula:gradle-resolution-rules-plugin:5.2.2",
           "com.palantir:gradle-baseline-java:0.10.0",
-          "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.1.1",
+          "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.1.3",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.1",
           "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
@@ -453,7 +453,7 @@ public class StandardDependencies {
           "javax.xml.bind:jaxb-api:2.3.0",
           "me.champeau.gradle:jmh-gradle-plugin:0.4.6",
           "mysql:mysql-connector-java:5.1.46",
-          "net.ltgt.gradle:gradle-apt-plugin:0.15",
+          "net.ltgt.gradle:gradle-apt-plugin:0.16",
           "net.ltgt.gradle:gradle-errorprone-javacplugin-plugin:0.2",
           "net.ltgt.gradle:gradle-errorprone-plugin:0.0.14",
           "nu.studer:gradle-jooq-plugin:2.0.11");
