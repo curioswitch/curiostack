@@ -27,7 +27,10 @@ import static org.curioswitch.common.testing.assertj.CurioAssertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.withSettings;
 
 import com.google.common.collect.ImmutableList;
 import java.sql.SQLException;
@@ -39,12 +42,27 @@ import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.tools.jdbc.MockConnection;
 import org.jooq.tools.jdbc.MockDataProvider;
+import org.jooq.tools.jdbc.MockExecuteContext;
 import org.jooq.tools.jdbc.MockResult;
+import org.mockito.Answers;
+import org.mockito.stubbing.Answer;
+import org.mockito.verification.VerificationMode;
 
 /** Utilities for working with a mock database in tests. */
 public final class DatabaseTestUtil {
 
   public static final DSLContext DB = DSL.using(SQLDialect.MYSQL);
+
+  private static final Answer<Object> LOGS_QUERY =
+      invocation -> {
+        MockExecuteContext ctx = invocation.getArgument(0);
+        throw new AssertionError("Invalid SQL query: " + ctx.sql());
+      };
+
+  public static MockDataProvider mockProvider() {
+    return mock(
+        MockDataProvider.class, withSettings().name("dbProvider").defaultAnswer(LOGS_QUERY));
+  }
 
   /**
    * Returns a {@link DSLContext} with a mock connection using the provided {@link
@@ -62,26 +80,24 @@ public final class DatabaseTestUtil {
    * Setup a {@link MockDataProviderStubber} which can be used to set an expectation to return
    * records or throw an exception when the {@code query} is executed on the {@code provider}.
    */
-  public static MockDataProviderStubber whenQueried(MockDataProvider provider, String query) {
+  public static MockDataProviderStubber whenQueried(CurioMockDataProvider provider, String query) {
+    if (mockingDetails(provider).getMockCreationSettings().getDefaultAnswer()
+        != Answers.CALLS_REAL_METHODS) {
+      throw new IllegalStateException(
+          "CurioMockDataProvider must be initialized with "
+              + "@Mock(answer = Answers.CALL_REAL_METHODS).");
+    }
     return new MockDataProviderStubber(provider, query);
   }
 
-  public static void verifyQueried(MockDataProvider provider, String query, Object... bindings) {
-    try {
-      verify(provider)
-          .execute(
-              argThat(
-                  ctx -> {
-                    if (!ctx.sql().equals(query)) {
-                      return false;
-                    }
-                    assertThat(ctx.bindings())
-                        .containsExactlyElementsOf(ImmutableList.copyOf(bindings));
-                    return true;
-                  }));
-    } catch (SQLException e) {
-      throw new IllegalStateException("Mock threw an exception.", e);
-    }
+  public static MockDataProviderVerifier verifyQueried(
+      CurioMockDataProvider provider, String query) {
+    return new MockDataProviderVerifier(verify(provider), query);
+  }
+
+  public static MockDataProviderVerifier verifyQueried(
+      CurioMockDataProvider provider, String query, VerificationMode mode) {
+    return new MockDataProviderVerifier(verify(provider, mode), query);
   }
 
   public static class MockDataProviderStubber {
@@ -94,8 +110,14 @@ public final class DatabaseTestUtil {
     }
 
     /**
-     * Sets the {@code records} to be returned when the query is called.
+     * Sets the number of rows that should be considered affected without returning anything. This
+     * is generally only for insert / update queries
      */
+    public void thenAffect(int numRows) {
+      setMockResult(new MockResult(numRows, null));
+    }
+
+    /** Sets the {@code records} to be returned when the query is called. */
     public void thenReturn(Record... records) {
       final MockResult result;
       if (records.length == 0) {
@@ -107,6 +129,19 @@ public final class DatabaseTestUtil {
         r.addAll(ImmutableList.copyOf(records));
         result = new MockResult(records.length, r);
       }
+      setMockResult(result);
+    }
+
+    /** Sets the {@link Throwable} to be thrown when the query is called. */
+    public void thenThrow(Throwable t) {
+      try {
+        doThrow(t).when(provider).execute(argThat(ctx -> ctx.sql().equals(query)));
+      } catch (SQLException e) {
+        throw new IllegalStateException("Mock threw an exception.", e);
+      }
+    }
+
+    private void setMockResult(MockResult result) {
       try {
         doReturn(new MockResult[] {result})
             .when(provider)
@@ -115,13 +150,31 @@ public final class DatabaseTestUtil {
         throw new IllegalStateException("Mock threw an exception.", e);
       }
     }
+  }
+
+  public static class MockDataProviderVerifier {
+    private final MockDataProvider verifiedProvider;
+    private final String query;
+
+    private MockDataProviderVerifier(MockDataProvider verifiedProvider, String query) {
+      this.verifiedProvider = verifiedProvider;
+      this.query = query;
+    }
 
     /**
-     * Sets the {@link Throwable} to be thrown when the query is called.
+     * Verifies {@link MockDataProvider#execute} was called with context bindings of {@code args}.
      */
-    public void thenThrow(Throwable t) {
+    public void withArgs(Object... args) {
       try {
-        doThrow(t).when(provider).execute(argThat(ctx -> ctx.sql().equals(query)));
+        verifiedProvider.execute(
+            argThat(
+                ctx -> {
+                  if (!ctx.sql().equals(query)) {
+                    return false;
+                  }
+                  assertThat(ctx.bindings()).containsExactlyElementsOf(ImmutableList.copyOf(args));
+                  return true;
+                }));
       } catch (SQLException e) {
         throw new IllegalStateException("Mock threw an exception.", e);
       }
