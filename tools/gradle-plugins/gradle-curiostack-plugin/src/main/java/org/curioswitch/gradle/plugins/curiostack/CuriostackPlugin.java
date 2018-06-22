@@ -511,6 +511,7 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     SourceSetContainer sourceSets = javaPlugin.getSourceSets();
     var mainSourceSet = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+    var testSourceSet = sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME);
     project
         .getTasks()
         .create(
@@ -528,9 +529,15 @@ public class CuriostackPlugin implements Plugin<Project> {
           extension.target(
               mainSourceSet
                   .getAllJava()
-                  .exclude(
-                      fileSpec ->
-                          fileSpec.getFile().toPath().startsWith(project.getBuildDir().toPath())));
+                  .plus(testSourceSet.getAllJava())
+                  .matching(
+                      filter ->
+                          filter.exclude(
+                              fileSpec ->
+                                  fileSpec
+                                      .getFile()
+                                      .toPath()
+                                      .startsWith(project.getBuildDir().toPath()))));
         });
 
     project
