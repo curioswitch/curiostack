@@ -380,12 +380,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.10")
+              .version("0.0.11")
               .addModules("curio-testing-framework")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.eclipse.jgit")
-              .version("4.9.0.201710071750-r")
+              .version("5.0.1.201806211838-r")
               .addModules("org.eclipse.jgit")
               .build(),
           ImmutableDependencySet.builder()

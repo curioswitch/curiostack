@@ -36,11 +36,12 @@ public class TerraformImportTask extends TerraformTask {
   private String id;
 
   public TerraformImportTask() {
-    setExecCustomizer(exec -> {
-      checkArgument(module != null, "--module must be set.");
-      checkArgument(id != null, "--id must be set.");
-      exec.args(module, id);
-    });
+    setExecCustomizer(
+        exec -> {
+          checkArgument(module != null, "--module must be set.");
+          checkArgument(id != null, "--id must be set.");
+          exec.args(module, id);
+        });
   }
 
   @Option(option = "module", description = "The module to import.")

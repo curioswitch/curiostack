@@ -47,6 +47,11 @@ public class ListenableFutureAssert<ACTUAL> extends ObjectAssert<ListenableFutur
     return this;
   }
 
+  public ListenableFutureAssert<ACTUAL> completesWithValueMatchingSnapshot() {
+    assertThat(getUnchecked(actual)).matchesSnapshot();
+    return this;
+  }
+
   public <T> ListenableFutureAssert<ACTUAL> failsWithInstanceOfSatisfying(
       Class<T> type, Consumer<T> requirements) {
     checkNotNull(
@@ -58,20 +63,28 @@ public class ListenableFutureAssert<ACTUAL> extends ObjectAssert<ListenableFutur
 
   public ListenableFutureAssert<ACTUAL> failsWithGrpcStatus(Status status) {
     checkNotNull(status, "status");
+    assertThat(getFailureGrpcStatus()).isEqualTo(status);
+    return this;
+  }
+
+  public ListenableFutureAssert<ACTUAL> failsWithGrpcStatusCode(Status.Code code) {
+    checkNotNull(code, "code");
+    assertThat(getFailureGrpcStatus().getCode()).isEqualTo(code);
+    return this;
+  }
+
+  private Status getFailureGrpcStatus() {
     Throwable t = catchThrowable(() -> getUnchecked(actual));
     Throwable cause = t.getCause();
-    final Status resultStatus;
     if (cause instanceof StatusRuntimeException) {
-      resultStatus = ((StatusRuntimeException) cause).getStatus();
+      return ((StatusRuntimeException) cause).getStatus();
     } else if (cause instanceof StatusException) {
-      resultStatus = ((StatusException) cause).getStatus();
+      return ((StatusException) cause).getStatus();
     } else {
       // Could throw AssertionError, but use assertj for consistent error messages. The following
       // is guaranteed to throw.
       assertThat(cause).isInstanceOfAny(StatusException.class, StatusRuntimeException.class);
       throw new IllegalStateException("Can't reach here.");
     }
-    assertThat(resultStatus.getCode()).isEqualTo(status.getCode());
-    return this;
   }
 }

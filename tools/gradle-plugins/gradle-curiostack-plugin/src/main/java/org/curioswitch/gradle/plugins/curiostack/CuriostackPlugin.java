@@ -128,6 +128,18 @@ public class CuriostackPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project rootProject) {
+    rootProject
+        .getGradle()
+        .getTaskGraph()
+        .whenReady(
+            tasks -> {
+              if (!rootProject.getGradle().getGradleVersion().equals(GRADLE_VERSION)
+                  && !tasks.hasTask(":wrapper")) {
+                throw new IllegalStateException(
+                    "Gradle wrapper out-of-date, run ./gradlew :wrapper");
+              }
+            });
+
     PluginContainer plugins = rootProject.getPlugins();
     // Provides useful tasks like 'clean', 'assemble' to the root project.
     plugins.apply(BasePlugin.class);
@@ -139,10 +151,14 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(NodePlugin.class);
     plugins.apply(PythonEnvsPlugin.class);
 
-    rootProject.getTasks().withType(Wrapper.class, wrapper -> {
-      wrapper.setGradleVersion(GRADLE_VERSION);
-      wrapper.setDistributionType(DistributionType.ALL);
-    });
+    rootProject
+        .getTasks()
+        .withType(
+            Wrapper.class,
+            wrapper -> {
+              wrapper.setGradleVersion(GRADLE_VERSION);
+              wrapper.setDistributionType(DistributionType.ALL);
+            });
 
     setupPyenvs(rootProject);
 

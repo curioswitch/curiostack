@@ -39,7 +39,8 @@ public class TerraformPlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getPluginManager().apply(BasePlugin.class);
 
-    String convertedConfigsPath = project.getBuildDir().toPath().resolve("terraform").toAbsolutePath().toString();
+    String convertedConfigsPath =
+        project.getBuildDir().toPath().resolve("terraform").toAbsolutePath().toString();
     Path plansPath = project.getProjectDir().toPath().resolve("plans");
 
     var convertConfigs =
@@ -69,18 +70,36 @@ public class TerraformPlugin implements Plugin<Project> {
                   t.dependsOn(convertConfigs, terraformInit);
                 });
 
-    var terraformApply = project.getTasks().create("terraformApply", TerraformTask.class, t -> {
-      t.setArgs(ImmutableList.of("apply", convertedConfigsPath));
-    });
+    var terraformApply =
+        project
+            .getTasks()
+            .create(
+                "terraformApply",
+                TerraformTask.class,
+                t -> {
+                  t.setArgs(ImmutableList.of("apply", convertedConfigsPath));
+                });
 
-    project.getTasks().create("terraformCopyState", TerraformTask.class, t -> {
-      t.setArgs(ImmutableList.of("init", "-input=false", "-force-copy", convertedConfigsPath));
-      t.dependsOn(convertConfigs);
-    });
+    project
+        .getTasks()
+        .create(
+            "terraformCopyState",
+            TerraformTask.class,
+            t -> {
+              t.setArgs(
+                  ImmutableList.of("init", "-input=false", "-force-copy", convertedConfigsPath));
+              t.dependsOn(convertConfigs);
+            });
 
-    project.getTasks().create(TerraformImportTask.NAME, TerraformImportTask.class, t -> {
-      t.dependsOn(terraformInit);
-      t.setArgs(ImmutableList.of("import", "-input=false", "-config=" + convertedConfigsPath));
-    });
+    project
+        .getTasks()
+        .create(
+            TerraformImportTask.NAME,
+            TerraformImportTask.class,
+            t -> {
+              t.dependsOn(terraformInit);
+              t.setArgs(
+                  ImmutableList.of("import", "-input=false", "-config=" + convertedConfigsPath));
+            });
   }
 }

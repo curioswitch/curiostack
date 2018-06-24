@@ -65,7 +65,6 @@ dependencies {
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
     compile 'com.diffplug.spotless:spotless-plugin-gradle'
     compile 'com.github.ben-manes:gradle-versions-plugin'
-    compile 'com.google.cloud:google-cloud-resourcemanager'
     compile 'com.google.cloud:google-cloud-storage'
     compile 'com.google.guava:guava'
     compile 'com.google.protobuf:protobuf-gradle-plugin'

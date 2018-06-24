@@ -51,20 +51,19 @@ public class TerraformTask extends DefaultTask {
     var project = getProject();
     var terraformWorkDir = project.getRootProject().file(".gradle/terraform");
     project.mkdir(terraformWorkDir);
-    project
-        .exec(
-            exec -> {
-              exec.executable(
-                  CommandUtil.getCuriostackDir(project)
-                      .resolve("terraform")
-                      .resolve(StandardDependencies.TERRAFORM_VERSION)
-                      .resolve("terraform"));
-              exec.args(args);
-              exec.workingDir(terraformWorkDir);
-              exec.setStandardInput(System.in);
-              if (execCustomizer != null) {
-                execCustomizer.execute(exec);
-              }
-            });
+    project.exec(
+        exec -> {
+          exec.executable(
+              CommandUtil.getCuriostackDir(project)
+                  .resolve("terraform")
+                  .resolve(StandardDependencies.TERRAFORM_VERSION)
+                  .resolve("terraform"));
+          exec.args(args);
+          exec.workingDir(terraformWorkDir);
+          exec.setStandardInput(System.in);
+          if (execCustomizer != null) {
+            execCustomizer.execute(exec);
+          }
+        });
   }
 }
