@@ -33,13 +33,11 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.google.api.client.util.Sleeper;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Paths;
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +46,6 @@ import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentConfiguration;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
 import org.curioswitch.gradle.plugins.gcloud.tasks.CreateBuildCacheBucket;
-import org.curioswitch.gradle.plugins.gcloud.tasks.CreateClusterTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.DownloadTerraformTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
@@ -108,11 +105,6 @@ public class GcloudPlugin implements Plugin<Project> {
                 }
               }
             });
-
-    project
-        .getTasks()
-        .create(
-            CreateClusterTask.NAME, CreateClusterTask.class, Clock.systemUTC(), Sleeper.DEFAULT);
 
     project
         .getTasks()

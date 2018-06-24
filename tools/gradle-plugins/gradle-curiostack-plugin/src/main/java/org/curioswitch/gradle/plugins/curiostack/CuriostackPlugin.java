@@ -28,6 +28,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static net.ltgt.gradle.errorprone.javacplugin.CheckSeverity.ERROR;
 import static net.ltgt.gradle.errorprone.javacplugin.CheckSeverity.OFF;
 import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.GOOGLE_JAVA_FORMAT_VERSION;
+import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.GRADLE_VERSION;
 import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.NODE_VERSION;
 import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.YARN_VERSION;
 
@@ -113,6 +114,8 @@ import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.api.tasks.testing.Test;
+import org.gradle.api.tasks.wrapper.Wrapper;
+import org.gradle.api.tasks.wrapper.Wrapper.DistributionType;
 import org.gradle.external.javadoc.CoreJavadocOptions;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
@@ -135,6 +138,11 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(GcloudPlugin.class);
     plugins.apply(NodePlugin.class);
     plugins.apply(PythonEnvsPlugin.class);
+
+    rootProject.getTasks().withType(Wrapper.class, wrapper -> {
+      wrapper.setGradleVersion(GRADLE_VERSION);
+      wrapper.setDistributionType(DistributionType.ALL);
+    });
 
     setupPyenvs(rootProject);
 

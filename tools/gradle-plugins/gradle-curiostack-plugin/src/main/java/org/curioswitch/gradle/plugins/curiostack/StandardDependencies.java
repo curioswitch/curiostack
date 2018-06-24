@@ -50,6 +50,7 @@ public class StandardDependencies {
   public static final String TERRAFORM_VERSION = "0.11.7";
 
   static final String GOOGLE_JAVA_FORMAT_VERSION = "1.6";
+  static final String GRADLE_VERSION = "4.8.1";
   static final String NODE_VERSION = "9.9.0";
   static final String YARN_VERSION = "1.7.0";
 
@@ -104,12 +105,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("0.16.0")
+              .version("0.18.0")
               .addModules("grpc-google-cloud-trace-v1")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("1.16.0")
+              .version("1.17.0")
               .addModules("grpc-google-cloud-pubsub-v1")
               .build(),
           ImmutableDependencySet.builder()
@@ -129,7 +130,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.34.0")
+              .version("1.35.0")
               .addModules(
                   "google-cloud-bigquery",
                   "google-cloud-core",
@@ -139,12 +140,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.52.0-alpha")
+              .version("0.53.0-alpha")
               .addModules("google-cloud-resourcemanager")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("0.52.0-beta")
+              .version("0.53.0-beta")
               .addModules("google-cloud-iot", "google-cloud-trace")
               .build(),
           ImmutableDependencySet.builder()
@@ -296,7 +297,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("5.1.1")
+              .version("5.1.2")
               .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
@@ -435,7 +436,7 @@ public class StandardDependencies {
 
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:3.3.5",
+          "com.bmuschko:gradle-docker-plugin:3.3.6",
           "com.diffplug.spotless:spotless-plugin-gradle:3.13.0",
           "com.github.ben-manes:gradle-versions-plugin:0.20.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.5",

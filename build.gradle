@@ -113,8 +113,3 @@ gcloud {
     clusterZones = ['asia-northeast1-a', 'asia-northeast1-c']
     clusterKubernetesVersion = '1.10.4-gke.0'
 }
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.8'
-    distributionType = 'ALL'
-}
