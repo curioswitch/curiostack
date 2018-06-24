@@ -72,7 +72,7 @@ import me.champeau.gradle.JMHPlugin;
 import me.champeau.gradle.JMHPluginExtension;
 import nebula.plugin.resolutionrules.ResolutionRulesPlugin;
 import net.ltgt.gradle.apt.AptIdeaPlugin;
-import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleApt;
+import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleAptConvention;
 import net.ltgt.gradle.apt.AptPlugin;
 import net.ltgt.gradle.errorprone.javacplugin.CheckSeverity;
 import net.ltgt.gradle.errorprone.javacplugin.ErrorProneJavacPluginPlugin;
@@ -98,6 +98,7 @@ import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolutionStrategy;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.JavaLibraryPlugin;
@@ -451,10 +452,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                   .getByName("clean")
                   .doLast(unused -> project.file(project.getName() + ".iml").delete());
 
-              ((ExtensionAware) module)
-                  .getExtensions()
-                  .getByType(ModuleApt.class)
-                  .setAddAptDependencies(false);
+              new DslObject(module).getConvention().getPlugin(ModuleAptConvention.class).getApt();
             });
 
     DependencyManagementExtension dependencyManagement =
@@ -492,8 +490,6 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
 
     Javadoc javadoc = (Javadoc) project.getTasks().getByName("javadoc");
-    javadoc.exclude(
-        fileSpec -> fileSpec.getFile().toPath().startsWith(project.getBuildDir().toPath()));
     CoreJavadocOptions options = (CoreJavadocOptions) javadoc.getOptions();
     options.quiet();
     options.addBooleanOption("Xdoclint:all,-missing", true);
@@ -511,7 +507,6 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     SourceSetContainer sourceSets = javaPlugin.getSourceSets();
     var mainSourceSet = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-    var testSourceSet = sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME);
     project
         .getTasks()
         .create(
@@ -523,22 +518,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
 
     SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
-    spotless.java(
-        (extension) -> {
-          extension.googleJavaFormat(GOOGLE_JAVA_FORMAT_VERSION);
-          extension.target(
-              mainSourceSet
-                  .getAllJava()
-                  .plus(testSourceSet.getAllJava())
-                  .matching(
-                      filter ->
-                          filter.exclude(
-                              fileSpec ->
-                                  fileSpec
-                                      .getFile()
-                                      .toPath()
-                                      .startsWith(project.getBuildDir().toPath()))));
-        });
+    spotless.java((extension) -> extension.googleJavaFormat(GOOGLE_JAVA_FORMAT_VERSION));
 
     project
         .getTasks()

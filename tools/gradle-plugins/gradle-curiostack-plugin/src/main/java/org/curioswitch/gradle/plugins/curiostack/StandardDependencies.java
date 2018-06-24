@@ -454,7 +454,7 @@ public class StandardDependencies {
           "javax.xml.bind:jaxb-api:2.3.0",
           "me.champeau.gradle:jmh-gradle-plugin:0.4.6",
           "mysql:mysql-connector-java:5.1.46",
-          "net.ltgt.gradle:gradle-apt-plugin:0.16",
+          "net.ltgt.gradle:gradle-apt-plugin:0.15",
           "net.ltgt.gradle:gradle-errorprone-javacplugin-plugin:0.2",
           "net.ltgt.gradle:gradle-errorprone-plugin:0.0.14",
           "nu.studer:gradle-jooq-plugin:2.0.11");
