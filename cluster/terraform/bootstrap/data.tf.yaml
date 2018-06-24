@@ -7,4 +7,6 @@ data:
       display_name: "My Billing Account"
 variable:
   project_id:
-    default: curioswitch-cluster-test6
+    default: curioswitch-cluster
+  project_name:
+    default: curioswitch-cluster

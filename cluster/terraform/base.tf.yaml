@@ -4,4 +4,4 @@ module:
 terraform:
   backend:
     gcs:
-      bucket: curioswitch-cluster-test6-terraform
+      bucket: curioswitch-cluster-terraform

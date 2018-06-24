@@ -1,7 +1,7 @@
 resource:
   google_project:
     primary_project:
-      name: "Curioswitch Cluster Test6"
+      name: "${var.project_name}"
       project_id: "${var.project_id}"
       org_id: "${data.google_organization.org.id}"
       billing_account: "${data.google_billing_account.acct.id}"

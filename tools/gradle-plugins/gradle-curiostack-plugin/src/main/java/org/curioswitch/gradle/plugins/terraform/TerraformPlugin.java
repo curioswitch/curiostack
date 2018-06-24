@@ -25,11 +25,9 @@
 package org.curioswitch.gradle.plugins.terraform;
 
 import com.google.common.collect.ImmutableList;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import org.curioswitch.gradle.plugins.terraform.tasks.ConvertConfigsToJsonTask;
+import org.curioswitch.gradle.plugins.terraform.tasks.TerraformImportTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -67,19 +65,22 @@ public class TerraformPlugin implements Plugin<Project> {
                 TerraformTask.class,
                 t -> {
                   t.doFirst(unused -> project.mkdir(plansPath));
-                  t.setArgs(ImmutableList.of("plan", "-out=" + plansPath.resolve("tfplan").toString(), "-input=false", "-no-color", convertedConfigsPath));
+                  t.setArgs(ImmutableList.of("plan", "-input=false", convertedConfigsPath));
                   t.dependsOn(convertConfigs, terraformInit);
-                  t.setExecCustomizer(exec -> {
-                    try {
-                      exec.setStandardOutput(new FileOutputStream(project.file(plansPath.resolve("plan.txt"))));
-                    } catch (FileNotFoundException e) {
-                      throw new UncheckedIOException("Could not write plan.", e);
-                    }
-                  });
                 });
 
     var terraformApply = project.getTasks().create("terraformApply", TerraformTask.class, t -> {
-      t.setArgs(ImmutableList.of("apply", "-input=false", plansPath.resolve("tfplan").toString()));
+      t.setArgs(ImmutableList.of("apply", convertedConfigsPath));
+    });
+
+    project.getTasks().create("terraformCopyState", TerraformTask.class, t -> {
+      t.setArgs(ImmutableList.of("init", "-input=false", "-force-copy", convertedConfigsPath));
+      t.dependsOn(convertConfigs);
+    });
+
+    project.getTasks().create(TerraformImportTask.NAME, TerraformImportTask.class, t -> {
+      t.dependsOn(terraformInit);
+      t.setArgs(ImmutableList.of("import", "-input=false", "-config=" + convertedConfigsPath));
     });
   }
 }

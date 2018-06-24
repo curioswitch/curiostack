@@ -61,6 +61,7 @@ public class TerraformTask extends DefaultTask {
                       .resolve("terraform"));
               exec.args(args);
               exec.workingDir(terraformWorkDir);
+              exec.setStandardInput(System.in);
               if (execCustomizer != null) {
                 execCustomizer.execute(exec);
               }
