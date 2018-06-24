@@ -32,7 +32,7 @@ targetCompatibility = '1.8'
 
 // Spring dependencies plugin is not aware of classifiers. Eventually see if netflix plugins work
 // better (it is possibly a limitation of gradle itself).
-def sfmVersion = '3.18.0'
+def sfmVersion = '3.18.1'
 
 dependencies {
     api project(':common:google-cloud:iam')

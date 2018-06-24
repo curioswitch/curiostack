@@ -121,17 +121,11 @@ public interface ImmutableDeploymentExtension {
       return 8080;
     }
 
-    default Map<String, String> envVars() {
-      return ImmutableMap.of();
-    }
+    Map<String, String> envVars();
 
-    default Map<String, List<String>> secretEnvVars() {
-      return ImmutableMap.of();
-    }
+    Map<String, List<String>> secretEnvVars();
 
-    default Map<String, String> rpcAcls() {
-      return ImmutableMap.of();
-    }
+    Map<String, String> rpcAcls();
   }
 
   default NamedDomainObjectContainer<DeploymentConfiguration> getTypes() {

@@ -72,7 +72,7 @@ import me.champeau.gradle.JMHPlugin;
 import me.champeau.gradle.JMHPluginExtension;
 import nebula.plugin.resolutionrules.ResolutionRulesPlugin;
 import net.ltgt.gradle.apt.AptIdeaPlugin;
-import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleAptConvention;
+import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleApt;
 import net.ltgt.gradle.apt.AptPlugin;
 import net.ltgt.gradle.errorprone.javacplugin.CheckSeverity;
 import net.ltgt.gradle.errorprone.javacplugin.ErrorProneJavacPluginPlugin;
@@ -98,7 +98,6 @@ import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolutionStrategy;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.JavaLibraryPlugin;
@@ -282,6 +281,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     project.getRepositories().maven(maven -> maven.setUrl("http://dl.bintray.com/mockito/maven"));
     project.getRepositories().mavenCentral();
     project.getRepositories().mavenLocal();
+    project.getRepositories().maven(maven -> maven.setUrl("https://jitpack.io"));
   }
 
   private static void setupJavaProject(Project project) {
@@ -451,10 +451,9 @@ public class CuriostackPlugin implements Plugin<Project> {
                   .getByName("clean")
                   .doLast(unused -> project.file(project.getName() + ".iml").delete());
 
-              new DslObject(module)
-                  .getConvention()
-                  .getPlugin(ModuleAptConvention.class)
-                  .getApt()
+              ((ExtensionAware) module)
+                  .getExtensions()
+                  .getByType(ModuleApt.class)
                   .setAddAptDependencies(false);
             });
 
@@ -493,6 +492,8 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
 
     Javadoc javadoc = (Javadoc) project.getTasks().getByName("javadoc");
+    javadoc.exclude(
+        fileSpec -> fileSpec.getFile().toPath().startsWith(project.getBuildDir().toPath()));
     CoreJavadocOptions options = (CoreJavadocOptions) javadoc.getOptions();
     options.quiet();
     options.addBooleanOption("Xdoclint:all,-missing", true);
@@ -509,6 +510,8 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
 
     SourceSetContainer sourceSets = javaPlugin.getSourceSets();
+    var mainSourceSet = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+    var testSourceSet = sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME);
     project
         .getTasks()
         .create(
@@ -516,11 +519,26 @@ public class CuriostackPlugin implements Plugin<Project> {
             Jar.class,
             sourceJar -> {
               sourceJar.setClassifier("sources");
-              sourceJar.from(sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME).getAllSource());
+              sourceJar.from(mainSourceSet.getAllSource());
             });
 
     SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
-    spotless.java((extension) -> extension.googleJavaFormat(GOOGLE_JAVA_FORMAT_VERSION));
+    spotless.java(
+        (extension) -> {
+          extension.googleJavaFormat(GOOGLE_JAVA_FORMAT_VERSION);
+          extension.target(
+              mainSourceSet
+                  .getAllJava()
+                  .plus(testSourceSet.getAllJava())
+                  .matching(
+                      filter ->
+                          filter.exclude(
+                              fileSpec ->
+                                  fileSpec
+                                      .getFile()
+                                      .toPath()
+                                      .startsWith(project.getBuildDir().toPath()))));
+        });
 
     project
         .getTasks()
@@ -614,26 +632,25 @@ public class CuriostackPlugin implements Plugin<Project> {
         .getPlugins()
         .withType(
             JooqPlugin.class,
-            unused -> {
-              project
-                  .getTasks()
-                  .withType(
-                      JooqTask.class,
-                      t -> {
-                        for (String dependency :
-                            ImmutableList.of(
-                                "javax.activation:activation",
-                                "javax.xml.bind:jaxb-api",
-                                "com.sun.xml.bind:jaxb-core",
-                                "com.sun.xml.bind:jaxb-impl",
-                                "mysql:mysql-connector-java",
-                                // Not sure why this isn't automatically added.
-                                "com.google.guava:guava",
-                                "com.google.cloud.sql:mysql-socket-factory")) {
-                          project.getDependencies().add("jooqRuntime", dependency);
-                        }
-                      });
-            });
+            unused ->
+                project
+                    .getTasks()
+                    .withType(
+                        JooqTask.class,
+                        t -> {
+                          for (String dependency :
+                              ImmutableList.of(
+                                  "javax.activation:activation",
+                                  "javax.xml.bind:jaxb-api",
+                                  "com.sun.xml.bind:jaxb-core",
+                                  "com.sun.xml.bind:jaxb-impl",
+                                  "mysql:mysql-connector-java",
+                                  // Not sure why this isn't automatically added.
+                                  "com.google.guava:guava",
+                                  "com.google.cloud.sql:mysql-socket-factory")) {
+                            project.getDependencies().add("jooqRuntime", dependency);
+                          }
+                        }));
 
     // It is very common to want to pass in command line system properties to the binary, so just
     // always forward properties. It won't affect production since no one runs binaries via Gradle

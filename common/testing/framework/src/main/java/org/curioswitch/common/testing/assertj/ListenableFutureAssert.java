@@ -30,6 +30,9 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.curioswitch.common.testing.assertj.CurioAssertions.assertThat;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import io.grpc.Status;
+import io.grpc.StatusException;
+import io.grpc.StatusRuntimeException;
 import java.util.function.Consumer;
 import org.assertj.core.api.ObjectAssert;
 
@@ -50,6 +53,25 @@ public class ListenableFutureAssert<ACTUAL> extends ObjectAssert<ListenableFutur
         requirements, "The Consumer<T> expressing the assertions requirements must not be null");
     Throwable t = catchThrowable(() -> getUnchecked(actual));
     assertThat(t.getCause()).isInstanceOfSatisfying(type, requirements);
+    return this;
+  }
+
+  public ListenableFutureAssert<ACTUAL> failsWithGrpcStatus(Status status) {
+    checkNotNull(status, "status");
+    Throwable t = catchThrowable(() -> getUnchecked(actual));
+    Throwable cause = t.getCause();
+    final Status resultStatus;
+    if (cause instanceof StatusRuntimeException) {
+      resultStatus = ((StatusRuntimeException) cause).getStatus();
+    } else if (cause instanceof StatusException) {
+      resultStatus = ((StatusException) cause).getStatus();
+    } else {
+      // Could throw AssertionError, but use assertj for consistent error messages. The following
+      // is guaranteed to throw.
+      assertThat(cause).isInstanceOfAny(StatusException.class, StatusRuntimeException.class);
+      throw new IllegalStateException("Can't reach here.");
+    }
+    assertThat(resultStatus.getCode()).isEqualTo(status.getCode());
     return this;
   }
 }

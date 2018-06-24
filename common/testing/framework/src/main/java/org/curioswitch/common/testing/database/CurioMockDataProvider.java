@@ -21,20 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.curioswitch.common.server.framework.immutables;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
-import org.immutables.value.Value.Style;
-import org.immutables.value.Value.Style.BuilderVisibility;
+package org.curioswitch.common.testing.database;
 
-/** A {@link Style} which allows recognizing modifable versions of the type as javabeans. */
-@Target(ElementType.TYPE)
-@Style(
-    create = "new",
-    get = {"get*", "is*"},
-    beanFriendlyModifiables = true,
-    isInitialized = "initialized",
-    builderVisibility = BuilderVisibility.PACKAGE,
-    defaultAsDefault = true)
-public @interface JavaBeanStyle {}
+import org.jooq.tools.jdbc.MockDataProvider;
+import org.jooq.tools.jdbc.MockExecuteContext;
+import org.jooq.tools.jdbc.MockResult;
+
+/**
+ * A {@link MockDataProvider} that provides a default implementation of {@link
+ * #execute(MockExecuteContext)} which throws an exception with the query logged, for use with
+ * {@code {@literal @}Mock(answer = Answers.CALL_REAL_METHOD)}.
+ */
+public interface CurioMockDataProvider extends MockDataProvider {
+  @Override
+  default MockResult[] execute(MockExecuteContext ctx) {
+    throw new AssertionError("Invalid SQL query: " + ctx.sql());
+  }
+}
