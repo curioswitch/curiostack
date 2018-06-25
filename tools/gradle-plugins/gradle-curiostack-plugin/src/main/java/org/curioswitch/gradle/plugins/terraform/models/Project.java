@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,39 +22,30 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.gcloud.util;
+package org.curioswitch.gradle.plugins.terraform.models;
 
-import java.util.Properties;
-import org.apache.tools.ant.taskdefs.condition.Os;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Style;
+import org.immutables.value.Value.Style.BuilderVisibility;
+import org.immutables.value.Value.Style.ImplementationVisibility;
 
-public class PlatformHelper {
+@Immutable
+@Style(
+    visibility = ImplementationVisibility.PACKAGE,
+    builderVisibility = BuilderVisibility.PACKAGE,
+    defaultAsDefault = true)
+@JsonSerialize(as = ImmutableProject.class)
+public interface Project {
+  String getName();
 
-  private final Properties props;
+  @JsonProperty("project_id")
+  String getProjectId();
 
-  public PlatformHelper() {
-    this.props = System.getProperties();
-  }
+  @JsonProperty("org_id")
+  String getOrgId();
 
-  public String getOsName() {
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-      return "windows";
-    } else if (Os.isFamily(Os.FAMILY_MAC)) {
-      return "darwin";
-    } else if (Os.isFamily(Os.FAMILY_UNIX)) {
-      // Assume linux version works on any unix until told otherwise.
-      return "linux";
-    }
-
-    throw new IllegalArgumentException("Unsupported OS.");
-  }
-
-  public String getOsArch() {
-    final String arch = props.getProperty("os.arch").toLowerCase();
-    if (arch.contains("arm")) {
-      return "arm";
-    } else if (arch.contains("64")) {
-      return "x86_64";
-    }
-    return "x86";
-  }
+  @JsonProperty("billing_account")
+  String getBillingAccount();
 }

@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -47,9 +46,11 @@ import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentConfiguration;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
 import org.curioswitch.gradle.plugins.gcloud.tasks.CreateBuildCacheBucket;
+import org.curioswitch.gradle.plugins.gcloud.tasks.DownloadTerraformTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.SetupTask;
+import org.curioswitch.gradle.plugins.gcloud.util.PlatformHelper;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Rule;
@@ -105,6 +106,10 @@ public class GcloudPlugin implements Plugin<Project> {
               }
             });
 
+    project
+        .getTasks()
+        .create(DownloadTerraformTask.NAME, DownloadTerraformTask.class, new PlatformHelper());
+
     project.afterEvaluate(
         p -> {
           SetupTask downloadSdkTask = project.getTasks().create(SetupTask.NAME, SetupTask.class);
@@ -150,45 +155,10 @@ public class GcloudPlugin implements Plugin<Project> {
           createSourceRepo.setArgs(
               ImmutableList.of("alpha", "source", "repos", "create", config.sourceRepository()));
 
-          GcloudTask createCluster =
-              project.getTasks().create("gcloudCreateCluster", GcloudTask.class);
-          List<String> createClusterArgs = new ArrayList<>();
-          createClusterArgs.addAll(
-              ImmutableList.of(
-                  "beta",
-                  "container",
-                  "clusters",
-                  "create",
-                  config.clusterName(),
-                  "--zone",
-                  config.clusterZone(),
-                  "--additional-zones",
-                  String.join(",", config.clusterAdditionalZones()),
-                  "--num-nodes",
-                  Integer.toString(config.clusterNumNodesPerZone()),
-                  "--enable-autorepair",
-                  "--enable-autoupgrade",
-                  "--machine-type",
-                  config.clusterMachineType(),
-                  "--scopes",
-                  "cloud-platform,storage-rw,default,sql-admin,"
-                      + "https://www.googleapis.com/auth/ndev.clouddns.readwrite"));
-          if (config.clusterKubernetesVersion() != null) {
-            createClusterArgs.add("--cluster-version");
-            createClusterArgs.add(config.clusterKubernetesVersion());
-          }
-          createCluster.setArgs(Collections.unmodifiableList(createClusterArgs));
-
           GcloudTask loginToCluster =
               project.getTasks().create("gcloudLoginToCluster", GcloudTask.class);
           loginToCluster.setArgs(
-              ImmutableList.of(
-                  "container",
-                  "clusters",
-                  "get-credentials",
-                  config.clusterName(),
-                  "--zone",
-                  config.clusterZone()));
+              ImmutableList.of("container", "clusters", "get-credentials", config.clusterName()));
 
           project.getTasks().create("createBuildCacheBucket", CreateBuildCacheBucket.class);
 
@@ -351,7 +321,6 @@ public class GcloudPlugin implements Plugin<Project> {
                                               + " || echo Skipping..."))
                                   .env(
                                       ImmutableList.of(
-                                          "CLOUDSDK_COMPUTE_ZONE=" + config.clusterZone(),
                                           "CLOUDSDK_CONTAINER_CLUSTER=" + config.clusterName()))
                                   .build());
                         }

@@ -1,0 +1,21 @@
+resource:
+  google_project:
+    primary_project:
+      name: "${var.project_name}"
+      project_id: "${var.project_id}"
+      org_id: "${data.google_organization.org.id}"
+      billing_account: "${data.google_billing_account.acct.id}"
+      lifecycle:
+        prevent_destroy: true
+
+  google_project_service:
+    compute:
+      project: "${google_project.primary_project.project_id}"
+      service: compute.googleapis.com
+
+  google_storage_bucket:
+    terraform_state:
+      name: "${google_project.primary_project.project_id}-terraform"
+      location: asia-northeast1
+      depends_on:
+      - google_project_service.compute

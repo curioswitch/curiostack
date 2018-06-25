@@ -1,0 +1,7 @@
+module:
+  bootstrap:
+    source: ./bootstrap
+terraform:
+  backend:
+    gcs:
+      bucket: curioswitch-cluster-terraform

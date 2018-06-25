@@ -104,11 +104,13 @@ public class UpdateNodeResolutions extends DefaultTask {
     var localBaseWebPackageJson =
         getProject()
             .file(System.getProperty("packageJsonLocation", "common/web/base-web/package.json"));
+    if (!localBaseWebPackageJson.exists()) {
+      localBaseWebPackageJson = getProject().file("node_modules/@curiostack/base-web/package.json");
+    }
     final byte[] baseWebPackageJson;
     if (localBaseWebPackageJson.exists()) {
       baseWebPackageJson = Files.readAllBytes(localBaseWebPackageJson.toPath());
     } else {
-
       String urlPath =
           "/curioswitch/curiostack/%40curiostack/base-web-"
               + baseWebVersion

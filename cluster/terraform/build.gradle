@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,34 +22,4 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.gcloud.tasks;
-
-import com.google.cloud.resourcemanager.ProjectInfo;
-import com.google.cloud.resourcemanager.ResourceManager;
-import com.google.cloud.resourcemanager.ResourceManagerOptions;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.TaskAction;
-
-/**
- * TODO(choko): Fix this task, it is currently not working due to authentication issues so we use
- * the SDK for now.
- */
-public class CreateProjectTask extends DefaultTask {
-
-  private final ResourceManager resourceManager;
-
-  private String projectName;
-
-  public CreateProjectTask(ResourceManager resourceManager) {
-    this.resourceManager = ResourceManagerOptions.getDefaultInstance().getService();
-  }
-
-  public void setProjectName(String projectName) {
-    this.projectName = projectName;
-  }
-
-  @TaskAction
-  public void exec() {
-    resourceManager.create(ProjectInfo.newBuilder(projectName).build());
-  }
-}
+apply plugin: 'org.curioswitch.gradle-terraform-plugin'

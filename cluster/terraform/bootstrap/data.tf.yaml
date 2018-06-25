@@ -1,0 +1,12 @@
+data:
+  google_organization:
+    org:
+      domain: curioswitch.org
+  google_billing_account:
+    acct:
+      display_name: "My Billing Account"
+variable:
+  project_id:
+    default: curioswitch-cluster
+  project_name:
+    default: curioswitch-cluster

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,39 +22,37 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.gcloud.util;
+package org.curioswitch.gradle.plugins.terraform.tasks;
 
-import java.util.Properties;
-import org.apache.tools.ant.taskdefs.condition.Os;
+import static com.google.common.base.Preconditions.checkArgument;
 
-public class PlatformHelper {
+import org.gradle.api.tasks.options.Option;
 
-  private final Properties props;
+public class TerraformImportTask extends TerraformTask {
 
-  public PlatformHelper() {
-    this.props = System.getProperties();
+  public static final String NAME = "terraformImport";
+
+  private String module;
+  private String id;
+
+  public TerraformImportTask() {
+    setExecCustomizer(
+        exec -> {
+          checkArgument(module != null, "--module must be set.");
+          checkArgument(id != null, "--id must be set.");
+          exec.args(module, id);
+        });
   }
 
-  public String getOsName() {
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-      return "windows";
-    } else if (Os.isFamily(Os.FAMILY_MAC)) {
-      return "darwin";
-    } else if (Os.isFamily(Os.FAMILY_UNIX)) {
-      // Assume linux version works on any unix until told otherwise.
-      return "linux";
-    }
-
-    throw new IllegalArgumentException("Unsupported OS.");
+  @Option(option = "module", description = "The module to import.")
+  public TerraformImportTask setModule(String module) {
+    this.module = module;
+    return this;
   }
 
-  public String getOsArch() {
-    final String arch = props.getProperty("os.arch").toLowerCase();
-    if (arch.contains("arm")) {
-      return "arm";
-    } else if (arch.contains("64")) {
-      return "x86_64";
-    }
-    return "x86";
+  @Option(option = "id", description = "The id to import.")
+  public TerraformImportTask setId(String id) {
+    this.id = id;
+    return this;
   }
 }

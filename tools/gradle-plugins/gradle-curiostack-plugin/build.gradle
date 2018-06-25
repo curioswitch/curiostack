@@ -65,7 +65,6 @@ dependencies {
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
     compile 'com.diffplug.spotless:spotless-plugin-gradle'
     compile 'com.github.ben-manes:gradle-versions-plugin'
-    compile 'com.google.cloud:google-cloud-resourcemanager'
     compile 'com.google.cloud:google-cloud-storage'
     compile 'com.google.guava:guava'
     compile 'com.google.protobuf:protobuf-gradle-plugin'
@@ -81,7 +80,7 @@ dependencies {
     compile 'io.fabric8:kubernetes-client'
     compile 'io.spring.gradle:dependency-management-plugin'
     compile 'me.champeau.gradle:jmh-gradle-plugin'
-    compile 'net.ltgt.gradle:gradle-apt-plugin'
+    compile 'net.ltgt.gradle:gradle-apt-plugin:0.15'
     compile 'net.ltgt.gradle:gradle-errorprone-plugin'
     compile 'net.ltgt.gradle:gradle-errorprone-javacplugin-plugin'
     // TODO(choko): Restore after https://github.com/etiennestuder/gradle-jooq-plugin/issues/71
@@ -140,6 +139,10 @@ gradlePlugin {
         server {
             id = 'org.curioswitch.gradle-curio-server-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin'
+        }
+        terraform {
+            id = 'org.curioswitch.gradle-terraform-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.terraform.TerraformPlugin'
         }
         web {
             id = 'org.curioswitch.gradle-curio-web-plugin'
