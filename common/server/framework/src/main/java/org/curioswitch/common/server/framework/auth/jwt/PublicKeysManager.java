@@ -22,46 +22,51 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.curiostack.gcloud.core.auth;
+package org.curioswitch.common.server.framework.auth.jwt;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Streams;
 import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.HttpClientBuilder;
+import com.linecorp.armeria.client.logging.LoggingClientBuilder;
+import com.linecorp.armeria.client.retry.RetryStrategy;
+import com.linecorp.armeria.client.retry.RetryingHttpClient;
 import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpHeaders;
 import com.linecorp.armeria.common.HttpStatus;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.PublicKey;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
+import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.curioswitch.curiostack.gcloud.core.RetryingGoogleApis;
+import org.curioswitch.common.server.framework.auth.jwt.PublicKeysManager.Factory;
+import org.curioswitch.common.server.framework.crypto.KeyUtil;
+import org.curioswitch.common.server.framework.immutables.CurioStyle;
 import org.curioswitch.curiostack.gcloud.core.util.AsyncRefreshingValue;
 import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Style;
-import org.immutables.value.Value.Style.BuilderVisibility;
-import org.immutables.value.Value.Style.ImplementationVisibility;
 
-@Singleton
-public class GooglePublicKeysManager {
+@AutoFactory(implementing = Factory.class)
+public class PublicKeysManager {
 
-  private static final String CERTS_PATH = "/oauth2/v1/certs";
+  public interface Factory {
+    PublicKeysManager create(String publicKeysUrl);
+  }
 
   private static final Duration EXPIRATION_SKEW = Duration.ofMinutes(5);
 
@@ -71,27 +76,23 @@ public class GooglePublicKeysManager {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-  private static final CertificateFactory CERTIFICATE_FACTORY;
-
-  static {
-    try {
-      CERTIFICATE_FACTORY = CertificateFactory.getInstance("X.509");
-    } catch (CertificateException e) {
-      throw new Error("Could not get certificate factory.", e);
-    }
-  }
-
-  private final HttpClient googleApisClient;
   private final Clock clock;
+  private final HttpClient httpClient;
+  private final String path;
   private final AsyncRefreshingValue<CachedPublicKeys> keysCache;
 
-  @Inject
-  // We want to use seconds like the HTTP response.
-  @SuppressWarnings({"CanonicalDuration", "ConstructorLeaksThis"})
-  public GooglePublicKeysManager(@RetryingGoogleApis HttpClient googleApisClient, Clock clock) {
-    this.googleApisClient = googleApisClient;
+  @SuppressWarnings("ConstructorLeaksThis")
+  public PublicKeysManager(@Provided Clock clock, String publicKeysUrl) {
     this.clock = clock;
 
+    URI uri = URI.create(publicKeysUrl);
+    path = uri.getPath();
+
+    httpClient =
+        new HttpClientBuilder(uri.getScheme() + "://" + uri.getAuthority())
+            .decorator(new LoggingClientBuilder().newDecorator())
+            .decorator(RetryingHttpClient.newDecorator(RetryStrategy.onServerErrorStatus()))
+            .build();
     keysCache =
         new AsyncRefreshingValue<>(
             this::refresh,
@@ -100,13 +101,13 @@ public class GooglePublicKeysManager {
             clock);
   }
 
-  public CompletableFuture<List<PublicKey>> getKeys() {
-    return keysCache.get().thenApply(CachedPublicKeys::keys);
+  public CompletableFuture<PublicKey> getById(String id) {
+    return keysCache.get().thenApply(cachedKeys -> cachedKeys.keys().get(id));
   }
 
   private CompletableFuture<CachedPublicKeys> refresh() {
-    return googleApisClient
-        .get(CERTS_PATH)
+    return httpClient
+        .get(path)
         .aggregate()
         .handle(
             (msg, t) -> {
@@ -141,38 +142,28 @@ public class GooglePublicKeysManager {
               } catch (IOException e) {
                 throw new UncheckedIOException("Could not parse certificates.", e);
               }
-              List<PublicKey> keys =
-                  Streams.stream(tree.elements())
+              Map<String, PublicKey> keys =
+                  Streams.stream(tree.fields())
                       .map(
-                          valueNode -> {
-                            try {
-                              return (CERTIFICATE_FACTORY.generateCertificate(
-                                      new ByteArrayInputStream(
-                                          valueNode.textValue().getBytes(StandardCharsets.UTF_8))))
-                                  .getPublicKey();
-                            } catch (CertificateException e) {
-                              throw new IllegalArgumentException(
-                                  "Could not decode certificate.", e);
-                            }
+                          entry -> {
+                            byte[] publicKeyPem =
+                                entry.getValue().textValue().getBytes(StandardCharsets.UTF_8);
+                            PublicKey publicKey = KeyUtil.loadPublicKey(publicKeyPem);
+                            return new SimpleImmutableEntry<>(entry.getKey(), publicKey);
                           })
-                      .collect(toImmutableList());
+                      .collect(toImmutableMap(Entry::getKey, Entry::getValue));
               return ImmutableCachedPublicKeys.builder()
                   .expirationTime(expirationTime)
-                  .addAllKeys(keys)
+                  .putAllKeys(keys)
                   .build();
             });
   }
 
   @Immutable
-  @Style(
-    deepImmutablesDetection = true,
-    defaultAsDefault = true,
-    builderVisibility = BuilderVisibility.PACKAGE,
-    visibility = ImplementationVisibility.PACKAGE
-  )
+  @CurioStyle
   interface CachedPublicKeys {
     Instant expirationTime();
 
-    List<PublicKey> keys();
+    Map<String, PublicKey> keys();
   }
 }

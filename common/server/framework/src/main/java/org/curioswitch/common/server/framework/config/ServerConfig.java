@@ -67,6 +67,12 @@ public interface ServerConfig {
    */
   String getCaCertificatePath();
 
+  /**
+   * Path to an additional CA certificate, necessary for migrating CAs as two CAs need to be trusted
+   * at the same time.
+   */
+  String getAdditionalCaCertificatePath();
+
   /** The path to service gRPC APIs on, defaults to /api. */
   String getGrpcPath();
 
@@ -113,6 +119,9 @@ public interface ServerConfig {
    * enabling this.
    */
   boolean isEnableIamAuthorization();
+
+  /** Whether to enable Google Identity-Aware Proxy token verification. */
+  boolean isEnableIapAuthorization();
 
   /**
    * List of IP filtering rules, as IP Addresses with subnet range (e.g., 121.121.0.0/16). If
