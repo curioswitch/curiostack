@@ -120,6 +120,9 @@ public interface ServerConfig {
    */
   boolean isEnableIamAuthorization();
 
+  /** Whether to enable Google Identity-Aware Proxy token verification. */
+  boolean isEnableIapAuthorization();
+
   /**
    * List of IP filtering rules, as IP Addresses with subnet range (e.g., 121.121.0.0/16). If
    * non-empty, only requests that match these rules will be allowed to access the server.

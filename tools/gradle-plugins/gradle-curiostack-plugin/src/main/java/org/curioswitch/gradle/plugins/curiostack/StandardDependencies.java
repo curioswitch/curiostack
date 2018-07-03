@@ -69,6 +69,11 @@ public class StandardDependencies {
               .addModules("commons-logging")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.auth0.java")
+              .version("3.4.0")
+              .addModules("java-jwt")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.google.auth")
               .version("0.9.1")
               .addModules("google-auth-library-oauth2-http")
@@ -194,7 +199,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.66.0")
+              .version("0.67.1")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -269,7 +274,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("4.1.24.Final")
+              .version("4.1.25.Final")
               .addModules(
                   "netty-buffer",
                   "netty-codec",
@@ -287,7 +292,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("2.0.8.Final")
+              .version("2.0.10.Final")
               .addModules("netty-tcnative-boringssl-static")
               .build(),
           ImmutableDependencySet.builder()
@@ -350,7 +355,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.awaitility")
-              .version("3.1.0")
+              .version("3.1.1")
               .addModules("awaitility")
               .build(),
           ImmutableDependencySet.builder()
@@ -365,7 +370,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.26")
+              .version("0.0.27")
               .addModules(
                   "armeria-google-cloud-core",
                   "armeria-google-cloud-iam",
@@ -375,7 +380,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.72")
+              .version("0.0.74")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -436,11 +441,11 @@ public class StandardDependencies {
 
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:3.3.6",
+          "com.bmuschko:gradle-docker-plugin:3.4.0",
           "com.diffplug.spotless:spotless-plugin-gradle:3.13.0",
           "com.github.ben-manes:gradle-versions-plugin:0.20.0",
-          "com.google.protobuf:protobuf-gradle-plugin:0.8.5",
-          "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.2",
+          "com.google.protobuf:protobuf-gradle-plugin:0.8.6",
+          "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.3",
           "com.moowork.gradle:gradle-node-plugin:1.2.0",
           "com.netflix.nebula:gradle-dependency-lock-plugin:5.0.6",
           "com.netflix.nebula:gradle-resolution-rules-plugin:5.2.2",

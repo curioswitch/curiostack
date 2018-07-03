@@ -105,6 +105,9 @@ import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthService
 import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthorizer;
 import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthorizer.Factory;
 import org.curioswitch.common.server.framework.auth.iam.IamAuthorizer;
+import org.curioswitch.common.server.framework.auth.jwt.JwtAuthorizer;
+import org.curioswitch.common.server.framework.auth.jwt.JwtModule;
+import org.curioswitch.common.server.framework.auth.jwt.JwtVerifier.Algorithm;
 import org.curioswitch.common.server.framework.auth.ssl.RpcAclsCommonNamesProvider;
 import org.curioswitch.common.server.framework.auth.ssl.SslAuthorizer;
 import org.curioswitch.common.server.framework.auth.ssl.SslCommonNamesProvider;
@@ -163,6 +166,7 @@ import org.jooq.DSLContext;
       GcloudAuthModule.class,
       GcloudIamModule.class,
       MonitoringModule.class,
+      JwtModule.class,
       SecurityModule.class
     })
 public abstract class ServerModule {
@@ -298,6 +302,7 @@ public abstract class ServerModule {
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
       Lazy<GoogleIdAuthorizer.Factory> googleIdAuthorizer,
       Lazy<IamAuthorizer> iamAuthorizer,
+      Lazy<JwtAuthorizer.Factory> jwtAuthorizer,
       Lazy<JavascriptStaticService> javascriptStaticService,
       Optional<SelfSignedCertificate> selfSignedCertificate,
       Optional<TrustManagerFactory> caTrustManager,
@@ -436,6 +441,7 @@ public abstract class ServerModule {
               firebaseAuthorizer,
               googleIdAuthorizer,
               iamAuthorizer,
+              jwtAuthorizer,
               sslCommonNamesProvider,
               serverConfig,
               authConfig,
@@ -452,6 +458,7 @@ public abstract class ServerModule {
               firebaseAuthorizer,
               googleIdAuthorizer,
               iamAuthorizer,
+              jwtAuthorizer,
               sslCommonNamesProvider,
               serverConfig,
               authConfig,
@@ -539,6 +546,7 @@ public abstract class ServerModule {
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
       Lazy<Factory> googleIdAuthorizer,
       Lazy<IamAuthorizer> iamAuthorizer,
+      Lazy<JwtAuthorizer.Factory> jwtAuthorizer,
       Optional<SslCommonNamesProvider> sslCommonNamesProvider,
       ServerConfig serverConfig,
       FirebaseAuthConfig authConfig,
@@ -557,6 +565,15 @@ public abstract class ServerModule {
     }
     if (serverConfig.isEnableIamAuthorization()) {
       service = new HttpAuthServiceBuilder().addOAuth2(iamAuthorizer.get()).build(service);
+    }
+    if (serverConfig.isEnableIapAuthorization()) {
+      service =
+          new HttpAuthServiceBuilder()
+              .addOAuth2(
+                  jwtAuthorizer
+                      .get()
+                      .create(Algorithm.ES256, "https://www.gstatic.com/iap/verify/public_key"))
+              .build(service);
     }
     if (!authConfig.getServiceAccountBase64().isEmpty()) {
       FirebaseAuthorizer authorizer = firebaseAuthorizer.get();
