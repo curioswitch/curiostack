@@ -67,6 +67,12 @@ public interface ServerConfig {
    */
   String getCaCertificatePath();
 
+  /**
+   * Path to an additional CA certificate, necessary for migrating CAs as two CAs need to be trusted
+   * at the same time.
+   */
+  String getAdditionalCaCertificatePath();
+
   /** The path to service gRPC APIs on, defaults to /api. */
   String getGrpcPath();
 

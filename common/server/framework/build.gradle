@@ -54,6 +54,7 @@ dependencies {
     api 'org.jooq:jooq'
     api "org.simpleflatmapper:sfm-jooq:${sfmVersion}:jdk9"
 
+    implementation 'com.auth0:java-jwt:3.4.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
@@ -84,6 +85,9 @@ dependencies {
     runtime 'javax.xml.bind:jaxb-api'
     runtime 'com.sun.xml.bind:jaxb-impl'
     runtime 'mysql:mysql-connector-java'
+
+    annotationProcessor 'com.google.auto.factory:auto-factory'
+    compileOnly 'com.google.auto.factory:auto-factory'
 
     annotationProcessor 'com.google.auto.service:auto-service'
     compileOnly 'com.google.auto.service:auto-service'

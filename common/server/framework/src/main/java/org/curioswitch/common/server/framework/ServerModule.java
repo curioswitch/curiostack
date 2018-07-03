@@ -73,6 +73,7 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.prometheus.client.CollectorRegistry;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
@@ -259,16 +260,14 @@ public abstract class ServerModule {
       return Optional.empty();
     }
     try {
-      CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-      final X509Certificate certificate;
-      try (InputStream is = ResourceUtil.openStream(serverConfig.getCaCertificatePath())) {
-        certificate = (X509Certificate) certificateFactory.generateCertificate(is);
-      }
-
       KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
       keystore.load(null);
 
-      keystore.setCertificateEntry("caCert", certificate);
+      keystore.setCertificateEntry("caCert", readCertificate(serverConfig.getCaCertificatePath()));
+      if (!serverConfig.getAdditionalCaCertificatePath().isEmpty()) {
+        keystore.setCertificateEntry(
+            "additionalCaCert", readCertificate(serverConfig.getCaCertificatePath()));
+      }
 
       TrustManagerFactory trustManagerFactory =
           TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
@@ -599,5 +598,14 @@ public abstract class ServerModule {
       return service;
     }
     return service.decorate(ipFilter.get());
+  }
+
+  private static X509Certificate readCertificate(String path) throws CertificateException {
+    CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+    try (InputStream is = ResourceUtil.openStream(path)) {
+      return (X509Certificate) certificateFactory.generateCertificate(is);
+    } catch (IOException e) {
+      throw new UncheckedIOException("Error reading certificate from " + path, e);
+    }
   }
 }
