@@ -271,7 +271,7 @@ public abstract class ServerModule {
       keystore.setCertificateEntry("caCert", readCertificate(serverConfig.getCaCertificatePath()));
       if (!serverConfig.getAdditionalCaCertificatePath().isEmpty()) {
         keystore.setCertificateEntry(
-            "additionalCaCert", readCertificate(serverConfig.getCaCertificatePath()));
+            "additionalCaCert", readCertificate(serverConfig.getAdditionalCaCertificatePath()));
       }
 
       TrustManagerFactory trustManagerFactory =
