@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableList;
 import java.nio.file.Path;
 import org.curioswitch.gradle.plugins.terraform.tasks.ConvertConfigsToJsonTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformImportTask;
+import org.curioswitch.gradle.plugins.terraform.tasks.TerraformOutputTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -54,8 +55,7 @@ public class TerraformPlugin implements Plugin<Project> {
                 "terraformInit",
                 TerraformTask.class,
                 t -> {
-                  t.setArgs(ImmutableList.of("init", "-input=false", convertedConfigsPath));
-                  t.dependsOn(convertConfigs);
+                  t.setArgs(ImmutableList.of("init", "-input=false"));
                 });
 
     var terraformPlan =
@@ -66,8 +66,8 @@ public class TerraformPlugin implements Plugin<Project> {
                 TerraformTask.class,
                 t -> {
                   t.doFirst(unused -> project.mkdir(plansPath));
-                  t.setArgs(ImmutableList.of("plan", "-input=false", convertedConfigsPath));
-                  t.dependsOn(convertConfigs, terraformInit);
+                  t.setArgs(ImmutableList.of("plan", "-input=false"));
+                  t.dependsOn(terraformInit);
                 });
 
     var terraformApply =
@@ -77,7 +77,8 @@ public class TerraformPlugin implements Plugin<Project> {
                 "terraformApply",
                 TerraformTask.class,
                 t -> {
-                  t.setArgs(ImmutableList.of("apply", convertedConfigsPath));
+                  t.setArgs(ImmutableList.of("apply"));
+                  t.dependsOn(terraformInit);
                 });
 
     project
@@ -86,9 +87,8 @@ public class TerraformPlugin implements Plugin<Project> {
             "terraformCopyState",
             TerraformTask.class,
             t -> {
-              t.setArgs(
-                  ImmutableList.of("init", "-input=false", "-force-copy", convertedConfigsPath));
-              t.dependsOn(convertConfigs);
+              t.setArgs(ImmutableList.of("init", "-input=false", "-force-copy"));
+              t.dependsOn(terraformInit);
             });
 
     project
@@ -98,8 +98,22 @@ public class TerraformPlugin implements Plugin<Project> {
             TerraformImportTask.class,
             t -> {
               t.dependsOn(terraformInit);
-              t.setArgs(
-                  ImmutableList.of("import", "-input=false", "-config=" + convertedConfigsPath));
+              t.setArgs(ImmutableList.of("import", "-input=false"));
             });
+
+    project
+        .getTasks()
+        .create(
+            TerraformOutputTask.NAME,
+            TerraformOutputTask.class,
+            t -> {
+              t.dependsOn(terraformInit);
+              t.setArgs(ImmutableList.of("output"));
+            });
+
+    project
+        .getTasks()
+        .withType(
+            TerraformTask.class, t -> t.dependsOn(":gcloudDownloadTerraform", convertConfigs));
   }
 }

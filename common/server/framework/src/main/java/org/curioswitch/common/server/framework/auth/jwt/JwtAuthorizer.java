@@ -45,6 +45,9 @@ public class JwtAuthorizer implements Authorizer<OAuth2Token> {
   public static final AttributeKey<DecodedJWT> DECODED_JWT =
       AttributeKey.valueOf(JwtAuthorizer.class, "DECODED_JWT");
 
+  public static final AttributeKey<String> RAW_JWT =
+      AttributeKey.valueOf(JwtAuthorizer.class, "RAW_JWT");
+
   private final JwtVerifier verifier;
 
   public JwtAuthorizer(
@@ -62,6 +65,7 @@ public class JwtAuthorizer implements Authorizer<OAuth2Token> {
                 return false;
               }
               ctx.attr(DECODED_JWT).set(jwt);
+              ctx.attr(RAW_JWT).set(data.accessToken());
               return true;
             });
   }

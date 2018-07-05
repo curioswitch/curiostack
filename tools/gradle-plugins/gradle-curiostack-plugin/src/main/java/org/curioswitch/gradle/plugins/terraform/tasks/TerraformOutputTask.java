@@ -24,45 +24,28 @@
 
 package org.curioswitch.gradle.plugins.terraform.tasks;
 
-import java.io.File;
-import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
-import org.curioswitch.gradle.plugins.shared.CommandUtil;
-import org.gradle.api.Action;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecSpec;
+import static com.google.common.base.Preconditions.checkArgument;
 
-public class TerraformTask extends DefaultTask {
+import org.gradle.api.tasks.options.Option;
 
-  private Iterable<String> args;
-  private Action<ExecSpec> execCustomizer;
+public class TerraformOutputTask extends TerraformTask {
 
-  public TerraformTask setArgs(Iterable<String> args) {
-    this.args = args;
-    return this;
-  }
+  public static final String NAME = "terraformOutput";
 
-  public TerraformTask setExecCustomizer(Action<ExecSpec> execCustomizer) {
-    this.execCustomizer = execCustomizer;
-    return this;
-  }
+  private String module;
+  private String id;
 
-  @TaskAction
-  void exec() {
-    var project = getProject();
-    project.exec(
+  public TerraformOutputTask() {
+    setExecCustomizer(
         exec -> {
-          exec.executable(
-              CommandUtil.getCuriostackDir(project)
-                  .resolve("terraform")
-                  .resolve(StandardDependencies.TERRAFORM_VERSION)
-                  .resolve("terraform"));
-          exec.args(args);
-          exec.workingDir(new File(project.getBuildDir(), "terraform"));
-          exec.setStandardInput(System.in);
-          if (execCustomizer != null) {
-            execCustomizer.execute(exec);
-          }
+          checkArgument(module != null, "--module must be set.");
+          exec.args("-module=" + module);
         });
+  }
+
+  @Option(option = "module", description = "The module to import.")
+  public TerraformOutputTask setModule(String module) {
+    this.module = module;
+    return this;
   }
 }
