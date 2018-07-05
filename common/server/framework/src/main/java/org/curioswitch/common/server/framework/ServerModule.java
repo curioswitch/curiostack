@@ -27,6 +27,7 @@ import brave.Tracing;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.linecorp.armeria.common.Flags;
+import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
@@ -569,7 +570,9 @@ public abstract class ServerModule {
     if (serverConfig.isEnableIapAuthorization()) {
       service =
           new HttpAuthServiceBuilder()
-              .addOAuth2(
+              .addTokenAuthorizer(
+                  headers ->
+                      OAuth2Token.of(headers.get(HttpHeaderNames.of("x-goog-iap-jwt-assertion"))),
                   jwtAuthorizer
                       .get()
                       .create(Algorithm.ES256, "https://www.gstatic.com/iap/verify/public_key"))

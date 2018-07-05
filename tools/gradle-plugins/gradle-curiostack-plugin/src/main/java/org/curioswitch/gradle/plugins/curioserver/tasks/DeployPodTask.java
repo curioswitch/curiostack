@@ -263,6 +263,11 @@ public class DeployPodTask extends DefaultTask {
                                                     .withReadOnly(true)
                                                     .build(),
                                                 new VolumeMountBuilder()
+                                                    .withName("internal-tls")
+                                                    .withMountPath("/etc/internal-tls")
+                                                    .withReadOnly(true)
+                                                    .build(),
+                                                new VolumeMountBuilder()
                                                     .withName("rpcacls")
                                                     .withMountPath("/etc/rpcacls")
                                                     .withReadOnly(true)
@@ -274,6 +279,13 @@ public class DeployPodTask extends DefaultTask {
                                             .withSecret(
                                                 new SecretVolumeSourceBuilder()
                                                     .withSecretName("server-tls")
+                                                    .build())
+                                            .build(),
+                                        new VolumeBuilder()
+                                            .withName("internal-tls")
+                                            .withSecret(
+                                                new SecretVolumeSourceBuilder()
+                                                    .withSecretName("internal-tls")
                                                     .build())
                                             .build(),
                                         new VolumeBuilder()
