@@ -99,6 +99,7 @@ import javax.net.ssl.TrustManagerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.curioswitch.common.server.framework.armeria.Constants;
+import org.curioswitch.common.server.framework.armeria.SslContextKeyConverter;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthConfig;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthModule;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthService;
@@ -618,7 +619,10 @@ public abstract class ServerModule {
 
   private static SslContextBuilder serverSslContext(
       InputStream keyCertChainFile, InputStream keyFile) {
-    return SslContextBuilder.forServer(keyCertChainFile, keyFile, null)
+    SslContextBuilder builder =
+        SslContextKeyConverter.execute(
+            keyCertChainFile, keyFile, (cert, key) -> SslContextBuilder.forServer(cert, key, null));
+    return builder
         .sslProvider(Flags.useOpenSsl() ? SslProvider.OPENSSL : SslProvider.JDK)
         .ciphers(Http2SecurityUtil.CIPHERS, SupportedCipherSuiteFilter.INSTANCE)
         .applicationProtocolConfig(HTTPS_ALPN_CFG);

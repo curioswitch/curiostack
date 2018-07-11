@@ -114,9 +114,10 @@ public class ClientBuilderFactory {
     } else {
       clientCertificateCustomizer =
           sslContext ->
-              sslContext.keyManager(
+              SslContextKeyConverter.execute(
                   ResourceUtil.openStream(serverConfig.getTlsCertificatePath()),
-                  ResourceUtil.openStream(serverConfig.getTlsPrivateKeyPath()));
+                  ResourceUtil.openStream(serverConfig.getTlsPrivateKeyPath()),
+                  sslContext::keyManager);
     }
 
     final Consumer<SslContextBuilder> clientTlsCustomizer;
