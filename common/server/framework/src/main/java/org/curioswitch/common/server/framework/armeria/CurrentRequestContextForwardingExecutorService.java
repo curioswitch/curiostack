@@ -24,9 +24,11 @@
 package org.curioswitch.common.server.framework.armeria;
 
 import com.google.common.util.concurrent.ForwardingListeningExecutorService;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.linecorp.armeria.common.RequestContext;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
@@ -57,5 +59,33 @@ public class CurrentRequestContextForwardingExecutorService
   @Override
   protected ListeningExecutorService delegate() {
     return delegate;
+  }
+
+  @Override
+  @SuppressWarnings("ParameterPackage")
+  public <T> ListenableFuture<T> submit(Callable<T> task) {
+    RequestContext ctx = RequestContext.mapCurrent(Function.identity(), null);
+    if (ctx != null) {
+      task = ctx.makeContextAware(task);
+    }
+    return delegate().submit(task);
+  }
+
+  @Override
+  public ListenableFuture<?> submit(Runnable task) {
+    RequestContext ctx = RequestContext.mapCurrent(Function.identity(), null);
+    if (ctx != null) {
+      task = ctx.makeContextAware(task);
+    }
+    return delegate().submit(task);
+  }
+
+  @Override
+  public <T> ListenableFuture<T> submit(Runnable task, T result) {
+    RequestContext ctx = RequestContext.mapCurrent(Function.identity(), null);
+    if (ctx != null) {
+      task = ctx.makeContextAware(task);
+    }
+    return delegate().submit(task, result);
   }
 }

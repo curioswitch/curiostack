@@ -125,6 +125,8 @@ public interface ImmutableDeploymentExtension {
 
     Map<String, List<String>> secretEnvVars();
 
+    List<String> extraSecretVolumes();
+
     Map<String, String> rpcAcls();
   }
 

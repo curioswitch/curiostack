@@ -155,7 +155,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud.sql")
-              .version("1.0.9")
+              .version("1.0.10")
               .addModules(
                   "mysql-socket-factory",
                   "mysql-socket-factory-connector-j-6",
@@ -307,7 +307,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.gcp")
-              .version("0.6.2")
+              .version("0.6.3")
               .addModules("zipkin-translation-stackdriver")
               .build(),
           ImmutableDependencySet.builder()
@@ -322,7 +322,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.8.12")
+              .version("1.8.13")
               .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
@@ -360,8 +360,8 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.bouncycastle")
-              .version("1.59")
-              .addModules("bcpkix-jdk15on")
+              .version("1.60")
+              .addModules("bcpkix-jdk15on", "bcprov-jdk15on")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.codehaus.groovy")
@@ -380,7 +380,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.75")
+              .version("0.0.77")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -410,7 +410,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jooq")
-              .version("3.11.1")
+              .version("3.11.2")
               .addModules("jooq", "jooq-codegen", "jooq-meta")
               .build(),
           ImmutableDependencySet.builder()
@@ -434,6 +434,12 @@ public class StandardDependencies {
               .addModules("slf4j-api")
               .build(),
           ImmutableDependencySet.builder()
+              .group("org.simpleflatmapper")
+              .version("3.18.3")
+              .addModules(
+                  "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("org.snakeyaml")
               .version("1.19")
               .addModules("snakeyaml")
@@ -441,16 +447,16 @@ public class StandardDependencies {
 
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:3.4.0",
+          "com.bmuschko:gradle-docker-plugin:3.4.3",
           "com.diffplug.spotless:spotless-plugin-gradle:3.13.0",
           "com.github.ben-manes:gradle-versions-plugin:0.20.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.6",
-          "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.3",
+          "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
           "com.moowork.gradle:gradle-node-plugin:1.2.0",
           "com.netflix.nebula:gradle-dependency-lock-plugin:5.0.6",
           "com.netflix.nebula:gradle-resolution-rules-plugin:5.2.2",
           "com.palantir:gradle-baseline-java:0.10.0",
-          "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.1.3",
+          "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.1.4",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.1",
           "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
@@ -459,11 +465,11 @@ public class StandardDependencies {
           "javax.annotation:javax.annotation-api:1.3.2",
           "javax.xml.bind:jaxb-api:2.3.0",
           "me.champeau.gradle:jmh-gradle-plugin:0.4.6",
-          "mysql:mysql-connector-java:5.1.46",
+          "mysql:mysql-connector-java:8.0.11",
           "net.ltgt.gradle:gradle-apt-plugin:0.15",
           "net.ltgt.gradle:gradle-errorprone-javacplugin-plugin:0.2",
           "net.ltgt.gradle:gradle-errorprone-plugin:0.0.14",
-          "nu.studer:gradle-jooq-plugin:2.0.11");
+          "nu.studer:gradle-jooq-plugin:3.0.1");
 
   private StandardDependencies() {}
 }

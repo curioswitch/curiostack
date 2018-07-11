@@ -24,6 +24,8 @@
 
 package org.curioswitch.gradle.plugins.curioserver.tasks;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.fabric8.kubernetes.api.model.ConfigMapVolumeSourceBuilder;
@@ -48,6 +50,7 @@ import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServicePortBuilder;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.kubernetes.api.model.ServiceSpecBuilder;
+import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.VolumeBuilder;
 import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
@@ -128,6 +131,58 @@ public class DeployPodTask extends DefaultTask {
                                                 .build())
                                         .build()))
                     ::iterator);
+
+    var volumes =
+        ImmutableList.<Volume>builder()
+            .add(
+                new VolumeBuilder()
+                    .withName("server-tls")
+                    .withSecret(
+                        new SecretVolumeSourceBuilder().withSecretName("server-tls").build())
+                    .build())
+            .add(
+                new VolumeBuilder()
+                    .withName("internal-tls")
+                    .withSecret(
+                        new SecretVolumeSourceBuilder().withSecretName("internal-tls").build())
+                    .build())
+            .add(
+                new VolumeBuilder()
+                    .withName("gcloud")
+                    .withSecret(new SecretVolumeSourceBuilder().withSecretName("gcloud").build())
+                    .build())
+            .add(
+                new VolumeBuilder()
+                    .withName("rpcacls")
+                    .withConfigMap(new ConfigMapVolumeSourceBuilder().withName("rpcacls").build())
+                    .build())
+            .addAll(
+                deploymentConfig
+                        .extraSecretVolumes()
+                        .stream()
+                        .map(
+                            secretName ->
+                                new VolumeBuilder()
+                                    .withName(secretName)
+                                    .withSecret(
+                                        new SecretVolumeSourceBuilder()
+                                            .withSecretName(secretName)
+                                            .build())
+                                    .build())
+                    ::iterator)
+            .build();
+    var volumeMounts =
+        volumes
+            .stream()
+            .map(
+                volume ->
+                    new VolumeMountBuilder()
+                        .withName(volume.getName())
+                        .withMountPath("/etc/" + volume.getName())
+                        .withReadOnly(true)
+                        .build())
+            .collect(toImmutableList());
+
     if (!deploymentConfig.envVars().containsKey("JAVA_OPTS")) {
       int heapSize = deploymentConfig.jvmHeapMb();
       StringBuilder javaOpts = new StringBuilder();
@@ -148,21 +203,10 @@ public class DeployPodTask extends DefaultTask {
           .append(" ")
           .append("-Dmonitoring.serverName=")
           .append(deploymentConfig.deploymentName())
-          .append(" ");
-      if (!deploymentConfig.request()) {
-        int numCpus = (int) Math.ceil(Double.parseDouble(deploymentConfig.cpu()));
-        int numWorkers = numCpus * 2;
-        javaOpts
-            .append("-XX:ParallelGCThreads=")
-            .append(numCpus)
-            .append(" ")
-            .append("-Dcom.linecorp.armeria.numCommonWorkers=")
-            .append(numWorkers)
-            .append(" ")
-            .append("-Dio.netty.availableProcessors=")
-            .append(numCpus)
-            .append(" ");
-      }
+          .append(
+              " -Dlog4j2.ContextDataInjector=org.curioswitch.common.server.framework.logging.RequestLoggingContextInjector "
+                  + "-Dlog4j.configurationFile=log4j2-json.yml "
+                  + "-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager ");
       if (!type.equals("prod")) {
         javaOpts.append("-Dcom.linecorp.armeria.verboseExceptions=true ");
       }
@@ -205,10 +249,10 @@ public class DeployPodTask extends DefaultTask {
                                 new ObjectMetaBuilder()
                                     .withLabels(
                                         ImmutableMap.of(
-                                            "name", deploymentConfig.deploymentName(),
+                                            "name",
+                                            deploymentConfig.deploymentName(),
                                             "revision",
-                                                System.getenv()
-                                                    .getOrDefault("REVISION_ID", "none")))
+                                            System.getenv().getOrDefault("REVISION_ID", "none")))
                                     .withAnnotations(
                                         ImmutableMap.<String, String>builder()
                                             .put("prometheus.io/scrape", "true")
@@ -251,57 +295,9 @@ public class DeployPodTask extends DefaultTask {
                                                             deploymentConfig.containerPort())
                                                         .withName("http")
                                                         .build()))
-                                            .withVolumeMounts(
-                                                new VolumeMountBuilder()
-                                                    .withName("gcloud")
-                                                    .withMountPath("/etc/gcloud")
-                                                    .withReadOnly(true)
-                                                    .build(),
-                                                new VolumeMountBuilder()
-                                                    .withName("tls")
-                                                    .withMountPath("/etc/tls")
-                                                    .withReadOnly(true)
-                                                    .build(),
-                                                new VolumeMountBuilder()
-                                                    .withName("internal-tls")
-                                                    .withMountPath("/etc/internal-tls")
-                                                    .withReadOnly(true)
-                                                    .build(),
-                                                new VolumeMountBuilder()
-                                                    .withName("rpcacls")
-                                                    .withMountPath("/etc/rpcacls")
-                                                    .withReadOnly(true)
-                                                    .build())
+                                            .withVolumeMounts(volumeMounts)
                                             .build())
-                                    .withVolumes(
-                                        new VolumeBuilder()
-                                            .withName("tls")
-                                            .withSecret(
-                                                new SecretVolumeSourceBuilder()
-                                                    .withSecretName("server-tls")
-                                                    .build())
-                                            .build(),
-                                        new VolumeBuilder()
-                                            .withName("internal-tls")
-                                            .withSecret(
-                                                new SecretVolumeSourceBuilder()
-                                                    .withSecretName("internal-tls")
-                                                    .build())
-                                            .build(),
-                                        new VolumeBuilder()
-                                            .withName("gcloud")
-                                            .withSecret(
-                                                new SecretVolumeSourceBuilder()
-                                                    .withSecretName("gcloud")
-                                                    .build())
-                                            .build(),
-                                        new VolumeBuilder()
-                                            .withName("rpcacls")
-                                            .withConfigMap(
-                                                new ConfigMapVolumeSourceBuilder()
-                                                    .withName("rpcacls")
-                                                    .build())
-                                            .build())
+                                    .withVolumes(volumes)
                                     .build())
                             .build())
                     .build())

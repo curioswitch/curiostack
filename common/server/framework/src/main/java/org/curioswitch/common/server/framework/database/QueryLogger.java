@@ -21,34 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.curioswitch.common.server.framework.config;
 
-import java.time.Duration;
-import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Modifiable;
+package org.curioswitch.common.server.framework.database;
 
-/** Configuration properties for a database accessed by the server. */
-@Immutable
-@Modifiable
-@JavaBeanStyle
-public interface DatabaseConfig {
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jooq.ExecuteContext;
+import org.jooq.impl.DefaultExecuteListener;
 
-  /** The JDBC connection URL to connect to. */
-  String getJdbcUrl();
+/**
+ * A {@link org.jooq.ExecuteListener} that logs queries in a simpler format than jOOQ's standard
+ * format for better machine processing. Generally for audit logging.
+ */
+final class QueryLogger extends DefaultExecuteListener {
 
-  /** The username to use to connect to the database. */
-  String getUsername();
+  private static final Logger logger = LogManager.getLogger();
 
-  /** The password to use to connect to the database. */
-  String getPassword();
-
-  /**
-   * The duration that a connection is allowed to be out of the pool before being considered leaked.
-   * 0 means no leak detection.
-   */
-  Duration getLeakDetectionThreshold();
-
-  /** Whether to log all queries to INFO level. */
-  boolean getLogQueries();
+  @Override
+  public void executeStart(ExecuteContext ctx) {
+    logger.info(ctx.sql());
+  }
 }

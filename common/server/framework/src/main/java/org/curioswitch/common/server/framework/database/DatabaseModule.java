@@ -100,7 +100,9 @@ public abstract class DatabaseModule {
   @Provides
   @Singleton
   static DSLContext dbContext(
-      DataSource dataSource, @ForDatabase ListeningExecutorService dbExecutor) {
+      DataSource dataSource,
+      DatabaseConfig config,
+      @ForDatabase ListeningExecutorService dbExecutor) {
     Configuration configuration =
         new DefaultConfiguration()
             .set(dbExecutor)
@@ -108,6 +110,9 @@ public abstract class DatabaseModule {
             .set(new Settings().withRenderSchema(false))
             .set(new DataSourceConnectionProvider(dataSource))
             .set(DatabaseUtil.sfmRecordMapperProvider());
+    if (config.getLogQueries()) {
+      configuration.set(new QueryLogger());
+    }
     DSLContext ctx = DSL.using(configuration);
     // Eagerly trigger JOOQ classinit for better startup performance.
     ctx.select().from("curio_server_framework_init").getSQL();
