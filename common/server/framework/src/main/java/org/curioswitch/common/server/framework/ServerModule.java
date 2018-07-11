@@ -24,6 +24,7 @@
 package org.curioswitch.common.server.framework;
 
 import brave.Tracing;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.linecorp.armeria.common.Flags;
@@ -123,6 +124,7 @@ import org.curioswitch.common.server.framework.files.WatchedPath;
 import org.curioswitch.common.server.framework.filter.IpFilteringService;
 import org.curioswitch.common.server.framework.grpc.GrpcServiceDefinition;
 import org.curioswitch.common.server.framework.inject.EagerInit;
+import org.curioswitch.common.server.framework.logging.RequestLoggingContext;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
@@ -569,14 +571,26 @@ public abstract class ServerModule {
     }
     if (serverConfig.isEnableIapAuthorization()) {
       service =
-          new HttpAuthServiceBuilder()
-              .addTokenAuthorizer(
-                  headers ->
-                      OAuth2Token.of(headers.get(HttpHeaderNames.of("x-goog-iap-jwt-assertion"))),
-                  jwtAuthorizer
-                      .get()
-                      .create(Algorithm.ES256, "https://www.gstatic.com/iap/verify/public_key"))
-              .build(service);
+          service
+              .decorate(
+                  ((delegate, ctx, req) -> {
+                    DecodedJWT jwt = ctx.attr(JwtAuthorizer.DECODED_JWT).get();
+                    String loggedInUserEmail =
+                        jwt != null ? jwt.getClaim("email").asString() : "unknown";
+                    RequestLoggingContext.put(ctx, "logged_in_user", loggedInUserEmail);
+                    return delegate.serve(ctx, req);
+                  }))
+              .decorate(
+                  new HttpAuthServiceBuilder()
+                      .addTokenAuthorizer(
+                          headers ->
+                              OAuth2Token.of(
+                                  headers.get(HttpHeaderNames.of("x-goog-iap-jwt-assertion"))),
+                          jwtAuthorizer
+                              .get()
+                              .create(
+                                  Algorithm.ES256, "https://www.gstatic.com/iap/verify/public_key"))
+                      .newDecorator());
     }
     if (!authConfig.getServiceAccountBase64().isEmpty()) {
       FirebaseAuthorizer authorizer = firebaseAuthorizer.get();

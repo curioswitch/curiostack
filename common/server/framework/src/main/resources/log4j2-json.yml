@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2017 Choko (choko@curioswitch.org)
+# Copyright (c) 2018 Choko (choko@curioswitch.org)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,4 +22,26 @@
 # SOFTWARE.
 #
 
-version = 0.0.77
+Configuration:
+  name: Default
+  packages: "org.curioswitch.common.server.framework.logging"
+
+  Appenders:
+    Console:
+      name: Console_Appender
+      target: SYSTEM_OUT
+      direct: true
+      JsonLayout:
+        compact: true
+        eventEol: true
+        properties: true
+        stacktraceAsString: true
+        KeyValuePair:
+        - key: severity
+          value: "${stackdriver:severity}"
+
+  Loggers:
+    Root:
+      level: info
+      AppenderRef:
+      - ref: Console_Appender

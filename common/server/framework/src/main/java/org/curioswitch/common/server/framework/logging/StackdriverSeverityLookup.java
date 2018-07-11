@@ -21,34 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.curioswitch.common.server.framework.config;
 
-import java.time.Duration;
-import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Modifiable;
+package org.curioswitch.common.server.framework.logging;
 
-/** Configuration properties for a database accessed by the server. */
-@Immutable
-@Modifiable
-@JavaBeanStyle
-public interface DatabaseConfig {
+import javax.annotation.Nullable;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.lookup.StrLookup;
 
-  /** The JDBC connection URL to connect to. */
-  String getJdbcUrl();
+@Plugin(name = "stackdriver", category = "Lookup")
+public class StackdriverSeverityLookup implements StrLookup {
 
-  /** The username to use to connect to the database. */
-  String getUsername();
+  @Override
+  @Nullable
+  public String lookup(String key) {
+    return null;
+  }
 
-  /** The password to use to connect to the database. */
-  String getPassword();
-
-  /**
-   * The duration that a connection is allowed to be out of the pool before being considered leaked.
-   * 0 means no leak detection.
-   */
-  Duration getLeakDetectionThreshold();
-
-  /** Whether to log all queries to INFO level. */
-  boolean getLogQueries();
+  @Override
+  @Nullable
+  public String lookup(LogEvent event, String key) {
+    if (!key.equals("severity")) {
+      return null;
+    }
+    switch (event.getLevel().name()) {
+      case "FATAL":
+        return "CRITICAL";
+      case "ERROR":
+        return "ERROR";
+      case "WARN":
+        return "WARNING";
+      case "INFO":
+        return "INFO";
+      case "DEBUG":
+      case "TRACE":
+        return "DEBUG";
+      default:
+        return "DEFAULT";
+    }
+  }
 }

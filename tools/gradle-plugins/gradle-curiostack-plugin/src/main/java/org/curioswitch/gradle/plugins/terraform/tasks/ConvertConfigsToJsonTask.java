@@ -79,8 +79,7 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
     var project = getProject();
     for (var file : getInputFiles()) {
       Path path = file.toPath();
-      String jsonFilename =
-          getNameWithoutExtension(path.getFileName().toString()) + ".json";
+      String jsonFilename = getNameWithoutExtension(path.getFileName().toString()) + ".json";
 
       Path relativePath = getProject().getProjectDir().toPath().relativize(path);
       final Path outPath;
@@ -91,9 +90,10 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
         }
         outPath = outputDir.resolve(filenamePrefix + jsonFilename);
       } else {
-        outPath = outputDir
-            .resolve(project.getProjectDir().toPath().relativize(file.toPath()))
-            .resolveSibling(jsonFilename);
+        outPath =
+            outputDir
+                .resolve(project.getProjectDir().toPath().relativize(file.toPath()))
+                .resolveSibling(jsonFilename);
       }
 
       try {

@@ -83,13 +83,11 @@ dependencies {
     compile 'net.ltgt.gradle:gradle-apt-plugin:0.15'
     compile 'net.ltgt.gradle:gradle-errorprone-plugin'
     compile 'net.ltgt.gradle:gradle-errorprone-javacplugin-plugin'
-    // TODO(choko): Restore after https://github.com/etiennestuder/gradle-jooq-plugin/issues/71
-    // compile 'nu.studer:gradle-jooq-plugin'
-    compile 'com.github.masc3d:gradle-jooq-plugin:a6f528acdadfe596b97c3aa6a9d0212f00690ccf'
+    compile 'nu.studer:gradle-jooq-plugin'
     compile 'org.bouncycastle:bcpkix-jdk15on'
 
     // Flyway plugin uses the gradle classpath, so adding this allows flyway to access cloud sql.
-    runtime 'com.google.cloud.sql:mysql-socket-factory'
+    runtime 'com.google.cloud.sql:mysql-socket-factory-connector-j-8:1.0.10'
 
     // TODO(choko): Remove after jooq fixes this requirement - https://github.com/jOOQ/jOOQ/issues/6879
     // It's simpler to add these explicitly rather than requiring Gradle to be run with --add-modules
