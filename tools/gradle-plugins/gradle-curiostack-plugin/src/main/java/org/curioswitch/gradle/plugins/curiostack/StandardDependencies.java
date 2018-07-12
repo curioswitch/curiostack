@@ -394,6 +394,11 @@ public class StandardDependencies {
               .addModules("org.eclipse.jgit")
               .build(),
           ImmutableDependencySet.builder()
+              .group("org.glassfish.jaxb")
+              .version("2.3.0.1")
+              .addModules("jaxb-runtime")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("org.immutables")
               .version("2.6.1")
               .addModules("builder", "value")
@@ -469,7 +474,7 @@ public class StandardDependencies {
           "net.ltgt.gradle:gradle-apt-plugin:0.15",
           "net.ltgt.gradle:gradle-errorprone-javacplugin-plugin:0.2",
           "net.ltgt.gradle:gradle-errorprone-plugin:0.0.14",
-          "nu.studer:gradle-jooq-plugin:3.0.1");
+          "nu.studer:gradle-jooq-plugin:3.0.0");
 
   private StandardDependencies() {}
 }

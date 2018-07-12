@@ -62,18 +62,12 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            pom.withXml {
-                // TODO(choko): Make it simpler to define pom attributes after the artifact, as is
-                // normal, by defining a DSL or something.
-                asNode().children()[3] + {
-                    resolveStrategy = Closure.DELEGATE_FIRST
-
-                    name 'protobuf-jackson'
-                    description 'A library for efficient marshalling of Protocol Buffer messages ' +
-                            'to and from JSON.'
-                    url 'https://github.com/curioswitch/curiostack/tree/master/' +
-                            'common/grpc/protobuf-jackson'
-                }
+            pom {
+                name = 'protobuf-jackson'
+                description = 'A library for efficient marshalling of Protocol Buffer messages ' +
+                        'to and from JSON.'
+                url = 'https://github.com/curioswitch/curiostack/tree/master/' +
+                        'common/grpc/protobuf-jackson'
             }
         }
     }

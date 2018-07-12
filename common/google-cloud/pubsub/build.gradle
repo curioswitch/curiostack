@@ -42,17 +42,11 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            pom.withXml {
-                // TODO(choko): Make it simpler to define pom attributes after the artifact, as is
-                // normal, by defining a DSL or something.
-                asNode().children()[3] + {
-                    resolveStrategy = Closure.DELEGATE_FIRST
-
-                    name 'armeria-google-cloud-storage'
-                    description 'A Pub/Sub client, based on Armeria.'
-                    url 'https://github.com/curioswitch/curiostack/tree/master/' +
-                            'common/google-cloud/armeria-google-cloud-pubsub'
-                }
+            pom {
+                name = 'armeria-google-cloud-storage'
+                description = 'A Pub/Sub client, based on Armeria.'
+                url = 'https://github.com/curioswitch/curiostack/tree/master/' +
+                        'common/google-cloud/armeria-google-cloud-pubsub'
             }
         }
     }

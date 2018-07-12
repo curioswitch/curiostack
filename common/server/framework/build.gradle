@@ -103,18 +103,12 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            pom.withXml {
-                // TODO(choko): Make it simpler to define pom attributes after the artifact, as is
-                // normal, by defining a DSL or something.
-                asNode().children()[3] + {
-                    resolveStrategy = Closure.DELEGATE_FIRST
-
-                    name 'Curio Server Framework'
-                    description 'A server framework to make it simple to create a ' +
-                            'production-ready, API server or web service in Java.'
-                    url 'https://github.com/curioswitch/curiostack/tree/master/' +
-                            'common/server/framework'
-                }
+            pom {
+                name = 'Curio Server Framework'
+                description = 'A server framework to make it simple to create a ' +
+                        'production-ready, API server or web service in Java.'
+                url = 'https://github.com/curioswitch/curiostack/tree/master/' +
+                        'common/server/framework'
             }
         }
     }
