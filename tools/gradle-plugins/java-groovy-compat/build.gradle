@@ -40,18 +40,12 @@ tasks.compileTestJava {
 publishing {
     publications {
         maven(MavenPublication) {
-            pom.withXml {
-                // TODO(choko): Make it simpler to define pom attributes after the artifact, as is
-                // normal, by defining a DSL or something.
-                asNode().children()[3] + {
-                    resolveStrategy = Closure.DELEGATE_FIRST
-
-                    name 'Java/Groovy Compatability Helper'
-                    description 'A utility library with functions for interacting with Groovy ' +
-                            'libraries from Java.'
-                    url 'https://github.com/curioswitch/curiostack/tree/master/' +
-                            'tools/gradle-plugins/java-groovy-compat'
-                }
+            pom {
+                name = 'Java/Groovy Compatability Helper'
+                description = 'A utility library with functions for interacting with Groovy ' +
+                        'libraries from Java.'
+                url = 'https://github.com/curioswitch/curiostack/tree/master/' +
+                        'tools/gradle-plugins/java-groovy-compat'
             }
         }
     }
