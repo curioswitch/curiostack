@@ -62,6 +62,18 @@ public interface ServerConfig {
   String getTlsPrivateKeyPath();
 
   /**
+   * Path to the file containing the TLS certificate for client requests. If unset,
+   * tlsCertificatePath is used.
+   */
+  String getClientTlsCertificatePath();
+
+  /**
+   * Path to the file containing the private key for client requests. If unset, tlsPrivateKeyPath is
+   * used.
+   */
+  String getClientTlsPrivateKeyPath();
+
+  /**
    * Path to the file containing the certificate of the CA that issues server/client certs in this
    * system.
    */

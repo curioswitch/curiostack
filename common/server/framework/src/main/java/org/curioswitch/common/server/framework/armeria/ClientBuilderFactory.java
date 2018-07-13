@@ -112,11 +112,19 @@ public class ClientBuilderFactory {
           "No TLS configuration provided, Curiostack does not support clients without TLS "
               + "certificates. Use gradle-curio-cluster-plugin to set up a namespace and TLS.");
     } else {
+      String certPath =
+          !serverConfig.getClientTlsCertificatePath().isEmpty()
+              ? serverConfig.getClientTlsCertificatePath()
+              : serverConfig.getTlsCertificatePath();
+      String keyPath =
+          !serverConfig.getClientTlsPrivateKeyPath().isEmpty()
+              ? serverConfig.getClientTlsPrivateKeyPath()
+              : serverConfig.getTlsPrivateKeyPath();
       clientCertificateCustomizer =
           sslContext ->
               SslContextKeyConverter.execute(
-                  ResourceUtil.openStream(serverConfig.getTlsCertificatePath()),
-                  ResourceUtil.openStream(serverConfig.getTlsPrivateKeyPath()),
+                  ResourceUtil.openStream(certPath),
+                  ResourceUtil.openStream(keyPath),
                   sslContext::keyManager);
     }
 
