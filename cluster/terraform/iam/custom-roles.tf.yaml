@@ -1,7 +1,6 @@
-#
 # MIT License
 #
-# Copyright (c) 2017 Choko (choko@curioswitch.org)
+# Copyright (c) 2018 Choko (choko@curioswitch.org)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,10 +20,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-
-org.curioswitch.curiostack.version = 0.0.151
-
-org.gradle.caching = true
-# org.gradle.configureondemand = true
-org.gradle.jvmargs=--add-opens java.base/jdk.internal.misc=ALL-UNNAMED --add-opens jdk.unsupported/sun.misc=ALL-UNNAMED -Djava.net.preferIPv4Stack=true
-org.gradle.parallel = true
+resource:
+  google_project_iam_custom_role:
+    cluster_namespace:
+      role_id: ClusterNamespace
+      title: Cluster Namespace
+      description: A namespace in the Kubernetes cluster
+      permissions:
+      - bigquery.tables.update
+      - bigquery.tables.updateData
+      - clouddebugger.breakpoints.list
+      - clouddebugger.breakpoints.listActive
+      - clouddebugger.breakpoints.update
+      - clouddebugger.debuggees.create
+      - cloudprofiler.profiles.create
+      - cloudprofiler.profiles.update
+      - cloudsql.instances.connect
+      - cloudsql.instances.get
+      - cloudtrace.traces.patch
+      - logging.logEntries.create
+      lifecycle:
+        prevent_destroy: true

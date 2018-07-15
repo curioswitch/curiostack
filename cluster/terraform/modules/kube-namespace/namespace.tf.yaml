@@ -1,0 +1,113 @@
+# MIT License
+#
+# Copyright (c) 2018 Choko (choko@curioswitch.org)
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+variable:
+  name:
+    type: string
+  project_id:
+    type: string
+  gcp_service_account_name_override:
+    type: string
+    default: ""
+  ca_algorithm:
+    type: string
+  ca_private_key:
+    type: string
+  ca_cert:
+    type: string
+output:
+  gcp_service_account_email:
+    value: "${google_service_account.gcp-service-account.email}"
+resource:
+  kubernetes_namespace:
+    namespace:
+      # (https://github.com/hashicorp/terraform/issues/18330)
+      # the JSON parser gets broken when there are no non-nested fields. We add this no-op so it works.
+      depends_on: []
+      metadata:
+        name: "${var.name}"
+  google_service_account:
+    gcp-service-account:
+      account_id: "cluster-${coalesce(var.gcp_service_account_name_override, var.name)}"
+      display_name: "cluster-${coalesce(var.gcp_service_account_name_override, var.name)}"
+  google_service_account_key:
+    gcp-service-account-key:
+      service_account_id: "${google_service_account.gcp-service-account.name}"
+  google_project_iam_member:
+    gcp-service-account-role:
+      role: "projects/${var.project_id}/roles/ClusterNamespace"
+      member: "serviceAccount:${google_service_account.gcp-service-account.email}"
+  tls_private_key:
+    internal-tls:
+      algorithm: ECDSA
+      ecdsa_curve: P256
+  tls_cert_request:
+    internal-tls:
+      key_algorithm: "${tls_private_key.internal-tls.algorithm}"
+      private_key_pem: "${tls_private_key.internal-tls.private_key_pem}"
+      subject:
+        common_name: "${var.name}.ns.cluster.stellarstation.com"
+      dns_names:
+      - "*.${var.name}"
+      - "*.${var.name}.svc"
+      - "*.${var.name}.svc.cluster.local"
+      - "*.${var.name}.pod.cluster.local"
+  tls_locally_signed_cert:
+    internal-tls:
+      cert_request_pem: "${tls_cert_request.internal-tls.cert_request_pem}"
+      ca_key_algorithm: "${var.ca_algorithm}"
+      ca_private_key_pem: "${var.ca_private_key}"
+      ca_cert_pem: "${var.ca_cert}"
+      # 10 years
+      validity_period_hours: 87600
+      # 9 years
+      early_renewal_hours: 78840
+      allowed_uses:
+      - digital signature
+      - key encipherment
+      - server auth
+      - client auth
+  kubernetes_secret:
+    gcp-key-secret:
+      # (https://github.com/hashicorp/terraform/issues/18330)
+      # the JSON parser gets broken when there are no non-nested fields. We add this no-op so it works.
+      depends_on: []
+      metadata:
+        name: gcloud
+        namespace: "${var.name}"
+      depends_on:
+      - kubernetes_namespace.namespace
+      data:
+        service-account.json: "${base64decode(google_service_account_key.gcp-service-account-key.private_key)}"
+    internal-tls-secret:
+      # (https://github.com/hashicorp/terraform/issues/18330)
+      # the JSON parser gets broken when there are no non-nested fields. We add this no-op so it works.
+      depends_on: []
+      metadata:
+        name: internal-tls
+        namespace: "${var.name}"
+      depends_on:
+      - kubernetes_namespace.namespace
+      data:
+        server-key.pem: "${tls_private_key.internal-tls.private_key_pem}"
+        server.crt: "${tls_locally_signed_cert.internal-tls.cert_pem}"
+        ca.crt: "${var.ca_cert}"

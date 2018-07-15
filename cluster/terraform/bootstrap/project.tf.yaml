@@ -7,15 +7,37 @@ resource:
       billing_account: "${data.google_billing_account.acct.id}"
       lifecycle:
         prevent_destroy: true
+    sysadmin_project:
+      name: "${var.project_name}-sysadmin"
+      project_id: "${var.project_id}-sysadmin"
+      org_id: "${data.google_organization.org.id}"
+      billing_account: "${data.google_billing_account.acct.id}"
+      lifecycle:
+        prevent_destroy: true
 
   google_project_service:
-    compute:
+    primary-compute:
       project: "${google_project.primary_project.project_id}"
       service: compute.googleapis.com
+      lifecycle:
+        prevent_destroy: true
+    sysadmin-compute:
+      project: "${google_project.sysadmin_project.project_id}"
+      service: compute.googleapis.com
+      lifecycle:
+        prevent_destroy: true
+    sysadmin-kms:
+      project: "${google_project.sysadmin_project.project_id}"
+      service: cloudkms.googleapis.com
+      lifecycle:
+        prevent_destroy: true
 
   google_storage_bucket:
     terraform_state:
-      name: "${google_project.primary_project.project_id}-terraform"
+      name: "${google_project.sysadmin_project.project_id}-terraform"
       location: asia-northeast1
+      project: "${google_project.sysadmin_project.project_id}"
       depends_on:
-      - google_project_service.compute
+      - google_project_service.sysadmin-compute
+      lifecycle:
+        prevent_destroy: true

@@ -1,7 +1,6 @@
-#
 # MIT License
 #
-# Copyright (c) 2017 Choko (choko@curioswitch.org)
+# Copyright (c) 2018 Choko (choko@curioswitch.org)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,10 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-
-org.curioswitch.curiostack.version = 0.0.151
-
-org.gradle.caching = true
-# org.gradle.configureondemand = true
-org.gradle.jvmargs=--add-opens java.base/jdk.internal.misc=ALL-UNNAMED --add-opens jdk.unsupported/sun.misc=ALL-UNNAMED -Djava.net.preferIPv4Stack=true
-org.gradle.parallel = true
+module:
+  cluster-eggworld-dev:
+    source: "./modules/kube-namespace"
+    name: eggworld-dev
+    project_id: "${var.project_id}"
+    ca_algorithm: "${tls_private_key.cluster-ca-key.algorithm}"
+    ca_private_key: "${tls_private_key.cluster-ca-key.private_key_pem}"
+    ca_cert: "${tls_self_signed_cert.cluster-ca-cert.cert_pem}"

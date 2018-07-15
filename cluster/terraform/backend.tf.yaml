@@ -1,0 +1,4 @@
+terraform:
+  backend:
+    gcs:
+      bucket: curioswitch-cluster-sysadmin-terraform
