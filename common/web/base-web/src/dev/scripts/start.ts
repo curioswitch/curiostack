@@ -60,16 +60,19 @@ if (
   };
 }
 
-process.on('SIGINT', () => {
-  console.log('sigint');
-  process.exit();
-});
-
-serve({
+serve([], {
   config,
   add,
   port: 3000,
-}).catch((err) => {
-  console.log('Error starting dev server.', err);
-  process.exit(1);
-});
+})
+  .then((result) => {
+    process.on('SIGINT', () => {
+      console.log('sigint received.');
+      result.app.stop();
+      process.exit();
+    });
+  })
+  .catch((err) => {
+    console.log('Error starting dev server.', err);
+    process.exit(1);
+  });
