@@ -75,7 +75,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.auth")
-              .version("0.9.1")
+              .version("0.10.0")
               .addModules("google-auth-library-oauth2-http")
               .build(),
           ImmutableDependencySet.builder()
@@ -199,7 +199,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.67.1")
+              .version("0.67.2")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -255,7 +255,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.grpc")
-              .version("1.13.1")
+              .version("1.13.2")
               .addModules(
                   "grpc-all",
                   "grpc-auth",
@@ -274,7 +274,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("4.1.25.Final")
+              .version("4.1.27.Final")
               .addModules(
                   "netty-buffer",
                   "netty-codec",
@@ -292,7 +292,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("2.0.10.Final")
+              .version("2.0.12.Final")
               .addModules("netty-tcnative-boringssl-static")
               .build(),
           ImmutableDependencySet.builder()
