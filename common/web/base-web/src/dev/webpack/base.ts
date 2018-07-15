@@ -43,21 +43,19 @@ function configure(options: any): Configuration {
             '@babel/env',
             {
               modules: false,
-              useBuiltins: true,
+              useBuiltIns: 'entry',
               targets: options.babelTargets || {
                 browsers,
               },
             },
           ],
           '@babel/react',
-          [
-            '@babel/stage-0',
-            {
-              decoratorsLegacy: true,
-            },
-          ],
         ],
         plugins: [
+          '@babel/proposal-class-properties',
+          '@babel/proposal-async-generator-functions',
+          '@babel/syntax-dynamic-import',
+          '@babel/syntax-object-rest-spread',
           'react-hot-loader/babel',
           [
             'react-intl-auto',

@@ -60,11 +60,14 @@ if (
   };
 }
 
-serve([], {
-  config,
-  add,
-  port: 3000,
-})
+serve(
+  {},
+  {
+    config,
+    add,
+    port: 3000,
+  },
+)
   .then((result) => {
     process.on('SIGINT', () => {
       console.log('sigint received.');
