@@ -29,8 +29,13 @@ const CONFIG = {
   globals: {
     'ts-jest': {
       babelConfig: {
-        presets: ['stage-0', 'react'],
+        presets: ['@babel/react'],
         plugins: [
+          '@babel/proposal-class-properties',
+          '@babel/proposal-async-generator-functions',
+          '@babel/proposal-optional-catch-binding',
+          '@babel/syntax-dynamic-import',
+          '@babel/syntax-object-rest-spread',
           [
             'react-intl-auto',
             {
