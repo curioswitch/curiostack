@@ -153,10 +153,4 @@ public interface ServerConfig {
    * deployments.
    */
   boolean getEnableGracefulShutdown();
-
-  /**
-   * Sets whether to log execution of producer functions. This produces a lot of output and should
-   * generally only be enabled explicitly when debugging an issue.
-   */
-  boolean getLogProducerExecution();
 }
