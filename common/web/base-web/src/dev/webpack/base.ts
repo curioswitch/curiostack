@@ -54,6 +54,7 @@ function configure(options: any): Configuration {
         plugins: [
           '@babel/proposal-class-properties',
           '@babel/proposal-async-generator-functions',
+          '@babel/proposal-optional-catch-binding',
           '@babel/syntax-dynamic-import',
           '@babel/syntax-object-rest-spread',
           'react-hot-loader/babel',

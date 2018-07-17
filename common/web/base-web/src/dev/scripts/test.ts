@@ -29,13 +29,14 @@ const CONFIG = {
   globals: {
     'ts-jest': {
       babelConfig: {
-        presets: ['react'],
+        presets: ['@babel/react'],
         plugins: [
+          '@babel/proposal-class-properties',
+          '@babel/proposal-async-generator-functions',
+          '@babel/proposal-optional-catch-binding',
+          '@babel/syntax-dynamic-import',
+          '@babel/syntax-object-rest-spread',
           [
-            '@babel/proposal-class-properties',
-            '@babel/proposal-async-generator-functions',
-            '@babel/syntax-dynamic-import',
-            '@babel/syntax-object-rest-spread',
             'react-intl-auto',
             {
               removePrefix: 'src/',
