@@ -154,7 +154,8 @@ public class DeployPodTask extends DefaultTask {
             .add(
                 new VolumeBuilder()
                     .withName("rpcacls")
-                    .withConfigMap(new ConfigMapVolumeSourceBuilder().withName("rpcacls").build())
+                    .withConfigMap(
+                        new ConfigMapVolumeSourceBuilder().withName("rpcacls-" + type).build())
                     .build())
             .addAll(
                 deploymentConfig

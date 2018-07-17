@@ -31,7 +31,10 @@ class HomePage extends React.PureComponent<Props> {
   }
 }
 
-const withConnect = connect(selectHomePage, mapDispatchToProps);
+const withConnect = connect(
+  selectHomePage,
+  mapDispatchToProps,
+);
 const withReducer = injectReducer({
   reducer,
   key: 'homePage',

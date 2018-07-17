@@ -157,16 +157,6 @@ declare module 'webpack-sane-compiler-reporter' {
   export = startReporting;
 }
 
-declare module 'webpack-serve' {
-  import { Webpack4Configuration } from './webpack/base';
-  export interface Args {
-    config: Webpack4Configuration;
-    port: number;
-    add?: (any, any, any) => void;
-  }
-  export default function serve(args: Args): Promise<{}>;
-}
-
 declare module 'zopfli-webpack-plugin' {
   import { Plugin } from 'webpack';
   interface Args {

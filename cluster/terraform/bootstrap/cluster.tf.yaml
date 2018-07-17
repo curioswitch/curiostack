@@ -1,7 +1,6 @@
-#
 # MIT License
 #
-# Copyright (c) 2017 Choko (choko@curioswitch.org)
+# Copyright (c) 2018 Choko (choko@curioswitch.org)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,5 +20,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-
-version = 0.0.152
+resource:
+  google_container_cluster:
+    primary:
+      name: "${var.project_id}"
+      region: asia-northeast1
+      additional_zones:
+      - asia-northeast1-a
+      min_master_version: 1.10.5-gke.0
+      initial_node_count: 1
+      remove_default_node_pool: true
+  google_container_node_pool:
+    g1-small-pool:
+      name: g1-small-pool
+      region: "${google_container_cluster.primary.region}"
+      cluster: "${google_container_cluster.primary.name}"
+      initial_node_count: 1
+      node_config:
+        machine_type: g1-small
+      autoscaling:
+        min_node_count: 1
+        max_node_count: 2
+      management:
+        auto_repair: true
+        auto_upgrade: true

@@ -38,10 +38,18 @@ class App extends React.PureComponent<Props> {
   }
 }
 
-const withConnect = connect(mapStateToProps, mapDispatchToProps);
+const withConnect = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
 const withReducer = injectReducer({
   reducer: reducer as Reducer<any>,
   key: 'app',
 });
 
-export default compose(injectIntl, withReducer, withConnect, hot(module))(App);
+export default compose(
+  injectIntl,
+  withReducer,
+  withConnect,
+  hot(module),
+)(App);

@@ -1,7 +1,6 @@
-#
 # MIT License
 #
-# Copyright (c) 2017 Choko (choko@curioswitch.org)
+# Copyright (c) 2018 Choko (choko@curioswitch.org)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,5 +20,23 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-
-version = 0.0.152
+resource:
+  tls_private_key:
+    cluster-ca-key:
+      algorithm: ECDSA
+      ecdsa_curve: P256
+  tls_self_signed_cert:
+    cluster-ca-cert:
+      key_algorithm: "${tls_private_key.cluster-ca-key.algorithm}"
+      private_key_pem: "${tls_private_key.cluster-ca-key.private_key_pem}"
+      subject:
+        common_name: Cluster CA
+      # 10 years
+      validity_period_hours: 87600
+      # 9 years
+      early_renewal_hours: 78840
+      allowed_uses:
+      - cert_signing
+      - crl_signing
+      - ocsp_signing
+      is_ca_certificate: true

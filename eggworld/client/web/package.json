@@ -150,9 +150,9 @@
     "@curiostack/base-web": "0.0.21-alpha.1",
     "@curiostack/eggworld-api": "1.0.0",
     "history": "4.7.2",
-    "howler": "2.0.9",
-    "konva": "2.0.2",
-    "react-konva": "1.7.1",
+    "howler": "2.0.14",
+    "konva": "2.1.7",
+    "react-konva": "1.7.11",
     "sanitize.css": "5.0.0"
   },
   "devDependencies": {

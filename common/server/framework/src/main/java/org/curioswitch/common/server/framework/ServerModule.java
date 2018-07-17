@@ -125,6 +125,7 @@ import org.curioswitch.common.server.framework.files.WatchedPath;
 import org.curioswitch.common.server.framework.filter.IpFilteringService;
 import org.curioswitch.common.server.framework.grpc.GrpcServiceDefinition;
 import org.curioswitch.common.server.framework.inject.EagerInit;
+import org.curioswitch.common.server.framework.logging.LoggingModule;
 import org.curioswitch.common.server.framework.logging.RequestLoggingContext;
 import org.curioswitch.common.server.framework.monitoring.MetricsHttpService;
 import org.curioswitch.common.server.framework.monitoring.MonitoringModule;
@@ -171,6 +172,7 @@ import org.jooq.DSLContext;
       GcloudIamModule.class,
       MonitoringModule.class,
       JwtModule.class,
+      LoggingModule.class,
       SecurityModule.class
     })
 public abstract class ServerModule {

@@ -38,7 +38,6 @@ dependencies {
     api project(':common:google-cloud:iam')
     api project(':common:google-cloud:trace')
 
-    api 'com.google.cloud:google-cloud-trace'
     api 'com.google.dagger:dagger'
     api 'com.google.dagger:dagger-producers'
     api 'com.google.firebase:firebase-admin'
