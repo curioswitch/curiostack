@@ -22,44 +22,39 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.terraform.tasks;
+package org.curioswitch.gradle.plugins.gcloud.tasks;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.gradle.api.tasks.options.Option;
+import javax.inject.Inject;
+import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
+import org.curioswitch.gradle.plugins.gcloud.util.PlatformHelper;
+import org.curioswitch.gradle.plugins.shared.tasks.DownloadArchiveTask;
 
-public class TerraformOutputTask extends TerraformTask {
+public class DownloadHelmTask extends DownloadArchiveTask {
 
-  public static final String NAME = "terraformOutput";
+  public static final String NAME = "gcloudDownloadHelm";
 
-  private String module;
-  private String name;
+  private final PlatformHelper platformHelper;
 
-  public TerraformOutputTask() {
-    setExecCustomizer(
-        exec -> {
-          List<String> args = new ArrayList<>();
-          if (module != null) {
-            args.add("-module=" + module);
-          }
-          if (name != null) {
-            args.add(name);
-          }
-          if (!args.isEmpty()) {
-            exec.args(args);
-          }
-        });
+  @Inject
+  public DownloadHelmTask(PlatformHelper platformHelper) {
+    this.platformHelper = platformHelper;
+
+    setBaseUrl("https://storage.googleapis.com/kubernetes-helm/");
+    setArtifactPattern("[artifact]-v[revision]-[classifier].[ext]");
+    setDependency(
+        "sh.helm:helm:"
+            + StandardDependencies.HELM_VERSION
+            + ":"
+            + getClassifier()
+            + "@"
+            + getExtension());
   }
 
-  @Option(option = "module", description = "The module to output.")
-  public TerraformOutputTask setModule(String module) {
-    this.module = module;
-    return this;
+  private String getClassifier() {
+    return platformHelper.getOsName() + "-amd64";
   }
 
-  @Option(option = "name", description = "The name of the output.")
-  public TerraformOutputTask setName(String name) {
-    this.name = name;
-    return this;
+  private String getExtension() {
+    return platformHelper.isWindows() ? "zip" : "tar.gz";
   }
 }

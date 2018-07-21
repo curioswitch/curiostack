@@ -35,6 +35,10 @@ public class PlatformHelper {
     this.props = System.getProperties();
   }
 
+  public boolean isWindows() {
+    return Os.isFamily(Os.FAMILY_WINDOWS);
+  }
+
   public String getOsName() {
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
       return "windows";

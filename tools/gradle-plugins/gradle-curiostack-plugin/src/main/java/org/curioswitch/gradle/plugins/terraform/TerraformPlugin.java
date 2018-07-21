@@ -40,8 +40,6 @@ public class TerraformPlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getPluginManager().apply(BasePlugin.class);
 
-    String convertedConfigsPath =
-        project.getBuildDir().toPath().resolve("terraform").toAbsolutePath().toString();
     Path plansPath = project.getProjectDir().toPath().resolve("plans");
 
     var convertConfigs =
@@ -54,9 +52,7 @@ public class TerraformPlugin implements Plugin<Project> {
             .create(
                 "terraformInit",
                 TerraformTask.class,
-                t -> {
-                  t.setArgs(ImmutableList.of("init", "-input=false"));
-                });
+                t -> t.setArgs(ImmutableList.of("init", "-input=false")));
 
     var terraformPlan =
         project

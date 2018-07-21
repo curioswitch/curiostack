@@ -30,8 +30,10 @@ module:
     ca_algorithm: "${tls_private_key.cluster-ca-key.algorithm}"
     ca_private_key: "${tls_private_key.cluster-ca-key.private_key_pem}"
     ca_cert: "${tls_self_signed_cert.cluster-ca-cert.cert_pem}"
-
 output:
+  tiller-ca-cert:
+    value: "${tls_self_signed_cert.tiller-ca-cert.cert_pem}"
+    sensitive: true
   tiller-server-key:
     value: "${tls_private_key.tiller-server-key.private_key_pem}"
     sensitive: true
@@ -44,7 +46,6 @@ output:
   tiller-client-cert:
     value: "${tls_locally_signed_cert.tiller-client-cert.cert_pem}"
     sensitive: true
-
 # We create a custom CA for tiller. Only clients using certificates signed by it
 # will be able to use helm.
 resource:

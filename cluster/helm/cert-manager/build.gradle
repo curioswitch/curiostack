@@ -22,44 +22,4 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.terraform.tasks;
-
-import java.util.ArrayList;
-import java.util.List;
-import org.gradle.api.tasks.options.Option;
-
-public class TerraformOutputTask extends TerraformTask {
-
-  public static final String NAME = "terraformOutput";
-
-  private String module;
-  private String name;
-
-  public TerraformOutputTask() {
-    setExecCustomizer(
-        exec -> {
-          List<String> args = new ArrayList<>();
-          if (module != null) {
-            args.add("-module=" + module);
-          }
-          if (name != null) {
-            args.add(name);
-          }
-          if (!args.isEmpty()) {
-            exec.args(args);
-          }
-        });
-  }
-
-  @Option(option = "module", description = "The module to output.")
-  public TerraformOutputTask setModule(String module) {
-    this.module = module;
-    return this;
-  }
-
-  @Option(option = "name", description = "The name of the output.")
-  public TerraformOutputTask setName(String name) {
-    this.name = name;
-    return this;
-  }
-}
+apply plugin: 'org.curioswitch.gradle-helm-plugin'

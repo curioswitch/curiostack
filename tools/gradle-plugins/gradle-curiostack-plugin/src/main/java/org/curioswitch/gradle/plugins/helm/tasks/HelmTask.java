@@ -22,33 +22,35 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.terraform.tasks;
+package org.curioswitch.gradle.plugins.helm.tasks;
 
-import java.io.File;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
+import org.curioswitch.gradle.plugins.gcloud.util.PlatformHelper;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
 
-public class TerraformTask extends DefaultTask {
+public class HelmTask extends DefaultTask {
+
+  private static final List<String> DEFAULT_ARGS = ImmutableList.of(
+      "--tiller-namespace=tiller-prod"
+  );
 
   private Iterable<String> args;
   private Action<ExecSpec> execCustomizer;
 
-  public TerraformTask setArgs(Iterable<String> args) {
-    this.args = args;
+  public HelmTask setArgs(Iterable<String> args) {
+    this.args = ImmutableList.<String>builder().addAll(args).addAll(DEFAULT_ARGS).build();
     return this;
   }
 
-  public TerraformTask setExecCustomizer(Action<ExecSpec> execCustomizer) {
+  public HelmTask setExecCustomizer(Action<ExecSpec> execCustomizer) {
     this.execCustomizer = execCustomizer;
     return this;
-  }
-
-  public Action<ExecSpec> getExecCustomizer() {
-    return execCustomizer;
   }
 
   @TaskAction
@@ -58,11 +60,11 @@ public class TerraformTask extends DefaultTask {
         exec -> {
           exec.executable(
               CommandUtil.getCuriostackDir(project)
-                  .resolve("terraform")
-                  .resolve(StandardDependencies.TERRAFORM_VERSION)
-                  .resolve("terraform"));
+                  .resolve("helm")
+                  .resolve(StandardDependencies.HELM_VERSION)
+                  .resolve(new PlatformHelper().getOsName() + "-amd64")
+                  .resolve("helm"));
           exec.args(args);
-          exec.workingDir(new File(project.getBuildDir(), "terraform"));
           exec.setStandardInput(System.in);
           if (execCustomizer != null) {
             execCustomizer.execute(exec);
