@@ -1,0 +1,113 @@
+# MIT License
+#
+# Copyright (c) 2018 Choko (choko@curioswitch.org)
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+module:
+  # A namespace to run tiller, the service that backs the helm package manager.
+  # Has admin access to the entire cluster.
+  cluster-tiller-prod:
+    source: "./modules/kube-namespace"
+    name: tiller-prod
+    project_id: "${var.project_id}"
+    ca_algorithm: "${tls_private_key.cluster-ca-key.algorithm}"
+    ca_private_key: "${tls_private_key.cluster-ca-key.private_key_pem}"
+    ca_cert: "${tls_self_signed_cert.cluster-ca-cert.cert_pem}"
+
+output:
+  tiller-server-key:
+    value: "${tls_private_key.tiller-server-key.private_key_pem}"
+    sensitive: true
+  tiller-server-cert:
+    value: "${tls_locally_signed_cert.tiller-server-cert.cert_pem}"
+    sensitive: true
+  tiller-client-key:
+    value: "${tls_private_key.tiller-client-key.private_key_pem}"
+    sensitive: true
+  tiller-client-cert:
+    value: "${tls_locally_signed_cert.tiller-client-cert.cert_pem}"
+    sensitive: true
+
+# We create a custom CA for tiller. Only clients using certificates signed by it
+# will be able to use helm.
+resource:
+  tls_private_key:
+    tiller-ca-key:
+      algorithm: ECDSA
+      ecdsa_curve: P256
+    tiller-server-key:
+      algorithm: ECDSA
+      ecdsa_curve: P256
+    tiller-client-key:
+      algorithm: ECDSA
+      ecdsa_curve: P256
+  tls_self_signed_cert:
+    tiller-ca-cert:
+      key_algorithm: "${tls_private_key.tiller-ca-key.algorithm}"
+      private_key_pem: "${tls_private_key.tiller-ca-key.private_key_pem}"
+      subject:
+        common_name: Tiller CA
+      # 10 years
+      validity_period_hours: 87600
+      # 9 years
+      early_renewal_hours: 78840
+      allowed_uses:
+      - cert_signing
+      - crl_signing
+      - ocsp_signing
+      is_ca_certificate: true
+  tls_cert_request:
+    tiller-server-cert:
+      key_algorithm: "${tls_private_key.tiller-server-key.algorithm}"
+      private_key_pem: "${tls_private_key.tiller-server-key.private_key_pem}"
+      subject:
+        common_name: tiller-server
+    tiller-client-cert:
+      key_algorithm: "${tls_private_key.tiller-client-key.algorithm}"
+      private_key_pem: "${tls_private_key.tiller-client-key.private_key_pem}"
+      subject:
+        common_name: tiller-client
+  tls_locally_signed_cert:
+    tiller-server-cert:
+      cert_request_pem: "${tls_cert_request.tiller-server-cert.cert_request_pem}"
+      ca_key_algorithm: "${tls_private_key.tiller-ca-key.algorithm}"
+      ca_private_key_pem: "${tls_private_key.tiller-ca-key.private_key_pem}"
+      ca_cert_pem: "${tls_self_signed_cert.tiller-ca-cert.cert_pem}"
+      # 10 years
+      validity_period_hours: 87600
+      # 9 years
+      early_renewal_hours: 78840
+      allowed_uses:
+      - digital signature
+      - key encipherment
+      - server auth
+    tiller-client-cert:
+      cert_request_pem: "${tls_cert_request.tiller-client-cert.cert_request_pem}"
+      ca_key_algorithm: "${tls_private_key.tiller-ca-key.algorithm}"
+      ca_private_key_pem: "${tls_private_key.tiller-ca-key.private_key_pem}"
+      ca_cert_pem: "${tls_self_signed_cert.tiller-ca-cert.cert_pem}"
+      # 10 years
+      validity_period_hours: 87600
+      # 9 years
+      early_renewal_hours: 78840
+      allowed_uses:
+      - digital signature
+      - key encipherment
+      - client auth
