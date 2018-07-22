@@ -39,6 +39,7 @@ import org.curioswitch.gradle.plugins.terraform.tasks.TerraformOutputTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.UnknownTaskException;
 
 public class HelmPlugin implements Plugin<Project> {
 
@@ -143,7 +144,6 @@ public class HelmPlugin implements Plugin<Project> {
                   t.dependsOn(outputTillerSrverCertTask);
                   t.dependsOn(outputTillerServerKeyTask);
 
-
                   var args = project.getObjects().listProperty(String.class);
                   args.add("init");
                   args.add("--wait");
@@ -202,6 +202,11 @@ public class HelmPlugin implements Plugin<Project> {
       Project project, String taskName, String outputName, File outputFile) {
     var terraformProject = project.getRootProject().findProject(":cluster:terraform");
     checkNotNull(terraformProject);
+    try {
+      return terraformProject.getTasks().getByName(taskName);
+    } catch (UnknownTaskException e) {
+      // fall through
+    }
     return terraformProject
         .getTasks()
         .create(

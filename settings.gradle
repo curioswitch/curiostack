@@ -40,10 +40,6 @@ pluginManagement {
             url 'http://palantir.bintray.com/releases'
         }
         mavenLocal()
-        // TODO(choko): Remove after https://github.com/etiennestuder/gradle-jooq-plugin/issues/71
-        maven {
-            url 'https://jitpack.io'
-        }
     }
 }
 
@@ -96,6 +92,7 @@ include ':common:server:framework'
 include ':common:testing:framework'
 include ':cluster:helm:cert-manager'
 include ':cluster:helm:external-dns'
+include ':cluster:helm:prometheus'
 include ':cluster:namespaces:auth-dev'
 include ':cluster:terraform'
 include ':curioswitch:portal:client:web'
