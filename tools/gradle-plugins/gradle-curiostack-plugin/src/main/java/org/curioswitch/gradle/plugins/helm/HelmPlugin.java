@@ -34,13 +34,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.UncheckedIOException;
 import java.util.List;
-import java.util.function.Supplier;
 import org.curioswitch.gradle.plugins.helm.tasks.HelmTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformOutputTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.provider.ListProperty;
 
 public class HelmPlugin implements Plugin<Project> {
 
@@ -134,20 +132,6 @@ public class HelmPlugin implements Plugin<Project> {
               task.addArgs(args);
             });
 
-    Supplier<ListProperty<String>> initArgsCreator =
-        () -> {
-          var args = project.getObjects().listProperty(String.class);
-          args.add("init");
-          args.add("--wait");
-          args.add("--service-account=tiller");
-          args.add("--tiller-tls");
-          args.add("--tiller-tls-verify");
-          args.add("--tiller-tls-cert=" + tillerServerCertFile.getAbsolutePath());
-          args.add("--tiller-tls-key=" + tillerServerKeyFile.getAbsolutePath());
-          args.add("--tls-ca-cert=" + tillerCaCertFile.getAbsolutePath());
-          return args;
-        };
-
     var helmTillerInit =
         project
             .getTasks()
@@ -159,22 +143,17 @@ public class HelmPlugin implements Plugin<Project> {
                   t.dependsOn(outputTillerSrverCertTask);
                   t.dependsOn(outputTillerServerKeyTask);
 
-                  var args = initArgsCreator.get();
-                  t.addArgs(args);
-                });
 
-    var helmTillerUpgrade =
-        project
-            .getTasks()
-            .create(
-                "helmTillerUpgrade",
-                HelmTask.class,
-                t -> {
-                  t.dependsOn(outputTillerCaCertTask);
-                  t.dependsOn(outputTillerSrverCertTask);
-                  t.dependsOn(outputTillerServerKeyTask);
-
-                  var args = initArgsCreator.get();
+                  var args = project.getObjects().listProperty(String.class);
+                  args.add("init");
+                  args.add("--wait");
+                  args.add("--history-max=5");
+                  args.add("--service-account=tiller");
+                  args.add("--tiller-tls");
+                  args.add("--tiller-tls-verify");
+                  args.add("--tiller-tls-cert=" + tillerServerCertFile.getAbsolutePath());
+                  args.add("--tiller-tls-key=" + tillerServerKeyFile.getAbsolutePath());
+                  args.add("--tls-ca-cert=" + tillerCaCertFile.getAbsolutePath());
                   args.add("--upgrade");
                   t.addArgs(args);
                 });
@@ -198,8 +177,7 @@ public class HelmPlugin implements Plugin<Project> {
             HelmTask.class,
             t -> {
               if (t.getPath().equals(helmTillerInit.getPath())
-                  || t.getPath().equals(helmClientInit.getPath())
-                  || t.getPath().equals(helmTillerUpgrade.getPath())) {
+                  || t.getPath().equals(helmClientInit.getPath())) {
                 return;
               }
 

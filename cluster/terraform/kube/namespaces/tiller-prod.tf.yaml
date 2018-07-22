@@ -80,6 +80,10 @@ resource:
       private_key_pem: "${tls_private_key.tiller-server-key.private_key_pem}"
       subject:
         common_name: tiller-server
+      dns_names:
+      - localhost
+      ip_addresses:
+      - 127.0.0.1
     tiller-client-cert:
       key_algorithm: "${tls_private_key.tiller-client-key.algorithm}"
       private_key_pem: "${tls_private_key.tiller-client-key.private_key_pem}"
