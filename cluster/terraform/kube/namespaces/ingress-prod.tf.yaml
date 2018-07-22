@@ -30,3 +30,8 @@ module:
     ca_algorithm: "${tls_private_key.cluster-ca-key.algorithm}"
     ca_private_key: "${tls_private_key.cluster-ca-key.private_key_pem}"
     ca_cert: "${tls_self_signed_cert.cluster-ca-cert.cert_pem}"
+resource:
+  google_project_iam_member:
+    ingress-prod-gcp-service-account-role:
+      role: "roles/dns.admin"
+      member: "serviceAccount:${module.cluster-ingress-prod.gcp_service_account_email}"
