@@ -26,7 +26,7 @@
 apply plugin: 'org.curioswitch.gradle-helm-plugin'
 
 helm {
-    chart = 'stable/promtheus'
+    chart = 'stable/prometheus'
     name = 'prometheus-20180722'
     version = '6.10.0'
     namespace = 'monitoring-prod'

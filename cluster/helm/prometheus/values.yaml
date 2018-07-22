@@ -84,7 +84,7 @@ alertmanager:
     ## Must be provided if Ingress is enabled
     ##
     hosts:
-      - monitoring-alerts.curioswitch.org
+      - monitoring-alerts.curioswitch.org/*
     #   - domain.com/alertmanager
 
     ## alertmanager Ingress TLS configuration
@@ -531,7 +531,7 @@ server:
     ## Must be provided if Ingress is enabled
     ##
     hosts:
-      - prometheus.curioswitch.org
+      - prometheus.curioswitch.org/*
     #   - domain.com/prometheus
 
     ## Prometheus server Ingress TLS configuration
