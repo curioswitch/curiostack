@@ -76,6 +76,8 @@ public class HelmPlugin implements Plugin<Project> {
             "helmInstall",
             HelmTask.class,
             t -> {
+              t.setDescription("Installs the package onto the server.");
+
               var args = project.getObjects().listProperty(String.class);
               args.add("install");
               args.add("--namespace");
@@ -95,6 +97,8 @@ public class HelmPlugin implements Plugin<Project> {
             "helmUpgrade",
             HelmTask.class,
             t -> {
+              t.setDescription("Upgrades the configuration of the installed package.");
+
               var args = project.getObjects().listProperty(String.class);
               args.add("upgrade");
               args.add(config.getName());
@@ -111,6 +115,8 @@ public class HelmPlugin implements Plugin<Project> {
             "helmDelete",
             HelmTask.class,
             t -> {
+              t.setDescription("Deletes this package from the server.");
+
               var args = project.getObjects().listProperty(String.class);
               args.add("delete");
               args.add(config.getName());
@@ -140,6 +146,8 @@ public class HelmPlugin implements Plugin<Project> {
                 "helmTillerInit",
                 HelmTask.class,
                 t -> {
+                  t.setDescription("Initializes or upgrades tiller, helm's server-side component.");
+
                   t.dependsOn(outputTillerCaCertTask);
                   t.dependsOn(outputTillerSrverCertTask);
                   t.dependsOn(outputTillerServerKeyTask);
@@ -165,6 +173,8 @@ public class HelmPlugin implements Plugin<Project> {
                 "helmClientInit",
                 HelmTask.class,
                 t -> {
+                  t.setDescription("Prepares the helm client for execution.");
+
                   var args = project.getObjects().listProperty(String.class);
                   args.add("init");
                   args.add("--client-only");

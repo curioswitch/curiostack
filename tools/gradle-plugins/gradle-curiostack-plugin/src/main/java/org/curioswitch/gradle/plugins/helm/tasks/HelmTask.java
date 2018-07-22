@@ -40,6 +40,8 @@ public class HelmTask extends DefaultTask {
   private Action<ExecSpec> execCustomizer = (execSpec -> {});
 
   public HelmTask() {
+    setGroup("Helm");
+
     args = getProject().getObjects().listProperty(String.class);
 
     var tillerConfig = getProject().getRootProject().getExtensions().getByType(TillerExtension.class);
