@@ -31,6 +31,7 @@ import org.curioswitch.gradle.plugins.gcloud.util.PlatformHelper;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
 
@@ -40,11 +41,16 @@ public class HelmTask extends DefaultTask {
       "--tiller-namespace=tiller-prod"
   );
 
-  private Iterable<String> args;
-  private Action<ExecSpec> execCustomizer;
+  private final ListProperty<String> args;
+  private Action<ExecSpec> execCustomizer = (execSpec -> {});
 
-  public HelmTask setArgs(Iterable<String> args) {
-    this.args = ImmutableList.<String>builder().addAll(args).addAll(DEFAULT_ARGS).build();
+  public HelmTask() {
+    args = getProject().getObjects().listProperty(String.class);
+    DEFAULT_ARGS.forEach(args::add);
+  }
+
+  public HelmTask addArgs(ListProperty<String> args) {
+    this.args.addAll(args);
     return this;
   }
 
@@ -64,11 +70,9 @@ public class HelmTask extends DefaultTask {
                   .resolve(StandardDependencies.HELM_VERSION)
                   .resolve(new PlatformHelper().getOsName() + "-amd64")
                   .resolve("helm"));
-          exec.args(args);
+          exec.args(args.get());
           exec.setStandardInput(System.in);
-          if (execCustomizer != null) {
-            execCustomizer.execute(exec);
-          }
+          execCustomizer.execute(exec);
         });
   }
 }

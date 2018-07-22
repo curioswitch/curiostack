@@ -22,11 +22,43 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-helm-plugin'
+package org.curioswitch.gradle.plugins.helm;
 
-helm {
-    chart = 'stable/cert-manager'
-    name = 'cert-manager-20180722'
-    version = '0.4.0'
-    namespace = 'ingress-prod'
+import org.gradle.api.Project;
+import org.gradle.api.provider.Property;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
+import org.immutables.value.Value.Modifiable;
+import org.immutables.value.Value.Style;
+
+@Modifiable
+@Style(create = "new", allParameters = true)
+public interface HelmExtension extends HasPublicType {
+
+  String NAME = "helm";
+
+  static HelmExtension createAndAdd(Project project) {
+    return project
+        .getExtensions()
+        .create(
+            NAME,
+            ModifiableHelmExtension.class,
+            project.getObjects().property(String.class),
+            project.getObjects().property(String.class),
+            project.getObjects().property(String.class),
+            project.getObjects().property(String.class));
+  }
+
+  Property<String> getChart();
+
+  Property<String> getName();
+
+  Property<String> getVersion();
+
+  Property<String> getNamespace();
+
+  @Override
+  default TypeOf<?> getPublicType() {
+    return TypeOf.typeOf(HelmExtension.class);
+  }
 }
