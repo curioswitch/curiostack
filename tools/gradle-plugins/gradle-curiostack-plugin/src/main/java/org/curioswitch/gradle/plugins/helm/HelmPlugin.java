@@ -34,21 +34,26 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.UncheckedIOException;
 import java.util.List;
+import java.util.function.Supplier;
 import org.curioswitch.gradle.plugins.helm.tasks.HelmTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformOutputTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.provider.ListProperty;
 
 public class HelmPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
+    project.evaluationDependsOn(":cluster:terraform");
     HelmExtension config = HelmExtension.createAndAdd(project);
 
     var tillerCaCertFile = project.file("build/helm/tiller-client-ca.cert");
     var tillerClientCertFile = project.file("build/helm/tiller-client.cert");
     var tillerClientKeyFile = project.file("build/helm/tiller-client.key");
+    var tillerServerCertFile = project.file("build/helm/tiller-server.cert");
+    var tillerServerKeyFile = project.file("build/helm/tiller-server.key");
 
     var outputTillerCaCertTask =
         createTerraformOutputTask(
@@ -59,6 +64,12 @@ public class HelmPlugin implements Plugin<Project> {
     var outputTillerClientKeyTask =
         createTerraformOutputTask(
             project, "outputTillerClientKeyTask", "tiller-client-key", tillerClientKeyFile);
+    var outputTillerSrverCertTask =
+        createTerraformOutputTask(
+            project, "outputTillerServerCertTask", "tiller-server-cert", tillerServerCertFile);
+    var outputTillerServerKeyTask =
+        createTerraformOutputTask(
+            project, "outputTillerServerKeyTask", "tiller-server-key", tillerServerKeyFile);
 
     project
         .getTasks()
@@ -95,6 +106,18 @@ public class HelmPlugin implements Plugin<Project> {
               args.add(config.getChart());
               t.addArgs(args);
             });
+    project
+        .getTasks()
+        .create(
+            "helmDelete",
+            HelmTask.class,
+            t -> {
+              var args = project.getObjects().listProperty(String.class);
+              args.add("delete");
+              args.add(config.getName());
+              args.add("--purge");
+              t.addArgs(args);
+            });
 
     project
         .getTasks()
@@ -111,48 +134,77 @@ public class HelmPlugin implements Plugin<Project> {
               task.addArgs(args);
             });
 
-    project
-        .getTasks()
-        .create(
-            "helmInit",
-            HelmTask.class,
-            t -> {
-              var tillerServerCertFile = project.file("build/helm/tiller-server.cert");
-              var tillerServerKeyFile = project.file("build/helm/tiller-server.key");
+    Supplier<ListProperty<String>> initArgsCreator =
+        () -> {
+          var args = project.getObjects().listProperty(String.class);
+          args.add("init");
+          args.add("--wait");
+          args.add("--service-account=tiller");
+          args.add("--tiller-tls");
+          args.add("--tiller-tls-verify");
+          args.add("--tiller-tls-cert=" + tillerServerCertFile.getAbsolutePath());
+          args.add("--tiller-tls-key=" + tillerServerKeyFile.getAbsolutePath());
+          args.add("--tls-ca-cert=" + tillerCaCertFile.getAbsolutePath());
+          return args;
+        };
 
-              t.dependsOn(outputTillerCaCertTask);
-              t.dependsOn(
-                  createTerraformOutputTask(
-                      project,
-                      "outputTillerServerCertTask",
-                      "tiller-server-cert",
-                      tillerServerCertFile));
+    var helmTillerInit =
+        project
+            .getTasks()
+            .create(
+                "helmTillerInit",
+                HelmTask.class,
+                t -> {
+                  t.dependsOn(outputTillerCaCertTask);
+                  t.dependsOn(outputTillerSrverCertTask);
+                  t.dependsOn(outputTillerServerKeyTask);
 
-              t.dependsOn(
-                  createTerraformOutputTask(
-                      project,
-                      "outputTillerServerKeyTask",
-                      "tiller-server-key",
-                      tillerServerKeyFile));
+                  var args = initArgsCreator.get();
+                  t.addArgs(args);
+                });
 
-              var args = project.getObjects().listProperty(String.class);
-              args.add("init");
-              args.add("--service-account=tiller");
-              args.add("--tiller-tls");
-              args.add("--tiller-tls-verify");
-              args.add("--tiller-tls-cert=" + tillerServerCertFile.getAbsolutePath());
-              args.add("--tiller-tls-key=" + tillerServerKeyFile.getAbsolutePath());
-              args.add("--tls-ca-cert=" + tillerCaCertFile.getAbsolutePath());
-              t.addArgs(args);
-            });
+    var helmTillerUpgrade =
+        project
+            .getTasks()
+            .create(
+                "helmTillerUpgrade",
+                HelmTask.class,
+                t -> {
+                  t.dependsOn(outputTillerCaCertTask);
+                  t.dependsOn(outputTillerSrverCertTask);
+                  t.dependsOn(outputTillerServerKeyTask);
+
+                  var args = initArgsCreator.get();
+                  args.add("--upgrade");
+                  t.addArgs(args);
+                });
+
+    var helmClientInit =
+        project
+            .getTasks()
+            .create(
+                "helmClientInit",
+                HelmTask.class,
+                t -> {
+                  var args = project.getObjects().listProperty(String.class);
+                  args.add("init");
+                  args.add("--client-only");
+                  t.addArgs(args);
+                });
 
     project
         .getTasks()
         .withType(
             HelmTask.class,
             t -> {
-              if (t.getName().equals("helmInit")) {
+              if (t.getPath().equals(helmTillerInit.getPath())
+                  || t.getPath().equals(helmClientInit.getPath())
+                  || t.getPath().equals(helmTillerUpgrade.getPath())) {
                 return;
+              }
+
+              if (!t.getPath().equals(helmClientInit.getPath())) {
+                t.dependsOn(helmClientInit);
               }
 
               t.dependsOn(outputTillerCaCertTask);

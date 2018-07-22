@@ -24,10 +24,9 @@
 
 package org.curioswitch.gradle.plugins.helm.tasks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
 import org.curioswitch.gradle.plugins.gcloud.util.PlatformHelper;
+import org.curioswitch.gradle.plugins.helm.TillerExtension;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -37,16 +36,15 @@ import org.gradle.process.ExecSpec;
 
 public class HelmTask extends DefaultTask {
 
-  private static final List<String> DEFAULT_ARGS = ImmutableList.of(
-      "--tiller-namespace=tiller-prod"
-  );
-
   private final ListProperty<String> args;
   private Action<ExecSpec> execCustomizer = (execSpec -> {});
 
   public HelmTask() {
     args = getProject().getObjects().listProperty(String.class);
-    DEFAULT_ARGS.forEach(args::add);
+
+    var tillerConfig = getProject().getRootProject().getExtensions().getByType(TillerExtension.class);
+    args.add("--tiller-namespace");
+    args.add(tillerConfig.getNamespace());
   }
 
   public HelmTask addArgs(ListProperty<String> args) {
