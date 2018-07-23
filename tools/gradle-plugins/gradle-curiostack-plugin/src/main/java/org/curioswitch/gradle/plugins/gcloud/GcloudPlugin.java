@@ -46,11 +46,13 @@ import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentConfiguration;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
 import org.curioswitch.gradle.plugins.gcloud.tasks.CreateBuildCacheBucket;
+import org.curioswitch.gradle.plugins.gcloud.tasks.DownloadHelmTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.DownloadTerraformTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.SetupTask;
 import org.curioswitch.gradle.plugins.gcloud.util.PlatformHelper;
+import org.curioswitch.gradle.plugins.helm.TillerExtension;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Rule;
@@ -109,6 +111,9 @@ public class GcloudPlugin implements Plugin<Project> {
     project
         .getTasks()
         .create(DownloadTerraformTask.NAME, DownloadTerraformTask.class, new PlatformHelper());
+
+    TillerExtension.createAndAdd(project);
+    project.getTasks().create(DownloadHelmTask.NAME, DownloadHelmTask.class, new PlatformHelper());
 
     project.afterEvaluate(
         p -> {

@@ -33,7 +33,7 @@ targetCompatibility = '1.8'
 dependencies {
     api project(':common:google-cloud:core')
 
-    api 'com.google.api.grpc:grpc-google-cloud-pubsub-v1:1.14.0'
+    api 'com.google.api.grpc:grpc-google-cloud-pubsub-v1'
 
     annotationProcessor 'com.google.dagger:dagger-compiler'
     compileOnly 'com.google.dagger:dagger'

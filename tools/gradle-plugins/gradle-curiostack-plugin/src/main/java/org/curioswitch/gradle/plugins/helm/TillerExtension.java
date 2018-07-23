@@ -22,44 +22,35 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.terraform.tasks;
+package org.curioswitch.gradle.plugins.helm;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.gradle.api.tasks.options.Option;
+import org.gradle.api.Project;
+import org.gradle.api.provider.Property;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
+import org.immutables.value.Value.Modifiable;
+import org.immutables.value.Value.Style;
 
-public class TerraformOutputTask extends TerraformTask {
+@Modifiable
+@Style(create = "new", allParameters = true)
+public interface TillerExtension extends HasPublicType {
 
-  public static final String NAME = "terraformOutput";
+  String NAME = "tiller";
 
-  private String module;
-  private String name;
-
-  public TerraformOutputTask() {
-    setExecCustomizer(
-        exec -> {
-          List<String> args = new ArrayList<>();
-          if (module != null) {
-            args.add("-module=" + module);
-          }
-          if (name != null) {
-            args.add(name);
-          }
-          if (!args.isEmpty()) {
-            exec.args(args);
-          }
-        });
+  static TillerExtension createAndAdd(Project project) {
+    var extension =
+        project
+            .getExtensions()
+            .create(
+                NAME, ModifiableTillerExtension.class, project.getObjects().property(String.class));
+    extension.getNamespace().set("tiller-prod");
+    return extension;
   }
 
-  @Option(option = "module", description = "The module to output.")
-  public TerraformOutputTask setModule(String module) {
-    this.module = module;
-    return this;
-  }
+  Property<String> getNamespace();
 
-  @Option(option = "name", description = "The name of the output.")
-  public TerraformOutputTask setName(String name) {
-    this.name = name;
-    return this;
+  @Override
+  default TypeOf<?> getPublicType() {
+    return TypeOf.typeOf(TillerExtension.class);
   }
 }

@@ -22,33 +22,42 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.terraform.tasks;
+package org.curioswitch.gradle.plugins.helm.tasks;
 
-import java.io.File;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
+import org.curioswitch.gradle.plugins.gcloud.util.PlatformHelper;
+import org.curioswitch.gradle.plugins.helm.TillerExtension;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
 
-public class TerraformTask extends DefaultTask {
+public class HelmTask extends DefaultTask {
 
-  private Iterable<String> args;
-  private Action<ExecSpec> execCustomizer;
+  private final ListProperty<String> args;
+  private Action<ExecSpec> execCustomizer = (execSpec -> {});
 
-  public TerraformTask setArgs(Iterable<String> args) {
-    this.args = args;
+  public HelmTask() {
+    setGroup("Helm");
+
+    args = getProject().getObjects().listProperty(String.class);
+
+    var tillerConfig =
+        getProject().getRootProject().getExtensions().getByType(TillerExtension.class);
+    args.add("--tiller-namespace");
+    args.add(tillerConfig.getNamespace());
+  }
+
+  public HelmTask addArgs(ListProperty<String> args) {
+    this.args.addAll(args);
     return this;
   }
 
-  public TerraformTask setExecCustomizer(Action<ExecSpec> execCustomizer) {
+  public HelmTask setExecCustomizer(Action<ExecSpec> execCustomizer) {
     this.execCustomizer = execCustomizer;
     return this;
-  }
-
-  public Action<ExecSpec> getExecCustomizer() {
-    return execCustomizer;
   }
 
   @TaskAction
@@ -58,15 +67,13 @@ public class TerraformTask extends DefaultTask {
         exec -> {
           exec.executable(
               CommandUtil.getCuriostackDir(project)
-                  .resolve("terraform")
-                  .resolve(StandardDependencies.TERRAFORM_VERSION)
-                  .resolve("terraform"));
-          exec.args(args);
-          exec.workingDir(new File(project.getBuildDir(), "terraform"));
+                  .resolve("helm")
+                  .resolve(StandardDependencies.HELM_VERSION)
+                  .resolve(new PlatformHelper().getOsName() + "-amd64")
+                  .resolve("helm"));
+          exec.args(args.get());
           exec.setStandardInput(System.in);
-          if (execCustomizer != null) {
-            execCustomizer.execute(exec);
-          }
+          execCustomizer.execute(exec);
         });
   }
 }

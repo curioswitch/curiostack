@@ -46,11 +46,12 @@ public class StandardDependencies {
     String version();
   }
 
+  public static final String HELM_VERSION = "2.9.1";
   public static final String MINICONDA_VERSION = "4.5.4";
   public static final String TERRAFORM_VERSION = "0.11.7";
 
   static final String GOOGLE_JAVA_FORMAT_VERSION = "1.6";
-  static final String GRADLE_VERSION = "4.8.1";
+  static final String GRADLE_VERSION = "4.9";
   static final String NODE_VERSION = "9.9.0";
   static final String YARN_VERSION = "1.7.0";
 
@@ -110,12 +111,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("0.18.0")
+              .version("0.20.1")
               .addModules("grpc-google-cloud-trace-v1")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("1.17.0")
+              .version("1.19.1")
               .addModules("grpc-google-cloud-pubsub-v1")
               .build(),
           ImmutableDependencySet.builder()
@@ -178,7 +179,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.firebase")
-              .version("6.2.0")
+              .version("6.3.0")
               .addModules("firebase-admin")
               .build(),
           ImmutableDependencySet.builder()
@@ -269,7 +270,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.micrometer")
-              .version("1.0.5")
+              .version("1.0.6")
               .addModules("micrometer-core", "micrometer-registry-prometheus")
               .build(),
           ImmutableDependencySet.builder()
@@ -400,7 +401,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.immutables")
-              .version("2.6.1")
+              .version("2.6.3")
               .addModules("builder", "value")
               .build(),
           ImmutableDependencySet.builder()
@@ -415,7 +416,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jooq")
-              .version("3.11.2")
+              .version("3.11.3")
               .addModules("jooq", "jooq-codegen", "jooq-meta")
               .build(),
           ImmutableDependencySet.builder()
@@ -430,7 +431,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")
-              .version("2.19.0")
+              .version("2.19.5")
               .addModules("mockito-core", "mockito-junit-jupiter")
               .build(),
           ImmutableDependencySet.builder()
@@ -440,7 +441,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.simpleflatmapper")
-              .version("3.18.3")
+              .version("3.19.0")
               .addModules(
                   "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
               .build(),

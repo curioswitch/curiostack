@@ -33,7 +33,7 @@ targetCompatibility = '1.8'
 dependencies {
     api project(':common:google-cloud:core')
 
-    api 'com.google.api.grpc:grpc-google-cloud-trace-v1:0.15.0'
+    api 'com.google.api.grpc:grpc-google-cloud-trace-v1'
 
     annotationProcessor 'com.google.dagger:dagger-compiler'
     compileOnly 'com.google.dagger:dagger'
