@@ -186,6 +186,8 @@ public class HelmPlugin implements Plugin<Project> {
         .withType(
             HelmTask.class,
             t -> {
+              t.dependsOn(":gcloudDownloadHelm");
+
               if (t.getPath().equals(helmTillerInit.getPath())
                   || t.getPath().equals(helmClientInit.getPath())) {
                 return;
