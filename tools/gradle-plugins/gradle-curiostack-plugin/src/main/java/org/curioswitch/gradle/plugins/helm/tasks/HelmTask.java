@@ -44,7 +44,8 @@ public class HelmTask extends DefaultTask {
 
     args = getProject().getObjects().listProperty(String.class);
 
-    var tillerConfig = getProject().getRootProject().getExtensions().getByType(TillerExtension.class);
+    var tillerConfig =
+        getProject().getRootProject().getExtensions().getByType(TillerExtension.class);
     args.add("--tiller-namespace");
     args.add(tillerConfig.getNamespace());
   }

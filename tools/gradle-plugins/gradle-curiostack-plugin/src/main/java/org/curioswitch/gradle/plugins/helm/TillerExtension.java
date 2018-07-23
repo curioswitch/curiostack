@@ -38,12 +38,11 @@ public interface TillerExtension extends HasPublicType {
   String NAME = "tiller";
 
   static TillerExtension createAndAdd(Project project) {
-    var extension = project
-        .getExtensions()
-        .create(
-            NAME,
-            ModifiableTillerExtension.class,
-            project.getObjects().property(String.class));
+    var extension =
+        project
+            .getExtensions()
+            .create(
+                NAME, ModifiableTillerExtension.class, project.getObjects().property(String.class));
     extension.getNamespace().set("tiller-prod");
     return extension;
   }

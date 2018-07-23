@@ -113,9 +113,7 @@ public class GcloudPlugin implements Plugin<Project> {
         .create(DownloadTerraformTask.NAME, DownloadTerraformTask.class, new PlatformHelper());
 
     TillerExtension.createAndAdd(project);
-    project
-        .getTasks()
-        .create(DownloadHelmTask.NAME, DownloadHelmTask.class, new PlatformHelper());
+    project.getTasks().create(DownloadHelmTask.NAME, DownloadHelmTask.class, new PlatformHelper());
 
     project.afterEvaluate(
         p -> {
