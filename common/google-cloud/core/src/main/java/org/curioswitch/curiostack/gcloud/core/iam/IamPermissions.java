@@ -34,11 +34,10 @@ import org.immutables.value.Value.Style.ImplementationVisibility;
 
 @Immutable
 @Style(
-  deepImmutablesDetection = true,
-  defaultAsDefault = true,
-  builderVisibility = BuilderVisibility.PACKAGE,
-  visibility = ImplementationVisibility.PACKAGE
-)
+    deepImmutablesDetection = true,
+    defaultAsDefault = true,
+    builderVisibility = BuilderVisibility.PACKAGE,
+    visibility = ImplementationVisibility.PACKAGE)
 @JsonDeserialize(as = ImmutableIamPermissions.class)
 @JsonSerialize(as = ImmutableIamPermissions.class)
 public interface IamPermissions {
