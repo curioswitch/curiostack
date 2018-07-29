@@ -12,7 +12,7 @@
     "build:clean": "rimraf ./build",
     "//": "Normally we would lint before build, but we are actually building the lint config here.",
     "postbuild": "yarn run lint",
-    "prepublish": "yarn run build",
+    "prepare": "yarn run build",
     "lint": "tslint --project tsconfig.json"
   },
   "dependencies": {
