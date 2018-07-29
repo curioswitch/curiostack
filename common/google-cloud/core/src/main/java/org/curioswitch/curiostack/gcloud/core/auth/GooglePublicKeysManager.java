@@ -165,11 +165,10 @@ public class GooglePublicKeysManager {
 
   @Immutable
   @Style(
-    deepImmutablesDetection = true,
-    defaultAsDefault = true,
-    builderVisibility = BuilderVisibility.PACKAGE,
-    visibility = ImplementationVisibility.PACKAGE
-  )
+      deepImmutablesDetection = true,
+      defaultAsDefault = true,
+      builderVisibility = BuilderVisibility.PACKAGE,
+      visibility = ImplementationVisibility.PACKAGE)
   interface CachedPublicKeys {
     Instant expirationTime();
 

@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/eggs-world",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "description": "A highly scalable, offline-first foundation with the best DX and a focus on performance and best practices",
   "repository": {
     "type": "git",
@@ -152,7 +152,7 @@
     "history": "4.7.2",
     "howler": "2.0.14",
     "konva": "2.1.7",
-    "react-konva": "1.7.11",
+    "react-konva": "1.7.12",
     "sanitize.css": "5.0.0"
   },
   "devDependencies": {

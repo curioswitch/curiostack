@@ -51,13 +51,18 @@ public class GrpcApiClientBuilder {
 
   public <T> T create(String url, Class<T> clz) {
     return new ClientBuilder("gproto+" + url)
-        .decorator(HttpRequest.class, HttpResponse.class, client -> new SimpleDecoratingClient<HttpRequest, HttpResponse>(client) {
-          @Override
-          public HttpResponse execute(ClientRequestContext ctx, HttpRequest req) throws Exception {
-            req.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/grpc");
-            return delegate().execute(ctx, req);
-          }
-        })
+        .decorator(
+            HttpRequest.class,
+            HttpResponse.class,
+            client ->
+                new SimpleDecoratingClient<HttpRequest, HttpResponse>(client) {
+                  @Override
+                  public HttpResponse execute(ClientRequestContext ctx, HttpRequest req)
+                      throws Exception {
+                    req.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/grpc");
+                    return delegate().execute(ctx, req);
+                  }
+                })
         .decorator(
             HttpRequest.class, HttpResponse.class, credentialsDecorator.newAccessTokenDecorator())
         .decorator(HttpRequest.class, HttpResponse.class, HttpTracingClient.newDecorator(tracing))

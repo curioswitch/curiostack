@@ -32,13 +32,12 @@ import org.immutables.value.Value.Style.BuilderVisibility;
 @Immutable
 @Modifiable
 @Style(
-  create = "new",
-  get = {"get*", "is*"},
-  beanFriendlyModifiables = true,
-  isInitialized = "initialized",
-  builderVisibility = BuilderVisibility.PACKAGE,
-  defaultAsDefault = true
-)
+    create = "new",
+    get = {"get*", "is*"},
+    beanFriendlyModifiables = true,
+    isInitialized = "initialized",
+    builderVisibility = BuilderVisibility.PACKAGE,
+    defaultAsDefault = true)
 public interface StorageConfig {
 
   class Builder extends ImmutableStorageConfig.Builder {}
