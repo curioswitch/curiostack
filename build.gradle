@@ -109,3 +109,10 @@ gcloud {
     // clusterZones = ['asia-northeast1-a', 'asia-northeast1-c']
     clusterKubernetesVersion = '1.10.4-gke.0'
 }
+
+afterEvaluate {
+    tasks.yarn.doLast {
+        println fileTree('node_modules/@curiostack/base-web/build/dev/scripts')
+        println fileTree('eggworld/client/web/node_modules/.bin')
+    }
+}
