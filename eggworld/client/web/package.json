@@ -152,7 +152,7 @@
     "history": "4.7.2",
     "howler": "2.0.14",
     "konva": "2.1.7",
-    "react-konva": "1.7.11",
+    "react-konva": "1.7.12",
     "sanitize.css": "5.0.0"
   },
   "devDependencies": {

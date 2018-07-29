@@ -1,7 +1,6 @@
 import { ActionsUnion, createAction } from '@curiostack/base-web';
 import { Node } from 'konva';
-import { Dispatch } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { bindActionCreators, Dispatch } from 'redux';
 
 import {
   CheckIngredientsResponse,

@@ -77,7 +77,7 @@ type Props = State & DispatchProps;
 
 export class HomePage extends React.PureComponent<Props> {
   public hammerAnimation = new Animation((frame: any) => {
-    let angleDiff = frame.timeDiff * 360 / 10 / 1000;
+    let angleDiff = (frame.timeDiff * 360) / 10 / 1000;
     const frameIndex = frame.time % 3000;
     if (frameIndex < 200) {
       // No-op
@@ -163,11 +163,17 @@ export class HomePage extends React.PureComponent<Props> {
   }
 }
 
-const withConnect = connect(selectHomePage, mapDispatchToProps as any);
+const withConnect = connect(
+  selectHomePage,
+  mapDispatchToProps as any,
+);
 
 const withReducer = injectReducer({ reducer, key: 'homePage' });
 const withSaga = injectSaga({ saga, key: 'homePage' });
 
-export default compose(hot(module), withReducer, withSaga, withConnect)(
-  HomePage,
-);
+export default compose(
+  hot(module),
+  withReducer,
+  withSaga,
+  withConnect,
+)(HomePage);
