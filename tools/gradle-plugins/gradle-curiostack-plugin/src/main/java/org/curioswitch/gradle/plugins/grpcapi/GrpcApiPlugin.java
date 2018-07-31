@@ -71,10 +71,10 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
   private static final boolean IS_WINDOWS = Os.isFamily(Os.FAMILY_WINDOWS);
 
-  private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.5";
-  private static final String GOOGLE_PROTOBUF_VERSION = "3.5.0";
+  private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.6";
+  private static final String GOOGLE_PROTOBUF_VERSION = "3.6.0";
   private static final String GRPC_WEB_CLIENT_VERSION = "0.6.2";
-  private static final String TS_PROTOC_GEN_VERSION = "0.7.3";
+  private static final String TS_PROTOC_GEN_VERSION = "0.7.6";
   private static final String TYPES_GOOGLE_PROTOBUF_VERSION = "3.2.7";
 
   private static final String RESOLVED_PLUGIN_SCRIPT_TEMPLATE =
