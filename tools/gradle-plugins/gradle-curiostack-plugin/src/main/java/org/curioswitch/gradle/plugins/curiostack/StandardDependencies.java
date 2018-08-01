@@ -200,7 +200,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.68.0")
+              .version("0.68.1")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -241,7 +241,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.dropwizard.metrics")
-              .version("4.0.2")
+              .version("4.0.3")
               .addModules("metrics-core", "metrics-jvm", "metrics-json", "metrics-log4j2")
               .build(),
           ImmutableDependencySet.builder()
@@ -256,7 +256,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.grpc")
-              .version("1.13.2")
+              .version("1.14.0")
               .addModules(
                   "grpc-all",
                   "grpc-auth",
@@ -381,7 +381,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.82")
+              .version("0.0.85")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -472,7 +472,7 @@ public class StandardDependencies {
           "javax.xml.bind:jaxb-api:2.3.0",
           "me.champeau.gradle:jmh-gradle-plugin:0.4.7",
           "mysql:mysql-connector-java:8.0.11",
-          "net.ltgt.gradle:gradle-apt-plugin:0.15",
+          "net.ltgt.gradle:gradle-apt-plugin:0.18",
           "net.ltgt.gradle:gradle-errorprone-javacplugin-plugin:0.3",
           "net.ltgt.gradle:gradle-errorprone-plugin:0.0.16",
           "nu.studer:gradle-jooq-plugin:3.0.0");
