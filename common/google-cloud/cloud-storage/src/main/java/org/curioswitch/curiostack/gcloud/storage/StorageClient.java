@@ -23,6 +23,8 @@
  */
 package org.curioswitch.curiostack.gcloud.storage;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -51,6 +53,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -92,10 +95,20 @@ public class StorageClient {
         filename, metadata, CommonPools.workerGroup().next(), PooledByteBufAllocator.DEFAULT);
   }
 
-  /** Create a new file for uploading data to cloud storage. */
   public CompletableFuture<FileWriter> createFile(
       String filename, Map<String, String> metadata, EventLoop eventLoop, ByteBufAllocator alloc) {
-    HttpData data = createFileRequest(filename, metadata, alloc);
+    FileRequest request = new FileRequest.Builder().name(filename).metadata(metadata).build();
+    return createFile(request, eventLoop, alloc);
+  }
+
+  public CompletableFuture<FileWriter> createFile(FileRequest request) {
+    return createFile(request, CommonPools.workerGroup().next(), PooledByteBufAllocator.DEFAULT);
+  }
+
+  /** Create a new file for uploading data to cloud storage. */
+  public CompletableFuture<FileWriter> createFile(
+      FileRequest request, EventLoop eventLoop, ByteBufAllocator alloc) {
+    HttpData data = createFileRequest(request, alloc);
 
     HttpHeaders headers =
         HttpHeaders.of(HttpMethod.POST, uploadUrl).contentType(MediaType.JSON_UTF_8);
@@ -168,8 +181,14 @@ public class StorageClient {
 
   public CompletableFuture<Void> updateFileMetadata(
       String filename, Map<String, String> metadata, EventLoop eventLoop, ByteBufAllocator alloc) {
-    String url = objectUrlPrefix + UrlEscapers.urlPathSegmentEscaper().escape(filename);
-    HttpData data = createFileRequest(filename, metadata, alloc);
+    FileRequest request = new FileRequest.Builder().name(filename).metadata(metadata).build();
+    return updateFileMetadata(request, eventLoop, alloc);
+  }
+
+  public CompletableFuture<Void> updateFileMetadata(
+      FileRequest request, EventLoop eventLoop, ByteBufAllocator alloc) {
+    String url = objectUrlPrefix + UrlEscapers.urlPathSegmentEscaper().escape(request.getName());
+    HttpData data = createFileRequest(request, alloc);
 
     HttpHeaders headers = HttpHeaders.of(HttpMethod.PATCH, url).contentType(MediaType.JSON_UTF_8);
     HttpResponse res = httpClient.execute(headers, data);
@@ -191,9 +210,7 @@ public class StorageClient {
             });
   }
 
-  private static HttpData createFileRequest(
-      String filename, Map<String, String> metadata, ByteBufAllocator alloc) {
-    FileRequest request = ImmutableFileRequest.builder().name(filename).metadata(metadata).build();
+  private static HttpData createFileRequest(FileRequest request, ByteBufAllocator alloc) {
     ByteBuf buf = alloc.buffer();
     try (ByteBufOutputStream os = new ByteBufOutputStream(buf)) {
       OBJECT_MAPPER.writeValue((DataOutput) os, request);
@@ -208,8 +225,22 @@ public class StorageClient {
   @Immutable
   @JsonSerialize(as = ImmutableFileRequest.class)
   @JsonDeserialize(as = ImmutableFileRequest.class)
+  @JsonInclude(Include.NON_EMPTY)
   interface FileRequest {
+
+    class Builder extends ImmutableFileRequest.Builder {}
+
     String getName();
+
+    Optional<String> getCacheControl();
+
+    Optional<String> getContentDisposition();
+
+    Optional<String> getContentEncoding();
+
+    Optional<String> getContentLanguage();
+
+    Optional<String> getContentType();
 
     Map<String, String> getMetadata();
   }

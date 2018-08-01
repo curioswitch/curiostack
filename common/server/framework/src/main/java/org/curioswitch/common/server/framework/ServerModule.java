@@ -25,7 +25,6 @@ package org.curioswitch.common.server.framework;
 
 import brave.Tracing;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.linecorp.armeria.common.Flags;
 import com.linecorp.armeria.common.HttpHeaderNames;
@@ -39,7 +38,6 @@ import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.Service;
 import com.linecorp.armeria.server.ServiceRequestContext;
-import com.linecorp.armeria.server.auth.AuthTokenExtractors;
 import com.linecorp.armeria.server.auth.HttpAuthServiceBuilder;
 import com.linecorp.armeria.server.auth.OAuth2Token;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
@@ -87,7 +85,6 @@ import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -102,7 +99,6 @@ import org.curioswitch.common.server.framework.armeria.Constants;
 import org.curioswitch.common.server.framework.armeria.SslContextKeyConverter;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthConfig;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthModule;
-import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthService;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthorizer;
 import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthServiceBuilder;
 import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthorizer;
@@ -317,7 +313,6 @@ public abstract class ServerModule {
       Lazy<StackdriverReporter> stackdriverReporter,
       ServerConfig serverConfig,
       FirebaseAuthConfig authConfig,
-      FirebaseAuthService.Factory firebaseAuthServiceFactory,
       HttpsOnlyService.Factory httpsOnlyServiceFactory,
       JavascriptStaticConfig javascriptStaticConfig,
       MonitoringConfig monitoringConfig,
@@ -450,8 +445,7 @@ public abstract class ServerModule {
               jwtAuthorizer,
               sslCommonNamesProvider,
               serverConfig,
-              authConfig,
-              firebaseAuthServiceFactory);
+              authConfig);
       sb.serviceUnder(definition.path(), service);
     }
 
@@ -467,8 +461,7 @@ public abstract class ServerModule {
               jwtAuthorizer,
               sslCommonNamesProvider,
               serverConfig,
-              authConfig,
-              firebaseAuthServiceFactory));
+              authConfig));
     }
 
     if (javascriptStaticConfig.getVersion() != 0) {
@@ -555,8 +548,7 @@ public abstract class ServerModule {
       Lazy<JwtAuthorizer.Factory> jwtAuthorizer,
       Optional<SslCommonNamesProvider> sslCommonNamesProvider,
       ServerConfig serverConfig,
-      FirebaseAuthConfig authConfig,
-      FirebaseAuthService.Factory firebaseAuthServiceFactory) {
+      FirebaseAuthConfig authConfig) {
     if (sslCommonNamesProvider.isPresent()) {
       GoogleIdAuthServiceBuilder authServiceBuilder = new GoogleIdAuthServiceBuilder();
       if (!serverConfig.isDisableGoogleIdAuthorization()) {
@@ -599,15 +591,10 @@ public abstract class ServerModule {
       FirebaseAuthorizer authorizer = firebaseAuthorizer.get();
       service =
           service.decorate(
-              firebaseAuthServiceFactory.newDecorator(
-                  ImmutableList.of(
-                      (ctx, req) -> {
-                        OAuth2Token token = AuthTokenExtractors.OAUTH2.apply(req.headers());
-                        if (token == null) {
-                          return CompletableFuture.completedFuture(false);
-                        }
-                        return authorizer.authorize(ctx, token);
-                      })));
+              new HttpAuthServiceBuilder()
+                  .addOAuth2(authorizer)
+                  .onFailure(authorizer)
+                  .newDecorator());
     }
 
     service =
