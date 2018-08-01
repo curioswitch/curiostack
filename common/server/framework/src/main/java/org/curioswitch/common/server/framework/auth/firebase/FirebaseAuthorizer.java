@@ -44,7 +44,8 @@ import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class FirebaseAuthorizer implements Authorizer<OAuth2Token>, AuthFailureHandler<HttpRequest, HttpResponse> {
+public class FirebaseAuthorizer
+    implements Authorizer<OAuth2Token>, AuthFailureHandler<HttpRequest, HttpResponse> {
 
   private static final Logger logger = LogManager.getLogger();
 
@@ -99,8 +100,12 @@ public class FirebaseAuthorizer implements Authorizer<OAuth2Token>, AuthFailureH
   }
 
   @Override
-  public HttpResponse authFailed(Service<HttpRequest, HttpResponse> delegate,
-      ServiceRequestContext ctx, HttpRequest req, @Nullable Throwable cause) throws Exception {
+  public HttpResponse authFailed(
+      Service<HttpRequest, HttpResponse> delegate,
+      ServiceRequestContext ctx,
+      HttpRequest req,
+      @Nullable Throwable cause)
+      throws Exception {
     if (cause != null) {
       logger.warn("Unexpected exception during authorization.", cause);
       return HttpResponse.of(HttpStatus.UNAUTHORIZED);
