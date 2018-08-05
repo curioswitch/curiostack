@@ -40,7 +40,7 @@ import org.curioswitch.eggworld.server.graphs.CheckIngredientsGraph;
 import org.curioswitch.eggworld.server.graphs.FindRecipeGraph;
 import org.curioswitch.eggworld.server.yummly.YummlyApiModule;
 
-public class Main {
+public class EggworldMain {
 
   @Module(
       includes = {ServerModule.class, YummlyApiModule.class},
@@ -77,8 +77,8 @@ public class Main {
   }
 
   public static void main(String[] args) {
-    DaggerMain_MainComponent.create().server();
+    DaggerEggworldMain_MainComponent.create().server();
   }
 
-  private Main() {}
+  private EggworldMain() {}
 }

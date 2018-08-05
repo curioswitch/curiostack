@@ -25,7 +25,7 @@
 apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
 
 archivesBaseName = 'eggworld-server'
-mainClassName = 'org.curioswitch.eggworld.server.Main'
+mainClassName = 'org.curioswitch.eggworld.server.EggworldMain'
 
 dependencies {
     compile project(':common:server:framework')
