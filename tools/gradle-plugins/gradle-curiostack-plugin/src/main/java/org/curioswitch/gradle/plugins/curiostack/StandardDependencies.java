@@ -110,13 +110,18 @@ public class StandardDependencies {
               .addModules("caffeine")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.google.api-client")
+              .version("1.24.1")
+              .addModules("google-api-client")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("0.20.1")
+              .version("0.21.0")
               .addModules("grpc-google-cloud-trace-v1")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("1.19.1")
+              .version("1.20.0")
               .addModules("grpc-google-cloud-pubsub-v1")
               .build(),
           ImmutableDependencySet.builder()
@@ -136,7 +141,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.37.1")
+              .version("1.38.0")
               .addModules(
                   "google-cloud-bigquery",
                   "google-cloud-core",
@@ -184,7 +189,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.guava")
-              .version("25.1-jre")
+              .version("26.0-jre")
               .addModules("guava", "guava-testlib")
               .build(),
           ImmutableDependencySet.builder()
@@ -323,7 +328,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.8.15")
+              .version("1.8.16")
               .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
@@ -460,7 +465,7 @@ public class StandardDependencies {
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
           "com.moowork.gradle:gradle-node-plugin:1.2.0",
           "com.netflix.nebula:gradle-dependency-lock-plugin:6.0.0",
-          "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.1",
+          "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.2",
           "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.1.4",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.1",

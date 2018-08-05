@@ -32,7 +32,7 @@ sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 dependencies {
-    api 'com.google.api-client:google-api-client:1.23.0'
+    api 'com.google.api-client:google-api-client:1.24.1'
     api 'com.google.guava:guava'
     api 'com.linecorp.armeria:armeria'
     api 'com.linecorp.armeria:armeria-retrofit2'
