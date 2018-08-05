@@ -16,7 +16,6 @@
     "@babel/polyfill": "7.0.0-beta.56",
     "@babel/preset-env": "7.0.0-beta.56",
     "@babel/preset-react": "7.0.0-beta.56",
-    "@babel/preset-stage-0": "7.0.0-beta.53",
     "@curiostack/base-node-dev": "0.0.6",
     "@curiostack/base-web": "0.0.23",
     "@hugmanrique/react-markdown-loader": "0.0.2",

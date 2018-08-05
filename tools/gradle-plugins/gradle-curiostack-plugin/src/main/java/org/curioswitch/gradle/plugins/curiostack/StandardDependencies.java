@@ -53,7 +53,7 @@ public class StandardDependencies {
   static final String GOOGLE_JAVA_FORMAT_VERSION = "1.6";
   static final String GRADLE_VERSION = "4.9";
   static final String NODE_VERSION = "9.9.0";
-  static final String YARN_VERSION = "1.7.0";
+  static final String YARN_VERSION = "1.9.4";
 
   private static final String JACKSON_VERSION = "2.9.6";
 
@@ -189,7 +189,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.protobuf")
-              .version("3.6.0")
+              .version("3.6.1")
               .addModules("protobuf-java", "protobuf-java-util")
               .build(),
           // protoc often diverges from protobuf-java
@@ -200,7 +200,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.68.1")
+              .version("0.68.2")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -303,12 +303,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("5.1.4")
+              .version("5.1.5")
               .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.gcp")
-              .version("0.6.3")
+              .version("0.6.4")
               .addModules("zipkin-translation-stackdriver")
               .build(),
           ImmutableDependencySet.builder()
@@ -471,7 +471,7 @@ public class StandardDependencies {
           "javax.annotation:javax.annotation-api:1.3.2",
           "javax.xml.bind:jaxb-api:2.3.0",
           "me.champeau.gradle:jmh-gradle-plugin:0.4.7",
-          "mysql:mysql-connector-java:8.0.11",
+          "mysql:mysql-connector-java:8.0.12",
           "net.ltgt.gradle:gradle-apt-plugin:0.18",
           "net.ltgt.gradle:gradle-errorprone-javacplugin-plugin:0.3",
           "net.ltgt.gradle:gradle-errorprone-plugin:0.0.16",
