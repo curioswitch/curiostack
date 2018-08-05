@@ -65,7 +65,9 @@ export default function({
       </head>
       <body>
         <div id="app" dangerouslySetInnerHTML={{ __html: content }} />
-        {delayedScriptSrcs.map((src) => <script key={src} src={src} />)}
+        {delayedScriptSrcs.map((src) => (
+          <script key={src} src={src} />
+        ))}
       </body>
     </html>
   );

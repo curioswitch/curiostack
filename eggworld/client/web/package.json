@@ -23,7 +23,7 @@
     "@curiostack/eggworld-api": "1.0.0",
     "history": "4.7.2",
     "howler": "2.0.14",
-    "konva": "2.1.7",
+    "konva": "2.1.8",
     "react-konva": "1.7.12",
     "sanitize.css": "5.0.0"
   },

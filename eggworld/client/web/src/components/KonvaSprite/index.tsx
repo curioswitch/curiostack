@@ -54,12 +54,6 @@ class KonvaSprite extends React.PureComponent<Props, State> {
       });
     };
     image.src = this.props.src;
-    // While react-konva is supposed to handle this, it doesn't for some reason.
-    console.log(this.node);
-    if (this.node.current) {
-      console.log('foo');
-      this.node.current.on('frameIndexChange', this.props.onFrameIndexChange);
-    }
   }
 
   public componentWillReceiveProps(nextProps: Props) {
@@ -67,8 +61,10 @@ class KonvaSprite extends React.PureComponent<Props, State> {
       return;
     }
     if (nextProps.started) {
+      this.node.current.on('frameIndexChange', this.props.onFrameIndexChange);
       this.node.current.start();
     } else {
+      this.node.current.off('frameIndexChange');
       this.node.current.stop();
     }
   }
