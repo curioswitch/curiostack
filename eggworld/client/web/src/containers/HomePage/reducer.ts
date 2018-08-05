@@ -48,6 +48,7 @@ export const initialState = Record<StateProps>({
   drawStageCount: 0,
   eatenFood: Set(),
   eggBreakingDone: false,
+  foodBeingEaten: undefined,
   hammerRotation: 0,
   selectedTab: 'fruit',
   usableFood: Set(),
@@ -97,7 +98,10 @@ export default function reducer(state: State, action: Actions) {
       }
       return state.set('eggBreakingDone', true);
     case ActionTypes.FOOD_DRAGGED:
-      if (isInsideMouth(action.payload.node)) {
+      if (
+        state.foodBeingEaten === undefined &&
+        isInsideMouth(action.payload.node)
+      ) {
         return state.set('foodBeingEaten', action.payload.ingredient);
       }
       return state;

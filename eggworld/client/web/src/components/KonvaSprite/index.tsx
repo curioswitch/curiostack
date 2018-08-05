@@ -44,7 +44,7 @@ class KonvaSprite extends React.PureComponent<Props, State> {
     image: undefined,
   };
 
-  private node?: SpriteImpl = undefined;
+  private node: React.RefObject<SpriteImpl> = React.createRef();
 
   public componentDidMount() {
     const image = new Image();
@@ -55,19 +55,21 @@ class KonvaSprite extends React.PureComponent<Props, State> {
     };
     image.src = this.props.src;
     // While react-konva is supposed to handle this, it doesn't for some reason.
-    if (this.node) {
-      this.node.on('frameIndexChange', this.props.onFrameIndexChange);
+    console.log(this.node);
+    if (this.node.current) {
+      console.log('foo');
+      this.node.current.on('frameIndexChange', this.props.onFrameIndexChange);
     }
   }
 
   public componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.started === this.props.started || !this.node) {
+    if (nextProps.started === this.props.started || !this.node.current) {
       return;
     }
     if (nextProps.started) {
-      this.node.start();
+      this.node.current.start();
     } else {
-      this.node.stop();
+      this.node.current.stop();
     }
   }
 
@@ -76,14 +78,7 @@ class KonvaSprite extends React.PureComponent<Props, State> {
     return (
       <>
         {this.state.image ? (
-          <Sprite
-            // TODO(choko): See if this any can be avoided.
-            ref={(node: any) => {
-              this.node = node || undefined;
-            }}
-            image={this.state.image}
-            {...others}
-          />
+          <Sprite ref={this.node} image={this.state.image} {...others} />
         ) : null}
       </>
     );

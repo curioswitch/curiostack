@@ -8,6 +8,16 @@
   },
   "author": "Choko Switch",
   "license": "MIT",
+  "curiostack": {
+    "browsers": [
+      "last 2 versions"
+    ],
+    "devServer": {
+      "proxy": {
+        "/api": "https://localhost:8080"
+      }
+    }
+  },
   "dependencies": {
     "@curiostack/base-web": "0.0.23",
     "@curiostack/eggworld-api": "1.0.0",

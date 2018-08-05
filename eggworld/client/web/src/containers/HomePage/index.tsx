@@ -107,7 +107,10 @@ export class HomePage extends React.PureComponent<Props> {
     if (!this.props.cooking && nextProps.cooking) {
       this.hammerAnimation.stop();
     }
-    if (!this.props.foodBeingEaten && nextProps.foodBeingEaten) {
+    if (
+      this.props.foodBeingEaten === undefined &&
+      nextProps.foodBeingEaten !== undefined
+    ) {
       SOUNDS[getRandomInt(0, 2)].play();
     }
   }
@@ -133,7 +136,7 @@ export class HomePage extends React.PureComponent<Props> {
             onMouthAnimationFrame={this.props.mouthAnimationFrame}
             hammerRotation={this.props.hammerRotation}
             showHammer={!this.props.eatenFood.isEmpty()}
-            started={!!this.props.foodBeingEaten}
+            started={this.props.foodBeingEaten !== undefined}
             visible={!cooking}
           />
           <FoodLayer
