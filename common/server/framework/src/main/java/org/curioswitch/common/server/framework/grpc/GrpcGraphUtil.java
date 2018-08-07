@@ -23,9 +23,12 @@
  */
 package org.curioswitch.common.server.framework.grpc;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.spotify.futures.FuturesExtra;
+import com.google.common.util.concurrent.MoreExecutors;
 import io.grpc.stub.StreamObserver;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /** A utility for using gRPC with producer graphs. */
 public final class GrpcGraphUtil {
@@ -35,13 +38,22 @@ public final class GrpcGraphUtil {
    * StreamObserver}.
    */
   public static <T> void unary(ListenableFuture<T> graphFuture, StreamObserver<T> observer) {
-    FuturesExtra.addCallback(
+    Futures.addCallback(
         graphFuture,
-        response -> {
-          observer.onNext(response);
-          observer.onCompleted();
+        new FutureCallback<T>() {
+          @Override
+          public void onSuccess(@Nullable T result) {
+            observer.onNext(result);
+            observer.onCompleted();
+          }
+
+          @Override
+          public void onFailure(Throwable t) {
+            observer.onError(t);
+          }
         },
-        observer::onError);
+        MoreExecutors.directExecutor()
+    );
   }
 
   private GrpcGraphUtil() {}
