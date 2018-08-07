@@ -27,8 +27,11 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.protobuf.Message;
 import io.grpc.stub.StreamObserver;
+import javax.inject.Provider;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.curioswitch.common.server.framework.grpc.GrpcProductionComponent.GrpcProductionComponentBuilder;
 
 /** A utility for using gRPC with producer graphs. */
 public final class GrpcGraphUtil {
@@ -52,8 +55,33 @@ public final class GrpcGraphUtil {
             observer.onError(t);
           }
         },
-        MoreExecutors.directExecutor()
-    );
+        MoreExecutors.directExecutor());
+  }
+
+  /**
+   * Invokes a unary {@link GrpcProductionComponent} with the provided request and graph factory.
+   */
+  public static <
+          G,
+          Resp extends Message,
+          C extends GrpcProductionComponent<Resp>,
+          B extends GrpcProductionComponentBuilder<G, C, B>>
+      void unary(G graph, StreamObserver<Resp> observer, Provider<B> componentBuilder) {
+    Futures.addCallback(
+        componentBuilder.get().graph(graph).build().execute(),
+        new FutureCallback<Resp>() {
+          @Override
+          public void onSuccess(@Nullable Resp result) {
+            observer.onNext(result);
+            observer.onCompleted();
+          }
+
+          @Override
+          public void onFailure(Throwable t) {
+            observer.onError(t);
+          }
+        },
+        MoreExecutors.directExecutor());
   }
 
   private GrpcGraphUtil() {}

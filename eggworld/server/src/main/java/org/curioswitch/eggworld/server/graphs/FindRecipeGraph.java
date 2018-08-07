@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
+import org.curioswitch.common.server.framework.grpc.GrpcProductionComponent;
 import org.curioswitch.eggworld.api.FindRecipeRequest;
 import org.curioswitch.eggworld.api.FindRecipeResponse;
 import org.curioswitch.eggworld.server.EggworldConstants;
@@ -47,16 +48,10 @@ import org.curioswitch.eggworld.server.yummly.models.SearchResponse;
 public class FindRecipeGraph {
 
   @ProductionSubcomponent(modules = {FindRecipeGraph.class})
-  public interface Component {
-
-    ListenableFuture<FindRecipeResponse> execute();
+  public interface Component extends GrpcProductionComponent<FindRecipeResponse> {
 
     @ProductionSubcomponent.Builder
-    interface Builder {
-      Builder graph(FindRecipeGraph graph);
-
-      Component build();
-    }
+    interface Builder extends GrpcProductionComponentBuilder<FindRecipeGraph, Component, Builder> {}
   }
 
   private final FindRecipeRequest request;
