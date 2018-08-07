@@ -51,7 +51,7 @@ export const initialState = Record<StateProps>({
   foodBeingEaten: undefined,
   hammerRotation: 0,
   selectedTab: 'fruit',
-  usableFood: Set(),
+  usableFood: Set(Object.values(Ingredient)),
 })();
 
 const MOUTH_RECTANGLE = {
@@ -107,7 +107,10 @@ export default function reducer(state: State, action: Actions) {
       return state;
     case ActionTypes.MOUTH_ANIMATION_FRAME:
       let newState = state;
-      if (mouthAnimationFrameCount === 12) {
+      if (
+        mouthAnimationFrameCount >= 12 &&
+        state.foodBeingEaten !== undefined
+      ) {
         const ingredient = state.foodBeingEaten!;
         newState = state.update('eatenFood', (eatenFood) =>
           eatenFood.add(ingredient),

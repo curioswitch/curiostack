@@ -111,8 +111,8 @@ export default class MainLayer extends React.PureComponent<Props> {
   }
 
   private onSelectFruit = () => this.props.onSelectTab('fruit');
-  private onSelectMeat = () => this.props.onSelectTab('fruit');
-  private onSelectOther = () => this.props.onSelectTab('fruit');
+  private onSelectMeat = () => this.props.onSelectTab('meat');
+  private onSelectOther = () => this.props.onSelectTab('other');
 
   private onEggBreakingFrameChange = (e: any) => {
     if (e.newVal === 3) {
