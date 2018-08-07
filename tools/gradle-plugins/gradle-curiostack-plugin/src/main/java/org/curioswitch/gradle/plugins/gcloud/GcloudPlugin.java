@@ -163,7 +163,13 @@ public class GcloudPlugin implements Plugin<Project> {
           GcloudTask loginToCluster =
               project.getTasks().create("gcloudLoginToCluster", GcloudTask.class);
           loginToCluster.setArgs(
-              ImmutableList.of("container", "clusters", "get-credentials", config.clusterName()));
+              ImmutableList.of(
+                  "container",
+                  "clusters",
+                  "get-credentials",
+                  config.clusterName(),
+                  "--region",
+                  config.cloudRegion()));
 
           project.getTasks().create("createBuildCacheBucket", CreateBuildCacheBucket.class);
 
