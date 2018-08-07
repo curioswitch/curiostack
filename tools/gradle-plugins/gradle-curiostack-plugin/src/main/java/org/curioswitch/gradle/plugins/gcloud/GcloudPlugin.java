@@ -45,7 +45,6 @@ import javax.annotation.Nullable;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentConfiguration;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
-import org.curioswitch.gradle.plugins.gcloud.tasks.CreateBuildCacheBucket;
 import org.curioswitch.gradle.plugins.gcloud.tasks.DownloadHelmTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.DownloadTerraformTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
@@ -148,11 +147,6 @@ public class GcloudPlugin implements Plugin<Project> {
                         });
               });
 
-          GcloudTask createClusterProject =
-              project.getTasks().create("gcloudCreateClusterProject", GcloudTask.class);
-          createClusterProject.setArgs(
-              ImmutableList.of("alpha", "projects", "create", config.clusterProject()));
-
           // This task currently always fails, probably due to a bug in the SDK. It attempts
           // to create the same repo twice, and the second one fails with an error...
           GcloudTask createSourceRepo =
@@ -170,8 +164,6 @@ public class GcloudPlugin implements Plugin<Project> {
                   config.clusterName(),
                   "--region",
                   config.cloudRegion()));
-
-          project.getTasks().create("createBuildCacheBucket", CreateBuildCacheBucket.class);
 
           GcloudTask installBetaComponents =
               project
