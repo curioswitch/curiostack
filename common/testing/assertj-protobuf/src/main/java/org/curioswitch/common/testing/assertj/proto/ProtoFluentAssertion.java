@@ -458,14 +458,14 @@ public interface ProtoFluentAssertion {
    * earlier operations. If no settings are changed, this invokes the default {@code equals}
    * implementation of the subject {@link Message}.
    */
-  void isEqualTo(@NullableDecl Object expected);
+  ProtoFluentAssertion isEqualTo(@NullableDecl Object expected);
 
   /**
    * Compares the subject of the assertion to {@code expected}, expecting a difference, using all of
    * the rules specified by earlier operations. If no settings are changed, this invokes the default
    * {@code equals} implementation of the subject {@link Message}.
    */
-  void isNotEqualTo(@NullableDecl Object expected);
+  ProtoFluentAssertion isNotEqualTo(@NullableDecl Object expected);
 
   /**
    * @deprecated Do not call {@code equals()} on a {@code ProtoFluentAssertion}. Use {@link

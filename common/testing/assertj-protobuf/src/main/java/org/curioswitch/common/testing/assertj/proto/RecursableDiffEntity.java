@@ -16,6 +16,8 @@
 
 package org.curioswitch.common.testing.assertj.proto;
 
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
+
 /**
  * A generic entity in the {@link DiffResult} tree with queryable properties.
  *
@@ -42,8 +44,8 @@ abstract class RecursableDiffEntity {
   // parent classes.  I think it's better to roll-our-own in the parent class to take advantage of
   // inheritance, than to duplicate the @Memoized methods for every subclass.
 
-  private Boolean isAnyChildIgnored = null;
-  private Boolean isAnyChildMatched = null;
+  @NullableDecl private Boolean isAnyChildIgnored = null;
+  @NullableDecl private Boolean isAnyChildMatched = null;
 
   // Only extended by inner classes.
   private RecursableDiffEntity() {}
@@ -124,8 +126,8 @@ abstract class RecursableDiffEntity {
    */
   abstract static class WithoutResultCode extends RecursableDiffEntity {
 
-    private Boolean isMatched = null;
-    private Boolean isIgnored = null;
+    @NullableDecl private Boolean isMatched = null;
+    @NullableDecl private Boolean isIgnored = null;
 
     @Override
     final boolean isMatched() {

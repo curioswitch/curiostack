@@ -28,21 +28,18 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
-import com.google.common.truth.Correspondence;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Message;
-import org.checkerframework.checker.nullness.compatqual.NullableDecl;
+import org.assertj.core.data.Offset;
 
 /**
  * A specification for a {@link ProtoTruthMessageDifferencer} for comparing two individual
- * protobufs.
- *
- * <p>Can be used to compare lists, maps, and multimaps of protos as well by conversion to a {@link
- * Correspondence}.
+ * protobufs.}.
  */
+@SuppressWarnings("ConstructorLeaksThis") // Not a constructor
 @AutoValue
 abstract class FluentEqualityConfig implements FieldScopeLogicContainer<FluentEqualityConfig> {
 
@@ -51,8 +48,8 @@ abstract class FluentEqualityConfig implements FieldScopeLogicContainer<FluentEq
           .setIgnoreFieldAbsenceScope(FieldScopeLogic.none())
           .setIgnoreRepeatedFieldOrderScope(FieldScopeLogic.none())
           .setIgnoreExtraRepeatedFieldElementsScope(FieldScopeLogic.none())
-          .setDoubleCorrespondenceMap(FieldScopeLogicMap.<Correspondence<Number, Number>>empty())
-          .setFloatCorrespondenceMap(FieldScopeLogicMap.<Correspondence<Number, Number>>empty())
+          .setDoubleCorrespondenceMap(FieldScopeLogicMap.<Offset<Double>>empty())
+          .setFloatCorrespondenceMap(FieldScopeLogicMap.<Offset<Float>>empty())
           .setCompareExpectedFieldsOnly(false)
           .setCompareFieldsScope(FieldScopeLogic.all())
           .setReportMismatchesOnly(false)
@@ -83,9 +80,9 @@ abstract class FluentEqualityConfig implements FieldScopeLogicContainer<FluentEq
 
   abstract FieldScopeLogic ignoreExtraRepeatedFieldElementsScope();
 
-  abstract FieldScopeLogicMap<Correspondence<Number, Number>> doubleCorrespondenceMap();
+  abstract FieldScopeLogicMap<Offset<Double>> doubleCorrespondenceMap();
 
-  abstract FieldScopeLogicMap<Correspondence<Number, Number>> floatCorrespondenceMap();
+  abstract FieldScopeLogicMap<Offset<Float>> floatCorrespondenceMap();
 
   abstract boolean compareExpectedFieldsOnly();
 
@@ -192,8 +189,7 @@ abstract class FluentEqualityConfig implements FieldScopeLogicContainer<FluentEq
 
   final FluentEqualityConfig usingDoubleTolerance(double tolerance) {
     return toBuilder()
-        .setDoubleCorrespondenceMap(
-            FieldScopeLogicMap.defaultValue(Correspondence.tolerance(tolerance)))
+        .setDoubleCorrespondenceMap(FieldScopeLogicMap.defaultValue(Offset.strictOffset(tolerance)))
         .addUsingCorrespondenceString(".usingDoubleTolerance(" + tolerance + ")")
         .build();
   }
@@ -205,7 +201,7 @@ abstract class FluentEqualityConfig implements FieldScopeLogicContainer<FluentEq
             doubleCorrespondenceMap()
                 .with(
                     FieldScopeLogic.none().allowingFieldsNonRecursive(fieldNumbers),
-                    Correspondence.tolerance(tolerance)))
+                    Offset.strictOffset(tolerance)))
         .addUsingCorrespondenceFieldNumbersString(
             ".usingDoubleTolerance(" + tolerance + ", %s)", fieldNumbers)
         .build();
@@ -218,7 +214,7 @@ abstract class FluentEqualityConfig implements FieldScopeLogicContainer<FluentEq
             doubleCorrespondenceMap()
                 .with(
                     FieldScopeLogic.none().allowingFieldDescriptorsNonRecursive(fieldDescriptors),
-                    Correspondence.tolerance(tolerance)))
+                    Offset.strictOffset(tolerance)))
         .addUsingCorrespondenceFieldDescriptorsString(
             ".usingDoubleTolerance(" + tolerance + ", %s)", fieldDescriptors)
         .build();
@@ -226,8 +222,7 @@ abstract class FluentEqualityConfig implements FieldScopeLogicContainer<FluentEq
 
   final FluentEqualityConfig usingFloatTolerance(float tolerance) {
     return toBuilder()
-        .setFloatCorrespondenceMap(
-            FieldScopeLogicMap.defaultValue(Correspondence.tolerance(tolerance)))
+        .setFloatCorrespondenceMap(FieldScopeLogicMap.defaultValue(Offset.strictOffset(tolerance)))
         .addUsingCorrespondenceString(".usingFloatTolerance(" + tolerance + ")")
         .build();
   }
@@ -239,7 +234,7 @@ abstract class FluentEqualityConfig implements FieldScopeLogicContainer<FluentEq
             floatCorrespondenceMap()
                 .with(
                     FieldScopeLogic.none().allowingFieldsNonRecursive(fieldNumbers),
-                    Correspondence.tolerance(tolerance)))
+                    Offset.strictOffset(tolerance)))
         .addUsingCorrespondenceFieldNumbersString(
             ".usingFloatTolerance(" + tolerance + ", %s)", fieldNumbers)
         .build();
@@ -252,7 +247,7 @@ abstract class FluentEqualityConfig implements FieldScopeLogicContainer<FluentEq
             floatCorrespondenceMap()
                 .with(
                     FieldScopeLogic.none().allowingFieldDescriptorsNonRecursive(fieldDescriptors),
-                    Correspondence.tolerance(tolerance)))
+                    Offset.strictOffset(tolerance)))
         .addUsingCorrespondenceFieldDescriptorsString(
             ".usingFloatTolerance(" + tolerance + ", %s)", fieldDescriptors)
         .build();
@@ -363,38 +358,6 @@ abstract class FluentEqualityConfig implements FieldScopeLogicContainer<FluentEq
     return messageDifferencers.getUnchecked(descriptor);
   }
 
-  final <M extends Message> Correspondence<M, M> toCorrespondence(
-      final Optional<Descriptor> optDescriptor) {
-    checkState(expectedMessages().isPresent(), "expectedMessages() not set");
-    return new Correspondence<M, M>() {
-      @Override
-      public final boolean compare(@NullableDecl M actual, @NullableDecl M expected) {
-        return ProtoTruth.assertThat(actual)
-            .usingConfig(FluentEqualityConfig.this)
-            .testIsEqualTo(expected);
-      }
-
-      @Override
-      public final String formatDiff(@NullableDecl M actual, @NullableDecl M expected) {
-        if (actual == null || expected == null) {
-          return "";
-        }
-
-        return FluentEqualityConfig.this
-            .toMessageDifferencer(actual.getDescriptorForType())
-            .diffMessages(actual, expected)
-            .printToString(FluentEqualityConfig.this.reportMismatchesOnly());
-      }
-
-      @Override
-      public final String toString() {
-        return "is equivalent according to assertThat(proto)"
-            + usingCorrespondenceString(optDescriptor)
-            + ".isEqualTo(target) to";
-      }
-    };
-  }
-
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // Builder methods.
   //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -411,10 +374,10 @@ abstract class FluentEqualityConfig implements FieldScopeLogicContainer<FluentEq
     abstract Builder setIgnoreExtraRepeatedFieldElementsScope(FieldScopeLogic fieldScopeLogic);
 
     abstract Builder setDoubleCorrespondenceMap(
-        FieldScopeLogicMap<Correspondence<Number, Number>> doubleCorrespondenceMap);
+        FieldScopeLogicMap<Offset<Double>> doubleCorrespondenceMap);
 
     abstract Builder setFloatCorrespondenceMap(
-        FieldScopeLogicMap<Correspondence<Number, Number>> floatCorrespondenceMap);
+        FieldScopeLogicMap<Offset<Float>> floatCorrespondenceMap);
 
     abstract Builder setCompareExpectedFieldsOnly(boolean compare);
 

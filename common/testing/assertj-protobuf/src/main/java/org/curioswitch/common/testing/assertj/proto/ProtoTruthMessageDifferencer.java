@@ -20,6 +20,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
@@ -27,11 +28,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.truth.Correspondence;
-import org.curioswitch.common.testing.assertj.proto.DiffResult.RepeatedField;
-import org.curioswitch.common.testing.assertj.proto.DiffResult.SingularField;
-import org.curioswitch.common.testing.assertj.proto.DiffResult.UnknownFieldSetDiff;
-import org.curioswitch.common.testing.assertj.proto.RecursableDiffEntity.WithResultCode.Result;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
@@ -47,7 +43,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.assertj.core.data.Offset;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
+import org.curioswitch.common.testing.assertj.proto.DiffResult.RepeatedField;
+import org.curioswitch.common.testing.assertj.proto.DiffResult.SingularField;
+import org.curioswitch.common.testing.assertj.proto.DiffResult.UnknownFieldSetDiff;
+import org.curioswitch.common.testing.assertj.proto.RecursableDiffEntity.WithResultCode.Result;
 
 /**
  * Tool to differentiate two messages with the same {@link Descriptor}, subject to the rules set out
@@ -563,7 +564,8 @@ final class ProtoTruthMessageDifferencer {
 
   // Replaces 'input' with 'defaultValue' iff input is null and we're ignoring field absence.
   // Otherwise, just returns the input.
-  private <T> T orIfIgnoringFieldAbsence(
+  @NullableDecl
+  private static <T> T orIfIgnoringFieldAbsence(
       @NullableDecl T input, @NullableDecl T defaultValue, boolean ignoreFieldAbsence) {
     return (input == null && ignoreFieldAbsence) ? defaultValue : input;
   }
@@ -659,15 +661,13 @@ final class ProtoTruthMessageDifferencer {
             !doublesEqual(
                 (double) actual,
                 (double) expected,
-                config.doubleCorrespondenceMap().get(rootDescriptor, fieldDescriptorOrUnknown)
-                ));
+                config.doubleCorrespondenceMap().get(rootDescriptor, fieldDescriptorOrUnknown)));
       } else if (actual instanceof Float) {
         result.markModifiedIf(
             !floatsEqual(
                 (float) actual,
                 (float) expected,
-                config.floatCorrespondenceMap().get(rootDescriptor, fieldDescriptorOrUnknown)
-                ));
+                config.floatCorrespondenceMap().get(rootDescriptor, fieldDescriptorOrUnknown)));
       } else {
         result.markModifiedIf(!Objects.equal(actual, expected));
       }
@@ -688,25 +688,27 @@ final class ProtoTruthMessageDifferencer {
     return singularFieldBuilder.build();
   }
 
-  private boolean doublesEqual(
-      double x,
-      double y,
-      Optional<Correspondence<Number, Number>> correspondence
-      ) {
+  private static boolean doublesEqual(double x, double y, Optional<Offset<Double>> correspondence) {
     if (correspondence.isPresent()) {
-      return correspondence.get().compare(x, y);
+      try {
+        assertThat(x).isCloseTo(y, correspondence.get());
+      } catch (AssertionError e) {
+        return false;
+      }
+      return true;
     } else {
       return Double.compare(x, y) == 0;
     }
   }
 
-  private boolean floatsEqual(
-      float x,
-      float y,
-      Optional<Correspondence<Number, Number>> correspondence
-      ) {
+  private static boolean floatsEqual(float x, float y, Optional<Offset<Float>> correspondence) {
     if (correspondence.isPresent()) {
-      return correspondence.get().compare(x, y);
+      try {
+        assertThat(x).isCloseTo(y, correspondence.get());
+      } catch (AssertionError e) {
+        return false;
+      }
+      return true;
     } else {
       return Float.compare(x, y) == 0;
     }
@@ -847,7 +849,7 @@ final class ProtoTruthMessageDifferencer {
     return singularFieldBuilder.build();
   }
 
-  private SingularField compareUnknownPrimitive(
+  private static SingularField compareUnknownPrimitive(
       @NullableDecl Object actual,
       @NullableDecl Object expected,
       UnknownFieldDescriptor unknownFieldDescriptor,
