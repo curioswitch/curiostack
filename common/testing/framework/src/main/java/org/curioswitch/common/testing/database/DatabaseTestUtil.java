@@ -23,7 +23,6 @@
  */
 package org.curioswitch.common.testing.database;
 
-import static org.curioswitch.common.testing.assertj.CurioAssertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -172,7 +171,9 @@ public final class DatabaseTestUtil {
                   if (!ctx.sql().equals(query)) {
                     return false;
                   }
-                  assertThat(ctx.bindings()).containsExactlyElementsOf(ImmutableList.copyOf(args));
+                  if (!ctx.bindings().equals(ImmutableList.copyOf(args))) {
+                    return false;
+                  }
                   return true;
                 }));
       } catch (SQLException e) {
