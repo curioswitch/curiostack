@@ -106,8 +106,7 @@ public interface ProtoFluentAssertion<SELF extends ProtoFluentAssertion> {
    *
    * @see #ignoringFieldAbsence() for details
    */
-  SELF ignoringFieldAbsenceOfFieldDescriptors(
-      Iterable<FieldDescriptor> fieldDescriptors);
+  SELF ignoringFieldAbsenceOfFieldDescriptors(Iterable<FieldDescriptor> fieldDescriptors);
 
   /**
    * Specifies that the ordering of repeated fields, at all levels, should be ignored when comparing
@@ -216,8 +215,7 @@ public interface ProtoFluentAssertion<SELF extends ProtoFluentAssertion> {
    *
    * @see #ignoringRepeatedFieldOrder() for details.
    */
-  SELF ignoringRepeatedFieldOrderOfFieldDescriptors(
-      Iterable<FieldDescriptor> fieldDescriptors);
+  SELF ignoringRepeatedFieldOrderOfFieldDescriptors(Iterable<FieldDescriptor> fieldDescriptors);
 
   /**
    * Specifies that, for all repeated and map fields, any elements in the 'actual' proto which are
@@ -243,8 +241,7 @@ public interface ProtoFluentAssertion<SELF extends ProtoFluentAssertion> {
    *
    * @see #ignoringExtraRepeatedFieldElements() for details.
    */
-  SELF ignoringExtraRepeatedFieldElementsOfFields(
-      int firstFieldNumber, int... rest);
+  SELF ignoringExtraRepeatedFieldElementsOfFields(int firstFieldNumber, int... rest);
 
   /**
    * Specifies that extra repeated field elements for these explicitly specified top-level field
@@ -295,8 +292,7 @@ public interface ProtoFluentAssertion<SELF extends ProtoFluentAssertion> {
    *
    * @param tolerance A finite, non-negative tolerance.
    */
-  SELF usingDoubleToleranceForFields(
-      double tolerance, int firstFieldNumber, int... rest);
+  SELF usingDoubleToleranceForFields(double tolerance, int firstFieldNumber, int... rest);
 
   /**
    * Compares double fields with these explicitly specified top-level field numbers using the
@@ -304,8 +300,7 @@ public interface ProtoFluentAssertion<SELF extends ProtoFluentAssertion> {
    *
    * @param tolerance A finite, non-negative tolerance.
    */
-  SELF usingDoubleToleranceForFields(
-      double tolerance, Iterable<Integer> fieldNumbers);
+  SELF usingDoubleToleranceForFields(double tolerance, Iterable<Integer> fieldNumbers);
 
   /**
    * Compares double fields with these explicitly specified fields using the provided absolute
@@ -339,8 +334,7 @@ public interface ProtoFluentAssertion<SELF extends ProtoFluentAssertion> {
    *
    * @param tolerance A finite, non-negative tolerance.
    */
-  SELF usingFloatToleranceForFields(
-      float tolerance, int firstFieldNumber, int... rest);
+  SELF usingFloatToleranceForFields(float tolerance, int firstFieldNumber, int... rest);
 
   /**
    * Compares float fields with these explicitly specified top-level field numbers using the
@@ -348,8 +342,7 @@ public interface ProtoFluentAssertion<SELF extends ProtoFluentAssertion> {
    *
    * @param tolerance A finite, non-negative tolerance.
    */
-  SELF usingFloatToleranceForFields(
-      float tolerance, Iterable<Integer> fieldNumbers);
+  SELF usingFloatToleranceForFields(float tolerance, Iterable<Integer> fieldNumbers);
 
   /**
    * Compares float fields with these explicitly specified fields using the provided absolute
@@ -434,8 +427,7 @@ public interface ProtoFluentAssertion<SELF extends ProtoFluentAssertion> {
    * <p>If a field descriptor which does not, or cannot occur in the proto structure is supplied, it
    * is silently ignored.
    */
-  SELF ignoringFieldDescriptors(
-      FieldDescriptor firstFieldDescriptor, FieldDescriptor... rest);
+  SELF ignoringFieldDescriptors(FieldDescriptor firstFieldDescriptor, FieldDescriptor... rest);
 
   /**
    * Excludes all message fields matching the given {@link FieldDescriptor}s from the comparison.

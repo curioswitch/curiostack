@@ -431,7 +431,7 @@ public class FieldScopesTest extends ProtoAssertTestBase {
         .hasMessageContaining("ignored: o_sub_test_message.o_test_message.r_string");
   }
 
-  @Ignore  // Ignored upstream.
+  @Ignore // Ignored upstream.
   public void testFromSetFields_unknownFields() throws InvalidProtocolBufferException {
     if (isProto3()) {
       // No unknown fields in Proto 3.

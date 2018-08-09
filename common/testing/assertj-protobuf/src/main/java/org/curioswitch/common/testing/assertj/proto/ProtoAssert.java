@@ -56,8 +56,8 @@ import com.google.protobuf.Message;
 import org.assertj.core.api.AbstractAssert;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
-public class ProtoAssert<ACTUAL extends Message, SELF extends ProtoAssert<ACTUAL, SELF>> extends AbstractAssert<SELF, ACTUAL>
-    implements ProtoFluentAssertion<SELF> {
+public class ProtoAssert<ACTUAL extends Message, SELF extends ProtoAssert<ACTUAL, SELF>>
+    extends AbstractAssert<SELF, ACTUAL> implements ProtoFluentAssertion<SELF> {
 
   public static <T extends Message> ProtoAssert<T, ?> assertThat(T actual) {
     return new ProtoAssert<>(actual, FluentEqualityConfig.defaultInstance());
@@ -94,8 +94,7 @@ public class ProtoAssert<ACTUAL extends Message, SELF extends ProtoAssert<ACTUAL
   }
 
   @Override
-  public SELF ignoringFieldAbsenceOfFieldDescriptors(
-      Iterable<FieldDescriptor> fieldDescriptors) {
+  public SELF ignoringFieldAbsenceOfFieldDescriptors(Iterable<FieldDescriptor> fieldDescriptors) {
     return usingConfig(config.ignoringFieldAbsenceOfFieldDescriptors(fieldDescriptors));
   }
 
@@ -135,16 +134,14 @@ public class ProtoAssert<ACTUAL extends Message, SELF extends ProtoAssert<ACTUAL
   }
 
   @Override
-  public SELF ignoringExtraRepeatedFieldElementsOfFields(
-      int firstFieldNumber, int... rest) {
+  public SELF ignoringExtraRepeatedFieldElementsOfFields(int firstFieldNumber, int... rest) {
     return usingConfig(
         config.ignoringExtraRepeatedFieldElementsOfFields(
             FieldScopeUtil.asList(firstFieldNumber, rest)));
   }
 
   @Override
-  public SELF ignoringExtraRepeatedFieldElementsOfFields(
-      Iterable<Integer> fieldNumbers) {
+  public SELF ignoringExtraRepeatedFieldElementsOfFields(Iterable<Integer> fieldNumbers) {
     return usingConfig(config.ignoringExtraRepeatedFieldElementsOfFields(fieldNumbers));
   }
 
@@ -168,16 +165,14 @@ public class ProtoAssert<ACTUAL extends Message, SELF extends ProtoAssert<ACTUAL
   }
 
   @Override
-  public SELF usingDoubleToleranceForFields(
-      double tolerance, int firstFieldNumber, int... rest) {
+  public SELF usingDoubleToleranceForFields(double tolerance, int firstFieldNumber, int... rest) {
     return usingConfig(
         config.usingDoubleToleranceForFields(
             tolerance, FieldScopeUtil.asList(firstFieldNumber, rest)));
   }
 
   @Override
-  public SELF usingDoubleToleranceForFields(
-      double tolerance, Iterable<Integer> fieldNumbers) {
+  public SELF usingDoubleToleranceForFields(double tolerance, Iterable<Integer> fieldNumbers) {
     return usingConfig(config.usingDoubleToleranceForFields(tolerance, fieldNumbers));
   }
 
@@ -201,16 +196,14 @@ public class ProtoAssert<ACTUAL extends Message, SELF extends ProtoAssert<ACTUAL
   }
 
   @Override
-  public SELF usingFloatToleranceForFields(
-      float tolerance, int firstFieldNumber, int... rest) {
+  public SELF usingFloatToleranceForFields(float tolerance, int firstFieldNumber, int... rest) {
     return usingConfig(
         config.usingFloatToleranceForFields(
             tolerance, FieldScopeUtil.asList(firstFieldNumber, rest)));
   }
 
   @Override
-  public SELF usingFloatToleranceForFields(
-      float tolerance, Iterable<Integer> fieldNumbers) {
+  public SELF usingFloatToleranceForFields(float tolerance, Iterable<Integer> fieldNumbers) {
     return usingConfig(config.usingFloatToleranceForFields(tolerance, fieldNumbers));
   }
 

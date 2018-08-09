@@ -45,4 +45,3 @@
  * project.
  */
 package org.curioswitch.common.testing.assertj.proto;
-
