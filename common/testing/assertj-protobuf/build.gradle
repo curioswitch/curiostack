@@ -25,6 +25,8 @@
 apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 
+apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
+
 archivesBaseName = 'assertj-protobuf'
 
 dependencies {

@@ -303,27 +303,31 @@ public class ProtoAssert<ACTUAL extends Message> extends AbstractAssert<ProtoAss
   }
 
   /** Checks whether the subject is a {@link Message} with no fields set. */
-  public void isEqualToDefaultInstance() {
+  public ProtoAssert<ACTUAL> isEqualToDefaultInstance() {
     if (actual == null) {
-      failWithMessage("Not true that %s is a default proto instance. It is null.", actual);
+      failWithMessage("Not true that <%s> is a default proto instance. It is null.", actual);
     } else if (!actual.equals(actual.getDefaultInstanceForType())) {
-      failWithMessage("Not true that %s is a default proto instance. It has set values.", actual);
+      failWithMessage("Not true that <%s> is a default proto instance. It has set values.", actual);
     }
+
+    return this;
   }
 
-  /** Checks whether the subject is not equivalent to a {@link Message} with no fields set. */
-  public void isNotEqualToDefaultInstance() {
+  /** ProtoAssert<ACTUAL> whether the subject is not equivalent to a {@link Message} with no fields set. */
+  public ProtoAssert<ACTUAL> isNotEqualToDefaultInstance() {
     if (actual != null && actual.equals(actual.getDefaultInstanceForType())) {
       failWithMessage(
           "Not true that (%s) %s is not a default proto instance. It has no set values.",
           actual.getClass().getName(), actual);
     }
+
+    return this;
   }
 
   public ProtoAssert<ACTUAL> hasAllRequiredFields() {
     if (!actual.isInitialized()) {
       failWithMessage(
-          "Not true that %s has all required fields set. Missing: %s",
+          "Not true that <%s> has all required fields set. Missing: %s",
           actual, actual.findInitializationErrors());
     }
 
