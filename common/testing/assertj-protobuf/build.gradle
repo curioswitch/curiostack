@@ -41,3 +41,16 @@ dependencies {
 
     compileOnly 'org.checkerframework:checker-compat-qual:2.5.4'
 }
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            pom {
+                name = 'assertj-protobuf'
+                description = 'An assertj extension for fine-grained assertions on protobuf messages.'
+                url = 'https://github.com/curioswitch/curiostack/tree/master/' +
+                        'common/testing/assertj-protobuf'
+            }
+        }
+    }
+}

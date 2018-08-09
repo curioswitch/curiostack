@@ -58,17 +58,11 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            pom.withXml {
-                // TODO(choko): Make it simpler to define pom attributes after the artifact, as is
-                // normal, by defining a DSL or something.
-                asNode().children()[3] + {
-                    resolveStrategy = Closure.DELEGATE_FIRST
-
-                    name 'Curio Testing Framework'
-                    description 'A testing framework to help when using curiostack.'
-                    url 'https://github.com/curioswitch/curiostack/tree/master/' +
-                            'common/testing/framework'
-                }
+            pom {
+                name = 'Curio Testing Framework'
+                description = 'A testing framework to help when using curiostack.'
+                url = 'https://github.com/curioswitch/curiostack/tree/master/' +
+                        'common/testing/framework'
             }
         }
     }
