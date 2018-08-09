@@ -29,7 +29,6 @@ import com.bmuschko.gradle.docker.DockerJavaApplication;
 import com.bmuschko.gradle.docker.DockerJavaApplicationPlugin;
 import com.google.cloud.tools.jib.gradle.JibExtension;
 import com.google.cloud.tools.jib.gradle.JibPlugin;
-import com.google.cloud.tools.jib.image.ImageFormat;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import com.gorylenko.GitPropertiesPlugin;
