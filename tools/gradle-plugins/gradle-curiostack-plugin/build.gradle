@@ -74,6 +74,7 @@ dependencies {
     compile 'com.netflix.nebula:gradle-resolution-rules-plugin'
     compile 'com.palantir:gradle-baseline-java'
     compile 'gradle.plugin.com.boxfuse.client:gradle-plugin-publishing'
+    compile 'gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.9.8'
     compile 'gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties'
     compile 'gradle.plugin.com.jetbrains.python:gradle-python-envs'
     compile 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin'

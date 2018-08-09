@@ -27,7 +27,11 @@ package org.curioswitch.gradle.plugins.curioserver;
 import com.bmuschko.gradle.docker.DockerExtension;
 import com.bmuschko.gradle.docker.DockerJavaApplication;
 import com.bmuschko.gradle.docker.DockerJavaApplicationPlugin;
+import com.google.cloud.tools.jib.gradle.JibExtension;
+import com.google.cloud.tools.jib.gradle.JibPlugin;
+import com.google.cloud.tools.jib.image.ImageFormat;
 import com.google.common.base.Ascii;
+import com.google.common.collect.ImmutableList;
 import com.gorylenko.GitPropertiesPlugin;
 import groovy.lang.GroovyObject;
 import org.curioswitch.gradle.plugins.curioserver.ImmutableDeploymentExtension.ImmutableDeploymentConfiguration;
@@ -49,6 +53,7 @@ public class CurioServerPlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getPluginManager().apply(ApplicationPlugin.class);
     project.getPluginManager().apply(GitPropertiesPlugin.class);
+    project.getPluginManager().apply(JibPlugin.class);
     project
         .getExtensions()
         .create(ImmutableDeploymentExtension.NAME, DeploymentExtension.class, project);
@@ -62,10 +67,23 @@ public class CurioServerPlugin implements Plugin<Project> {
 
           String archivesBaseName =
               project.getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
-          project
-              .getConvention()
-              .getPlugin(ApplicationPluginConvention.class)
-              .setApplicationName(archivesBaseName);
+
+          var appPluginConvention =
+              project.getConvention().getPlugin(ApplicationPluginConvention.class);
+          appPluginConvention.setApplicationName(archivesBaseName);
+
+          var jib = project.getExtensions().getByType(JibExtension.class);
+          jib.from(from -> from.setImage("openjdk:10-jre-slim"));
+          jib.to(to -> to.setImage(config.imagePrefix() + config.baseName()));
+          jib.container(
+              container -> {
+                container.setMainClass(appPluginConvention.getMainClassName());
+                container.setPorts(ImmutableList.of("8080"));
+                container.setJvmFlags(
+                    ImmutableList.of(
+                        "$JAVA_OPTS",
+                        "$" + archivesBaseName.replace('-', '_').toUpperCase() + "_OPTS"));
+              });
 
           GroovyObject docker = project.getExtensions().getByType(DockerExtension.class);
           DockerJavaApplication javaApplication =
