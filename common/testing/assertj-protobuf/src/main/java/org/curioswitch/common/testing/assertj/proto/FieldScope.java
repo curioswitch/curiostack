@@ -80,8 +80,8 @@ public abstract class FieldScope {
    * field numbers.
    *
    * <p>Validation of the field numbers is performed when the {@code FieldScope} is invoked
-   * (typically by {@link ProtoFluentAssertion#isEqualTo}). A runtime exception will occur if bad
-   * field numbers are encountered.
+   * (typically by {@link ProtoAssert#isEqualTo}). A runtime exception will occur if bad field
+   * numbers are encountered.
    *
    * <p>The field numbers are ignored recursively on this type. That is, if {@code YourMessage}
    * contains another {@code YourMessage} somewhere within its subtree, a {@code FieldScope
@@ -95,8 +95,8 @@ public abstract class FieldScope {
    * field numbers.
    *
    * <p>Validation of the field numbers is performed when the {@code FieldScope} is invoked
-   * (typically by {@link ProtoFluentAssertion#isEqualTo}). A runtime exception will occur if bad
-   * field numbers are encountered.
+   * (typically by {@link ProtoAssert#isEqualTo}). A runtime exception will occur if bad field
+   * numbers are encountered.
    *
    * <p>The field numbers are ignored recursively on this type. That is, if {@code YourMessage}
    * contains another {@code YourMessage} somewhere within its subtree, a {@code FieldScope
@@ -141,8 +141,8 @@ public abstract class FieldScope {
    * numbers.
    *
    * <p>Validation of the field numbers is performed when the {@code FieldScope} is invoked
-   * (typically by {@link ProtoFluentAssertion#isEqualTo}). A runtime exception will occur if bad
-   * field numbers are encountered.
+   * (typically by {@link ProtoAssert#isEqualTo}). A runtime exception will occur if bad field
+   * numbers are encountered.
    *
    * <p>The field numbers are included recursively on this type. That is, if {@code YourMessage}
    * contains another {@code YourMessage} somewhere within its subtree, a {@code FieldScope
@@ -156,8 +156,8 @@ public abstract class FieldScope {
    * numbers.
    *
    * <p>Validation of the field numbers is performed when the {@code FieldScope} is invoked
-   * (typically by {@link ProtoFluentAssertion#isEqualTo}). A runtime exception will occur if bad
-   * field numbers are encountered.
+   * (typically by {@link ProtoAssert#isEqualTo}). A runtime exception will occur if bad field
+   * numbers are encountered.
    *
    * <p>The field numbers are included recursively on this type. That is, if {@code YourMessage}
    * contains another {@code YourMessage} somewhere within its subtree, a {@code FieldScope

@@ -367,9 +367,9 @@ public interface ProtoFluentAssertion<SELF extends ProtoFluentAssertion> {
    * multiple protos are specified, the comparison is limited to the union of set fields in all the
    * expected protos.
    *
-   * <p>The "expected proto(s)" are those passed to the void method at the end of the {@code
-   * ProtoFluentAssertion} call-chain: For example, {@link #isEqualTo(Object)}, or {@link
-   * #isNotEqualTo(Object)}.
+   * <p>The "expected proto(s)" are those passed to the comparison method at the end of the {@code
+   * ProtoFluentAssertion} call-chain: For example, {@link ProtoAssert#isEqualTo(Object)}, or {@link
+   * ProtoAssert#isNotEqualTo(Object)}.
    *
    * <p>Fields not set in the expected proto(s) are ignored. In particular, proto3 fields which have
    * their default values are ignored, as these are indistinguishable from unset fields. If you want

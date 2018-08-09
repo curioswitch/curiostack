@@ -305,10 +305,7 @@ public class ProtoAssert<ACTUAL extends Message, SELF extends ProtoAssert<ACTUAL
     return self();
   }
 
-  /**
-   * ProtoAssert<ACTUAL> whether the subject is not equivalent to a {@link Message} with no fields
-   * set.
-   */
+  /** Checks whether the subject is not equivalent to a {@link Message} with no fields set. */
   public SELF isNotEqualToDefaultInstance() {
     if (actual != null && actual.equals(actual.getDefaultInstanceForType())) {
       failWithMessage(
