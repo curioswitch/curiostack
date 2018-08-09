@@ -31,6 +31,7 @@ archivesBaseName = 'curio-testing-framework'
 
 dependencies {
     api project(':common:server:framework')
+    api project(':common:testing:assertj-protobuf')
     implementation project(':common:grpc:protobuf-jackson')
 
     api 'org.junit.jupiter:junit-jupiter-api'

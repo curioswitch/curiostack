@@ -39,19 +39,14 @@
 package org.curioswitch.common.testing.assertj.proto;
 
 import com.google.protobuf.Descriptors.FieldDescriptor;
-import com.google.protobuf.Message;
-import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * Fluent API to perform detailed, customizable comparison of Protocol buffers.
  *
- * <p>Methods may be chained in any order, but the chain should terminate with {@link
- * #isEqualTo(Object)} or {@link #isNotEqualTo(Object)}.
- *
  * <p>The state of a {@code ProtoFluentAssertion} object after each method is called is left
  * undefined. Users should not retain references to {@code ProtoFluentAssertion} instances.
  */
-public interface ProtoFluentAssertion {
+public interface ProtoFluentAssertion<SELF extends ProtoFluentAssertion> {
 
   /**
    * Specifies that the 'has' bit of individual fields should be ignored when comparing for
@@ -66,7 +61,7 @@ public interface ProtoFluentAssertion {
    * <p>For version 3 Protocol Buffers, this setting does not affect primitive fields, because their
    * default value is indistinguishable from unset.
    */
-  ProtoFluentAssertion ignoringFieldAbsence();
+  SELF ignoringFieldAbsence();
 
   /**
    * Specifies that the 'has' bit of these explicitly specified top-level field numbers should be
@@ -77,7 +72,7 @@ public interface ProtoFluentAssertion {
    *
    * @see #ignoringFieldAbsence() for details
    */
-  ProtoFluentAssertion ignoringFieldAbsenceOfFields(int firstFieldNumber, int... rest);
+  SELF ignoringFieldAbsenceOfFields(int firstFieldNumber, int... rest);
 
   /**
    * Specifies that the 'has' bit of these explicitly specified top-level field numbers should be
@@ -88,7 +83,7 @@ public interface ProtoFluentAssertion {
    *
    * @see #ignoringFieldAbsence() for details
    */
-  ProtoFluentAssertion ignoringFieldAbsenceOfFields(Iterable<Integer> fieldNumbers);
+  SELF ignoringFieldAbsenceOfFields(Iterable<Integer> fieldNumbers);
 
   /**
    * Specifies that the 'has' bit of these explicitly specified field descriptors should be ignored
@@ -99,7 +94,7 @@ public interface ProtoFluentAssertion {
    *
    * @see #ignoringFieldAbsence() for details
    */
-  ProtoFluentAssertion ignoringFieldAbsenceOfFieldDescriptors(
+  SELF ignoringFieldAbsenceOfFieldDescriptors(
       FieldDescriptor firstFieldDescriptor, FieldDescriptor... rest);
 
   /**
@@ -111,7 +106,7 @@ public interface ProtoFluentAssertion {
    *
    * @see #ignoringFieldAbsence() for details
    */
-  ProtoFluentAssertion ignoringFieldAbsenceOfFieldDescriptors(
+  SELF ignoringFieldAbsenceOfFieldDescriptors(
       Iterable<FieldDescriptor> fieldDescriptors);
 
   /**
@@ -176,7 +171,7 @@ public interface ProtoFluentAssertion {
    * <p>This setting does not apply to map fields, for which field order is always ignored. The
    * serialization order of map fields is undefined, and it may change from runtime to runtime.
    */
-  ProtoFluentAssertion ignoringRepeatedFieldOrder();
+  SELF ignoringRepeatedFieldOrder();
 
   /**
    * Specifies that the ordering of repeated fields for these explicitly specified top-level field
@@ -187,7 +182,7 @@ public interface ProtoFluentAssertion {
    *
    * @see #ignoringRepeatedFieldOrder() for details.
    */
-  ProtoFluentAssertion ignoringRepeatedFieldOrderOfFields(int firstFieldNumber, int... rest);
+  SELF ignoringRepeatedFieldOrderOfFields(int firstFieldNumber, int... rest);
 
   /**
    * Specifies that the ordering of repeated fields for these explicitly specified top-level field
@@ -198,7 +193,7 @@ public interface ProtoFluentAssertion {
    *
    * @see #ignoringRepeatedFieldOrder() for details.
    */
-  ProtoFluentAssertion ignoringRepeatedFieldOrderOfFields(Iterable<Integer> fieldNumbers);
+  SELF ignoringRepeatedFieldOrderOfFields(Iterable<Integer> fieldNumbers);
 
   /**
    * Specifies that the ordering of repeated fields for these explicitly specified field descriptors
@@ -209,7 +204,7 @@ public interface ProtoFluentAssertion {
    *
    * @see #ignoringRepeatedFieldOrder() for details.
    */
-  ProtoFluentAssertion ignoringRepeatedFieldOrderOfFieldDescriptors(
+  SELF ignoringRepeatedFieldOrderOfFieldDescriptors(
       FieldDescriptor firstFieldDescriptor, FieldDescriptor... rest);
 
   /**
@@ -221,7 +216,7 @@ public interface ProtoFluentAssertion {
    *
    * @see #ignoringRepeatedFieldOrder() for details.
    */
-  ProtoFluentAssertion ignoringRepeatedFieldOrderOfFieldDescriptors(
+  SELF ignoringRepeatedFieldOrderOfFieldDescriptors(
       Iterable<FieldDescriptor> fieldDescriptors);
 
   /**
@@ -237,7 +232,7 @@ public interface ProtoFluentAssertion {
    * that matches the expected elements for the test to pass. (The subsequence rule does not apply
    * to Map fields, which are always compared by key.)
    */
-  ProtoFluentAssertion ignoringExtraRepeatedFieldElements();
+  SELF ignoringExtraRepeatedFieldElements();
 
   /**
    * Specifies that extra repeated field elements for these explicitly specified top-level field
@@ -248,7 +243,7 @@ public interface ProtoFluentAssertion {
    *
    * @see #ignoringExtraRepeatedFieldElements() for details.
    */
-  ProtoFluentAssertion ignoringExtraRepeatedFieldElementsOfFields(
+  SELF ignoringExtraRepeatedFieldElementsOfFields(
       int firstFieldNumber, int... rest);
 
   /**
@@ -260,7 +255,7 @@ public interface ProtoFluentAssertion {
    *
    * @see #ignoringExtraRepeatedFieldElements() for details.
    */
-  ProtoFluentAssertion ignoringExtraRepeatedFieldElementsOfFields(Iterable<Integer> fieldNumbers);
+  SELF ignoringExtraRepeatedFieldElementsOfFields(Iterable<Integer> fieldNumbers);
 
   /**
    * Specifies that extra repeated field elements for these explicitly specified field descriptors
@@ -271,7 +266,7 @@ public interface ProtoFluentAssertion {
    *
    * @see #ignoringExtraRepeatedFieldElements() for details.
    */
-  ProtoFluentAssertion ignoringExtraRepeatedFieldElementsOfFieldDescriptors(
+  SELF ignoringExtraRepeatedFieldElementsOfFieldDescriptors(
       FieldDescriptor firstFieldDescriptor, FieldDescriptor... rest);
 
   /**
@@ -283,7 +278,7 @@ public interface ProtoFluentAssertion {
    *
    * @see #ignoringExtraRepeatedFieldElements() for details.
    */
-  ProtoFluentAssertion ignoringExtraRepeatedFieldElementsOfFieldDescriptors(
+  SELF ignoringExtraRepeatedFieldElementsOfFieldDescriptors(
       Iterable<FieldDescriptor> fieldDescriptors);
 
   /**
@@ -292,7 +287,7 @@ public interface ProtoFluentAssertion {
    *
    * @param tolerance A finite, non-negative tolerance.
    */
-  ProtoFluentAssertion usingDoubleTolerance(double tolerance);
+  SELF usingDoubleTolerance(double tolerance);
 
   /**
    * Compares double fields with these explicitly specified top-level field numbers using the
@@ -300,7 +295,7 @@ public interface ProtoFluentAssertion {
    *
    * @param tolerance A finite, non-negative tolerance.
    */
-  ProtoFluentAssertion usingDoubleToleranceForFields(
+  SELF usingDoubleToleranceForFields(
       double tolerance, int firstFieldNumber, int... rest);
 
   /**
@@ -309,7 +304,7 @@ public interface ProtoFluentAssertion {
    *
    * @param tolerance A finite, non-negative tolerance.
    */
-  ProtoFluentAssertion usingDoubleToleranceForFields(
+  SELF usingDoubleToleranceForFields(
       double tolerance, Iterable<Integer> fieldNumbers);
 
   /**
@@ -318,7 +313,7 @@ public interface ProtoFluentAssertion {
    *
    * @param tolerance A finite, non-negative tolerance.
    */
-  ProtoFluentAssertion usingDoubleToleranceForFieldDescriptors(
+  SELF usingDoubleToleranceForFieldDescriptors(
       double tolerance, FieldDescriptor firstFieldDescriptor, FieldDescriptor... rest);
 
   /**
@@ -327,7 +322,7 @@ public interface ProtoFluentAssertion {
    *
    * @param tolerance A finite, non-negative tolerance.
    */
-  ProtoFluentAssertion usingDoubleToleranceForFieldDescriptors(
+  SELF usingDoubleToleranceForFieldDescriptors(
       double tolerance, Iterable<FieldDescriptor> fieldDescriptors);
 
   /**
@@ -336,7 +331,7 @@ public interface ProtoFluentAssertion {
    *
    * @param tolerance A finite, non-negative tolerance.
    */
-  ProtoFluentAssertion usingFloatTolerance(float tolerance);
+  SELF usingFloatTolerance(float tolerance);
 
   /**
    * Compares float fields with these explicitly specified top-level field numbers using the
@@ -344,7 +339,7 @@ public interface ProtoFluentAssertion {
    *
    * @param tolerance A finite, non-negative tolerance.
    */
-  ProtoFluentAssertion usingFloatToleranceForFields(
+  SELF usingFloatToleranceForFields(
       float tolerance, int firstFieldNumber, int... rest);
 
   /**
@@ -353,7 +348,7 @@ public interface ProtoFluentAssertion {
    *
    * @param tolerance A finite, non-negative tolerance.
    */
-  ProtoFluentAssertion usingFloatToleranceForFields(
+  SELF usingFloatToleranceForFields(
       float tolerance, Iterable<Integer> fieldNumbers);
 
   /**
@@ -362,7 +357,7 @@ public interface ProtoFluentAssertion {
    *
    * @param tolerance A finite, non-negative tolerance.
    */
-  ProtoFluentAssertion usingFloatToleranceForFieldDescriptors(
+  SELF usingFloatToleranceForFieldDescriptors(
       float tolerance, FieldDescriptor firstFieldDescriptor, FieldDescriptor... rest);
 
   /**
@@ -371,7 +366,7 @@ public interface ProtoFluentAssertion {
    *
    * @param tolerance A finite, non-negative tolerance.
    */
-  ProtoFluentAssertion usingFloatToleranceForFieldDescriptors(
+  SELF usingFloatToleranceForFieldDescriptors(
       float tolerance, Iterable<FieldDescriptor> fieldDescriptors);
 
   /**
@@ -388,7 +383,7 @@ public interface ProtoFluentAssertion {
    * to assert that a proto3 message has certain fields with default values, you cannot use this
    * method.
    */
-  ProtoFluentAssertion comparingExpectedFieldsOnly();
+  SELF comparingExpectedFieldsOnly();
 
   /**
    * Limits the comparison of Protocol buffers to the defined {@link FieldScope}.
@@ -401,7 +396,7 @@ public interface ProtoFluentAssertion {
    * <p>By default, {@link ProtoFluentAssertion} is constrained to {@link FieldScopes#all()}, that
    * is, no fields are excluded from comparison.
    */
-  ProtoFluentAssertion withPartialScope(FieldScope fieldScope);
+  SELF withPartialScope(FieldScope fieldScope);
 
   /**
    * Excludes the top-level message fields with the given tag numbers from the comparison.
@@ -414,7 +409,7 @@ public interface ProtoFluentAssertion {
    * <p>If an invalid field number is supplied, the terminal comparison operation will throw a
    * runtime exception.
    */
-  ProtoFluentAssertion ignoringFields(int firstFieldNumber, int... rest);
+  SELF ignoringFields(int firstFieldNumber, int... rest);
 
   /**
    * Excludes the top-level message fields with the given tag numbers from the comparison.
@@ -427,7 +422,7 @@ public interface ProtoFluentAssertion {
    * <p>If an invalid field number is supplied, the terminal comparison operation will throw a
    * runtime exception.
    */
-  ProtoFluentAssertion ignoringFields(Iterable<Integer> fieldNumbers);
+  SELF ignoringFields(Iterable<Integer> fieldNumbers);
 
   /**
    * Excludes all message fields matching the given {@link FieldDescriptor}s from the comparison.
@@ -439,7 +434,7 @@ public interface ProtoFluentAssertion {
    * <p>If a field descriptor which does not, or cannot occur in the proto structure is supplied, it
    * is silently ignored.
    */
-  ProtoFluentAssertion ignoringFieldDescriptors(
+  SELF ignoringFieldDescriptors(
       FieldDescriptor firstFieldDescriptor, FieldDescriptor... rest);
 
   /**
@@ -452,7 +447,7 @@ public interface ProtoFluentAssertion {
    * <p>If a field descriptor which does not, or cannot occur in the proto structure is supplied, it
    * is silently ignored.
    */
-  ProtoFluentAssertion ignoringFieldDescriptors(Iterable<FieldDescriptor> fieldDescriptors);
+  SELF ignoringFieldDescriptors(Iterable<FieldDescriptor> fieldDescriptors);
 
   /**
    * Excludes all specific field paths under the argument {@link FieldScope} from the comparison.
@@ -465,7 +460,7 @@ public interface ProtoFluentAssertion {
    * <p>By default, {@link ProtoFluentAssertion} is constrained to {@link FieldScopes#all()}, that
    * is, no fields are excluded from comparison.
    */
-  ProtoFluentAssertion ignoringFieldScope(FieldScope fieldScope);
+  SELF ignoringFieldScope(FieldScope fieldScope);
 
   /**
    * If set, in the event of a comparison failure, the error message printed will list only those
@@ -474,37 +469,5 @@ public interface ProtoFluentAssertion {
    *
    * <p>This a purely cosmetic setting, and it has no effect on the behavior of the test.
    */
-  ProtoFluentAssertion reportingMismatchesOnly();
-
-  /**
-   * Compares the subject of the assertion to {@code expected}, using all of the rules specified by
-   * earlier operations. If no settings are changed, this invokes the default {@code equals}
-   * implementation of the subject {@link Message}.
-   */
-  ProtoFluentAssertion isEqualTo(@NullableDecl Object expected);
-
-  /**
-   * Compares the subject of the assertion to {@code expected}, expecting a difference, using all of
-   * the rules specified by earlier operations. If no settings are changed, this invokes the default
-   * {@code equals} implementation of the subject {@link Message}.
-   */
-  ProtoFluentAssertion isNotEqualTo(@NullableDecl Object expected);
-
-  /**
-   * @deprecated Do not call {@code equals()} on a {@code ProtoFluentAssertion}. Use {@link
-   *     #isEqualTo(Object)} instead.
-   * @see com.google.common.truth.Subject#equals(Object)
-   */
-  @Override
-  @Deprecated
-  boolean equals(Object o);
-
-  /**
-   * @deprecated {@code ProtoFluentAssertion} does not support {@code hashCode()}. Use {@link
-   *     #isEqualTo(Object)} for testing.
-   * @see com.google.common.truth.Subject#hashCode()
-   */
-  @Override
-  @Deprecated
-  int hashCode();
+  SELF reportingMismatchesOnly();
 }

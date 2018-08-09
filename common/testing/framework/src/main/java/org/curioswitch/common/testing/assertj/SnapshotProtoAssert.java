@@ -24,25 +24,31 @@
 
 package org.curioswitch.common.testing.assertj;
 
-import com.google.common.util.concurrent.ListenableFuture;
+import static org.curioswitch.common.testing.snapshot.SnapshotAssertions.assertSnapshotMatches;
+
 import com.google.protobuf.Message;
-import org.assertj.core.api.Assertions;
+import javax.annotation.Nullable;
 import org.curioswitch.common.testing.assertj.proto.FluentEqualityConfig;
+import org.curioswitch.common.testing.assertj.proto.ProtoAssert;
 
-public class CurioAssertions extends Assertions {
+public class SnapshotProtoAssert<ACTUAL extends Message>
+    extends ProtoAssert<ACTUAL, SnapshotProtoAssert<ACTUAL>> {
 
-  @SuppressWarnings("ParameterPackage")
-  public static <T> SnapshotObjectAssert<T> assertThat(T actual) {
-    return new SnapshotObjectAssert<>(actual);
+  SnapshotProtoAssert(@Nullable ACTUAL actual, FluentEqualityConfig config) {
+    super(actual, config);
   }
 
-  @SuppressWarnings("ParameterPackage")
-  public static <T> ListenableFutureAssert<T> assertThat(ListenableFuture<T> actual) {
-    return new ListenableFutureAssert<>(actual);
+  public SnapshotProtoAssert<ACTUAL> matchesSnapshot() {
+    assertSnapshotMatches(actual);
+    return this;
   }
 
-  @SuppressWarnings("ParameterPackage")
-  public static <T extends Message> SnapshotProtoAssert<T> assertThat(T actual) {
-    return new SnapshotProtoAssert<>(actual, FluentEqualityConfig.DEFAULT_INSTANCE);
+  @Override
+  protected SnapshotProtoAssert<ACTUAL> usingConfig(FluentEqualityConfig newConfig) {
+    SnapshotProtoAssert<ACTUAL> newAssert = new SnapshotProtoAssert<>(actual, newConfig);
+    if (info.hasDescription()) {
+      newAssert.info.description(info.description());
+    }
+    return newAssert;
   }
 }

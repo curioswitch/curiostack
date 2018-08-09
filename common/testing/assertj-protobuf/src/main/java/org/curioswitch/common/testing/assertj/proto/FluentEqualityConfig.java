@@ -64,9 +64,10 @@ import org.assertj.core.data.Offset;
  */
 @SuppressWarnings("ConstructorLeaksThis") // Not a constructor
 @AutoValue
-abstract class FluentEqualityConfig implements FieldScopeLogicContainer<FluentEqualityConfig> {
+public abstract class FluentEqualityConfig
+    implements FieldScopeLogicContainer<FluentEqualityConfig> {
 
-  private static final FluentEqualityConfig DEFAULT_INSTANCE =
+  public static final FluentEqualityConfig DEFAULT_INSTANCE =
       new AutoValue_FluentEqualityConfig.Builder()
           .setIgnoreFieldAbsenceScope(FieldScopeLogic.none())
           .setIgnoreRepeatedFieldOrderScope(FieldScopeLogic.none())

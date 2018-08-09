@@ -26,12 +26,14 @@ package org.curioswitch.common.testing.snapshot;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.curioswitch.common.testing.assertj.CurioAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.protobuf.Message;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -83,6 +85,14 @@ public final class SnapshotAssertions {
     if (obj.equals(snapshotObj)) {
       return;
     }
+
+    if (obj instanceof Message) {
+      assertThat((Message) obj)
+          .usingDoubleTolerance(0.0000001)
+          .usingFloatTolerance(0.00001f)
+          .isEqualTo(snapshotObj);
+    }
+
     final String serialized;
     try {
       serialized = OBJECT_MAPPER.writeValueAsString(obj);

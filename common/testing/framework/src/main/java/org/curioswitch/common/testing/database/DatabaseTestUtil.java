@@ -33,6 +33,7 @@ import static org.mockito.Mockito.withSettings;
 
 import com.google.common.collect.ImmutableList;
 import java.sql.SQLException;
+import java.util.Arrays;
 import org.curioswitch.common.server.framework.database.DatabaseUtil;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -171,7 +172,7 @@ public final class DatabaseTestUtil {
                   if (!ctx.sql().equals(query)) {
                     return false;
                   }
-                  if (!ctx.bindings().equals(ImmutableList.copyOf(args))) {
+                  if (!Arrays.equals(ctx.bindings(), args)) {
                     return false;
                   }
                   return true;

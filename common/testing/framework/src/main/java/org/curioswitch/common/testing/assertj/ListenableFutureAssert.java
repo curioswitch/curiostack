@@ -47,6 +47,12 @@ public class ListenableFutureAssert<ACTUAL> extends ObjectAssert<ListenableFutur
     return this;
   }
 
+  public ListenableFutureAssert<ACTUAL> completesWithValueSatisfying(
+      Consumer<ACTUAL> requirements) {
+    assertThat(getUnchecked(actual)).satisfies(requirements);
+    return this;
+  }
+
   public ListenableFutureAssert<ACTUAL> completesWithValueMatchingSnapshot() {
     assertThat(getUnchecked(actual)).matchesSnapshot();
     return this;

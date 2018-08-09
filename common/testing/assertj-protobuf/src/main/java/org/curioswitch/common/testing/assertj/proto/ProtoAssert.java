@@ -56,68 +56,67 @@ import com.google.protobuf.Message;
 import org.assertj.core.api.AbstractAssert;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
-public class ProtoAssert<ACTUAL extends Message> extends AbstractAssert<ProtoAssert<ACTUAL>, ACTUAL>
-    implements ProtoFluentAssertion {
+public class ProtoAssert<ACTUAL extends Message, SELF extends ProtoAssert<ACTUAL, SELF>> extends AbstractAssert<SELF, ACTUAL>
+    implements ProtoFluentAssertion<SELF> {
 
-  public static <T extends Message> ProtoAssert<T> assertThat(T actual) {
+  public static <T extends Message> ProtoAssert<T, ?> assertThat(T actual) {
     return new ProtoAssert<>(actual, FluentEqualityConfig.defaultInstance());
   }
 
   private final FluentEqualityConfig config;
 
-  public ProtoAssert(ACTUAL actual, FluentEqualityConfig config) {
+  protected ProtoAssert(ACTUAL actual, FluentEqualityConfig config) {
     super(actual, ProtoAssert.class);
     this.config = config;
   }
 
   @Override
-  public ProtoFluentAssertion ignoringFieldAbsence() {
+  public SELF ignoringFieldAbsence() {
     return usingConfig(config.ignoringFieldAbsence());
   }
 
   @Override
-  public ProtoFluentAssertion ignoringFieldAbsenceOfFields(int firstFieldNumber, int... rest) {
+  public SELF ignoringFieldAbsenceOfFields(int firstFieldNumber, int... rest) {
     return usingConfig(
         config.ignoringFieldAbsenceOfFields(FieldScopeUtil.asList(firstFieldNumber, rest)));
   }
 
   @Override
-  public ProtoFluentAssertion ignoringFieldAbsenceOfFields(Iterable<Integer> fieldNumbers) {
+  public SELF ignoringFieldAbsenceOfFields(Iterable<Integer> fieldNumbers) {
     return usingConfig(config.ignoringFieldAbsenceOfFields(fieldNumbers));
   }
 
   @Override
-  public ProtoFluentAssertion ignoringFieldAbsenceOfFieldDescriptors(
+  public SELF ignoringFieldAbsenceOfFieldDescriptors(
       FieldDescriptor firstFieldDescriptor, FieldDescriptor... rest) {
     return usingConfig(
         config.ignoringFieldAbsenceOfFieldDescriptors(Lists.asList(firstFieldDescriptor, rest)));
   }
 
   @Override
-  public ProtoFluentAssertion ignoringFieldAbsenceOfFieldDescriptors(
+  public SELF ignoringFieldAbsenceOfFieldDescriptors(
       Iterable<FieldDescriptor> fieldDescriptors) {
     return usingConfig(config.ignoringFieldAbsenceOfFieldDescriptors(fieldDescriptors));
   }
 
   @Override
-  public ProtoFluentAssertion ignoringRepeatedFieldOrder() {
+  public SELF ignoringRepeatedFieldOrder() {
     return usingConfig(config.ignoringRepeatedFieldOrder());
   }
 
   @Override
-  public ProtoFluentAssertion ignoringRepeatedFieldOrderOfFields(
-      int firstFieldNumber, int... rest) {
+  public SELF ignoringRepeatedFieldOrderOfFields(int firstFieldNumber, int... rest) {
     return usingConfig(
         config.ignoringRepeatedFieldOrderOfFields(FieldScopeUtil.asList(firstFieldNumber, rest)));
   }
 
   @Override
-  public ProtoFluentAssertion ignoringRepeatedFieldOrderOfFields(Iterable<Integer> fieldNumbers) {
+  public SELF ignoringRepeatedFieldOrderOfFields(Iterable<Integer> fieldNumbers) {
     return usingConfig(config.ignoringRepeatedFieldOrderOfFields(fieldNumbers));
   }
 
   @Override
-  public ProtoFluentAssertion ignoringRepeatedFieldOrderOfFieldDescriptors(
+  public SELF ignoringRepeatedFieldOrderOfFieldDescriptors(
       FieldDescriptor firstFieldDescriptor, FieldDescriptor... rest) {
     return usingConfig(
         config.ignoringRepeatedFieldOrderOfFieldDescriptors(
@@ -125,18 +124,18 @@ public class ProtoAssert<ACTUAL extends Message> extends AbstractAssert<ProtoAss
   }
 
   @Override
-  public ProtoFluentAssertion ignoringRepeatedFieldOrderOfFieldDescriptors(
+  public SELF ignoringRepeatedFieldOrderOfFieldDescriptors(
       Iterable<FieldDescriptor> fieldDescriptors) {
     return usingConfig(config.ignoringRepeatedFieldOrderOfFieldDescriptors(fieldDescriptors));
   }
 
   @Override
-  public ProtoFluentAssertion ignoringExtraRepeatedFieldElements() {
+  public SELF ignoringExtraRepeatedFieldElements() {
     return usingConfig(config.ignoringExtraRepeatedFieldElements());
   }
 
   @Override
-  public ProtoFluentAssertion ignoringExtraRepeatedFieldElementsOfFields(
+  public SELF ignoringExtraRepeatedFieldElementsOfFields(
       int firstFieldNumber, int... rest) {
     return usingConfig(
         config.ignoringExtraRepeatedFieldElementsOfFields(
@@ -144,32 +143,32 @@ public class ProtoAssert<ACTUAL extends Message> extends AbstractAssert<ProtoAss
   }
 
   @Override
-  public ProtoFluentAssertion ignoringExtraRepeatedFieldElementsOfFields(
+  public SELF ignoringExtraRepeatedFieldElementsOfFields(
       Iterable<Integer> fieldNumbers) {
     return usingConfig(config.ignoringExtraRepeatedFieldElementsOfFields(fieldNumbers));
   }
 
   @Override
-  public ProtoFluentAssertion ignoringExtraRepeatedFieldElementsOfFieldDescriptors(
+  public SELF ignoringExtraRepeatedFieldElementsOfFieldDescriptors(
       FieldDescriptor first, FieldDescriptor... rest) {
     return usingConfig(
         config.ignoringExtraRepeatedFieldElementsOfFieldDescriptors(Lists.asList(first, rest)));
   }
 
   @Override
-  public ProtoFluentAssertion ignoringExtraRepeatedFieldElementsOfFieldDescriptors(
+  public SELF ignoringExtraRepeatedFieldElementsOfFieldDescriptors(
       Iterable<FieldDescriptor> fieldDescriptors) {
     return usingConfig(
         config.ignoringExtraRepeatedFieldElementsOfFieldDescriptors(fieldDescriptors));
   }
 
   @Override
-  public ProtoFluentAssertion usingDoubleTolerance(double tolerance) {
+  public SELF usingDoubleTolerance(double tolerance) {
     return usingConfig(config.usingDoubleTolerance(tolerance));
   }
 
   @Override
-  public ProtoFluentAssertion usingDoubleToleranceForFields(
+  public SELF usingDoubleToleranceForFields(
       double tolerance, int firstFieldNumber, int... rest) {
     return usingConfig(
         config.usingDoubleToleranceForFields(
@@ -177,13 +176,13 @@ public class ProtoAssert<ACTUAL extends Message> extends AbstractAssert<ProtoAss
   }
 
   @Override
-  public ProtoFluentAssertion usingDoubleToleranceForFields(
+  public SELF usingDoubleToleranceForFields(
       double tolerance, Iterable<Integer> fieldNumbers) {
     return usingConfig(config.usingDoubleToleranceForFields(tolerance, fieldNumbers));
   }
 
   @Override
-  public ProtoFluentAssertion usingDoubleToleranceForFieldDescriptors(
+  public SELF usingDoubleToleranceForFieldDescriptors(
       double tolerance, FieldDescriptor firstFieldDescriptor, FieldDescriptor... rest) {
     return usingConfig(
         config.usingDoubleToleranceForFieldDescriptors(
@@ -191,18 +190,18 @@ public class ProtoAssert<ACTUAL extends Message> extends AbstractAssert<ProtoAss
   }
 
   @Override
-  public ProtoFluentAssertion usingDoubleToleranceForFieldDescriptors(
+  public SELF usingDoubleToleranceForFieldDescriptors(
       double tolerance, Iterable<FieldDescriptor> fieldDescriptors) {
     return usingConfig(config.usingDoubleToleranceForFieldDescriptors(tolerance, fieldDescriptors));
   }
 
   @Override
-  public ProtoFluentAssertion usingFloatTolerance(float tolerance) {
+  public SELF usingFloatTolerance(float tolerance) {
     return usingConfig(config.usingFloatTolerance(tolerance));
   }
 
   @Override
-  public ProtoFluentAssertion usingFloatToleranceForFields(
+  public SELF usingFloatToleranceForFields(
       float tolerance, int firstFieldNumber, int... rest) {
     return usingConfig(
         config.usingFloatToleranceForFields(
@@ -210,13 +209,13 @@ public class ProtoAssert<ACTUAL extends Message> extends AbstractAssert<ProtoAss
   }
 
   @Override
-  public ProtoFluentAssertion usingFloatToleranceForFields(
+  public SELF usingFloatToleranceForFields(
       float tolerance, Iterable<Integer> fieldNumbers) {
     return usingConfig(config.usingFloatToleranceForFields(tolerance, fieldNumbers));
   }
 
   @Override
-  public ProtoFluentAssertion usingFloatToleranceForFieldDescriptors(
+  public SELF usingFloatToleranceForFieldDescriptors(
       float tolerance, FieldDescriptor firstFieldDescriptor, FieldDescriptor... rest) {
     return usingConfig(
         config.usingFloatToleranceForFieldDescriptors(
@@ -224,54 +223,54 @@ public class ProtoAssert<ACTUAL extends Message> extends AbstractAssert<ProtoAss
   }
 
   @Override
-  public ProtoFluentAssertion usingFloatToleranceForFieldDescriptors(
+  public SELF usingFloatToleranceForFieldDescriptors(
       float tolerance, Iterable<FieldDescriptor> fieldDescriptors) {
     return usingConfig(config.usingFloatToleranceForFieldDescriptors(tolerance, fieldDescriptors));
   }
 
   @Override
-  public ProtoFluentAssertion comparingExpectedFieldsOnly() {
+  public SELF comparingExpectedFieldsOnly() {
     return usingConfig(config.comparingExpectedFieldsOnly());
   }
 
   @Override
-  public ProtoFluentAssertion withPartialScope(FieldScope fieldScope) {
+  public SELF withPartialScope(FieldScope fieldScope) {
     return usingConfig(config.withPartialScope(checkNotNull(fieldScope, "fieldScope")));
   }
 
   @Override
-  public ProtoFluentAssertion ignoringFields(int firstFieldNumber, int... rest) {
+  public SELF ignoringFields(int firstFieldNumber, int... rest) {
     return ignoringFields(FieldScopeUtil.asList(firstFieldNumber, rest));
   }
 
   @Override
-  public ProtoFluentAssertion ignoringFields(Iterable<Integer> fieldNumbers) {
+  public SELF ignoringFields(Iterable<Integer> fieldNumbers) {
     return usingConfig(config.ignoringFields(fieldNumbers));
   }
 
   @Override
-  public ProtoFluentAssertion ignoringFieldDescriptors(
+  public SELF ignoringFieldDescriptors(
       FieldDescriptor firstFieldDescriptor, FieldDescriptor... rest) {
     return ignoringFieldDescriptors(Lists.asList(firstFieldDescriptor, rest));
   }
 
   @Override
-  public ProtoFluentAssertion ignoringFieldDescriptors(Iterable<FieldDescriptor> fieldDescriptors) {
+  public SELF ignoringFieldDescriptors(Iterable<FieldDescriptor> fieldDescriptors) {
     return usingConfig(config.ignoringFieldDescriptors(fieldDescriptors));
   }
 
   @Override
-  public ProtoFluentAssertion ignoringFieldScope(FieldScope fieldScope) {
+  public SELF ignoringFieldScope(FieldScope fieldScope) {
     return usingConfig(config.ignoringFieldScope(checkNotNull(fieldScope, "fieldScope")));
   }
 
   @Override
-  public ProtoFluentAssertion reportingMismatchesOnly() {
+  public SELF reportingMismatchesOnly() {
     return usingConfig(config.reportingMismatchesOnly());
   }
 
   @Override
-  public ProtoAssert<ACTUAL> isEqualTo(@NullableDecl Object expected) {
+  public SELF isEqualTo(@NullableDecl Object expected) {
     if (notMessagesWithSameDescriptor(actual, expected)) {
       return super.isEqualTo(expected);
     } else {
@@ -283,11 +282,11 @@ public class ProtoAssert<ACTUAL extends Message> extends AbstractAssert<ProtoAss
       }
     }
 
-    return this;
+    return self();
   }
 
   @Override
-  public ProtoAssert<ACTUAL> isNotEqualTo(@NullableDecl Object expected) {
+  public SELF isNotEqualTo(@NullableDecl Object expected) {
     if (notMessagesWithSameDescriptor(actual, expected)) {
       return super.isNotEqualTo(expected);
     } else {
@@ -299,47 +298,59 @@ public class ProtoAssert<ACTUAL extends Message> extends AbstractAssert<ProtoAss
       }
     }
 
-    return this;
+    return self();
   }
 
   /** Checks whether the subject is a {@link Message} with no fields set. */
-  public ProtoAssert<ACTUAL> isEqualToDefaultInstance() {
+  public SELF isEqualToDefaultInstance() {
     if (actual == null) {
       failWithMessage("Not true that <%s> is a default proto instance. It is null.", actual);
     } else if (!actual.equals(actual.getDefaultInstanceForType())) {
       failWithMessage("Not true that <%s> is a default proto instance. It has set values.", actual);
     }
 
-    return this;
+    return self();
   }
 
-  /** ProtoAssert<ACTUAL> whether the subject is not equivalent to a {@link Message} with no fields set. */
-  public ProtoAssert<ACTUAL> isNotEqualToDefaultInstance() {
+  /**
+   * ProtoAssert<ACTUAL> whether the subject is not equivalent to a {@link Message} with no fields
+   * set.
+   */
+  public SELF isNotEqualToDefaultInstance() {
     if (actual != null && actual.equals(actual.getDefaultInstanceForType())) {
       failWithMessage(
           "Not true that (%s) %s is not a default proto instance. It has no set values.",
           actual.getClass().getName(), actual);
     }
 
-    return this;
+    return self();
   }
 
-  public ProtoAssert<ACTUAL> hasAllRequiredFields() {
+  public SELF hasAllRequiredFields() {
     if (!actual.isInitialized()) {
       failWithMessage(
           "Not true that <%s> has all required fields set. Missing: %s",
           actual, actual.findInitializationErrors());
     }
 
-    return this;
+    return self();
   }
 
-  private ProtoAssert<ACTUAL> usingConfig(FluentEqualityConfig newConfig) {
-    ProtoAssert<ACTUAL> newAssert = new ProtoAssert<>(actual, newConfig);
+  protected SELF usingConfig(FluentEqualityConfig newConfig) {
+    ProtoAssert<ACTUAL, ?> newAssert = new ProtoAssert<>(actual, newConfig);
     if (info.hasDescription()) {
       newAssert.info.description(info.description());
     }
-    return newAssert;
+
+    @SuppressWarnings("unchecked")
+    SELF s = (SELF) newAssert;
+    return s;
+  }
+
+  private SELF self() {
+    @SuppressWarnings("unchecked")
+    SELF self = (SELF) this;
+    return self;
   }
 
   private static boolean notMessagesWithSameDescriptor(
