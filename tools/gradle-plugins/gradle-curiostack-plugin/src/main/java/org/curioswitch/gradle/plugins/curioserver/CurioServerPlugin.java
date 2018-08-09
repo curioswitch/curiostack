@@ -27,6 +27,7 @@ package org.curioswitch.gradle.plugins.curioserver;
 import com.bmuschko.gradle.docker.DockerExtension;
 import com.bmuschko.gradle.docker.DockerJavaApplication;
 import com.bmuschko.gradle.docker.DockerJavaApplicationPlugin;
+import com.google.cloud.tools.jib.gradle.DockerContextTask;
 import com.google.cloud.tools.jib.gradle.JibExtension;
 import com.google.cloud.tools.jib.gradle.JibPlugin;
 import com.google.common.base.Ascii;
@@ -83,6 +84,11 @@ public class CurioServerPlugin implements Plugin<Project> {
                         "$JAVA_OPTS",
                         "$" + archivesBaseName.replace('-', '_').toUpperCase() + "_OPTS"));
               });
+          project
+              .getTasks()
+              .withType(
+                  DockerContextTask.class,
+                  t -> t.setTargetDir(project.file("build/docker").getAbsolutePath()));
 
           GroovyObject docker = project.getExtensions().getByType(DockerExtension.class);
           DockerJavaApplication javaApplication =
