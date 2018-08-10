@@ -54,15 +54,12 @@ class EggworldService extends EggworldServiceImplBase {
   public void checkIngredients(
       CheckIngredientsRequest request, StreamObserver<CheckIngredientsResponse> responseObserver) {
     GrpcGraphUtil.unary(
-        checkIngredientsGraph.get().graph(new CheckIngredientsGraph(request)).build().execute(),
-        responseObserver);
+        new CheckIngredientsGraph(request), responseObserver, checkIngredientsGraph);
   }
 
   @Override
   public void findRecipe(
       FindRecipeRequest request, StreamObserver<FindRecipeResponse> responseObserver) {
-    GrpcGraphUtil.unary(
-        findRecipeGraph.get().graph(new FindRecipeGraph(request)).build().execute(),
-        responseObserver);
+    GrpcGraphUtil.unary(new FindRecipeGraph(request), responseObserver, findRecipeGraph);
   }
 }

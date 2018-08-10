@@ -25,7 +25,9 @@
 package org.curioswitch.common.testing.assertj;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.protobuf.Message;
 import org.assertj.core.api.Assertions;
+import org.curioswitch.common.testing.assertj.proto.FluentEqualityConfig;
 
 public class CurioAssertions extends Assertions {
 
@@ -37,5 +39,10 @@ public class CurioAssertions extends Assertions {
   @SuppressWarnings("ParameterPackage")
   public static <T> ListenableFutureAssert<T> assertThat(ListenableFuture<T> actual) {
     return new ListenableFutureAssert<>(actual);
+  }
+
+  @SuppressWarnings("ParameterPackage")
+  public static <T extends Message> SnapshotProtoAssert<T> assertThat(T actual) {
+    return new SnapshotProtoAssert<>(actual, FluentEqualityConfig.DEFAULT_INSTANCE);
   }
 }

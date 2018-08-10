@@ -172,7 +172,7 @@ public final class DatabaseTestUtil {
                   if (!ctx.sql().equals(query)) {
                     return false;
                   }
-                  assertThat(ctx.bindings()).containsExactlyElementsOf(ImmutableList.copyOf(args));
+                  assertThat(ctx.bindings()).containsExactly(args);
                   return true;
                 }));
       } catch (SQLException e) {

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,31 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+/*
+ * Copyright (c) 2016 Google, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-package org.curioswitch.gradle.plugins.gcloud.tasks;
-
-import com.google.cloud.storage.Acl;
-import com.google.cloud.storage.Acl.Domain;
-import com.google.cloud.storage.Acl.Role;
-import com.google.cloud.storage.BucketInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
-import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
-import org.curioswitch.gradle.plugins.gcloud.ImmutableGcloudExtension;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.TaskAction;
-
-public class CreateBuildCacheBucket extends DefaultTask {
-
-  @TaskAction
-  public void exec() {
-    ImmutableGcloudExtension config = getProject().getExtensions().getByType(GcloudExtension.class);
-
-    Storage cloudStorage =
-        StorageOptions.newBuilder().setProjectId(config.clusterProject()).build().getService();
-
-    cloudStorage
-        .create(BucketInfo.of(config.buildCacheStorageBucket()))
-        .createAcl(Acl.of(new Domain("istellar.jp"), Role.READER));
-  }
-}
+/**
+ * Custom subjects for testing <a href="https://developers.google.com/protocol-buffers/">Protocol
+ * Buffer</a> instances.
+ *
+ * <p>This package is a part of the open-source <a href="https://github.com/google/truth">Truth</a>
+ * project.
+ */
+package org.curioswitch.common.testing.assertj.proto;

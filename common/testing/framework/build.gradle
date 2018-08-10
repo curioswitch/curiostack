@@ -31,6 +31,7 @@ archivesBaseName = 'curio-testing-framework'
 
 dependencies {
     api project(':common:server:framework')
+    api project(':common:testing:assertj-protobuf')
     implementation project(':common:grpc:protobuf-jackson')
 
     api 'org.junit.jupiter:junit-jupiter-api'
@@ -57,17 +58,11 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            pom.withXml {
-                // TODO(choko): Make it simpler to define pom attributes after the artifact, as is
-                // normal, by defining a DSL or something.
-                asNode().children()[3] + {
-                    resolveStrategy = Closure.DELEGATE_FIRST
-
-                    name 'Curio Testing Framework'
-                    description 'A testing framework to help when using curiostack.'
-                    url 'https://github.com/curioswitch/curiostack/tree/master/' +
-                            'common/testing/framework'
-                }
+            pom {
+                name = 'Curio Testing Framework'
+                description = 'A testing framework to help when using curiostack.'
+                url = 'https://github.com/curioswitch/curiostack/tree/master/' +
+                        'common/testing/framework'
             }
         }
     }

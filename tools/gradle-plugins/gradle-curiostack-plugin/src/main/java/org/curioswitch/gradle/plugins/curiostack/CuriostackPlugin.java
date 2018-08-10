@@ -305,7 +305,6 @@ public class CuriostackPlugin implements Plugin<Project> {
     project.getRepositories().maven(maven -> maven.setUrl("http://dl.bintray.com/mockito/maven"));
     project.getRepositories().mavenCentral();
     project.getRepositories().mavenLocal();
-    project.getRepositories().maven(maven -> maven.setUrl("https://jitpack.io"));
   }
 
   private static void setupJavaProject(Project project) {
@@ -669,8 +668,8 @@ public class CuriostackPlugin implements Plugin<Project> {
                 System.getProperties()
                     .entrySet()
                     .stream()
-                    // IntelliJ property which doesn't work with Java9.
-                    .filter(entry -> !entry.getKey().equals("java.endorsed.dirs"))
+                    // Don't pass JRE properties.
+                    .filter(entry -> !((String) entry.getKey()).startsWith("java."))
                     .forEach(
                         entry -> task.systemProperty((String) entry.getKey(), entry.getValue())));
   }
@@ -741,12 +740,13 @@ public class CuriostackPlugin implements Plugin<Project> {
                         + " && "
                         + actualCommand);
               }
+              String pathKey = exec.getEnvironment().containsKey("Path") ? "Path" : "PATH";
               exec.getEnvironment()
                   .put(
-                      "PATH",
+                      pathKey,
                       CommandUtil.getPythonBinDir(project, "build")
                           + File.pathSeparator
-                          + exec.getEnvironment().get("PATH"));
+                          + exec.getEnvironment().get(pathKey));
             });
 
     project.getTasks().withType(NodeTask.class, t -> t.setExecOverrides(pathOverrider));

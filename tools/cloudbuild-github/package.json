@@ -45,7 +45,7 @@
     "source-map-support": "0.5.3"
   },
   "devDependencies": {
-    "@curiostack/base-node-dev": "0.0.6",
+    "@curiostack/base-node-dev": "0.0.7",
     "@types/es6-promisify": "6.0.0",
     "@types/http-status": "0.2.30",
     "@types/inquirer": "0.0.38",

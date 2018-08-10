@@ -70,7 +70,7 @@ export default class FlowerLayer extends React.PureComponent<Props> {
   public render() {
     return (
       <Layer visible={this.props.visible}>
-        {this.props.eatenFood.map((ingredient, i) => (
+        {this.props.eatenFood.toIndexedSeq().map((ingredient, i) => (
           <Group
             key={ingredient}
             x={FLOWER_LOCATIONS[i].x}

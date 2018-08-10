@@ -45,7 +45,6 @@ import javax.annotation.Nullable;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentConfiguration;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
-import org.curioswitch.gradle.plugins.gcloud.tasks.CreateBuildCacheBucket;
 import org.curioswitch.gradle.plugins.gcloud.tasks.DownloadHelmTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.DownloadTerraformTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
@@ -148,11 +147,6 @@ public class GcloudPlugin implements Plugin<Project> {
                         });
               });
 
-          GcloudTask createClusterProject =
-              project.getTasks().create("gcloudCreateClusterProject", GcloudTask.class);
-          createClusterProject.setArgs(
-              ImmutableList.of("alpha", "projects", "create", config.clusterProject()));
-
           // This task currently always fails, probably due to a bug in the SDK. It attempts
           // to create the same repo twice, and the second one fails with an error...
           GcloudTask createSourceRepo =
@@ -163,9 +157,13 @@ public class GcloudPlugin implements Plugin<Project> {
           GcloudTask loginToCluster =
               project.getTasks().create("gcloudLoginToCluster", GcloudTask.class);
           loginToCluster.setArgs(
-              ImmutableList.of("container", "clusters", "get-credentials", config.clusterName()));
-
-          project.getTasks().create("createBuildCacheBucket", CreateBuildCacheBucket.class);
+              ImmutableList.of(
+                  "container",
+                  "clusters",
+                  "get-credentials",
+                  config.clusterName(),
+                  "--region",
+                  config.cloudRegion()));
 
           GcloudTask installBetaComponents =
               project
@@ -197,7 +195,6 @@ public class GcloudPlugin implements Plugin<Project> {
     Task generateCloudBuild = rootProject.getTasks().create("gcloudGenerateCloudBuild");
     generateCloudBuild.doLast(
         t -> {
-          String javaBuilder = "gcr.io/$PROJECT_ID/java-cloud-builder";
           String dockerBuilder = "gcr.io/cloud-builders/docker";
           String kubectlBuilder = "gcr.io/cloud-builders/kubectl";
 
@@ -216,6 +213,9 @@ public class GcloudPlugin implements Plugin<Project> {
           }
 
           String deepenGitRepoId = "curio-generated-deepen-git-repo";
+          String fetchUncompressedCacheId = "curio-generated-fetch-uncompressed-build-cache";
+          String fetchCompressedCacheId = "curio-generated-fetch-compressed-build-cache";
+
           String refreshBuildImageId = "curio-generated-refresh-build-image";
           String buildAllImageId = "curio-generated-build-all";
 
@@ -250,6 +250,10 @@ public class GcloudPlugin implements Plugin<Project> {
                                     Paths.get(
                                         new File(proj.getBuildDir(), "docker").getAbsolutePath()))
                                 .toString();
+                        if (File.separatorChar != '/') {
+                          // Correctly generate unix paths (for cloudbuild) even on Windows.
+                          dockerPath = dockerPath.replace(File.separatorChar, '/');
+                        }
 
                         DeploymentExtension deployment =
                             proj.getExtensions().getByType(DeploymentExtension.class);
@@ -326,6 +330,7 @@ public class GcloudPlugin implements Plugin<Project> {
                                               + " || echo Skipping..."))
                                   .env(
                                       ImmutableList.of(
+                                          "CLOUDSDK_COMPUTE_ZONE=" + config.cloudRegion() + "-a",
                                           "CLOUDSDK_CONTAINER_CLUSTER=" + config.clusterName()))
                                   .build());
                         }
@@ -342,30 +347,71 @@ public class GcloudPlugin implements Plugin<Project> {
                   .build());
           steps.add(
               ImmutableCloudBuildStep.builder()
-                  .id(refreshBuildImageId)
-                  .addWaitFor(deepenGitRepoId)
-                  .name(dockerBuilder)
-                  .args(
-                      ImmutableList.of(
-                          "build",
-                          "--tag=" + javaBuilder,
-                          "--file=./tools/build-images/java-cloud-builder/Dockerfile",
-                          "."))
-                  .env(ImmutableList.of("CI=true", "CI_MASTER=true"))
+                  .id(fetchUncompressedCacheId)
+                  .addWaitFor("-")
+                  .name("gcr.io/cloud-builders/gsutil")
+                  .entrypoint("bash")
+                  .addArgs(
+                      "-c",
+                      "gsutil cp gs://"
+                          + config.buildCacheStorageBucket()
+                          + "/cloudbuild-cache-uncompressed.tar .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-uncompressed.tar || echo Could not fetch uncompressed build cache...")
+                  .build());
+          steps.add(
+              ImmutableCloudBuildStep.builder()
+                  .id(fetchCompressedCacheId)
+                  .addWaitFor("-")
+                  .name("gcr.io/cloud-builders/gsutil")
+                  .entrypoint("bash")
+                  .addArgs(
+                      "-c",
+                      "gsutil cp gs://"
+                          + config.buildCacheStorageBucket()
+                          + "/cloudbuild-cache-compressed.tar.gz .gradle/cloudbuild-cache-compressed.tar.gz && tar -xpPf .gradle/cloudbuild-cache-compressed.tar.gz || echo Could not fetch compressed build cache...")
                   .build());
           steps.add(
               ImmutableCloudBuildStep.builder()
                   .id(buildAllImageId)
-                  .addWaitFor(refreshBuildImageId)
-                  .name(javaBuilder)
-                  .entrypoint("./gradlew")
-                  .args(ImmutableList.of("continuousBuild", "--stacktrace", "--no-daemon"))
+                  .addWaitFor(deepenGitRepoId, fetchUncompressedCacheId, fetchCompressedCacheId)
+                  .name("openjdk:10-jdk-slim")
+                  .entrypoint("bash")
+                  .addArgs(
+                      "-c",
+                      "(test -e .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-compressed.tar.gz || echo No build cache yet.) && ./gradlew continuousBuild --stacktrace --no-daemon && tar -cpPf .gradle/cloudbuild-cache-uncompressed.tar /root/.gradle/wrapper /root/.gradle/caches /root/.gradle/curiostack && tar -cpPzf .gradle/cloudbuild-cache-compressed.tar.gz /usr/local/share/.cache /root/.gradle/go")
                   .env(ImmutableList.of("CI=true", "CI_MASTER=true"))
+                  .build());
+          steps.add(
+              ImmutableCloudBuildStep.builder()
+                  .id("curio-generated-push-uncompressed-build-cache")
+                  .addWaitFor(buildAllImageId)
+                  .name("gcr.io/cloud-builders/gsutil")
+                  .addArgs(
+                      "-o",
+                      "GSUtil:parallel_composite_upload_threshold=150M",
+                      "cp",
+                      ".gradle/cloudbuild-cache-uncompressed.tar",
+                      "gs://"
+                          + config.buildCacheStorageBucket()
+                          + "/cloudbuild-cache-uncompressed.tar")
+                  .build());
+          steps.add(
+              ImmutableCloudBuildStep.builder()
+                  .id("curio-generated-push-compressed-build-cache")
+                  .addWaitFor(buildAllImageId)
+                  .name("gcr.io/cloud-builders/gsutil")
+                  .addArgs(
+                      "-o",
+                      "GSUtil:parallel_composite_upload_threshold=150M",
+                      "cp",
+                      ".gradle/cloudbuild-cache-compressed.tar.gz",
+                      "gs://"
+                          + config.buildCacheStorageBucket()
+                          + "/cloudbuild-cache-compressed.tar.gz")
                   .build());
           steps.addAll(serverSteps);
 
           ImmutableCloudBuild.Builder cloudBuildConfig =
-              ImmutableCloudBuild.builder().addAllSteps(steps).addImages(javaBuilder);
+              ImmutableCloudBuild.builder().addAllSteps(steps);
 
           if (existingCloudBuild != null) {
             CloudBuild existingWithoutGenerated =
@@ -377,12 +423,7 @@ public class GcloudPlugin implements Plugin<Project> {
                                 .stream()
                                 .filter(step -> !step.id().startsWith("curio-generated-"))
                             ::iterator)
-                    .images(
-                        existingCloudBuild
-                                .images()
-                                .stream()
-                                .filter(image -> !image.equals(javaBuilder))
-                            ::iterator)
+                    .images(existingCloudBuild.images())
                     .build();
             cloudBuildConfig.from(existingWithoutGenerated);
           }

@@ -53,7 +53,7 @@ public class StandardDependencies {
   static final String GOOGLE_JAVA_FORMAT_VERSION = "1.6";
   static final String GRADLE_VERSION = "4.9";
   static final String NODE_VERSION = "9.9.0";
-  static final String YARN_VERSION = "1.7.0";
+  static final String YARN_VERSION = "1.9.4";
 
   private static final String JACKSON_VERSION = "2.9.6";
 
@@ -110,13 +110,18 @@ public class StandardDependencies {
               .addModules("caffeine")
               .build(),
           ImmutableDependencySet.builder()
+              .group("com.google.api-client")
+              .version("1.24.1")
+              .addModules("google-api-client")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("0.20.1")
+              .version("0.22.0")
               .addModules("grpc-google-cloud-trace-v1")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("1.19.1")
+              .version("1.20.0")
               .addModules("grpc-google-cloud-pubsub-v1")
               .build(),
           ImmutableDependencySet.builder()
@@ -136,7 +141,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.37.1")
+              .version("1.39.0")
               .addModules(
                   "google-cloud-bigquery",
                   "google-cloud-core",
@@ -169,7 +174,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.dagger")
-              .version("2.16")
+              .version("2.17")
               .addModules("dagger", "dagger-compiler", "dagger-producers")
               .build(),
           ImmutableDependencySet.builder()
@@ -189,7 +194,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.protobuf")
-              .version("3.6.0")
+              .version("3.6.1")
               .addModules("protobuf-java", "protobuf-java-util")
               .build(),
           // protoc often diverges from protobuf-java
@@ -200,7 +205,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.68.1")
+              .version("0.68.2")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -303,12 +308,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("5.1.4")
+              .version("5.1.5")
               .addModules("brave", "brave-instrumentation-mysql")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.gcp")
-              .version("0.6.3")
+              .version("0.7.1")
               .addModules("zipkin-translation-stackdriver")
               .build(),
           ImmutableDependencySet.builder()
@@ -323,7 +328,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.8.15")
+              .version("1.8.17")
               .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
@@ -381,12 +386,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.85")
+              .version("0.0.86")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.11")
+              .version("0.0.12")
               .addModules("curio-testing-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -416,7 +421,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jooq")
-              .version("3.11.3")
+              .version("3.11.4")
               .addModules("jooq", "jooq-codegen", "jooq-meta")
               .build(),
           ImmutableDependencySet.builder()
@@ -453,14 +458,14 @@ public class StandardDependencies {
 
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:3.5.0",
+          "com.bmuschko:gradle-docker-plugin:3.6.0",
           "com.diffplug.spotless:spotless-plugin-gradle:3.14.0",
           "com.github.ben-manes:gradle-versions-plugin:0.20.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.6",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
           "com.moowork.gradle:gradle-node-plugin:1.2.0",
           "com.netflix.nebula:gradle-dependency-lock-plugin:6.0.0",
-          "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.1",
+          "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.5",
           "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.1.4",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.1",
@@ -471,7 +476,7 @@ public class StandardDependencies {
           "javax.annotation:javax.annotation-api:1.3.2",
           "javax.xml.bind:jaxb-api:2.3.0",
           "me.champeau.gradle:jmh-gradle-plugin:0.4.7",
-          "mysql:mysql-connector-java:8.0.11",
+          "mysql:mysql-connector-java:8.0.12",
           "net.ltgt.gradle:gradle-apt-plugin:0.18",
           "net.ltgt.gradle:gradle-errorprone-javacplugin-plugin:0.3",
           "net.ltgt.gradle:gradle-errorprone-plugin:0.0.16",

@@ -34,6 +34,7 @@ import dagger.producers.Produces;
 import dagger.producers.ProductionSubcomponent;
 import java.util.Arrays;
 import java.util.List;
+import org.curioswitch.common.server.framework.grpc.GrpcProductionComponent;
 import org.curioswitch.eggworld.api.CheckIngredientsRequest;
 import org.curioswitch.eggworld.api.CheckIngredientsResponse;
 import org.curioswitch.eggworld.api.Ingredient;
@@ -54,16 +55,11 @@ public class CheckIngredientsGraph {
           .collect(toImmutableSet());
 
   @ProductionSubcomponent(modules = {CheckIngredientsGraph.class})
-  public interface Component {
-
-    ListenableFuture<CheckIngredientsResponse> execute();
+  public interface Component extends GrpcProductionComponent<CheckIngredientsResponse> {
 
     @ProductionSubcomponent.Builder
-    interface Builder {
-      Builder graph(CheckIngredientsGraph graph);
-
-      Component build();
-    }
+    interface Builder
+        extends GrpcProductionComponentBuilder<CheckIngredientsGraph, Component, Builder> {}
   }
 
   private final CheckIngredientsRequest request;
