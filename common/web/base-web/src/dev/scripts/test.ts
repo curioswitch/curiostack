@@ -46,6 +46,7 @@ const CONFIG = {
       },
     },
   },
+  testURL: 'http://localhost',
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
   },
