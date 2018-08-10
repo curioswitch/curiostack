@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.curioswitch.common.testing.assertj.CurioAssertions.assertThat;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.protobuf.Message;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
@@ -43,6 +44,10 @@ public class ListenableFutureAssert<ACTUAL> extends ObjectAssert<ListenableFutur
   }
 
   public ListenableFutureAssert<ACTUAL> completesWithValue(ACTUAL value) {
+    if (value instanceof Message) {
+      Message resolved = (Message) getUnchecked(actual);
+      assertThat(resolved).isEqualTo(value);
+    }
     assertThat(getUnchecked(actual)).isEqualTo(value);
     return this;
   }
