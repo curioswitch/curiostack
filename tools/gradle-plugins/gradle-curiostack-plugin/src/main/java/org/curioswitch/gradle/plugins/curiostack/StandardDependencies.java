@@ -116,7 +116,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("0.21.0")
+              .version("0.22.0")
               .addModules("grpc-google-cloud-trace-v1")
               .build(),
           ImmutableDependencySet.builder()
@@ -141,7 +141,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.38.0")
+              .version("1.39.0")
               .addModules(
                   "google-cloud-bigquery",
                   "google-cloud-core",
@@ -174,7 +174,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.dagger")
-              .version("2.16")
+              .version("2.17")
               .addModules("dagger", "dagger-compiler", "dagger-producers")
               .build(),
           ImmutableDependencySet.builder()
@@ -189,7 +189,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.guava")
-              .version("26.0-jre")
+              .version("25.1-jre")
               .addModules("guava", "guava-testlib")
               .build(),
           ImmutableDependencySet.builder()
@@ -313,7 +313,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.gcp")
-              .version("0.6.4")
+              .version("0.7.1")
               .addModules("zipkin-translation-stackdriver")
               .build(),
           ImmutableDependencySet.builder()
@@ -328,7 +328,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.8.16")
+              .version("1.8.17")
               .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
@@ -421,7 +421,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jooq")
-              .version("3.11.3")
+              .version("3.11.4")
               .addModules("jooq", "jooq-codegen", "jooq-meta")
               .build(),
           ImmutableDependencySet.builder()
@@ -458,14 +458,14 @@ public class StandardDependencies {
 
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:3.5.0",
+          "com.bmuschko:gradle-docker-plugin:3.6.0",
           "com.diffplug.spotless:spotless-plugin-gradle:3.14.0",
           "com.github.ben-manes:gradle-versions-plugin:0.20.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.6",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
           "com.moowork.gradle:gradle-node-plugin:1.2.0",
           "com.netflix.nebula:gradle-dependency-lock-plugin:6.0.0",
-          "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.2",
+          "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.5",
           "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.1.4",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.1",
