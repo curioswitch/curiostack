@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-web",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "description": "Curiostack's base dependencies for browser applications.",
   "repository": "curioswitch/curiostack",
   "author": "Choko <choko@curioswitch.org>",
@@ -38,7 +38,7 @@
     "@babel/polyfill": "7.0.0-rc.1",
     "@babel/preset-env": "7.0.0-rc.1",
     "@babel/preset-react": "7.0.0-rc.1",
-    "@curiostack/base-node-dev": "0.0.6",
+    "@curiostack/base-node-dev": "0.0.7",
     "@hugmanrique/react-markdown-loader": "0.0.2",
     "@types/history": "4.7.0",
     "@types/intl": "1.2.0",
