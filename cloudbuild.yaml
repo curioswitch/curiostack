@@ -191,3 +191,4 @@ steps:
   env:
   - CLOUDSDK_COMPUTE_ZONE=asia-northeast1-a
   - CLOUDSDK_CONTAINER_CLUSTER=curioswitch-cluster
+timeout: 60m
