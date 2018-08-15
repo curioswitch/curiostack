@@ -53,7 +53,7 @@ dependencies {
     api 'org.jooq:jooq'
     api group: 'org.simpleflatmapper', name: 'sfm-jooq', classifier: 'jdk9', version: dependencyManagement.managedVersions['org.simpleflatmapper:sfm-jooq']
 
-    implementation 'com.auth0:java-jwt:3.4.0'
+    implementation 'com.auth0:java-jwt'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
@@ -63,7 +63,7 @@ dependencies {
     implementation 'com.linecorp.armeria:armeria-grpc'
     implementation 'com.linecorp.armeria:armeria-zipkin'
     implementation 'com.zaxxer:HikariCP'
-    implementation 'io.zipkin.brave:brave-instrumentation-mysql'
+    implementation 'io.zipkin.brave:brave-instrumentation-mysql8'
     implementation 'io.dropwizard.metrics:metrics-json'
     implementation 'io.dropwizard.metrics:metrics-jvm'
     implementation 'io.grpc:grpc-services'
@@ -80,7 +80,7 @@ dependencies {
         implementation group: 'org.simpleflatmapper', name: it, classifier: 'jdk9', version: dependencyManagement.managedVersions["org.simpleflatmapper:${it}"]
     }
 
-    runtime 'com.google.cloud.sql:mysql-socket-factory-connector-j-8:1.0.10'
+    runtime 'com.google.cloud.sql:mysql-socket-factory-connector-j-8'
     runtime 'javax.xml.bind:jaxb-api'
     runtime 'com.sun.xml.bind:jaxb-impl'
     runtime 'mysql:mysql-connector-java'
