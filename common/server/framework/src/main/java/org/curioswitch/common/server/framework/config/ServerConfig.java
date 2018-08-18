@@ -121,10 +121,9 @@ public interface ServerConfig {
   boolean isDisableSslAuthorization();
 
   /**
-   * Whether authorization using Google ID tokens should be disabled. This should generally only be
-   * set to {@code true} for services used from browsers.
+   * Whether authorization using Google ID tokens should be enabled.
    */
-  boolean isDisableGoogleIdAuthorization();
+  boolean isEnableGoogleIdAuthorization();
 
   /**
    * Whether to use IAM-based authorization. SSL authorization should generally be disabled when

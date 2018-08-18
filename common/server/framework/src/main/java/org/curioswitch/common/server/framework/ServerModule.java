@@ -551,7 +551,7 @@ public abstract class ServerModule {
       FirebaseAuthConfig authConfig) {
     if (sslCommonNamesProvider.isPresent()) {
       GoogleIdAuthServiceBuilder authServiceBuilder = new GoogleIdAuthServiceBuilder();
-      if (!serverConfig.isDisableGoogleIdAuthorization()) {
+      if (serverConfig.isEnableGoogleIdAuthorization()) {
         authServiceBuilder.addOAuth2(
             googleIdAuthorizer.get().create(sslCommonNamesProvider.get()),
             Constants.X_CLUSTER_AUTHORIZATION);
