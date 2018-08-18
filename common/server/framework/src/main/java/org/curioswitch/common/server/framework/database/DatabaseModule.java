@@ -87,8 +87,9 @@ public abstract class DatabaseModule {
     hikari.addDataSourceProperty("cacheServerConfiguration", true);
     hikari.addDataSourceProperty("elideSetAutoCommits", true);
     hikari.addDataSourceProperty("maintainTimeStats", false);
+    hikari.addDataSourceProperty("queryInterceptors", "brave.mysql8.TracingQueryInterceptor");
     hikari.addDataSourceProperty(
-        "statementInterceptors", "brave.mysql.TracingStatementInterceptor");
+        "exceptionInterceptors", "brave.mysql8.TracingExceptionInterceptor");
     hikari.setMetricsTrackerFactory(new PrometheusMetricsTrackerFactory());
     if (!config.getLeakDetectionThreshold().isZero()) {
       hikari.addDataSourceProperty(
