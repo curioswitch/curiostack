@@ -71,7 +71,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import me.champeau.gradle.JMHPlugin;
 import me.champeau.gradle.JMHPluginExtension;
-import nebula.plugin.resolutionrules.ResolutionRulesPlugin;
 import net.ltgt.gradle.apt.AptIdeaPlugin;
 import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleApt;
 import net.ltgt.gradle.apt.AptPlugin;
@@ -270,8 +269,6 @@ public class CuriostackPlugin implements Plugin<Project> {
     rootProject.allprojects(
         project -> {
           setupRepositories(project);
-
-          project.getPlugins().apply(ResolutionRulesPlugin.class);
 
           project.getPlugins().withType(JavaPlugin.class, plugin -> setupJavaProject(project));
 

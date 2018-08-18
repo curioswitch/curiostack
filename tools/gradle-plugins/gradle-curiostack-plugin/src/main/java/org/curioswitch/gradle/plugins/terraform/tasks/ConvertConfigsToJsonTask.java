@@ -66,7 +66,12 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
     return getProject()
         .fileTree(
             getProject().getProjectDir(),
-            files -> files.include("**/*.tf.yaml").include("**/*.tf.yml").exclude("build"));
+            files ->
+                files
+                    .include("**/*.tf.yaml")
+                    .include("**/*.tf.yml")
+                    .include("modules/**")
+                    .exclude("build"));
   }
 
   @OutputDirectory
@@ -79,6 +84,19 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
     var project = getProject();
     for (var file : getInputFiles()) {
       Path path = file.toPath();
+
+      if (!path.toString().endsWith(".tf.yml") && !path.toString().endsWith(".tf.yaml")) {
+        // Copy non-config files (usually templates) as is.
+        project.copy(
+            copy -> {
+              copy.from(path);
+              copy.into(
+                  outputDir.resolve(
+                      project.getProjectDir().toPath().relativize(file.toPath()).getParent()));
+            });
+        continue;
+      }
+
       String jsonFilename = getNameWithoutExtension(path.getFileName().toString()) + ".json";
 
       Path relativePath = getProject().getProjectDir().toPath().relativize(path);

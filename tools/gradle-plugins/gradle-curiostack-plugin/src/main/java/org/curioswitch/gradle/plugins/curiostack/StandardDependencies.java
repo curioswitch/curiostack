@@ -70,7 +70,7 @@ public class StandardDependencies {
               .addModules("commons-logging")
               .build(),
           ImmutableDependencySet.builder()
-              .group("com.auth0.java")
+              .group("com.auth0")
               .version("3.4.0")
               .addModules("java-jwt")
               .build(),
@@ -88,6 +88,11 @@ public class StandardDependencies {
               .group("com.google.auto.service")
               .version("1.0-rc4")
               .addModules("auto-service")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("com.google.auto.value")
+              .version("1.6.2")
+              .addModules("auto-value", "auto-value-annotations")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.fasterxml.jackson.core")
@@ -121,7 +126,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("1.20.0")
+              .version("1.21.0")
               .addModules("grpc-google-cloud-pubsub-v1")
               .build(),
           ImmutableDependencySet.builder()
@@ -205,7 +210,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.68.2")
+              .version("0.69.0")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -309,7 +314,7 @@ public class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
               .version("5.1.5")
-              .addModules("brave", "brave-instrumentation-mysql")
+              .addModules("brave", "brave-instrumentation-mysql", "brave-instrumentation-mysql8")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.gcp")
@@ -360,6 +365,11 @@ public class StandardDependencies {
               .addModules("assertj-core")
               .build(),
           ImmutableDependencySet.builder()
+              .group("org.assertj")
+              .version("3.2.0")
+              .addModules("assertj-guava")
+              .build(),
+          ImmutableDependencySet.builder()
               .group("org.awaitility")
               .version("3.1.2")
               .addModules("awaitility")
@@ -368,6 +378,11 @@ public class StandardDependencies {
               .group("org.bouncycastle")
               .version("1.60")
               .addModules("bcpkix-jdk15on", "bcprov-jdk15on")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("org.checkerframework")
+              .version("2.5.4")
+              .addModules("checker-qual", "checker-compat-qual")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.codehaus.groovy")
@@ -386,7 +401,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.86")
+              .version("0.0.87")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -446,7 +461,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.simpleflatmapper")
-              .version("3.19.0")
+              .version("4.0.0")
               .addModules(
                   "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
               .build(),
@@ -468,6 +483,7 @@ public class StandardDependencies {
           "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.5",
           "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.1.4",
+          "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.9.14",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.1",
           "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
