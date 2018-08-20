@@ -146,7 +146,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.39.0")
+              .version("1.40.0")
               .addModules(
                   "google-cloud-bigquery",
                   "google-cloud-core",
@@ -313,7 +313,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("5.1.5")
+              .version("5.2.0")
               .addModules("brave", "brave-instrumentation-mysql", "brave-instrumentation-mysql8")
               .build(),
           ImmutableDependencySet.builder()
@@ -361,7 +361,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.assertj")
-              .version("3.10.0")
+              .version("3.11.0")
               .addModules("assertj-core")
               .build(),
           ImmutableDependencySet.builder()
@@ -401,12 +401,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.87")
+              .version("0.0.88")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.12")
+              .version("0.0.13")
               .addModules("curio-testing-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -451,7 +451,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")
-              .version("2.21.0")
+              .version("2.21.2")
               .addModules("mockito-core", "mockito-junit-jupiter")
               .build(),
           ImmutableDependencySet.builder()
@@ -461,7 +461,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.simpleflatmapper")
-              .version("4.0.0")
+              .version("4.0.1")
               .addModules(
                   "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
               .build(),

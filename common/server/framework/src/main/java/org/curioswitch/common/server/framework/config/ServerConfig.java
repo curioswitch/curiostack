@@ -120,9 +120,7 @@ public interface ServerConfig {
    */
   boolean isDisableSslAuthorization();
 
-  /**
-   * Whether authorization using Google ID tokens should be enabled.
-   */
+  /** Whether authorization using Google ID tokens should be enabled. */
   boolean isEnableGoogleIdAuthorization();
 
   /**

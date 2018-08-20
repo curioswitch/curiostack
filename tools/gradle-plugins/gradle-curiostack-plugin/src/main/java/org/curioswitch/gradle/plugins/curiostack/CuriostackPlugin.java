@@ -268,8 +268,6 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     rootProject.allprojects(
         project -> {
-          setupRepositories(project);
-
           project.getPlugins().withType(JavaPlugin.class, plugin -> setupJavaProject(project));
 
           project
@@ -282,7 +280,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                     license.exclude("**/*.json");
                     license.setHeader(rootProject.file("LICENSE"));
                     license.mapping(
-                        ImmutableMap.of(
+                        ImmutableMap.of( 1
                             "conf", "DOUBLESLASH_STYLE",
                             "java", "SLASHSTAR_STYLE",
                             "proto", "SLASHSTAR_STYLE",
@@ -298,13 +296,18 @@ public class CuriostackPlugin implements Plugin<Project> {
     project.getRepositories().gradlePluginPortal();
     project
         .getRepositories()
-        .maven(maven -> maven.setUrl("http://dl.bintray.com/curioswitch/curiostack"));
-    project.getRepositories().maven(maven -> maven.setUrl("http://dl.bintray.com/mockito/maven"));
+        .maven(maven -> maven.setUrl("https://dl.bintray.com/curioswitch/curiostack"));
+    project.getRepositories().maven(maven -> maven.setUrl("https://dl.bintray.com/mockito/maven"));
     project.getRepositories().mavenCentral();
     project.getRepositories().mavenLocal();
+    project
+        .getRepositories()
+        .maven(maven -> maven.setUrl("https://oss.jfrog.org/libs-snapshot"));
   }
 
   private static void setupJavaProject(Project project) {
+    setupRepositories(project);
+
     PluginContainer plugins = project.getPlugins();
     plugins.apply(AptPlugin.class);
     plugins.apply(AptIdeaPlugin.class);
