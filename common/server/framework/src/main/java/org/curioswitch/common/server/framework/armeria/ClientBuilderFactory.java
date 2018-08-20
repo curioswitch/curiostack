@@ -88,7 +88,7 @@ public class ClientBuilderFactory {
     this.tracing = tracing;
     this.meterRegistry = meterRegistry;
     this.googleCredentialsDecoratingClient =
-        !serverConfig.isDisableGoogleIdAuthorization()
+        serverConfig.isEnableGoogleIdAuthorization()
             ? googleCredentialsDecoratingClient.get()
             : null;
     final TrustManagerFactory trustManagerFactory;
