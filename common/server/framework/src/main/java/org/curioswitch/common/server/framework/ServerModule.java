@@ -38,6 +38,7 @@ import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.Service;
 import com.linecorp.armeria.server.ServiceRequestContext;
+import com.linecorp.armeria.server.ServiceWithPathMappings;
 import com.linecorp.armeria.server.auth.HttpAuthServiceBuilder;
 import com.linecorp.armeria.server.auth.OAuth2Token;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
@@ -433,20 +434,36 @@ public abstract class ServerModule {
         serviceBuilder.addService(ProtoReflectionService.newInstance());
       }
       definition.customizer().accept(serviceBuilder);
-      Service<HttpRequest, HttpResponse> service =
-          serviceBuilder.build().decorate(definition.decorator());
-      service =
-          decorateService(
-              service,
-              tracing,
-              firebaseAuthorizer,
-              googleIdAuthorizer,
-              iamAuthorizer,
-              jwtAuthorizer,
-              sslCommonNamesProvider,
-              serverConfig,
-              authConfig);
-      sb.serviceUnder(definition.path(), service);
+      ServiceWithPathMappings<HttpRequest, HttpResponse> service = serviceBuilder.build();
+      if (definition.path().equals("/")) {
+        Optional<SslCommonNamesProvider> sslCommonNamesProvider0 = sslCommonNamesProvider;
+        sb.service(
+            service,
+            s ->
+                decorateService(
+                    s.decorate(definition.decorator()),
+                    tracing,
+                    firebaseAuthorizer,
+                    googleIdAuthorizer,
+                    iamAuthorizer,
+                    jwtAuthorizer,
+                    sslCommonNamesProvider0,
+                    serverConfig,
+                    authConfig));
+      } else {
+        sb.serviceUnder(
+            definition.path(),
+            decorateService(
+                service.decorate(definition.decorator()),
+                tracing,
+                firebaseAuthorizer,
+                googleIdAuthorizer,
+                iamAuthorizer,
+                jwtAuthorizer,
+                sslCommonNamesProvider,
+                serverConfig,
+                authConfig));
+      }
     }
 
     for (HttpServiceDefinition definition : httpServiceDefinitions) {
@@ -551,7 +568,7 @@ public abstract class ServerModule {
       FirebaseAuthConfig authConfig) {
     if (sslCommonNamesProvider.isPresent()) {
       GoogleIdAuthServiceBuilder authServiceBuilder = new GoogleIdAuthServiceBuilder();
-      if (!serverConfig.isDisableGoogleIdAuthorization()) {
+      if (serverConfig.isEnableGoogleIdAuthorization()) {
         authServiceBuilder.addOAuth2(
             googleIdAuthorizer.get().create(sslCommonNamesProvider.get()),
             Constants.X_CLUSTER_AUTHORIZATION);

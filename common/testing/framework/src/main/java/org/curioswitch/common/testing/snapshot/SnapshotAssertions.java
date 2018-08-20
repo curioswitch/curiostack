@@ -91,6 +91,8 @@ public final class SnapshotAssertions {
           .usingDoubleTolerance(0.0000001)
           .usingFloatTolerance(0.00001f)
           .isEqualTo(snapshotObj);
+
+      return;
     }
 
     final String serialized;
