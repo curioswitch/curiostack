@@ -280,7 +280,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                     license.exclude("**/*.json");
                     license.setHeader(rootProject.file("LICENSE"));
                     license.mapping(
-                        ImmutableMap.of( 1
+                        ImmutableMap.of(
                             "conf", "DOUBLESLASH_STYLE",
                             "java", "SLASHSTAR_STYLE",
                             "proto", "SLASHSTAR_STYLE",
@@ -300,9 +300,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     project.getRepositories().maven(maven -> maven.setUrl("https://dl.bintray.com/mockito/maven"));
     project.getRepositories().mavenCentral();
     project.getRepositories().mavenLocal();
-    project
-        .getRepositories()
-        .maven(maven -> maven.setUrl("https://oss.jfrog.org/libs-snapshot"));
+    project.getRepositories().maven(maven -> maven.setUrl("https://oss.jfrog.org/libs-snapshot"));
   }
 
   private static void setupJavaProject(Project project) {
