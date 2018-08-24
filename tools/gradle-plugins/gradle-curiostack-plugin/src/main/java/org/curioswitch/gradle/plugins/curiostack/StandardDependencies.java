@@ -285,11 +285,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("4.1.27.Final")
+              .version("4.1.28.Final")
               .addModules(
                   "netty-buffer",
                   "netty-codec",
                   "netty-codec-dns",
+                  "netty-codec-haproxy",
                   "netty-codec-http2",
                   "netty-codec-http",
                   "netty-codec-socks",
@@ -299,7 +300,8 @@ public class StandardDependencies {
                   "netty-resolver",
                   "netty-resolver-dns",
                   "netty-transport",
-                  "netty-transport-native-epoll")
+                  "netty-transport-native-epoll",
+                  "netty-transport-native-unix-common")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
@@ -483,7 +485,7 @@ public class StandardDependencies {
           "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.5",
           "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.1.4",
-          "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.9.14",
+          "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.9.9",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.1",
           "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
