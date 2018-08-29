@@ -27,7 +27,7 @@ import path from 'path';
 import { promisify } from 'util';
 
 import rimraf from 'rimraf';
-import { Configuration } from 'webpack';
+import { Configuration, Stats } from 'webpack';
 import saneWebpack from 'webpack-sane-compiler';
 import startReporting from 'webpack-sane-compiler-reporter';
 
@@ -35,10 +35,10 @@ import { appConfiguration, prerenderConfiguration } from '../webpack/prod';
 
 import { check } from './check';
 
-async function runWebpack(config: Configuration) {
+async function runWebpack(config: Configuration): Promise<{ stats: Stats}> {
   const compiler = saneWebpack(config);
   startReporting(compiler);
-  await compiler.run();
+  return compiler.run();
 }
 
 async function run() {
@@ -46,9 +46,15 @@ async function run() {
 
   await check();
 
-  await runWebpack(appConfiguration);
+  let result = await runWebpack(appConfiguration);
+  if (result.stats.hasErrors()) {
+    throw new Error();
+  }
   if (prerenderConfiguration) {
-    await runWebpack(prerenderConfiguration);
+    result = await runWebpack(prerenderConfiguration);
+    if (result.stats.hasErrors()) {
+      throw new Error();
+    }
   }
 }
 if (require.main === module) {

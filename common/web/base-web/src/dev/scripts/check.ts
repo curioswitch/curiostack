@@ -84,7 +84,7 @@ export function lint(fix?: boolean) {
 }
 
 export async function check() {
-  lint();
+  await lint();
   return test();
 }
 
