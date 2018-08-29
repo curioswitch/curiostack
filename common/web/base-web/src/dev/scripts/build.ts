@@ -27,7 +27,7 @@ import path from 'path';
 import { promisify } from 'util';
 
 import rimraf from 'rimraf';
-import { Configuration, Stats } from 'webpack';
+import { Configuration } from 'webpack';
 import saneWebpack from 'webpack-sane-compiler';
 import startReporting from 'webpack-sane-compiler-reporter';
 
@@ -35,7 +35,7 @@ import { appConfiguration, prerenderConfiguration } from '../webpack/prod';
 
 import { check } from './check';
 
-async function runWebpack(config: Configuration): Promise<{ stats: Stats}> {
+async function runWebpack(config: Configuration) {
   const compiler = saneWebpack(config);
   startReporting(compiler);
   return compiler.run();
