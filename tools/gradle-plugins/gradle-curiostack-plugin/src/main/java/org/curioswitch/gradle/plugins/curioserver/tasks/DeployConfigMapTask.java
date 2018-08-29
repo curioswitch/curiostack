@@ -87,7 +87,7 @@ public class DeployConfigMapTask extends DefaultTask {
         new ConfigMapBuilder()
             .withMetadata(
                 new ObjectMetaBuilder()
-                    .withName("rpcacls-" + type)
+                    .withName("rpcacls-" + deploymentConfig.deploymentName())
                     .withNamespace(deploymentConfig.namespace())
                     .build())
             .withData(ImmutableMap.of("rpcacls.json", serializedAcls))

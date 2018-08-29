@@ -24,6 +24,7 @@
 
 package org.curioswitch.gradle.plugins.curioserver.tasks;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
@@ -155,7 +156,9 @@ public class DeployPodTask extends DefaultTask {
                 new VolumeBuilder()
                     .withName("rpcacls")
                     .withConfigMap(
-                        new ConfigMapVolumeSourceBuilder().withName("rpcacls-" + type).build())
+                        new ConfigMapVolumeSourceBuilder()
+                            .withName("rpcacls-" + deploymentConfig.deploymentName())
+                            .build())
                     .build())
             .addAll(
                 deploymentConfig
@@ -306,6 +309,16 @@ public class DeployPodTask extends DefaultTask {
 
     KubernetesClient client = new DefaultKubernetesClient();
 
+    var defaultServiceAnnotations =
+        ImmutableMap.<String, String>builder()
+            .put(
+                "service.alpha.kubernetes.io/app-protocols",
+                "{\"https\":\"" + (deploymentConfig.http2() ? "HTTP2" : "HTTPS") + "\"}");
+    if (deploymentConfig.iap()) {
+      defaultServiceAnnotations.put(
+          "beta.cloud.google.com/backend-config",
+          "{\"ports\": {\"https\": \"iap-backend-config\"}}");
+    }
     Service service =
         new ServiceBuilder()
             .withMetadata(
@@ -314,9 +327,7 @@ public class DeployPodTask extends DefaultTask {
                     .withNamespace(deploymentConfig.namespace())
                     .withAnnotations(
                         ImmutableMap.<String, String>builder()
-                            .put(
-                                "service.alpha.kubernetes.io/app-protocols",
-                                "{\"https\":\"HTTPS\"}")
+                            .putAll(defaultServiceAnnotations.build())
                             .put("prometheus.io/scrape", "true")
                             .put("prometheus.io/scheme", "https")
                             .put("prometheus.io/path", "/internal/metrics")
@@ -328,6 +339,7 @@ public class DeployPodTask extends DefaultTask {
                     .build())
             .withSpec(createServiceSpec(deploymentConfig))
             .build();
+
     Map<String, Service> additionalServices = new HashMap<>();
     for (String path : deploymentConfig.additionalServicePaths()) {
       String sanitizedPath = path;
@@ -342,13 +354,44 @@ public class DeployPodTask extends DefaultTask {
                   new ObjectMetaBuilder()
                       .withName(serviceName)
                       .withNamespace(deploymentConfig.namespace())
-                      .withAnnotations(
-                          ImmutableMap.of(
-                              "service.alpha.kubernetes.io/app-protocols", "{\"https\":\"HTTPS\"}"))
+                      .withAnnotations(defaultServiceAnnotations.build())
                       .build())
               .withSpec(createServiceSpec(deploymentConfig))
               .build());
     }
+
+    deploymentConfig
+        .additionalServices()
+        .forEach(
+            (path, type) -> {
+              String sanitizedPath = path;
+              if (sanitizedPath.endsWith("/*")) {
+                sanitizedPath = sanitizedPath.substring(0, path.length() - 2);
+              }
+              String serviceName =
+                  deploymentConfig.deploymentName() + sanitizedPath.replace('/', '-');
+              var annotations =
+                  ImmutableMap.<String, String>builder().putAll(defaultServiceAnnotations.build());
+              if (!type.isEmpty()) {
+                checkArgument(
+                    type.equals("iap") || type.equals("cdn"), "Service type must be iap or cdn");
+                annotations.put(
+                    "beta.cloud.google.com/backend-config",
+                    "{\"ports\": {\"https\": \"" + type + "-backend-config\"}}");
+              }
+
+              additionalServices.put(
+                  path,
+                  new ServiceBuilder()
+                      .withMetadata(
+                          new ObjectMetaBuilder()
+                              .withName(serviceName)
+                              .withNamespace(deploymentConfig.namespace())
+                              .withAnnotations(annotations.build())
+                              .build())
+                      .withSpec(createServiceSpec(deploymentConfig))
+                      .build());
+            });
 
     client.resource(deployment).createOrReplace();
     deployService(service, client);
@@ -434,13 +477,6 @@ public class DeployPodTask extends DefaultTask {
   }
 
   private static void deployService(Service service, KubernetesClient client) {
-    try {
-      if (client.resource(service).fromServer().get() == null) {
-        client.resource(service).createOrReplace();
-      }
-    } catch (ClassCastException e) {
-      // TODO(choko): Kubernetes client is throwing this on get() for some reason. Seems like a bug
-      // but it works to skip existing services to just live with it for now, but try to fix it.
-    }
+    client.resource(service).createOrReplace();
   }
 }
