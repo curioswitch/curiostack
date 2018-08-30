@@ -31,6 +31,7 @@ const CONFIG = {
       babelConfig: {
         presets: ['@babel/react'],
         plugins: [
+          '@babel/plugin-transform-runtime',
           '@babel/proposal-class-properties',
           '@babel/proposal-async-generator-functions',
           '@babel/proposal-optional-catch-binding',

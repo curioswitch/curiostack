@@ -63,6 +63,6 @@ if (require.main === module) {
     .then(() => process.exit(0))
     .catch((err) => {
       console.log('Error running webpack.', err);
-      process.exit(1);
+      process.exitCode = 1;
     });
 }
