@@ -183,9 +183,7 @@ public class GcloudPlugin implements Plugin<Project> {
           installComponents.dependsOn(downloadSdkTask);
           project
               .getTasks()
-              .create(
-                  "gcloudSetup",
-                  t -> t.dependsOn(downloadSdkTask, installComponents));
+              .create("gcloudSetup", t -> t.dependsOn(downloadSdkTask, installComponents));
         });
 
     addGenerateCloudBuildTask(project);

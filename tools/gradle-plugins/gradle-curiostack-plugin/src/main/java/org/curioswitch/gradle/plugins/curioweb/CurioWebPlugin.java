@@ -72,11 +72,12 @@ public class CurioWebPlugin implements Plugin<Project> {
     // need to look at yarn.lock here.
     buildWeb.getInputs().file(project.getRootProject().file("yarn.lock").getAbsolutePath());
     buildWeb.getOutputs().dir(project.file("build/web").getAbsolutePath());
-    buildWeb.doLast(unused -> {
-      if (!project.file("build/web").exists()) {
-        throw new RuntimeException("Build failed.");
-      }
-    });
+    buildWeb.doLast(
+        unused -> {
+          if (!project.file("build/web").exists()) {
+            throw new RuntimeException("Build failed.");
+          }
+        });
 
     Copy copyWeb = project.getTasks().create("copyWeb", Copy.class);
     copyWeb.dependsOn(buildWeb);
