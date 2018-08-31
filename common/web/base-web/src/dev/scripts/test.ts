@@ -29,7 +29,17 @@ const CONFIG = {
   globals: {
     'ts-jest': {
       babelConfig: {
-        presets: ['@babel/react'],
+        presets: [
+          [
+            '@babel/env',
+            {
+              targets: {
+                node: 'current',
+              },
+            },
+          ],
+          '@babel/react',
+        ],
         plugins: [
           '@babel/plugin-transform-runtime',
           '@babel/proposal-class-properties',

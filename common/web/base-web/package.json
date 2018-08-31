@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-web",
-  "version": "0.0.32-alpha.1",
+  "version": "0.0.32",
   "description": "Curiostack's base dependencies for browser applications.",
   "repository": "curioswitch/curiostack",
   "author": "Choko <choko@curioswitch.org>",
@@ -111,7 +111,7 @@
     "static-site-generator-webpack-plugin": "3.4.1",
     "styled-components": "3.4.5",
     "styled-components-ts": "0.0.14",
-    "ts-jest": "22.1.4",
+    "ts-jest": "22.4.6",
     "ts-loader": "4.5.0",
     "ts-node": "7.0.1",
     "tsconfig-paths": "3.5.0",
