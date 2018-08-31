@@ -38,7 +38,7 @@ import { check } from './check';
 async function runWebpack(config: Configuration) {
   const compiler = saneWebpack(config);
   startReporting(compiler);
-  await compiler.run();
+  return compiler.run();
 }
 
 async function run() {
@@ -46,16 +46,23 @@ async function run() {
 
   await check();
 
-  await runWebpack(appConfiguration);
+  let result = await runWebpack(appConfiguration);
+  if (result.stats.hasErrors()) {
+    throw new Error();
+  }
   if (prerenderConfiguration) {
-    await runWebpack(prerenderConfiguration);
+    result = await runWebpack(prerenderConfiguration);
+    if (result.stats.hasErrors()) {
+      throw new Error();
+    }
   }
 }
+
 if (require.main === module) {
   run()
     .then(() => process.exit(0))
     .catch((err) => {
       console.log('Error running webpack.', err);
-      process.exit(1);
+      process.exitCode = 1;
     });
 }

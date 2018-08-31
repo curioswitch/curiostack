@@ -84,7 +84,10 @@ export function lint(fix?: boolean) {
 }
 
 export async function check() {
-  lint();
+  const result = await lint();
+  if (!result) {
+    throw new Error('Lint failed.');
+  }
   return test();
 }
 

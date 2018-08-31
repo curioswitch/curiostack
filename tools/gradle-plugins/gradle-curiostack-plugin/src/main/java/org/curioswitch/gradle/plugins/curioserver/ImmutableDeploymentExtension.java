@@ -81,6 +81,8 @@ public interface ImmutableDeploymentExtension {
 
     List<String> additionalServicePaths();
 
+    Map<String, String> additionalServices();
+
     default String namespace() {
       return "default";
     }
@@ -119,6 +121,14 @@ public interface ImmutableDeploymentExtension {
 
     default int containerPort() {
       return 8080;
+    }
+
+    default boolean http2() {
+      return false;
+    }
+
+    default boolean iap() {
+      return false;
     }
 
     Map<String, String> envVars();

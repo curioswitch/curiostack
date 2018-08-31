@@ -789,7 +789,7 @@ public class CuriostackPlugin implements Plugin<Project> {
         project
             .getTasks()
             .create(UpdateNodeResolutions.CHECK_NAME, UpdateNodeResolutions.class, true);
-    project.getTasks().withType(YarnTask.class, t -> t.dependsOn(checkNodeResolutions));
+    project.getTasks().withType(YarnTask.class, t -> t.finalizedBy(checkNodeResolutions));
   }
 
   private static void setupPyenvs(Project rootProject) {

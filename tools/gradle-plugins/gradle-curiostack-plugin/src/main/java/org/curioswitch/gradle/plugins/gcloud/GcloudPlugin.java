@@ -165,27 +165,25 @@ public class GcloudPlugin implements Plugin<Project> {
                   "--region",
                   config.cloudRegion()));
 
-          GcloudTask installBetaComponents =
+          GcloudTask installComponents =
               project
                   .getTasks()
                   .create(
-                      "gcloudInstallBetaComponents",
+                      "gcloudInstallComponents",
                       GcloudTask.class,
-                      t -> t.setArgs(ImmutableList.of("components", "install", "beta")));
-          installBetaComponents.dependsOn(downloadSdkTask);
-          GcloudTask installKubectl =
-              project
-                  .getTasks()
-                  .create(
-                      "gcloudInstallKubectl",
-                      GcloudTask.class,
-                      t -> t.setArgs(ImmutableList.of("components", "install", "kubectl")));
-          installKubectl.dependsOn(downloadSdkTask);
+                      t ->
+                          t.setArgs(
+                              ImmutableList.of(
+                                  "components",
+                                  "install",
+                                  "app-engine-python",
+                                  "beta",
+                                  "kubectl",
+                                  "docker-credential-gcr")));
+          installComponents.dependsOn(downloadSdkTask);
           project
               .getTasks()
-              .create(
-                  "gcloudSetup",
-                  t -> t.dependsOn(downloadSdkTask, installBetaComponents, installKubectl));
+              .create("gcloudSetup", t -> t.dependsOn(downloadSdkTask, installComponents));
         });
 
     addGenerateCloudBuildTask(project);
