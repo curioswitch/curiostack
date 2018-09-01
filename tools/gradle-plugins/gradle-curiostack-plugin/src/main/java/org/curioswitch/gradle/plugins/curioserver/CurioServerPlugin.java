@@ -101,7 +101,7 @@ public class CurioServerPlugin implements Plugin<Project> {
               project.getConvention().getPlugin(ApplicationPluginConvention.class);
           appPluginConvention.setApplicationName(archivesBaseName);
 
-          jib.from(from -> from.setImage("gcr.io/distroless/java:debug"));
+          jib.from(from -> from.setImage("openjdk:10-jre-slim"));
           String image = config.imagePrefix() + config.baseName();
           jib.to(to -> to.setImage(image));
           jib.container(

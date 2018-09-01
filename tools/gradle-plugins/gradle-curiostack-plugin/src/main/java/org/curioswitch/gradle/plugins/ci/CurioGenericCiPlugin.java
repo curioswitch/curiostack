@@ -113,7 +113,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
 
     if (affectedProjects.contains(project.getRootProject())) {
       // Rebuild everything when the root project is changed.
-      Task continuousBuild = project.task("continousBuild");
+      Task continuousBuild = project.task("continuousBuild");
       project.allprojects(
           proj -> {
             proj.afterEvaluate(
@@ -156,7 +156,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                       }
                     }));
 
-    Task continuousBuild = project.task("continousBuild");
+    Task continuousBuild = project.task("continuousBuild");
     for (Project proj : affectedProjects) {
       proj.afterEvaluate(
           p -> {
