@@ -61,7 +61,7 @@ public class KubectlTask extends DefaultTask {
     ImmutableGcloudExtension config =
         getProject().getRootProject().getExtensions().getByType(GcloudExtension.class);
 
-    String command = Os.isFamily(Os.FAMILY_WINDOWS) ? COMMAND + ".cmd" : COMMAND;
+    String command = Os.isFamily(Os.FAMILY_WINDOWS) ? COMMAND + ".exe" : COMMAND;
     String executable = CommandUtil.getGcloudSdkBinDir(getProject()).resolve(command).toString();
     getProject()
         .exec(

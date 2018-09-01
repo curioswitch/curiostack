@@ -27,7 +27,13 @@ package org.curioswitch.gradle.plugins.curioserver;
 import com.bmuschko.gradle.docker.DockerExtension;
 import com.bmuschko.gradle.docker.DockerJavaApplication;
 import com.bmuschko.gradle.docker.DockerJavaApplicationPlugin;
+import com.google.cloud.tools.jib.gradle.BuildImageTask;
+import com.google.cloud.tools.jib.gradle.DockerContextTask;
+import com.google.cloud.tools.jib.gradle.JibExtension;
+import com.google.cloud.tools.jib.gradle.JibPlugin;
+import com.google.cloud.tools.jib.image.ImageFormat;
 import com.google.common.base.Ascii;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.gorylenko.GitPropertiesPlugin;
@@ -46,7 +52,9 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.ApplicationPluginConvention;
+import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.BasePluginConvention;
+import org.gradle.api.plugins.ExtraPropertiesExtension;
 
 /**
  * A simple {@link Plugin} to reduce boilerplate when defining server projects. Contains common
@@ -58,11 +66,28 @@ public class CurioServerPlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getPluginManager().apply(ApplicationPlugin.class);
     project.getPluginManager().apply(GitPropertiesPlugin.class);
+    project.getPluginManager().apply(JibPlugin.class);
     project
         .getExtensions()
         .create(ImmutableDeploymentExtension.NAME, DeploymentExtension.class, project);
 
     project.getNormalization().getRuntimeClasspath().ignore("git.properties");
+
+    var jib = project.getExtensions().getByType(JibExtension.class);
+    var jibBuildRelease =
+        project
+            .getTasks()
+            .create(
+                "jibBuildRelease",
+                BuildImageTask.class,
+                t -> {
+                  t.getAsDynamicObject().setProperty("jibExtension", jib);
+                });
+    project
+        .getTasks()
+        .withType(
+            BuildImageTask.class,
+            t -> t.dependsOn(project.getTasks().getByName(BasePlugin.ASSEMBLE_TASK_NAME)));
 
     project.afterEvaluate(
         p -> {
@@ -76,25 +101,66 @@ public class CurioServerPlugin implements Plugin<Project> {
               project.getConvention().getPlugin(ApplicationPluginConvention.class);
           appPluginConvention.setApplicationName(archivesBaseName);
 
-          /*
-          var jib = project.getExtensions().getByType(JibExtension.class);
-          jib.from(from -> from.setImage("openjdk:10-jre-slim"));
-          jib.to(to -> to.setImage(config.imagePrefix() + config.baseName()));
+          jib.from(from -> from.setImage("gcr.io/distroless/java:debug"));
+          String image = config.imagePrefix() + config.baseName();
+          jib.to(to -> to.setImage(image));
           jib.container(
               container -> {
+                container.setFormat(ImageFormat.OCI);
                 container.setMainClass(appPluginConvention.getMainClassName());
                 container.setPorts(ImmutableList.of("8080"));
-                container.setJvmFlags(
-                    ImmutableList.of(
-                        "$JAVA_OPTS",
-                        "$" + archivesBaseName.replace('-', '_').toUpperCase() + "_OPTS"));
               });
           project
               .getTasks()
               .withType(
                   DockerContextTask.class,
                   t -> t.setTargetDir(project.file("build/docker").getAbsolutePath()));
-                  */
+
+          jibBuildRelease.doFirst(
+              unused ->
+                  jibBuildRelease.setTargetImage(
+                      image
+                          + ":"
+                          + project
+                              .getRootProject()
+                              .getExtensions()
+                              .getByType(ExtraPropertiesExtension.class)
+                              .get("curiostack.releaseBranch")));
+          jibBuildRelease.doLast(unused -> jibBuildRelease.setTargetImage(image));
+
+          String revisionId =
+              (String) project.getRootProject().findProperty("curiostack.revisionId");
+          if (revisionId != null) {
+            project
+                .getTasks()
+                .create(
+                    "jibBuildRevision",
+                    BuildImageTask.class,
+                    t -> {
+                      t.getAsDynamicObject().setProperty("jibExtension", jib);
+                      t.doFirst(unused -> t.setTargetImage(image + ":" + revisionId));
+                      t.doLast(unused -> t.setTargetImage(image));
+                      project.getTasks().getByName("jib").dependsOn(t);
+                    });
+            var alpha = config.getTypes().getByName("alpha");
+            project
+                .getTasks()
+                .create(
+                    "patchAlpha",
+                    KubectlTask.class,
+                    t -> {
+                      t.setArgs(
+                          ImmutableList.of(
+                              "--namespace=" + alpha.namespace(),
+                              "patch",
+                              "deployment/" + alpha.deploymentName(),
+                              "-p",
+                              "'{\"spec\": "
+                                  + "{\"template\": {\"metadata\": {\"labels\": {\"revision\": \""
+                                  + revisionId
+                                  + "\" }}}}}'"));
+                    });
+          }
 
           GroovyObject docker = project.getExtensions().getByType(DockerExtension.class);
           DockerJavaApplication javaApplication =

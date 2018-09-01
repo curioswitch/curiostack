@@ -121,12 +121,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("0.24.0")
+              .version("0.25.0")
               .addModules("grpc-google-cloud-trace-v1")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("1.23.0")
+              .version("1.24.0")
               .addModules("grpc-google-cloud-pubsub-v1")
               .build(),
           ImmutableDependencySet.builder()
@@ -146,7 +146,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.41.0")
+              .version("1.42.0")
               .addModules(
                   "google-cloud-bigquery",
                   "google-cloud-core",
@@ -320,7 +320,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.gcp")
-              .version("0.7.1")
+              .version("0.8.0")
               .addModules("zipkin-translation-stackdriver")
               .build(),
           ImmutableDependencySet.builder()
@@ -335,7 +335,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.8.19")
+              .version("1.8.20")
               .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
@@ -485,7 +485,7 @@ public class StandardDependencies {
           "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.5",
           "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.1.4",
-          "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.9.9",
+          "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.9.10",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.1",
           "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
@@ -496,9 +496,9 @@ public class StandardDependencies {
           "me.champeau.gradle:jmh-gradle-plugin:0.4.7",
           "mysql:mysql-connector-java:8.0.12",
           "net.ltgt.gradle:gradle-apt-plugin:0.18",
-          "net.ltgt.gradle:gradle-errorprone-javacplugin-plugin:0.4",
+          "net.ltgt.gradle:gradle-errorprone-javacplugin-plugin:0.5",
           "net.ltgt.gradle:gradle-errorprone-plugin:0.0.16",
-          "nu.studer:gradle-jooq-plugin:3.0.0");
+          "nu.studer:gradle-jooq-plugin:3.0.2");
 
   private StandardDependencies() {}
 }

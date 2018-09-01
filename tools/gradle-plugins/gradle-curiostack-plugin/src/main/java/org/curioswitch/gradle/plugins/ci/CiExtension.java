@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,36 +22,30 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
+package org.curioswitch.gradle.plugins.ci;
 
-archivesBaseName = 'eggworld-server'
-mainClassName = 'org.curioswitch.eggworld.server.EggworldMain'
+import java.util.HashMap;
+import java.util.Map;
+import org.gradle.api.Project;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
+import org.immutables.value.Value.Modifiable;
+import org.immutables.value.Value.Style;
 
-dependencies {
-    compile project(':common:server:framework')
-    compile project(':eggworld:api')
-    compile project(':eggworld:client:web')
+@Modifiable
+@Style(create = "new", allParameters = true)
+public interface CiExtension extends HasPublicType {
 
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
-    compile 'com.linecorp.armeria:armeria-retrofit2'
-    compile 'com.squareup.retrofit2:adapter-guava'
-    compile 'com.squareup.retrofit2:converter-jackson'
+  String NAME = "ci";
 
-    annotationProcessor 'com.google.dagger:dagger-compiler'
+  static CiExtension createAndAdd(Project project) {
+    return project.getExtensions().create(NAME, ModifiableCiExtension.class, new HashMap<>());
+  }
 
-    annotationProcessor 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
-}
+  Map<String, ? extends Iterable<String>> releaseTagPrefixes();
 
-deployment {
-    types {
-        alpha {
-            namespace = 'eggworld-dev'
-            externalHost = 'eggworld-alpha.curioswitch.org'
-            cpu = 0.1
-            memoryMb = 512
-            request = true
-            iap = true
-        }
-    }
+  @Override
+  default TypeOf<?> getPublicType() {
+    return TypeOf.typeOf(CiExtension.class);
+  }
 }

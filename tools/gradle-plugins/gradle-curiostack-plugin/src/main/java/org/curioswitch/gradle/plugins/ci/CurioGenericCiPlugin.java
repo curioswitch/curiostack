@@ -24,14 +24,19 @@
 
 package org.curioswitch.gradle.plugins.ci;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
+import com.google.common.base.Ascii;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +44,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -53,6 +60,7 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.api.plugins.JavaPlugin;
 
 public class CurioGenericCiPlugin implements Plugin<Project> {
@@ -63,6 +71,12 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
   private static final ImmutableSet<String> IGNORED_ROOT_FILES =
       ImmutableSet.of("settings.gradle", "yarn.lock", ".gitignore");
 
+  private static final ImmutableList<String> COMMON_RELEASE_BRANCH_ENV_VARS =
+      ImmutableList.of(
+          "TAG_NAME", "CIRCLE_TAG", "TRAVIS_TAG", "BRANCH_NAME", "CIRCLE_BRANCH", "TRAVIS_BRANCH");
+
+  private static final Splitter RELEASE_TAG_SPLITTER = Splitter.on('_');
+
   @Override
   public void apply(Project project) {
     if (project.getParent() != null) {
@@ -70,7 +84,19 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
           "curio-generic-ci-plugin can only be " + "applied to the root project.");
     }
 
+    CiExtension.createAndAdd(project);
+
     if (System.getenv("CI") == null && !project.getRootProject().hasProperty("ci")) {
+      return;
+    }
+
+    String releaseBranch = getCiBranchOrTag();
+    if (releaseBranch != null && releaseBranch.startsWith("RELEASE_")) {
+      project
+          .getExtensions()
+          .getByType(ExtraPropertiesExtension.class)
+          .set("curiostack.releaseBranch", releaseBranch);
+      project.afterEvaluate(CurioGenericCiPlugin::configureReleaseBuild);
       return;
     }
 
@@ -83,21 +109,30 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       return;
     }
 
+    boolean deployArtifacts = System.getenv("CI_MASTER") != null;
+
     if (affectedProjects.contains(project.getRootProject())) {
       // Rebuild everything when the root project is changed.
-      for (String type : CONTINUOUS_TASK_TYPES) {
-        Task continuousTask =
-            project.task("continuous" + Character.toUpperCase(type.charAt(0)) + type.substring(1));
-        project.allprojects(
-            proj ->
-                proj.afterEvaluate(
-                    p -> {
-                      Task task = p.getTasks().findByName(type);
-                      if (task != null) {
-                        continuousTask.dependsOn(task);
-                      }
-                    }));
-      }
+      Task continuousBuild = project.task("continousBuild");
+      project.allprojects(
+          proj -> {
+            proj.afterEvaluate(
+                p -> {
+                  Task task = p.getTasks().findByName("build");
+                  if (task != null) {
+                    continuousBuild.dependsOn(task);
+                  }
+                });
+            if (deployArtifacts) {
+              proj.getPlugins()
+                  .withType(
+                      CurioServerPlugin.class,
+                      unused -> {
+                        continuousBuild.dependsOn(proj.getTasks().getByName("jib"));
+                        continuousBuild.dependsOn(proj.getTasks().getByName("patchAlpha"));
+                      });
+            }
+          });
       return;
     }
 
@@ -121,21 +156,27 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                       }
                     }));
 
-    for (String type : CONTINUOUS_TASK_TYPES) {
-      Task continuousTask =
-          project.task("continuous" + Character.toUpperCase(type.charAt(0)) + type.substring(1));
-      for (Project proj : affectedProjects) {
-        proj.afterEvaluate(
-            p -> {
-              Task task = p.getTasks().findByName(type);
-              if (task != null) {
-                continuousTask.dependsOn(task);
-              }
-              Task dependentsTask = p.getTasks().findByName(type + "Dependents");
-              if (dependentsTask != null) {
-                continuousTask.dependsOn(dependentsTask);
-              }
-            });
+    Task continuousBuild = project.task("continousBuild");
+    for (Project proj : affectedProjects) {
+      proj.afterEvaluate(
+          p -> {
+            Task task = p.getTasks().findByName("build");
+            if (task != null) {
+              continuousBuild.dependsOn(task);
+            }
+            Task dependentsTask = p.getTasks().findByName("buildDependents");
+            if (dependentsTask != null) {
+              continuousBuild.dependsOn(dependentsTask);
+            }
+          });
+      if (deployArtifacts) {
+        proj.getPlugins()
+            .withType(
+                CurioServerPlugin.class,
+                unused -> {
+                  continuousBuild.dependsOn(proj.getTasks().getByName("jib"));
+                  continuousBuild.dependsOn(proj.getTasks().getByName("patchAlpha"));
+                });
       }
     }
   }
@@ -271,5 +312,75 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
     CanonicalTreeParser parser = new CanonicalTreeParser();
     parser.reset(reader, id);
     return parser;
+  }
+
+  private static void configureReleaseBuild(Project project) {
+    var ci = project.getExtensions().getByType(CiExtension.class);
+    String branch = getCiBranchOrTag();
+    checkNotNull(branch);
+
+    List<Project> affectedProjects = new ArrayList<>();
+
+    ci.releaseTagPrefixes()
+        .forEach(
+            (prefix, projectPaths) -> {
+              if (branch.startsWith(prefix)) {
+                for (String projectPath : projectPaths) {
+                  Project affectedProject = project.findProject(projectPath);
+                  checkNotNull(affectedProject, "could not find project " + projectPath);
+                  affectedProjects.add(affectedProject);
+                }
+              }
+            });
+    if (affectedProjects.isEmpty()) {
+      // Not a statically defined tag, try to guess.
+      var parts =
+          RELEASE_TAG_SPLITTER
+              .splitToList(branch.substring("RELEASE_".length()))
+              .stream()
+              .map(Ascii::toLowerCase)
+              .collect(toImmutableList());
+      for (int i = parts.size(); i >= 1; i--) {
+        String projectPath = ":" + String.join(":", parts.subList(0, i));
+        Project affectedProject = project.findProject(projectPath);
+        if (affectedProject != null) {
+          affectedProjects.add(affectedProject);
+          break;
+        }
+      }
+    }
+    if (affectedProjects.isEmpty()) {
+      return;
+    }
+
+    Task releaseBuild = project.getTasks().create("releaseBuild");
+    for (var affectedProject : affectedProjects) {
+      affectedProject
+          .getPlugins()
+          .withType(
+              CurioServerPlugin.class,
+              unused -> {
+                releaseBuild.dependsOn(affectedProject.getTasks().getByName("build"));
+                releaseBuild.dependsOn(affectedProject.getTasks().getByName("jibBuildRelease"));
+              });
+    }
+  }
+
+  @Nullable
+  private static String getCiBranchOrTag() {
+    // Not quite "generic" but should satisfy 99% of cases.
+    for (String key : COMMON_RELEASE_BRANCH_ENV_VARS) {
+      String branch = System.getenv(key);
+      if (branch != null) {
+        return branch;
+      }
+    }
+    String jenkinsBranch = System.getenv("GIT_BRANCH");
+    if (jenkinsBranch != null) {
+      // Usually has remote too
+      int slashIndex = jenkinsBranch.indexOf('/');
+      return slashIndex >= 0 ? jenkinsBranch.substring(slashIndex + 1) : jenkinsBranch;
+    }
+    return null;
   }
 }
