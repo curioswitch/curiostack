@@ -141,7 +141,10 @@ public class CurioServerPlugin implements Plugin<Project> {
                     BuildImageTask.class,
                     t -> {
                       t.getAsDynamicObject().setProperty("jibExtension", jib);
-                      t.doFirst(unused -> t.setTargetImage(image + ":" + revisionId));
+                      t.doFirst(
+                          unused ->
+                              t.setTargetImage(
+                                  config.imagePrefix() + config.baseName() + ":" + revisionId));
                       t.doLast(unused -> t.setTargetImage(image));
                       project.getTasks().getByName("jib").dependsOn(t);
                     });
