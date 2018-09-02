@@ -31,6 +31,5 @@ steps:
   - (test -e .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-compressed.tar.gz || echo No build cache yet.) && ./gradlew releaseBuild --stacktrace --no-daemon
   env:
   - CI=true
-  - CI_MASTER=true
   - TAG_NAME=$TAG_NAME
   - BRANCH_NAME=$BRANCH_NAME

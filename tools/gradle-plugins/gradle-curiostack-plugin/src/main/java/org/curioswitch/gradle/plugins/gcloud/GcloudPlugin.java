@@ -24,8 +24,6 @@
 
 package org.curioswitch.gradle.plugins.gcloud;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
-
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -37,13 +35,11 @@ import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
-import org.curioswitch.gradle.plugins.curioserver.DeploymentConfiguration;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
 import org.curioswitch.gradle.plugins.gcloud.tasks.DownloadHelmTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.DownloadTerraformTask;
@@ -56,7 +52,6 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Rule;
 import org.gradle.api.Task;
-import org.gradle.api.plugins.BasePluginConvention;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Style;
@@ -214,136 +209,9 @@ public class GcloudPlugin implements Plugin<Project> {
           String fetchUncompressedCacheId = "curio-generated-fetch-uncompressed-build-cache";
           String fetchCompressedCacheId = "curio-generated-fetch-compressed-build-cache";
 
-          String refreshBuildImageId = "curio-generated-refresh-build-image";
           String buildAllImageId = "curio-generated-build-all";
 
-          List<CloudBuildStep> serverSteps =
-              rootProject
-                  .getAllprojects()
-                  .stream()
-                  .filter(proj -> proj.getPlugins().hasPlugin(CurioServerPlugin.class))
-                  .flatMap(
-                      proj -> {
-                        String archivesBaseName =
-                            proj.getConvention()
-                                .getPlugin(BasePluginConvention.class)
-                                .getArchivesBaseName();
-                        String buildImageId =
-                            "curio-generated-build-" + archivesBaseName + "-image";
-                        String pushLatestTagId =
-                            "curio-generated-push-" + archivesBaseName + "-latest";
-                        String pushRevisionTagId =
-                            "curio-generated-push-" + archivesBaseName + "-revision";
-                        String deployId = "curio-generated-deploy-" + archivesBaseName;
-                        String latestTag =
-                            config.containerRegistry() + "/$PROJECT_ID/" + archivesBaseName;
-                        String revisionTag =
-                            config.containerRegistry()
-                                + "/$PROJECT_ID/"
-                                + archivesBaseName
-                                + ":$REVISION_ID";
-                        String dockerPath =
-                            Paths.get(rootProject.getProjectDir().getAbsolutePath())
-                                .relativize(
-                                    Paths.get(
-                                        new File(proj.getBuildDir(), "docker").getAbsolutePath()))
-                                .toString();
-                        if (File.separatorChar != '/') {
-                          // Correctly generate unix paths (for cloudbuild) even on Windows.
-                          dockerPath = dockerPath.replace(File.separatorChar, '/');
-                        }
-
-                        DeploymentExtension deployment =
-                            proj.getExtensions().getByType(DeploymentExtension.class);
-                        DeploymentConfiguration alpha = deployment.getTypes().getByName("alpha");
-
-                        ImmutableList.Builder<CloudBuildStep> steps = ImmutableList.builder();
-                        steps.add(
-                            ImmutableCloudBuildStep.builder()
-                                .id(buildImageId)
-                                .addWaitFor(buildAllImageId)
-                                .name(dockerBuilder)
-                                .entrypoint("/bin/bash")
-                                .args(
-                                    ImmutableList.of(
-                                        "-c",
-                                        "test -e "
-                                            + dockerPath
-                                            + " && docker build --tag="
-                                            + latestTag
-                                            + " --tag="
-                                            + revisionTag
-                                            + " "
-                                            + dockerPath
-                                            + " || echo Skipping..."))
-                                .build());
-                        steps.add(
-                            ImmutableCloudBuildStep.builder()
-                                .id(pushLatestTagId)
-                                .addWaitFor(buildImageId)
-                                .name(dockerBuilder)
-                                .entrypoint("/bin/bash")
-                                .args(
-                                    ImmutableList.of(
-                                        "-c",
-                                        "test -e "
-                                            + dockerPath
-                                            + " && docker push "
-                                            + latestTag
-                                            + " || echo Skipping..."))
-                                .build());
-                        steps.add(
-                            ImmutableCloudBuildStep.builder()
-                                .id(pushRevisionTagId)
-                                .addWaitFor(buildImageId)
-                                .name(dockerBuilder)
-                                .entrypoint("/bin/bash")
-                                .args(
-                                    ImmutableList.of(
-                                        "-c",
-                                        "test -e "
-                                            + dockerPath
-                                            + " && docker push "
-                                            + revisionTag
-                                            + " || echo Skipping..."))
-                                .build());
-                        if (deployment.autoDeployAlpha()) {
-                          steps.add(
-                              ImmutableCloudBuildStep.builder()
-                                  .id(deployId)
-                                  .addWaitFor(pushLatestTagId)
-                                  .name(kubectlBuilder)
-                                  .entrypoint("/bin/bash")
-                                  .args(
-                                      ImmutableList.of(
-                                          "-c",
-                                          "test -e "
-                                              + dockerPath
-                                              + " && /builder/kubectl.bash --namespace="
-                                              + alpha.namespace()
-                                              + " patch deployment/"
-                                              + alpha.deploymentName()
-                                              + " -p "
-                                              + "'{\"spec\": {\"template\": {\"metadata\": {\"labels\": {\"revision\": \"$REVISION_ID\" }}}}}'"
-                                              + " || echo Skipping..."))
-                                  .env(
-                                      ImmutableList.of(
-                                          "CLOUDSDK_COMPUTE_ZONE=" + config.cloudRegion() + "-a",
-                                          "CLOUDSDK_CONTAINER_CLUSTER=" + config.clusterName()))
-                                  .build());
-                        }
-                        return steps.build().stream();
-                      })
-                  .collect(toImmutableList());
-          List<CloudBuildStep> steps = new ArrayList<>();
-          steps.add(
-              ImmutableCloudBuildStep.builder()
-                  .id(deepenGitRepoId)
-                  .addWaitFor("-")
-                  .name("gcr.io/cloud-builders/git")
-                  .args(ImmutableList.of("fetch", "origin", "master", "--depth=10"))
-                  .build());
-          steps.add(
+          var fetchUncompressedCacheStep =
               ImmutableCloudBuildStep.builder()
                   .id(fetchUncompressedCacheId)
                   .addWaitFor("-")
@@ -353,9 +221,9 @@ public class GcloudPlugin implements Plugin<Project> {
                       "-c",
                       "gsutil cp gs://"
                           + config.buildCacheStorageBucket()
-                          + "/cloudbuild-cache-uncompressed.tar .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-uncompressed.tar || echo Could not fetch uncompressed build cache...")
-                  .build());
-          steps.add(
+                          + "/cloudbuild-cache-uncompressed.tar .gradle/cloudbuild-cache-uncompressed.tar || echo Could not fetch uncompressed build cache...")
+                  .build();
+          var fetchCompressedCacheStep =
               ImmutableCloudBuildStep.builder()
                   .id(fetchCompressedCacheId)
                   .addWaitFor("-")
@@ -365,8 +233,19 @@ public class GcloudPlugin implements Plugin<Project> {
                       "-c",
                       "gsutil cp gs://"
                           + config.buildCacheStorageBucket()
-                          + "/cloudbuild-cache-compressed.tar.gz .gradle/cloudbuild-cache-compressed.tar.gz && tar -xpPf .gradle/cloudbuild-cache-compressed.tar.gz || echo Could not fetch compressed build cache...")
+                          + "/cloudbuild-cache-compressed.tar.gz .gradle/cloudbuild-cache-compressed.tar.gz || echo Could not fetch compressed build cache...")
+                  .build();
+
+          List<CloudBuildStep> steps = new ArrayList<>();
+          steps.add(
+              ImmutableCloudBuildStep.builder()
+                  .id(deepenGitRepoId)
+                  .addWaitFor("-")
+                  .name("gcr.io/cloud-builders/git")
+                  .args(ImmutableList.of("fetch", "origin", "master", "--depth=10"))
                   .build());
+          steps.add(fetchUncompressedCacheStep);
+          steps.add(fetchCompressedCacheStep);
           steps.add(
               ImmutableCloudBuildStep.builder()
                   .id(buildAllImageId)
@@ -375,8 +254,12 @@ public class GcloudPlugin implements Plugin<Project> {
                   .entrypoint("bash")
                   .addArgs(
                       "-c",
-                      "(test -e .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-compressed.tar.gz || echo No build cache yet.) && ./gradlew continuousBuild --stacktrace --no-daemon && tar -cpPf .gradle/cloudbuild-cache-uncompressed.tar /root/.gradle/wrapper /root/.gradle/caches /root/.gradle/curiostack && tar -cpPzf .gradle/cloudbuild-cache-compressed.tar.gz /usr/local/share/.cache /root/.gradle/go")
-                  .env(ImmutableList.of("CI=true", "CI_MASTER=true"))
+                      "(test -e .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-compressed.tar.gz || echo No build cache yet.) && ./gradlew continuousBuild --stacktrace --no-daemon -Pcuriostack.revisionId=$REVISION_ID && tar -cpPf .gradle/cloudbuild-cache-uncompressed.tar /root/.gradle/wrapper /root/.gradle/caches /root/.gradle/curiostack && tar -cpPzf .gradle/cloudbuild-cache-compressed.tar.gz /usr/local/share/.cache")
+                  .env(
+                      ImmutableList.of(
+                          "CI=true",
+                          "CI_MASTER=true",
+                          "CLOUDSDK_COMPUTE_ZONE=" + config.clusterRegion()))
                   .build());
           steps.add(
               ImmutableCloudBuildStep.builder()
@@ -406,7 +289,6 @@ public class GcloudPlugin implements Plugin<Project> {
                           + config.buildCacheStorageBucket()
                           + "/cloudbuild-cache-compressed.tar.gz")
                   .build());
-          steps.addAll(serverSteps);
 
           ImmutableCloudBuild.Builder cloudBuildConfig =
               ImmutableCloudBuild.builder().addAllSteps(steps);
@@ -428,6 +310,31 @@ public class GcloudPlugin implements Plugin<Project> {
 
           try {
             OBJECT_MAPPER.writeValue(rootProject.file("cloudbuild.yaml"), cloudBuildConfig.build());
+          } catch (IOException e) {
+            throw new UncheckedIOException(e);
+          }
+
+          CloudBuild releaseCloudBuild =
+              ImmutableCloudBuild.builder()
+                  .addSteps(
+                      fetchUncompressedCacheStep,
+                      fetchCompressedCacheStep,
+                      ImmutableCloudBuildStep.builder()
+                          .id("curio-generated-build-releases")
+                          .addWaitFor(fetchUncompressedCacheId, fetchCompressedCacheId)
+                          .name("openjdk:10-jdk-slim")
+                          .entrypoint("bash")
+                          .addArgs(
+                              "-c",
+                              "(test -e .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-compressed.tar.gz || echo No build cache yet.) && ./gradlew releaseBuild --stacktrace --no-daemon")
+                          .env(
+                              ImmutableList.of(
+                                  "CI=true", "TAG_NAME=$TAG_NAME", "BRANCH_NAME=$BRANCH_NAME"))
+                          .build())
+                  .build();
+          try {
+            OBJECT_MAPPER.writeValue(
+                rootProject.file("cloudbuild-release.yaml"), releaseCloudBuild);
           } catch (IOException e) {
             throw new UncheckedIOException(e);
           }

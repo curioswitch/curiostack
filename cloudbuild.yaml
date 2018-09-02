@@ -45,7 +45,6 @@ steps:
   - CI=true
   - CI_MASTER=true
   - CLOUDSDK_COMPUTE_ZONE=asia-northeast1
-  - CLOUDSDK_CONTAINER_CLUSTER=curioswitch-cluster
 - id: curio-generated-push-uncompressed-build-cache
   waitFor:
   - curio-generated-build-all
