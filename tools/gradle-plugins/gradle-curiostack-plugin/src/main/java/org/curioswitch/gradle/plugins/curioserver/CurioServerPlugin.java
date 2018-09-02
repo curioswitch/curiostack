@@ -27,17 +27,21 @@ package org.curioswitch.gradle.plugins.curioserver;
 import com.bmuschko.gradle.docker.DockerExtension;
 import com.bmuschko.gradle.docker.DockerJavaApplication;
 import com.bmuschko.gradle.docker.DockerJavaApplicationPlugin;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.tools.jib.gradle.BuildImageTask;
 import com.google.cloud.tools.jib.gradle.DockerContextTask;
 import com.google.cloud.tools.jib.gradle.JibExtension;
 import com.google.cloud.tools.jib.gradle.JibPlugin;
 import com.google.cloud.tools.jib.image.ImageFormat;
 import com.google.common.base.Ascii;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.gorylenko.GitPropertiesPlugin;
 import groovy.lang.GroovyObject;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -48,6 +52,7 @@ import org.curioswitch.gradle.plugins.curioserver.ImmutableDeploymentExtension.I
 import org.curioswitch.gradle.plugins.curioserver.tasks.DeployConfigMapTask;
 import org.curioswitch.gradle.plugins.curioserver.tasks.DeployPodTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
+import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ApplicationPlugin;
@@ -61,6 +66,9 @@ import org.gradle.api.plugins.ExtraPropertiesExtension;
  * logic for building and deploying executables.
  */
 public class CurioServerPlugin implements Plugin<Project> {
+
+  private static final Splitter DOCKER_IMAGE_SPLITTER = Splitter.on('/');
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   @Override
   public void apply(Project project) {
@@ -80,9 +88,7 @@ public class CurioServerPlugin implements Plugin<Project> {
             .create(
                 "jibBuildRelease",
                 BuildImageTask.class,
-                t -> {
-                  t.getAsDynamicObject().setProperty("jibExtension", jib);
-                });
+                t -> t.getAsDynamicObject().setProperty("jibExtension", jib));
 
     var patchAlpha = project.getTasks().create("patchAlpha", KubectlTask.class);
 
@@ -96,6 +102,48 @@ public class CurioServerPlugin implements Plugin<Project> {
         p -> {
           ImmutableDeploymentExtension config =
               project.getExtensions().getByType(DeploymentExtension.class);
+
+          project
+              .getTasks()
+              .withType(
+                  BuildImageTask.class,
+                  t ->
+                      t.doFirst(
+                          unused -> {
+                            var output = new ByteArrayOutputStream();
+                            project.exec(
+                                exec -> {
+                                  exec.setExecutable(
+                                      CommandUtil.getGcloudSdkBinDir(project)
+                                          .resolve("docker-credential-gcr"));
+                                  exec.args("get");
+
+                                  exec.environment(
+                                      "CLOUDSDK_PYTHON",
+                                      CommandUtil.getPythonExecutable(project, "build"));
+                                  exec.environment("CLOUDSDK_PYTHON_SITEPACKAGES", "1");
+                                  String registry =
+                                      DOCKER_IMAGE_SPLITTER
+                                          .splitToList(config.imagePrefix())
+                                          .get(0);
+                                  exec.setStandardInput(
+                                      new ByteArrayInputStream(
+                                          registry.getBytes(StandardCharsets.UTF_8)));
+                                  exec.setStandardOutput(output);
+                                });
+                            try {
+                              var creds = OBJECT_MAPPER.readTree(output.toByteArray());
+                              jib.to(
+                                  to ->
+                                      to.auth(
+                                          auth -> {
+                                            auth.setUsername(creds.get("Username").asText());
+                                            auth.setPassword(creds.get("Secret").asText());
+                                          }));
+                            } catch (IOException e) {
+                              throw new UncheckedIOException("Could not parse credentials.", e);
+                            }
+                          }));
 
           String archivesBaseName =
               project.getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
