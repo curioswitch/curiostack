@@ -90,7 +90,6 @@ public class CurioServerPlugin implements Plugin<Project> {
                 BuildImageTask.class,
                 t -> {
                   t.getAsDynamicObject().setProperty("jibExtension", jib);
-                  t.dependsOn(project.getRootProject().getTasks().getByName("gcloudSetup"));
                 });
 
     var patchAlpha = project.getTasks().create("patchAlpha", KubectlTask.class);
@@ -99,7 +98,10 @@ public class CurioServerPlugin implements Plugin<Project> {
         .getTasks()
         .withType(
             BuildImageTask.class,
-            t -> t.dependsOn(project.getTasks().getByName(BasePlugin.ASSEMBLE_TASK_NAME)));
+            t -> {
+              t.dependsOn(project.getTasks().getByName(BasePlugin.ASSEMBLE_TASK_NAME));
+              t.dependsOn(project.getRootProject().getTasks().getByName("gcloudSetup"));
+            });
 
     project.afterEvaluate(
         p -> {
