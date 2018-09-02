@@ -187,10 +187,8 @@ public class DeployPodTask extends DefaultTask {
                         .build())
             .collect(toImmutableList());
 
-    String jvmOpts = createDefaultJvmOptions(gcloud, deploymentConfig);
-    if (!deploymentConfig.envVars().containsKey("JAVA_OPTS")) {
-      envVars.add(new EnvVar("JAVA_OPTS", jvmOpts, null));
-    }
+    String jvmOpts =
+        deploymentConfig.extraJvmArgs() + " " + createDefaultJvmOptions(gcloud, deploymentConfig);
     if (!deploymentConfig.envVars().containsKey("JAVA_TOOL_OPTIONS")) {
       envVars.add(new EnvVar("JAVA_TOOL_OPTIONS", jvmOpts, null));
     }

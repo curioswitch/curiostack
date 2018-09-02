@@ -105,7 +105,7 @@ public class CurioServerPlugin implements Plugin<Project> {
           appPluginConvention.setApplicationName(archivesBaseName);
 
           jib.from(from -> from.setImage("openjdk:10-jre-slim"));
-          String image = config.imagePrefix() + config.baseName();
+          String image = config.imagePrefix() + config.baseName() + ":" + config.imageTag();
           jib.to(to -> to.setImage(image));
           jib.container(
               container -> {
@@ -117,7 +117,7 @@ public class CurioServerPlugin implements Plugin<Project> {
               .getTasks()
               .withType(
                   DockerContextTask.class,
-                  t -> t.setTargetDir(project.file("build/docker").getAbsolutePath()));
+                  t -> t.setTargetDir(project.file("build/jib").getAbsolutePath()));
 
           jibBuildRelease.doFirst(
               unused ->
