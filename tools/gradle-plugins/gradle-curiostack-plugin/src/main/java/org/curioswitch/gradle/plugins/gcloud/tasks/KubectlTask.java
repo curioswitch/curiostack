@@ -81,6 +81,9 @@ public class KubectlTask extends DefaultTask {
                     CommandUtil.getGcloudSdkBinDir(getProject())
                         + File.pathSeparator
                         + exec.getEnvironment().get("PATH"));
+                exec.environment(
+                    "CLOUDSDK_PYTHON", CommandUtil.getPythonExecutable(getProject(), "build"));
+                exec.environment("CLOUDSDK_PYTHON_SITEPACKAGES", "1");
               }
               exec.setStandardInput(System.in);
               exec.setIgnoreExitValue(ignoreExitValue);

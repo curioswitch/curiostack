@@ -383,7 +383,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.checkerframework")
-              .version("2.5.4")
+              .version("2.5.5")
               .addModules("checker-qual", "checker-compat-qual")
               .build(),
           ImmutableDependencySet.builder()
@@ -486,7 +486,7 @@ public class StandardDependencies {
           "com.palantir:gradle-baseline-java:0.10.0",
           "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.1.4",
           "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.9.10",
-          "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.1",
+          "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.2",
           "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
           "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE",

@@ -89,6 +89,7 @@ import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateNodeResolutions;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
+import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
@@ -269,6 +270,12 @@ public class CuriostackPlugin implements Plugin<Project> {
     rootProject.allprojects(
         project -> {
           project.getPlugins().withType(JavaPlugin.class, plugin -> setupJavaProject(project));
+
+          project
+              .getTasks()
+              .withType(
+                  KubectlTask.class,
+                  t -> t.dependsOn(rootProject.getTasks().getByName("gcloudLoginToCluster")));
 
           project
               .getPlugins()
