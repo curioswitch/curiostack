@@ -83,6 +83,9 @@ public class CurioServerPlugin implements Plugin<Project> {
                 t -> {
                   t.getAsDynamicObject().setProperty("jibExtension", jib);
                 });
+
+    var patchAlpha = project.getTasks().create("patchAlpha", KubectlTask.class);
+
     project
         .getTasks()
         .withType(
@@ -143,23 +146,17 @@ public class CurioServerPlugin implements Plugin<Project> {
                       project.getTasks().getByName("jib").dependsOn(t);
                     });
             var alpha = config.getTypes().getByName("alpha");
-            project
-                .getTasks()
-                .create(
-                    "patchAlpha",
-                    KubectlTask.class,
-                    t -> {
-                      t.setArgs(
-                          ImmutableList.of(
-                              "--namespace=" + alpha.namespace(),
-                              "patch",
-                              "deployment/" + alpha.deploymentName(),
-                              "-p",
-                              "'{\"spec\": "
-                                  + "{\"template\": {\"metadata\": {\"labels\": {\"revision\": \""
-                                  + revisionId
-                                  + "\" }}}}}'"));
-                    });
+            patchAlpha.setArgs(
+                ImmutableList.of(
+                    "--namespace=" + alpha.namespace(),
+                    "patch",
+                    "deployment/" + alpha.deploymentName(),
+                    "-p",
+                    "'{\"spec\": "
+                        + "{\"template\": {\"metadata\": {\"labels\": {\"revision\": \""
+                        + revisionId
+                        + "\" }}}}}'"));
+            patchAlpha.setIgnoreExitValue(true);
           }
 
           GroovyObject docker = project.getExtensions().getByType(DockerExtension.class);
