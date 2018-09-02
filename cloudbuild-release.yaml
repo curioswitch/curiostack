@@ -1,0 +1,37 @@
+---
+steps:
+- id: curio-generated-fetch-uncompressed-build-cache
+  waitFor:
+  - '-'
+  name: gcr.io/cloud-builders/gsutil
+  entrypoint: bash
+  args:
+  - -c
+  - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-uncompressed.tar .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-uncompressed.tar || echo Could not fetch uncompressed build cache...
+  env:
+  - CI=true
+- id: curio-generated-fetch-compressed-build-cache
+  waitFor:
+  - '-'
+  name: gcr.io/cloud-builders/gsutil
+  entrypoint: bash
+  args:
+  - -c
+  - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.gz .gradle/cloudbuild-cache-compressed.tar.gz && tar -xpPf .gradle/cloudbuild-cache-compressed.tar.gz || echo Could not fetch compressed build cache...
+  env:
+  - CI=true
+- id: curio-generated-build-releases
+  waitFor:
+  - curio-generated-fetch-uncompressed-build-cache
+  - curio-generated-fetch-compressed-build-cache
+  name: openjdk:10-jdk-slim
+  entrypoint: bash
+  args:
+  - -c
+  - (test -e .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-compressed.tar.gz || echo No build cache yet.) && ./gradlew releaseBuild --stacktrace --no-daemon
+  env:
+  - CI=true
+  - CI_MASTER=true
+  - CLOUDSDK_COMPUTE_ZONE=asia-northeast1-a
+  - TAG_NAME=$TAG_NAME
+  - BRANCH_NAME=$BRANCH_NAME
