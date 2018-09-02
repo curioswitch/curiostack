@@ -55,6 +55,10 @@ public interface ImmutableDeploymentExtension {
     throw new IllegalArgumentException("imagePrefix must be set");
   }
 
+  default String imageTag() {
+    return "latest";
+  }
+
   @Lazy
   default String baseName() {
     return gradleProject()
@@ -129,6 +133,10 @@ public interface ImmutableDeploymentExtension {
 
     default boolean iap() {
       return false;
+    }
+
+    default String extraJvmArgs() {
+      return "";
     }
 
     Map<String, String> envVars();

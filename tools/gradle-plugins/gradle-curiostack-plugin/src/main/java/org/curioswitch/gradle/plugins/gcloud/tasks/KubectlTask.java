@@ -40,6 +40,8 @@ public class KubectlTask extends DefaultTask {
 
   private final ListProperty<String> args;
 
+  private boolean ignoreExitValue;
+
   public KubectlTask() {
     setGroup("gcloud");
 
@@ -53,6 +55,11 @@ public class KubectlTask extends DefaultTask {
 
   public KubectlTask setArgs(ListProperty<String> args) {
     this.args.set(args);
+    return this;
+  }
+
+  public KubectlTask setIgnoreExitValue(boolean ignoreExitValue) {
+    this.ignoreExitValue = ignoreExitValue;
     return this;
   }
 
@@ -76,6 +83,7 @@ public class KubectlTask extends DefaultTask {
                         + exec.getEnvironment().get("PATH"));
               }
               exec.setStandardInput(System.in);
+              exec.setIgnoreExitValue(ignoreExitValue);
             });
   }
 }
