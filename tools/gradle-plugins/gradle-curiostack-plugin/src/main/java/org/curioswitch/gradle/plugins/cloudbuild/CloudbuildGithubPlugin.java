@@ -54,7 +54,7 @@ public class CloudbuildGithubPlugin implements Plugin<Project> {
                   task.setArgs(ImmutableList.of("add", "@curiostack/cloudbuild-github"));
                   task.onlyIf(t -> !project.file("package.json").exists());
                 }),
-        "yarn");
+        project.getRootProject().getTasks().getByName("yarn"));
     initTask.onlyIf(t -> !project.file("package.json").exists());
 
     ImmutableGcloudExtension gcloudConfig =
