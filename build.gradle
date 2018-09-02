@@ -109,3 +109,12 @@ gcloud {
     // clusterZones = ['asia-northeast1-a', 'asia-northeast1-c']
     clusterKubernetesVersion = '1.10.4-gke.0'
 }
+
+ci {
+    releaseTagPrefixes = [
+            'RELEASE_SERVERS_': [
+                    ':auth:server',
+                    ':eggworld:server',
+            ]
+    ]
+}

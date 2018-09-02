@@ -34,25 +34,34 @@ repos:
             - GIT_ASKPASS=/tmp/cloudbuild-github-pass.sh
           secretEnv:
             - GITHUB_TOKEN
-        - id: curio-generated-fetch-build-cache
+        - id: curio-generated-fetch-uncompressed-build-cache
           waitFor:
           - '-'
           name: gcr.io/cloud-builders/gsutil
+          entrypoint: bash
           args:
-          - cp
-          - gs://curioswitch-gradle-build-cache/cloudbuild-cache.tar.gz
-          - .gradle/cloudbuild-cache.tar
+          - -c
+          - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-uncompressed.tar .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-uncompressed.tar || echo Could not fetch uncompressed build cache...
+        - id: curio-generated-fetch-compressed-build-cache
+          waitFor:
+          - '-'
+          name: gcr.io/cloud-builders/gsutil
+          entrypoint: bash
+          args:
+          - -c
+          - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.gz .gradle/cloudbuild-cache-compressed.tar.gz && tar -xpPf .gradle/cloudbuild-cache-compressed.tar.gz || echo Could not fetch compressed build cache...
         - id: build-all
           waitFor:
           - fetch-source
-          - curio-generated-fetch-build-cache
+          - curio-generated-fetch-uncompressed-build-cache
+          - curio-generated-fetch-compressed-build-cache
           name: openjdk:10-jdk-slim
           entrypoint: bash
           args:
           - -c
-          - "(test -e .gradle/cloudbuild-cache.tar && tar -xpPf .gradle/cloudbuild-cache.tar || echo No build cache yet.) && ./gradlew continuousBuild --stacktrace --no-daemon"
+          - "(test -e .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-compressed.tar.gz || echo No build cache yet.) && ./gradlew continuousBuild --stacktrace --no-daemon"
           env:
-            - CI=true
+          - CI=true
       timeout: 60m
       secrets:
         - kmsKeyName: projects/curioswitch-cluster/locations/us-central1/keyRings/cloudbuild/cryptoKeys/github

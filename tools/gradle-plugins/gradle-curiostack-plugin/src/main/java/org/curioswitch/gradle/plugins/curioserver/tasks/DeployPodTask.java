@@ -187,34 +187,12 @@ public class DeployPodTask extends DefaultTask {
                         .build())
             .collect(toImmutableList());
 
+    String jvmOpts = createDefaultJvmOptions(gcloud, deploymentConfig);
     if (!deploymentConfig.envVars().containsKey("JAVA_OPTS")) {
-      int heapSize = deploymentConfig.jvmHeapMb();
-      StringBuilder javaOpts = new StringBuilder();
-      javaOpts
-          .append("--add-opens java.base/jdk.internal.misc=ALL-UNNAMED ")
-          .append("--add-opens jdk.unsupported/sun.misc=ALL-UNNAMED ")
-          .append("-Xms")
-          .append(heapSize)
-          .append("m ")
-          .append("-Xmx")
-          .append(heapSize)
-          .append("m ")
-          .append("-Dconfig.resource=application-")
-          .append(type)
-          .append(".conf ")
-          .append("-Dmonitoring.stackdriverProjectId=")
-          .append(gcloud.clusterProject())
-          .append(" ")
-          .append("-Dmonitoring.serverName=")
-          .append(deploymentConfig.deploymentName())
-          .append(
-              " -Dlog4j2.ContextDataInjector=org.curioswitch.common.server.framework.logging.RequestLoggingContextInjector "
-                  + "-Dlog4j.configurationFile=log4j2-json.yml "
-                  + "-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager ");
-      if (!type.equals("prod")) {
-        javaOpts.append("-Dcom.linecorp.armeria.verboseExceptions=true ");
-      }
-      envVars.add(new EnvVar("JAVA_OPTS", javaOpts.toString(), null));
+      envVars.add(new EnvVar("JAVA_OPTS", jvmOpts, null));
+    }
+    if (!deploymentConfig.envVars().containsKey("JAVA_TOOL_OPTIONS")) {
+      envVars.add(new EnvVar("JAVA_TOOL_OPTIONS", jvmOpts, null));
     }
 
     Map<String, Quantity> resources =
@@ -434,6 +412,37 @@ public class DeployPodTask extends DefaultTask {
 
       client.resource(ingress).createOrReplace();
     }
+  }
+
+  private String createDefaultJvmOptions(
+      ImmutableGcloudExtension gcloud, ImmutableDeploymentConfiguration deploymentConfig) {
+    int heapSize = deploymentConfig.jvmHeapMb();
+    StringBuilder javaOpts = new StringBuilder();
+    javaOpts
+        .append("--add-opens java.base/jdk.internal.misc=ALL-UNNAMED ")
+        .append("--add-opens jdk.unsupported/sun.misc=ALL-UNNAMED ")
+        .append("-Xms")
+        .append(heapSize)
+        .append("m ")
+        .append("-Xmx")
+        .append(heapSize)
+        .append("m ")
+        .append("-Dconfig.resource=application-")
+        .append(type)
+        .append(".conf ")
+        .append("-Dmonitoring.stackdriverProjectId=")
+        .append(gcloud.clusterProject())
+        .append(" ")
+        .append("-Dmonitoring.serverName=")
+        .append(deploymentConfig.deploymentName())
+        .append(
+            " -Dlog4j2.ContextDataInjector=org.curioswitch.common.server.framework.logging.RequestLoggingContextInjector "
+                + "-Dlog4j.configurationFile=log4j2-json.yml "
+                + "-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager ");
+    if (!type.equals("prod")) {
+      javaOpts.append("-Dcom.linecorp.armeria.verboseExceptions=true ");
+    }
+    return javaOpts.toString();
   }
 
   private static Probe createProbe(
