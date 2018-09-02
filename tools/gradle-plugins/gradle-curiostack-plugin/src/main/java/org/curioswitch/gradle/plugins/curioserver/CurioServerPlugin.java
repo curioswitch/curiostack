@@ -171,7 +171,8 @@ public class CurioServerPlugin implements Plugin<Project> {
           jibBuildRelease.doFirst(
               unused ->
                   jibBuildRelease.setTargetImage(
-                      image
+                      config.imagePrefix()
+                          + config.baseName()
                           + ":"
                           + project
                               .getRootProject()
