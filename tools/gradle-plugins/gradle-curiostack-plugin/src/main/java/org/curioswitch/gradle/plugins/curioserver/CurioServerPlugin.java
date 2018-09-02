@@ -123,10 +123,6 @@ public class CurioServerPlugin implements Plugin<Project> {
                                           .resolve("docker-credential-gcr"));
                                   exec.args("get");
 
-                                  exec.environment(
-                                      "CLOUDSDK_PYTHON",
-                                      CommandUtil.getPythonExecutable(project, "build"));
-                                  exec.environment("CLOUDSDK_PYTHON_SITEPACKAGES", "1");
                                   String registry =
                                       DOCKER_IMAGE_SPLITTER
                                           .splitToList(config.imagePrefix())

@@ -115,6 +115,7 @@ public class GcloudPlugin implements Plugin<Project> {
     project.getTasks().create(DownloadHelmTask.NAME, DownloadHelmTask.class, new PlatformHelper());
 
     var gcloudSetup = project.getTasks().create("gcloudSetup");
+    var gcloudLoginToCluster = project.getTasks().create("gcloudLoginToCluster", GcloudTask.class);
 
     project.afterEvaluate(
         p -> {
@@ -156,16 +157,15 @@ public class GcloudPlugin implements Plugin<Project> {
           createSourceRepo.setArgs(
               ImmutableList.of("alpha", "source", "repos", "create", config.sourceRepository()));
 
-          GcloudTask loginToCluster =
-              project.getTasks().create("gcloudLoginToCluster", GcloudTask.class);
-          loginToCluster.setArgs(
+          gcloudLoginToCluster.setArgs(
               ImmutableList.of(
                   "container",
                   "clusters",
                   "get-credentials",
                   config.clusterName(),
-                  "--region",
-                  config.cloudRegion()));
+                  System.getenv("CLOUDSDK_COMPUTE_ZONE") != null
+                      ? "--zone=" + System.getenv("CLOUDSDK_COMPUTE_ZONE")
+                      : "--region=" + config.cloudRegion()));
 
           GcloudTask installComponents =
               project
