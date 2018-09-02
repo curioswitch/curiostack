@@ -32,6 +32,5 @@ steps:
   env:
   - CI=true
   - CI_MASTER=true
-  - CLOUDSDK_COMPUTE_ZONE=asia-northeast1-a
   - TAG_NAME=$TAG_NAME
   - BRANCH_NAME=$BRANCH_NAME
