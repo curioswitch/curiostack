@@ -114,6 +114,8 @@ public class GcloudPlugin implements Plugin<Project> {
     TillerExtension.createAndAdd(project);
     project.getTasks().create(DownloadHelmTask.NAME, DownloadHelmTask.class, new PlatformHelper());
 
+    var gcloudSetup = project.getTasks().create("gcloudSetup");
+
     project.afterEvaluate(
         p -> {
           SetupTask downloadSdkTask = project.getTasks().create(SetupTask.NAME, SetupTask.class);
@@ -181,9 +183,7 @@ public class GcloudPlugin implements Plugin<Project> {
                                   "kubectl",
                                   "docker-credential-gcr")));
           installComponents.dependsOn(downloadSdkTask);
-          project
-              .getTasks()
-              .create("gcloudSetup", t -> t.dependsOn(downloadSdkTask, installComponents));
+          gcloudSetup.dependsOn(downloadSdkTask, installComponents);
         });
 
     addGenerateCloudBuildTask(project);

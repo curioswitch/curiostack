@@ -88,7 +88,10 @@ public class CurioServerPlugin implements Plugin<Project> {
             .create(
                 "jibBuildRelease",
                 BuildImageTask.class,
-                t -> t.getAsDynamicObject().setProperty("jibExtension", jib));
+                t -> {
+                  t.getAsDynamicObject().setProperty("jibExtension", jib);
+                  t.dependsOn(project.getRootProject().getTasks().getByName("gcloudSetup"));
+                });
 
     var patchAlpha = project.getTasks().create("patchAlpha", KubectlTask.class);
 
