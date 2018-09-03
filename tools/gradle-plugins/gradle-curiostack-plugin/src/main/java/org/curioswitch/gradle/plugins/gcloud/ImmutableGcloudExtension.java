@@ -47,6 +47,10 @@ public interface ImmutableGcloudExtension {
     throw new IllegalArgumentException("cloudRegion must be specified.");
   }
 
+  default String clusterRegion() {
+    return cloudRegion();
+  }
+
   @Nullable
   default List<String> clusterZones() {
     return null;
