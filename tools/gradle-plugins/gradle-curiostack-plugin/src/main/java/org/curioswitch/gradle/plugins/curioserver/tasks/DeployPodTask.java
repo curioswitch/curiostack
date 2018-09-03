@@ -188,7 +188,8 @@ public class DeployPodTask extends DefaultTask {
             .collect(toImmutableList());
 
     String jvmOpts =
-        deploymentConfig.extraJvmArgs() + " " + createDefaultJvmOptions(gcloud, deploymentConfig);
+        (deploymentConfig.extraJvmArgs() + " " + createDefaultJvmOptions(gcloud, deploymentConfig))
+            .trim();
     if (!deploymentConfig.envVars().containsKey("JAVA_TOOL_OPTIONS")) {
       envVars.add(new EnvVar("JAVA_TOOL_OPTIONS", jvmOpts, null));
     }
@@ -417,8 +418,8 @@ public class DeployPodTask extends DefaultTask {
     int heapSize = deploymentConfig.jvmHeapMb();
     StringBuilder javaOpts = new StringBuilder();
     javaOpts
-        .append("--add-opens java.base/jdk.internal.misc=ALL-UNNAMED ")
-        .append("--add-opens jdk.unsupported/sun.misc=ALL-UNNAMED ")
+        .append("--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED ")
+        .append("--add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED ")
         .append("-Xms")
         .append(heapSize)
         .append("m ")

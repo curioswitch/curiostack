@@ -160,7 +160,7 @@ public class GcloudPlugin implements Plugin<Project> {
                   config.clusterName(),
                   System.getenv("CLOUDSDK_COMPUTE_ZONE") != null
                       ? "--zone=" + System.getenv("CLOUDSDK_COMPUTE_ZONE")
-                      : "--region=" + config.cloudRegion()));
+                      : "--region=" + config.clusterRegion()));
 
           GcloudTask installComponents =
               project
