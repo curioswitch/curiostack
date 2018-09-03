@@ -88,9 +88,7 @@ public class CurioServerPlugin implements Plugin<Project> {
             .create(
                 "jibBuildRelease",
                 BuildImageTask.class,
-                t -> {
-                  t.getAsDynamicObject().setProperty("jibExtension", jib);
-                });
+                t -> t.getAsDynamicObject().setProperty("jibExtension", jib));
 
     var patchAlpha = project.getTasks().create("patchAlpha", KubectlTask.class);
 
@@ -158,7 +156,7 @@ public class CurioServerPlugin implements Plugin<Project> {
           jib.to(to -> to.setImage(image));
           jib.container(
               container -> {
-                container.setFormat(ImageFormat.OCI);
+                container.setFormat(ImageFormat.Docker);
                 container.setMainClass(appPluginConvention.getMainClassName());
                 container.setPorts(ImmutableList.of("8080"));
               });
@@ -205,10 +203,10 @@ public class CurioServerPlugin implements Plugin<Project> {
                     "patch",
                     "deployment/" + alpha.deploymentName(),
                     "-p",
-                    "'{\"spec\": "
+                    "{\"spec\": "
                         + "{\"template\": {\"metadata\": {\"labels\": {\"revision\": \""
                         + revisionId
-                        + "\" }}}}}'"));
+                        + "\" }}}}}"));
             patchAlpha.setIgnoreExitValue(true);
           }
 
@@ -216,8 +214,6 @@ public class CurioServerPlugin implements Plugin<Project> {
           DockerJavaApplication javaApplication =
               (DockerJavaApplication) docker.getProperty("javaApplication");
           javaApplication.setBaseImage("openjdk:10-jre-slim");
-
-          project.getTasks().getByName("build").dependsOn("dockerDistTar");
 
           for (ImmutableDeploymentConfiguration type : config.getTypes()) {
             String capitalized =
