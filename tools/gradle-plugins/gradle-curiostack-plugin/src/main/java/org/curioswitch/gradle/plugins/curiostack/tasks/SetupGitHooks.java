@@ -40,7 +40,7 @@ public class SetupGitHooks extends DefaultTask {
       "#!/bin/sh\n\n"
           + "echo 'Running pre-push check of affected targets. If you want to skip this, run "
           + "git push --no-verify instead.'\n"
-          + "./gradlew continuousCheck -Pci=true";
+          + "./gradlew continuousBuild -Pci=true";
 
   @OutputFile
   File prePushFile() {

@@ -94,7 +94,6 @@ import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolutionStrategy;
@@ -110,6 +109,7 @@ import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.api.tasks.testing.Test;
@@ -152,8 +152,8 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     rootProject
         .getTasks()
-        .withType(
-            Wrapper.class,
+        .withType(Wrapper.class)
+        .configureEach(
             wrapper -> {
               wrapper.setGradleVersion(GRADLE_VERSION);
               wrapper.setDistributionType(DistributionType.ALL);
@@ -161,35 +161,36 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     setupPyenvs(rootProject);
 
-    YarnInstallTask yarnTask =
-        rootProject.getTasks().withType(YarnInstallTask.class).getByName("yarn");
-    yarnTask.setArgs(ImmutableList.of("--frozen-lockfile"));
-    YarnInstallTask yarnUpdateTask =
-        rootProject.getTasks().create("yarnUpdate", YarnInstallTask.class);
-    Task yarnWarning =
-        rootProject
-            .getTasks()
-            .create(
-                "yarnWarning",
-                task -> {
-                  task.onlyIf(unused -> yarnTask.getState().getFailure() != null);
-                  task.doFirst(
-                      unused ->
-                          rootProject
-                              .getLogger()
-                              .warn(
-                                  "yarn task failed. If you have updated a dependency and the "
-                                      + "error says 'Your lockfile needs to be updated.', run \n\n"
-                                      + "./gradlew "
-                                      + yarnUpdateTask.getPath()));
-                });
-    yarnTask.finalizedBy(yarnWarning);
+    var yarnTask = rootProject.getTasks().withType(YarnInstallTask.class).named("yarn");
+    var yarnUpdateTask = rootProject.getTasks().register("yarnUpdate", YarnInstallTask.class);
+    yarnTask.configure(
+        t -> {
+          var yarnWarning =
+              rootProject
+                  .getTasks()
+                  .register(
+                      "yarnWarning",
+                      task -> {
+                        task.onlyIf(unused -> t.getState().getFailure() != null);
+                        task.doFirst(
+                            unused ->
+                                rootProject
+                                    .getLogger()
+                                    .warn(
+                                        "yarn task failed. If you have updated a dependency and the "
+                                            + "error says 'Your lockfile needs to be updated.', run \n\n"
+                                            + "./gradlew :"
+                                            + yarnUpdateTask.getName()));
+                      });
+          t.setArgs(ImmutableList.of("--frozen-lockfile"));
+          t.finalizedBy(yarnWarning);
+        });
 
-    rootProject.getTasks().create("setupGitHooks", SetupGitHooks.class);
-    CreateShellConfigTask rehash =
+    rootProject.getTasks().register("setupGitHooks", SetupGitHooks.class);
+    var rehash =
         rootProject
             .getTasks()
-            .create(
+            .register(
                 "rehash",
                 CreateShellConfigTask.class,
                 t ->
@@ -200,7 +201,7 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     rootProject
         .getTasks()
-        .create(
+        .register(
             "setup",
             t -> {
               t.dependsOn("gcloudSetup");
@@ -220,32 +221,34 @@ public class CuriostackPlugin implements Plugin<Project> {
       throw new UncheckedIOException(e);
     }
 
-    Task baselineUpdateConfig =
+    var baselineUpdateConfig =
         rootProject
             .getTasks()
-            .create("baselineUpdateConfig")
-            .doLast(
-                task -> {
-                  File baselineDir = rootProject.file(".baseline");
-                  baselineDir.mkdirs();
-                  for (String filePath : NEW_LINE_SPLITTER.split(baselineFiles)) {
-                    Path path = Paths.get(filePath);
-                    Path outputDirectory =
-                        Paths.get(baselineDir.getAbsolutePath()).resolve(path.getParent());
-                    rootProject.file(outputDirectory.toAbsolutePath()).mkdirs();
-                    try (FileOutputStream os =
-                            new FileOutputStream(
-                                outputDirectory.resolve(path.getFileName()).toFile());
-                        InputStream is = Resources.getResource(filePath).openStream()) {
-                      ByteStreams.copy(is, os);
-                    } catch (IOException e) {
-                      throw new UncheckedIOException(e);
-                    }
-                  }
-                });
+            .register(
+                "baselineUpdateConfig",
+                t ->
+                    t.doLast(
+                        task -> {
+                          File baselineDir = rootProject.file(".baseline");
+                          baselineDir.mkdirs();
+                          for (String filePath : NEW_LINE_SPLITTER.split(baselineFiles)) {
+                            Path path = Paths.get(filePath);
+                            Path outputDirectory =
+                                Paths.get(baselineDir.getAbsolutePath()).resolve(path.getParent());
+                            rootProject.file(outputDirectory.toAbsolutePath()).mkdirs();
+                            try (FileOutputStream os =
+                                    new FileOutputStream(
+                                        outputDirectory.resolve(path.getFileName()).toFile());
+                                InputStream is = Resources.getResource(filePath).openStream()) {
+                              ByteStreams.copy(is, os);
+                            } catch (IOException e) {
+                              throw new UncheckedIOException(e);
+                            }
+                          }
+                        }));
 
     if (!rootProject.file(".baseline").exists()) {
-      rootProject.getTasks().getByName("ideaProject").dependsOn(baselineUpdateConfig);
+      rootProject.getTasks().named("ideaProject").configure(t -> t.dependsOn(baselineUpdateConfig));
     }
 
     rootProject.afterEvaluate(
@@ -273,9 +276,9 @@ public class CuriostackPlugin implements Plugin<Project> {
 
           project
               .getTasks()
-              .withType(
-                  KubectlTask.class,
-                  t -> t.dependsOn(rootProject.getTasks().getByName("gcloudLoginToCluster")));
+              .withType(KubectlTask.class)
+              .configureEach(
+                  t -> t.dependsOn(rootProject.getTasks().named("gcloudLoginToCluster")));
 
           project
               .getPlugins()
@@ -427,14 +430,15 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     project
         .getTasks()
-        .withType(
-            JavaCompile.class,
+        .withType(JavaCompile.class)
+        .configureEach(
             task -> {
               task.getOptions().setIncremental(true);
               task.getOptions().setCompilerArgs(ImmutableList.of("-XDcompilePolicy=byfile"));
               project
                   .getTasks()
-                  .withType(SpotlessTask.class, spotlessTask -> spotlessTask.dependsOn(task));
+                  .withType(SpotlessTask.class)
+                  .configureEach(spotlessTask -> spotlessTask.dependsOn(task));
 
               ErrorProneOptions errorProne =
                   ((ExtensionAware) task.getOptions())
@@ -451,11 +455,18 @@ public class CuriostackPlugin implements Plugin<Project> {
     javaPlugin.setSourceCompatibility(JavaVersion.VERSION_1_10);
     javaPlugin.setTargetCompatibility(JavaVersion.VERSION_1_10);
 
-    Test test = project.getTasks().withType(Test.class).getByName("test");
-    if (project.getRootProject().hasProperty("updateSnapshots")) {
-      test.jvmArgs(ImmutableList.of("-Dorg.curioswitch.testing.updateSnapshots=true"));
-    }
-    test.useJUnitPlatform(platform -> platform.includeEngines("junit-jupiter", "junit-vintage"));
+    project
+        .getTasks()
+        .withType(Test.class)
+        .named("test")
+        .configure(
+            test -> {
+              if (project.getRootProject().hasProperty("updateSnapshots")) {
+                test.jvmArgs(ImmutableList.of("-Dorg.curioswitch.testing.updateSnapshots=true"));
+              }
+              test.useJUnitPlatform(
+                  platform -> platform.includeEngines("junit-jupiter", "junit-vintage"));
+            });
 
     // While Gradle attempts to generate a unique module name automatically,
     // it doesn't seem to always work properly, so we just always use unique
@@ -476,8 +487,9 @@ public class CuriostackPlugin implements Plugin<Project> {
 
               project
                   .getTasks()
-                  .getByName("clean")
-                  .doLast(unused -> project.file(project.getName() + ".iml").delete());
+                  .named("clean")
+                  .configure(
+                      t -> t.doLast(unused -> project.file(project.getName() + ".iml").delete()));
 
               ((ExtensionAware) module)
                   .getExtensions()
@@ -519,27 +531,30 @@ public class CuriostackPlugin implements Plugin<Project> {
                   ImmutableMap.of("group", "com.google.guava", "module", "guava-jdk5"));
             });
 
-    Javadoc javadoc = (Javadoc) project.getTasks().getByName("javadoc");
-    CoreJavadocOptions options = (CoreJavadocOptions) javadoc.getOptions();
-    options.quiet();
-    options.addBooleanOption("Xdoclint:all,-missing", true);
+    var javadoc = project.getTasks().withType(Javadoc.class).named("javadoc");
+    javadoc.configure(
+        t -> {
+          CoreJavadocOptions options = (CoreJavadocOptions) t.getOptions();
+          options.quiet();
+          options.addBooleanOption("Xdoclint:all,-missing", true);
+        });
 
     project
         .getTasks()
-        .create(
+        .register(
             "javadocJar",
             Jar.class,
             javadocJar -> {
               javadocJar.dependsOn(javadoc);
               javadocJar.setClassifier("javadoc");
-              javadocJar.from(javadoc.getDestinationDir());
+              javadocJar.from(javadoc.get().getDestinationDir());
             });
 
     SourceSetContainer sourceSets = javaPlugin.getSourceSets();
     var mainSourceSet = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
     project
         .getTasks()
-        .create(
+        .register(
             "sourceJar",
             Jar.class,
             sourceJar -> {
@@ -552,7 +567,7 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     project
         .getTasks()
-        .create(
+        .register(
             "resolveDependencies",
             resolveDependencies ->
                 resolveDependencies.doLast(
@@ -620,22 +635,21 @@ public class CuriostackPlugin implements Plugin<Project> {
               // unresolvable
               // dependency.
               project.afterEvaluate(
-                  p -> {
-                    jmhConfiguration
-                        .getExtendsFrom()
-                        .forEach(
-                            parent -> {
-                              parent
-                                  .getResolvedConfiguration()
-                                  .getFirstLevelModuleDependencies()
-                                  .forEach(
-                                      dep -> {
-                                        project
-                                            .getDependencies()
-                                            .add("jmh", dep.getModule().toString());
-                                      });
-                            });
-                  });
+                  p ->
+                      jmhConfiguration
+                          .getExtendsFrom()
+                          .forEach(
+                              parent -> {
+                                parent
+                                    .getResolvedConfiguration()
+                                    .getFirstLevelModuleDependencies()
+                                    .forEach(
+                                        dep -> {
+                                          project
+                                              .getDependencies()
+                                              .add("jmh", dep.getModule().toString());
+                                        });
+                              }));
             });
 
     project
@@ -645,8 +659,8 @@ public class CuriostackPlugin implements Plugin<Project> {
             unused ->
                 project
                     .getTasks()
-                    .withType(
-                        JooqTask.class,
+                    .withType(JooqTask.class)
+                    .configureEach(
                         t -> {
                           for (String dependency :
                               ImmutableList.of(
@@ -667,8 +681,8 @@ public class CuriostackPlugin implements Plugin<Project> {
     // in production.
     project
         .getTasks()
-        .withType(
-            JavaExec.class,
+        .withType(JavaExec.class)
+        .configureEach(
             task ->
                 System.getProperties()
                     .entrySet()
@@ -712,7 +726,7 @@ public class CuriostackPlugin implements Plugin<Project> {
         .add(configuration.getName(), "com.google.cloud.sql:mysql-socket-factory");
     project
         .getTasks()
-        .create(
+        .register(
             "setupDataSources",
             Copy.class,
             t -> {
@@ -721,7 +735,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
   }
 
-  private static void setupNode(Project project, CreateShellConfigTask rehash) {
+  private static void setupNode(Project project, TaskProvider<CreateShellConfigTask> rehash) {
     NodeExtension node = project.getExtensions().getByType(NodeExtension.class);
     node.setVersion(NODE_VERSION);
     node.setYarnVersion(YARN_VERSION);
@@ -754,49 +768,62 @@ public class CuriostackPlugin implements Plugin<Project> {
                           + exec.getEnvironment().get(pathKey));
             });
 
-    project.getTasks().withType(NodeTask.class, t -> t.setExecOverrides(pathOverrider));
-    project.getTasks().withType(NpmTask.class, t -> t.setExecOverrides(pathOverrider));
-    project.getTasks().withType(YarnTask.class, t -> t.setExecOverrides(pathOverrider));
+    project
+        .getTasks()
+        .withType(NodeTask.class)
+        .configureEach(t -> t.setExecOverrides(pathOverrider));
+    project
+        .getTasks()
+        .withType(NpmTask.class)
+        .configureEach(t -> t.setExecOverrides(pathOverrider));
+    project
+        .getTasks()
+        .withType(YarnTask.class)
+        .configureEach(t -> t.setExecOverrides(pathOverrider));
 
     node.setWorkDir(CommandUtil.getNodeDir(project).toFile());
     node.setNpmWorkDir(CommandUtil.getNpmDir(project).toFile());
     node.setYarnWorkDir(CommandUtil.getYarnDir(project).toFile());
 
     project.afterEvaluate(
-        n -> {
-          rehash.path(node.getVariant().getNodeBinDir().toPath());
-          rehash.path(node.getVariant().getYarnBinDir().toPath());
-          rehash.path(node.getVariant().getNpmBinDir().toPath());
-        });
+        unused ->
+            rehash.configure(
+                t -> {
+                  t.path(node.getVariant().getNodeBinDir().toPath());
+                  t.path(node.getVariant().getYarnBinDir().toPath());
+                  t.path(node.getVariant().getNpmBinDir().toPath());
+                }));
 
     project
         .getTasks()
-        .getByName(
-            "nodeSetup",
+        .named("nodeSetup")
+        .configure(
             t -> {
               t.dependsOn("pythonSetup");
               t.onlyIf(unused -> !node.getVariant().getNodeDir().exists());
             });
     project
         .getTasks()
-        .findByName("yarnSetup")
-        .onlyIf(t -> !node.getVariant().getYarnDir().exists());
+        .named("yarnSetup")
+        .configure(task -> task.onlyIf(t -> !node.getVariant().getYarnDir().exists()));
 
     // Since yarn is very fast, go ahead and clean node_modules too to prevent
     // inconsistency.
     project.getPluginManager().apply(BasePlugin.class);
     project
         .getTasks()
-        .getByName(
-            BasePlugin.CLEAN_TASK_NAME,
-            task -> ((Delete) task).delete(project.file("node_modules")));
+        .named(BasePlugin.CLEAN_TASK_NAME)
+        .configure(task -> ((Delete) task).delete(project.file("node_modules")));
 
     project.getTasks().create(UpdateNodeResolutions.NAME, UpdateNodeResolutions.class, false);
-    Task checkNodeResolutions =
+    var checkNodeResolutions =
         project
             .getTasks()
-            .create(UpdateNodeResolutions.CHECK_NAME, UpdateNodeResolutions.class, true);
-    project.getTasks().withType(YarnTask.class, t -> t.finalizedBy(checkNodeResolutions));
+            .register(UpdateNodeResolutions.CHECK_NAME, UpdateNodeResolutions.class, true);
+    project
+        .getTasks()
+        .withType(YarnTask.class)
+        .configureEach(t -> t.finalizedBy(checkNodeResolutions));
   }
 
   private static void setupPyenvs(Project rootProject) {
@@ -822,7 +849,20 @@ public class CuriostackPlugin implements Plugin<Project> {
     envs.condaenv("build", "2.7", CommandUtil.DEFAULT_ENV_NAME);
     envs.condaenv("dev", "2.7", CommandUtil.DEFAULT_ENV_NAME);
 
-    rootProject.getTasks().create("pythonSetup", t -> t.dependsOn("build_envs"));
+    rootProject.afterEvaluate(
+        p -> {
+          var buildEnvs = rootProject.getTasks().named("build_envs");
+          buildEnvs.configure(
+              t ->
+                  t.doLast(
+                      unused ->
+                          rootProject.delete(
+                              delete ->
+                                  delete.delete(
+                                      CommandUtil.getCondaBaseDir(rootProject) + "/pkgs"))));
+
+          rootProject.getTasks().register("pythonSetup", t -> t.dependsOn(buildEnvs));
+        });
   }
 
   private static Optional<Node> findChild(Node node, Predicate<Node> predicate) {
