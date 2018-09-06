@@ -485,6 +485,14 @@ public class DeployPodTask extends DefaultTask {
   }
 
   private static void deployService(Service service, KubernetesClient client) {
-    client.resource(service).createOrReplace();
+    // If we always createOrReplace, node-port services get recreated with a new port.
+    try {
+      if (client.resource(service).fromServer().get() == null) {
+        client.resource(service).createOrReplace();
+      }
+    } catch (ClassCastException e) {
+      // TODO(choko): Kubernetes client is throwing this on get() for some reason. Seems like a bug
+      // but it works to skip existing services to just live with it for now, but try to fix it.
+    }
   }
 }
