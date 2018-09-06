@@ -81,16 +81,26 @@ public class CurioServerPlugin implements Plugin<Project> {
 
     project.getNormalization().getRuntimeClasspath().ignore("git.properties");
 
+    // We don't use distributions so don't build them. Users can still reenable in afterevaluate if
+    // they really need it.
+    project.getTasks().named("distTar").configure(t -> t.setEnabled(false));
+    project.getTasks().named("distZip").configure(t -> t.setEnabled(false));
+
     var jib = project.getExtensions().getByType(JibExtension.class);
     var jibBuildRelease =
         project
             .getTasks()
-            .create(
+            .register(
                 "jibBuildRelease",
                 BuildImageTask.class,
                 t -> t.getAsDynamicObject().setProperty("jibExtension", jib));
 
-    var patchAlpha = project.getTasks().create("patchAlpha", KubectlTask.class);
+    var jibTask = project.getTasks().named("jib");
+    var patchAlpha = project.getTasks().register("patchAlpha", KubectlTask.class);
+    patchAlpha.configure(t -> t.mustRunAfter(jibTask));
+    if (System.getenv("CI_MASTER") != null) {
+      project.getTasks().named("build").configure(t -> t.dependsOn(jibTask, patchAlpha));
+    }
 
     project
         .getTasks()
@@ -166,25 +176,28 @@ public class CurioServerPlugin implements Plugin<Project> {
                   DockerContextTask.class,
                   t -> t.setTargetDir(project.file("build/jib").getAbsolutePath()));
 
-          jibBuildRelease.doFirst(
-              unused ->
-                  jibBuildRelease.setTargetImage(
-                      config.imagePrefix()
-                          + config.baseName()
-                          + ":"
-                          + project
-                              .getRootProject()
-                              .getExtensions()
-                              .getByType(ExtraPropertiesExtension.class)
-                              .get("curiostack.releaseBranch")));
-          jibBuildRelease.doLast(unused -> jibBuildRelease.setTargetImage(image));
+          jibBuildRelease.configure(
+              t -> {
+                t.doFirst(
+                    unused ->
+                        t.setTargetImage(
+                            config.imagePrefix()
+                                + config.baseName()
+                                + ":"
+                                + project
+                                    .getRootProject()
+                                    .getExtensions()
+                                    .getByType(ExtraPropertiesExtension.class)
+                                    .get("curiostack.releaseBranch")));
+                t.doLast(unused -> t.setTargetImage(image));
+              });
 
           String revisionId =
               (String) project.getRootProject().findProperty("curiostack.revisionId");
           if (revisionId != null) {
             project
                 .getTasks()
-                .create(
+                .register(
                     "jibBuildRevision",
                     BuildImageTask.class,
                     t -> {
@@ -194,20 +207,23 @@ public class CurioServerPlugin implements Plugin<Project> {
                               t.setTargetImage(
                                   config.imagePrefix() + config.baseName() + ":" + revisionId));
                       t.doLast(unused -> t.setTargetImage(image));
-                      project.getTasks().getByName("jib").dependsOn(t);
+                      jibTask.configure(jibT -> jibT.dependsOn(t));
                     });
             var alpha = config.getTypes().getByName("alpha");
-            patchAlpha.setArgs(
-                ImmutableList.of(
-                    "--namespace=" + alpha.namespace(),
-                    "patch",
-                    "deployment/" + alpha.deploymentName(),
-                    "-p",
-                    "{\"spec\": "
-                        + "{\"template\": {\"metadata\": {\"labels\": {\"revision\": \""
-                        + revisionId
-                        + "\" }}}}}"));
-            patchAlpha.setIgnoreExitValue(true);
+            patchAlpha.configure(
+                t -> {
+                  t.setArgs(
+                      ImmutableList.of(
+                          "--namespace=" + alpha.namespace(),
+                          "patch",
+                          "deployment/" + alpha.deploymentName(),
+                          "-p",
+                          "{\"spec\": "
+                              + "{\"template\": {\"metadata\": {\"labels\": {\"revision\": \""
+                              + revisionId
+                              + "\" }}}}}"));
+                  t.setIgnoreExitValue(true);
+                });
           }
 
           GroovyObject docker = project.getExtensions().getByType(DockerExtension.class);
@@ -223,7 +239,7 @@ public class CurioServerPlugin implements Plugin<Project> {
             var deployIapBackendConfigTask =
                 project
                     .getTasks()
-                    .create(
+                    .register(
                         "deployIapBackendConfig" + capitalized,
                         KubectlTask.class,
                         t -> {
@@ -255,7 +271,7 @@ public class CurioServerPlugin implements Plugin<Project> {
             var deployCdnBackendConfigTask =
                 project
                     .getTasks()
-                    .create(
+                    .register(
                         "deployCdnBackendConfig" + capitalized,
                         KubectlTask.class,
                         t -> {
@@ -283,17 +299,25 @@ public class CurioServerPlugin implements Plugin<Project> {
                           t.setArgs(args);
                         });
 
-            DeployConfigMapTask deployConfigMapTask =
+            var deployConfigMapTask =
                 project
                     .getTasks()
-                    .create("deployConfigMap" + capitalized, DeployConfigMapTask.class)
-                    .setType(type.getName());
+                    .register(
+                        "deployConfigMap" + capitalized,
+                        DeployConfigMapTask.class,
+                        t -> t.setType(type.getName()));
             project
                 .getTasks()
-                .create("deploy" + capitalized, DeployPodTask.class)
-                .setType(type.getName())
-                .dependsOn(
-                    deployIapBackendConfigTask, deployCdnBackendConfigTask, deployConfigMapTask);
+                .register(
+                    "deploy" + capitalized,
+                    DeployPodTask.class,
+                    t -> {
+                      t.setType(type.getName());
+                      t.dependsOn(
+                          deployIapBackendConfigTask,
+                          deployCdnBackendConfigTask,
+                          deployConfigMapTask);
+                    });
           }
         });
     project.getPluginManager().apply(DockerJavaApplicationPlugin.class);

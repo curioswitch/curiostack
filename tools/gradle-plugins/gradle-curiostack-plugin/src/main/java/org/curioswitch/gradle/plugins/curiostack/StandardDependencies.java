@@ -335,7 +335,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.8.20")
+              .version("1.8.21")
               .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
@@ -443,17 +443,17 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.junit.jupiter")
-              .version("5.2.0")
-              .addModules("junit-jupiter-api", "junit-jupiter-engine")
+              .version("5.3.0")
+              .addModules("junit-jupiter-api", "junit-jupiter-engine", "junit-jupiter-params")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.junit.vintage")
-              .version("5.2.0")
+              .version("5.3.0")
               .addModules("junit-vintage-engine")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")
-              .version("2.21.4")
+              .version("2.21.5")
               .addModules("mockito-core", "mockito-junit-jupiter")
               .build(),
           ImmutableDependencySet.builder()

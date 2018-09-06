@@ -109,8 +109,6 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       return;
     }
 
-    boolean deployArtifacts = System.getenv("CI_MASTER") != null;
-
     if (affectedProjects.contains(project.getRootProject())) {
       // Rebuild everything when the root project is changed.
       Task continuousBuild = project.task("continuousBuild");
@@ -123,15 +121,6 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                     continuousBuild.dependsOn(task);
                   }
                 });
-            if (deployArtifacts) {
-              proj.getPlugins()
-                  .withType(
-                      CurioServerPlugin.class,
-                      unused -> {
-                        continuousBuild.dependsOn(proj.getTasks().getByName("jib"));
-                        continuousBuild.dependsOn(proj.getTasks().getByName("patchAlpha"));
-                      });
-            }
           });
       return;
     }
@@ -169,15 +158,6 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
               continuousBuild.dependsOn(dependentsTask);
             }
           });
-      if (deployArtifacts) {
-        proj.getPlugins()
-            .withType(
-                CurioServerPlugin.class,
-                unused -> {
-                  continuousBuild.dependsOn(proj.getTasks().getByName("jib"));
-                  continuousBuild.dependsOn(proj.getTasks().getByName("patchAlpha"));
-                });
-      }
     }
   }
 

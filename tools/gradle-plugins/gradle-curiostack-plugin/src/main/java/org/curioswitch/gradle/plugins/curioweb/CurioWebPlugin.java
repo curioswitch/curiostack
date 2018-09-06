@@ -57,35 +57,57 @@ public class CurioWebPlugin implements Plugin<Project> {
         .getOutput()
         .dir(ImmutableMap.of("builtBy", "copyWeb"), "build/javaweb");
 
-    CacheableYarnTask buildWeb =
+    var buildWebCheck =
+        project
+            .getTasks()
+            .register(
+                "buildWebCheck",
+                t ->
+                    t.doLast(
+                        unused -> {
+                          if (!project.file("build/web").exists()) {
+                            throw new RuntimeException("Build failed.");
+                          }
+                        }));
+
+    var buildWeb =
         project
             .getRootProject()
             .getTasks()
-            .create(rootTaskName("buildWeb", project), CacheableYarnTask.class);
-    buildWeb.dependsOn(project.getRootProject().getTasks().findByName("yarn"));
-    buildWeb.setArgs(ImmutableList.of("run", "build"));
-    buildWeb.setWorkingDir(project.getProjectDir());
-    buildWeb.getInputs().dir(project.file("src").getAbsolutePath());
-    buildWeb.getInputs().dir(project.file("internals").getAbsolutePath());
-    buildWeb.getInputs().dir(project.file("package.json").getAbsolutePath());
-    // We assume the yarn task correctly handles up-to-date checks for node_modules, so only
-    // need to look at yarn.lock here.
-    buildWeb.getInputs().file(project.getRootProject().file("yarn.lock").getAbsolutePath());
-    buildWeb.getOutputs().dir(project.file("build/web").getAbsolutePath());
-    buildWeb.doLast(
-        unused -> {
-          if (!project.file("build/web").exists()) {
-            throw new RuntimeException("Build failed.");
-          }
-        });
+            .register(
+                rootTaskName("buildWeb", project),
+                CacheableYarnTask.class,
+                t -> {
+                  t.dependsOn(project.getRootProject().getTasks().findByName("yarn"));
+                  t.setArgs(ImmutableList.of("run", "build"));
+                  t.setWorkingDir(project.getProjectDir());
+                  t.getInputs().dir(project.file("src").getAbsolutePath());
+                  t.getInputs().dir(project.file("package.json").getAbsolutePath());
+                  // We assume the yarn task correctly handles up-to-date checks for node_modules,
+                  // so only
+                  // need to look at yarn.lock here.
+                  t.getInputs().file(project.getRootProject().file("yarn.lock").getAbsolutePath());
+                  t.getOutputs()
+                      .dirs(
+                          ImmutableMap.of(
+                              "yarnBuild", project.file("build/web").getAbsolutePath()));
+                  t.finalizedBy(buildWebCheck);
+                });
 
-    Copy copyWeb = project.getTasks().create("copyWeb", Copy.class);
-    copyWeb.dependsOn(buildWeb);
-    copyWeb.from("build/web");
+    var copyWeb =
+        project
+            .getTasks()
+            .register(
+                "copyWeb",
+                Copy.class,
+                t -> {
+                  t.dependsOn(buildWeb);
+                  t.from("build/web");
+                });
     project.afterEvaluate(
         p -> {
           ImmutableWebExtension web = project.getExtensions().getByType(WebExtension.class);
-          copyWeb.into("build/javaweb/" + web.javaPackage().replace('.', '/'));
+          copyWeb.configure(t -> t.into("build/javaweb/" + web.javaPackage().replace('.', '/')));
         });
 
     // Copy in yarn rule from node plugin since we don't directly apply the plugin here.
