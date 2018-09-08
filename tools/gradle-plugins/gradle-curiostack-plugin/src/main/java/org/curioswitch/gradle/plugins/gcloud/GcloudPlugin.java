@@ -41,12 +41,11 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
-import org.curioswitch.gradle.plugins.gcloud.tasks.DownloadTerraformTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.SetupTask;
-import org.curioswitch.gradle.plugins.gcloud.util.PlatformHelper;
 import org.curioswitch.gradle.plugins.helm.TillerExtension;
+import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Rule;
@@ -75,7 +74,29 @@ public class GcloudPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    project.getExtensions().create(ImmutableGcloudExtension.NAME, GcloudExtension.class, project);
+    var gcloud =
+        project
+            .getExtensions()
+            .create(ImmutableGcloudExtension.NAME, GcloudExtension.class, project);
+
+    project
+        .getPlugins()
+        .withType(
+            ToolDownloaderPlugin.class,
+            plugin ->
+                plugin.registerToolIfAbsent(
+                    "google-cloud-sdk",
+                    tool -> {
+                      tool.getVersion().set("215.0.0");
+                      tool.getBaseUrl()
+                          .set("https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/");
+                      tool.getArtifactPattern().set("[artifact](-[revision]-[classifier]).[ext]");
+
+                      var osClassifiers = tool.getOsClassifiers();
+                      osClassifiers.getLinux().set("linux-x86_64");
+                      osClassifiers.getMac().set("darwin-x86_64");
+                      osClassifiers.getWindows().set("windows-x86_64");
+                    }));
 
     ExtraPropertiesExtension ext = project.getExtensions().getExtraProperties();
     ext.set(GcloudTask.class.getSimpleName(), GcloudTask.class);

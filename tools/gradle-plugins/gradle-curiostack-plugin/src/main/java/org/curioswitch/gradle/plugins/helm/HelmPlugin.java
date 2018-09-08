@@ -37,9 +37,8 @@ import java.util.List;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
 import org.curioswitch.gradle.plugins.helm.tasks.HelmTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformOutputTask;
-import org.curioswitch.gradle.tooldownloader.ToolDownloaderExtension;
+import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
-import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -49,16 +48,19 @@ public class HelmPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    @SuppressWarnings("unchecked")
-    NamedDomainObjectContainer<ToolDownloaderExtension> tools =
-        (NamedDomainObjectContainer<ToolDownloaderExtension>)
-            project.getRootProject().getExtensions().getByName("tools");
-    var helmTool = tools.maybeCreate("helm");
-    if (helmTool.getVersion().getOrNull() == null) {
-      helmTool.getVersion().set(StandardDependencies.HELM_VERSION);
-      helmTool.getBaseUrl().set("https://storage.googleapis.com/kubernetes-helm/");
-      helmTool.getArtifactPattern().set("[artifact]-v[revision]-[classifier].[ext]");
-    }
+    project
+        .getRootProject()
+        .getPlugins()
+        .withType(
+            ToolDownloaderPlugin.class,
+            plugin ->
+                plugin.registerToolIfAbsent(
+                    "helm",
+                    tool -> {
+                      tool.getVersion().set(StandardDependencies.HELM_VERSION);
+                      tool.getBaseUrl().set("https://storage.googleapis.com/kubernetes-helm/");
+                      tool.getArtifactPattern().set("[artifact]-v[revision]-[classifier].[ext]");
+                    }));
 
     project.evaluationDependsOn(":cluster:terraform");
     HelmExtension config = HelmExtension.createAndAdd(project);

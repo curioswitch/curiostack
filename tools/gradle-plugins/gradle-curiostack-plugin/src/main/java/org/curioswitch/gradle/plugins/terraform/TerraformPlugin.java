@@ -31,9 +31,8 @@ import org.curioswitch.gradle.plugins.terraform.tasks.ConvertConfigsToJsonTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformImportTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformOutputTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformTask;
-import org.curioswitch.gradle.tooldownloader.ToolDownloaderExtension;
+import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
-import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePlugin;
@@ -44,24 +43,28 @@ public class TerraformPlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getPluginManager().apply(BasePlugin.class);
 
-    @SuppressWarnings("unchecked")
-    NamedDomainObjectContainer<ToolDownloaderExtension> tools =
-        (NamedDomainObjectContainer<ToolDownloaderExtension>)
-            project.getRootProject().getExtensions().getByName("tools");
-    var tool = tools.maybeCreate("terraform");
-    if (tool.getVersion().getOrNull() == null) {
-      tool.getVersion().set(StandardDependencies.TERRAFORM_VERSION);
-      tool.getBaseUrl().set("https://releases.hashicorp.com/");
-      tool.getArtifactPattern().set("[artifact]/[revision]/[artifact]_[revision]_[classifier].[ext]");
+    project
+        .getRootProject()
+        .getPlugins()
+        .withType(
+            ToolDownloaderPlugin.class,
+            plugin ->
+                plugin.registerToolIfAbsent(
+                    "terraform",
+                    tool -> {
+                      tool.getVersion().set(StandardDependencies.TERRAFORM_VERSION);
+                      tool.getBaseUrl().set("https://releases.hashicorp.com/");
+                      tool.getArtifactPattern()
+                          .set("[artifact]/[revision]/[artifact]_[revision]_[classifier].[ext]");
 
-      tool.getOsClassifiers().getLinux().set("linux_amd64");
-      tool.getOsClassifiers().getMac().set("darwin_amd64");
-      tool.getOsClassifiers().getWindows().set("windows_amd64");
+                      tool.getOsClassifiers().getLinux().set("linux_amd64");
+                      tool.getOsClassifiers().getMac().set("darwin_amd64");
+                      tool.getOsClassifiers().getWindows().set("windows_amd64");
 
-      tool.getOsExtensions().getLinux().set("zip");
-      tool.getOsExtensions().getMac().set("zip");
-      tool.getOsExtensions().getWindows().set("zip");
-    }
+                      tool.getOsExtensions().getLinux().set("zip");
+                      tool.getOsExtensions().getMac().set("zip");
+                      tool.getOsExtensions().getWindows().set("zip");
+                    }));
 
     Path plansPath = project.getProjectDir().toPath().resolve("plans");
 
@@ -130,14 +133,14 @@ public class TerraformPlugin implements Plugin<Project> {
               t.setArgs(ImmutableList.of("output"));
             });
 
-    var downloadTerraformTask = project
-        .getRootProject()
-        .getTasks()
-        .withType(DownloadToolTask.class)
-        .named("toolsDownloadTerraform");
+    var downloadTerraformTask =
+        project
+            .getRootProject()
+            .getTasks()
+            .withType(DownloadToolTask.class)
+            .named("toolsDownloadTerraform");
     project
         .getTasks()
-        .withType(
-            TerraformTask.class, t -> t.dependsOn(downloadTerraformTask, convertConfigs));
+        .withType(TerraformTask.class, t -> t.dependsOn(downloadTerraformTask, convertConfigs));
   }
 }

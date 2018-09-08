@@ -57,6 +57,7 @@ task generateBaselineManifest {
 
 dependencies {
     compile project(':common:google-cloud:cloud-storage')
+    compile project(':tools:gradle-plugins:gradle-buildenv-plugin')
     compile project(':tools:gradle-plugins:gradle-tool-downloader-plugin')
     compile project(':tools:gradle-plugins:java-groovy-compat')
 

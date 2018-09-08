@@ -34,6 +34,7 @@ import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderExtension;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderExtension.OsValues;
+import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.repositories.ArtifactRepository;
@@ -54,6 +55,8 @@ public class DownloadToolTask extends DefaultTask {
 
   private final PlatformHelper platformHelper;
   private final DownloadedToolManager toolManager;
+
+  private Action<File> archiveExtractAction;
 
   @Inject
   public DownloadToolTask(
@@ -77,6 +80,8 @@ public class DownloadToolTask extends DefaultTask {
     artifactPattern.set(config.getArtifactPattern());
     osClassifiers = config.getOsClassifiers();
     osExtensions = config.getOsExtensions();
+
+    onlyIf(unused -> !getToolDir().toFile().exists());
   }
 
   @Input
@@ -97,6 +102,11 @@ public class DownloadToolTask extends DefaultTask {
     return toolManager.getToolDir(name.get());
   }
 
+  public DownloadToolTask setArchiveExtractAction(Action<File> archiveExtractAction) {
+    this.archiveExtractAction = archiveExtractAction;
+    return this;
+  }
+
   @TaskAction
   void exec() {
     checkNotNull(baseUrl.get(), "baseUrl must be set.");
@@ -106,7 +116,12 @@ public class DownloadToolTask extends DefaultTask {
     setRepository();
 
     File archive = resolveAndFetchArchive(getProject().getDependencies().create(getDependency()));
-    unpackArchive(archive);
+
+    if (archiveExtractAction != null) {
+      archiveExtractAction.execute(archive);
+    } else {
+      unpackArchive(archive);
+    }
 
     restoreRepositories(currentRepositories);
   }

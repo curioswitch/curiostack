@@ -82,6 +82,7 @@ import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
 import nu.studer.gradle.jooq.JooqTask;
 import org.apache.tools.ant.taskdefs.condition.Os;
+import org.curioswitch.gradle.buildenv.BuildEnvPlugin;
 import org.curioswitch.gradle.common.LambdaClosure;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
@@ -146,6 +147,7 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     plugins.apply(BaselineIdea.class);
 
+    plugins.apply(BuildEnvPlugin.class);
     plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
     plugins.apply(NodePlugin.class);
