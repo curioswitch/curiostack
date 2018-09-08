@@ -80,6 +80,12 @@ public class BuildEnvPlugin implements Plugin<Project> {
                                             "/NoRegistry=1",
                                             "/D=" + toolDir.toAbsolutePath().toString());
                                       });
+                                } else {
+                                  project.exec(
+                                      exec -> {
+                                        exec.executable(archive);
+                                        exec.args("-b", "-p", toolDir.toAbsolutePath().toString());
+                                      });
                                 }
                               }));
             });
