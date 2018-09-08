@@ -45,9 +45,7 @@ public interface ToolDownloaderExtension extends Named, HasPublicType {
         .setVersion(objects.property(String.class))
         .setName(name)
         .setBaseUrl(objects.property(String.class))
-        .setArtifactPattern(objects.property(String.class))
-        .setOsClassifiers(objects.property(ModifiableOsValues.class))
-        .setOsExtensions(objects.property(ModifiableOsValues.class));
+        .setArtifactPattern(objects.property(String.class));
 
     var osClassifiers = objects.newInstance(ModifiableOsValues.class)
         .setLinux(objects.property(String.class))
@@ -56,7 +54,7 @@ public interface ToolDownloaderExtension extends Named, HasPublicType {
     osClassifiers.getLinux().set("linux-amd64");
     osClassifiers.getMac().set("darwin-amd64");
     osClassifiers.getWindows().set("windows-amd64");
-    extension.getOsClassifiers().set(osClassifiers);
+    extension.setOsClassifiers(osClassifiers);
 
     var osExtensions = objects.newInstance(ModifiableOsValues.class)
         .setLinux(objects.property(String.class))
@@ -65,7 +63,7 @@ public interface ToolDownloaderExtension extends Named, HasPublicType {
     osExtensions.getLinux().set("tar.gz");
     osExtensions.getMac().set("tar.gz");
     osExtensions.getWindows().set("zip");
-    extension.getOsExtensions().set(osExtensions);
+    extension.setOsExtensions(osExtensions);
 
     return extension;
   }
@@ -86,13 +84,13 @@ public interface ToolDownloaderExtension extends Named, HasPublicType {
    * OS-specific values to use as the classifier when resolving the artifact pattern. Defaults to
    * linux-amd64, darwin-amd64, windows-amd64 on Linux, Mac OS X, and Windows respectively.
    */
-  Property<ModifiableOsValues> getOsClassifiers();
+  OsValues getOsClassifiers();
 
   /**
    * OS-specific values to use as the extension when resolving the artifact pattern. Defaults to
    * tar.gz on Linux and Mac OS X and zip on Windows.
    */
-  Property<ModifiableOsValues> getOsExtensions();
+  OsValues getOsExtensions();
 
   @Modifiable
   @ExtensionStyle

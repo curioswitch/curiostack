@@ -100,10 +100,6 @@ public class GcloudPlugin implements Plugin<Project> {
               }
             });
 
-    project
-        .getTasks()
-        .create(DownloadTerraformTask.NAME, DownloadTerraformTask.class, new PlatformHelper());
-
     TillerExtension.createAndAdd(project);
 
     var gcloudSetup = project.getTasks().register("gcloudSetup");

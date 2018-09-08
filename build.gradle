@@ -118,12 +118,3 @@ ci {
             ]
     ]
 }
-
-tools {
-    helm {
-        version = '2.10.0'
-        baseUrl = 'https://storage.googleapis.com/kubernetes-helm/'
-        artifactPattern = '[artifact]-v[revision]-[classifier].[ext]'
-    }
-}
-

@@ -32,8 +32,8 @@ import java.util.List;
 import javax.inject.Inject;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
-import org.curioswitch.gradle.tooldownloader.ModifiableOsValues;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderExtension;
+import org.curioswitch.gradle.tooldownloader.ToolDownloaderExtension.OsValues;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.repositories.ArtifactRepository;
@@ -49,8 +49,8 @@ public class DownloadToolTask extends DefaultTask {
   private final Property<String> version;
   private final Property<String> baseUrl;
   private final Property<String> artifactPattern;
-  private final Property<ModifiableOsValues> osClassifiers;
-  private final Property<ModifiableOsValues> osExtensions;
+  private final OsValues osClassifiers;
+  private final OsValues osExtensions;
 
   private final PlatformHelper platformHelper;
   private final DownloadedToolManager toolManager;
@@ -70,15 +70,13 @@ public class DownloadToolTask extends DefaultTask {
     version = objects.property(String.class);
     baseUrl = objects.property(String.class);
     artifactPattern = objects.property(String.class);
-    osClassifiers = objects.property(ModifiableOsValues.class);
-    osExtensions = objects.property(ModifiableOsValues.class);
 
     name.set(config.getName());
     version.set(config.getVersion());
     baseUrl.set(config.getBaseUrl());
     artifactPattern.set(config.getArtifactPattern());
-    osClassifiers.set(config.getOsClassifiers());
-    osExtensions.set(config.getOsExtensions());
+    osClassifiers = config.getOsClassifiers();
+    osExtensions = config.getOsExtensions();
   }
 
   @Input
@@ -89,9 +87,9 @@ public class DownloadToolTask extends DefaultTask {
         + ":"
         + version.get()
         + ":"
-        + osClassifiers.get().getValue(operatingSystem)
+        + osClassifiers.getValue(operatingSystem)
         + "@"
-        + osExtensions.get().getValue(operatingSystem);
+        + osExtensions.getValue(operatingSystem);
   }
 
   @OutputDirectory
