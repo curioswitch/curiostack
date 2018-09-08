@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.curioswitch.common.server.framework.immutables;
+package org.curioswitch.common.helpers.immutables;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;

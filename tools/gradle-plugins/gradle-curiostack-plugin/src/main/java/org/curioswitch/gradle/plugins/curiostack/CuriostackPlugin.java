@@ -91,6 +91,7 @@ import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateNodeResolutions;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
+import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -149,6 +150,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(GcloudPlugin.class);
     plugins.apply(NodePlugin.class);
     plugins.apply(PythonEnvsPlugin.class);
+    plugins.apply(ToolDownloaderPlugin.class);
 
     rootProject
         .getTasks()

@@ -36,6 +36,7 @@ import java.io.UncheckedIOException;
 import java.util.List;
 import org.curioswitch.gradle.plugins.helm.tasks.HelmTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformOutputTask;
+import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -181,12 +182,18 @@ public class HelmPlugin implements Plugin<Project> {
                   t.addArgs(args);
                 });
 
+    var downloadHelmTask =
+        project
+            .getRootProject()
+            .getTasks()
+            .withType(DownloadToolTask.class)
+            .named("toolsDownloadHelm");
     project
         .getTasks()
         .withType(
             HelmTask.class,
             t -> {
-              t.dependsOn(":gcloudDownloadHelm");
+              t.dependsOn(downloadHelmTask);
 
               if (t.getPath().equals(helmTillerInit.getPath())
                   || t.getPath().equals(helmClientInit.getPath())) {

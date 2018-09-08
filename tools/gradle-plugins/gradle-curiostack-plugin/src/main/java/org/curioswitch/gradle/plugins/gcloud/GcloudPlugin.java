@@ -41,7 +41,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
-import org.curioswitch.gradle.plugins.gcloud.tasks.DownloadHelmTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.DownloadTerraformTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
@@ -106,7 +105,6 @@ public class GcloudPlugin implements Plugin<Project> {
         .create(DownloadTerraformTask.NAME, DownloadTerraformTask.class, new PlatformHelper());
 
     TillerExtension.createAndAdd(project);
-    project.getTasks().create(DownloadHelmTask.NAME, DownloadHelmTask.class, new PlatformHelper());
 
     var gcloudSetup = project.getTasks().register("gcloudSetup");
     var gcloudLoginToCluster =

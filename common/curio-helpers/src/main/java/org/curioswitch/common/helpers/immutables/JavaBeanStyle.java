@@ -21,41 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.curioswitch.common.server.framework.immutables;
+package org.curioswitch.common.helpers.immutables;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 import org.immutables.value.Value.Style;
 import org.immutables.value.Value.Style.BuilderVisibility;
-import org.immutables.value.Value.Style.ImplementationVisibility;
 
-/**
- * {@link Style} which applies curio conventions to {@link org.immutables.value.Value.Immutable}
- * objects. It is recommended that all {@link org.immutables.value.Value.Immutable} types use this
- * style.
- *
- * <p>Default methods in interfaces will be recognized and all implementation will be
- * package-private. The {@link org.immutables.value.Value.Immutable} must expose a subclass of the
- * generated builder, e.g.,
- *
- * <pre>{@code
- * {@literal @}CurioStyle
- * {@literal @}Immutable
- * public interface MyObject {
- *   class Builder extends ImmutableMyObject.Builder {}
- *
- *   String foo();
- *
- *   boolean bar();
- * }
- *
- * }</pre>
- */
+/** A {@link Style} which allows recognizing modifable versions of the type as JavaBeans. */
 @Target(ElementType.TYPE)
 @Style(
-    deepImmutablesDetection = true,
-    defaultAsDefault = true,
+    create = "new",
+    get = {"get*", "is*"},
+    beanFriendlyModifiables = true,
+    isInitialized = "initialized",
     builderVisibility = BuilderVisibility.PACKAGE,
-    visibility = ImplementationVisibility.PACKAGE,
-    overshadowImplementation = true)
-public @interface CurioStyle {}
+    defaultAsDefault = true)
+public @interface JavaBeanStyle {}
