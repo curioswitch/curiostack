@@ -25,13 +25,18 @@
 package org.curioswitch.gradle.golang;
 
 import com.google.common.base.Splitter;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import org.curioswitch.gradle.golang.tasks.GoTask;
+import org.curioswitch.gradle.golang.tasks.GolangExtension;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
+import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Rule;
+import org.gradle.api.plugins.BasePlugin;
+import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 public class GolangPlugin implements Plugin<Project> {
 
@@ -39,6 +44,10 @@ public class GolangPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
+    project.getPlugins().apply(BasePlugin.class);
+
+    var golang = GolangExtension.createAndAdd(project);
+
     project
         .getRootProject()
         .getPlugins()
@@ -90,5 +99,40 @@ public class GolangPlugin implements Plugin<Project> {
                         .getTasks()
                         .withType(DownloadToolTask.class)
                         .named("toolsDownloadGo")));
+
+    var checkFormat =
+        project
+            .getTasks()
+            .register(
+                "goCheck",
+                GoTask.class,
+                t -> {
+                  t.command("gofmt");
+                  t.args("-s", "-d", ".");
+                  ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
+                  t.doLast(
+                      unused -> {
+                        if (stdOut.size() > 0) {
+                          throw new GradleException(
+                              "There were formatting violations. Run :goFormat to fix.\n"
+                                  + stdOut.toString());
+                        }
+                      });
+                  t.setExecCustomizer(exec -> exec.setStandardOutput(stdOut));
+                });
+    project
+        .getTasks()
+        .named(LifecycleBasePlugin.CHECK_TASK_NAME)
+        .configure(t -> t.dependsOn(checkFormat));
+
+    project
+        .getTasks()
+        .register(
+            "goFormat",
+            GoTask.class,
+            t -> {
+              t.command("gofmt");
+              t.args("-s", "-w", ".");
+            });
   }
 }

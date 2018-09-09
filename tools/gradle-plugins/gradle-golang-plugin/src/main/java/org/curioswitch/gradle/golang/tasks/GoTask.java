@@ -31,18 +31,34 @@ import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
 
 public class GoTask extends DefaultTask {
 
+  private final Property<String> command;
   private final ListProperty<String> args;
 
   @Nullable private Action<ExecSpec> execCustomizer;
 
   public GoTask() {
-    args = getProject().getObjects().listProperty(String.class);
+    var objects = getProject().getObjects();
+    command = objects.property(String.class);
+    args = objects.listProperty(String.class);
+
+    command.set("go");
+  }
+
+  public GoTask command(Property<String> command) {
+    this.command.set(command);
+    return this;
+  }
+
+  public GoTask command(String command) {
+    this.command.set(command);
+    return this;
   }
 
   public GoTask args(ListProperty<String> args) {
@@ -75,7 +91,7 @@ public class GoTask extends DefaultTask {
     getProject().exec(exec -> {
       var toolManager = DownloadedToolManager.get(getProject());
 
-      exec.executable(toolManager.getBinDir("go").resolve("go"));
+      exec.executable(toolManager.getBinDir("go").resolve(command.get()));
       exec.args(args.get());
       exec.environment("GOROOT", toolManager.getToolDir("go").resolve("go"));
 
