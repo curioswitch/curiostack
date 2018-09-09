@@ -26,7 +26,6 @@ package org.curioswitch.gradle.conda.exec;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.function.Consumer;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -40,7 +39,7 @@ public final class CondaExecUtil {
         .getExtraProperties()
         .set(
             "condaExec",
-            (Consumer<Action<ExecSpec>>)
+            (Action<Action<ExecSpec>>)
                 execSpecAction ->
                     project.exec(
                         exec -> {
@@ -50,7 +49,6 @@ public final class CondaExecUtil {
   }
 
   public static void condaExec(ExecSpec exec, Project project) {
-    var toolManager = DownloadedToolManager.get(project);
     condaExec(exec, DownloadedToolManager.get(project), "miniconda2-build");
   }
 
