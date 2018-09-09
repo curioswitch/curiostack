@@ -64,9 +64,13 @@ dependencies {
 
 gradlePlugin {
     plugins {
+        register("conda") {
+            id = "org.curioswitch.gradle-conda-plugin"
+            implementationClass = "org.curioswitch.gradle.conda.CondaPlugin"
+        }
         register("buildenv") {
-            id = "org.curioswitch.gradle-buildenv-plugin"
-            implementationClass = "org.curioswitch.gradle.buildenv.BuildEnvPlugin"
+            id = "org.curioswitch.gradle-conda-buildenv-plugin"
+            implementationClass = "org.curioswitch.gradle.conda.CondaBuildEnvPlugin"
         }
     }
 }

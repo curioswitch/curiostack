@@ -33,6 +33,7 @@ import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.plugins.ExtraPropertiesExtension;
 
 public class ToolDownloaderPlugin implements Plugin<Project> {
 
@@ -45,7 +46,6 @@ public class ToolDownloaderPlugin implements Plugin<Project> {
         project.getParent() == null,
         "gradle-tool-downloader-plugin can only be applied to the root project.");
 
-    toolManager = new DownloadedToolManager(project);
     var platformHelper = new PlatformHelper();
 
     tools =
@@ -54,12 +54,15 @@ public class ToolDownloaderPlugin implements Plugin<Project> {
             name -> ToolDownloaderExtension.create(name, project));
     project.getExtensions().add("tools", tools);
 
-    project.getExtensions().add("toolManager", toolManager);
+    toolManager = new DownloadedToolManager(project, tools);
+
+    project
+        .getExtensions()
+        .getByType(ExtraPropertiesExtension.class)
+        .set("toolManager", toolManager);
 
     tools.configureEach(
         tool -> {
-          toolManager.register(tool.getName(), tool.getVersion());
-
           String capitalized =
               Ascii.toUpperCase(tool.getName().charAt(0)) + tool.getName().substring(1);
           project

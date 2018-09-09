@@ -24,6 +24,8 @@
 
 package org.curioswitch.gradle.plugins.gcloud;
 
+import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.GCLOUD_VERSION;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -42,10 +44,11 @@ import javax.annotation.Nullable;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
+import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
-import org.curioswitch.gradle.plugins.gcloud.tasks.SetupTask;
 import org.curioswitch.gradle.plugins.helm.TillerExtension;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
+import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Rule;
@@ -85,12 +88,14 @@ public class GcloudPlugin implements Plugin<Project> {
             ToolDownloaderPlugin.class,
             plugin ->
                 plugin.registerToolIfAbsent(
-                    "google-cloud-sdk",
+                    "gcloud",
                     tool -> {
-                      tool.getVersion().set("215.0.0");
+                      tool.getArtifact().set("google-cloud-sdk");
+                      tool.getVersion().set(GCLOUD_VERSION);
                       tool.getBaseUrl()
                           .set("https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/");
                       tool.getArtifactPattern().set("[artifact](-[revision]-[classifier]).[ext]");
+                      tool.getPathSubDirs().add("google-cloud-sdk/bin");
 
                       var osClassifiers = tool.getOsClassifiers();
                       osClassifiers.getLinux().set("linux-x86_64");
@@ -123,7 +128,25 @@ public class GcloudPlugin implements Plugin<Project> {
 
     TillerExtension.createAndAdd(project);
 
+    project
+        .getTasks()
+        .withType(GcloudTask.class)
+        .configureEach(
+            t ->
+                t.dependsOn(
+                    project
+                        .getRootProject()
+                        .getTasks()
+                        .withType(DownloadToolTask.class)
+                        .named("toolsDownloadGcloud")));
+
     var gcloudSetup = project.getTasks().register("gcloudSetup");
+    var gcloudInstallComponents =
+        project
+            .getTasks()
+            .register(
+                "gcloudInstallComponents",
+                GcloudTask.class);
     var gcloudLoginToCluster =
         project.getTasks().register("gcloudLoginToCluster", GcloudTask.class);
 
@@ -131,10 +154,6 @@ public class GcloudPlugin implements Plugin<Project> {
         p -> {
           ImmutableGcloudExtension config =
               project.getExtensions().getByType(GcloudExtension.class);
-          var downloadSdkTask =
-              project
-                  .getTasks()
-                  .register(SetupTask.NAME, SetupTask.class, t -> t.setEnabled(config.download()));
 
           project.allprojects(
               proj ->
@@ -172,24 +191,23 @@ public class GcloudPlugin implements Plugin<Project> {
                               ? "--zone=" + System.getenv("CLOUDSDK_COMPUTE_ZONE")
                               : "--region=" + config.clusterRegion())));
 
-          var installComponents =
-              project
-                  .getTasks()
-                  .register(
-                      "gcloudInstallComponents",
-                      GcloudTask.class,
-                      t -> {
-                        t.setArgs(
-                            ImmutableList.of(
-                                "components",
-                                "install",
-                                "app-engine-python",
-                                "beta",
-                                "kubectl",
-                                "docker-credential-gcr"));
-                        t.dependsOn(downloadSdkTask);
-                      });
-          gcloudSetup.configure(t -> t.dependsOn(downloadSdkTask, installComponents));
+          gcloudInstallComponents.configure(t -> t.setArgs(
+                              ImmutableList.of(
+                                  "components",
+                                  "install",
+                                  "app-engine-python",
+                                  "beta",
+                                  "kubectl",
+                                  "docker-credential-gcr")));
+          gcloudSetup.configure(t -> t.dependsOn(gcloudInstallComponents));
+
+          project
+              .getTasks()
+              .withType(KubectlTask.class)
+              .configureEach(t -> {
+                t.dependsOn(gcloudInstallComponents);
+                t.dependsOn(gcloudLoginToCluster);
+              });
         });
 
     addGenerateCloudBuildTask(project);

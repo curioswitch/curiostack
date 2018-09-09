@@ -46,7 +46,8 @@ import org.gradle.api.tasks.TaskAction;
 
 public class DownloadToolTask extends DefaultTask {
 
-  private final Property<String> name;
+  private final String name;
+  private final Property<String> artifact;
   private final Property<String> version;
   private final Property<String> baseUrl;
   private final Property<String> artifactPattern;
@@ -69,12 +70,13 @@ public class DownloadToolTask extends DefaultTask {
     setGroup("Tools");
 
     var objects = getProject().getObjects();
-    name = objects.property(String.class);
+    artifact = objects.property(String.class);
     version = objects.property(String.class);
     baseUrl = objects.property(String.class);
     artifactPattern = objects.property(String.class);
 
-    name.set(config.getName());
+    name = config.getName();
+    artifact.set(config.getArtifact());
     version.set(config.getVersion());
     baseUrl.set(config.getBaseUrl());
     artifactPattern.set(config.getArtifactPattern());
@@ -88,7 +90,7 @@ public class DownloadToolTask extends DefaultTask {
   public String getDependency() {
     var operatingSystem = platformHelper.getOs();
     return "org.curioswitch.curiostack.downloaded_tools:"
-        + name.get()
+        + artifact.get()
         + ":"
         + version.get()
         + ":"
@@ -99,7 +101,7 @@ public class DownloadToolTask extends DefaultTask {
 
   @OutputDirectory
   public Path getToolDir() {
-    return toolManager.getToolDir(name.get());
+    return toolManager.getToolDir(name);
   }
 
   public DownloadToolTask setArchiveExtractAction(Action<File> archiveExtractAction) {
@@ -153,7 +155,7 @@ public class DownloadToolTask extends DefaultTask {
           } else if (archive.getName().contains(".tar.")) {
             copy.from(project.tarTree(archive));
           }
-          copy.into(toolManager.getToolDir(name.get()));
+          copy.into(getToolDir());
         });
   }
 

@@ -28,6 +28,7 @@ import org.curioswitch.gradle.helpers.immutables.ExtensionStyle;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.gradle.api.Named;
 import org.gradle.api.Project;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
@@ -42,10 +43,14 @@ public interface ToolDownloaderExtension extends Named, HasPublicType {
 
     var extension = objects
         .newInstance(ModifiableToolDownloaderExtension.class)
-        .setVersion(objects.property(String.class))
         .setName(name)
+        .setArtifact(objects.property(String.class))
+        .setVersion(objects.property(String.class))
         .setBaseUrl(objects.property(String.class))
-        .setArtifactPattern(objects.property(String.class));
+        .setArtifactPattern(objects.property(String.class))
+        .setPathSubDirs(objects.listProperty(String.class));
+
+    extension.getArtifact().set(name);
 
     var osClassifiers = objects.newInstance(ModifiableOsValues.class)
         .setLinux(objects.property(String.class))
@@ -68,6 +73,9 @@ public interface ToolDownloaderExtension extends Named, HasPublicType {
     return extension;
   }
 
+  /** The artifact to download. */
+  Property<String> getArtifact();
+
   /** The version of the tool to download. */
   Property<String> getVersion();
 
@@ -79,6 +87,11 @@ public interface ToolDownloaderExtension extends Named, HasPublicType {
    * [artifact]-v[revision]-[classifier].[ext].
    */
   Property<String> getArtifactPattern();
+
+  /**
+   * Subdirectories of the extract archive to add to PATH when executing tasks.
+   */
+  ListProperty<String> getPathSubDirs();
 
   /**
    * OS-specific values to use as the classifier when resolving the artifact pattern. Defaults to

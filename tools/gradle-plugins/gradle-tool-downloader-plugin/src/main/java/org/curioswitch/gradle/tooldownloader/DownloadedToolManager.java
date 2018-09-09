@@ -24,33 +24,82 @@
 
 package org.curioswitch.gradle.tooldownloader;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
+import java.io.File;
 import java.nio.file.Path;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
+import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
-import org.gradle.api.provider.Provider;
+import org.gradle.process.ProcessForkOptions;
 
 public class DownloadedToolManager {
 
+  public static DownloadedToolManager get(Project project) {
+    var toolManager =
+        (DownloadedToolManager) project.getExtensions().getExtraProperties().get("toolManager");
+    checkNotNull(toolManager, "toolManager not found. Did you apply the tooldownloader plugin?");
+    return toolManager;
+  }
+
   private final Path curiostackDir;
 
-  private final ConcurrentHashMap<String, Provider<String>> toolVersions;
+  private final NamedDomainObjectContainer<ModifiableToolDownloaderExtension> tools;
 
   @Inject
-  public DownloadedToolManager(Project project) {
-    toolVersions = new ConcurrentHashMap<>();
+  public DownloadedToolManager(
+      Project project, NamedDomainObjectContainer<ModifiableToolDownloaderExtension> tools) {
+    this.tools = tools;
 
     curiostackDir = project.getGradle().getGradleUserHomeDir().toPath().resolve("curiostack");
   }
 
-  void register(String tool, Provider<String> version) {
-    toolVersions.put(tool, version);
+  public Path getToolDir(String toolName) {
+    checkNotNull(toolName, "toolName");
+    var tool = tools.findByName(toolName);
+    checkState(tool != null, "Tool %s not registered.", toolName);
+    return curiostackDir.resolve(toolName).resolve(tool.getVersion().get());
   }
 
-  public Path getToolDir(String tool) {
-    checkState(toolVersions.containsKey(tool), "Tool %s not registered.", tool);
-    return curiostackDir.resolve(tool).resolve(toolVersions.get(tool).get());
+  public Path getBinDir(String toolName) {
+    return getBinDirs(toolName).get(0);
+  }
+
+  public List<Path> getBinDirs(String toolName) {
+    checkNotNull(toolName, "toolName");
+    var tool = tools.findByName(toolName);
+    checkState(tool != null, "Tool %s not registered.", toolName);
+    return tool.getPathSubDirs().get().stream()
+        .map(subDir ->
+            curiostackDir
+                .resolve(toolName)
+                .resolve(tool.getVersion().get())
+            .resolve(subDir))
+        .collect(toImmutableList());
+  }
+
+  public void addAllToPath(ProcessForkOptions exec) {
+    String toolsPath =
+        tools
+            .stream()
+            .flatMap(
+                tool -> {
+                  Path toolDir = getToolDir(tool.getName()).toAbsolutePath();
+                  return tool.getPathSubDirs().get().stream().map(toolDir::resolve);
+                })
+            .map(Path::toString)
+            .collect(Collectors.joining(File.pathSeparator));
+    String linuxStylePath = System.getenv("PATH");
+    if (linuxStylePath != null) {
+      exec.environment("PATH", toolsPath + File.pathSeparator + linuxStylePath);
+    }
+    String windowsStylePath = System.getenv("Path");
+    if (windowsStylePath != null) {
+      exec.environment("Path", toolsPath + File.pathSeparator + windowsStylePath);
+    }
   }
 }

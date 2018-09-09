@@ -1,0 +1,70 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+package org.curioswitch.gradle.conda;
+
+import static com.google.common.base.Preconditions.checkState;
+
+import org.curioswitch.gradle.conda.exec.CondaExecUtil;
+import org.curioswitch.gradle.helpers.platform.PlatformHelper;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+
+public class CondaBuildEnvPlugin implements Plugin<Project> {
+
+  @Override
+  public void apply(Project project) {
+    checkState(project.getParent() == null, "build-env plugin must be applied to root project.");
+    var condas = project.getPlugins().apply(CondaPlugin.class).getCondas();
+    condas.create(
+        "miniconda2-build",
+        conda -> {
+          conda.getVersion().set("Miniconda2-4.5.11");
+          conda.getPackages().addAll("make", "git");
+
+          var platformHelper = new PlatformHelper();
+          var operatingSystem = platformHelper.getOs();
+          switch (operatingSystem) {
+            case LINUX:
+              conda
+                  .getPackages()
+                  .addAll(
+                      "automake", "autoconf", "gcc_linux-64", "gxx_linux-64", "gfortran_linux-64");
+              break;
+            case MAC_OSX:
+              conda
+                  .getPackages()
+                  .addAll(
+                      "automake", "autoconf", "clang_osx-64", "clangxx_osx-64", "gfortran_osx-64");
+              break;
+            case WINDOWS:
+              conda
+                  .getPackages()
+                  .addAll("m2-automake1.15", "m2-autoconf", "m2w64-gcc", "m2w64-gcc-fortran");
+              break;
+          }
+        });
+    CondaExecUtil.addExecToProject(project);
+  }
+}
