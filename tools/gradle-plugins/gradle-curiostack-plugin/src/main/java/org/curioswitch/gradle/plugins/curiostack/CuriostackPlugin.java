@@ -82,6 +82,7 @@ import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
 import org.curioswitch.gradle.common.LambdaClosure;
+import org.curioswitch.gradle.golang.GolangPlugin;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
 import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
@@ -149,6 +150,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(CondaBuildEnvPlugin.class);
     plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
+    plugins.apply(GolangPlugin.class);
     plugins.apply(NodePlugin.class);
     plugins.apply(ToolDownloaderPlugin.class);
 
@@ -206,7 +208,7 @@ public class CuriostackPlugin implements Plugin<Project> {
         .register(
             "setup",
             t -> {
-              t.dependsOn(rootProject.getTasks().named("toolsDownloadMiniconda2-build"));
+              t.dependsOn(rootProject.getTasks().named("toolsDownloadAll"));
               t.dependsOn("gcloudSetup");
               t.dependsOn("nodeSetup");
               t.dependsOn("yarnSetup");

@@ -42,7 +42,7 @@ public class DownloadedToolManager {
   public static DownloadedToolManager get(Project project) {
     var toolManager =
         (DownloadedToolManager) project.getExtensions().getExtraProperties().get("toolManager");
-    checkNotNull(toolManager, "toolManager not found. Did you apply the tooldownloader plugin?");
+    checkNotNull(toolManager, "toolManager not found. Did you apply the tool-downloader plugin?");
     return toolManager;
   }
 

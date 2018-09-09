@@ -61,11 +61,13 @@ public class ToolDownloaderPlugin implements Plugin<Project> {
         .getByType(ExtraPropertiesExtension.class)
         .set("toolManager", toolManager);
 
+    var downloadAll = project.getTasks().register("toolsDownloadAll");
+
     tools.configureEach(
         tool -> {
           String capitalized =
               Ascii.toUpperCase(tool.getName().charAt(0)) + tool.getName().substring(1);
-          project
+          var task = project
               .getTasks()
               .register(
                   "toolsDownload" + capitalized,
@@ -73,6 +75,7 @@ public class ToolDownloaderPlugin implements Plugin<Project> {
                   tool,
                   platformHelper,
                   toolManager);
+          downloadAll.configure(t -> t.dependsOn(task));
         });
   }
 
