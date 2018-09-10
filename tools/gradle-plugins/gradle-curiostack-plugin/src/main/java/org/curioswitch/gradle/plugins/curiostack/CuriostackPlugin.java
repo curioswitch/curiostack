@@ -24,7 +24,6 @@
 
 package org.curioswitch.gradle.plugins.curiostack;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static net.ltgt.gradle.errorprone.javacplugin.CheckSeverity.ERROR;
 import static net.ltgt.gradle.errorprone.javacplugin.CheckSeverity.OFF;
 import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.GOOGLE_JAVA_FORMAT_VERSION;
@@ -43,8 +42,6 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import com.google.protobuf.gradle.ProtobufPlugin;
 import com.google.protobuf.gradle.ProtobufSourceDirectorySet;
-import com.jetbrains.python.envs.PythonEnvsExtension;
-import com.jetbrains.python.envs.PythonEnvsPlugin;
 import com.moowork.gradle.node.NodeExtension;
 import com.moowork.gradle.node.NodePlugin;
 import com.moowork.gradle.node.npm.NpmTask;
@@ -83,14 +80,18 @@ import nu.studer.gradle.jooq.JooqPlugin;
 import nu.studer.gradle.jooq.JooqTask;
 import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.common.LambdaClosure;
+import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
+import org.curioswitch.gradle.conda.exec.CondaExecUtil;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
 import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateNodeResolutions;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
-import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
+import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -145,10 +146,11 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     plugins.apply(BaselineIdea.class);
 
+    plugins.apply(CondaBuildEnvPlugin.class);
     plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
     plugins.apply(NodePlugin.class);
-    plugins.apply(PythonEnvsPlugin.class);
+    plugins.apply(ToolDownloaderPlugin.class);
 
     rootProject
         .getTasks()
@@ -158,8 +160,6 @@ public class CuriostackPlugin implements Plugin<Project> {
               wrapper.setGradleVersion(GRADLE_VERSION);
               wrapper.setDistributionType(DistributionType.ALL);
             });
-
-    setupPyenvs(rootProject);
 
     var yarnTask = rootProject.getTasks().withType(YarnInstallTask.class).named("yarn");
     var yarnUpdateTask = rootProject.getTasks().register("yarnUpdate", YarnInstallTask.class);
@@ -193,9 +193,11 @@ public class CuriostackPlugin implements Plugin<Project> {
             .register(
                 "rehash",
                 CreateShellConfigTask.class,
-                t ->
-                    t.path(CommandUtil.getPythonBinDir(rootProject, "dev"))
-                        .path(CommandUtil.getGcloudSdkBinDir(rootProject)));
+                t -> {
+                  var toolManager = DownloadedToolManager.get(rootProject);
+                  toolManager.getBinDirs("miniconda2-build").forEach(t::path);
+                  toolManager.getBinDirs("gcloud").forEach(t::path);
+                });
 
     setupNode(rootProject, rehash);
 
@@ -204,8 +206,8 @@ public class CuriostackPlugin implements Plugin<Project> {
         .register(
             "setup",
             t -> {
+              t.dependsOn(rootProject.getTasks().named("toolsDownloadAll"));
               t.dependsOn("gcloudSetup");
-              t.dependsOn("pythonSetup");
               t.dependsOn("nodeSetup");
               t.dependsOn("yarnSetup");
               t.dependsOn("rehash");
@@ -273,12 +275,6 @@ public class CuriostackPlugin implements Plugin<Project> {
     rootProject.allprojects(
         project -> {
           project.getPlugins().withType(JavaPlugin.class, plugin -> setupJavaProject(project));
-
-          project
-              .getTasks()
-              .withType(KubectlTask.class)
-              .configureEach(
-                  t -> t.dependsOn(rootProject.getTasks().named("gcloudLoginToCluster")));
 
           project
               .getPlugins()
@@ -745,27 +741,9 @@ public class CuriostackPlugin implements Plugin<Project> {
         LambdaClosure.of(
             (ExecSpec exec) -> {
               if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-                String actualCommand =
-                    exec.getExecutable() + " " + String.join(" ", exec.getArgs());
-                exec.setCommandLine(
-                    "bash",
-                    "-c",
-                    ". "
-                        + CommandUtil.getCondaBaseDir(project)
-                            .resolve("etc/profile.d/conda.sh")
-                            .toString()
-                        + " && conda activate > /dev/null && cd "
-                        + exec.getWorkingDir().toString()
-                        + " && "
-                        + actualCommand);
+                CondaExecUtil.condaExec(exec, project);
               }
-              String pathKey = exec.getEnvironment().containsKey("Path") ? "Path" : "PATH";
-              exec.getEnvironment()
-                  .put(
-                      pathKey,
-                      CommandUtil.getPythonBinDir(project, "build")
-                          + File.pathSeparator
-                          + exec.getEnvironment().get(pathKey));
+              DownloadedToolManager.get(project).addAllToPath(exec);
             });
 
     project
@@ -799,7 +777,7 @@ public class CuriostackPlugin implements Plugin<Project> {
         .named("nodeSetup")
         .configure(
             t -> {
-              t.dependsOn("pythonSetup");
+              t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build"));
               t.onlyIf(unused -> !node.getVariant().getNodeDir().exists());
             });
     project
@@ -812,8 +790,9 @@ public class CuriostackPlugin implements Plugin<Project> {
     project.getPluginManager().apply(BasePlugin.class);
     project
         .getTasks()
+        .withType(Delete.class)
         .named(BasePlugin.CLEAN_TASK_NAME)
-        .configure(task -> ((Delete) task).delete(project.file("node_modules")));
+        .configure(task -> task.delete(project.file("node_modules")));
 
     project.getTasks().create(UpdateNodeResolutions.NAME, UpdateNodeResolutions.class, false);
     var checkNodeResolutions =
@@ -824,45 +803,6 @@ public class CuriostackPlugin implements Plugin<Project> {
         .getTasks()
         .withType(YarnTask.class)
         .configureEach(t -> t.finalizedBy(checkNodeResolutions));
-  }
-
-  private static void setupPyenvs(Project rootProject) {
-    PythonEnvsExtension envs = rootProject.getExtensions().getByType(PythonEnvsExtension.class);
-
-    Path pythonDir = CommandUtil.getPythonDir(rootProject);
-
-    envs.setBootstrapDirectory(pythonDir.resolve("bootstrap").toFile());
-    envs.setEnvsDirectory(pythonDir.resolve("envs").toFile());
-
-    ImmutableList.Builder<String> condaPackages =
-        ImmutableList.<String>builder().add("git").add("automake").add("autoconf").add("make");
-    if (Os.isFamily(Os.FAMILY_MAC)) {
-      condaPackages.add("clang_osx-64", "clangxx_osx-64", "gfortran_osx-64");
-    } else if (Os.isFamily(Os.FAMILY_UNIX)) {
-      condaPackages.add("gcc_linux-64", "gxx_linux-64", "gfortran_linux-64");
-    }
-
-    envs.conda(
-        CommandUtil.DEFAULT_ENV_NAME,
-        "Miniconda2-" + StandardDependencies.MINICONDA_VERSION,
-        condaPackages.build().stream().map(envs::condaPackage).collect(toImmutableList()));
-    envs.condaenv("build", "2.7", CommandUtil.DEFAULT_ENV_NAME);
-    envs.condaenv("dev", "2.7", CommandUtil.DEFAULT_ENV_NAME);
-
-    rootProject.afterEvaluate(
-        p -> {
-          var buildEnvs = rootProject.getTasks().named("build_envs");
-          buildEnvs.configure(
-              t ->
-                  t.doLast(
-                      unused ->
-                          rootProject.delete(
-                              delete ->
-                                  delete.delete(
-                                      CommandUtil.getCondaBaseDir(rootProject) + "/pkgs"))));
-
-          rootProject.getTasks().register("pythonSetup", t -> t.dependsOn(buildEnvs));
-        });
   }
 
   private static Optional<Node> findChild(Node node, Predicate<Node> predicate) {

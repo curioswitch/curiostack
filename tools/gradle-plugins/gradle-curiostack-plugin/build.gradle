@@ -57,6 +57,9 @@ task generateBaselineManifest {
 
 dependencies {
     compile project(':common:google-cloud:cloud-storage')
+    compile project(':tools:gradle-plugins:gradle-conda-plugin')
+    compile project(':tools:gradle-plugins:gradle-golang-plugin')
+    compile project(':tools:gradle-plugins:gradle-tool-downloader-plugin')
     compile project(':tools:gradle-plugins:java-groovy-compat')
 
     compile 'com.bmuschko:gradle-docker-plugin'
@@ -74,7 +77,6 @@ dependencies {
     compile 'gradle.plugin.com.boxfuse.client:gradle-plugin-publishing'
     compile 'gradle.plugin.com.google.cloud.tools:jib-gradle-plugin'
     compile 'gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties'
-    compile 'gradle.plugin.com.jetbrains.python:gradle-python-envs'
     compile 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin'
     compile 'io.fabric8:kubernetes-client'
     compile 'io.spring.gradle:dependency-management-plugin'

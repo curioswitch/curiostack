@@ -30,6 +30,7 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.common.base.Ascii;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
@@ -351,12 +352,12 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
     // Not quite "generic" but should satisfy 99% of cases.
     for (String key : COMMON_RELEASE_BRANCH_ENV_VARS) {
       String branch = System.getenv(key);
-      if (branch != null) {
+      if (!Strings.isNullOrEmpty(branch)) {
         return branch;
       }
     }
     String jenkinsBranch = System.getenv("GIT_BRANCH");
-    if (jenkinsBranch != null) {
+    if (!Strings.isNullOrEmpty(jenkinsBranch)) {
       // Usually has remote too
       int slashIndex = jenkinsBranch.indexOf('/');
       return slashIndex >= 0 ? jenkinsBranch.substring(slashIndex + 1) : jenkinsBranch;

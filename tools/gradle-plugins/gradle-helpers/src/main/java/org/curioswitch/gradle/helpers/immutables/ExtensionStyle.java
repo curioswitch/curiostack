@@ -22,39 +22,12 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.gcloud.tasks;
+package org.curioswitch.gradle.helpers.immutables;
 
-import javax.inject.Inject;
-import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
-import org.curioswitch.gradle.plugins.gcloud.util.PlatformHelper;
-import org.curioswitch.gradle.plugins.shared.tasks.DownloadArchiveTask;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
+import org.immutables.value.Value.Style;
 
-public class DownloadHelmTask extends DownloadArchiveTask {
-
-  public static final String NAME = "gcloudDownloadHelm";
-
-  private final PlatformHelper platformHelper;
-
-  @Inject
-  public DownloadHelmTask(PlatformHelper platformHelper) {
-    this.platformHelper = platformHelper;
-
-    setBaseUrl("https://storage.googleapis.com/kubernetes-helm/");
-    setArtifactPattern("[artifact]-v[revision]-[classifier].[ext]");
-    setDependency(
-        "sh.helm:helm:"
-            + StandardDependencies.HELM_VERSION
-            + ":"
-            + getClassifier()
-            + "@"
-            + getExtension());
-  }
-
-  private String getClassifier() {
-    return platformHelper.getOsName() + "-amd64";
-  }
-
-  private String getExtension() {
-    return platformHelper.isWindows() ? "zip" : "tar.gz";
-  }
-}
+@Target(ElementType.TYPE)
+@Style(create = "new", defaultAsDefault = true)
+public @interface ExtensionStyle {}

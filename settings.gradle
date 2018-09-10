@@ -82,6 +82,7 @@ buildCache {
 }
 
 include ':auth:api', ':auth:server'
+include ':common:curio-helpers'
 include ':common:google-cloud:cloud-storage'
 include ':common:google-cloud:core'
 include ':common:google-cloud:iam'
@@ -100,5 +101,9 @@ include ':database:yourmakedb:dev'
 include ':eggworld:api', 'eggworld:client:web', ':eggworld:server'
 include ':gateway:server'
 include ':tools:cloudbuild-github-functions'
+include ':tools:gradle-plugins:gradle-conda-plugin'
 include ':tools:gradle-plugins:gradle-curiostack-plugin'
+include ':tools:gradle-plugins:gradle-golang-plugin'
+include ':tools:gradle-plugins:gradle-helpers'
+include ':tools:gradle-plugins:gradle-tool-downloader-plugin'
 include ':tools:gradle-plugins:java-groovy-compat'

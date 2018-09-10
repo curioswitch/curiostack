@@ -34,8 +34,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.UncheckedIOException;
 import java.util.List;
+import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
 import org.curioswitch.gradle.plugins.helm.tasks.HelmTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformOutputTask;
+import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -45,6 +48,20 @@ public class HelmPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
+    project
+        .getRootProject()
+        .getPlugins()
+        .withType(
+            ToolDownloaderPlugin.class,
+            plugin ->
+                plugin.registerToolIfAbsent(
+                    "helm",
+                    tool -> {
+                      tool.getVersion().set(StandardDependencies.HELM_VERSION);
+                      tool.getBaseUrl().set("https://storage.googleapis.com/kubernetes-helm/");
+                      tool.getArtifactPattern().set("[artifact]-v[revision]-[classifier].[ext]");
+                    }));
+
     project.evaluationDependsOn(":cluster:terraform");
     HelmExtension config = HelmExtension.createAndAdd(project);
 
@@ -181,12 +198,13 @@ public class HelmPlugin implements Plugin<Project> {
                   t.addArgs(args);
                 });
 
+    var downloadHelmTask = DownloadToolUtil.getSetupTask(project, "helm");
     project
         .getTasks()
         .withType(
             HelmTask.class,
             t -> {
-              t.dependsOn(":gcloudDownloadHelm");
+              t.dependsOn(downloadHelmTask);
 
               if (t.getPath().equals(helmTillerInit.getPath())
                   || t.getPath().equals(helmClientInit.getPath())) {
