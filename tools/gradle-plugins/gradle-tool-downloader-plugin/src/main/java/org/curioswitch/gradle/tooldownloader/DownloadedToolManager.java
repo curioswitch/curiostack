@@ -96,10 +96,18 @@ public class DownloadedToolManager {
             .collect(Collectors.joining(File.pathSeparator));
     String linuxStylePath = System.getenv("PATH");
     if (linuxStylePath != null) {
+      var modifiedPath = exec.getEnvironment().get("PATH");
+      if (modifiedPath != null) {
+        toolsPath = toolsPath + File.pathSeparator + modifiedPath;
+      }
       exec.environment("PATH", toolsPath + File.pathSeparator + linuxStylePath);
     }
     String windowsStylePath = System.getenv("Path");
     if (windowsStylePath != null) {
+      var modifiedPath = exec.getEnvironment().get("Path");
+      if (modifiedPath != null) {
+        toolsPath = toolsPath + File.pathSeparator + modifiedPath;
+      }
       exec.environment("Path", toolsPath + File.pathSeparator + windowsStylePath);
     }
   }
