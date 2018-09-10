@@ -38,28 +38,24 @@ import org.immutables.value.Value.Modifiable;
 public interface CondaExtension extends Named, HasPublicType {
 
   static ModifiableCondaExtension create(String name, ObjectFactory objects) {
-    var extension = objects.newInstance(ModifiableCondaExtension.class)
-        .setName(name)
-        .setVersion(objects.property(String.class))
-        .setPackages(objects.listProperty(String.class))
-        .setPythonPackages(objects.listProperty(String.class));
+    var extension =
+        objects
+            .newInstance(ModifiableCondaExtension.class)
+            .setName(name)
+            .setVersion(objects.property(String.class))
+            .setPackages(objects.listProperty(String.class))
+            .setPythonPackages(objects.listProperty(String.class));
 
     return extension;
   }
 
-  /**
-   * The conda version to install. Should be a full name like Miniconda2-4.5.11.
-   */
+  /** The conda version to install. Should be a full name like Miniconda2-4.5.11. */
   Property<String> getVersion();
 
-  /**
-   * Conda packages to install into the build environment.
-   */
+  /** Conda packages to install into the build environment. */
   ListProperty<String> getPackages();
 
-  /**
-   * Python packages to install into the build environment.
-   */
+  /** Python packages to install into the build environment. */
   ListProperty<String> getPythonPackages();
 
   @Override

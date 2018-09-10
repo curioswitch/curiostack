@@ -38,7 +38,7 @@ import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
 import org.curioswitch.gradle.plugins.helm.tasks.HelmTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformOutputTask;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
-import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -198,12 +198,7 @@ public class HelmPlugin implements Plugin<Project> {
                   t.addArgs(args);
                 });
 
-    var downloadHelmTask =
-        project
-            .getRootProject()
-            .getTasks()
-            .withType(DownloadToolTask.class)
-            .named("toolsDownloadHelm");
+    var downloadHelmTask = DownloadToolUtil.getSetupTask(project, "helm");
     project
         .getTasks()
         .withType(

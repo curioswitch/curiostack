@@ -41,30 +41,35 @@ public interface ToolDownloaderExtension extends Named, HasPublicType {
   static ModifiableToolDownloaderExtension create(String name, Project project) {
     var objects = project.getObjects();
 
-    var extension = objects
-        .newInstance(ModifiableToolDownloaderExtension.class)
-        .setName(name)
-        .setArtifact(objects.property(String.class))
-        .setVersion(objects.property(String.class))
-        .setBaseUrl(objects.property(String.class))
-        .setArtifactPattern(objects.property(String.class))
-        .setPathSubDirs(objects.listProperty(String.class));
+    var extension =
+        objects
+            .newInstance(ModifiableToolDownloaderExtension.class)
+            .setName(name)
+            .setArtifact(objects.property(String.class))
+            .setVersion(objects.property(String.class))
+            .setBaseUrl(objects.property(String.class))
+            .setArtifactPattern(objects.property(String.class))
+            .setPathSubDirs(objects.listProperty(String.class));
 
     extension.getArtifact().set(name);
 
-    var osClassifiers = objects.newInstance(ModifiableOsValues.class)
-        .setLinux(objects.property(String.class))
-        .setMac(objects.property(String.class))
-        .setWindows(objects.property(String.class));
+    var osClassifiers =
+        objects
+            .newInstance(ModifiableOsValues.class)
+            .setLinux(objects.property(String.class))
+            .setMac(objects.property(String.class))
+            .setWindows(objects.property(String.class));
     osClassifiers.getLinux().set("linux-amd64");
     osClassifiers.getMac().set("darwin-amd64");
     osClassifiers.getWindows().set("windows-amd64");
     extension.setOsClassifiers(osClassifiers);
 
-    var osExtensions = objects.newInstance(ModifiableOsValues.class)
-        .setLinux(objects.property(String.class))
-        .setMac(objects.property(String.class))
-        .setWindows(objects.property(String.class));
+    var osExtensions =
+        objects
+            .newInstance(ModifiableOsValues.class)
+            .setLinux(objects.property(String.class))
+            .setMac(objects.property(String.class))
+            .setWindows(objects.property(String.class));
     osExtensions.getLinux().set("tar.gz");
     osExtensions.getMac().set("tar.gz");
     osExtensions.getWindows().set("zip");
@@ -88,9 +93,7 @@ public interface ToolDownloaderExtension extends Named, HasPublicType {
    */
   Property<String> getArtifactPattern();
 
-  /**
-   * Subdirectories of the extract archive to add to PATH when executing tasks.
-   */
+  /** Subdirectories of the extract archive to add to PATH when executing tasks. */
   ListProperty<String> getPathSubDirs();
 
   /**

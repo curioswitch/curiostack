@@ -48,7 +48,7 @@ import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
 import org.curioswitch.gradle.plugins.helm.TillerExtension;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
-import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Rule;
@@ -131,22 +131,11 @@ public class GcloudPlugin implements Plugin<Project> {
     project
         .getTasks()
         .withType(GcloudTask.class)
-        .configureEach(
-            t ->
-                t.dependsOn(
-                    project
-                        .getRootProject()
-                        .getTasks()
-                        .withType(DownloadToolTask.class)
-                        .named("toolsDownloadGcloud")));
+        .configureEach(t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "gcloud")));
 
     var gcloudSetup = project.getTasks().register("gcloudSetup");
     var gcloudInstallComponents =
-        project
-            .getTasks()
-            .register(
-                "gcloudInstallComponents",
-                GcloudTask.class);
+        project.getTasks().register("gcloudInstallComponents", GcloudTask.class);
     var gcloudLoginToCluster =
         project.getTasks().register("gcloudLoginToCluster", GcloudTask.class);
 
@@ -191,23 +180,26 @@ public class GcloudPlugin implements Plugin<Project> {
                               ? "--zone=" + System.getenv("CLOUDSDK_COMPUTE_ZONE")
                               : "--region=" + config.clusterRegion())));
 
-          gcloudInstallComponents.configure(t -> t.setArgs(
-                              ImmutableList.of(
-                                  "components",
-                                  "install",
-                                  "app-engine-python",
-                                  "beta",
-                                  "kubectl",
-                                  "docker-credential-gcr")));
+          gcloudInstallComponents.configure(
+              t ->
+                  t.setArgs(
+                      ImmutableList.of(
+                          "components",
+                          "install",
+                          "app-engine-python",
+                          "beta",
+                          "kubectl",
+                          "docker-credential-gcr")));
           gcloudSetup.configure(t -> t.dependsOn(gcloudInstallComponents));
 
           project
               .getTasks()
               .withType(KubectlTask.class)
-              .configureEach(t -> {
-                t.dependsOn(gcloudInstallComponents);
-                t.dependsOn(gcloudLoginToCluster);
-              });
+              .configureEach(
+                  t -> {
+                    t.dependsOn(gcloudInstallComponents);
+                    t.dependsOn(gcloudLoginToCluster);
+                  });
         });
 
     addGenerateCloudBuildTask(project);

@@ -24,6 +24,7 @@
 
 package org.curioswitch.gradle.conda.exec;
 
+import com.google.common.collect.ImmutableList;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
@@ -58,13 +59,16 @@ public final class CondaExecUtil {
     Path condaSh = condaDir.resolve(Paths.get("etc", "profile.d", "conda.sh"));
 
     var currentCommandLine = exec.getCommandLine();
-    exec.setCommandLine(
-        "bash -c . "
-            + condaSh.toString()
-            + " && conda activate > /dev/null && cd "
-            + exec.getWorkingDir().toString()
-            + " && "
-            + String.join(" ", currentCommandLine));
+    exec.setExecutable("bash");
+    exec.setArgs(
+        ImmutableList.of(
+            "-c",
+            ". "
+                + condaSh.toString()
+                + " && conda activate > /dev/null && cd "
+                + exec.getWorkingDir().toString()
+                + " && "
+                + String.join(" ", currentCommandLine)));
   }
 
   private CondaExecUtil() {}

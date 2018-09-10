@@ -91,7 +91,12 @@ public class CurioWebPlugin implements Plugin<Project> {
                       .dirs(
                           ImmutableMap.of(
                               "yarnBuild", project.file("build/web").getAbsolutePath()));
-                  t.finalizedBy(buildWebCheck);
+                  if ("true"
+                      .equals(project.getRootProject().findProperty("curiostack.skipBuildWeb"))) {
+                    t.setEnabled(false);
+                  } else {
+                    t.finalizedBy(buildWebCheck);
+                  }
                 });
 
     var copyWeb =

@@ -22,90 +22,54 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.golang.tasks;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+package org.curioswitch.gradle.conda.tasks;
 
 import javax.annotation.Nullable;
+import org.curioswitch.gradle.conda.exec.CondaExecUtil;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
 
-public class GoTask extends DefaultTask {
+public class CondaExecTask extends DefaultTask {
 
   private final Property<String> command;
-  private final ListProperty<String> args;
+  private final Property<String> condaName;
 
   @Nullable private Action<ExecSpec> execCustomizer;
 
-  public GoTask() {
+  public CondaExecTask() {
     var objects = getProject().getObjects();
     command = objects.property(String.class);
-    args = objects.listProperty(String.class);
-
-    command.set("go");
+    condaName = objects.property(String.class);
   }
 
-  public GoTask command(Property<String> command) {
+  public CondaExecTask setCommand(String command) {
     this.command.set(command);
     return this;
   }
 
-  public GoTask command(String command) {
-    this.command.set(command);
+  public CondaExecTask setCondaName(String condaName) {
+    this.condaName.set(condaName);
     return this;
   }
 
-  public GoTask args(ListProperty<String> args) {
-    this.args.addAll(checkNotNull(args, "args"));
+  public CondaExecTask setExecCustomizer(Action<ExecSpec> execCustomizer) {
+    this.execCustomizer = execCustomizer;
     return this;
-  }
-
-  public GoTask args(String... args) {
-    this.args.addAll(checkNotNull(args, "args"));
-    return this;
-  }
-
-  public GoTask args(Iterable<String> args) {
-    this.args.addAll(checkNotNull(args, "args"));
-    return this;
-  }
-
-  public GoTask setExecCustomizer(Action<ExecSpec> execCustomizer) {
-    this.execCustomizer = checkNotNull(execCustomizer, "execCustomizer");
-    return this;
-  }
-
-  @Input
-  public ListProperty<String> getArgs() {
-    return args;
   }
 
   @TaskAction
-  void exec() {
+  public void exec() {
     getProject()
         .exec(
             exec -> {
-              var toolManager = DownloadedToolManager.get(getProject());
+              exec.setCommandLine(command.get());
 
-              exec.executable(toolManager.getBinDir("go").resolve(command.get()));
-              exec.args(args.get());
-              exec.environment("GOROOT", toolManager.getToolDir("go").resolve("go"));
-              exec.environment(
-                  "GOPATH",
-                  getProject()
-                      .getGradle()
-                      .getGradleUserHomeDir()
-                      .toPath()
-                      .resolve("curiostack")
-                      .resolve("gopath"));
-
-              toolManager.addAllToPath(exec);
+              CondaExecUtil.condaExec(
+                  exec, DownloadedToolManager.get(getProject()), condaName.get());
 
               if (execCustomizer != null) {
                 execCustomizer.execute(exec);

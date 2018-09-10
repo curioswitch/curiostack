@@ -22,28 +22,30 @@
  * SOFTWARE.
  */
 
-plugins {
-    `java-gradle-plugin`
-    `maven-publish`
-}
+package org.curioswitch.gradle.tooldownloader.util;
 
-dependencies {
-    compile(project(":common:curio-helpers"))
-    compile(project(":tools:gradle-plugins:gradle-conda-plugin"))
-    compile(project(":tools:gradle-plugins:gradle-tool-downloader-plugin"))
-    compile(project(":tools:gradle-plugins:gradle-helpers"))
+import org.curioswitch.gradle.helpers.task.TaskUtil;
+import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
+import org.gradle.api.Project;
+import org.gradle.api.Task;
+import org.gradle.api.tasks.TaskProvider;
 
-    compile("com.google.guava:guava")
+public final class DownloadToolUtil {
 
-    annotationProcessor("org.immutables:value")
-    compileOnly("org.immutables:value-annotations")
-}
+  public static TaskProvider<DownloadToolTask> getDownloadTask(Project project, String toolName) {
+    return project
+        .getRootProject()
+        .getTasks()
+        .withType(DownloadToolTask.class)
+        .named("toolsDownload" + TaskUtil.toTaskSuffix(toolName));
+  }
 
-gradlePlugin {
-    plugins {
-        register("golang") {
-            id = "org.curioswitch.gradle-golang-plugin"
-            implementationClass = "org.curioswitch.gradle.golang.GolangPlugin"
-        }
-    }
+  public static TaskProvider<? extends Task> getSetupTask(Project project, String toolName) {
+    return project
+        .getRootProject()
+        .getTasks()
+        .named("toolsSetup" + TaskUtil.toTaskSuffix(toolName));
+  }
+
+  private DownloadToolUtil() {}
 }

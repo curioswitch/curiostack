@@ -26,8 +26,8 @@ package org.curioswitch.gradle.tooldownloader;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Ascii;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
+import org.curioswitch.gradle.helpers.task.TaskUtil;
 import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -65,16 +65,17 @@ public class ToolDownloaderPlugin implements Plugin<Project> {
 
     tools.configureEach(
         tool -> {
-          String capitalized =
-              Ascii.toUpperCase(tool.getName().charAt(0)) + tool.getName().substring(1);
-          var task = project
-              .getTasks()
-              .register(
-                  "toolsDownload" + capitalized,
-                  DownloadToolTask.class,
-                  tool,
-                  platformHelper,
-                  toolManager);
+          var taskSuffix = TaskUtil.toTaskSuffix(tool.getName());
+          var task =
+              project
+                  .getTasks()
+                  .register(
+                      "toolsDownload" + taskSuffix,
+                      DownloadToolTask.class,
+                      tool,
+                      platformHelper,
+                      toolManager);
+          project.getTasks().register("toolsSetup" + taskSuffix, t -> t.dependsOn(task));
           downloadAll.configure(t -> t.dependsOn(task));
         });
   }

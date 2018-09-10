@@ -24,18 +24,27 @@
 
 package org.curioswitch.gradle.golang;
 
+import static org.curioswitch.gradle.helpers.task.TaskUtil.toTaskSuffix;
+
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
+import org.curioswitch.gradle.conda.exec.CondaExecUtil;
 import org.curioswitch.gradle.golang.tasks.GoTask;
 import org.curioswitch.gradle.golang.tasks.GolangExtension;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
-import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Rule;
+import org.gradle.api.Task;
+import org.gradle.api.UnknownTaskException;
 import org.gradle.api.plugins.BasePlugin;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 public class GolangPlugin implements Plugin<Project> {
@@ -45,6 +54,8 @@ public class GolangPlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.getPlugins().apply(BasePlugin.class);
+
+    project.getRootProject().getPlugins().apply(CondaBuildEnvPlugin.class);
 
     var golang = GolangExtension.createAndAdd(project);
 
@@ -88,17 +99,10 @@ public class GolangPlugin implements Plugin<Project> {
               }
             });
 
-    project
-        .getTasks()
-        .withType(GoTask.class)
-        .configureEach(
-            t ->
-                t.dependsOn(
-                    project
-                        .getRootProject()
-                        .getTasks()
-                        .withType(DownloadToolTask.class)
-                        .named("toolsDownloadGo")));
+    var setupGo = DownloadToolUtil.getSetupTask(project, "go");
+    setupGo.configure(t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build")));
+
+    project.getTasks().withType(GoTask.class).configureEach(t -> t.dependsOn(setupGo));
 
     var checkFormat =
         project
@@ -120,10 +124,8 @@ public class GolangPlugin implements Plugin<Project> {
                       });
                   t.setExecCustomizer(exec -> exec.setStandardOutput(stdOut));
                 });
-    project
-        .getTasks()
-        .named(LifecycleBasePlugin.CHECK_TASK_NAME)
-        .configure(t -> t.dependsOn(checkFormat));
+    var check = project.getTasks().named(LifecycleBasePlugin.CHECK_TASK_NAME);
+    check.configure(t -> t.dependsOn(checkFormat));
 
     project
         .getTasks()
@@ -134,5 +136,76 @@ public class GolangPlugin implements Plugin<Project> {
               t.command("gofmt");
               t.args("-s", "-w", ".");
             });
+
+    var goTest = project.getTasks().register("goTest", GoTask.class, t -> t.args("test", "./..."));
+
+    var goBuildAll = project.getTasks().register("goBuildAll");
+    project
+        .getTasks()
+        .named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME)
+        .configure(t -> t.dependsOn(goBuildAll));
+
+    project.afterEvaluate(
+        unused -> {
+          TaskProvider<Task> test;
+          try {
+            test = project.getTasks().named("test");
+          } catch (UnknownTaskException e) {
+            test = project.getTasks().register("test");
+            TaskProvider<Task> testCopy = test;
+            check.configure(t -> t.dependsOn(testCopy));
+          }
+          test.configure(t -> t.dependsOn(goTest));
+
+          List<String> goOses = golang.getGoOses().get();
+          if (goOses.isEmpty()) {
+            goOses = ImmutableList.of("");
+          }
+          List<String> goArchs = golang.getGoArchs().get();
+          if (goArchs.isEmpty()) {
+            goArchs = ImmutableList.of("");
+          }
+
+          var goBuildDir = project.file("build/exe").toPath();
+          var exeName = golang.getExecutableName().getOrElse(project.getProjectDir().getName());
+
+          for (String goOs : goOses) {
+            for (String goArch : goArchs) {
+              var goBuild =
+                  project
+                      .getTasks()
+                      .register(
+                          "goBuild" + toTaskSuffix(goOs) + toTaskSuffix(goArch),
+                          GoTask.class,
+                          t -> {
+                            String outputDir = goOs.isEmpty() ? "current" : goOs;
+                            if (!goArch.isEmpty()) {
+                              outputDir += '-' + goArch;
+                            }
+                            t.args(
+                                "build",
+                                "-o",
+                                goBuildDir.resolve(outputDir).resolve(exeName).toString());
+                            t.setExecCustomizer(
+                                exec -> {
+                                  if (!goOs.isEmpty()) {
+                                    exec.environment("GOOS", goOs);
+                                  }
+                                  if (!goArch.isEmpty()) {
+                                    exec.environment("GOARCH", goArch);
+                                  }
+                                  CondaExecUtil.condaExec(
+                                      exec,
+                                      DownloadedToolManager.get(project),
+                                      golang.getConda().get());
+                                });
+
+                            t.dependsOn(
+                                DownloadToolUtil.getSetupTask(project, golang.getConda().get()));
+                          });
+              goBuildAll.configure(t -> t.dependsOn(goBuild));
+            }
+          }
+        });
   }
 }

@@ -55,6 +55,7 @@ dependencies {
     api("javax.inject:javax.inject")
 
     implementation(gradleApi())
+    implementation("com.google.guava:guava")
 
     compileOnly("org.immutables:value-annotations")
 }

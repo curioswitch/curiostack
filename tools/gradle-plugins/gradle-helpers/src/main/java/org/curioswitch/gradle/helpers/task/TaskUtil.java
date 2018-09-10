@@ -22,28 +22,15 @@
  * SOFTWARE.
  */
 
-plugins {
-    `java-gradle-plugin`
-    `maven-publish`
-}
+package org.curioswitch.gradle.helpers.task;
 
-dependencies {
-    compile(project(":common:curio-helpers"))
-    compile(project(":tools:gradle-plugins:gradle-conda-plugin"))
-    compile(project(":tools:gradle-plugins:gradle-tool-downloader-plugin"))
-    compile(project(":tools:gradle-plugins:gradle-helpers"))
+import com.google.common.base.CaseFormat;
 
-    compile("com.google.guava:guava")
+public final class TaskUtil {
 
-    annotationProcessor("org.immutables:value")
-    compileOnly("org.immutables:value-annotations")
-}
+  public static String toTaskSuffix(String name) {
+    return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name.replace('-', '_'));
+  }
 
-gradlePlugin {
-    plugins {
-        register("golang") {
-            id = "org.curioswitch.gradle-golang-plugin"
-            implementationClass = "org.curioswitch.gradle.golang.GolangPlugin"
-        }
-    }
+  private TaskUtil() {}
 }

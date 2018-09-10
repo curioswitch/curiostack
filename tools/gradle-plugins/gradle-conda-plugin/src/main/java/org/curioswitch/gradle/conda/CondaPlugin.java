@@ -26,14 +26,15 @@ package org.curioswitch.gradle.conda;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Ascii;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import org.curioswitch.gradle.conda.tasks.InstallCondaPackagesTask;
+import org.curioswitch.gradle.conda.tasks.InstallPythonPackagesTask;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
+import org.curioswitch.gradle.helpers.task.TaskUtil;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
-import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -49,6 +50,8 @@ public class CondaPlugin implements Plugin<Project> {
     checkState(
         project.getParent() == null,
         "gradle-conda-plugin can only be applied to the root project.");
+
+    project.getPlugins().apply(ToolDownloaderPlugin.class);
 
     condas =
         project.container(
@@ -107,13 +110,7 @@ public class CondaPlugin implements Plugin<Project> {
                     osExtensions.getMac().set("sh");
                     osExtensions.getWindows().set("exe");
                   });
-              var capitalized =
-                  Ascii.toUpperCase(conda.getName().charAt(0)) + conda.getName().substring(1);
-              var download =
-                  project
-                      .getTasks()
-                      .withType(DownloadToolTask.class)
-                      .named("toolsDownload" + capitalized);
+              var download = DownloadToolUtil.getDownloadTask(project, conda.getName());
               download.configure(
                   t ->
                       t.setArchiveExtractAction(
@@ -136,18 +133,31 @@ public class CondaPlugin implements Plugin<Project> {
                               project.exec(
                                   exec -> {
                                     exec.executable(archive);
-                                    exec.args("-b", "-p", toolDir.toAbsolutePath().toString());
+                                    exec.args(
+                                        "-f", "-b", "-p", toolDir.toAbsolutePath().toString());
                                   });
                             }
                           }));
-              project
-                  .getTasks()
-                  .register(
-                      "condaInstallPackages" + capitalized,
-                      InstallCondaPackagesTask.class,
-                      conda,
-                      plugin.toolManager())
-                  .configure(t -> t.dependsOn(download));
+              var condaInstallPackages =
+                  project
+                      .getTasks()
+                      .register(
+                          "condaInstallPackages" + TaskUtil.toTaskSuffix(conda.getName()),
+                          InstallCondaPackagesTask.class,
+                          conda,
+                          plugin.toolManager());
+              condaInstallPackages.configure(t -> t.dependsOn(download));
+              var condaInstallPythonPackages =
+                  project
+                      .getTasks()
+                      .register(
+                          "condaInstallPythonPackages" + TaskUtil.toTaskSuffix(conda.getName()),
+                          InstallPythonPackagesTask.class,
+                          conda,
+                          plugin.toolManager());
+              condaInstallPythonPackages.configure(t -> t.dependsOn(condaInstallPackages));
+              DownloadToolUtil.getSetupTask(project, conda.getName())
+                  .configure(t -> t.dependsOn(condaInstallPackages, condaInstallPythonPackages));
             });
   }
 }

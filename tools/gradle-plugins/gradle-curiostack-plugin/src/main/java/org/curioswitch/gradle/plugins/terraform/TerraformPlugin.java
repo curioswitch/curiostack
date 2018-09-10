@@ -32,7 +32,7 @@ import org.curioswitch.gradle.plugins.terraform.tasks.TerraformImportTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformOutputTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformTask;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
-import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePlugin;
@@ -133,12 +133,7 @@ public class TerraformPlugin implements Plugin<Project> {
               t.setArgs(ImmutableList.of("output"));
             });
 
-    var downloadTerraformTask =
-        project
-            .getRootProject()
-            .getTasks()
-            .withType(DownloadToolTask.class)
-            .named("toolsDownloadTerraform");
+    var downloadTerraformTask = DownloadToolUtil.getSetupTask(project, "terraform");
     project
         .getTasks()
         .withType(TerraformTask.class, t -> t.dependsOn(downloadTerraformTask, convertConfigs));

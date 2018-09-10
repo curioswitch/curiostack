@@ -41,7 +41,8 @@ public class DownloadedToolManager {
 
   public static DownloadedToolManager get(Project project) {
     var toolManager =
-        (DownloadedToolManager) project.getExtensions().getExtraProperties().get("toolManager");
+        (DownloadedToolManager)
+            project.getRootProject().getExtensions().getExtraProperties().get("toolManager");
     checkNotNull(toolManager, "toolManager not found. Did you apply the tool-downloader plugin?");
     return toolManager;
   }
@@ -73,12 +74,12 @@ public class DownloadedToolManager {
     checkNotNull(toolName, "toolName");
     var tool = tools.findByName(toolName);
     checkState(tool != null, "Tool %s not registered.", toolName);
-    return tool.getPathSubDirs().get().stream()
-        .map(subDir ->
-            curiostackDir
-                .resolve(toolName)
-                .resolve(tool.getVersion().get())
-            .resolve(subDir))
+    return tool.getPathSubDirs()
+        .get()
+        .stream()
+        .map(
+            subDir ->
+                curiostackDir.resolve(toolName).resolve(tool.getVersion().get()).resolve(subDir))
         .collect(toImmutableList());
   }
 

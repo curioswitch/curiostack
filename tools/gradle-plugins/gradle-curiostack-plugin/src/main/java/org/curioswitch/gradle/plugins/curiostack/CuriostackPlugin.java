@@ -79,10 +79,9 @@ import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
 import nu.studer.gradle.jooq.JooqTask;
 import org.apache.tools.ant.taskdefs.condition.Os;
+import org.curioswitch.gradle.common.LambdaClosure;
 import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
-import org.curioswitch.gradle.common.LambdaClosure;
-import org.curioswitch.gradle.golang.GolangPlugin;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
 import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
@@ -92,7 +91,7 @@ import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
-import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -150,7 +149,6 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(CondaBuildEnvPlugin.class);
     plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
-    plugins.apply(GolangPlugin.class);
     plugins.apply(NodePlugin.class);
     plugins.apply(ToolDownloaderPlugin.class);
 
@@ -779,12 +777,7 @@ public class CuriostackPlugin implements Plugin<Project> {
         .named("nodeSetup")
         .configure(
             t -> {
-              t.dependsOn(
-                  project
-                      .getRootProject()
-                      .getTasks()
-                      .withType(DownloadToolTask.class)
-                      .named("toolsDownloadMiniconda2-build"));
+              t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build"));
               t.onlyIf(unused -> !node.getVariant().getNodeDir().exists());
             });
     project

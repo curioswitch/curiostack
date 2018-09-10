@@ -27,6 +27,7 @@ package org.curioswitch.gradle.golang.tasks;
 import org.curioswitch.gradle.helpers.immutables.ExtensionStyle;
 import org.gradle.api.Project;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.immutables.value.Value.Modifiable;
@@ -39,16 +40,25 @@ public interface GolangExtension extends HasPublicType {
 
   static ModifiableGolangExtension createAndAdd(Project project) {
     var objects = project.getObjects();
-    return project
-        .getExtensions()
-        .create(NAME, ModifiableGolangExtension.class)
-        .setGoOses(objects.listProperty(String.class))
-        .setGoArchs(objects.listProperty(String.class));
+    var extension =
+        project
+            .getExtensions()
+            .create(NAME, ModifiableGolangExtension.class)
+            .setExecutableName(objects.property(String.class))
+            .setGoOses(objects.listProperty(String.class))
+            .setGoArchs(objects.listProperty(String.class))
+            .setConda(objects.property(String.class));
+    extension.getConda().set("miniconda2-build");
+    return extension;
   }
+
+  Property<String> getExecutableName();
 
   ListProperty<String> getGoOses();
 
   ListProperty<String> getGoArchs();
+
+  Property<String> getConda();
 
   @Override
   default TypeOf<?> getPublicType() {
