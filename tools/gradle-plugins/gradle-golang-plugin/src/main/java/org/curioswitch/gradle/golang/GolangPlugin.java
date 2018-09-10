@@ -137,7 +137,22 @@ public class GolangPlugin implements Plugin<Project> {
               t.args("-s", "-w", ".");
             });
 
-    var goTest = project.getTasks().register("goTest", GoTask.class, t -> t.args("test", "./..."));
+    var goTest =
+        project
+            .getTasks()
+            .register(
+                "goTest",
+                GoTask.class,
+                t -> {
+                  t.args("test", "./...");
+                  t.setExecCustomizer(
+                      exec -> {
+                        CondaExecUtil.condaExec(
+                            exec, DownloadedToolManager.get(project), golang.getConda().get());
+                      });
+
+                  t.dependsOn(DownloadToolUtil.getSetupTask(project, golang.getConda().get()));
+                });
 
     var goBuildAll = project.getTasks().register("goBuildAll");
     project
