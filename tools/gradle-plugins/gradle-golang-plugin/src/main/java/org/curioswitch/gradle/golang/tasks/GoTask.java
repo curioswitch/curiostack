@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -99,11 +100,9 @@ public class GoTask extends DefaultTask {
               exec.environment(
                   "GOPATH",
                   getProject()
-                      .getGradle()
-                      .getGradleUserHomeDir()
-                      .toPath()
-                      .resolve("curiostack")
-                      .resolve("gopath"));
+                      .getExtensions()
+                      .getByType(ExtraPropertiesExtension.class)
+                      .get("gopath"));
 
               toolManager.addAllToPath(exec);
 

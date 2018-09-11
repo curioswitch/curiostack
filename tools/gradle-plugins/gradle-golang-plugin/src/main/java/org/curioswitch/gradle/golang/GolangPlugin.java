@@ -28,8 +28,10 @@ import static org.curioswitch.gradle.helpers.task.TaskUtil.toTaskSuffix;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
 import org.curioswitch.gradle.golang.tasks.GoTask;
@@ -44,6 +46,7 @@ import org.gradle.api.Rule;
 import org.gradle.api.Task;
 import org.gradle.api.UnknownTaskException;
 import org.gradle.api.plugins.BasePlugin;
+import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
@@ -56,6 +59,18 @@ public class GolangPlugin implements Plugin<Project> {
     project.getPlugins().apply(BasePlugin.class);
 
     project.getRootProject().getPlugins().apply(CondaBuildEnvPlugin.class);
+
+    project
+        .getExtensions()
+        .getByType(ExtraPropertiesExtension.class)
+        .set(
+            "gopath",
+            project
+                .getGradle()
+                .getGradleUserHomeDir()
+                .toPath()
+                .resolve("curiostack")
+                .resolve("gopath"));
 
     var golang = GolangExtension.createAndAdd(project);
 
@@ -144,12 +159,20 @@ public class GolangPlugin implements Plugin<Project> {
                 "goTest",
                 GoTask.class,
                 t -> {
-                  t.args("test", "./...");
+                  var testPackageDirs =
+                      Streams.stream(
+                              project.fileTree(
+                                  project.getProjectDir(), ft -> ft.include("**/*_test.go")))
+                          .map(f -> f.getParentFile().toPath())
+                          .map(p -> project.getProjectDir().toPath().relativize(p).toString())
+                          .map(p -> p.isEmpty() ? "." : "./" + p)
+                          .distinct()
+                          .collect(Collectors.joining(" "));
+                  t.args("test", testPackageDirs);
                   t.setExecCustomizer(
-                      exec -> {
-                        CondaExecUtil.condaExec(
-                            exec, DownloadedToolManager.get(project), golang.getConda().get());
-                      });
+                      exec ->
+                          CondaExecUtil.condaExec(
+                              exec, DownloadedToolManager.get(project), golang.getConda().get()));
 
                   t.dependsOn(DownloadToolUtil.getSetupTask(project, golang.getConda().get()));
                 });

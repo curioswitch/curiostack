@@ -68,12 +68,12 @@ public class CondaExecTask extends DefaultTask {
             exec -> {
               exec.setCommandLine(command.get());
 
-              CondaExecUtil.condaExec(
-                  exec, DownloadedToolManager.get(getProject()), condaName.get());
-
               if (execCustomizer != null) {
                 execCustomizer.execute(exec);
               }
+
+              CondaExecUtil.condaExec(
+                  exec, DownloadedToolManager.get(getProject()), condaName.get());
             });
   }
 }
