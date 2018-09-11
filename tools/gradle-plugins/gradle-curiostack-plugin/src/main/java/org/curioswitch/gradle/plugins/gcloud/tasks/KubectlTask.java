@@ -24,11 +24,10 @@
 
 package org.curioswitch.gradle.plugins.gcloud.tasks;
 
-import java.io.File;
 import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
 import org.curioswitch.gradle.plugins.gcloud.ImmutableGcloudExtension;
-import org.curioswitch.gradle.plugins.shared.CommandUtil;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.TaskAction;
@@ -69,24 +68,20 @@ public class KubectlTask extends DefaultTask {
         getProject().getRootProject().getExtensions().getByType(GcloudExtension.class);
 
     String command = Os.isFamily(Os.FAMILY_WINDOWS) ? COMMAND + ".exe" : COMMAND;
-    String executable = CommandUtil.getGcloudSdkBinDir(getProject()).resolve(command).toString();
+    var toolManager = DownloadedToolManager.get(getProject());
+    String executable = toolManager.getBinDir("gcloud").resolve(command).toString();
     getProject()
         .exec(
             exec -> {
               exec.executable(executable);
               exec.args(args.get());
-              if (config.download()) {
-                exec.environment(
-                    "PATH",
-                    CommandUtil.getGcloudSdkBinDir(getProject())
-                        + File.pathSeparator
-                        + exec.getEnvironment().get("PATH"));
-                exec.environment(
-                    "CLOUDSDK_PYTHON", CommandUtil.getPythonExecutable(getProject(), "build"));
-                exec.environment("CLOUDSDK_PYTHON_SITEPACKAGES", "1");
-              }
+              exec.environment(
+                  "CLOUDSDK_PYTHON", toolManager.getBinDir("miniconda2-build").resolve("python"));
+              exec.environment("CLOUDSDK_PYTHON_SITEPACKAGES", "1");
               exec.setStandardInput(System.in);
               exec.setIgnoreExitValue(ignoreExitValue);
+
+              toolManager.addAllToPath(exec);
             });
   }
 }
