@@ -77,10 +77,7 @@ public class GcloudPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    var gcloud =
-        project
-            .getExtensions()
-            .create(ImmutableGcloudExtension.NAME, GcloudExtension.class, project);
+    project.getExtensions().create(ImmutableGcloudExtension.NAME, GcloudExtension.class, project);
 
     project
         .getPlugins()
@@ -102,6 +99,8 @@ public class GcloudPlugin implements Plugin<Project> {
                       osClassifiers.getMac().set("darwin-x86_64");
                       osClassifiers.getWindows().set("windows-x86_64");
                     }));
+    DownloadToolUtil.getDownloadTask(project, "gcloud")
+        .configure(t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build")));
 
     ExtraPropertiesExtension ext = project.getExtensions().getExtraProperties();
     ext.set(GcloudTask.class.getSimpleName(), GcloudTask.class);
