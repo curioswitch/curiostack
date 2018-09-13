@@ -26,6 +26,7 @@ package org.curioswitch.gradle.tooldownloader.tasks;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
@@ -114,18 +115,19 @@ public class DownloadToolTask extends DefaultTask {
     checkNotNull(baseUrl.get(), "baseUrl must be set.");
     checkNotNull(artifactPattern.get(), "artifactPattern must be set");
 
-    var currentRepositories = getProject().getRepositories();
+    var currentRepositories = ImmutableList.copyOf(getProject().getRepositories());
+    System.out.println(currentRepositories);
     setRepository();
 
     File archive = resolveAndFetchArchive(getProject().getDependencies().create(getDependency()));
+
+    restoreRepositories(currentRepositories);
 
     if (archiveExtractAction != null) {
       archiveExtractAction.execute(archive);
     } else {
       unpackArchive(archive);
     }
-
-    restoreRepositories(currentRepositories);
   }
 
   private void setRepository() {

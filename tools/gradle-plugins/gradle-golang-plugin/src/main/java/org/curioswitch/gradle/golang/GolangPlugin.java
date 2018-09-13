@@ -137,7 +137,7 @@ public class GolangPlugin implements Plugin<Project> {
                                   + stdOut.toString());
                         }
                       });
-                  t.setExecCustomizer(exec -> exec.setStandardOutput(stdOut));
+                  t.execCustomizer(exec -> exec.setStandardOutput(stdOut));
                 });
     var check = project.getTasks().named(LifecycleBasePlugin.CHECK_TASK_NAME);
     check.configure(t -> t.dependsOn(checkFormat));
@@ -169,7 +169,7 @@ public class GolangPlugin implements Plugin<Project> {
                           .distinct()
                           .collect(Collectors.joining(" "));
                   t.args("test", testPackageDirs);
-                  t.setExecCustomizer(
+                  t.execCustomizer(
                       exec ->
                           CondaExecUtil.condaExec(
                               exec, DownloadedToolManager.get(project), golang.getConda().get()));
@@ -224,7 +224,7 @@ public class GolangPlugin implements Plugin<Project> {
                                 "build",
                                 "-o",
                                 goBuildDir.resolve(outputDir).resolve(exeName).toString());
-                            t.setExecCustomizer(
+                            t.execCustomizer(
                                 exec -> {
                                   if (!goOs.isEmpty()) {
                                     exec.environment("GOOS", goOs);

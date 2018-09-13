@@ -26,7 +26,8 @@ package org.curioswitch.gradle.golang.tasks;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -41,13 +42,13 @@ public class GoTask extends DefaultTask {
 
   private final Property<String> command;
   private final ListProperty<String> args;
-
-  @Nullable private Action<ExecSpec> execCustomizer;
+  private final List<Action<ExecSpec>> execCustomizers;
 
   public GoTask() {
     var objects = getProject().getObjects();
     command = objects.property(String.class);
     args = objects.listProperty(String.class);
+    execCustomizers = new ArrayList();
 
     command.set("go");
   }
@@ -77,8 +78,8 @@ public class GoTask extends DefaultTask {
     return this;
   }
 
-  public GoTask setExecCustomizer(Action<ExecSpec> execCustomizer) {
-    this.execCustomizer = checkNotNull(execCustomizer, "execCustomizer");
+  public GoTask execCustomizer(Action<ExecSpec> execCustomizer) {
+    this.execCustomizers.add(checkNotNull(execCustomizer, "execCustomizer"));
     return this;
   }
 
@@ -106,7 +107,7 @@ public class GoTask extends DefaultTask {
 
               toolManager.addAllToPath(exec);
 
-              if (execCustomizer != null) {
+              for (var execCustomizer : execCustomizers) {
                 execCustomizer.execute(exec);
               }
             });
