@@ -138,6 +138,16 @@ public class GcloudPlugin implements Plugin<Project> {
     var gcloudLoginToCluster =
         project.getTasks().register("gcloudLoginToCluster", GcloudTask.class);
 
+    project.allprojects(
+        subproj ->
+            subproj
+                .getTasks()
+                .withType(KubectlTask.class)
+                .configureEach(
+                    t -> {
+                      t.dependsOn(gcloudInstallComponents, gcloudLoginToCluster);
+                    }));
+
     project.afterEvaluate(
         p -> {
           ImmutableGcloudExtension config =
@@ -190,15 +200,6 @@ public class GcloudPlugin implements Plugin<Project> {
                           "kubectl",
                           "docker-credential-gcr")));
           gcloudSetup.configure(t -> t.dependsOn(gcloudInstallComponents));
-
-          project
-              .getTasks()
-              .withType(KubectlTask.class)
-              .configureEach(
-                  t -> {
-                    t.dependsOn(gcloudInstallComponents);
-                    t.dependsOn(gcloudLoginToCluster);
-                  });
         });
 
     addGenerateCloudBuildTask(project);
