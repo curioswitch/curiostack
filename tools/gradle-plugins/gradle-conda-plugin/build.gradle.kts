@@ -74,3 +74,16 @@ gradlePlugin {
         }
     }
 }
+
+publishing {
+    publications {
+        register("maven", MavenPublication::class) {
+            pom {
+                name.set("Gradle Conda Plugin")
+                description.set("Gradle plugin to use miniconda to create a build environment.")
+                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
+                        "gradle-plugins/gradle-conda-plugin")
+            }
+        }
+    }
+}

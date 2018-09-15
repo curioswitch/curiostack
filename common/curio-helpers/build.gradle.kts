@@ -30,3 +30,15 @@ plugins {
 dependencies {
     compileOnly("org.immutables:value-annotations")
 }
+
+publishing {
+    publications {
+        register("maven", MavenPublication::class) {
+            pom {
+                name.set("Curio Helpers")
+                description.set("Helpers to use in all curiostack projects.")
+                url.set("https://github.com/curioswitch/curiostack/tree/master/common/curio-helpers")
+            }
+        }
+    }
+}

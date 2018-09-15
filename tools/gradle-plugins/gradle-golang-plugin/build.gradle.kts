@@ -47,3 +47,16 @@ gradlePlugin {
         }
     }
 }
+
+publishing {
+    publications {
+        register("maven", MavenPublication::class) {
+            pom {
+                name.set("Gradle Golang Plugin")
+                description.set("Gradle plugin to build Go binaries.")
+                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
+                        "gradle-plugins/gradle-golang-plugin")
+            }
+        }
+    }
+}

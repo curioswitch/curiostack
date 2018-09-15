@@ -45,3 +45,16 @@ gradlePlugin {
         }
     }
 }
+
+publishing {
+    publications {
+        register("maven", MavenPublication::class) {
+            pom {
+                name.set("Gradle Tool Downloader Plugin")
+                description.set("Gradle plugin to download tools for use in builds.")
+                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
+                        "gradle-plugins/gradle-tool-downloader-plugin")
+            }
+        }
+    }
+}
