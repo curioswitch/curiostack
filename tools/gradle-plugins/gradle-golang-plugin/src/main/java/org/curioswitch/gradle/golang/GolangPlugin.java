@@ -89,6 +89,7 @@ public class GolangPlugin implements Plugin<Project> {
                       tool.getBaseUrl().set("https://dl.google.com/go/");
                       tool.getArtifactPattern().set("[artifact][revision].[classifier].[ext]");
                       tool.getPathSubDirs().add("go/bin");
+                      tool.getAdditionalCachedDirs().add("gopath");
                     }));
 
     project

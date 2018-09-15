@@ -62,12 +62,8 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
-import org.gradle.api.plugins.JavaPlugin;
 
 public class CurioGenericCiPlugin implements Plugin<Project> {
-
-  private static final ImmutableList<String> CONTINUOUS_TASK_TYPES =
-      ImmutableList.of("build", "check", "test");
 
   private static final ImmutableSet<String> IGNORED_ROOT_FILES =
       ImmutableSet.of("settings.gradle", "yarn.lock", ".gitignore");
@@ -87,7 +83,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
 
     CiExtension.createAndAdd(project);
 
-    if (System.getenv("CI") == null && !project.getRootProject().hasProperty("ci")) {
+    if (System.getenv("CI") == null && !project.hasProperty("ci")) {
       return;
     }
 
@@ -114,37 +110,15 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       // Rebuild everything when the root project is changed.
       Task continuousBuild = project.task("continuousBuild");
       project.allprojects(
-          proj -> {
-            proj.afterEvaluate(
-                p -> {
-                  Task task = p.getTasks().findByName("build");
-                  if (task != null) {
-                    continuousBuild.dependsOn(task);
-                  }
-                });
-          });
+          proj -> proj.afterEvaluate(
+              p -> {
+                Task task = p.getTasks().findByName("build");
+                if (task != null) {
+                  continuousBuild.dependsOn(task);
+                }
+              }));
       return;
     }
-
-    project.allprojects(
-        p ->
-            p.getPlugins()
-                .withType(JavaPlugin.class)
-                .whenPluginAdded(
-                    plugin -> {
-                      for (String type : CONTINUOUS_TASK_TYPES) {
-                        String dependentsTaskName = type + "Dependents";
-                        if (p.getTasks().findByName(dependentsTaskName) != null) {
-                          return;
-                        }
-                        Task dependents = p.task(dependentsTaskName);
-                        dependents.dependsOn(p.getTasks().findByName(type));
-                        dependents.dependsOn(
-                            p.getConfigurations()
-                                .getByName("testRuntime")
-                                .getTaskDependencyFromProjectDependency(false, dependentsTaskName));
-                      }
-                    }));
 
     Task continuousBuild = project.task("continuousBuild");
     for (Project proj : affectedProjects) {

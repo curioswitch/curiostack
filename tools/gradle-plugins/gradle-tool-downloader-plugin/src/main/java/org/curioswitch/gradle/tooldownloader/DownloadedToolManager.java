@@ -59,6 +59,10 @@ public class DownloadedToolManager {
     curiostackDir = project.getGradle().getGradleUserHomeDir().toPath().resolve("curiostack");
   }
 
+  public Path getCuriostackDir() {
+    return curiostackDir;
+  }
+
   public Path getToolDir(String toolName) {
     checkNotNull(toolName, "toolName");
     var tool = tools.findByName(toolName);

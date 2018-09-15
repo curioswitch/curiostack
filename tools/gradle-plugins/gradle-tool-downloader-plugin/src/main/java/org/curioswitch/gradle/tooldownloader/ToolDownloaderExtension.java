@@ -49,7 +49,8 @@ public interface ToolDownloaderExtension extends Named, HasPublicType {
             .setVersion(objects.property(String.class))
             .setBaseUrl(objects.property(String.class))
             .setArtifactPattern(objects.property(String.class))
-            .setPathSubDirs(objects.listProperty(String.class));
+            .setPathSubDirs(objects.listProperty(String.class))
+            .setAdditionalCachedDirs(objects.listProperty(String.class));
 
     extension.getArtifact().set(name);
 
@@ -95,6 +96,9 @@ public interface ToolDownloaderExtension extends Named, HasPublicType {
 
   /** Subdirectories of the extract archive to add to PATH when executing tasks. */
   ListProperty<String> getPathSubDirs();
+
+  /** Additional subdirectories of the curiostack path to cache along with the tool. */
+  ListProperty<String> getAdditionalCachedDirs();
 
   /**
    * OS-specific values to use as the classifier when resolving the artifact pattern. Defaults to

@@ -95,7 +95,7 @@ public class CondaPlugin implements Plugin<Project> {
                     tool.getArtifactPattern().set("[artifact]-[revision]-[classifier].[ext]");
 
                     if (operatingSystem == OperatingSystem.WINDOWS) {
-                      tool.getPathSubDirs().addAll("", "Scripts");
+                      tool.getPathSubDirs().addAll("", "Scripts", "Library/bin");
                     } else {
                       tool.getPathSubDirs().add("bin");
                     }

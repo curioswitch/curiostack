@@ -42,6 +42,7 @@ import org.curioswitch.gradle.tooldownloader.ToolDownloaderExtension;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderExtension.OsValues;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputDirectory;
@@ -63,6 +64,7 @@ public class DownloadToolTask extends DefaultTask {
   private final Property<String> version;
   private final Property<String> baseUrl;
   private final Property<String> artifactPattern;
+  private final ListProperty<String> additionalCacheDirs;
   private final OsValues osClassifiers;
   private final OsValues osExtensions;
 
@@ -90,16 +92,28 @@ public class DownloadToolTask extends DefaultTask {
     version = objects.property(String.class);
     baseUrl = objects.property(String.class);
     artifactPattern = objects.property(String.class);
+    additionalCacheDirs = objects.listProperty(String.class);
 
     name = config.getName();
     artifact.set(config.getArtifact());
     version.set(config.getVersion());
     baseUrl.set(config.getBaseUrl());
     artifactPattern.set(config.getArtifactPattern());
+    additionalCacheDirs.set(config.getAdditionalCachedDirs());
     osClassifiers = config.getOsClassifiers();
     osExtensions = config.getOsExtensions();
 
     onlyIf(unused -> !getToolDir().toFile().exists());
+  }
+
+  @Input
+  public String getToolName() {
+    return name;
+  }
+
+  @Inject
+  public ListProperty<String> getAdditionalCacheDirs() {
+    return additionalCacheDirs;
   }
 
   @Input
@@ -149,12 +163,10 @@ public class DownloadToolTask extends DefaultTask {
 
     @Override
     public void run() {
-      DownloadToolTask task = TASKS.get(mapKey);
-      TASKS.remove(mapKey);
+      DownloadToolTask task = TASKS.remove(mapKey);
 
       File archiveDir = task.getTemporaryDir();
       String url = task.baseUrl.get() + task.getUrlPath();
-      System.out.println(url);
       String archiveName = Iterables.getLast(URL_SPLITTER.splitToList(url));
       File archive = new File(archiveDir, archiveName);
 
