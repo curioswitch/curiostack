@@ -91,7 +91,7 @@ public class GcloudPlugin implements Plugin<Project> {
                       tool.getVersion().set(GCLOUD_VERSION);
                       tool.getBaseUrl()
                           .set("https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/");
-                      tool.getArtifactPattern().set("[artifact](-[revision]-[classifier]).[ext]");
+                      tool.getArtifactPattern().set("[artifact]-[revision]-[classifier].[ext]");
                       tool.getPathSubDirs().add("google-cloud-sdk/bin");
 
                       var osClassifiers = tool.getOsClassifiers();

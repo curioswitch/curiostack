@@ -31,7 +31,10 @@ import com.google.common.collect.Iterables;
 import de.undercouch.gradle.tasks.download.DownloadAction;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
@@ -43,10 +46,17 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.workers.IsolationMode;
+import org.gradle.workers.WorkerExecutor;
 
 public class DownloadToolTask extends DefaultTask {
 
   private static final Splitter URL_SPLITTER = Splitter.on('/');
+
+  // It is extremely hacky to use global state to propagate the Task to workers, but
+  // it works so let's enjoy the speed.
+  private static final ConcurrentHashMap<String, DownloadToolTask> TASKS =
+      new ConcurrentHashMap<>();
 
   private final String name;
   private final Property<String> artifact;
@@ -59,15 +69,19 @@ public class DownloadToolTask extends DefaultTask {
   private final PlatformHelper platformHelper;
   private final DownloadedToolManager toolManager;
 
+  private final WorkerExecutor workerExecutor;
+
   private Action<File> archiveExtractAction;
 
   @Inject
   public DownloadToolTask(
       ToolDownloaderExtension config,
       PlatformHelper platformHelper,
-      DownloadedToolManager toolManager) {
+      DownloadedToolManager toolManager,
+      WorkerExecutor workerExecutor) {
     this.platformHelper = platformHelper;
     this.toolManager = toolManager;
+    this.workerExecutor = workerExecutor;
 
     setGroup("Tools");
 
@@ -91,7 +105,8 @@ public class DownloadToolTask extends DefaultTask {
   @Input
   public String getUrlPath() {
     var operatingSystem = platformHelper.getOs();
-    return artifactPattern.get()
+    return artifactPattern
+        .get()
         .replace("[artifact]", artifact.get())
         .replace("[revision]", version.get())
         .replace("[classifier]", osClassifiers.getValue(operatingSystem))
@@ -109,37 +124,71 @@ public class DownloadToolTask extends DefaultTask {
   }
 
   @TaskAction
-  public void exec() throws IOException {
+  public void exec() {
     checkNotNull(baseUrl.get(), "baseUrl must be set.");
     checkNotNull(artifactPattern.get(), "artifactPattern must be set");
 
-    File archiveDir = getTemporaryDir();
-    String url = baseUrl.get() + getUrlPath();
-    String archiveName = Iterables.getLast(URL_SPLITTER.splitToList(url));
-    File archive = new File(archiveDir, archiveName);
+    String mapKey = UUID.randomUUID().toString();
+    TASKS.put(mapKey, this);
 
-    var download = new DownloadAction(getProject());
-    download.src(url);
-    download.dest(archive);
-    download.execute();
-
-    if (archiveExtractAction != null) {
-      archiveExtractAction.execute(archive);
-    } else {
-      unpackArchive(archive);
-    }
+    workerExecutor.submit(DownloadArchive.class, config -> {
+      config.setIsolationMode(IsolationMode.NONE);
+      config.setDisplayName("Download " + name);
+      config.params(mapKey);
+    });
   }
 
-  private void unpackArchive(File archive) {
-    var project = getProject();
-    project.copy(
-        copy -> {
-          if (archive.getName().endsWith(".zip")) {
-            copy.from(project.zipTree(archive));
-          } else if (archive.getName().contains(".tar.")) {
-            copy.from(project.tarTree(archive));
-          }
-          copy.into(getToolDir());
-        });
+  public static class DownloadArchive implements Runnable {
+
+    private final String mapKey;
+
+    @Inject
+    public DownloadArchive(String mapKey) {
+      this.mapKey = mapKey;
+    }
+
+    @Override
+    public void run() {
+      DownloadToolTask task = TASKS.get(mapKey);
+      TASKS.remove(mapKey);
+
+      File archiveDir = task.getTemporaryDir();
+      String url = task.baseUrl.get() + task.getUrlPath();
+      System.out.println(url);
+      String archiveName = Iterables.getLast(URL_SPLITTER.splitToList(url));
+      File archive = new File(archiveDir, archiveName);
+
+      var download = new DownloadAction(task.getProject());
+      try {
+        download.src(url);
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+      download.dest(archive);
+      try {
+        download.execute();
+      } catch (IOException e) {
+        throw new UncheckedIOException("Could not download archive.", e);
+      }
+
+      if (task.archiveExtractAction != null) {
+        task.archiveExtractAction.execute(archive);
+      } else {
+        unpackArchive(archive, task);
+      }
+    }
+
+    private static void unpackArchive(File archive, DownloadToolTask task) {
+      var project = task.getProject();
+      project.copy(
+          copy -> {
+            if (archive.getName().endsWith(".zip")) {
+              copy.from(project.zipTree(archive));
+            } else if (archive.getName().contains(".tar.")) {
+              copy.from(project.tarTree(archive));
+            }
+            copy.into(task.getToolDir());
+          });
+    }
   }
 }
