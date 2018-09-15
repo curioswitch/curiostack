@@ -104,6 +104,7 @@ public class GoTask extends DefaultTask {
                       .getExtensions()
                       .getByType(ExtraPropertiesExtension.class)
                       .get("gopath"));
+              exec.environment("GOFLAGS", "-mod=readonly");
 
               toolManager.addAllToPath(exec);
 

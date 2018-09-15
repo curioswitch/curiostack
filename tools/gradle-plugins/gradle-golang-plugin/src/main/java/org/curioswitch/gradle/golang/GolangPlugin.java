@@ -36,6 +36,8 @@ import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
 import org.curioswitch.gradle.golang.tasks.GoTask;
 import org.curioswitch.gradle.golang.tasks.GolangExtension;
+import org.curioswitch.gradle.helpers.platform.OperatingSystem;
+import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
@@ -118,6 +120,17 @@ public class GolangPlugin implements Plugin<Project> {
     setupGo.configure(t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build")));
 
     project.getTasks().withType(GoTask.class).configureEach(t -> t.dependsOn(setupGo));
+
+    project
+        .getTasks()
+        .register(
+            "goUpdateDeps",
+            GoTask.class,
+            t -> {
+              t.args("get", "-u");
+              // Go get often has a failed status code yet still basically worked so we let it go.
+              t.execCustomizer(exec -> exec.setIgnoreExitValue(true));
+            });
 
     var checkFormat =
         project
@@ -220,10 +233,12 @@ public class GolangPlugin implements Plugin<Project> {
                             if (!goArch.isEmpty()) {
                               outputDir += '-' + goArch;
                             }
-                            t.args(
-                                "build",
-                                "-o",
-                                goBuildDir.resolve(outputDir).resolve(exeName).toString());
+                            String outPath =
+                                goBuildDir.resolve(outputDir).resolve(exeName).toString();
+                            if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
+                              outPath += ".exe";
+                            }
+                            t.args("build", "-o", outPath);
                             t.execCustomizer(
                                 exec -> {
                                   if (!goOs.isEmpty()) {

@@ -26,10 +26,12 @@ package org.curioswitch.gradle.tooldownloader.tasks;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
+import de.undercouch.gradle.tasks.download.DownloadAction;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
 import javax.inject.Inject;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
@@ -37,15 +39,14 @@ import org.curioswitch.gradle.tooldownloader.ToolDownloaderExtension;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderExtension.OsValues;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.repositories.ArtifactRepository;
-import org.gradle.api.artifacts.repositories.IvyPatternRepositoryLayout;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 
 public class DownloadToolTask extends DefaultTask {
+
+  private static final Splitter URL_SPLITTER = Splitter.on('/');
 
   private final String name;
   private final Property<String> artifact;
@@ -88,16 +89,13 @@ public class DownloadToolTask extends DefaultTask {
   }
 
   @Input
-  public String getDependency() {
+  public String getUrlPath() {
     var operatingSystem = platformHelper.getOs();
-    return "org.curioswitch.curiostack.downloaded_tools:"
-        + artifact.get()
-        + ":"
-        + version.get()
-        + ":"
-        + osClassifiers.getValue(operatingSystem)
-        + "@"
-        + osExtensions.getValue(operatingSystem);
+    return artifactPattern.get()
+        .replace("[artifact]", artifact.get())
+        .replace("[revision]", version.get())
+        .replace("[classifier]", osClassifiers.getValue(operatingSystem))
+        .replace("[ext]", osExtensions.getValue(operatingSystem));
   }
 
   @OutputDirectory
@@ -111,41 +109,25 @@ public class DownloadToolTask extends DefaultTask {
   }
 
   @TaskAction
-  void exec() {
+  public void exec() throws IOException {
     checkNotNull(baseUrl.get(), "baseUrl must be set.");
     checkNotNull(artifactPattern.get(), "artifactPattern must be set");
 
-    var currentRepositories = ImmutableList.copyOf(getProject().getRepositories());
-    System.out.println(currentRepositories);
-    setRepository();
+    File archiveDir = getTemporaryDir();
+    String url = baseUrl.get() + getUrlPath();
+    String archiveName = Iterables.getLast(URL_SPLITTER.splitToList(url));
+    File archive = new File(archiveDir, archiveName);
 
-    File archive = resolveAndFetchArchive(getProject().getDependencies().create(getDependency()));
-
-    restoreRepositories(currentRepositories);
+    var download = new DownloadAction(getProject());
+    download.src(url);
+    download.dest(archive);
+    download.execute();
 
     if (archiveExtractAction != null) {
       archiveExtractAction.execute(archive);
     } else {
       unpackArchive(archive);
     }
-  }
-
-  private void setRepository() {
-    var repositories = getProject().getRepositories();
-    repositories.clear();
-    repositories.ivy(
-        repo -> {
-          repo.setUrl(baseUrl.get());
-          repo.layout(
-              "pattern",
-              (IvyPatternRepositoryLayout layout) -> layout.artifact(artifactPattern.get()));
-        });
-  }
-
-  private File resolveAndFetchArchive(Dependency dependency) {
-    var configuration = getProject().getConfigurations().detachedConfiguration(dependency);
-    configuration.setTransitive(false);
-    return configuration.resolve().iterator().next();
   }
 
   private void unpackArchive(File archive) {
@@ -159,11 +141,5 @@ public class DownloadToolTask extends DefaultTask {
           }
           copy.into(getToolDir());
         });
-  }
-
-  private void restoreRepositories(List<ArtifactRepository> repositoriesBackup) {
-    var repositories = getProject().getRepositories();
-    repositories.clear();
-    repositories.addAll(repositoriesBackup);
   }
 }

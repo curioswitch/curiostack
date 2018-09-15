@@ -22,40 +22,20 @@
  * SOFTWARE.
  */
 
-plugins {
-    `java-gradle-plugin`
-    `maven-publish`
-}
+package org.curioswitch.gradle.helpers.platform;
 
-dependencies {
-    compile(project(":common:curio-helpers"))
-    compile(project(":tools:gradle-plugins:gradle-helpers"))
+import java.nio.file.Path;
 
-    compile("com.google.guava:guava")
-    compile("de.undercouch:gradle-download-task")
+public final class PathUtil {
 
-    annotationProcessor("org.immutables:value")
-    compileOnly("org.immutables:value-annotations")
-}
-
-gradlePlugin {
-    plugins {
-        register("tool-downloader") {
-            id = "org.curioswitch.gradle-tool-downloader-plugin"
-            implementationClass = "org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin"
-        }
+  public static String toBashString(Path path) {
+    var helper = new PlatformHelper();
+    if (helper.getOs() != OperatingSystem.WINDOWS) {
+      return path.toString();
+    } else {
+      return "$(cygpath '" + path.toString() + "')";
     }
-}
+  }
 
-publishing {
-    publications {
-        register("maven", MavenPublication::class) {
-            pom {
-                name.set("Gradle Tool Downloader Plugin")
-                description.set("Gradle plugin to download tools for use in builds.")
-                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
-                        "gradle-plugins/gradle-tool-downloader-plugin")
-            }
-        }
-    }
+  private PathUtil() {}
 }

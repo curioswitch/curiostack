@@ -78,7 +78,6 @@ import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
 import nu.studer.gradle.jooq.JooqTask;
-import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.common.LambdaClosure;
 import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
@@ -740,9 +739,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     Closure<?> pathOverrider =
         LambdaClosure.of(
             (ExecSpec exec) -> {
-              if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-                CondaExecUtil.condaExec(exec, project);
-              }
+              CondaExecUtil.condaExec(exec, project);
               DownloadedToolManager.get(project).addAllToPath(exec);
             });
 

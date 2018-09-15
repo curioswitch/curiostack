@@ -485,6 +485,7 @@ public class StandardDependencies {
           "com.netflix.nebula:gradle-dependency-lock-plugin:6.0.0",
           "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.5",
           "com.palantir:gradle-baseline-java:0.10.0",
+          "de.undercouch:gradle-download-task:3.4.3",
           "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.1.4",
           "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.9.10",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.2",

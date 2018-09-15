@@ -22,40 +22,12 @@
  * SOFTWARE.
  */
 
-plugins {
-    `java-gradle-plugin`
-    `maven-publish`
-}
+package main
 
-dependencies {
-    compile(project(":common:curio-helpers"))
-    compile(project(":tools:gradle-plugins:gradle-helpers"))
+import (
+	_ "github.com/pkg/errors"
+)
 
-    compile("com.google.guava:guava")
-    compile("de.undercouch:gradle-download-task")
+func main() {
 
-    annotationProcessor("org.immutables:value")
-    compileOnly("org.immutables:value-annotations")
-}
-
-gradlePlugin {
-    plugins {
-        register("tool-downloader") {
-            id = "org.curioswitch.gradle-tool-downloader-plugin"
-            implementationClass = "org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin"
-        }
-    }
-}
-
-publishing {
-    publications {
-        register("maven", MavenPublication::class) {
-            pom {
-                name.set("Gradle Tool Downloader Plugin")
-                description.set("Gradle plugin to download tools for use in builds.")
-                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
-                        "gradle-plugins/gradle-tool-downloader-plugin")
-            }
-        }
-    }
 }

@@ -27,6 +27,9 @@ package org.curioswitch.gradle.conda.exec;
 import com.google.common.collect.ImmutableList;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.curioswitch.gradle.helpers.platform.OperatingSystem;
+import org.curioswitch.gradle.helpers.platform.PathUtil;
+import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -55,6 +58,11 @@ public final class CondaExecUtil {
 
   /** Modifies the {@link ExecSpec} to run its command in a conda environment. */
   public static void condaExec(ExecSpec exec, DownloadedToolManager toolManager, String tool) {
+    if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
+      // Doesn't currently work on Windows.
+      return;
+    }
+
     Path condaDir = toolManager.getToolDir(tool);
     Path condaSh = condaDir.resolve(Paths.get("etc", "profile.d", "conda.sh"));
 
@@ -64,9 +72,9 @@ public final class CondaExecUtil {
         ImmutableList.of(
             "-c",
             ". "
-                + condaSh.toString()
+                + PathUtil.toBashString(condaSh)
                 + " && conda activate > /dev/null && cd "
-                + exec.getWorkingDir().toString()
+                + PathUtil.toBashString(exec.getWorkingDir().toPath())
                 + " && "
                 + String.join(" ", currentCommandLine)));
   }
