@@ -28,6 +28,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.inject.Inject;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -37,14 +40,26 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
+import org.gradle.workers.IsolationMode;
+import org.gradle.workers.WorkerExecutor;
 
 public class GoTask extends DefaultTask {
+
+  // It is extremely hacky to use global state to propagate the Task to workers, but
+  // it works so let's enjoy the speed.
+  private static final ConcurrentHashMap<String, GoTask> TASKS =
+      new ConcurrentHashMap<>();
 
   private final Property<String> command;
   private final ListProperty<String> args;
   private final List<Action<ExecSpec>> execCustomizers;
 
-  public GoTask() {
+  private final WorkerExecutor workerExecutor;
+
+  @Inject
+  public GoTask(WorkerExecutor workerExecutor) {
+    this.workerExecutor = workerExecutor;
+
     var objects = getProject().getObjects();
     command = objects.property(String.class);
     args = objects.listProperty(String.class);
@@ -90,27 +105,48 @@ public class GoTask extends DefaultTask {
 
   @TaskAction
   void exec() {
-    getProject()
-        .exec(
-            exec -> {
-              var toolManager = DownloadedToolManager.get(getProject());
+    String mapKey = UUID.randomUUID().toString();
+    TASKS.put(mapKey, this);
+    workerExecutor.submit(DoGoTask.class, config -> {
+      config.setIsolationMode(IsolationMode.NONE);
+      config.params(mapKey);
+    });
+  }
 
-              exec.executable(toolManager.getBinDir("go").resolve(command.get()));
-              exec.args(args.get());
-              exec.environment("GOROOT", toolManager.getToolDir("go").resolve("go"));
-              exec.environment(
-                  "GOPATH",
-                  getProject()
-                      .getExtensions()
-                      .getByType(ExtraPropertiesExtension.class)
-                      .get("gopath"));
-              exec.environment("GOFLAGS", "-mod=readonly");
+  public static class DoGoTask implements Runnable {
 
-              toolManager.addAllToPath(exec);
+    private final String mapKey;
 
-              for (var execCustomizer : execCustomizers) {
-                execCustomizer.execute(exec);
-              }
-            });
+    @Inject
+    public DoGoTask(String mapKey) {
+      this.mapKey = mapKey;
+    }
+
+    @Override
+    public void run() {
+      var task = TASKS.remove(mapKey);
+      task.getProject()
+          .exec(
+              exec -> {
+                var toolManager = DownloadedToolManager.get(task.getProject());
+
+                exec.executable(toolManager.getBinDir("go").resolve(task.command.get()));
+                exec.args(task.args.get());
+                exec.environment("GOROOT", toolManager.getToolDir("go").resolve("go"));
+                exec.environment(
+                    "GOPATH",
+                    task.getProject()
+                        .getExtensions()
+                        .getByType(ExtraPropertiesExtension.class)
+                        .get("gopath"));
+                exec.environment("GOFLAGS", "-mod=readonly");
+
+                toolManager.addAllToPath(exec);
+
+                for (var execCustomizer : task.execCustomizers) {
+                  execCustomizer.execute(exec);
+                }
+              });
+    }
   }
 }
