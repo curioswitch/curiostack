@@ -22,40 +22,8 @@
  * SOFTWARE.
  */
 
-plugins {
-    `java-gradle-plugin`
-    `maven-publish`
-}
+package org.curioswitch.gradle.tooldownloader.tasks;
 
-dependencies {
-    compile(project(":common:curio-helpers"))
-    compile(project(":tools:gradle-plugins:gradle-helpers"))
+import org.gradle.api.DefaultTask;
 
-    compile("com.google.guava:guava")
-    compile("de.undercouch:gradle-download-task:3.4.3")
-
-    annotationProcessor("org.immutables:value")
-    compileOnly("org.immutables:value-annotations")
-}
-
-gradlePlugin {
-    plugins {
-        register("tool-downloader") {
-            id = "org.curioswitch.gradle-tool-downloader-plugin"
-            implementationClass = "org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin"
-        }
-    }
-}
-
-publishing {
-    publications {
-        register("maven", MavenPublication::class) {
-            pom {
-                name.set("Gradle Tool Downloader Plugin")
-                description.set("Gradle plugin to download tools for use in builds.")
-                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
-                        "gradle-plugins/gradle-tool-downloader-plugin")
-            }
-        }
-    }
-}
+public class SetupTask extends DefaultTask {}

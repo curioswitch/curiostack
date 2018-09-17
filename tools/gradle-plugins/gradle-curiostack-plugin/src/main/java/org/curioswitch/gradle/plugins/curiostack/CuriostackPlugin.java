@@ -43,10 +43,8 @@ import com.google.common.io.Resources;
 import com.google.protobuf.gradle.ProtobufPlugin;
 import com.google.protobuf.gradle.ProtobufSourceDirectorySet;
 import com.moowork.gradle.node.NodeExtension;
-import com.moowork.gradle.node.NodePlugin;
 import com.moowork.gradle.node.npm.NpmTask;
 import com.moowork.gradle.node.task.NodeTask;
-import com.moowork.gradle.node.yarn.YarnInstallTask;
 import com.moowork.gradle.node.yarn.YarnTask;
 import com.palantir.baseline.plugins.BaselineIdea;
 import groovy.lang.Closure;
@@ -148,7 +146,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(CondaBuildEnvPlugin.class);
     plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
-    plugins.apply(NodePlugin.class);
+    plugins.apply(org.curioswitch.gradle.plugins.nodejs.NodePlugin.class);
     plugins.apply(ToolDownloaderPlugin.class);
 
     rootProject
@@ -159,31 +157,6 @@ public class CuriostackPlugin implements Plugin<Project> {
               wrapper.setGradleVersion(GRADLE_VERSION);
               wrapper.setDistributionType(DistributionType.ALL);
             });
-
-    var yarnTask = rootProject.getTasks().withType(YarnInstallTask.class).named("yarn");
-    var yarnUpdateTask = rootProject.getTasks().register("yarnUpdate", YarnInstallTask.class);
-    yarnTask.configure(
-        t -> {
-          var yarnWarning =
-              rootProject
-                  .getTasks()
-                  .register(
-                      "yarnWarning",
-                      task -> {
-                        task.onlyIf(unused -> t.getState().getFailure() != null);
-                        task.doFirst(
-                            unused ->
-                                rootProject
-                                    .getLogger()
-                                    .warn(
-                                        "yarn task failed. If you have updated a dependency and the "
-                                            + "error says 'Your lockfile needs to be updated.', run \n\n"
-                                            + "./gradlew :"
-                                            + yarnUpdateTask.getName()));
-                      });
-          t.setArgs(ImmutableList.of("--frozen-lockfile"));
-          t.finalizedBy(yarnWarning);
-        });
 
     rootProject.getTasks().register("setupGitHooks", SetupGitHooks.class);
     var rehash =
@@ -198,7 +171,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                   toolManager.getBinDirs("gcloud").forEach(t::path);
                 });
 
-    setupNode(rootProject, rehash);
+    // setupNode(rootProject, rehash);
 
     rootProject
         .getTasks()

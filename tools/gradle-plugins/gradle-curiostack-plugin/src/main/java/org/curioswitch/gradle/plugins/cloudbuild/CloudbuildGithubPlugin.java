@@ -24,72 +24,77 @@
 
 package org.curioswitch.gradle.plugins.cloudbuild;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.moowork.gradle.node.yarn.YarnTask;
-import java.io.File;
 import java.util.Map;
-import org.curioswitch.gradle.common.LambdaClosure;
 import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
 import org.curioswitch.gradle.plugins.gcloud.ImmutableGcloudExtension;
+import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.process.ExecSpec;
 
 public class CloudbuildGithubPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
     String path = project.getPath().replace(':', '_');
-    YarnTask initTask = project.getRootProject().getTasks().create("init_" + path, YarnTask.class);
-    initTask.setWorkingDir(project.getProjectDir());
-    initTask.setArgs(ImmutableList.of("init", "--yes", "--private"));
-    initTask.finalizedBy(
+
+    var initAddDependency =
         project
             .getTasks()
-            .create(
+            .register(
                 "initAddDependency",
-                YarnTask.class,
-                task -> {
-                  task.setArgs(ImmutableList.of("add", "@curiostack/cloudbuild-github"));
-                  task.onlyIf(t -> !project.file("package.json").exists());
-                }),
-        project.getRootProject().getTasks().getByName("yarn"));
-    initTask.onlyIf(t -> !project.file("package.json").exists());
+                NodeTask.class,
+                t -> {
+                  t.args("add", "@curiostack/cloudbuild-github");
+                  t.onlyIf(unused -> !project.file("package.json").exists());
+                });
+
+    var initTask =
+        project
+            .getTasks()
+            .register(
+                "init",
+                NodeTask.class,
+                t -> {
+                  t.args("init", "--yes", "--private");
+                  t.finalizedBy(initAddDependency);
+                  t.onlyIf(unused -> !project.file("package.json").exists());
+                });
 
     ImmutableGcloudExtension gcloudConfig =
         project.getRootProject().getExtensions().getByType(GcloudExtension.class);
     Map<String, String> defaultEnvironment =
         ImmutableMap.of("GCLOUD_PROJECT", gcloudConfig.clusterProject());
 
-    YarnTask setupTask =
-        project.getRootProject().getTasks().create("setup_" + path, YarnTask.class);
-    setupTask.setWorkingDir(project.getProjectDir());
-    setupTask.setArgs(ImmutableList.of("run", "cloudbuild-cli", "setup", "--defaults"));
-    setupTask.dependsOn(initTask);
-    setupTask.onlyIf(t -> !project.file("config.yml").exists());
-    setupTask.setExecOverrides(
-        LambdaClosure.of(
-            ((ExecSpec exec) -> exec.setStandardInput(System.in).setStandardOutput(System.out))));
-    setupTask.setEnvironment(defaultEnvironment);
+    var setupTask =
+        project
+            .getRootProject()
+            .getTasks()
+            .register(
+                "setup",
+                NodeTask.class,
+                t -> {
+                  t.args("run", "cloudbuild-cli", "setup", "--defaults");
+                  t.dependsOn(initTask);
+                  t.onlyIf(unused -> !project.file("config.yml").exists());
+                  t.execOverride(
+                      exec -> {
+                        exec.setStandardInput(System.in).setStandardOutput(System.out);
+                        exec.environment(defaultEnvironment);
+                      });
+                });
 
-    Map<String, String> environment =
-        gcloudConfig.download()
-            ? ImmutableMap.<String, String>builder()
-                .put(
-                    "PATH",
-                    gcloudConfig.platformConfig().gcloudBinDir()
-                        + File.pathSeparator
-                        + System.getenv("PATH"))
-                .putAll(defaultEnvironment)
-                .build()
-            : defaultEnvironment;
-
-    YarnTask deployTask = project.getTasks().create("deploy_" + path, YarnTask.class);
-    deployTask.setWorkingDir(project.getProjectDir());
-    deployTask.setArgs(ImmutableList.of("run", "cloudbuild-cli", "deploy", "--delete"));
-    deployTask.dependsOn(setupTask);
-    deployTask.setEnvironment(environment);
-    deployTask.dependsOn(":gcloudSetup");
+    project
+        .getTasks()
+        .create(
+            "deploy",
+            NodeTask.class,
+            t -> {
+              t.args("run", "cloudbuild-cli", "deploy", "--delete");
+              t.dependsOn(setupTask, DownloadToolUtil.getSetupTask(project, "gcloud"));
+              t.execOverride(exec -> DownloadedToolManager.get(project).addAllToPath(exec));
+            });
   }
 }

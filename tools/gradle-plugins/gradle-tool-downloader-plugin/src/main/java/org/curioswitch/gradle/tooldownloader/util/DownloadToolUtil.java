@@ -26,6 +26,7 @@ package org.curioswitch.gradle.tooldownloader.util;
 
 import org.curioswitch.gradle.helpers.task.TaskUtil;
 import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
+import org.curioswitch.gradle.tooldownloader.tasks.SetupTask;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
@@ -44,6 +45,7 @@ public final class DownloadToolUtil {
     return project
         .getRootProject()
         .getTasks()
+        .withType(SetupTask.class)
         .named("toolsSetup" + TaskUtil.toTaskSuffix(toolName));
   }
 

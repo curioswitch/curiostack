@@ -22,40 +22,38 @@
  * SOFTWARE.
  */
 
-plugins {
-    `java-gradle-plugin`
-    `maven-publish`
-}
+package org.curioswitch.gradle.plugins.nodejs;
 
-dependencies {
-    compile(project(":common:curio-helpers"))
-    compile(project(":tools:gradle-plugins:gradle-helpers"))
+import com.google.common.base.Splitter;
+import java.util.List;
+import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
 
-    compile("com.google.guava:guava")
-    compile("de.undercouch:gradle-download-task:3.4.3")
+public class NodePlugin implements Plugin<Project> {
 
-    annotationProcessor("org.immutables:value")
-    compileOnly("org.immutables:value-annotations")
-}
+  private static final Splitter YARN_TASK_SPLITTER = Splitter.on('_');
 
-gradlePlugin {
-    plugins {
-        register("tool-downloader") {
-            id = "org.curioswitch.gradle-tool-downloader-plugin"
-            implementationClass = "org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin"
-        }
-    }
-}
+  @Override
+  public void apply(Project project) {
+    project.getRootProject().getPlugins().apply(NodeSetupPlugin.class);
 
-publishing {
-    publications {
-        register("maven", MavenPublication::class) {
-            pom {
-                name.set("Gradle Tool Downloader Plugin")
-                description.set("Gradle plugin to download tools for use in builds.")
-                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
-                        "gradle-plugins/gradle-tool-downloader-plugin")
-            }
-        }
-    }
+    project
+        .getTasks()
+        .addRule(
+            "Pattern: \"yarn_<command>\": Executes an Yarn command.",
+            taskName -> {
+              if (taskName.startsWith("yarn_")) {
+                project
+                    .getTasks()
+                    .create(
+                        taskName,
+                        NodeTask.class,
+                        t -> {
+                          List<String> tokens = YARN_TASK_SPLITTER.splitToList(taskName);
+                          t.args(tokens.subList(1, tokens.size()));
+                        });
+              }
+            });
+  }
 }

@@ -50,11 +50,11 @@ public class StandardDependencies {
   public static final String HELM_VERSION = "2.9.1";
   public static final String MINICONDA_VERSION = "4.5.4";
   public static final String TERRAFORM_VERSION = "0.11.7";
+  public static final String NODE_VERSION = "9.9.0";
+  public static final String YARN_VERSION = "1.9.4";
 
   static final String GOOGLE_JAVA_FORMAT_VERSION = "1.6";
   static final String GRADLE_VERSION = "4.10";
-  static final String NODE_VERSION = "9.9.0";
-  static final String YARN_VERSION = "1.9.4";
 
   private static final String JACKSON_VERSION = "2.9.6";
 
