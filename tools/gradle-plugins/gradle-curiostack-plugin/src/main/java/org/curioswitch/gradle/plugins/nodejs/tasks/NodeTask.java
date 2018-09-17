@@ -49,8 +49,7 @@ public class NodeTask extends DefaultTask {
 
   // It is extremely hacky to use global state to propagate the Task to workers, but
   // it works so let's enjoy the speed.
-  private static final ConcurrentHashMap<String, NodeTask> TASKS =
-      new ConcurrentHashMap<>();
+  private static final ConcurrentHashMap<String, NodeTask> TASKS = new ConcurrentHashMap<>();
 
   private final Property<String> command;
   private final ListProperty<String> args;
@@ -95,10 +94,12 @@ public class NodeTask extends DefaultTask {
     String mapKey = UUID.randomUUID().toString();
     TASKS.put(mapKey, this);
 
-    workerExecutor.submit(DoNodeTask.class, config -> {
-      config.setIsolationMode(IsolationMode.NONE);
-      config.params(mapKey);
-    });
+    workerExecutor.submit(
+        DoNodeTask.class,
+        config -> {
+          config.setIsolationMode(IsolationMode.NONE);
+          config.params(mapKey);
+        });
   }
 
   public static class DoNodeTask implements Runnable {
@@ -114,26 +115,28 @@ public class NodeTask extends DefaultTask {
     public void run() {
       var task = TASKS.remove(mapKey);
 
-      task.getProject().exec(exec -> {
-        var toolManager = DownloadedToolManager.get(task.getProject());
+      task.getProject()
+          .exec(
+              exec -> {
+                var toolManager = DownloadedToolManager.get(task.getProject());
 
-        String command = task.command.get();
-        if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
-          if (command.equals("node")) {
-            command += ".exe";
-          } else {
-            command += ".cmd";
-          }
-        }
-        Path binDir = toolManager.getBinDir("node");
-        exec.executable(binDir.resolve(command));
-        exec.args(task.args.get());
+                String command = task.command.get();
+                if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
+                  if (command.equals("node")) {
+                    command += ".exe";
+                  } else {
+                    command += ".cmd";
+                  }
+                }
+                Path binDir = toolManager.getBinDir("node");
+                exec.executable(binDir.resolve(command));
+                exec.args(task.args.get());
 
-        toolManager.addAllToPath(exec);
-        CondaExecUtil.condaExec(exec, task.getProject());
+                toolManager.addAllToPath(exec);
+                CondaExecUtil.condaExec(exec, task.getProject());
 
-        task.execOverrides.forEach(o -> o.execute(exec));
-      });
+                task.execOverrides.forEach(o -> o.execute(exec));
+              });
     }
   }
 }

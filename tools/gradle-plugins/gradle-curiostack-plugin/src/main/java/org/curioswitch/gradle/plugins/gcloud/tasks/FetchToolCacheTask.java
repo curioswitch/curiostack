@@ -64,10 +64,12 @@ public class FetchToolCacheTask extends DefaultTask {
     String mapKey = UUID.randomUUID().toString();
     TASKS.put(mapKey, this);
 
-    workerExecutor.submit(GsutilCopy.class, config -> {
-      config.setIsolationMode(IsolationMode.NONE);
-      config.params(mapKey);
-    });
+    workerExecutor.submit(
+        GsutilCopy.class,
+        config -> {
+          config.setIsolationMode(IsolationMode.NONE);
+          config.params(mapKey);
+        });
   }
 
   public static class GsutilCopy implements Runnable {
@@ -87,19 +89,21 @@ public class FetchToolCacheTask extends DefaultTask {
 
       String gsutil = Os.isFamily(Os.FAMILY_WINDOWS) ? "gsutil" + ".cmd" : "gsutil";
 
-      task.getProject().exec(exec -> {
-        exec.executable("bash");
-        exec.workingDir(toolManager.getCuriostackDir());
+      task.getProject()
+          .exec(
+              exec -> {
+                exec.executable("bash");
+                exec.workingDir(toolManager.getCuriostackDir());
 
-        exec.args("-c", gsutil + " cp " + task.src.get() + " - | tar -xp");
+                exec.args("-c", gsutil + " cp " + task.src.get() + " - | tar -xp");
 
-        exec.setIgnoreExitValue(true);
+                exec.setIgnoreExitValue(true);
 
-        toolManager.addAllToPath(exec);
-        exec.environment(
-            "CLOUDSDK_PYTHON", toolManager.getBinDir("miniconda2-build").resolve("python"));
-        exec.environment("CLOUDSDK_PYTHON_SITEPACKAGES", "1");
-      });
+                toolManager.addAllToPath(exec);
+                exec.environment(
+                    "CLOUDSDK_PYTHON", toolManager.getBinDir("miniconda2-build").resolve("python"));
+                exec.environment("CLOUDSDK_PYTHON_SITEPACKAGES", "1");
+              });
     }
   }
 }

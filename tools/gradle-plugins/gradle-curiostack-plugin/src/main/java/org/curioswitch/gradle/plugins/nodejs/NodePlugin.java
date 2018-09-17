@@ -29,6 +29,7 @@ import java.util.List;
 import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.plugins.BasePlugin;
 
 public class NodePlugin implements Plugin<Project> {
 
@@ -37,6 +38,7 @@ public class NodePlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.getRootProject().getPlugins().apply(NodeSetupPlugin.class);
+    project.getPlugins().apply(BasePlugin.class);
 
     project
         .getTasks()

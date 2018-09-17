@@ -73,10 +73,12 @@ public class UploadToolCacheTask extends DefaultTask {
     String mapKey = UUID.randomUUID().toString();
     TASKS.put(mapKey, this);
 
-    workerExecutor.submit(GsutilCopy.class, config -> {
-      config.setIsolationMode(IsolationMode.NONE);
-      config.params(mapKey);
-    });
+    workerExecutor.submit(
+        GsutilCopy.class,
+        config -> {
+          config.setIsolationMode(IsolationMode.NONE);
+          config.params(mapKey);
+        });
   }
 
   public static class GsutilCopy implements Runnable {

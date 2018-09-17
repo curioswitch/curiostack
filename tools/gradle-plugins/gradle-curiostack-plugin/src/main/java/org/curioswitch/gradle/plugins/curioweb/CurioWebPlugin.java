@@ -106,6 +106,5 @@ public class CurioWebPlugin implements Plugin<Project> {
           ImmutableWebExtension web = project.getExtensions().getByType(WebExtension.class);
           copyWeb.configure(t -> t.into("build/javaweb/" + web.javaPackage().replace('.', '/')));
         });
-
   }
 }

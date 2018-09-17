@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.NODE_VERSION;
 import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.YARN_VERSION;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
@@ -123,8 +124,28 @@ public class NodeSetupPlugin implements Plugin<Project> {
                           });
                     }));
 
-
     var setupNode = DownloadToolUtil.getSetupTask(project, "node");
+
+    project.allprojects(
+        p ->
+            p.getTasks()
+                .withType(NodeTask.class)
+                .configureEach(
+                    t -> {
+                      if (t.getPath().equals(":toolsDownloadYarn")) {
+                        return;
+                      }
+                      t.dependsOn(setupNode);
+                      t.execOverride(
+                          exec ->
+                              exec.environment(
+                                  "YARN_CACHE_FOLDER",
+                                  DownloadedToolManager.get(project)
+                                      .getCuriostackDir()
+                                      .resolve("yarn-cache")
+                                      .toString()));
+                    }));
+
     var yarn =
         project
             .getTasks()
@@ -134,6 +155,37 @@ public class NodeSetupPlugin implements Plugin<Project> {
                 t -> {
                   t.dependsOn(setupNode);
                   t.args("--frozen-lockfile");
+
+                  var packageJsonFile = project.file("package.json");
+                  if (packageJsonFile.exists()) {
+                    final JsonNode packageJson;
+                    try {
+                      packageJson = OBJECT_MAPPER.readTree(packageJsonFile);
+                    } catch (IOException e) {
+                      throw new UncheckedIOException("Could not read package.json", e);
+                    }
+                    if (packageJson.has("workspaces")) {
+                      for (var workspaceNode : packageJson.get("workspaces")) {
+                        String workspacePath = workspaceNode.asText();
+
+                        // Assume any workspace in build/web requires a build before running yarn.
+                        // This is usually used for generating protos.
+                        if (!workspacePath.endsWith("/build/web")) {
+                          continue;
+                        }
+
+                        String projectPath =
+                            workspacePath.substring(
+                                0, workspacePath.length() - "/build/web".length());
+
+                        Project workspace =
+                            project.findProject(':' + projectPath.replace('/', ':'));
+                        if (workspace != null) {
+                          t.dependsOn(workspace.getPath() + ":build");
+                        }
+                      }
+                    }
+                  }
 
                   var yarnWarning =
                       project
