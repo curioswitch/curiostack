@@ -38,6 +38,7 @@ import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
+import org.curioswitch.gradle.plugins.nodejs.tasks.UpdateNodeResolutions;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
@@ -164,6 +165,12 @@ public class NodeSetupPlugin implements Plugin<Project> {
                                       .toString()));
                     }));
 
+    project.getTasks().create(UpdateNodeResolutions.NAME, UpdateNodeResolutions.class, false);
+    var checkNodeResolutions =
+        project
+            .getTasks()
+            .register(UpdateNodeResolutions.CHECK_NAME, UpdateNodeResolutions.class, true);
+
     var yarn =
         project
             .getTasks()
@@ -221,7 +228,7 @@ public class NodeSetupPlugin implements Plugin<Project> {
                                                     + "error says 'Your lockfile needs to be updated.', run \n\n"
                                                     + "./gradlew yarnUpdate"));
                               });
-                  t.finalizedBy(yarnWarning);
+                  t.finalizedBy(yarnWarning, checkNodeResolutions);
                 });
 
     project.getTasks().register("yarnUpdate", NodeTask.class, t -> t.dependsOn(setupNode));

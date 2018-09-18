@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.curiostack.tasks;
+package org.curioswitch.gradle.plugins.nodejs.tasks;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
