@@ -52,7 +52,7 @@ import org.curioswitch.gradle.plugins.curioserver.ImmutableDeploymentExtension.I
 import org.curioswitch.gradle.plugins.curioserver.tasks.DeployConfigMapTask;
 import org.curioswitch.gradle.plugins.curioserver.tasks.DeployPodTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
-import org.curioswitch.gradle.plugins.shared.CommandUtil;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ApplicationPlugin;
@@ -127,7 +127,8 @@ public class CurioServerPlugin implements Plugin<Project> {
                             project.exec(
                                 exec -> {
                                   exec.setExecutable(
-                                      CommandUtil.getGcloudSdkBinDir(project)
+                                      DownloadedToolManager.get(project)
+                                          .getBinDir("gcloud")
                                           .resolve("docker-credential-gcr"));
                                   exec.args("get");
 

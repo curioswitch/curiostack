@@ -75,9 +75,7 @@ import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
 import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
-import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateNodeResolutions;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
-import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.gradle.api.JavaVersion;
@@ -153,16 +151,6 @@ public class CuriostackPlugin implements Plugin<Project> {
             "rehash",
             CreateShellConfigTask.class,
             t -> DownloadedToolManager.get(rootProject).getAllBinDirs().forEach(t::path));
-
-    rootProject.getTasks().create(UpdateNodeResolutions.NAME, UpdateNodeResolutions.class, false);
-    var checkNodeResolutions =
-        rootProject
-            .getTasks()
-            .register(UpdateNodeResolutions.CHECK_NAME, UpdateNodeResolutions.class, true);
-    rootProject
-        .getTasks()
-        .withType(NodeTask.class)
-        .configureEach(t -> t.finalizedBy(checkNodeResolutions));
 
     rootProject
         .getTasks()
