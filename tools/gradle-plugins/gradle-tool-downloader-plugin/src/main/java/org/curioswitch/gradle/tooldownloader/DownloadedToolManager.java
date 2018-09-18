@@ -59,6 +59,10 @@ public class DownloadedToolManager {
     curiostackDir = project.getGradle().getGradleUserHomeDir().toPath().resolve("curiostack");
   }
 
+  public Path getCuriostackDir() {
+    return curiostackDir;
+  }
+
   public Path getToolDir(String toolName) {
     checkNotNull(toolName, "toolName");
     var tool = tools.findByName(toolName);
@@ -80,6 +84,14 @@ public class DownloadedToolManager {
         .map(
             subDir ->
                 curiostackDir.resolve(toolName).resolve(tool.getVersion().get()).resolve(subDir))
+        .collect(toImmutableList());
+  }
+
+  public List<Path> getAllBinDirs() {
+    return tools
+        .getNames()
+        .stream()
+        .flatMap(tool -> getBinDirs(tool).stream())
         .collect(toImmutableList());
   }
 

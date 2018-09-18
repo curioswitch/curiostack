@@ -22,41 +22,20 @@
  * SOFTWARE.
  */
 
-plugins {
-    `java-gradle-plugin`
-    `maven-publish`
-}
+package org.curioswitch.gradle.helpers.platform;
 
-dependencies {
-    compile(project(":common:curio-helpers"))
-    compile(project(":tools:gradle-plugins:gradle-conda-plugin"))
-    compile(project(":tools:gradle-plugins:gradle-tool-downloader-plugin"))
-    compile(project(":tools:gradle-plugins:gradle-helpers"))
+import java.nio.file.Path;
 
-    compile("com.google.guava:guava")
+public final class PathUtil {
 
-    annotationProcessor("org.immutables:value")
-    compileOnly("org.immutables:value-annotations")
-}
-
-gradlePlugin {
-    plugins {
-        register("golang") {
-            id = "org.curioswitch.gradle-golang-plugin"
-            implementationClass = "org.curioswitch.gradle.golang.GolangPlugin"
-        }
+  public static String toBashString(Path path) {
+    var helper = new PlatformHelper();
+    if (helper.getOs() != OperatingSystem.WINDOWS) {
+      return path.toString();
+    } else {
+      return "$(cygpath '" + path.toString() + "')";
     }
-}
+  }
 
-publishing {
-    publications {
-        register("maven", MavenPublication::class) {
-            pom {
-                name.set("Gradle Golang Plugin")
-                description.set("Gradle plugin to build Go binaries.")
-                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
-                        "gradle-plugins/gradle-golang-plugin")
-            }
-        }
-    }
+  private PathUtil() {}
 }

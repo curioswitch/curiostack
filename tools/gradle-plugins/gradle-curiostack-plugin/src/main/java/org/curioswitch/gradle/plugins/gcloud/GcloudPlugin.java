@@ -41,13 +41,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.curioswitch.gradle.conda.CondaPlugin;
+import org.curioswitch.gradle.conda.ModifiableCondaExtension;
+import org.curioswitch.gradle.helpers.task.TaskUtil;
+import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
+import org.curioswitch.gradle.plugins.gcloud.tasks.FetchToolCacheTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
+import org.curioswitch.gradle.plugins.gcloud.tasks.UploadToolCacheTask;
 import org.curioswitch.gradle.plugins.helm.TillerExtension;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
+import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -91,7 +98,7 @@ public class GcloudPlugin implements Plugin<Project> {
                       tool.getVersion().set(GCLOUD_VERSION);
                       tool.getBaseUrl()
                           .set("https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/");
-                      tool.getArtifactPattern().set("[artifact](-[revision]-[classifier]).[ext]");
+                      tool.getArtifactPattern().set("[artifact]-[revision]-[classifier].[ext]");
                       tool.getPathSubDirs().add("google-cloud-sdk/bin");
 
                       var osClassifiers = tool.getOsClassifiers();
@@ -99,8 +106,23 @@ public class GcloudPlugin implements Plugin<Project> {
                       osClassifiers.getMac().set("darwin-x86_64");
                       osClassifiers.getWindows().set("windows-x86_64");
                     }));
-    DownloadToolUtil.getDownloadTask(project, "gcloud")
+    DownloadToolUtil.getSetupTask(project, "gcloud")
         .configure(t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build")));
+
+    project
+        .getPlugins()
+        .withType(
+            CondaPlugin.class,
+            plugin ->
+                plugin
+                    .getCondas()
+                    .withType(ModifiableCondaExtension.class)
+                    .named("miniconda2-build")
+                    .configure(
+                        conda -> {
+                          conda.getPackages().add("lz4-c");
+                          conda.getPythonPackages().add("crcmod");
+                        }));
 
     ExtraPropertiesExtension ext = project.getExtensions().getExtraProperties();
     ext.set(GcloudTask.class.getSimpleName(), GcloudTask.class);
@@ -152,6 +174,64 @@ public class GcloudPlugin implements Plugin<Project> {
         p -> {
           ImmutableGcloudExtension config =
               project.getExtensions().getByType(GcloudExtension.class);
+
+          if (System.getenv("CI") != null) {
+            project
+                .getTasks()
+                .withType(DownloadToolTask.class)
+                .configureEach(
+                    downloadTask -> {
+                      String tool = downloadTask.getToolName();
+                      if (tool.equals("gcloud")) {
+                        // We use global cache for gcloud since it contains gsutil.
+                        return;
+                      }
+
+                      String toolCachePath =
+                          "gs://"
+                              + config.buildCacheStorageBucket()
+                              + "/cloudbuild-cache-tool-"
+                              + tool
+                              + ".tar";
+
+                      var downloadCache =
+                          project
+                              .getTasks()
+                              .register(
+                                  "toolsFetchCache" + TaskUtil.toTaskSuffix(tool),
+                                  FetchToolCacheTask.class,
+                                  t -> {
+                                    t.setSrc(toolCachePath);
+                                    t.dependsOn(
+                                        DownloadToolUtil.getDownloadTask(project, "gcloud"));
+                                  });
+                      downloadTask.dependsOn(downloadCache);
+
+                      var uploadCache =
+                          project
+                              .getTasks()
+                              .register(
+                                  "toolsUploadCache" + TaskUtil.toTaskSuffix(tool),
+                                  UploadToolCacheTask.class,
+                                  t -> {
+                                    t.setDest(toolCachePath);
+                                    t.srcPath(tool);
+                                    downloadTask.getAdditionalCacheDirs().get().forEach(t::srcPath);
+                                    t.dependsOn(
+                                        DownloadToolUtil.getDownloadTask(project, "gcloud"));
+                                  });
+
+                      project
+                          .getPlugins()
+                          .withType(
+                              CurioGenericCiPlugin.class,
+                              unused ->
+                                  project
+                                      .getTasks()
+                                      .named("continuousBuild")
+                                      .configure(t -> t.finalizedBy(uploadCache)));
+                    });
+          }
 
           project.allprojects(
               proj ->

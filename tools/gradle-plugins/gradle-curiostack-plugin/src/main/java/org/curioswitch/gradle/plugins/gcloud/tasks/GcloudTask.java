@@ -66,7 +66,7 @@ public class GcloudTask extends DefaultTask {
               exec.executable(executable);
               exec.args(fullArgs);
 
-              DownloadedToolManager.get(getProject()).addAllToPath(exec);
+              toolManager.addAllToPath(exec);
               exec.environment(
                   "CLOUDSDK_PYTHON", toolManager.getBinDir("miniconda2-build").resolve("python"));
               exec.environment("CLOUDSDK_PYTHON_SITEPACKAGES", "1");

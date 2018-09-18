@@ -37,7 +37,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.tools.ant.taskdefs.condition.Os;
-import org.curioswitch.gradle.plugins.shared.CommandUtil;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
@@ -84,14 +84,16 @@ public class CreateShellConfigTask extends DefaultTask {
     if (homeDir.isEmpty()) {
       return;
     }
+    var toolManager = DownloadedToolManager.get(getProject());
     List<String> configLines =
         ImmutableList.of(
             MARKER,
             "export PATH=" + joinedPath + ":$PATH",
-            "export CLOUDSDK_PYTHON=" + CommandUtil.getPythonExecutable(getProject(), "dev"),
+            "export CLOUDSDK_PYTHON=" + toolManager.getBinDir("miniconda2-build"),
             "export CLOUDSDK_PYTHON_SITEPACKAGES=1",
             ". "
-                + CommandUtil.getCondaBaseDir(getProject())
+                + toolManager
+                    .getToolDir("miniconda2-build")
                     .resolve("etc/profile.d/conda.sh")
                     .toString(),
             MARKER);

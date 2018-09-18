@@ -29,6 +29,7 @@ import static com.google.common.base.Preconditions.checkState;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.helpers.task.TaskUtil;
 import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
+import org.curioswitch.gradle.tooldownloader.tasks.SetupTask;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
@@ -75,7 +76,9 @@ public class ToolDownloaderPlugin implements Plugin<Project> {
                       tool,
                       platformHelper,
                       toolManager);
-          project.getTasks().register("toolsSetup" + taskSuffix, t -> t.dependsOn(task));
+          project
+              .getTasks()
+              .register("toolsSetup" + taskSuffix, SetupTask.class, t -> t.dependsOn(task));
           downloadAll.configure(t -> t.dependsOn(task));
         });
   }

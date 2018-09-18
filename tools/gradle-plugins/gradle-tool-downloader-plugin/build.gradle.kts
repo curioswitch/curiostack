@@ -32,6 +32,7 @@ dependencies {
     compile(project(":tools:gradle-plugins:gradle-helpers"))
 
     compile("com.google.guava:guava")
+    compile("de.undercouch:gradle-download-task:3.4.3")
 
     annotationProcessor("org.immutables:value")
     compileOnly("org.immutables:value-annotations")
@@ -42,6 +43,19 @@ gradlePlugin {
         register("tool-downloader") {
             id = "org.curioswitch.gradle-tool-downloader-plugin"
             implementationClass = "org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin"
+        }
+    }
+}
+
+publishing {
+    publications {
+        register("maven", MavenPublication::class) {
+            pom {
+                name.set("Gradle Tool Downloader Plugin")
+                description.set("Gradle plugin to download tools for use in builds.")
+                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
+                        "gradle-plugins/gradle-tool-downloader-plugin")
+            }
         }
     }
 }

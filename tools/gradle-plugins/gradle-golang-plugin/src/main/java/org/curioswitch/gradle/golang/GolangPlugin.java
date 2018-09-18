@@ -30,12 +30,16 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
 import org.curioswitch.gradle.golang.tasks.GoTask;
 import org.curioswitch.gradle.golang.tasks.GolangExtension;
+import org.curioswitch.gradle.helpers.platform.OperatingSystem;
+import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
@@ -87,6 +91,7 @@ public class GolangPlugin implements Plugin<Project> {
                       tool.getBaseUrl().set("https://dl.google.com/go/");
                       tool.getArtifactPattern().set("[artifact][revision].[classifier].[ext]");
                       tool.getPathSubDirs().add("go/bin");
+                      tool.getAdditionalCachedDirs().add("gopath");
                     }));
 
     project
@@ -118,6 +123,35 @@ public class GolangPlugin implements Plugin<Project> {
     setupGo.configure(t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build")));
 
     project.getTasks().withType(GoTask.class).configureEach(t -> t.dependsOn(setupGo));
+
+    var downloadDeps =
+        project
+            .getTasks()
+            .register(
+                "goDownloadDeps",
+                GoTask.class,
+                t -> {
+                  t.args("mod", "download");
+                  project.getRootProject().mkdir("build");
+                  var lock = project.getRootProject().file("build/godeps.lock");
+                  try {
+                    lock.createNewFile();
+                  } catch (IOException e) {
+                    throw new UncheckedIOException("Could not create lock file.", e);
+                  }
+                  t.setLockFile(lock);
+                });
+
+    project
+        .getTasks()
+        .register(
+            "goUpdateDeps",
+            GoTask.class,
+            t -> {
+              t.args("get", "-u");
+              // Go get often has a failed status code yet still basically worked so we let it go.
+              t.execCustomizer(exec -> exec.setIgnoreExitValue(true));
+            });
 
     var checkFormat =
         project
@@ -174,7 +208,9 @@ public class GolangPlugin implements Plugin<Project> {
                           CondaExecUtil.condaExec(
                               exec, DownloadedToolManager.get(project), golang.getConda().get()));
 
-                  t.dependsOn(DownloadToolUtil.getSetupTask(project, golang.getConda().get()));
+                  t.dependsOn(
+                      DownloadToolUtil.getSetupTask(project, golang.getConda().get()),
+                      downloadDeps);
                 });
 
     var goBuildAll = project.getTasks().register("goBuildAll");
@@ -220,10 +256,12 @@ public class GolangPlugin implements Plugin<Project> {
                             if (!goArch.isEmpty()) {
                               outputDir += '-' + goArch;
                             }
-                            t.args(
-                                "build",
-                                "-o",
-                                goBuildDir.resolve(outputDir).resolve(exeName).toString());
+                            String outPath =
+                                goBuildDir.resolve(outputDir).resolve(exeName).toString();
+                            if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
+                              outPath += ".exe";
+                            }
+                            t.args("build", "-o", outPath);
                             t.execCustomizer(
                                 exec -> {
                                   if (!goOs.isEmpty()) {
@@ -239,7 +277,8 @@ public class GolangPlugin implements Plugin<Project> {
                                 });
 
                             t.dependsOn(
-                                DownloadToolUtil.getSetupTask(project, golang.getConda().get()));
+                                DownloadToolUtil.getSetupTask(project, golang.getConda().get()),
+                                downloadDeps);
                           });
               goBuildAll.configure(t -> t.dependsOn(goBuild));
             }

@@ -26,8 +26,19 @@ package org.curioswitch.gradle.golang.tasks;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.io.UncheckedIOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nullable;
+import javax.inject.Inject;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -37,18 +48,31 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
+import org.gradle.workers.IsolationMode;
+import org.gradle.workers.WorkerExecutor;
 
 public class GoTask extends DefaultTask {
+
+  // It is extremely hacky to use global state to propagate the Task to workers, but
+  // it works so let's enjoy the speed.
+  private static final ConcurrentHashMap<String, GoTask> TASKS = new ConcurrentHashMap<>();
 
   private final Property<String> command;
   private final ListProperty<String> args;
   private final List<Action<ExecSpec>> execCustomizers;
 
-  public GoTask() {
+  private final WorkerExecutor workerExecutor;
+
+  @Nullable private File lockFile;
+
+  @Inject
+  public GoTask(WorkerExecutor workerExecutor) {
+    this.workerExecutor = workerExecutor;
+
     var objects = getProject().getObjects();
     command = objects.property(String.class);
     args = objects.listProperty(String.class);
-    execCustomizers = new ArrayList();
+    execCustomizers = new ArrayList<>();
 
     command.set("go");
   }
@@ -83,6 +107,11 @@ public class GoTask extends DefaultTask {
     return this;
   }
 
+  public GoTask setLockFile(File lockFile) {
+    this.lockFile = lockFile;
+    return this;
+  }
+
   @Input
   public ListProperty<String> getArgs() {
     return args;
@@ -90,26 +119,77 @@ public class GoTask extends DefaultTask {
 
   @TaskAction
   void exec() {
-    getProject()
-        .exec(
-            exec -> {
-              var toolManager = DownloadedToolManager.get(getProject());
+    String mapKey = UUID.randomUUID().toString();
+    TASKS.put(mapKey, this);
 
-              exec.executable(toolManager.getBinDir("go").resolve(command.get()));
-              exec.args(args.get());
-              exec.environment("GOROOT", toolManager.getToolDir("go").resolve("go"));
-              exec.environment(
-                  "GOPATH",
-                  getProject()
-                      .getExtensions()
-                      .getByType(ExtraPropertiesExtension.class)
-                      .get("gopath"));
+    workerExecutor.submit(
+        DoGoTask.class,
+        config -> {
+          config.setIsolationMode(IsolationMode.NONE);
+          config.params(mapKey);
+        });
+  }
 
-              toolManager.addAllToPath(exec);
+  public static class DoGoTask implements Runnable {
 
-              for (var execCustomizer : execCustomizers) {
-                execCustomizer.execute(exec);
-              }
-            });
+    private final String mapKey;
+
+    @Inject
+    public DoGoTask(String mapKey) {
+      this.mapKey = mapKey;
+    }
+
+    @Override
+    public void run() {
+      var task = TASKS.remove(mapKey);
+
+      FileLock lock = null;
+      if (task.lockFile != null) {
+        try {
+          FileChannel lockChannel = new RandomAccessFile(task.lockFile, "rw").getChannel();
+          while (true) {
+            try {
+              lock = lockChannel.lock();
+              break;
+            } catch (OverlappingFileLockException e) {
+              Thread.sleep(100);
+            }
+          }
+        } catch (InterruptedException | IOException e) {
+          throw new IllegalStateException("Could not acquire lock.", e);
+        }
+      }
+
+      task.getProject()
+          .exec(
+              exec -> {
+                var toolManager = DownloadedToolManager.get(task.getProject());
+
+                exec.executable(toolManager.getBinDir("go").resolve(task.command.get()));
+                exec.args(task.args.get());
+                exec.environment("GOROOT", toolManager.getToolDir("go").resolve("go"));
+                exec.environment(
+                    "GOPATH",
+                    task.getProject()
+                        .getExtensions()
+                        .getByType(ExtraPropertiesExtension.class)
+                        .get("gopath"));
+                exec.environment("GOFLAGS", "-mod=readonly");
+
+                toolManager.addAllToPath(exec);
+
+                for (var execCustomizer : task.execCustomizers) {
+                  execCustomizer.execute(exec);
+                }
+              });
+
+      if (lock != null) {
+        try {
+          lock.release();
+        } catch (IOException e) {
+          throw new UncheckedIOException("Could not release lock.", e);
+        }
+      }
+    }
   }
 }

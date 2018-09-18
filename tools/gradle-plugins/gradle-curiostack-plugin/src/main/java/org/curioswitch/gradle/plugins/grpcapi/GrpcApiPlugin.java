@@ -24,7 +24,6 @@
 
 package org.curioswitch.gradle.plugins.grpcapi;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.google.protobuf.gradle.ExecutableLocator;
@@ -33,8 +32,6 @@ import com.google.protobuf.gradle.ProtobufConfigurator;
 import com.google.protobuf.gradle.ProtobufConfigurator.JavaGenerateProtoTaskCollection;
 import com.google.protobuf.gradle.ProtobufConvention;
 import com.google.protobuf.gradle.ProtobufPlugin;
-import com.moowork.gradle.node.NodeExtension;
-import com.moowork.gradle.node.npm.NpmTask;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -49,10 +46,14 @@ import java.util.Map;
 import org.apache.tools.ant.taskdefs.condition.Os;
 import org.codehaus.groovy.runtime.GStringImpl;
 import org.curioswitch.gradle.common.LambdaClosure;
+import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
+import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.BasePluginConvention;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -101,6 +102,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.getPluginManager().apply(JavaLibraryPlugin.class);
+    project.getPluginManager().apply(NodePlugin.class);
 
     project.getExtensions().create(ImmutableGrpcExtension.NAME, GrpcExtension.class);
 
@@ -202,17 +204,19 @@ public class GrpcApiPlugin implements Plugin<Project> {
           ImmutableGrpcExtension config = project.getExtensions().getByType(GrpcExtension.class);
 
           if (config.web()) {
-            String currentProjectPath = project.getPath().replace(':', '_');
-            NpmTask installTsProtocGen =
+            var installTsProtocGen =
                 project
-                    .getRootProject()
                     .getTasks()
-                    .create("installTsProtocGen_" + currentProjectPath, NpmTask.class);
-            installTsProtocGen.setWorkingDir(project.getProjectDir());
-            installTsProtocGen.setArgs(
-                ImmutableList.of("install", "--no-save", "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION));
-            installTsProtocGen.getInputs().property("ts-protoc-gen-version", TS_PROTOC_GEN_VERSION);
-            installTsProtocGen.getOutputs().dir("node_modules/ts-protoc-gen");
+                    .register(
+                        "installTsProtocGen",
+                        NodeTask.class,
+                        t -> {
+                          t.setCommand("npm");
+                          t.args("install", "--no-save", "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION);
+                          t.getInputs().property("ts-protoc-gen-version", TS_PROTOC_GEN_VERSION);
+                          t.getOutputs().dirs(ImmutableMap.of("nodeModules", "node_modules"));
+                          t.dependsOn(project.getTasks().named(BasePlugin.CLEAN_TASK_NAME));
+                        });
 
             // gradle-protobuf-plugin does not allow manipulating PATH for protoc invocation, so
             // there's no way
@@ -226,16 +230,12 @@ public class GrpcApiPlugin implements Plugin<Project> {
                     .dependsOn(installTsProtocGen)
                     .doFirst(
                         t -> {
-                          String nodePath =
-                              project
-                                  .getRootProject()
-                                  .getExtensions()
-                                  .getByType(NodeExtension.class)
-                                  .getVariant()
-                                  .getNodeExec();
                           writeResolvedScript(
                               project,
-                              nodePath,
+                              DownloadedToolManager.get(project)
+                                  .getBinDir("node")
+                                  .resolve("node")
+                                  .toString(),
                               "protoc-gen-ts-resolved",
                               "ts-protoc-gen/lib/index");
                         });
@@ -290,8 +290,6 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
             Task generateProto = project.getTasks().getByName("generateProto");
             generateProto.dependsOn(addResolvedPluginScript).finalizedBy(addPackageJson);
-
-            project.getRootProject().getTasks().findByName("yarn").dependsOn(generateProto);
 
             // Unclear why sometimes compileTestJava fails with "no source files" instead of being
             // skipped (usually when activating web), but it's not that hard to at least check the

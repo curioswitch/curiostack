@@ -22,41 +22,8 @@
  * SOFTWARE.
  */
 
-plugins {
-    `java-gradle-plugin`
-    `maven-publish`
-}
+package org.curioswitch.gradle.tooldownloader.tasks;
 
-dependencies {
-    compile(project(":common:curio-helpers"))
-    compile(project(":tools:gradle-plugins:gradle-conda-plugin"))
-    compile(project(":tools:gradle-plugins:gradle-tool-downloader-plugin"))
-    compile(project(":tools:gradle-plugins:gradle-helpers"))
+import org.gradle.api.DefaultTask;
 
-    compile("com.google.guava:guava")
-
-    annotationProcessor("org.immutables:value")
-    compileOnly("org.immutables:value-annotations")
-}
-
-gradlePlugin {
-    plugins {
-        register("golang") {
-            id = "org.curioswitch.gradle-golang-plugin"
-            implementationClass = "org.curioswitch.gradle.golang.GolangPlugin"
-        }
-    }
-}
-
-publishing {
-    publications {
-        register("maven", MavenPublication::class) {
-            pom {
-                name.set("Gradle Golang Plugin")
-                description.set("Gradle plugin to build Go binaries.")
-                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
-                        "gradle-plugins/gradle-golang-plugin")
-            }
-        }
-    }
-}
+public class SetupTask extends DefaultTask {}
