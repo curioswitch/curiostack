@@ -95,4 +95,8 @@ public class ToolDownloaderPlugin implements Plugin<Project> {
   public DownloadedToolManager toolManager() {
     return toolManager;
   }
+
+  public NamedDomainObjectContainer<ModifiableToolDownloaderExtension> tools() {
+    return tools;
+  }
 }

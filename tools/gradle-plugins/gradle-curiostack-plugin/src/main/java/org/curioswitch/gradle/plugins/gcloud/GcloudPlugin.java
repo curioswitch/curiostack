@@ -54,7 +54,6 @@ import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.UploadToolCacheTask;
 import org.curioswitch.gradle.plugins.helm.TillerExtension;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
-import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -177,60 +176,70 @@ public class GcloudPlugin implements Plugin<Project> {
 
           if (System.getenv("CI") != null) {
             project
-                .getTasks()
-                .withType(DownloadToolTask.class)
+                .getPlugins()
+                .withType(ToolDownloaderPlugin.class)
                 .configureEach(
-                    downloadTask -> {
-                      String tool = downloadTask.getToolName();
-                      if (tool.equals("gcloud")) {
-                        // We use global cache for gcloud since it contains gsutil.
-                        return;
-                      }
+                    plugin ->
+                        plugin
+                            .tools()
+                            .configureEach(
+                                tool -> {
+                                  if (tool.getName().equals("gcloud")) {
+                                    // We use global cache for gcloud since it contains gsutil.
+                                    return;
+                                  }
 
-                      String toolCachePath =
-                          "gs://"
-                              + config.buildCacheStorageBucket()
-                              + "/cloudbuild-cache-tool-"
-                              + tool
-                              + ".tar";
+                                  String toolCachePath =
+                                      "gs://"
+                                          + config.buildCacheStorageBucket()
+                                          + "/cloudbuild-cache-tool-"
+                                          + tool.getName()
+                                          + ".tar";
 
-                      var downloadCache =
-                          project
-                              .getTasks()
-                              .register(
-                                  "toolsFetchCache" + TaskUtil.toTaskSuffix(tool),
-                                  FetchToolCacheTask.class,
-                                  t -> {
-                                    t.setSrc(toolCachePath);
-                                    t.dependsOn(
-                                        DownloadToolUtil.getDownloadTask(project, "gcloud"));
-                                  });
-                      downloadTask.dependsOn(downloadCache);
+                                  var downloadCache =
+                                      project
+                                          .getTasks()
+                                          .register(
+                                              "toolsFetchCache"
+                                                  + TaskUtil.toTaskSuffix(tool.getName()),
+                                              FetchToolCacheTask.class,
+                                              t -> {
+                                                t.setSrc(toolCachePath);
+                                                t.dependsOn(
+                                                    DownloadToolUtil.getDownloadTask(
+                                                        project, "gcloud"));
+                                              });
+                                  DownloadToolUtil.getDownloadTask(project, tool.getName())
+                                      .configure(t -> t.dependsOn(downloadCache));
 
-                      var uploadCache =
-                          project
-                              .getTasks()
-                              .register(
-                                  "toolsUploadCache" + TaskUtil.toTaskSuffix(tool),
-                                  UploadToolCacheTask.class,
-                                  t -> {
-                                    t.setDest(toolCachePath);
-                                    t.srcPath(tool);
-                                    downloadTask.getAdditionalCacheDirs().get().forEach(t::srcPath);
-                                    t.dependsOn(
-                                        DownloadToolUtil.getDownloadTask(project, "gcloud"));
-                                  });
+                                  var uploadCache =
+                                      project
+                                          .getTasks()
+                                          .register(
+                                              "toolsUploadCache"
+                                                  + TaskUtil.toTaskSuffix(tool.getName()),
+                                              UploadToolCacheTask.class,
+                                              t -> {
+                                                t.setDest(toolCachePath);
+                                                t.srcPath(tool.getName());
+                                                tool.getAdditionalCachedDirs()
+                                                    .get()
+                                                    .forEach(t::srcPath);
+                                                t.dependsOn(
+                                                    DownloadToolUtil.getDownloadTask(
+                                                        project, "gcloud"));
+                                              });
 
-                      project
-                          .getPlugins()
-                          .withType(
-                              CurioGenericCiPlugin.class,
-                              unused ->
                                   project
-                                      .getTasks()
-                                      .named("continuousBuild")
-                                      .configure(t -> t.finalizedBy(uploadCache)));
-                    });
+                                      .getPlugins()
+                                      .withType(
+                                          CurioGenericCiPlugin.class,
+                                          unused ->
+                                              project
+                                                  .getTasks()
+                                                  .named("continuousBuild")
+                                                  .configure(t -> t.finalizedBy(uploadCache)));
+                                }));
           }
 
           project.allprojects(
