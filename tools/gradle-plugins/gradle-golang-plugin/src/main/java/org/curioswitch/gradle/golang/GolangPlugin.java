@@ -132,6 +132,7 @@ public class GolangPlugin implements Plugin<Project> {
                 GoTask.class,
                 t -> {
                   t.args("mod", "download");
+                  project.getRootProject().mkdir("build");
                   var lock = project.getRootProject().file("build/godeps.lock");
                   try {
                     lock.createNewFile();
