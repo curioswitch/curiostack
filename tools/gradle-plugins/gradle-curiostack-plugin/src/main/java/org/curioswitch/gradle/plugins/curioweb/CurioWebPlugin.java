@@ -76,7 +76,7 @@ public class CurioWebPlugin implements Plugin<Project> {
                   t.dependsOn(project.getRootProject().getTasks().findByName("yarn"));
                   t.args("run", "build");
 
-                  t.getInputs().file(project.file("src"));
+                  t.getInputs().dir(project.file("src"));
                   t.getInputs().file(project.file("package.json"));
                   // We assume the yarn task correctly handles up-to-date checks for node_modules,
                   // so only
