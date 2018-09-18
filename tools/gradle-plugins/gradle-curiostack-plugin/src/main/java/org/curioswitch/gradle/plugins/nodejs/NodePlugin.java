@@ -30,6 +30,7 @@ import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePlugin;
+import org.gradle.api.tasks.Delete;
 
 public class NodePlugin implements Plugin<Project> {
 
@@ -39,6 +40,12 @@ public class NodePlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getRootProject().getPlugins().apply(NodeSetupPlugin.class);
     project.getPlugins().apply(BasePlugin.class);
+
+    project
+        .getTasks()
+        .withType(Delete.class)
+        .named("clean")
+        .configure(t -> t.delete("node_modules"));
 
     project
         .getTasks()

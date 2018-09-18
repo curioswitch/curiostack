@@ -34,6 +34,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Paths;
+import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
+import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
@@ -41,6 +43,8 @@ import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.plugins.BasePlugin;
+import org.gradle.api.tasks.Delete;
 
 public class NodeSetupPlugin implements Plugin<Project> {
 
@@ -50,6 +54,15 @@ public class NodeSetupPlugin implements Plugin<Project> {
   public void apply(Project project) {
     checkState(
         project.getParent() == null, "node-setup-plugin can only be applied to the root project.");
+
+    project.getPlugins().apply(CondaBuildEnvPlugin.class);
+    project.getPlugins().apply(BasePlugin.class);
+
+    project
+        .getTasks()
+        .withType(Delete.class)
+        .named("clean")
+        .configure(t -> t.delete("node_modules"));
 
     project
         .getPlugins()
@@ -68,12 +81,15 @@ public class NodeSetupPlugin implements Plugin<Project> {
                       classifiers.getMac().set("darwin-x64");
                       classifiers.getWindows().set("win-x64");
 
-                      tool.getPathSubDirs()
-                          .add(
-                              "node-v"
-                                  + NODE_VERSION
-                                  + "-"
-                                  + classifiers.getValue(new PlatformHelper().getOs()));
+                      var operatingSystem = new PlatformHelper().getOs();
+
+                      String nodePathSubDir =
+                          "node-v" + NODE_VERSION + "-" + classifiers.getValue(operatingSystem);
+                      if (operatingSystem != OperatingSystem.WINDOWS) {
+                        nodePathSubDir += "/bin";
+                      }
+
+                      tool.getPathSubDirs().add(nodePathSubDir);
                       tool.getAdditionalCachedDirs().add("yarn-cache");
                       var downloadYarn =
                           project
@@ -86,13 +102,19 @@ public class NodeSetupPlugin implements Plugin<Project> {
                                     t.setCommand("npm");
                                     t.args(
                                         "install", "--global", "--no-save", "yarn@" + YARN_VERSION);
-                                    t.dependsOn(DownloadToolUtil.getDownloadTask(project, "node"));
+                                    t.dependsOn(
+                                        DownloadToolUtil.getDownloadTask(project, "node"),
+                                        DownloadToolUtil.getSetupTask(project, "miniconda2-build"));
 
                                     t.onlyIf(
                                         unused -> {
                                           File packageJson =
                                               DownloadedToolManager.get(project)
                                                   .getBinDir("node")
+                                                  .resolve(
+                                                      operatingSystem != OperatingSystem.WINDOWS
+                                                          ? "../lib"
+                                                          : "")
                                                   .resolve(
                                                       Paths.get(
                                                           "node_modules", "yarn", "package.json"))
@@ -117,11 +139,7 @@ public class NodeSetupPlugin implements Plugin<Project> {
                                   });
 
                       var setupNode = DownloadToolUtil.getSetupTask(project, "node");
-                      setupNode.configure(
-                          t -> {
-                            t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build"));
-                            t.dependsOn(downloadYarn);
-                          });
+                      setupNode.configure(t -> t.dependsOn(downloadYarn));
                     }));
 
     var setupNode = DownloadToolUtil.getSetupTask(project, "node");

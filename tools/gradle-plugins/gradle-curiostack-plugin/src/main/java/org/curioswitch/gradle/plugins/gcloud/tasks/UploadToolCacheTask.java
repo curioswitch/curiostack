@@ -55,7 +55,7 @@ public class UploadToolCacheTask extends DefaultTask {
     dest = getProject().getObjects().property(String.class);
     srcPaths = getProject().getObjects().listProperty(String.class);
 
-    onlyIf(unused -> !"true".equals(System.getenv("CI_MASTER")));
+    onlyIf(unused -> "true".equals(System.getenv("CI_MASTER")));
   }
 
   public UploadToolCacheTask setDest(String dest) {

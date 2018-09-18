@@ -24,12 +24,10 @@
 
 package org.curioswitch.gradle.plugins.curiostack;
 
-import static net.ltgt.gradle.errorprone.javacplugin.CheckSeverity.ERROR;
-import static net.ltgt.gradle.errorprone.javacplugin.CheckSeverity.OFF;
+import static net.ltgt.gradle.errorprone.CheckSeverity.ERROR;
+import static net.ltgt.gradle.errorprone.CheckSeverity.OFF;
 import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.GOOGLE_JAVA_FORMAT_VERSION;
 import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.GRADLE_VERSION;
-import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.NODE_VERSION;
-import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.YARN_VERSION;
 
 import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
@@ -43,11 +41,7 @@ import com.google.common.io.Resources;
 import com.google.protobuf.gradle.ProtobufPlugin;
 import com.google.protobuf.gradle.ProtobufSourceDirectorySet;
 import com.moowork.gradle.node.NodeExtension;
-import com.moowork.gradle.node.npm.NpmTask;
-import com.moowork.gradle.node.task.NodeTask;
-import com.moowork.gradle.node.yarn.YarnTask;
 import com.palantir.baseline.plugins.BaselineIdea;
-import groovy.lang.Closure;
 import groovy.util.Node;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
@@ -69,26 +63,23 @@ import me.champeau.gradle.JMHPluginExtension;
 import net.ltgt.gradle.apt.AptIdeaPlugin;
 import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleApt;
 import net.ltgt.gradle.apt.AptPlugin;
-import net.ltgt.gradle.errorprone.javacplugin.CheckSeverity;
-import net.ltgt.gradle.errorprone.javacplugin.ErrorProneJavacPluginPlugin;
-import net.ltgt.gradle.errorprone.javacplugin.ErrorProneOptions;
+import net.ltgt.gradle.errorprone.CheckSeverity;
+import net.ltgt.gradle.errorprone.ErrorProneOptions;
+import net.ltgt.gradle.errorprone.ErrorPronePlugin;
 import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
 import nu.studer.gradle.jooq.JooqTask;
-import org.curioswitch.gradle.common.LambdaClosure;
 import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
-import org.curioswitch.gradle.conda.exec.CondaExecUtil;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
 import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateNodeResolutions;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
-import org.curioswitch.gradle.plugins.shared.CommandUtil;
+import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
-import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -103,11 +94,9 @@ import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.tasks.Copy;
-import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
-import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.api.tasks.testing.Test;
@@ -117,7 +106,6 @@ import org.gradle.external.javadoc.CoreJavadocOptions;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
-import org.gradle.process.ExecSpec;
 
 public class CuriostackPlugin implements Plugin<Project> {
 
@@ -159,19 +147,22 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
 
     rootProject.getTasks().register("setupGitHooks", SetupGitHooks.class);
-    var rehash =
+    rootProject
+        .getTasks()
+        .register(
+            "rehash",
+            CreateShellConfigTask.class,
+            t -> DownloadedToolManager.get(rootProject).getAllBinDirs().forEach(t::path));
+
+    rootProject.getTasks().create(UpdateNodeResolutions.NAME, UpdateNodeResolutions.class, false);
+    var checkNodeResolutions =
         rootProject
             .getTasks()
-            .register(
-                "rehash",
-                CreateShellConfigTask.class,
-                t -> {
-                  var toolManager = DownloadedToolManager.get(rootProject);
-                  toolManager.getBinDirs("miniconda2-build").forEach(t::path);
-                  toolManager.getBinDirs("gcloud").forEach(t::path);
-                });
-
-    // setupNode(rootProject, rehash);
+            .register(UpdateNodeResolutions.CHECK_NAME, UpdateNodeResolutions.class, true);
+    rootProject
+        .getTasks()
+        .withType(NodeTask.class)
+        .configureEach(t -> t.finalizedBy(checkNodeResolutions));
 
     rootProject
         .getTasks()
@@ -289,7 +280,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(AptIdeaPlugin.class);
     plugins.apply(BaselineIdea.class);
     plugins.apply(DependencyManagementPlugin.class);
-    plugins.apply(ErrorProneJavacPluginPlugin.class);
+    plugins.apply(ErrorPronePlugin.class);
     plugins.apply(LicensePlugin.class);
     plugins.apply(SpotlessPlugin.class);
     plugins.apply(VersionsPlugin.class);
@@ -485,9 +476,7 @@ public class CuriostackPlugin implements Plugin<Project> {
         .add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, "javax.annotation:javax.annotation-api");
     project
         .getDependencies()
-        .add(
-            ErrorProneJavacPluginPlugin.CONFIGURATION_NAME,
-            "com.google.errorprone:error_prone_core");
+        .add(ErrorPronePlugin.CONFIGURATION_NAME, "com.google.errorprone:error_prone_core");
     project.afterEvaluate(CuriostackPlugin::addStandardJavaTestDependencies);
 
     project
@@ -701,78 +690,6 @@ public class CuriostackPlugin implements Plugin<Project> {
               t.from(configuration);
               t.into(".ideaDataSources/drivers");
             });
-  }
-
-  private static void setupNode(Project project, TaskProvider<CreateShellConfigTask> rehash) {
-    NodeExtension node = project.getExtensions().getByType(NodeExtension.class);
-    node.setVersion(NODE_VERSION);
-    node.setYarnVersion(YARN_VERSION);
-    node.setDownload(true);
-
-    Closure<?> pathOverrider =
-        LambdaClosure.of(
-            (ExecSpec exec) -> {
-              CondaExecUtil.condaExec(exec, project);
-              DownloadedToolManager.get(project).addAllToPath(exec);
-            });
-
-    project
-        .getTasks()
-        .withType(NodeTask.class)
-        .configureEach(t -> t.setExecOverrides(pathOverrider));
-    project
-        .getTasks()
-        .withType(NpmTask.class)
-        .configureEach(t -> t.setExecOverrides(pathOverrider));
-    project
-        .getTasks()
-        .withType(YarnTask.class)
-        .configureEach(t -> t.setExecOverrides(pathOverrider));
-
-    node.setWorkDir(CommandUtil.getNodeDir(project).toFile());
-    node.setNpmWorkDir(CommandUtil.getNpmDir(project).toFile());
-    node.setYarnWorkDir(CommandUtil.getYarnDir(project).toFile());
-
-    project.afterEvaluate(
-        unused ->
-            rehash.configure(
-                t -> {
-                  t.path(node.getVariant().getNodeBinDir().toPath());
-                  t.path(node.getVariant().getYarnBinDir().toPath());
-                  t.path(node.getVariant().getNpmBinDir().toPath());
-                }));
-
-    project
-        .getTasks()
-        .named("nodeSetup")
-        .configure(
-            t -> {
-              t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build"));
-              t.onlyIf(unused -> !node.getVariant().getNodeDir().exists());
-            });
-    project
-        .getTasks()
-        .named("yarnSetup")
-        .configure(task -> task.onlyIf(t -> !node.getVariant().getYarnDir().exists()));
-
-    // Since yarn is very fast, go ahead and clean node_modules too to prevent
-    // inconsistency.
-    project.getPluginManager().apply(BasePlugin.class);
-    project
-        .getTasks()
-        .withType(Delete.class)
-        .named(BasePlugin.CLEAN_TASK_NAME)
-        .configure(task -> task.delete(project.file("node_modules")));
-
-    project.getTasks().create(UpdateNodeResolutions.NAME, UpdateNodeResolutions.class, false);
-    var checkNodeResolutions =
-        project
-            .getTasks()
-            .register(UpdateNodeResolutions.CHECK_NAME, UpdateNodeResolutions.class, true);
-    project
-        .getTasks()
-        .withType(YarnTask.class)
-        .configureEach(t -> t.finalizedBy(checkNodeResolutions));
   }
 
   private static Optional<Node> findChild(Node node, Predicate<Node> predicate) {

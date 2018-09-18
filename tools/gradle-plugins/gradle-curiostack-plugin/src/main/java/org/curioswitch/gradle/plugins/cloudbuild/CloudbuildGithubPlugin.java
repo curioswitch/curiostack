@@ -38,8 +38,6 @@ public class CloudbuildGithubPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    String path = project.getPath().replace(':', '_');
-
     var initAddDependency =
         project
             .getTasks()
@@ -70,7 +68,6 @@ public class CloudbuildGithubPlugin implements Plugin<Project> {
 
     var setupTask =
         project
-            .getRootProject()
             .getTasks()
             .register(
                 "setup",

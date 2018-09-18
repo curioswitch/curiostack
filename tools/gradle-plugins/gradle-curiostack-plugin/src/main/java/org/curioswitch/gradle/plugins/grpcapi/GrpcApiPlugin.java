@@ -53,6 +53,7 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.BasePluginConvention;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -213,8 +214,8 @@ public class GrpcApiPlugin implements Plugin<Project> {
                           t.setCommand("npm");
                           t.args("install", "--no-save", "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION);
                           t.getInputs().property("ts-protoc-gen-version", TS_PROTOC_GEN_VERSION);
-                          t.getOutputs()
-                              .dirs(ImmutableMap.of("tsProtocGen", "node_modules/ts-protoc-gen"));
+                          t.getOutputs().dirs(ImmutableMap.of("nodeModules", "node_modules"));
+                          t.dependsOn(project.getTasks().named(BasePlugin.CLEAN_TASK_NAME));
                         });
 
             // gradle-protobuf-plugin does not allow manipulating PATH for protoc invocation, so

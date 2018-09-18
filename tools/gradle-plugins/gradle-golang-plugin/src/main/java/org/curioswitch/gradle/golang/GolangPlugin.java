@@ -30,6 +30,8 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
@@ -122,6 +124,23 @@ public class GolangPlugin implements Plugin<Project> {
 
     project.getTasks().withType(GoTask.class).configureEach(t -> t.dependsOn(setupGo));
 
+    var downloadDeps =
+        project
+            .getTasks()
+            .register(
+                "goDownloadDeps",
+                GoTask.class,
+                t -> {
+                  t.args("mod", "download");
+                  var lock = project.getRootProject().file("build/godeps.lock");
+                  try {
+                    lock.createNewFile();
+                  } catch (IOException e) {
+                    throw new UncheckedIOException("Could not create lock file.", e);
+                  }
+                  t.setLockFile(lock);
+                });
+
     project
         .getTasks()
         .register(
@@ -188,7 +207,9 @@ public class GolangPlugin implements Plugin<Project> {
                           CondaExecUtil.condaExec(
                               exec, DownloadedToolManager.get(project), golang.getConda().get()));
 
-                  t.dependsOn(DownloadToolUtil.getSetupTask(project, golang.getConda().get()));
+                  t.dependsOn(
+                      DownloadToolUtil.getSetupTask(project, golang.getConda().get()),
+                      downloadDeps);
                 });
 
     var goBuildAll = project.getTasks().register("goBuildAll");
@@ -255,7 +276,8 @@ public class GolangPlugin implements Plugin<Project> {
                                 });
 
                             t.dependsOn(
-                                DownloadToolUtil.getSetupTask(project, golang.getConda().get()));
+                                DownloadToolUtil.getSetupTask(project, golang.getConda().get()),
+                                downloadDeps);
                           });
               goBuildAll.configure(t -> t.dependsOn(goBuild));
             }

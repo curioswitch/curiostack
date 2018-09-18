@@ -87,6 +87,14 @@ public class DownloadedToolManager {
         .collect(toImmutableList());
   }
 
+  public List<Path> getAllBinDirs() {
+    return tools
+        .getNames()
+        .stream()
+        .flatMap(tool -> getBinDirs(tool).stream())
+        .collect(toImmutableList());
+  }
+
   public void addAllToPath(ProcessForkOptions exec) {
     String toolsPath =
         tools

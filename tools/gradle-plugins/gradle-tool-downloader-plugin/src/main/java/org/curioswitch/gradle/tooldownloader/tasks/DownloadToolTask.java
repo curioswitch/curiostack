@@ -36,6 +36,7 @@ import java.nio.file.Path;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
+import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderExtension;
@@ -145,11 +146,13 @@ public class DownloadToolTask extends DefaultTask {
     String mapKey = UUID.randomUUID().toString();
     TASKS.put(mapKey, this);
 
-    workerExecutor.submit(DownloadArchive.class, config -> {
-      config.setIsolationMode(IsolationMode.NONE);
-      config.setDisplayName("Download " + name);
-      config.params(mapKey);
-    });
+    workerExecutor.submit(
+        DownloadArchive.class,
+        config -> {
+          config.setIsolationMode(IsolationMode.NONE);
+          config.setDisplayName("Download " + name);
+          config.params(mapKey);
+        });
   }
 
   public static class DownloadArchive implements Runnable {
@@ -192,15 +195,29 @@ public class DownloadToolTask extends DefaultTask {
 
     private static void unpackArchive(File archive, DownloadToolTask task) {
       var project = task.getProject();
-      project.copy(
-          copy -> {
-            if (archive.getName().endsWith(".zip")) {
-              copy.from(project.zipTree(archive));
-            } else if (archive.getName().contains(".tar.")) {
-              copy.from(project.tarTree(archive));
-            }
-            copy.into(task.getToolDir());
-          });
+
+      boolean isTar = archive.getName().contains(".tar.");
+
+      if (isTar && new PlatformHelper().getOs() != OperatingSystem.WINDOWS) {
+        // Use tar command on unix since package might have symlinks. All unixes should have tar in
+        // practice.
+        project.exec(
+            exec -> {
+              exec.executable("tar");
+              exec.args("-xf", archive.getAbsolutePath());
+              exec.workingDir(task.getToolDir());
+            });
+      } else {
+        project.copy(
+            copy -> {
+              if (archive.getName().endsWith(".zip")) {
+                copy.from(project.zipTree(archive));
+              } else if (archive.getName().contains(".tar.")) {
+                copy.from(project.tarTree(archive));
+              }
+              copy.into(task.getToolDir());
+            });
+      }
     }
   }
 }

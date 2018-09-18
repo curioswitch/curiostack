@@ -26,10 +26,18 @@ package org.curioswitch.gradle.golang.tasks;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.io.UncheckedIOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Action;
@@ -47,14 +55,15 @@ public class GoTask extends DefaultTask {
 
   // It is extremely hacky to use global state to propagate the Task to workers, but
   // it works so let's enjoy the speed.
-  private static final ConcurrentHashMap<String, GoTask> TASKS =
-      new ConcurrentHashMap<>();
+  private static final ConcurrentHashMap<String, GoTask> TASKS = new ConcurrentHashMap<>();
 
   private final Property<String> command;
   private final ListProperty<String> args;
   private final List<Action<ExecSpec>> execCustomizers;
 
   private final WorkerExecutor workerExecutor;
+
+  @Nullable private File lockFile;
 
   @Inject
   public GoTask(WorkerExecutor workerExecutor) {
@@ -63,7 +72,7 @@ public class GoTask extends DefaultTask {
     var objects = getProject().getObjects();
     command = objects.property(String.class);
     args = objects.listProperty(String.class);
-    execCustomizers = new ArrayList();
+    execCustomizers = new ArrayList<>();
 
     command.set("go");
   }
@@ -98,6 +107,11 @@ public class GoTask extends DefaultTask {
     return this;
   }
 
+  public GoTask setLockFile(File lockFile) {
+    this.lockFile = lockFile;
+    return this;
+  }
+
   @Input
   public ListProperty<String> getArgs() {
     return args;
@@ -107,10 +121,13 @@ public class GoTask extends DefaultTask {
   void exec() {
     String mapKey = UUID.randomUUID().toString();
     TASKS.put(mapKey, this);
-    workerExecutor.submit(DoGoTask.class, config -> {
-      config.setIsolationMode(IsolationMode.NONE);
-      config.params(mapKey);
-    });
+
+    workerExecutor.submit(
+        DoGoTask.class,
+        config -> {
+          config.setIsolationMode(IsolationMode.NONE);
+          config.params(mapKey);
+        });
   }
 
   public static class DoGoTask implements Runnable {
@@ -125,6 +142,24 @@ public class GoTask extends DefaultTask {
     @Override
     public void run() {
       var task = TASKS.remove(mapKey);
+
+      FileLock lock = null;
+      if (task.lockFile != null) {
+        try {
+          FileChannel lockChannel = new RandomAccessFile(task.lockFile, "rw").getChannel();
+          while (true) {
+            try {
+              lock = lockChannel.lock();
+              break;
+            } catch (OverlappingFileLockException e) {
+              Thread.sleep(100);
+            }
+          }
+        } catch (InterruptedException | IOException e) {
+          throw new IllegalStateException("Could not acquire lock.", e);
+        }
+      }
+
       task.getProject()
           .exec(
               exec -> {
@@ -147,6 +182,14 @@ public class GoTask extends DefaultTask {
                   execCustomizer.execute(exec);
                 }
               });
+
+      if (lock != null) {
+        try {
+          lock.release();
+        } catch (IOException e) {
+          throw new UncheckedIOException("Could not release lock.", e);
+        }
+      }
     }
   }
 }
