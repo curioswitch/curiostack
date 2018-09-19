@@ -107,7 +107,6 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
 
     @Override
     public HttpResponse serve(ServiceRequestContext ctx, HttpRequest req) throws Exception {
-
       if (ctx.mappedPath().indexOf('.', ctx.mappedPath().lastIndexOf('/') + 1) != -1
           || ctx.mappedPath().charAt(ctx.mappedPath().length() - 1) == '/') {
         // A path that ends with '/' will be handled by HttpFileService correctly, and otherwise if
