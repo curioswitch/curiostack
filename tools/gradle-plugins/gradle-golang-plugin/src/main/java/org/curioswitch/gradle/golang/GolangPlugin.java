@@ -34,14 +34,12 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
 import org.curioswitch.gradle.golang.tasks.GoTask;
 import org.curioswitch.gradle.golang.tasks.GolangExtension;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
-import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
@@ -60,9 +58,9 @@ public class GolangPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    project.getPlugins().apply(BasePlugin.class);
+    project.getRootProject().getPlugins().apply(GolangSetupPlugin.class);
 
-    project.getRootProject().getPlugins().apply(CondaBuildEnvPlugin.class);
+    project.getPlugins().apply(BasePlugin.class);
 
     project
         .getExtensions()
@@ -77,22 +75,6 @@ public class GolangPlugin implements Plugin<Project> {
                 .resolve("gopath"));
 
     var golang = GolangExtension.createAndAdd(project);
-
-    project
-        .getRootProject()
-        .getPlugins()
-        .withType(
-            ToolDownloaderPlugin.class,
-            plugin ->
-                plugin.registerToolIfAbsent(
-                    "go",
-                    tool -> {
-                      tool.getVersion().set("1.11");
-                      tool.getBaseUrl().set("https://dl.google.com/go/");
-                      tool.getArtifactPattern().set("[artifact][revision].[classifier].[ext]");
-                      tool.getPathSubDirs().add("go/bin");
-                      tool.getAdditionalCachedDirs().add("gopath");
-                    }));
 
     project
         .getTasks()
