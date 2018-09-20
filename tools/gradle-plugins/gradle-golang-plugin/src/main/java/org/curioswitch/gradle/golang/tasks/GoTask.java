@@ -29,7 +29,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.io.UncheckedIOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
@@ -160,34 +159,36 @@ public class GoTask extends DefaultTask {
         }
       }
 
-      task.getProject()
-          .exec(
-              exec -> {
-                var toolManager = DownloadedToolManager.get(task.getProject());
+      try {
+        task.getProject()
+            .exec(
+                exec -> {
+                  var toolManager = DownloadedToolManager.get(task.getProject());
 
-                exec.executable(toolManager.getBinDir("go").resolve(task.command.get()));
-                exec.args(task.args.get());
-                exec.environment("GOROOT", toolManager.getToolDir("go").resolve("go"));
-                exec.environment(
-                    "GOPATH",
-                    task.getProject()
-                        .getExtensions()
-                        .getByType(ExtraPropertiesExtension.class)
-                        .get("gopath"));
-                exec.environment("GOFLAGS", "-mod=readonly");
+                  exec.executable(toolManager.getBinDir("go").resolve(task.command.get()));
+                  exec.args(task.args.get());
+                  exec.environment("GOROOT", toolManager.getToolDir("go").resolve("go"));
+                  exec.environment(
+                      "GOPATH",
+                      task.getProject()
+                          .getExtensions()
+                          .getByType(ExtraPropertiesExtension.class)
+                          .get("gopath"));
+                  exec.environment("GOFLAGS", "-mod=readonly");
 
-                toolManager.addAllToPath(exec);
+                  toolManager.addAllToPath(exec);
 
-                for (var execCustomizer : task.execCustomizers) {
-                  execCustomizer.execute(exec);
-                }
-              });
-
-      if (lock != null) {
-        try {
-          lock.release();
-        } catch (IOException e) {
-          throw new UncheckedIOException("Could not release lock.", e);
+                  for (var execCustomizer : task.execCustomizers) {
+                    execCustomizer.execute(exec);
+                  }
+                });
+      } finally {
+        if (lock != null) {
+          try {
+            lock.release();
+          } catch (IOException e) {
+            task.getProject().getLogger().warn("Could not release lock.", e);
+          }
         }
       }
     }

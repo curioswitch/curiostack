@@ -37,6 +37,7 @@ import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,7 @@ import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.UploadToolCacheTask;
 import org.curioswitch.gradle.plugins.helm.TillerExtension;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
@@ -208,9 +210,13 @@ public class GcloudPlugin implements Plugin<Project> {
                                                 t.dependsOn(
                                                     DownloadToolUtil.getDownloadTask(
                                                         project, "gcloud"));
+                                                t.onlyIf(
+                                                    unused ->
+                                                        !Files.exists(
+                                                            DownloadedToolManager.get(project)
+                                                                .getCuriostackDir()
+                                                                .resolve(tool.getName())));
                                               });
-                                  DownloadToolUtil.getDownloadTask(project, tool.getName())
-                                      .configure(t -> t.dependsOn(downloadCache));
 
                                   var uploadCache =
                                       project
@@ -230,6 +236,14 @@ public class GcloudPlugin implements Plugin<Project> {
                                                         project, "gcloud"));
                                               });
 
+                                  DownloadToolUtil.getDownloadTask(project, tool.getName())
+                                      .configure(t -> t.dependsOn(downloadCache));
+                                  DownloadToolUtil.getSetupTask(project, tool.getName())
+                                      .configure(
+                                          t ->
+                                              uploadCache.configure(
+                                                  uc -> uc.onlyIf(unused -> t.getDidWork())));
+
                                   project
                                       .getPlugins()
                                       .withType(
@@ -238,7 +252,7 @@ public class GcloudPlugin implements Plugin<Project> {
                                               project
                                                   .getTasks()
                                                   .named("continuousBuild")
-                                                  .configure(t -> t.finalizedBy(uploadCache)));
+                                                  .configure(cb -> cb.finalizedBy(uploadCache)));
                                 }));
           }
 

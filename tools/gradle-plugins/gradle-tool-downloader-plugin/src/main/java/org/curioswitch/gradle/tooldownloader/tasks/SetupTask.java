@@ -25,5 +25,12 @@
 package org.curioswitch.gradle.tooldownloader.tasks;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.TaskAction;
 
-public class SetupTask extends DefaultTask {}
+public class SetupTask extends DefaultTask {
+
+  @TaskAction
+  public void exec() {
+    // No-op action to ensure setup task is considered to have done work if it was configured.
+  }
+}
