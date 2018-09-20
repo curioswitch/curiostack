@@ -87,6 +87,8 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       return;
     }
 
+    Task continuousBuild = project.task("continuousBuild");
+
     String releaseBranch = getCiBranchOrTag();
     if (releaseBranch != null && releaseBranch.startsWith("RELEASE_")) {
       project
@@ -108,7 +110,6 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
 
     if (affectedProjects.contains(project.getRootProject())) {
       // Rebuild everything when the root project is changed.
-      Task continuousBuild = project.task("continuousBuild");
       project.allprojects(
           proj ->
               proj.afterEvaluate(
@@ -121,7 +122,6 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       return;
     }
 
-    Task continuousBuild = project.task("continuousBuild");
     for (Project proj : affectedProjects) {
       proj.afterEvaluate(
           p -> {
