@@ -130,6 +130,11 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
       public String mappedPath() {
         return indexPath;
       }
+
+      @Override
+      public String decodedMappedPath() {
+        return indexPath;
+      }
     }
   }
 
@@ -154,6 +159,11 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
 
       @Override
       public String mappedPath() {
+        return "/index.html";
+      }
+
+      @Override
+      public String decodedMappedPath() {
         return "/index.html";
       }
     }
