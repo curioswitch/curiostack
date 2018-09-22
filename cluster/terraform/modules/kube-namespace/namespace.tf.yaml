@@ -36,6 +36,8 @@ variable:
     type: string
   tf_crypto_key:
     type: string
+  sysadmin_project:
+    type: string
 output:
   gcp_service_account_email:
     value: "${google_service_account.gcp-service-account.email}"

@@ -20,13 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-module:
-  cluster-monitoring-prod:
-    source: "./modules/kube-namespace"
-    name: monitoring-prod
-    project_id: "${var.project_id}"
-    ca_algorithm: "${tls_private_key.cluster-ca-key.algorithm}"
-    ca_private_key: "${tls_private_key.cluster-ca-key.private_key_pem}"
-    ca_cert: "${tls_self_signed_cert.cluster-ca-cert.cert_pem}"
-    tf_crypto_key: "${google_kms_crypto_key.terraform_state_key.id}"
-    sysadmin_project: "${google_project.sysadmin_project.project_id}"
+terraform:
+  backend:
+    gcs:
+      bucket: curioswitch-cluster-eggworld-dev-terraform

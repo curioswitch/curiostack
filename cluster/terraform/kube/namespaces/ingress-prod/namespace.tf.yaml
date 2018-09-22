@@ -31,6 +31,7 @@ module:
     ca_private_key: "${tls_private_key.cluster-ca-key.private_key_pem}"
     ca_cert: "${tls_self_signed_cert.cluster-ca-cert.cert_pem}"
     tf_crypto_key: "${google_kms_crypto_key.terraform_state_key.id}"
+    sysadmin_project: "${google_project.sysadmin_project.project_id}"
 resource:
   google_project_iam_member:
     ingress-prod-gcp-service-account-role:
@@ -44,9 +45,6 @@ resource:
       service_account_id: "${module.cluster-ingress-prod.gcp_service_account_email}"
   kubernetes_secret:
     cluster-ingress-prod-gcp-key-secret-credentials-json:
-      # (https://github.com/hashicorp/terraform/issues/18330)
-      # the JSON parser gets broken when there are no non-nested fields. We add this no-op so it works.
-      depends_on: []
       metadata:
         name: gcloud-credentials-json
         namespace: ingress-prod

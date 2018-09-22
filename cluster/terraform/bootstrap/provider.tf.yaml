@@ -24,8 +24,3 @@ provider:
   google:
     project: "${var.project_id}"
     region: asia-northeast1
-  helm:
-    enable_tls: true
-    client_key: "../helm/tiller-client.key"
-    client_certificate: "../helm/tiller-client.cert"
-    ca_certificate: "../helm/tiller-client-ca.cert"

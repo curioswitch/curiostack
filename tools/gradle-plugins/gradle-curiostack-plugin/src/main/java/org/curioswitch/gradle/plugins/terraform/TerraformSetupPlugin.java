@@ -125,6 +125,20 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                               goBinDir.resolve(PathUtil.getExeName("terraform-provider-helm"))));
                 });
 
+    var terraformDownloadGsuite =
+        project
+            .getTasks()
+            .register(
+                "terraformDownloadGsuiteProvider",
+                GoTask.class,
+                t -> {
+                  t.args("get", "github.com/DeviaVir/terraform-provider-gsuite");
+                  t.onlyIf(
+                      unused ->
+                          !Files.exists(
+                              goBinDir.resolve(PathUtil.getExeName("terraform-provider-gsuite"))));
+                });
+
     var terraformCopyPlugins =
         project
             .getTasks()
@@ -133,7 +147,10 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                 Copy.class,
                 t -> {
                   t.dependsOn(
-                      terraformDownloadK8s, terraformDownloadHelm, terraformDownloadKubernetesFork);
+                      terraformDownloadK8s,
+                      terraformDownloadHelm,
+                      terraformDownloadKubernetesFork,
+                      terraformDownloadGsuite);
                   t.into(DownloadedToolManager.get(project).getBinDir("terraform"));
                   t.from(goBinDir);
                   t.include("terraform-provider-*");
