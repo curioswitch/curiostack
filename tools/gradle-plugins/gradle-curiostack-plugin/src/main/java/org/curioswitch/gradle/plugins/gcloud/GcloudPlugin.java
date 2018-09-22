@@ -186,7 +186,8 @@ public class GcloudPlugin implements Plugin<Project> {
                             .tools()
                             .configureEach(
                                 tool -> {
-                                  if (tool.getName().equals("gcloud")) {
+                                  if (tool.getName().equals("gcloud")
+                                      || tool.getName().equals("miniconda2-build")) {
                                     // We use global cache for gcloud since it contains gsutil.
                                     return;
                                   }
@@ -238,11 +239,15 @@ public class GcloudPlugin implements Plugin<Project> {
 
                                   DownloadToolUtil.getDownloadTask(project, tool.getName())
                                       .configure(t -> t.dependsOn(downloadCache));
+
+                                  // We disable cache upload by default and only enable it if a
+                                  // setup task was run.
+                                  uploadCache.configure(t -> t.setOnlyIf(unused -> false));
                                   DownloadToolUtil.getSetupTask(project, tool.getName())
                                       .configure(
                                           t ->
                                               uploadCache.configure(
-                                                  uc -> uc.onlyIf(unused -> t.getDidWork())));
+                                                  uc -> uc.setOnlyIf(unused -> t.getDidWork())));
 
                                   project
                                       .getPlugins()
