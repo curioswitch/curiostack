@@ -62,6 +62,7 @@ public class HelmPlugin implements Plugin<Project> {
                       tool.getArtifactPattern().set("[artifact]-v[revision]-[classifier].[ext]");
                     }));
 
+    project.evaluationDependsOn(":cluster:terraform");
     HelmExtension config = HelmExtension.createAndAdd(project);
 
     var tillerCaCertFile = project.file("build/helm/tiller-client-ca.cert");
