@@ -34,9 +34,30 @@ variable:
     type: string
   ca_cert:
     type: string
+  tf_crypto_key:
+    type: string
 output:
   gcp_service_account_email:
     value: "${google_service_account.gcp-service-account.email}"
+  name:
+    value: "${var.name}"
+data:
+  google_kms_secret:
+    iap_oauth_client_id:
+      crypto_key: "${var.tf_crypto_key}"
+      ciphertext: "CiQAnaPXyzpOy8JQLwowecykVf7VwwIDrU5Cc1fBCz43n1retuYScQA4+XivZAITU+O7DWWhUvkoPJyxhJlXtBisi1PP1+t8bqEqQzZaiWjebykG6i2t4ulI9qkl3FQiLVxuLu1YooP7hShNUyczpcuTyLcY/1PvB2IEsqvMYsLJHOz3Mnitn/iwtrkga/Q1TV3owwTnJItE"
+    iap_oauth_client_secret:
+      crypto_key: "${var.tf_crypto_key}"
+      ciphertext: "CiQAnaPXyxmkeHz/V/87kUme39YlAHjP/cko5Ra3x0N4mlRWEmISQQA4+Xiv2q7op+h9td+r4sOhfpqVGk6VKEsTz2jZam3xJRg2qVdjil+oDbKiQjtrpFjxrsaDOp7T3+gOLPAdKlaT"
+  template_file:
+    iap-backend-config:
+      template: "${file(\"${path.module}/iap-backend-config.yaml\")}"
+      vars:
+        namespace: "${var.name}"
+    cdn-backend-config:
+      template: "${file(\"${path.module}/cdn-backend-config.yaml\")}"
+      vars:
+        namespace: "${var.name}"
 resource:
   kubernetes_namespace:
     namespace:
@@ -88,9 +109,6 @@ resource:
       - client auth
   kubernetes_secret:
     gcp-key-secret:
-      # (https://github.com/hashicorp/terraform/issues/18330)
-      # the JSON parser gets broken when there are no non-nested fields. We add this no-op so it works.
-      depends_on: []
       metadata:
         name: gcloud
         namespace: "${var.name}"
@@ -99,9 +117,6 @@ resource:
       data:
         service-account.json: "${base64decode(google_service_account_key.gcp-service-account-key.private_key)}"
     internal-tls-secret:
-      # (https://github.com/hashicorp/terraform/issues/18330)
-      # the JSON parser gets broken when there are no non-nested fields. We add this no-op so it works.
-      depends_on: []
       metadata:
         name: internal-tls
         namespace: "${var.name}"
@@ -111,3 +126,18 @@ resource:
         server-key.pem: "${tls_private_key.internal-tls.private_key_pem}"
         server.crt: "${tls_locally_signed_cert.internal-tls.cert_pem}"
         ca.crt: "${var.ca_cert}"
+        # https://cloud.google.com/iap/docs/enabling-kubernetes-howto
+    iap-oauth-secret:
+      metadata:
+        name: iap-oauth-creds
+        namespace: "${var.name}"
+      depends_on:
+      - kubernetes_namespace.namespace
+      data:
+        client_id: "${data.google_kms_secret.iap_oauth_client_id.plaintext}"
+        client_secret: "${data.google_kms_secret.iap_oauth_client_secret.plaintext}"
+  k8s_manifest:
+    iap-backend-config:
+      content: "${data.template_file.iap-backend-config.rendered}"
+    cdn-backend-config:
+      content: "${data.template_file.cdn-backend-config.rendered}"

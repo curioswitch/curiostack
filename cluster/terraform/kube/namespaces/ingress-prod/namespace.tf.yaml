@@ -21,10 +21,36 @@
 # SOFTWARE.
 #
 module:
-  cluster-monitoring-prod:
+  # A namespace to contain resource related to connecting to the outside world
+  # (e.g., DNS, SSL certs, etc). Highly sensitive namespace.
+  cluster-ingress-prod:
     source: "./modules/kube-namespace"
-    name: monitoring-prod
+    name: ingress-prod
     project_id: "${var.project_id}"
     ca_algorithm: "${tls_private_key.cluster-ca-key.algorithm}"
     ca_private_key: "${tls_private_key.cluster-ca-key.private_key_pem}"
     ca_cert: "${tls_self_signed_cert.cluster-ca-cert.cert_pem}"
+    tf_crypto_key: "${google_kms_crypto_key.terraform_state_key.id}"
+resource:
+  google_project_iam_member:
+    ingress-prod-gcp-service-account-role:
+      role: "roles/dns.admin"
+      member: "serviceAccount:${module.cluster-ingress-prod.gcp_service_account_email}"
+  # external-dns helm chart only supports the filename credentials.json, which the rest
+  # of curiostack doesn't use, so just create another key of the correct name for this
+  # one use case.
+  google_service_account_key:
+    cluster-ingress-prod-gcp-service-account-key-credentials-json:
+      service_account_id: "${module.cluster-ingress-prod.gcp_service_account_email}"
+  kubernetes_secret:
+    cluster-ingress-prod-gcp-key-secret-credentials-json:
+      # (https://github.com/hashicorp/terraform/issues/18330)
+      # the JSON parser gets broken when there are no non-nested fields. We add this no-op so it works.
+      depends_on: []
+      metadata:
+        name: gcloud-credentials-json
+        namespace: ingress-prod
+      depends_on:
+      - module.cluster-ingress-prod
+      data:
+        credentials.json: "${base64decode(google_service_account_key.cluster-ingress-prod-gcp-service-account-key-credentials-json.private_key)}"

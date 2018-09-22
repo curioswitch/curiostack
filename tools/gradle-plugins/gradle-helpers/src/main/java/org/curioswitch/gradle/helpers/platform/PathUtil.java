@@ -37,5 +37,14 @@ public final class PathUtil {
     }
   }
 
+  public static String getExeName(String name) {
+    var helper = new PlatformHelper();
+    if (helper.getOs() == OperatingSystem.WINDOWS) {
+      return name + ".exe";
+    } else {
+      return name;
+    }
+  }
+
   private PathUtil() {}
 }

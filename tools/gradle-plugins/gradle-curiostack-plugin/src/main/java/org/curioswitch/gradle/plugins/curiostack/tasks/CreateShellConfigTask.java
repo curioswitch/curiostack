@@ -36,7 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.tools.ant.taskdefs.condition.Os;
+import org.curioswitch.gradle.helpers.platform.PathUtil;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
@@ -57,8 +57,8 @@ public class CreateShellConfigTask extends DefaultTask {
   }
 
   @Input
-  public List<String> getPaths() {
-    return paths.stream().map(Path::toAbsolutePath).map(Path::toString).collect(toImmutableList());
+  public List<Path> getPaths() {
+    return paths.stream().map(Path::toAbsolutePath).collect(toImmutableList());
   }
 
   @TaskAction
@@ -66,18 +66,8 @@ public class CreateShellConfigTask extends DefaultTask {
     String joinedPath =
         getPaths()
             .stream()
-            .map(
-                path -> {
-                  if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                    // Assume msys or cygwin for now.
-                    return "/"
-                        + path.substring(0, 1).toLowerCase()
-                        + "/"
-                        + path.substring("C:\\".length()).replace('\\', '/');
-                  } else {
-                    return path;
-                  }
-                })
+            .map(PathUtil::toBashString)
+            // Assume msys or cygwin for now.
             .collect(Collectors.joining(":"));
 
     String homeDir = System.getProperty("user.shellHome", System.getProperty("user.home", ""));
@@ -89,13 +79,11 @@ public class CreateShellConfigTask extends DefaultTask {
         ImmutableList.of(
             MARKER,
             "export PATH=" + joinedPath + ":$PATH",
-            "export CLOUDSDK_PYTHON=" + toolManager.getBinDir("miniconda2-build"),
+            "export CLOUDSDK_PYTHON=" + toolManager.getBinDir("miniconda2-build").resolve("python"),
             "export CLOUDSDK_PYTHON_SITEPACKAGES=1",
             ". "
-                + toolManager
-                    .getToolDir("miniconda2-build")
-                    .resolve("etc/profile.d/conda.sh")
-                    .toString(),
+                + PathUtil.toBashString(
+                    toolManager.getToolDir("miniconda2-build").resolve("etc/profile.d/conda.sh")),
             MARKER);
 
     for (String rcFile : SHELL_RCS) {
