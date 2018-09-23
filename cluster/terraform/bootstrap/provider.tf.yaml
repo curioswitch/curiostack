@@ -24,3 +24,8 @@ provider:
   google:
     project: "${var.project_id}"
     region: asia-northeast1
+  gsuite:
+    credentials: "${base64decode(google_service_account_key.terraform_service_account.private_key)}"
+    impersonated_user_email: choko@curioswitch.org
+    oauth_scopes:
+      - https://www.googleapis.com/auth/admin.directory.group

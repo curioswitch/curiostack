@@ -32,3 +32,10 @@ resource:
     terraform_state_key:
       name: terraform-state-key
       key_ring: "${google_kms_key_ring.terraform_key_ring.id}"
+  google_service_account:
+    terraform_service_account:
+      account_id: terraform
+      display_name: terraform
+  google_service_account_key:
+    terraform_service_account:
+      service_account_id: "${google_service_account.terraform_service_account.name}"

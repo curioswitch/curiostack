@@ -143,3 +143,13 @@ resource:
       content: "${data.template_file.iap-backend-config.rendered}"
     cdn-backend-config:
       content: "${data.template_file.cdn-backend-config.rendered}"
+  gsuite_group:
+    admins:
+      email: "gke-security-${var.name}@curioswitch.org"
+      name: "gke-security-${var.name}@curioswitch.org"
+      description: "Admins for namespace ${var.name}"
+  gsuite_group_member:
+    gke-security-group:
+      group: gke-security-groups@curioswitch.org
+      email: "${gsuite_group.admins.email}"
+      role: MEMBER
