@@ -57,6 +57,8 @@ resource:
       chart: stable/cert-manager
       version: 0.4.0
       namespace: ingress-prod
+      values:
+        - "${file(\"./kube/namespaces/ingress-prod/cert-manager-values.yaml\")}"
       depends_on:
         - module.cluster-tiller-prod
     external_dns:
@@ -64,6 +66,8 @@ resource:
       chart: stable/external-dns
       version: 0.7.0
       namespace: ingress-prod
+      values:
+        - "${file(\"./kube/namespaces/ingress-prod/external-dns-values.yaml\")}"
       depends_on:
         - kubernetes_secret.cluster-ingress-prod-gcp-key-secret-credentials-json
         - module.cluster-tiller-prod
