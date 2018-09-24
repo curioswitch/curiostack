@@ -62,7 +62,7 @@ public class HelmPlugin implements Plugin<Project> {
                       tool.getArtifactPattern().set("[artifact]-v[revision]-[classifier].[ext]");
                     }));
 
-    project.evaluationDependsOn(":cluster:terraform");
+    project.evaluationDependsOn(":cluster:terraform:sysadmin");
     HelmExtension config = HelmExtension.createAndAdd(project);
 
     var tillerCaCertFile = project.file("build/helm/tiller-client-ca.cert");
@@ -230,7 +230,7 @@ public class HelmPlugin implements Plugin<Project> {
 
   private static Task createTerraformOutputTask(
       Project project, String taskName, String outputName, File outputFile) {
-    var terraformProject = project.getRootProject().findProject(":cluster:terraform");
+    var terraformProject = project.getRootProject().findProject(":cluster:terraform:sysadmin");
     checkNotNull(terraformProject);
     try {
       return terraformProject.getTasks().getByName(taskName);

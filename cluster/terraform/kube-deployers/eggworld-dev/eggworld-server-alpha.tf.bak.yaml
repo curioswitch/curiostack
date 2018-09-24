@@ -1,0 +1,14 @@
+module:
+  eggworld-server-alpha:
+    source: "./modules/curio-server"
+    name: eggworld-server-alpha
+    namespace: eggworld-dev
+    replicas: 1
+    type: alpha
+    image_name: eggworld-server
+    image_tag: latest
+    request_cpu: 0.1
+    request_memory_mb: 256
+    acls:
+      - foobar
+      - bazbar

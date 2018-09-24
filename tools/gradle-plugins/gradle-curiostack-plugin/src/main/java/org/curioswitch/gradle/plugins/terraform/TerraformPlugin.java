@@ -25,8 +25,13 @@
 package org.curioswitch.gradle.plugins.terraform;
 
 import com.google.common.collect.ImmutableList;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import org.curioswitch.gradle.plugins.terraform.tasks.ConvertConfigsToJsonTask;
+import org.curioswitch.gradle.plugins.terraform.tasks.TargetableTerraformTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformImportTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformOutputTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformTask;
@@ -35,6 +40,7 @@ import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePlugin;
+import org.gradle.api.tasks.TaskProvider;
 
 public class TerraformPlugin implements Plugin<Project> {
 
@@ -66,6 +72,22 @@ public class TerraformPlugin implements Plugin<Project> {
                                 .getCuriostackDir()
                                 .resolve("terraform-plugins"));
                       });
+                  t.finalizedBy(
+                      createTerraformOutputTask(
+                          project,
+                          "outputTillerCaCert",
+                          "tiller-ca-cert",
+                          project.file("build/helm/tiller_ca_cert.pem")),
+                      createTerraformOutputTask(
+                          project,
+                          "outputTillerCertKey",
+                          "tiller-client-key",
+                          project.file("build/helm/tiller_client_key.pem")),
+                      createTerraformOutputTask(
+                          project,
+                          "outputTillerCert",
+                          "tiller-client-cert",
+                          project.file("build/helm/tiller_client_cert.pem")));
                 });
 
     var terraformPlan =
@@ -73,9 +95,8 @@ public class TerraformPlugin implements Plugin<Project> {
             .getTasks()
             .create(
                 "terraformPlan",
-                TerraformTask.class,
+                TargetableTerraformTask.class,
                 t -> {
-                  t.doFirst(unused -> project.mkdir(plansPath));
                   t.setArgs(ImmutableList.of("plan", "-input=false"));
                   t.dependsOn(terraformInit);
                 });
@@ -85,7 +106,7 @@ public class TerraformPlugin implements Plugin<Project> {
             .getTasks()
             .create(
                 "terraformApply",
-                TerraformTask.class,
+                TargetableTerraformTask.class,
                 t -> {
                   t.setArgs(ImmutableList.of("apply"));
                   t.dependsOn(terraformInit);
@@ -125,5 +146,28 @@ public class TerraformPlugin implements Plugin<Project> {
     project
         .getTasks()
         .withType(TerraformTask.class, t -> t.dependsOn(setupTerraform, convertConfigs));
+  }
+
+  private static TaskProvider<TerraformOutputTask> createTerraformOutputTask(
+      Project project, String taskName, String outputName, File outputFile) {
+    return project
+        .getTasks()
+        .register(
+            taskName,
+            TerraformOutputTask.class,
+            t -> {
+              t.doFirst(unused -> project.mkdir(outputFile.getParent()));
+              t.setArgs(ImmutableList.of("output", outputName));
+              t.dependsOn(project.getTasks().getByName("terraformInit"));
+              t.setExecCustomizer(
+                  exec -> {
+                    exec.setIgnoreExitValue(true);
+                    try {
+                      exec.setStandardOutput(new FileOutputStream(outputFile));
+                    } catch (FileNotFoundException e) {
+                      throw new UncheckedIOException("Could not open file.", e);
+                    }
+                  });
+            });
   }
 }

@@ -20,13 +20,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-module:
-  cluster-monitoring-prod:
-    source: "./modules/kube-namespace"
-    name: monitoring-prod
-    project_id: "${var.project_id}"
-    ca_algorithm: "${tls_private_key.cluster-ca-key.algorithm}"
-    ca_private_key: "${tls_private_key.cluster-ca-key.private_key_pem}"
-    ca_cert: "${tls_self_signed_cert.cluster-ca-cert.cert_pem}"
-    tf_crypto_key: "${google_kms_crypto_key.terraform_state_key.id}"
-    sysadmin_project: "${google_project.sysadmin_project.project_id}"
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: ClusterIssuer
+metadata:
+  # Adjust the name here accordingly
+  name: letsencrypt-prod
+spec:
+  acme:
+    # The ACME server URL
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # Email address used for ACME registration
+    email: sysadmin@curioswitch.org
+    # Name of a secret used to store the ACME account private key from step 3
+    privateKeySecretRef:
+      name: letsencrypt-private-key
+    # Enable the HTTP-01 challenge provider
+    http01: {}
+    dns01:
+      providers:
+      - name: gcloud-dns
+        clouddns:
+          project: curioswitch-cluster
+          serviceAccountSecretRef:
+            name: gcloud
+            key: service-account.json

@@ -21,6 +21,9 @@
 # SOFTWARE.
 #
 variable:
+  depends_on:
+    type: list
+    default: []
   name:
     type: string
   project_id:
@@ -35,8 +38,6 @@ variable:
   ca_cert:
     type: string
   tf_crypto_key:
-    type: string
-  sysadmin_project:
     type: string
 output:
   gcp_service_account_email:
@@ -63,9 +64,6 @@ data:
 resource:
   kubernetes_namespace:
     namespace:
-      # (https://github.com/hashicorp/terraform/issues/18330)
-      # the JSON parser gets broken when there are no non-nested fields. We add this no-op so it works.
-      depends_on: []
       metadata:
         name: "${var.name}"
   google_service_account:

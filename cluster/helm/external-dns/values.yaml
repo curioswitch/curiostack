@@ -46,8 +46,6 @@ registry: "txt"
 # When using the TXT registry, a name that identifies this instance of ExternalDNS
 txtOwnerId: "kube-default"
 
-txtPRefix: "edns"
-
 ## Node labels for pod assignment
 ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
 ##

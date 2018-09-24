@@ -1,0 +1,120 @@
+variable:
+  name:
+    type: string
+  namespace:
+    type: string
+  replicas:
+    type: string
+  type:
+    type: string
+  image_name:
+    type: string
+  image_tag:
+    type: string
+  request_cpu:
+    type: string
+  request_memory_mb:
+    type: string
+  extra_jvm_args:
+    type: string
+    default: ""
+  acls:
+    type: list
+    default: []
+data:
+  template_file:
+    deployment:
+      template: "${file(\"${path.module}/deployment.yaml\")}"
+      vars:
+        name: "${var.name}"
+        namespace: "${var.namespace}"
+        replicas: "${var.replicas}"
+        type: "${var.type}"
+        image_name: "${var.image_name}"
+        image_tag: "${var.image_tag}"
+        request_cpu: "${var.request_cpu}"
+        request_memory_mb: "${var.request_memory_mb}"
+        extra_jvm_args: "${var.extra_jvm_args}"
+    rpcacls:
+      template: "${file(\"${path.module}/rpcacls.yaml\")}"
+      vars:
+        name: "rpcacls-${var.name}"
+        namespace: "${var.namespace}"
+        rpcacls_json: "${jsonencode(zipmap(
+                   var.acls,
+                   slice(
+                     list(
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\")
+                     ),
+                  0,
+                  length(var.acls)
+                )
+                ))}"
+resource:
+  k8s_manifest:
+    rpcacls:
+      content: "${data.template_file.rpcacls.rendered}"
+    deployment:
+      content: "${data.template_file.deployment.rendered}"
+      depends_on:
+        - k8s_manifest.rpcacls

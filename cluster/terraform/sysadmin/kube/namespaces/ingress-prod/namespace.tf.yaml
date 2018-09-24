@@ -31,7 +31,6 @@ module:
     ca_private_key: "${tls_private_key.cluster-ca-key.private_key_pem}"
     ca_cert: "${tls_self_signed_cert.cluster-ca-cert.cert_pem}"
     tf_crypto_key: "${google_kms_crypto_key.terraform_state_key.id}"
-    sysadmin_project: "${google_project.sysadmin_project.project_id}"
 resource:
   google_project_iam_member:
     ingress-prod-gcp-service-account-role:
@@ -49,6 +48,27 @@ resource:
         name: gcloud-credentials-json
         namespace: ingress-prod
       depends_on:
-      - module.cluster-ingress-prod
+        - module.cluster-ingress-prod
       data:
         credentials.json: "${base64decode(google_service_account_key.cluster-ingress-prod-gcp-service-account-key-credentials-json.private_key)}"
+  helm_release:
+    cert_manager:
+      name: cert-manager-20180923
+      chart: stable/cert-manager
+      version: 0.4.0
+      namespace: ingress-prod
+      depends_on:
+        - module.cluster-tiller-prod
+    external_dns:
+      name: external-dns-20180923
+      chart: stable/external-dns
+      version: 0.7.0
+      namespace: ingress-prod
+      depends_on:
+        - kubernetes_secret.cluster-ingress-prod-gcp-key-secret-credentials-json
+        - module.cluster-tiller-prod
+  k8s_manifest:
+    letsencrypt_cluster_issuer:
+      content: "${file(\"./kube/namespaces/ingress-prod/letsencrypt-cluster-issuer.yaml\")}"
+      depends_on:
+      - helm_release.cert_manager
