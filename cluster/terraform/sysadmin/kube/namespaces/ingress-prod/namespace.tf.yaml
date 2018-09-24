@@ -55,22 +55,24 @@ resource:
     cert_manager:
       name: cert-manager-20180923
       chart: stable/cert-manager
-      version: 0.4.0
+      version: 0.5.0
       namespace: ingress-prod
       values:
         - "${file(\"./kube/namespaces/ingress-prod/cert-manager-values.yaml\")}"
       depends_on:
-        - module.cluster-tiller-prod
+        - module.cluster-ingress-prod
+        - null_resource.tiller_is_up
     external_dns:
       name: external-dns-20180923
       chart: stable/external-dns
-      version: 0.7.0
+      version: 0.7.5
       namespace: ingress-prod
       values:
         - "${file(\"./kube/namespaces/ingress-prod/external-dns-values.yaml\")}"
       depends_on:
         - kubernetes_secret.cluster-ingress-prod-gcp-key-secret-credentials-json
-        - module.cluster-tiller-prod
+        - module.cluster-ingress-prod
+        - null_resource.tiller_is_up
   k8s_manifest:
     letsencrypt_cluster_issuer:
       content: "${file(\"./kube/namespaces/ingress-prod/letsencrypt-cluster-issuer.yaml\")}"

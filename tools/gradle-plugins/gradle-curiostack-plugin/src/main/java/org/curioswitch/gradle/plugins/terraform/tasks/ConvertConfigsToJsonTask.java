@@ -69,7 +69,8 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
             files ->
                 files
                     .exclude("build")
-                    .exclude("build.gradle"));
+                    .exclude("build.gradle")
+                    .exclude("*.md"));
   }
 
   @OutputDirectory

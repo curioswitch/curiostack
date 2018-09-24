@@ -20,13 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-apiVersion: cloud.google.com/v1beta1
-kind: BackendConfig
-metadata:
-  name: iap-backend-config
-  namespace: ${namespace}
-spec:
-  iap:
-    enabled: true
-    oauthclientCredentials:
-      secretName: iap-oauth-creds
+provider:
+  google:
+    project: "${var.project_id}"
+    region: asia-northeast1

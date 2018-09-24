@@ -34,10 +34,10 @@ resource:
     prometheus_20180923:
       name: prometheus-20180923
       chart: stable/prometheus
-      version: 6.10.0
+      version: 7.1.2
       namespace: monitoring-prod
       values:
         - "${file(\"./kube/namespaces/monitoring-prod/prometheus-values.yaml\")}"
       depends_on:
         - module.cluster-monitoring-prod
-        - module.cluster-tiller-prod
+        - null_resource.tiller_is_up

@@ -152,9 +152,10 @@ resource:
         - kubernetes_secret.tiller-secret
         - k8s_manifest.tiller_cluster_role_binding
   null_resource:
-    wait_for_tiller:
+    tiller_is_up:
       triggers:
         tiller_config: "${k8s_manifest.tiller_deployment.content}"
+        force_trigger: "1"
       provisioner:
         local-exec:
           command: "kube/namespaces/tiller-prod/wait-for-tiller.sh"

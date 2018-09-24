@@ -54,7 +54,7 @@ public class TerraformSetupPlugin implements Plugin<Project> {
         .getPlugins()
         .withType(
             ToolDownloaderPlugin.class,
-            plugin ->
+            plugin -> {
                 plugin.registerToolIfAbsent(
                     "terraform",
                     tool -> {
@@ -72,7 +72,16 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                       tool.getOsExtensions().getWindows().set("zip");
 
                       tool.getPathSubDirs().add("");
-                    }));
+                    });
+
+              plugin.registerToolIfAbsent(
+                  "helm",
+                  tool -> {
+                    tool.getVersion().set(StandardDependencies.HELM_VERSION);
+                    tool.getBaseUrl().set("https://storage.googleapis.com/kubernetes-helm/");
+                    tool.getArtifactPattern().set("[artifact]-v[revision]-[classifier].[ext]");
+                  });
+            });
 
     var goBinDir =
         ((Path)

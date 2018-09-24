@@ -32,7 +32,7 @@ provider:
   helm:
     namespace: tiller-prod
     enable_tls: true
-    client_key: "../helm/tiller_client_key.pem"
-    client_certificate: "../helm/tiller_client_cert.pem"
-    ca_certificate: "../helm/tiller_ca_cert.pem"
-    debug: true
+    home: "../helm"
+    client_key: "../helm/key.pem"
+    client_certificate: "../helm/cert.pem"
+    ca_certificate: "../helm/ca.pem"

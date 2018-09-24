@@ -198,6 +198,20 @@ public class HelmPlugin implements Plugin<Project> {
                   t.addArgs(args);
                 });
 
+    var helmRepoUpdate =
+        project
+            .getTasks()
+            .create(
+                "helmRepoUpdate",
+                HelmTask.class,
+                t -> {
+                  t.setDescription("Updates the helm chart repository.");
+
+                  var args = project.getObjects().listProperty(String.class);
+                  args.addAll("repo", "update");
+                  t.addArgs(args);
+                });
+
     var downloadHelmTask = DownloadToolUtil.getSetupTask(project, "helm");
     project
         .getTasks()
@@ -207,7 +221,8 @@ public class HelmPlugin implements Plugin<Project> {
               t.dependsOn(downloadHelmTask);
 
               if (t.getPath().equals(helmTillerInit.getPath())
-                  || t.getPath().equals(helmClientInit.getPath())) {
+                  || t.getPath().equals(helmClientInit.getPath())
+                  || t.getPath().equals(helmRepoUpdate.getPath())) {
                 return;
               }
 

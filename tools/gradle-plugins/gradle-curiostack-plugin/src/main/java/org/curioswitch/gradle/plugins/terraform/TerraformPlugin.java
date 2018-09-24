@@ -29,8 +29,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.UncheckedIOException;
-import java.nio.file.Path;
 import org.curioswitch.gradle.plugins.terraform.tasks.ConvertConfigsToJsonTask;
+import org.curioswitch.gradle.plugins.terraform.tasks.HelmTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TargetableTerraformTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformImportTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformOutputTask;
@@ -49,8 +49,6 @@ public class TerraformPlugin implements Plugin<Project> {
     project.getRootProject().getPlugins().apply(TerraformSetupPlugin.class);
 
     project.getPlugins().apply(BasePlugin.class);
-
-    Path plansPath = project.getProjectDir().toPath().resolve("plans");
 
     var convertConfigs =
         project.getTasks().create(ConvertConfigsToJsonTask.NAME, ConvertConfigsToJsonTask.class);
@@ -77,17 +75,23 @@ public class TerraformPlugin implements Plugin<Project> {
                           project,
                           "outputTillerCaCert",
                           "tiller-ca-cert",
-                          project.file("build/helm/tiller_ca_cert.pem")),
+                          project.file("build/helm/ca.pem")),
                       createTerraformOutputTask(
                           project,
                           "outputTillerCertKey",
                           "tiller-client-key",
-                          project.file("build/helm/tiller_client_key.pem")),
+                          project.file("build/helm/key.pem")),
                       createTerraformOutputTask(
                           project,
                           "outputTillerCert",
                           "tiller-client-cert",
-                          project.file("build/helm/tiller_client_cert.pem")));
+                          project.file("build/helm/cert.pem")),
+                      project
+                          .getTasks()
+                          .register(
+                              "terraformInitHelm",
+                              HelmTask.class,
+                              helm -> helm.addArgs("init", "--client-only")));
                 });
 
     var terraformPlan =
