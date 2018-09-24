@@ -32,8 +32,6 @@ provider:
   helm:
     namespace: tiller-prod
     enable_tls: true
-    # Disable TLS verification on client until figuring out why the cert doesn't work.
-    insecure: true
     client_key: "../helm/tiller_client_key.pem"
     client_certificate: "../helm/tiller_client_cert.pem"
     ca_certificate: "../helm/tiller_ca_cert.pem"

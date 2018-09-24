@@ -37,7 +37,7 @@ resource:
       region: "${google_container_cluster.primary.region}"
       cluster: "${google_container_cluster.primary.name}"
       initial_node_count: 1
-      max_pods_per_node: 100
+      max_pods_per_node: 110
       node_config:
         machine_type: g1-small
         oauth_scopes:

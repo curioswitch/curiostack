@@ -47,7 +47,7 @@ public class StandardDependencies {
   }
 
   public static final String GCLOUD_VERSION = "215.0.0";
-  public static final String HELM_VERSION = "2.9.1";
+  public static final String HELM_VERSION = "2.10.0";
   public static final String MINICONDA_VERSION = "4.5.4";
   public static final String TERRAFORM_VERSION = "0.11.8";
   public static final String NODE_VERSION = "9.9.0";

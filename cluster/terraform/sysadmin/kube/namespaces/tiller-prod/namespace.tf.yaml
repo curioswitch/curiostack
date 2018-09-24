@@ -52,14 +52,14 @@ output:
 resource:
   tls_private_key:
     tiller-ca-key:
-      algorithm: RSA
-      rsa_bits: 4096
+      algorithm: ECDSA
+      ecdsa_curve: P256
     tiller-server-key:
-      algorithm: RSA
-      rsa_bits: 4096
+      algorithm: ECDSA
+      ecdsa_curve: P256
     tiller-client-key:
-      algorithm: RSA
-      rsa_bits: 4096
+      algorithm: ECDSA
+      ecdsa_curve: P256
   tls_self_signed_cert:
     tiller-ca-cert:
       key_algorithm: "${tls_private_key.tiller-ca-key.algorithm}"
@@ -70,11 +70,8 @@ resource:
       validity_period_hours: 87600
       # 9 years
       early_renewal_hours: 78840
-      allowed_uses:
-      - cert_signing
-      - crl_signing
-      - ocsp_signing
       is_ca_certificate: true
+      allowed_uses: []
   tls_cert_request:
     tiller-server-cert:
       key_algorithm: "${tls_private_key.tiller-server-key.algorithm}"
@@ -100,10 +97,7 @@ resource:
       validity_period_hours: 87600
       # 9 years
       early_renewal_hours: 78840
-      allowed_uses:
-      - digital signature
-      - key encipherment
-      - server auth
+      allowed_uses: []
     tiller-client-cert:
       cert_request_pem: "${tls_cert_request.tiller-client-cert.cert_request_pem}"
       ca_key_algorithm: "${tls_private_key.tiller-ca-key.algorithm}"
@@ -113,10 +107,7 @@ resource:
       validity_period_hours: 87600
       # 9 years
       early_renewal_hours: 78840
-      allowed_uses:
-      - digital signature
-      - key encipherment
-      - client auth
+      allowed_uses: []
   kubernetes_secret:
     tiller-secret:
       metadata:
@@ -160,3 +151,14 @@ resource:
       depends_on:
         - kubernetes_secret.tiller-secret
         - k8s_manifest.tiller_cluster_role_binding
+  null_resource:
+    wait_for_tiller:
+      triggers:
+        tiller_config: "${k8s_manifest.tiller_deployment.content}"
+      provisioner:
+        local-exec:
+          command: "kube/namespaces/tiller-prod/wait-for-tiller.sh"
+          interpreter:
+            - bash
+      depends_on:
+        - kubernetes_service.tiller-service

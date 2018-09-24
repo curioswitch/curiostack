@@ -7,7 +7,6 @@ metadata:
   name: tiller-deploy
   namespace: tiller-prod
 spec:
-  progressDeadlineSeconds: 600
   replicas: 1
   selector:
     matchLabels:
@@ -36,35 +35,26 @@ spec:
           value: "1"
         - name: TILLER_TLS_CERTS
           value: /etc/certs
-        image: gcr.io/kubernetes-helm/tiller:v2.9.1
+        image: gcr.io/kubernetes-helm/tiller:v2.10.0
         imagePullPolicy: IfNotPresent
         livenessProbe:
-          failureThreshold: 3
           httpGet:
             path: /liveness
             port: 44135
             scheme: HTTP
           initialDelaySeconds: 1
-          periodSeconds: 10
-          successThreshold: 1
           timeoutSeconds: 1
         name: tiller
         ports:
         - containerPort: 44134
           name: tiller
-          protocol: TCP
         - containerPort: 44135
           name: http
-          protocol: TCP
         readinessProbe:
-          failureThreshold: 3
           httpGet:
             path: /readiness
             port: 44135
-            scheme: HTTP
           initialDelaySeconds: 1
-          periodSeconds: 10
-          successThreshold: 1
           timeoutSeconds: 1
         volumeMounts:
         - mountPath: /etc/certs
@@ -74,5 +64,4 @@ spec:
       volumes:
       - name: tiller-certs
         secret:
-          defaultMode: 420
           secretName: tiller-secret
