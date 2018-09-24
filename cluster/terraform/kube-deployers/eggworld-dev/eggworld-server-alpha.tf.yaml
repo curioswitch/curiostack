@@ -9,6 +9,5 @@ module:
     image_tag: latest
     request_cpu: 0.1
     request_memory_mb: 256
-    acls:
-      - foobar
-      - bazbar
+    environment_secrets:
+      - yummly-api-key

@@ -20,6 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+data:
+  google_kms_secret:
+    yummly_api_id:
+      crypto_key: "${google_kms_crypto_key.terraform_state_key.id}"
+      ciphertext: "CiQAnaPXy3SxWLhlwNkJwrLt3wLk8HoPrpQfGRUQ4N1D1izcCfgSMQA4+Xivn9BEm+rfU28UElcJ3QbEEJ8jV3TpbNVA/3FciKuNGx5R8YrWr2kjnlvj1R8="
+    yummly_api_key:
+      crypto_key: "${google_kms_crypto_key.terraform_state_key.id}"
+      ciphertext: "CiQAnaPXy/rchQatYWmA5V9FT+qTLtxTQDZHvDlGNvK2LTCUtqgSSAA4+XivZVvAfEF9vxEULCiJKbZkZduyR4I7a/eZFW3IAis6I54uO7wEyePUmPBOsGZp13wjOIrmyDUBFngmgCbE/0VQKMnCaA=="
 module:
   cluster-eggworld-dev:
     source: "./modules/kube-namespace"
@@ -29,3 +37,14 @@ module:
     ca_private_key: "${tls_private_key.cluster-ca-key.private_key_pem}"
     ca_cert: "${tls_self_signed_cert.cluster-ca-cert.cert_pem}"
     tf_crypto_key: "${google_kms_crypto_key.terraform_state_key.id}"
+resource:
+  kubernetes_secret:
+    yummly_api_key:
+      metadata:
+        name: yummly-api-key
+        namespace: eggworld-dev
+      depends_on:
+        - module.cluster-eggworld-dev
+      data:
+        YUMMLY_API_ID: "${data.google_kms_secret.yummly_api_id.plaintext}"
+        YUMMLY_API_KEY: "${data.google_kms_secret.yummly_api_key.plaintext}"

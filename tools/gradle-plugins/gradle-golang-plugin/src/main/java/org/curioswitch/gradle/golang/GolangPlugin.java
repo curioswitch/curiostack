@@ -210,7 +210,7 @@ public class GolangPlugin implements Plugin<Project> {
               .configureEach(
                   t -> {
                     // get has a chance of hitting Github.
-                    if (t.getArgs().get().get(0).equals("get")) {
+                    if (!t.getArgs().get().isEmpty() && t.getArgs().get().get(0).equals("get")) {
                       t.setLockFile(lock);
                     }
                   });

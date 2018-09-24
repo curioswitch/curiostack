@@ -43,20 +43,12 @@ variable:
   acls:
     type: list
     default: []
+  environment_secrets:
+    type: list
+    default: []
+    description: Up to 5 secret names to populate into the containers environment variables.
 data:
   template_file:
-    deployment:
-      template: "${file(\"${path.module}/deployment.yaml\")}"
-      vars:
-        name: "${var.name}"
-        namespace: "${var.namespace}"
-        replicas: "${var.replicas}"
-        type: "${var.type}"
-        image_name: "${var.image_name}"
-        image_tag: "${var.image_tag}"
-        request_cpu: "${var.request_cpu}"
-        request_memory_mb: "${var.request_memory_mb}"
-        extra_jvm_args: "${var.extra_jvm_args}"
     rpcacls:
       template: "${file(\"${path.module}/rpcacls.yaml\")}"
       vars:
@@ -136,7 +128,3 @@ resource:
   k8s_manifest:
     rpcacls:
       content: "${data.template_file.rpcacls.rendered}"
-    deployment:
-      content: "${data.template_file.deployment.rendered}"
-      depends_on:
-        - k8s_manifest.rpcacls
