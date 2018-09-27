@@ -72,11 +72,11 @@ public class TerraformPlugin implements Plugin<Project> {
                       });
                   if (project.getName().equals("sysadmin")) {
                     t.finalizedBy(
-                      createTerraformOutputTask(
-                          project,
-                          "outputTillerCaCert",
-                          "tiller-ca-cert",
-                          project.file("build/helm/ca.pem")),
+                        createTerraformOutputTask(
+                            project,
+                            "outputTillerCaCert",
+                            "tiller-ca-cert",
+                            project.file("build/helm/ca.pem")),
                         createTerraformOutputTask(
                             project,
                             "outputTillerCertKey",

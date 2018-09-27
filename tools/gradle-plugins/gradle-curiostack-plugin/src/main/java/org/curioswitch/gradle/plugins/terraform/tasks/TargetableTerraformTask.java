@@ -33,11 +33,12 @@ public class TargetableTerraformTask extends TerraformTask {
   private List<String> targets = ImmutableList.of();
 
   public TargetableTerraformTask() {
-    setExecCustomizer(exec -> {
-      for (String target : targets) {
-        exec.args("-target=" + target);
-      }
-    });
+    setExecCustomizer(
+        exec -> {
+          for (String target : targets) {
+            exec.args("-target=" + target);
+          }
+        });
   }
 
   @Option(option = "target", description = "A resource to target.")

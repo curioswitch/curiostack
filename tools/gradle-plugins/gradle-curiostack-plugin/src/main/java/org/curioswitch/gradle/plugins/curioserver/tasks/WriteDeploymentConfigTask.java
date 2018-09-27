@@ -39,7 +39,5 @@ public class WriteDeploymentConfigTask extends DefaultTask {
   }
 
   @TaskAction
-  public void exec() {
-
-  }
+  public void exec() {}
 }

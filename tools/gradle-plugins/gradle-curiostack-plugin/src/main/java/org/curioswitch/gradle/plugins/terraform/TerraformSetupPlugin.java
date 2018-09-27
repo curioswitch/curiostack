@@ -55,24 +55,24 @@ public class TerraformSetupPlugin implements Plugin<Project> {
         .withType(
             ToolDownloaderPlugin.class,
             plugin -> {
-                plugin.registerToolIfAbsent(
-                    "terraform",
-                    tool -> {
-                      tool.getVersion().set(StandardDependencies.TERRAFORM_VERSION);
-                      tool.getBaseUrl().set("https://releases.hashicorp.com/");
-                      tool.getArtifactPattern()
-                          .set("[artifact]/[revision]/[artifact]_[revision]_[classifier].[ext]");
+              plugin.registerToolIfAbsent(
+                  "terraform",
+                  tool -> {
+                    tool.getVersion().set(StandardDependencies.TERRAFORM_VERSION);
+                    tool.getBaseUrl().set("https://releases.hashicorp.com/");
+                    tool.getArtifactPattern()
+                        .set("[artifact]/[revision]/[artifact]_[revision]_[classifier].[ext]");
 
-                      tool.getOsClassifiers().getLinux().set("linux_amd64");
-                      tool.getOsClassifiers().getMac().set("darwin_amd64");
-                      tool.getOsClassifiers().getWindows().set("windows_amd64");
+                    tool.getOsClassifiers().getLinux().set("linux_amd64");
+                    tool.getOsClassifiers().getMac().set("darwin_amd64");
+                    tool.getOsClassifiers().getWindows().set("windows_amd64");
 
-                      tool.getOsExtensions().getLinux().set("zip");
-                      tool.getOsExtensions().getMac().set("zip");
-                      tool.getOsExtensions().getWindows().set("zip");
+                    tool.getOsExtensions().getLinux().set("zip");
+                    tool.getOsExtensions().getMac().set("zip");
+                    tool.getOsExtensions().getWindows().set("zip");
 
-                      tool.getPathSubDirs().add("");
-                    });
+                    tool.getPathSubDirs().add("");
+                  });
 
               plugin.registerToolIfAbsent(
                   "helm",
