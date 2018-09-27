@@ -74,7 +74,14 @@ class RoutingService implements HttpService {
     } else {
       client = find(mappingContext);
     }
-    return client == null ? HttpResponse.of(HttpStatus.NOT_FOUND) : client.execute(req);
+    if (client == null) {
+      return HttpResponse.of(HttpStatus.NOT_FOUND);
+    }
+    // We don't want to pass the external domain name through to the backend server since this
+    // causes problems with the TLS handshake between this server and the backend (the external
+    // hostname does not match the names we use in our certs for server to server communication).
+    req.authority("");
+    return client.execute(req);
   }
 
   @Override
