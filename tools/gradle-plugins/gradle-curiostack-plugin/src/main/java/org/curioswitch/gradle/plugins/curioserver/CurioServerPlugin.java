@@ -33,7 +33,6 @@ import com.google.cloud.tools.jib.gradle.DockerContextTask;
 import com.google.cloud.tools.jib.gradle.JibExtension;
 import com.google.cloud.tools.jib.gradle.JibPlugin;
 import com.google.cloud.tools.jib.image.ImageFormat;
-import com.google.common.base.Ascii;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.gorylenko.GitPropertiesPlugin;
@@ -43,9 +42,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import org.curioswitch.gradle.plugins.curioserver.ImmutableDeploymentExtension.ImmutableDeploymentConfiguration;
-import org.curioswitch.gradle.plugins.curioserver.tasks.DeployConfigMapTask;
-import org.curioswitch.gradle.plugins.curioserver.tasks.DeployPodTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Plugin;
@@ -226,28 +222,6 @@ public class CurioServerPlugin implements Plugin<Project> {
           DockerJavaApplication javaApplication =
               (DockerJavaApplication) docker.getProperty("javaApplication");
           javaApplication.setBaseImage("openjdk:10-jre-slim");
-
-          for (ImmutableDeploymentConfiguration type : config.getTypes()) {
-            String capitalized =
-                Ascii.toUpperCase(type.getName().charAt(0)) + type.getName().substring(1);
-
-            var deployConfigMapTask =
-                project
-                    .getTasks()
-                    .register(
-                        "deployConfigMap" + capitalized,
-                        DeployConfigMapTask.class,
-                        t -> t.setType(type.getName()));
-            project
-                .getTasks()
-                .register(
-                    "deploy" + capitalized,
-                    DeployPodTask.class,
-                    t -> {
-                      t.setType(type.getName());
-                      t.dependsOn(deployConfigMapTask);
-                    });
-          }
         });
     project.getPluginManager().apply(DockerJavaApplicationPlugin.class);
   }

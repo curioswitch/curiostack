@@ -70,28 +70,30 @@ public class TerraformPlugin implements Plugin<Project> {
                                 .getCuriostackDir()
                                 .resolve("terraform-plugins"));
                       });
-                  t.finalizedBy(
+                  if (project.getName().equals("sysadmin")) {
+                    t.finalizedBy(
                       createTerraformOutputTask(
                           project,
                           "outputTillerCaCert",
                           "tiller-ca-cert",
                           project.file("build/helm/ca.pem")),
-                      createTerraformOutputTask(
-                          project,
-                          "outputTillerCertKey",
-                          "tiller-client-key",
-                          project.file("build/helm/key.pem")),
-                      createTerraformOutputTask(
-                          project,
-                          "outputTillerCert",
-                          "tiller-client-cert",
-                          project.file("build/helm/cert.pem")),
-                      project
-                          .getTasks()
-                          .register(
-                              "terraformInitHelm",
-                              HelmTask.class,
-                              helm -> helm.addArgs("init", "--client-only")));
+                        createTerraformOutputTask(
+                            project,
+                            "outputTillerCertKey",
+                            "tiller-client-key",
+                            project.file("build/helm/key.pem")),
+                        createTerraformOutputTask(
+                            project,
+                            "outputTillerCert",
+                            "tiller-client-cert",
+                            project.file("build/helm/cert.pem")),
+                        project
+                            .getTasks()
+                            .register(
+                                "terraformInitHelm",
+                                HelmTask.class,
+                                helm -> helm.addArgs("init", "--client-only")));
+                  }
                 });
 
     var terraformPlan =
