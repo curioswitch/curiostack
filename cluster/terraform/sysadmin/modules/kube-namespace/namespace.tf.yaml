@@ -1,0 +1,154 @@
+# MIT License
+#
+# Copyright (c) 2018 Choko (choko@curioswitch.org)
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+variable:
+  name:
+    type: string
+  project_id:
+    type: string
+  gcp_service_account_name_override:
+    type: string
+    default: ""
+  ca_algorithm:
+    type: string
+  ca_private_key:
+    type: string
+  ca_cert:
+    type: string
+  tf_crypto_key:
+    type: string
+output:
+  gcp_service_account_email:
+    value: "${google_service_account.gcp-service-account.email}"
+  name:
+    value: "${var.name}"
+data:
+  google_kms_secret:
+    iap_oauth_client_id:
+      crypto_key: "${var.tf_crypto_key}"
+      ciphertext: "CiQAnaPXyzpOy8JQLwowecykVf7VwwIDrU5Cc1fBCz43n1retuYScQA4+XivZAITU+O7DWWhUvkoPJyxhJlXtBisi1PP1+t8bqEqQzZaiWjebykG6i2t4ulI9qkl3FQiLVxuLu1YooP7hShNUyczpcuTyLcY/1PvB2IEsqvMYsLJHOz3Mnitn/iwtrkga/Q1TV3owwTnJItE"
+    iap_oauth_client_secret:
+      crypto_key: "${var.tf_crypto_key}"
+      ciphertext: "CiQAnaPXyxmkeHz/V/87kUme39YlAHjP/cko5Ra3x0N4mlRWEmISQQA4+Xiv2q7op+h9td+r4sOhfpqVGk6VKEsTz2jZam3xJRg2qVdjil+oDbKiQjtrpFjxrsaDOp7T3+gOLPAdKlaT"
+  template_file:
+    iap-backend-config:
+      template: "${file(\"${path.module}/iap-backend-config.yaml\")}"
+      vars:
+        namespace: "${var.name}"
+    cdn-backend-config:
+      template: "${file(\"${path.module}/cdn-backend-config.yaml\")}"
+      vars:
+        namespace: "${var.name}"
+resource:
+  kubernetes_namespace:
+    namespace:
+      metadata:
+        name: "${var.name}"
+  google_service_account:
+    gcp-service-account:
+      account_id: "cluster-${coalesce(var.gcp_service_account_name_override, var.name)}"
+      display_name: "cluster-${coalesce(var.gcp_service_account_name_override, var.name)}"
+  google_service_account_key:
+    gcp-service-account-key:
+      service_account_id: "${google_service_account.gcp-service-account.name}"
+  google_project_iam_member:
+    gcp-service-account-role:
+      role: "projects/${var.project_id}/roles/ClusterNamespace"
+      member: "serviceAccount:${google_service_account.gcp-service-account.email}"
+  tls_private_key:
+    internal-tls:
+      algorithm: ECDSA
+      ecdsa_curve: P256
+  tls_cert_request:
+    internal-tls:
+      key_algorithm: "${tls_private_key.internal-tls.algorithm}"
+      private_key_pem: "${tls_private_key.internal-tls.private_key_pem}"
+      subject:
+        common_name: "${var.name}.ns.cluster.stellarstation.com"
+      dns_names:
+      - "*.${var.name}"
+      - "*.${var.name}.svc"
+      - "*.${var.name}.svc.cluster.local"
+      - "*.${var.name}.pod.cluster.local"
+  tls_locally_signed_cert:
+    internal-tls:
+      cert_request_pem: "${tls_cert_request.internal-tls.cert_request_pem}"
+      ca_key_algorithm: "${var.ca_algorithm}"
+      ca_private_key_pem: "${var.ca_private_key}"
+      ca_cert_pem: "${var.ca_cert}"
+      # 10 years
+      validity_period_hours: 87600
+      # 9 years
+      early_renewal_hours: 78840
+      allowed_uses:
+      - digital signature
+      - key encipherment
+      - server auth
+      - client auth
+  kubernetes_secret:
+    gcp-key-secret:
+      metadata:
+        name: gcloud
+        namespace: "${var.name}"
+      depends_on:
+      - kubernetes_namespace.namespace
+      data:
+        service-account.json: "${base64decode(google_service_account_key.gcp-service-account-key.private_key)}"
+    internal-tls-secret:
+      metadata:
+        name: internal-tls
+        namespace: "${var.name}"
+      depends_on:
+      - kubernetes_namespace.namespace
+      data:
+        server-key.pem: "${tls_private_key.internal-tls.private_key_pem}"
+        server.crt: "${tls_locally_signed_cert.internal-tls.cert_pem}"
+        ca.crt: "${var.ca_cert}"
+        # https://cloud.google.com/iap/docs/enabling-kubernetes-howto
+    iap-oauth-secret:
+      metadata:
+        name: iap-oauth-creds
+        namespace: "${var.name}"
+      depends_on:
+      - kubernetes_namespace.namespace
+      data:
+        client_id: "${data.google_kms_secret.iap_oauth_client_id.plaintext}"
+        client_secret: "${data.google_kms_secret.iap_oauth_client_secret.plaintext}"
+  k8s_manifest:
+    iap-backend-config:
+      content: "${data.template_file.iap-backend-config.rendered}"
+      depends_on:
+      - kubernetes_namespace.namespace
+    cdn-backend-config:
+      content: "${data.template_file.cdn-backend-config.rendered}"
+      depends_on:
+      - kubernetes_namespace.namespace
+  gsuite_group:
+    admins:
+      email: "gke-security-${var.name}@curioswitch.org"
+      name: "gke-security-${var.name}@curioswitch.org"
+      description: "Admins for namespace ${var.name}"
+  gsuite_group_member:
+    gke-security-group:
+      group: gke-security-groups@curioswitch.org
+      email: "${gsuite_group.admins.email}"
+      role: MEMBER

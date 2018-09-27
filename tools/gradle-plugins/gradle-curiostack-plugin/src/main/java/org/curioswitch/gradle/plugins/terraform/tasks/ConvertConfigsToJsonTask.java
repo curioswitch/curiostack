@@ -67,11 +67,7 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
         .fileTree(
             getProject().getProjectDir(),
             files ->
-                files
-                    .include("**/*.tf.yaml")
-                    .include("**/*.tf.yml")
-                    .include("modules/**")
-                    .exclude("build"));
+                files.include("*.tf").include("*.tf.yaml").include("*.tf.yml").include("*/**/*"));
   }
 
   @OutputDirectory

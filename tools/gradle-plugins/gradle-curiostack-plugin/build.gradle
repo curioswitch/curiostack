@@ -59,6 +59,7 @@ dependencies {
     compile project(':common:google-cloud:cloud-storage')
     compile project(':tools:gradle-plugins:gradle-conda-plugin')
     compile project(':tools:gradle-plugins:gradle-golang-plugin')
+    compile project(':tools:gradle-plugins:gradle-helpers')
     compile project(':tools:gradle-plugins:gradle-tool-downloader-plugin')
     compile project(':tools:gradle-plugins:java-groovy-compat')
 

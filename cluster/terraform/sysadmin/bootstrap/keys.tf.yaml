@@ -1,4 +1,3 @@
-#
 # MIT License
 #
 # Copyright (c) 2018 Choko (choko@curioswitch.org)
@@ -21,5 +20,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-
-version = 0.0.9
+resource:
+  google_kms_key_ring:
+    terraform_key_ring:
+      name: terraform-key-ring
+      location: global
+      project: "${google_project.sysadmin_project.project_id}"
+      depends_on:
+      - google_project_service.sysadmin-kms
+  google_kms_crypto_key:
+    terraform_state_key:
+      name: terraform-state-key
+      key_ring: "${google_kms_key_ring.terraform_key_ring.id}"
+  google_service_account:
+    terraform_service_account:
+      account_id: terraform
+      display_name: terraform
+  google_service_account_key:
+    terraform_service_account:
+      service_account_id: "${google_service_account.terraform_service_account.name}"

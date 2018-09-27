@@ -22,29 +22,4 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.helpers.platform;
-
-import java.nio.file.Path;
-
-public final class PathUtil {
-
-  public static String toBashString(Path path) {
-    var helper = new PlatformHelper();
-    if (helper.getOs() != OperatingSystem.WINDOWS) {
-      return path.toString();
-    } else {
-      return "$(cygpath '" + path.toString() + "')";
-    }
-  }
-
-  public static String getExeName(String name) {
-    var helper = new PlatformHelper();
-    if (helper.getOs() == OperatingSystem.WINDOWS) {
-      return name + ".exe";
-    } else {
-      return name;
-    }
-  }
-
-  private PathUtil() {}
-}
+apply plugin: 'org.curioswitch.gradle-terraform-plugin'

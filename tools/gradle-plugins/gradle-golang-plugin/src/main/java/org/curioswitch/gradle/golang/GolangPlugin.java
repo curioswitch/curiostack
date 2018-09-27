@@ -106,6 +106,13 @@ public class GolangPlugin implements Plugin<Project> {
 
     project.getTasks().withType(GoTask.class).configureEach(t -> t.dependsOn(setupGo));
 
+    var lock = project.getRootProject().file("build/godeps.lock");
+    try {
+      lock.createNewFile();
+    } catch (IOException e) {
+      throw new UncheckedIOException("Could not create lock file.", e);
+    }
+
     var downloadDeps =
         project
             .getTasks()
@@ -115,12 +122,6 @@ public class GolangPlugin implements Plugin<Project> {
                 t -> {
                   t.args("mod", "download");
                   project.getRootProject().mkdir("build");
-                  var lock = project.getRootProject().file("build/godeps.lock");
-                  try {
-                    lock.createNewFile();
-                  } catch (IOException e) {
-                    throw new UncheckedIOException("Could not create lock file.", e);
-                  }
                   t.setLockFile(lock);
                 });
 
@@ -203,6 +204,17 @@ public class GolangPlugin implements Plugin<Project> {
 
     project.afterEvaluate(
         unused -> {
+          project
+              .getTasks()
+              .withType(GoTask.class)
+              .configureEach(
+                  t -> {
+                    // get has a chance of hitting Github.
+                    if (!t.getArgs().get().isEmpty() && t.getArgs().get().get(0).equals("get")) {
+                      t.setLockFile(lock);
+                    }
+                  });
+
           TaskProvider<Task> test;
           try {
             test = project.getTasks().named("test");

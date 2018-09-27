@@ -25,48 +25,30 @@
 package org.curioswitch.gradle.plugins.terraform;
 
 import com.google.common.collect.ImmutableList;
-import java.nio.file.Path;
-import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.UncheckedIOException;
 import org.curioswitch.gradle.plugins.terraform.tasks.ConvertConfigsToJsonTask;
+import org.curioswitch.gradle.plugins.terraform.tasks.HelmTask;
+import org.curioswitch.gradle.plugins.terraform.tasks.TargetableTerraformTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformImportTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformOutputTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformTask;
-import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePlugin;
+import org.gradle.api.tasks.TaskProvider;
 
 public class TerraformPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    project.getPluginManager().apply(BasePlugin.class);
+    project.getRootProject().getPlugins().apply(TerraformSetupPlugin.class);
 
-    project
-        .getRootProject()
-        .getPlugins()
-        .withType(
-            ToolDownloaderPlugin.class,
-            plugin ->
-                plugin.registerToolIfAbsent(
-                    "terraform",
-                    tool -> {
-                      tool.getVersion().set(StandardDependencies.TERRAFORM_VERSION);
-                      tool.getBaseUrl().set("https://releases.hashicorp.com/");
-                      tool.getArtifactPattern()
-                          .set("[artifact]/[revision]/[artifact]_[revision]_[classifier].[ext]");
-
-                      tool.getOsClassifiers().getLinux().set("linux_amd64");
-                      tool.getOsClassifiers().getMac().set("darwin_amd64");
-                      tool.getOsClassifiers().getWindows().set("windows_amd64");
-
-                      tool.getOsExtensions().getLinux().set("zip");
-                      tool.getOsExtensions().getMac().set("zip");
-                      tool.getOsExtensions().getWindows().set("zip");
-                    }));
-
-    Path plansPath = project.getProjectDir().toPath().resolve("plans");
+    project.getPlugins().apply(BasePlugin.class);
 
     var convertConfigs =
         project.getTasks().create(ConvertConfigsToJsonTask.NAME, ConvertConfigsToJsonTask.class);
@@ -75,19 +57,52 @@ public class TerraformPlugin implements Plugin<Project> {
     var terraformInit =
         project
             .getTasks()
-            .create(
+            .register(
                 "terraformInit",
                 TerraformTask.class,
-                t -> t.setArgs(ImmutableList.of("init", "-input=false")));
+                t -> {
+                  t.setArgs(ImmutableList.of("init", "-input=false"));
+                  t.setExecCustomizer(
+                      exec -> {
+                        exec.environment(
+                            "TF_PLUGIN_CACHE_DIR",
+                            DownloadedToolManager.get(project)
+                                .getCuriostackDir()
+                                .resolve("terraform-plugins"));
+                      });
+                  if (project.getName().equals("sysadmin")) {
+                    t.finalizedBy(
+                        createTerraformOutputTask(
+                            project,
+                            "outputTillerCaCert",
+                            "tiller-ca-cert",
+                            project.file("build/helm/ca.pem")),
+                        createTerraformOutputTask(
+                            project,
+                            "outputTillerCertKey",
+                            "tiller-client-key",
+                            project.file("build/helm/key.pem")),
+                        createTerraformOutputTask(
+                            project,
+                            "outputTillerCert",
+                            "tiller-client-cert",
+                            project.file("build/helm/cert.pem")),
+                        project
+                            .getTasks()
+                            .register(
+                                "terraformInitHelm",
+                                HelmTask.class,
+                                helm -> helm.addArgs("init", "--client-only")));
+                  }
+                });
 
     var terraformPlan =
         project
             .getTasks()
             .create(
                 "terraformPlan",
-                TerraformTask.class,
+                TargetableTerraformTask.class,
                 t -> {
-                  t.doFirst(unused -> project.mkdir(plansPath));
                   t.setArgs(ImmutableList.of("plan", "-input=false"));
                   t.dependsOn(terraformInit);
                 });
@@ -97,7 +112,7 @@ public class TerraformPlugin implements Plugin<Project> {
             .getTasks()
             .create(
                 "terraformApply",
-                TerraformTask.class,
+                TargetableTerraformTask.class,
                 t -> {
                   t.setArgs(ImmutableList.of("apply"));
                   t.dependsOn(terraformInit);
@@ -133,9 +148,36 @@ public class TerraformPlugin implements Plugin<Project> {
               t.setArgs(ImmutableList.of("output"));
             });
 
-    var downloadTerraformTask = DownloadToolUtil.getSetupTask(project, "terraform");
+    var setupTerraform = DownloadToolUtil.getSetupTask(project, "terraform");
     project
         .getTasks()
-        .withType(TerraformTask.class, t -> t.dependsOn(downloadTerraformTask, convertConfigs));
+        .withType(TerraformTask.class, t -> t.dependsOn(setupTerraform, convertConfigs));
+
+    project
+        .getTasks()
+        .withType(HelmTask.class, t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "helm")));
+  }
+
+  private static TaskProvider<TerraformOutputTask> createTerraformOutputTask(
+      Project project, String taskName, String outputName, File outputFile) {
+    return project
+        .getTasks()
+        .register(
+            taskName,
+            TerraformOutputTask.class,
+            t -> {
+              t.doFirst(unused -> project.mkdir(outputFile.getParent()));
+              t.setArgs(ImmutableList.of("output", outputName));
+              t.dependsOn(project.getTasks().getByName("terraformInit"));
+              t.setExecCustomizer(
+                  exec -> {
+                    exec.setIgnoreExitValue(true);
+                    try {
+                      exec.setStandardOutput(new FileOutputStream(outputFile));
+                    } catch (FileNotFoundException e) {
+                      throw new UncheckedIOException("Could not open file.", e);
+                    }
+                  });
+            });
   }
 }

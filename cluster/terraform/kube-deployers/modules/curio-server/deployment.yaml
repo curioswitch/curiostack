@@ -1,0 +1,116 @@
+# MIT License
+#
+# Copyright (c) 2018 Choko (choko@curioswitch.org)
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: ${name}
+  name: ${name}
+  namespace: ${namespace}
+spec:
+  replicas: ${replicas}
+  selector:
+    matchLabels:
+      name: ${name}
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: /internal/metrics
+        prometheus.io/port: "8080"
+        prometheus.io/scheme: https
+        prometheus.io/scrape: "true"
+      labels:
+        name: ${name}
+    spec:
+      containers:
+      - env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/gcloud/service-account.json
+        - name: JAVA_TOOL_OPTIONS
+          value: >-
+            -Dserver.additionalCaCertificatePath=/etc/internal-tls/ca.crt
+            --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED
+            --add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED
+            -Xms${ceil(request_memory_mb * 0.5)}m
+            -Xmx${ceil(request_memory_mb * 0.5)}m
+            -Dconfig.resource=application-${type}.conf
+            -Dmonitoring.stackdriverProjectId=curioswitch-cluster
+            -Dmonitoring.serverName=${name}
+            -Dlog4j2.ContextDataInjector=org.curioswitch.common.server.framework.logging.RequestLoggingContextInjector
+            -Dlog4j.configurationFile=log4j2-json.yml
+            -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager
+            ${type != "prod" ? "-Dcom.linecorp.armeria.verboseExceptions=true" : ""}
+            ${extra_jvm_args}
+        image: asia.gcr.io/curioswitch-cluster/${image_name}:${image_tag}
+        imagePullPolicy: Always
+        name: ${name}
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /internal/health
+            port: 8080
+            scheme: HTTPS
+          initialDelaySeconds: 30
+          periodSeconds: 15
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /internal/health
+            port: 8080
+            scheme: HTTPS
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 5
+        resources:
+          requests:
+            cpu: ${request_cpu}
+            memory: ${request_memory_mb}Mi
+        volumeMounts:
+        - mountPath: /etc/internal-tls
+          name: internal-tls
+          readOnly: true
+        - mountPath: /etc/gcloud
+          name: gcloud
+          readOnly: true
+        - mountPath: /etc/rpcacls
+          name: rpcacls
+          readOnly: true
+      volumes:
+      - name: internal-tls
+        secret:
+          secretName: internal-tls
+      - name: gcloud
+        secret:
+          secretName: gcloud
+      - configMap:
+          name: rpcacls-${name}
+        name: rpcacls

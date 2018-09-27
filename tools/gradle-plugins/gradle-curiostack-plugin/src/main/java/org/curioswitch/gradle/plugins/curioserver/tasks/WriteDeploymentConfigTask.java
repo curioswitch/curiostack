@@ -22,29 +22,22 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.helpers.platform;
+package org.curioswitch.gradle.plugins.curioserver.tasks;
 
-import java.nio.file.Path;
+import javax.inject.Inject;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.TaskAction;
+import org.gradle.workers.WorkerExecutor;
 
-public final class PathUtil {
+public class WriteDeploymentConfigTask extends DefaultTask {
 
-  public static String toBashString(Path path) {
-    var helper = new PlatformHelper();
-    if (helper.getOs() != OperatingSystem.WINDOWS) {
-      return path.toString();
-    } else {
-      return "$(cygpath '" + path.toString() + "')";
-    }
+  private final WorkerExecutor workerExecutor;
+
+  @Inject
+  public WriteDeploymentConfigTask(WorkerExecutor workerExecutor) {
+    this.workerExecutor = workerExecutor;
   }
 
-  public static String getExeName(String name) {
-    var helper = new PlatformHelper();
-    if (helper.getOs() == OperatingSystem.WINDOWS) {
-      return name + ".exe";
-    } else {
-      return name;
-    }
-  }
-
-  private PathUtil() {}
+  @TaskAction
+  public void exec() {}
 }

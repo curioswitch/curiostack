@@ -62,7 +62,7 @@ public class HelmPlugin implements Plugin<Project> {
                       tool.getArtifactPattern().set("[artifact]-v[revision]-[classifier].[ext]");
                     }));
 
-    project.evaluationDependsOn(":cluster:terraform");
+    project.evaluationDependsOn(":cluster:terraform:sysadmin");
     HelmExtension config = HelmExtension.createAndAdd(project);
 
     var tillerCaCertFile = project.file("build/helm/tiller-client-ca.cert");
@@ -198,6 +198,20 @@ public class HelmPlugin implements Plugin<Project> {
                   t.addArgs(args);
                 });
 
+    var helmRepoUpdate =
+        project
+            .getTasks()
+            .create(
+                "helmRepoUpdate",
+                HelmTask.class,
+                t -> {
+                  t.setDescription("Updates the helm chart repository.");
+
+                  var args = project.getObjects().listProperty(String.class);
+                  args.addAll("repo", "update");
+                  t.addArgs(args);
+                });
+
     var downloadHelmTask = DownloadToolUtil.getSetupTask(project, "helm");
     project
         .getTasks()
@@ -207,7 +221,8 @@ public class HelmPlugin implements Plugin<Project> {
               t.dependsOn(downloadHelmTask);
 
               if (t.getPath().equals(helmTillerInit.getPath())
-                  || t.getPath().equals(helmClientInit.getPath())) {
+                  || t.getPath().equals(helmClientInit.getPath())
+                  || t.getPath().equals(helmRepoUpdate.getPath())) {
                 return;
               }
 
@@ -230,7 +245,7 @@ public class HelmPlugin implements Plugin<Project> {
 
   private static Task createTerraformOutputTask(
       Project project, String taskName, String outputName, File outputFile) {
-    var terraformProject = project.getRootProject().findProject(":cluster:terraform");
+    var terraformProject = project.getRootProject().findProject(":cluster:terraform:sysadmin");
     checkNotNull(terraformProject);
     try {
       return terraformProject.getTasks().getByName(taskName);

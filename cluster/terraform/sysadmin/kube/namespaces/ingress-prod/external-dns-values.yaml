@@ -1,4 +1,3 @@
-#
 # MIT License
 #
 # Copyright (c) 2018 Choko (choko@curioswitch.org)
@@ -21,5 +20,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+## The DNS provider where the DNS records will be created (options: aws, google, inmemory, azure )
+provider: google
 
-version = 0.0.9
+# When using the Google provider, specify the Google project (required when provider=google)
+google:
+  project: curioswitch-cluster
+  serviceAccountSecret: gcloud-credentials-json
+
+# When using the TXT registry, a name that identifies this instance of ExternalDNS
+txtOwnerId: "kube-default"
+
+## Modify how DNS records are sychronized between sources and providers (options: sync, upsert-only )
+policy: sync
+
+## Annotations to be added to pods
+##
+podAnnotations:
+  prometheus.io/port: "7979"
+  prometheus.io/scrape: "true"
+
+rbac:
+  ## If true, create & use RBAC resources
+  ##
+  create: true
+  # Beginning with Kubernetes 1.8, the api is stable and v1 can be used.
+  apiVersion: v1

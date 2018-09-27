@@ -22,29 +22,28 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.helpers.platform;
+package org.curioswitch.gradle.plugins.terraform.tasks;
 
-import java.nio.file.Path;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
+import org.gradle.api.tasks.options.Option;
 
-public final class PathUtil {
+public class TargetableTerraformTask extends TerraformTask {
 
-  public static String toBashString(Path path) {
-    var helper = new PlatformHelper();
-    if (helper.getOs() != OperatingSystem.WINDOWS) {
-      return path.toString();
-    } else {
-      return "$(cygpath '" + path.toString() + "')";
-    }
+  private List<String> targets = ImmutableList.of();
+
+  public TargetableTerraformTask() {
+    setExecCustomizer(
+        exec -> {
+          for (String target : targets) {
+            exec.args("-target=" + target);
+          }
+        });
   }
 
-  public static String getExeName(String name) {
-    var helper = new PlatformHelper();
-    if (helper.getOs() == OperatingSystem.WINDOWS) {
-      return name + ".exe";
-    } else {
-      return name;
-    }
+  @Option(option = "target", description = "A resource to target.")
+  public TargetableTerraformTask setTargets(List<String> targets) {
+    this.targets = targets;
+    return this;
   }
-
-  private PathUtil() {}
 }

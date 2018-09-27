@@ -33,11 +33,8 @@ import com.google.cloud.tools.jib.gradle.DockerContextTask;
 import com.google.cloud.tools.jib.gradle.JibExtension;
 import com.google.cloud.tools.jib.gradle.JibPlugin;
 import com.google.cloud.tools.jib.image.ImageFormat;
-import com.google.common.base.Ascii;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Resources;
 import com.gorylenko.GitPropertiesPlugin;
 import groovy.lang.GroovyObject;
 import java.io.ByteArrayInputStream;
@@ -45,12 +42,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Map;
-import org.curioswitch.gradle.plugins.curioserver.ImmutableDeploymentExtension.ImmutableDeploymentConfiguration;
-import org.curioswitch.gradle.plugins.curioserver.tasks.DeployConfigMapTask;
-import org.curioswitch.gradle.plugins.curioserver.tasks.DeployPodTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Plugin;
@@ -231,109 +222,7 @@ public class CurioServerPlugin implements Plugin<Project> {
           DockerJavaApplication javaApplication =
               (DockerJavaApplication) docker.getProperty("javaApplication");
           javaApplication.setBaseImage("openjdk:10-jre-slim");
-
-          for (ImmutableDeploymentConfiguration type : config.getTypes()) {
-            String capitalized =
-                Ascii.toUpperCase(type.getName().charAt(0)) + type.getName().substring(1);
-
-            Path iapConfigPath = project.file("build/generated/configs/iap-config.yaml").toPath();
-            var deployIapBackendConfigTask =
-                project
-                    .getTasks()
-                    .register(
-                        "deployIapBackendConfig" + capitalized,
-                        KubectlTask.class,
-                        t -> {
-                          t.setDescription("Deploy IAP backend config to namespace.");
-                          t.doFirst(
-                              unused -> {
-                                String backendConfig =
-                                    getFilledTemplate(
-                                        "curioserver/iap-backend-config-template.yaml",
-                                        ImmutableMap.of("NAMESPACE", type.namespace()));
-                                project.mkdir("build/generated/configs");
-                                try {
-                                  Files.write(
-                                      iapConfigPath,
-                                      backendConfig.getBytes(StandardCharsets.UTF_8));
-                                } catch (IOException e) {
-                                  throw new UncheckedIOException(
-                                      "Could not write filled template.", e);
-                                }
-                              });
-                          var args = project.getObjects().listProperty(String.class);
-                          args.add("apply");
-                          args.add("-f");
-                          args.add(iapConfigPath.toString());
-                          t.setArgs(args);
-                        });
-
-            Path cdnConfigPath = project.file("build/generated/configs/iap-config.yaml").toPath();
-            var deployCdnBackendConfigTask =
-                project
-                    .getTasks()
-                    .register(
-                        "deployCdnBackendConfig" + capitalized,
-                        KubectlTask.class,
-                        t -> {
-                          t.setDescription("Deploy CDN backend config to namespace.");
-                          t.doFirst(
-                              unused -> {
-                                String backendConfig =
-                                    getFilledTemplate(
-                                        "curioserver/cdn-backend-config-template.yaml",
-                                        ImmutableMap.of("NAMESPACE", type.namespace()));
-                                project.mkdir("build/generated/configs");
-                                try {
-                                  Files.write(
-                                      cdnConfigPath,
-                                      backendConfig.getBytes(StandardCharsets.UTF_8));
-                                } catch (IOException e) {
-                                  throw new UncheckedIOException(
-                                      "Could not write filled template.", e);
-                                }
-                              });
-                          var args = project.getObjects().listProperty(String.class);
-                          args.add("apply");
-                          args.add("-f");
-                          args.add(cdnConfigPath.toString());
-                          t.setArgs(args);
-                        });
-
-            var deployConfigMapTask =
-                project
-                    .getTasks()
-                    .register(
-                        "deployConfigMap" + capitalized,
-                        DeployConfigMapTask.class,
-                        t -> t.setType(type.getName()));
-            project
-                .getTasks()
-                .register(
-                    "deploy" + capitalized,
-                    DeployPodTask.class,
-                    t -> {
-                      t.setType(type.getName());
-                      t.dependsOn(
-                          deployIapBackendConfigTask,
-                          deployCdnBackendConfigTask,
-                          deployConfigMapTask);
-                    });
-          }
         });
     project.getPluginManager().apply(DockerJavaApplicationPlugin.class);
-  }
-
-  private static String getFilledTemplate(String resource, Map<String, String> replacements) {
-    String template;
-    try {
-      template = Resources.toString(Resources.getResource(resource), StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      throw new UncheckedIOException("Could not open resource " + resource, e);
-    }
-    for (var entry : replacements.entrySet()) {
-      template = template.replace("|" + entry.getKey() + "|", entry.getValue());
-    }
-    return template;
   }
 }

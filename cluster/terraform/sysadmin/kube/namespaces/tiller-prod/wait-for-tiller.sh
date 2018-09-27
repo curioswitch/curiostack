@@ -1,4 +1,4 @@
-#
+#!/bin/bash
 # MIT License
 #
 # Copyright (c) 2018 Choko (choko@curioswitch.org)
@@ -22,4 +22,13 @@
 # SOFTWARE.
 #
 
-version = 0.0.9
+for i in {1..20}
+do
+  echo "Attempt $i to check tiller is up."
+  sleep 1
+  availableReplicas=$(kubectl -n tiller-prod get deployment tiller-deploy '-o=jsonpath={.status.availableReplicas}')
+  if [[ "$availableReplicas" -eq "1" ]]; then
+    echo "Tiller is up."
+    exit 0;
+  fi
+done

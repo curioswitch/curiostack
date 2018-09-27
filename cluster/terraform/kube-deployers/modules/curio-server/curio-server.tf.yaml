@@ -1,0 +1,130 @@
+# MIT License
+#
+# Copyright (c) 2018 Choko (choko@curioswitch.org)
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+variable:
+  name:
+    type: string
+  namespace:
+    type: string
+  replicas:
+    type: string
+  type:
+    type: string
+  image_name:
+    type: string
+  image_tag:
+    type: string
+  request_cpu:
+    type: string
+  request_memory_mb:
+    type: string
+  extra_jvm_args:
+    type: string
+    default: ""
+  acls:
+    type: list
+    default: []
+  environment_secrets:
+    type: list
+    default: []
+    description: Up to 5 secret names to populate into the containers environment variables.
+data:
+  template_file:
+    rpcacls:
+      template: "${file(\"${path.module}/rpcacls.yaml\")}"
+      vars:
+        name: "rpcacls-${var.name}"
+        namespace: "${var.namespace}"
+        rpcacls_json: "${jsonencode(zipmap(
+                   var.acls,
+                   slice(
+                     list(
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\")
+                     ),
+                  0,
+                  length(var.acls)
+                )
+                ))}"
+resource:
+  k8s_manifest:
+    rpcacls:
+      content: "${data.template_file.rpcacls.rendered}"
