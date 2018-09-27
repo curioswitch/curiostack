@@ -68,9 +68,10 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
             getProject().getProjectDir(),
             files ->
                 files
-                    .exclude("build")
-                    .exclude("build.gradle")
-                    .exclude("*.md"));
+                    .include("*.tf")
+                    .include("*.tf.yaml")
+                    .include("*.tf.yml")
+                    .include("*/**/*"));
   }
 
   @OutputDirectory

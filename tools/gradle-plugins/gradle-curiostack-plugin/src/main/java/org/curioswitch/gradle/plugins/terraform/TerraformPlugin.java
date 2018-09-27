@@ -150,6 +150,10 @@ public class TerraformPlugin implements Plugin<Project> {
     project
         .getTasks()
         .withType(TerraformTask.class, t -> t.dependsOn(setupTerraform, convertConfigs));
+
+    project
+        .getTasks()
+        .withType(HelmTask.class, t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "helm")));
   }
 
   private static TaskProvider<TerraformOutputTask> createTerraformOutputTask(

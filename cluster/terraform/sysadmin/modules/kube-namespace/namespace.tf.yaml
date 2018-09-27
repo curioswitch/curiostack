@@ -21,9 +21,6 @@
 # SOFTWARE.
 #
 variable:
-  depends_on:
-    type: list
-    default: []
   name:
     type: string
   project_id:
@@ -139,8 +136,12 @@ resource:
   k8s_manifest:
     iap-backend-config:
       content: "${data.template_file.iap-backend-config.rendered}"
+      depends_on:
+      - kubernetes_namespace.namespace
     cdn-backend-config:
       content: "${data.template_file.cdn-backend-config.rendered}"
+      depends_on:
+      - kubernetes_namespace.namespace
   gsuite_group:
     admins:
       email: "gke-security-${var.name}@curioswitch.org"
