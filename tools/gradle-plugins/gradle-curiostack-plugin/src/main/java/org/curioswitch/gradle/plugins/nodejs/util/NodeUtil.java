@@ -22,35 +22,20 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.helm;
+package org.curioswitch.gradle.plugins.nodejs.util;
 
+import java.nio.file.Path;
+import org.curioswitch.gradle.helpers.platform.PathUtil;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Project;
-import org.gradle.api.provider.Property;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
-import org.immutables.value.Value.Modifiable;
-import org.immutables.value.Value.Style;
 
-@Modifiable
-@Style(create = "new", allParameters = true)
-public interface TillerExtension extends HasPublicType {
+public final class NodeUtil {
 
-  String NAME = "tiller";
-
-  static TillerExtension createAndAdd(Project project) {
-    var extension =
-        project
-            .getExtensions()
-            .create(
-                NAME, ModifiableTillerExtension.class, project.getObjects().property(String.class));
-    extension.getNamespace().set("tiller-prod");
-    return extension;
+  public static Path getNodeExe(Project project) {
+    var toolManager = DownloadedToolManager.get(project);
+    String command = PathUtil.getExeName("node");
+    return toolManager.getBinDir("node").resolve(command);
   }
 
-  Property<String> getNamespace();
-
-  @Override
-  default TypeOf<?> getPublicType() {
-    return TypeOf.typeOf(TillerExtension.class);
-  }
+  private NodeUtil() {}
 }

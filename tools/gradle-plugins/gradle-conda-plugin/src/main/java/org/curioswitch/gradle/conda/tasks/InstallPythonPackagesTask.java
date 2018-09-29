@@ -24,6 +24,7 @@
 
 package org.curioswitch.gradle.conda.tasks;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.inject.Inject;
 import org.curioswitch.gradle.conda.CondaExtension;
@@ -52,7 +53,23 @@ public class InstallPythonPackagesTask extends DefaultTask {
 
     packages.set(conda.getPythonPackages());
 
-    onlyIf(unused -> !packages.get().isEmpty());
+    onlyIf(
+        unused -> {
+          var packages = this.packages.get();
+          if (packages.isEmpty()) {
+            return false;
+          }
+
+          Path minicondaDir = toolManager.getToolDir("miniconda2-build");
+          final Path sitePackagesDir;
+          if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
+            sitePackagesDir = minicondaDir.resolve("lib/site-packages");
+          } else {
+            sitePackagesDir = minicondaDir.resolve("lib/python2.7/site-packages");
+          }
+
+          return packages.stream().anyMatch(pkg -> !Files.exists(sitePackagesDir.resolve(pkg)));
+        });
   }
 
   @Input

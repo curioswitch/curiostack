@@ -40,7 +40,6 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import com.google.protobuf.gradle.ProtobufPlugin;
 import com.google.protobuf.gradle.ProtobufSourceDirectorySet;
-import com.moowork.gradle.node.NodeExtension;
 import com.palantir.baseline.plugins.BaselineIdea;
 import groovy.util.Node;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
@@ -76,6 +75,7 @@ import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.Dependency
 import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
+import org.curioswitch.gradle.plugins.nodejs.util.NodeUtil;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.gradle.api.JavaVersion;
@@ -704,14 +704,13 @@ public class CuriostackPlugin implements Plugin<Project> {
   }
 
   private static void setupProjectXml(Project project, XmlProvider xml) {
-    NodeExtension nodeConfig = project.getExtensions().getByType(NodeExtension.class);
     Node typescriptCompiler = findOrCreateChild(xml.asNode(), "component", "TypeScriptCompiler");
     setOption(
         typescriptCompiler,
         "typeScriptServiceDirectory",
         project.file("node_modules/typescript").getAbsolutePath());
     setOption(
-        typescriptCompiler, "nodeInterpreterTextField", nodeConfig.getVariant().getNodeExec());
+        typescriptCompiler, "nodeInterpreterTextField", NodeUtil.getNodeExe(project).toString());
     setOption(typescriptCompiler, "versionType", "SERVICE_DIRECTORY");
 
     Node angularComponent = findOrCreateChild(xml.asNode(), "component", "AngularJSSettings");
@@ -743,10 +742,9 @@ public class CuriostackPlugin implements Plugin<Project> {
   }
 
   private static void setupWorkspaceXml(Project project, XmlProvider xml) {
-    NodeExtension nodeConfig = project.getExtensions().getByType(NodeExtension.class);
     Node properties = findOrCreateChild(xml.asNode(), "component", "PropertiesComponent");
     setProperty(
-        properties, "node.js.path.for.package.tslint", nodeConfig.getVariant().getNodeExec());
+        properties, "node.js.path.for.package.tslint", NodeUtil.getNodeExe(project).toString());
     setProperty(properties, "node.js.detected.package.tslint", "true");
     setProperty(
         properties,

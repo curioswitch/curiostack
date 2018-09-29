@@ -95,7 +95,7 @@ public class FetchToolCacheTask extends DefaultTask {
                 exec.executable("bash");
                 exec.workingDir(toolManager.getCuriostackDir());
 
-                exec.args("-c", gsutil + " cp " + task.src.get() + " - | tar -xp");
+                exec.args("-c", gsutil + " cp " + task.src.get() + " - | lz4 -dc - | tar -xp");
 
                 exec.setIgnoreExitValue(true);
 

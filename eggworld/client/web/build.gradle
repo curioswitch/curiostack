@@ -26,6 +26,10 @@ apply plugin: 'org.curioswitch.gradle-curio-web-plugin'
 
 archivesBaseName = 'eggworld-client-web'
 
+dependencies {
+    compileOnly project(':eggworld:api')
+}
+
 web {
     javaPackage = 'org.curioswitch.eggworld.web'
 }

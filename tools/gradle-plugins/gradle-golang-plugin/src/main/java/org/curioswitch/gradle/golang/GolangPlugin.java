@@ -28,6 +28,7 @@ import static org.curioswitch.gradle.helpers.task.TaskUtil.toTaskSuffix;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -106,6 +107,7 @@ public class GolangPlugin implements Plugin<Project> {
 
     project.getTasks().withType(GoTask.class).configureEach(t -> t.dependsOn(setupGo));
 
+    project.getRootProject().mkdir("build");
     var lock = project.getRootProject().file("build/godeps.lock");
     try {
       lock.createNewFile();
@@ -210,7 +212,7 @@ public class GolangPlugin implements Plugin<Project> {
               .configureEach(
                   t -> {
                     // get has a chance of hitting Github.
-                    if (!t.getArgs().get().isEmpty() && t.getArgs().get().get(0).equals("get")) {
+                    if (Iterables.getFirst(t.getArgs().get(), "").equals("get")) {
                       t.setLockFile(lock);
                     }
                   });

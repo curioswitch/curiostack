@@ -481,7 +481,6 @@ public class StandardDependencies {
           "com.github.ben-manes:gradle-versions-plugin:0.20.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.6",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
-          "com.moowork.gradle:gradle-node-plugin:1.2.0",
           "com.netflix.nebula:gradle-dependency-lock-plugin:6.0.0",
           "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.5",
           "com.palantir:gradle-baseline-java:0.10.0",
@@ -498,7 +497,6 @@ public class StandardDependencies {
           "me.champeau.gradle:jmh-gradle-plugin:0.4.7",
           "mysql:mysql-connector-java:8.0.12",
           "net.ltgt.gradle:gradle-apt-plugin:0.18",
-          "net.ltgt.gradle:gradle-errorprone-javacplugin-plugin:0.5",
           "net.ltgt.gradle:gradle-errorprone-plugin:0.6",
           "nu.studer:gradle-jooq-plugin:3.0.2");
 

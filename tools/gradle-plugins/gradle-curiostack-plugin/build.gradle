@@ -73,7 +73,6 @@ dependencies {
     compile 'com.google.guava:guava'
     compile 'com.google.protobuf:protobuf-gradle-plugin'
     compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin'
-    compile 'com.moowork.gradle:gradle-node-plugin'
     compile 'com.palantir:gradle-baseline-java'
     compile 'gradle.plugin.com.boxfuse.client:gradle-plugin-publishing'
     compile 'gradle.plugin.com.google.cloud.tools:jib-gradle-plugin'
@@ -133,10 +132,6 @@ gradlePlugin {
         grpcApi {
             id = 'org.curioswitch.gradle-grpc-api-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.grpcapi.GrpcApiPlugin'
-        }
-        helm {
-            id = 'org.curioswitch.gradle-helm-plugin'
-            implementationClass = 'org.curioswitch.gradle.plugins.helm.HelmPlugin'
         }
         server {
             id = 'org.curioswitch.gradle-curio-server-plugin'
