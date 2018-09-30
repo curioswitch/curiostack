@@ -33,13 +33,14 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 
-final class SerializeSupport {
+public final class SerializeSupport {
 
   // The implementations of the repeated members is all almost the same, so it may make sense to
   // codegen them. However, codegen of loops is complicated and more shared code should make it
   // slightly easier for the JVM to optimize. Anyways, the maintenance cost is low since it's
   // highly unlikely additional types will ever be added.
-  static void printRepeatedSignedInt32(List<Integer> values, JsonGenerator gen) throws IOException {
+  public static void printRepeatedSignedInt32(List<Integer> values, JsonGenerator gen)
+      throws IOException {
     int numElements = values.size();
     gen.writeStartArray(numElements);
     for (int i = 0; i < numElements; i++) {
@@ -48,11 +49,12 @@ final class SerializeSupport {
     gen.writeEndArray();
   }
 
-  static void printSignedInt32(int value, JsonGenerator gen) throws IOException {
+  public static void printSignedInt32(int value, JsonGenerator gen) throws IOException {
     gen.writeNumber(value);
   }
 
-  static void printRepeatedSignedInt64(List<Long> values, JsonGenerator gen) throws IOException {
+  public static void printRepeatedSignedInt64(List<Long> values, JsonGenerator gen)
+      throws IOException {
     int numElements = values.size();
     gen.writeStartArray(numElements);
     for (int i = 0; i < numElements; i++) {
@@ -61,11 +63,11 @@ final class SerializeSupport {
     gen.writeEndArray();
   }
 
-  static void printSignedInt64(long value, JsonGenerator gen) throws IOException {
+  public static void printSignedInt64(long value, JsonGenerator gen) throws IOException {
     gen.writeString(Long.toString(value));
   }
 
-  static void printRepeatedUnsignedInt32(List<Integer> values, JsonGenerator gen)
+  public static void printRepeatedUnsignedInt32(List<Integer> values, JsonGenerator gen)
       throws IOException {
     int numElements = values.size();
     gen.writeStartArray(numElements);
@@ -75,15 +77,16 @@ final class SerializeSupport {
     gen.writeEndArray();
   }
 
-  static void printUnsignedInt32(int value, JsonGenerator gen) throws IOException {
+  public static void printUnsignedInt32(int value, JsonGenerator gen) throws IOException {
     gen.writeNumber(normalizeUnsignedInt32(value));
   }
 
-  static long normalizeUnsignedInt32(int value) {
+  public static long normalizeUnsignedInt32(int value) {
     return value >= 0 ? value : value & 0x00000000FFFFFFFFL;
   }
 
-  static void printRepeatedUnsignedInt64(List<Long> values, JsonGenerator gen) throws IOException {
+  public static void printRepeatedUnsignedInt64(List<Long> values, JsonGenerator gen)
+      throws IOException {
     int numElements = values.size();
     gen.writeStartArray(numElements);
     for (int i = 0; i < numElements; i++) {
@@ -92,11 +95,11 @@ final class SerializeSupport {
     gen.writeEndArray();
   }
 
-  static void printUnsignedInt64(long value, JsonGenerator gen) throws IOException {
+  public static void printUnsignedInt64(long value, JsonGenerator gen) throws IOException {
     gen.writeString(normalizeUnsignedInt64(value));
   }
 
-  static String normalizeUnsignedInt64(long value) {
+  public static String normalizeUnsignedInt64(long value) {
     return value >= 0
         ? Long.toString(value)
         // Pull off the most-significant bit so that BigInteger doesn't think
@@ -104,7 +107,7 @@ final class SerializeSupport {
         : BigInteger.valueOf(value & Long.MAX_VALUE).setBit(Long.SIZE - 1).toString();
   }
 
-  static void printRepeatedBool(List<Boolean> values, JsonGenerator gen) throws IOException {
+  public static void printRepeatedBool(List<Boolean> values, JsonGenerator gen) throws IOException {
     int numElements = values.size();
     gen.writeStartArray(numElements);
     for (int i = 0; i < numElements; i++) {
@@ -113,11 +116,11 @@ final class SerializeSupport {
     gen.writeEndArray();
   }
 
-  static void printBool(boolean value, JsonGenerator gen) throws IOException {
+  public static void printBool(boolean value, JsonGenerator gen) throws IOException {
     gen.writeBoolean(value);
   }
 
-  static void printRepeatedFloat(List<Float> values, JsonGenerator gen) throws IOException {
+  public static void printRepeatedFloat(List<Float> values, JsonGenerator gen) throws IOException {
     int numElements = values.size();
     gen.writeStartArray(numElements);
     for (int i = 0; i < numElements; i++) {
@@ -126,11 +129,12 @@ final class SerializeSupport {
     gen.writeEndArray();
   }
 
-  static void printFloat(float value, JsonGenerator gen) throws IOException {
+  public static void printFloat(float value, JsonGenerator gen) throws IOException {
     gen.writeNumber(value);
   }
 
-  static void printRepeatedDouble(List<Double> values, JsonGenerator gen) throws IOException {
+  public static void printRepeatedDouble(List<Double> values, JsonGenerator gen)
+      throws IOException {
     int numElements = values.size();
     gen.writeStartArray(numElements);
     for (int i = 0; i < numElements; i++) {
@@ -139,11 +143,12 @@ final class SerializeSupport {
     gen.writeEndArray();
   }
 
-  static void printDouble(double value, JsonGenerator gen) throws IOException {
+  public static void printDouble(double value, JsonGenerator gen) throws IOException {
     gen.writeNumber(value);
   }
 
-  static void printRepeatedString(List<String> values, JsonGenerator gen) throws IOException {
+  public static void printRepeatedString(List<String> values, JsonGenerator gen)
+      throws IOException {
     int numElements = values.size();
     gen.writeStartArray(numElements);
     for (int i = 0; i < numElements; i++) {
@@ -152,11 +157,12 @@ final class SerializeSupport {
     gen.writeEndArray();
   }
 
-  static void printString(String value, JsonGenerator gen) throws IOException {
+  public static void printString(String value, JsonGenerator gen) throws IOException {
     gen.writeString(value);
   }
 
-  static void printRepeatedBytes(List<ByteString> values, JsonGenerator gen) throws IOException {
+  public static void printRepeatedBytes(List<ByteString> values, JsonGenerator gen)
+      throws IOException {
     int numElements = values.size();
     gen.writeStartArray(numElements);
     for (int i = 0; i < numElements; i++) {
@@ -165,12 +171,12 @@ final class SerializeSupport {
     gen.writeEndArray();
   }
 
-  static void printBytes(ByteString value, JsonGenerator gen) throws IOException {
+  public static void printBytes(ByteString value, JsonGenerator gen) throws IOException {
     gen.writeBinary(value.toByteArray());
   }
 
   // Note: I hope no one ever actually calls this method...
-  static void printRepeatedNull(List<Integer> values, JsonGenerator gen) throws IOException {
+  public static void printRepeatedNull(List<Integer> values, JsonGenerator gen) throws IOException {
     int numElements = values.size();
     gen.writeStartArray(numElements);
     for (int i = 0; i < numElements; i++) {
@@ -179,12 +185,12 @@ final class SerializeSupport {
     gen.writeEndArray();
   }
 
-  static void printNull(int unused, JsonGenerator gen) throws IOException {
+  public static void printNull(int unused, JsonGenerator gen) throws IOException {
     gen.writeNull();
   }
 
-  static void printRepeatedEnum(List<Integer> values, JsonGenerator gen, EnumDescriptor descriptor)
-      throws IOException {
+  public static void printRepeatedEnum(
+      List<Integer> values, JsonGenerator gen, EnumDescriptor descriptor) throws IOException {
     int numElements = values.size();
     gen.writeStartArray(numElements);
     for (int i = 0; i < numElements; i++) {
@@ -193,7 +199,7 @@ final class SerializeSupport {
     gen.writeEndArray();
   }
 
-  static void printEnum(int value, JsonGenerator gen, EnumDescriptor descriptor)
+  public static void printEnum(int value, JsonGenerator gen, EnumDescriptor descriptor)
       throws IOException {
     EnumValueDescriptor valueDescriptor = descriptor.findValueByNumber(value);
     if (valueDescriptor == null) {
@@ -203,7 +209,7 @@ final class SerializeSupport {
     }
   }
 
-  static void printEnum(EnumValueDescriptor value, JsonGenerator gen) throws IOException {
+  public static void printEnum(EnumValueDescriptor value, JsonGenerator gen) throws IOException {
     if (value.getIndex() == -1) {
       gen.writeString(Integer.toString(value.getNumber()));
     } else {
@@ -211,7 +217,7 @@ final class SerializeSupport {
     }
   }
 
-  static <T extends Message> void printRepeatedMessage(
+  public static <T extends Message> void printRepeatedMessage(
       List<T> values, JsonGenerator gen, TypeSpecificMarshaller<T> serializer) throws IOException {
     int numElements = values.size();
     gen.writeStartArray(numElements);
@@ -221,12 +227,12 @@ final class SerializeSupport {
     gen.writeEndArray();
   }
 
-  static <T extends Message> void printMessage(
+  public static <T extends Message> void printMessage(
       T value, JsonGenerator gen, TypeSpecificMarshaller<T> serializer) throws IOException {
     serializer.writeValue(value, gen);
   }
 
-  static SerializedString serializeString(String name) {
+  public static SerializedString serializeString(String name) {
     SerializedString s = new SerializedString(name);
     // Eagerly compute encodings.
     s.asQuotedChars();
