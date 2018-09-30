@@ -156,18 +156,3 @@ declare module 'webpack-sane-compiler-reporter' {
   function startReporting(compiler: SaneCompiler): any;
   export = startReporting;
 }
-
-declare module 'zopfli-webpack-plugin' {
-  import { Plugin } from 'webpack';
-  interface Args {
-    asset: string;
-    algorithm: string;
-    test: RegExp;
-    threshold: number;
-    minRatio: number;
-  }
-  class ZopfliPlugin extends Plugin {
-    constructor(args: Args);
-  }
-  export = ZopfliPlugin;
-}

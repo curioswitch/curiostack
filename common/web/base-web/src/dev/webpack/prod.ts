@@ -39,13 +39,14 @@ require('ts-node').register({
 import fs from 'fs';
 import path from 'path';
 
+import { gzip } from '@gfx/zopfli';
 import BrotliPlugin from 'brotli-webpack-plugin';
+import CompressionPlugin from 'compression-webpack-plugin';
 import FaviconPlugin from 'favicons-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { ReactLoadablePlugin } from 'react-loadable/webpack';
 import StaticSiteGeneratorPlugin from 'static-site-generator-webpack-plugin';
 import { Configuration, DefinePlugin } from 'webpack';
-import ZopfliPlugin from 'zopfli-webpack-plugin';
 
 import configureBase from './base';
 
@@ -88,13 +89,14 @@ const plugins = [
     statsFilename: 'iconstats.json',
   }),
 
-  new ZopfliPlugin({
-    asset: '[path].gz[query]',
-    algorithm: 'zopfli',
+  new CompressionPlugin({
+    filename: '[path].gz[query]',
+    algorithm: (input: any, compressionOptions: any, callback: any) =>
+      gzip(input, compressionOptions, callback),
     test: /\.(js|css|html|svg)$/,
     threshold: 1024,
     minRatio: 0.9,
-  }),
+  } as any),
 
   new BrotliPlugin({
     asset: '[path].br[query]',
@@ -148,13 +150,14 @@ function createPrerenderConfiguration(): Configuration {
       },
     }),
 
-    new ZopfliPlugin({
-      asset: '[path].gz[query]',
-      algorithm: 'zopfli',
+    new CompressionPlugin({
+      filename: '[path].gz[query]',
+      algorithm: (input: any, compressionOptions: any, callback: any) =>
+        gzip(input, compressionOptions, callback),
       test: /\.(html)$/,
       threshold: 1024,
       minRatio: 0.9,
-    }),
+    } as any),
 
     new BrotliPlugin({
       asset: '[path].br[query]',
