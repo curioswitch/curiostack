@@ -87,6 +87,7 @@
     "inquirer": "6.2.0",
     "intl": "1.2.5",
     "jest": "23.6.0",
+    "jest-styled-components": "6.2.1",
     "koa-proxies": "0.7.0",
     "koa-router": "7.4.0",
     "koa2-history-api-fallback": "0.0.5",

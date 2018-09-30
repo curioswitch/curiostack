@@ -31,7 +31,7 @@ import buttonPressedSrc from './assets/button_pressed.png';
 import buttonUnpressedSrc from './assets/button_unpressed.png';
 
 interface Props {
-  selected: boolean;
+  selected?: boolean;
   x: number;
   y: number;
   label: string;

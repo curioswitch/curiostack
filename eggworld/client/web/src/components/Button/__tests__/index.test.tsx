@@ -22,4 +22,17 @@
  * SOFTWARE.
  */
 
-it('does not have a test yet', () => undefined);
+import { shallow } from 'enzyme';
+import React from 'react';
+
+import Button from '../index';
+
+const noop = () => undefined;
+
+describe('<Button />', () => {
+  it('renders normally', () => {
+    expect(
+      shallow(<Button x={100} y={3000} label="label" onClick={noop} />),
+    ).toMatchSnapshot();
+  });
+});

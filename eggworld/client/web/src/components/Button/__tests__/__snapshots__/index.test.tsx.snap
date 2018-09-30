@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Button /> renders normally 1`] = `
+<Group
+  height={200}
+  onClick={[Function]}
+  width={362}
+  x={100}
+  y={3000}
+>
+  <KonvaImage
+    height={100}
+    src="IMAGE_MOCK"
+    width={362}
+  />
+  <Text
+    align="center"
+    fill="black"
+    fontFamily="Arial"
+    fontSize={40}
+    height={100}
+    text="label"
+    width={362}
+    y={30}
+  />
+</Group>
+`;
