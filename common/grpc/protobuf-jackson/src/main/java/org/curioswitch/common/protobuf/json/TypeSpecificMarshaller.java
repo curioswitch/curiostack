@@ -49,7 +49,6 @@ import net.bytebuddy.asm.AsmVisitorWrapper.ForDeclaredMethods;
 import net.bytebuddy.description.type.TypeDefinition;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.jar.asm.ClassWriter;
 
 /**
@@ -57,11 +56,11 @@ import net.bytebuddy.jar.asm.ClassWriter;
  * only for the specific {@link Message} type {@code T}. For well known types, this is hand-written
  * code and for others, bytecode is automatically generated for handling the type.
  */
-abstract class TypeSpecificMarshaller<T extends Message> {
+public abstract class TypeSpecificMarshaller<T extends Message> {
 
   private final T prototype;
 
-  TypeSpecificMarshaller(T prototype) {
+  protected TypeSpecificMarshaller(T prototype) {
     this.prototype = prototype;
   }
 
@@ -136,7 +135,7 @@ abstract class TypeSpecificMarshaller<T extends Message> {
 
   protected void doWrite(T message, JsonGenerator gen) throws IOException {
     throw new UnsupportedOperationException();
-  };
+  }
 
   protected void doMerge(JsonParser parser, int currentDepth, Message.Builder messageBuilder)
       throws IOException {
@@ -208,7 +207,7 @@ abstract class TypeSpecificMarshaller<T extends Message> {
         (DynamicType.Builder<TypeSpecificMarshaller<T>>)
             new ByteBuddy()
                 .subclass(superType)
-                .modifiers(Modifier.FINAL)
+                .modifiers(Modifier.PUBLIC | Modifier.FINAL)
                 .visit(new ForDeclaredMethods().writerFlags(ClassWriter.COMPUTE_FRAMES));
 
     List<Message> nestedMessagePrototypes = new ArrayList<>();
@@ -245,7 +244,7 @@ abstract class TypeSpecificMarshaller<T extends Message> {
           buddy.defineField(
               CodeGenUtil.fieldNameForNestedMarshaller(nestedPrototype.getDescriptorForType()),
               nestedMarshallerType,
-              Modifier.STATIC);
+              Modifier.PUBLIC | Modifier.STATIC);
     }
 
     TypeSpecificMarshaller<?> marshaller;
@@ -266,9 +265,7 @@ abstract class TypeSpecificMarshaller<T extends Message> {
       marshaller =
           buddy
               .make()
-              .load(
-                  TypeSpecificMarshaller.class.getClassLoader(),
-                  ClassLoadingStrategy.Default.INJECTION)
+              .load(TypeSpecificMarshaller.class.getClassLoader())
               .getLoaded()
               .getConstructor(prototype.getClass())
               .newInstance(prototype);

@@ -32,6 +32,7 @@ import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -383,6 +384,10 @@ public class MessageMarshaller {
   }
 
   private static class MessagePrettyPrinter extends DefaultPrettyPrinter {
+
+    private MessagePrettyPrinter() {
+      _objectIndenter = DefaultIndenter.SYSTEM_LINEFEED_INSTANCE.withLinefeed("\n");
+    }
 
     @Override
     public void writeObjectFieldValueSeparator(JsonGenerator jg) throws IOException {

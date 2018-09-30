@@ -54,7 +54,7 @@ import java.nio.CharBuffer;
  * point value. Numeric values are all checked to be in their valid range or throw an {@link
  * InvalidProtocolBufferException}.
  */
-final class ParseSupport {
+public final class ParseSupport {
 
   @VisibleForTesting static final int RECURSION_LIMIT = 100;
 
@@ -62,7 +62,7 @@ final class ParseSupport {
    * Checks the current token is '{' and advances past it. For parsing the beginning of JSON objects
    * ({@link Message}s and {@link java.util.Map}s).
    */
-  static void parseObjectStart(JsonParser parser) throws IOException {
+  public static void parseObjectStart(JsonParser parser) throws IOException {
     JsonToken json = parser.currentToken();
     if (json != JsonToken.START_OBJECT) {
       throw new InvalidProtocolBufferException("Expected an object but found: " + json);
@@ -77,12 +77,12 @@ final class ParseSupport {
    *
    * @param token
    */
-  static boolean checkObjectEnd(JsonToken token) {
+  public static boolean checkObjectEnd(JsonToken token) {
     return token == JsonToken.END_OBJECT;
   }
 
   /** Checks whether the current token is '[' and advances past it. */
-  static void parseArrayStart(JsonParser parser) throws IOException {
+  public static void parseArrayStart(JsonParser parser) throws IOException {
     JsonToken json = parser.currentToken();
     if (json != JsonToken.START_ARRAY) {
       throw new InvalidProtocolBufferException("Expected an array but found: " + json);
@@ -95,7 +95,7 @@ final class ParseSupport {
    * elements in a JSON array. Does not advance the token as if it's not the end, it means it's an
    * element and needs to be parsed, not skipped.
    */
-  static boolean checkArrayEnd(JsonParser parser) {
+  public static boolean checkArrayEnd(JsonParser parser) {
     JsonToken json = parser.currentToken();
     return json == JsonToken.END_ARRAY;
   }
@@ -104,7 +104,7 @@ final class ParseSupport {
    * Returns whether the current token is 'null'. This is used to skip over fields that are set to
    * null, which we treat as defaults.
    */
-  static boolean checkNull(JsonParser parser) {
+  public static boolean checkNull(JsonParser parser) {
     return parser.currentToken() == JsonToken.VALUE_NULL;
   }
 
@@ -112,14 +112,15 @@ final class ParseSupport {
    * Throws an exception if the current token is 'null'. This is used to prevent repeated elements
    * from being set to 'null', which is not allowed.
    */
-  static void throwIfRepeatedValueNull(JsonParser parser) throws InvalidProtocolBufferException {
+  public static void throwIfRepeatedValueNull(JsonParser parser)
+      throws InvalidProtocolBufferException {
     if (parser.currentToken() == JsonToken.VALUE_NULL) {
       throw new InvalidProtocolBufferException("Repeated field elements cannot be null");
     }
   }
 
   /** Parsers an int32 value out of the input. */
-  static int parseInt32(JsonParser parser) throws IOException {
+  public static int parseInt32(JsonParser parser) throws IOException {
     JsonToken token = parser.currentToken();
     if (token == JsonToken.VALUE_NUMBER_INT) {
       // Use optimized code path for integral primitives, the normal case.
@@ -139,7 +140,7 @@ final class ParseSupport {
   }
 
   /** Parsers an int64 value out of the input. */
-  static long parseInt64(JsonParser parser) throws IOException {
+  public static long parseInt64(JsonParser parser) throws IOException {
     try {
       return parseLong(parser);
     } catch (JsonParseException | NumberFormatException e) {
@@ -162,7 +163,7 @@ final class ParseSupport {
   private static final BigInteger MAX_UINT32 = new BigInteger("FFFFFFFF", 16);
 
   /** Parsers a uint32 value out of the input. */
-  static int parseUInt32(JsonParser parser) throws IOException {
+  public static int parseUInt32(JsonParser parser) throws IOException {
     try {
       long result = parseLong(parser);
       if (result < 0 || result > 0xFFFFFFFFL) {
@@ -193,7 +194,7 @@ final class ParseSupport {
   private static final BigInteger MAX_UINT64 = new BigInteger("FFFFFFFFFFFFFFFF", 16);
 
   /** Parsers a uint64 value out of the input. */
-  static long parseUInt64(JsonParser parser) throws IOException {
+  public static long parseUInt64(JsonParser parser) throws IOException {
     // Try to optimistically handle non-huge unsigned longs through fast code path. This should
     // cover the vast majority of cases.
     try {
@@ -223,7 +224,7 @@ final class ParseSupport {
   }
 
   /** Parsers a bool value out of the input. */
-  static boolean parseBool(JsonParser parser) throws IOException {
+  public static boolean parseBool(JsonParser parser) throws IOException {
     JsonToken token = parser.currentToken();
     if (token.isBoolean()) {
       return parser.getBooleanValue();
@@ -240,7 +241,7 @@ final class ParseSupport {
   private static final double EPSILON = 1e-6;
 
   /** Parsers a float value out of the input. */
-  static float parseFloat(JsonParser parser) throws IOException {
+  public static float parseFloat(JsonParser parser) throws IOException {
     JsonToken current = parser.currentToken();
     if (!current.isNumeric()) {
       String json = parser.getText();
@@ -280,7 +281,7 @@ final class ParseSupport {
       new BigDecimal(String.valueOf(-Double.MAX_VALUE)).multiply(MORE_THAN_ONE);
 
   /** Parsers a double value out of the input. */
-  static double parseDouble(JsonParser parser) throws IOException {
+  public static double parseDouble(JsonParser parser) throws IOException {
     JsonToken current = parser.currentToken();
     if (!current.isNumeric()) {
       String json = parser.getText();
@@ -309,7 +310,7 @@ final class ParseSupport {
   }
 
   /** Parsers a string value out of the input. */
-  static String parseString(JsonParser parser) throws IOException {
+  public static String parseString(JsonParser parser) throws IOException {
     JsonToken json = parser.currentToken();
     String result = null;
     try {
@@ -324,7 +325,7 @@ final class ParseSupport {
   }
 
   /** Parsers a bytes value out of the input. */
-  static ByteString parseBytes(JsonParser parser) throws IOException {
+  public static ByteString parseBytes(JsonParser parser) throws IOException {
     JsonToken json = parser.currentToken();
     byte[] result = null;
     try {
@@ -344,7 +345,7 @@ final class ParseSupport {
   }
 
   /** Parsers an enum value out of the input. Supports both numeric and string representations. */
-  static int parseEnum(JsonParser parser, EnumDescriptor descriptor) throws IOException {
+  public static int parseEnum(JsonParser parser, EnumDescriptor descriptor) throws IOException {
     JsonToken json = parser.currentToken();
     if (json == JsonToken.VALUE_NULL) {
       // This should only be possible if this is a NullValue enum, parseEnum will not be called
@@ -374,7 +375,7 @@ final class ParseSupport {
   }
 
   /** Parsers a {@link Message} value out of the input. */
-  static <T extends Message> T parseMessage(
+  public static <T extends Message> T parseMessage(
       JsonParser parser, TypeSpecificMarshaller<T> marshaller, int currentDepth)
       throws IOException {
     return marshaller.readValue(parser, currentDepth + 1);
@@ -385,7 +386,7 @@ final class ParseSupport {
    * fullName}. If the field has already been set, an {@link InvalidProtocolBufferException} is
    * thrown.
    */
-  static int throwIfFieldAlreadyWritten(int setFieldsBits, int fieldBitMask, String fullName)
+  public static int throwIfFieldAlreadyWritten(int setFieldsBits, int fieldBitMask, String fullName)
       throws InvalidProtocolBufferException {
     if ((setFieldsBits & fieldBitMask) != 0) {
       throw new InvalidProtocolBufferException("Field " + fullName + " has already been set.");
@@ -397,7 +398,7 @@ final class ParseSupport {
    * Checks whether the oneof whose {@code oneofCase} has already been set. If so, an {@link
    * InvalidProtocolBufferException} is thrown.
    */
-  static void throwIfOneofAlreadyWritten(Object oneofCase, String fieldName)
+  public static void throwIfOneofAlreadyWritten(Object oneofCase, String fieldName)
       throws InvalidProtocolBufferException {
     if (((EnumLite) oneofCase).getNumber() != 0) {
       // TODO: Add the actual variableName of the offending field to the error message like
@@ -417,7 +418,7 @@ final class ParseSupport {
    * fieldName} is not part of {@link Message} with variableName {@code messageName}. Called from
    * code after determining a field is unknown.
    */
-  static void throwIfUnknownField(String fieldName, String messageName)
+  public static void throwIfUnknownField(String fieldName, String messageName)
       throws InvalidProtocolBufferException {
     throw new InvalidProtocolBufferException(
         "Cannot find field: " + fieldName + " in message " + messageName);
@@ -428,7 +429,7 @@ final class ParseSupport {
    * throws {@link InvalidProtocolBufferException} if so. This is used to prevent stack exhaustion
    * attacks with extremely nested recursive messages.
    */
-  static void checkRecursionLimit(int currentDepth) throws InvalidProtocolBufferException {
+  public static void checkRecursionLimit(int currentDepth) throws InvalidProtocolBufferException {
     if (currentDepth >= RECURSION_LIMIT) {
       throw new InvalidProtocolBufferException("Hit recursion limit.");
     }
