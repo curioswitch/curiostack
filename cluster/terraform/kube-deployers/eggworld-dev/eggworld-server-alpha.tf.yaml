@@ -9,5 +9,8 @@ module:
     image_tag: latest
     request_cpu: 0.1
     request_memory_mb: 256
+    external_host: eggworld-alpha.curioswitch.org
+    http2: true
+    iap: true
     environment_secrets:
       - yummly-api-key

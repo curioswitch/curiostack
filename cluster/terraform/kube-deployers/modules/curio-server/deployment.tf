@@ -3,6 +3,9 @@
 
 resource kubernetes_deployment deployment {
   depends_on = ["k8s_manifest.rpcacls"]
+  lifecycle {
+    ignore_changes = ["metadata.0.labels.revision", "metadata.0.labels.%", "spec.0.template.0.metadata.0.labels.%", "spec.0.template.0.metadata.0.labels.revision"]
+  }
   metadata {
     labels {
       name = "${var.name}"
@@ -35,7 +38,7 @@ resource kubernetes_deployment deployment {
       }
       spec {
         container {
-          image = "asia.gcr.io/curioswitch-cluster/${var.image_name}:${var.image_tag}"
+          image = "${var.gcr_url}/${var.project_id}/${var.image_name}:${var.image_tag}"
           image_pull_policy = "Always"
           name = "${var.name}"
           env {
@@ -51,24 +54,28 @@ resource kubernetes_deployment deployment {
               -Xms${ceil(var.request_memory_mb * 0.5)}m
               -Xmx${ceil(var.request_memory_mb * 0.5)}m
               -Dconfig.resource=application-${var.type}.conf
-              -Dmonitoring.stackdriverProjectId=curioswitch-cluster
+              -Dmonitoring.stackdriverProjectId=${var.project_id}
               -Dmonitoring.serverName=${var.name}
               -Dlog4j2.ContextDataInjector=org.curioswitch.common.server.framework.logging.RequestLoggingContextInjector
               -Dlog4j.configurationFile=log4j2-json.yml
               -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager
+              -Dserver.caCertificatePath=/etc/internal-tls/ca.crt
               -Dserver.tlsCertificatePath=/etc/internal-tls/server.crt
               -Dserver.tlsPrivateKeyPath=/etc/internal-tls/server-key.pem
               ${var.type != "prod" ? "-Dcom.linecorp.armeria.verboseExceptions=true" : ""}
               ${var.extra_jvm_args}
             ARGS
           }
+          # Until HCL2 in next version of terraform, this hackery seems to be the only way to convert
+          # a list into some other form. Multiple hacks are combined to work around HCL1's many
+          # limitations. Don't even ask...
           env_from = "${
               slice(list(
-                map("secret_ref", list(map("name", element(var.environment_secrets, 0)))),
-                map("secret_ref", list(map("name", element(var.environment_secrets, 1)))),
-                map("secret_ref", list(map("name", element(var.environment_secrets, 2)))),
-                map("secret_ref", list(map("name", element(var.environment_secrets, 3)))),
-                map("secret_ref", list(map("name", element(var.environment_secrets, 4)))),
+                map("secret_ref", list(map("name", element(concat(list(""), var.environment_secrets), 1)))),
+                map("secret_ref", list(map("name", element(concat(list(""), var.environment_secrets), 2)))),
+                map("secret_ref", list(map("name", element(concat(list(""), var.environment_secrets), 3)))),
+                map("secret_ref", list(map("name", element(concat(list(""), var.environment_secrets), 4)))),
+                map("secret_ref", list(map("name", element(concat(list(""), var.environment_secrets), 5)))),
               ), 0, length(var.environment_secrets))
           }"
           port {
@@ -135,6 +142,37 @@ resource kubernetes_deployment deployment {
           name = "rpcacls"
           config_map {
             name = "rpcacls-${var.name}"
+          }
+        }
+
+        affinity {
+          pod_anti_affinity {
+            preferred_during_scheduling_ignored_during_execution {
+              pod_affinity_term {
+                label_selector {
+                  match_expressions {
+                    key = "name"
+                    operator = "In"
+                    values = [ "${var.name}" ]
+                  }
+                }
+                topology_key = "failure-domain.beta.kubernetes.io/zone"
+              }
+              weight = 99
+            }
+            preferred_during_scheduling_ignored_during_execution {
+              pod_affinity_term {
+                label_selector {
+                  match_expressions {
+                    key = "name"
+                    operator = "In"
+                    values = [ "${var.name}" ]
+                  }
+                }
+                topology_key = "kubernetes.io/hostname"
+              }
+              weight = 1
+            }
           }
         }
       }
