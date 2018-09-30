@@ -70,6 +70,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 
 public class MessageMarshallerTest {
@@ -89,21 +91,14 @@ public class MessageMarshallerTest {
             .build();
     assertMatchesUpstream(message);
 
-    // FIXME: https://github.com/google/protobuf/issues/2936
-    // We use the singular put methods in generated code to avoid unnecessary creation of
-    // intermediate maps. However, the singular put methods strangely do not allow unknown enum
-    // values. As unknown enum values are quite rare in practice, and only maps are affected, we'll
-    // skip support for now and revisit if this is an issue for people and upstream does not change
-    // their API.
-    /*
     TestMap.Builder mapBuilder = TestMap.newBuilder();
     mapBuilder.putInt32ToEnumMapValue(1, 0);
-    Map<Integer, Integer> mapWithInvalidValues = new HashMap<Integer, Integer>();
+    Map<Integer, Integer> mapWithInvalidValues = new HashMap<>();
     mapWithInvalidValues.put(2, 12345);
     mapBuilder.putAllInt32ToEnumMapValue(mapWithInvalidValues);
-    TestMap mapMessage = mapBuilder.buildAndAdd();
+    TestMap mapMessage = mapBuilder.build();
     assertMatchesUpstream(mapMessage);
-    */
+
   }
 
   @Test
