@@ -95,7 +95,7 @@
     "static-site-generator-webpack-plugin" : "3.4.1",
     "styled-components" : "3.4.9",
     "styled-components-ts" : "0.0.14",
-    "ts-jest" : "22.4.6",
+    "ts-jest" : "23.10.3",
     "ts-loader" : "5.2.1",
     "ts-node" : "7.0.1",
     "tsconfig-paths" : "3.6.0",
