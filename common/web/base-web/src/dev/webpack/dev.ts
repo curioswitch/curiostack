@@ -29,7 +29,11 @@ import path from 'path';
 
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import { Configuration, DefinePlugin } from 'webpack';
+import {
+  Configuration,
+  DefinePlugin,
+  HotModuleReplacementPlugin,
+} from 'webpack';
 
 import configureBase from './base';
 
@@ -51,6 +55,7 @@ const plugins = [
     template: 'src/index.html',
     chunksSortMode: 'none',
   }),
+  new HotModuleReplacementPlugin(),
 ];
 
 const configuration: Configuration = configureBase({
@@ -61,8 +66,14 @@ const configuration: Configuration = configureBase({
   output: {
     filename: '[name].js',
     chunkFilename: '[name].chunk.js',
+    pathinfo: false,
   },
   devtool: 'eval-source-map',
+  optimization: {
+    removeAvailableModules: false,
+    removeEmptyChunks: false,
+    splitChunks: false,
+  },
 });
 
 export default configuration;

@@ -25,57 +25,48 @@
 
 import path from 'path';
 
-import proxy from 'koa-proxies';
-import serve from 'webpack-serve';
+import webpack from 'webpack';
+import WebpackDevServer, { ProxyConfigMap } from 'webpack-dev-server';
 
 import config from '../webpack/dev';
 
 // tslint:disable-next-line:no-var-requires
-const historyFallback = require('koa2-history-api-fallback');
-
-// tslint:disable-next-line:no-var-requires
 const pkg = require(path.resolve(process.cwd(), 'package.json'));
 
-let add;
+let proxyConfig: ProxyConfigMap = {};
 if (
   pkg.curiostack &&
   pkg.curiostack.devServer &&
   pkg.curiostack.devServer.proxy
 ) {
-  const proxyConfig = pkg.curiostack.devServer.proxy;
-  add = (app: any, middleware: any) => {
-    for (const urlPath of Object.keys(proxyConfig)) {
-      const target = proxyConfig[urlPath];
-      app.use(
-        (proxy as any)(urlPath, {
-          target,
-          changeOrigin: true,
-          secure: false,
-        }),
-      );
-    }
-    app.use(historyFallback());
-    middleware.webpack();
-    middleware.content();
-  };
+  const proxy = pkg.curiostack.devServer.proxy;
+  proxyConfig = Object.keys(proxy).reduce(
+    (merged: ProxyConfigMap, p) => ({
+      [p]: {
+        target: proxy[p],
+        changeOrigin: true,
+        secure: false,
+      },
+      ...merged,
+    }),
+    {},
+  );
 }
 
-serve(
-  {},
-  {
-    config,
-    add,
-    port: 3000,
-  },
-)
-  .then((result) => {
-    process.on('SIGINT', () => {
-      console.log('sigint received.');
-      result.app.stop();
-      process.exit();
-    });
-  })
-  .catch((err) => {
-    console.log('Error starting dev server.', err);
-    process.exit(1);
-  });
+const options = {
+  historyApiFallback: true,
+  host: 'localhost',
+  hot: true,
+  noInfo: true,
+  open: true,
+  port: 3000,
+  proxy: proxyConfig,
+};
+
+WebpackDevServer.addDevServerEntrypoints(config, options);
+
+const server = new WebpackDevServer(webpack(config), options);
+
+server.listen(3000, 'localhost', () => {
+  console.log('dev server listening on port 3000');
+});

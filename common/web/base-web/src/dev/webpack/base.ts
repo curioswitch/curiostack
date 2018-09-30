@@ -82,6 +82,7 @@ function configure(options: any): Configuration {
           noEmit: false,
         },
         transpileOnly: true,
+        experimentalWatchApi: true,
         onlyCompileBundledFiles: true,
         reportFiles: ['src/**/*.{ts,tsx}'],
       },
