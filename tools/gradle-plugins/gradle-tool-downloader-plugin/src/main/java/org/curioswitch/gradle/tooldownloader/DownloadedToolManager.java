@@ -30,8 +30,10 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
@@ -95,15 +97,17 @@ public class DownloadedToolManager {
         .collect(toImmutableList());
   }
 
-  public void addAllToPath(ProcessForkOptions exec) {
+  public void addAllToPath(ProcessForkOptions exec, Path... additionalPathItems) {
     String toolsPath =
-        tools
-            .stream()
-            .flatMap(
-                tool -> {
-                  Path toolDir = getToolDir(tool.getName()).toAbsolutePath();
-                  return tool.getPathSubDirs().get().stream().map(toolDir::resolve);
-                })
+        Stream.concat(
+                tools
+                    .stream()
+                    .flatMap(
+                        tool -> {
+                          Path toolDir = getToolDir(tool.getName()).toAbsolutePath();
+                          return tool.getPathSubDirs().get().stream().map(toolDir::resolve);
+                        }),
+                Arrays.stream(additionalPathItems))
             .map(Path::toString)
             .collect(Collectors.joining(File.pathSeparator));
     String linuxStylePath = System.getenv("PATH");

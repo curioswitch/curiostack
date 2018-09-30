@@ -155,6 +155,7 @@ public class CurioServerPlugin implements Plugin<Project> {
                       .getRootProject()
                       .getExtensions()
                       .getByType(ExtraPropertiesExtension.class)
+                      .getProperties()
                       .get("curiostack.releaseBranch");
 
           jib.getTo()
