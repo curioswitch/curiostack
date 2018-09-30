@@ -98,7 +98,6 @@ public class MessageMarshallerTest {
     mapBuilder.putAllInt32ToEnumMapValue(mapWithInvalidValues);
     TestMap mapMessage = mapBuilder.build();
     assertMatchesUpstream(mapMessage);
-
   }
 
   @Test
