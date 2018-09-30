@@ -317,7 +317,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
               CurioServerPlugin.class,
               unused -> {
                 releaseBuild.dependsOn(affectedProject.getTasks().getByName("build"));
-                releaseBuild.dependsOn(affectedProject.getTasks().getByName("jibBuildRelease"));
+                releaseBuild.dependsOn(affectedProject.getTasks().getByName("jib"));
               });
     }
   }

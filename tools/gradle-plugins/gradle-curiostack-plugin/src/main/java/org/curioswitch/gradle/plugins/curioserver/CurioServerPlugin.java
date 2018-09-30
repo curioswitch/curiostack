@@ -35,6 +35,7 @@ import com.google.cloud.tools.jib.gradle.JibPlugin;
 import com.google.cloud.tools.jib.image.ImageFormat;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.gorylenko.GitPropertiesPlugin;
 import groovy.lang.GroovyObject;
 import java.io.ByteArrayInputStream;
@@ -78,13 +79,6 @@ public class CurioServerPlugin implements Plugin<Project> {
     project.getTasks().named("distZip").configure(t -> t.setEnabled(false));
 
     var jib = project.getExtensions().getByType(JibExtension.class);
-    var jibBuildRelease =
-        project
-            .getTasks()
-            .register(
-                "jibBuildRelease",
-                BuildImageTask.class,
-                t -> t.getAsDynamicObject().setProperty("jibExtension", jib));
 
     var jibTask = project.getTasks().named("jib");
     var patchAlpha = project.getTasks().register("patchAlpha", KubectlTask.class);
@@ -134,13 +128,12 @@ public class CurioServerPlugin implements Plugin<Project> {
                                 });
                             try {
                               var creds = OBJECT_MAPPER.readTree(output.toByteArray());
-                              jib.to(
-                                  to ->
-                                      to.auth(
-                                          auth -> {
-                                            auth.setUsername(creds.get("Username").asText());
-                                            auth.setPassword(creds.get("Secret").asText());
-                                          }));
+                              jib.getTo()
+                                  .auth(
+                                      auth -> {
+                                        auth.setUsername(creds.get("Username").asText());
+                                        auth.setPassword(creds.get("Secret").asText());
+                                      });
                             } catch (IOException e) {
                               throw new UncheckedIOException("Could not parse credentials.", e);
                             }
@@ -153,9 +146,19 @@ public class CurioServerPlugin implements Plugin<Project> {
               project.getConvention().getPlugin(ApplicationPluginConvention.class);
           appPluginConvention.setApplicationName(archivesBaseName);
 
-          jib.from(from -> from.setImage("openjdk:10-jre-slim"));
-          String image = config.imagePrefix() + config.baseName() + ":" + config.imageTag();
-          jib.to(to -> to.setImage(image));
+          jib.getFrom().setImage("openjdk:11-jre-slim");
+          jib.getTo().setImage(config.imagePrefix() + config.baseName());
+
+          String releaseBranch =
+              (String)
+                  project
+                      .getRootProject()
+                      .getExtensions()
+                      .getByType(ExtraPropertiesExtension.class)
+                      .get("curiostack.releaseBranch");
+
+          jib.getTo()
+              .setTags(ImmutableSet.of(releaseBranch != null ? releaseBranch : config.imageTag()));
           jib.container(
               container -> {
                 container.setFormat(ImageFormat.Docker);
@@ -168,39 +171,10 @@ public class CurioServerPlugin implements Plugin<Project> {
                   DockerContextTask.class,
                   t -> t.setTargetDir(project.file("build/jib").getAbsolutePath()));
 
-          jibBuildRelease.configure(
-              t -> {
-                t.doFirst(
-                    unused ->
-                        t.setTargetImage(
-                            config.imagePrefix()
-                                + config.baseName()
-                                + ":"
-                                + project
-                                    .getRootProject()
-                                    .getExtensions()
-                                    .getByType(ExtraPropertiesExtension.class)
-                                    .get("curiostack.releaseBranch")));
-                t.doLast(unused -> t.setTargetImage(image));
-              });
-
           String revisionId =
               (String) project.getRootProject().findProperty("curiostack.revisionId");
           if (revisionId != null) {
-            project
-                .getTasks()
-                .register(
-                    "jibBuildRevision",
-                    BuildImageTask.class,
-                    t -> {
-                      t.getAsDynamicObject().setProperty("jibExtension", jib);
-                      t.doFirst(
-                          unused ->
-                              t.setTargetImage(
-                                  config.imagePrefix() + config.baseName() + ":" + revisionId));
-                      t.doLast(unused -> t.setTargetImage(image));
-                      jibTask.configure(jibT -> jibT.dependsOn(t));
-                    });
+            jib.getTo().setTags(ImmutableSet.of(config.imageTag(), revisionId));
             var alpha = config.getTypes().getByName("alpha");
             patchAlpha.configure(
                 t -> {
