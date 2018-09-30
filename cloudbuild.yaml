@@ -11,62 +11,70 @@ steps:
   - --depth=10
   env:
   - CI=true
-- id: curio-generated-fetch-uncompressed-build-cache
+- id: curio-generated-fetch-builder-image
   waitFor:
   - '-'
-  name: gcr.io/cloud-builders/gsutil
-  entrypoint: bash
-  args:
-  - -c
-  - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-uncompressed.tar .gradle/cloudbuild-cache-uncompressed.tar || echo Could not fetch uncompressed build cache...
-  env:
-  - CI=true
-- id: curio-generated-fetch-compressed-build-cache
-  waitFor:
-  - '-'
-  name: gcr.io/cloud-builders/gsutil
-  entrypoint: bash
-  args:
-  - -c
-  - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.gz .gradle/cloudbuild-cache-compressed.tar.gz || echo Could not fetch compressed build cache...
-  env:
-  - CI=true
-- id: curio-generated-build-all
-  waitFor:
-  - curio-generated-deepen-git-repo
-  - curio-generated-fetch-uncompressed-build-cache
-  - curio-generated-fetch-compressed-build-cache
   name: openjdk:10-jdk-slim
   entrypoint: bash
   args:
   - -c
-  - (test -e .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-compressed.tar.gz || echo No build cache yet.) && ./gradlew continuousBuild --stacktrace --no-daemon -Pcuriostack.revisionId=$REVISION_ID && tar -cpPf .gradle/cloudbuild-cache-uncompressed.tar /root/.gradle/wrapper /root/.gradle/caches /root/.gradle/curiostack && tar -cpPzf .gradle/cloudbuild-cache-compressed.tar.gz /usr/local/share/.cache
+  - echo Fetched builder image.
+- id: curio-generated-fetch-compressed-build-cache
+  waitFor:
+  - '-'
+  name: curiostack/gsutil-lz4
+  volumes:
+  - name: gradle-wrapper
+    path: /root/.gradle/wrapper
+  - name: gradle-caches
+    path: /root/.gradle/caches
+  - name: gcloud
+    path: /root/.gradle/curiostack/gcloud
+  - name: conda
+    path: /root/.gradle/curiostack/miniconda2-build
+  entrypoint: bash
+  args:
+  - -c
+  - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4 - | lz4 -dc - | tar -xpP || echo Could not fetch compressed build cache...
+- id: curio-generated-build-all
+  waitFor:
+  - curio-generated-deepen-git-repo
+  - curio-generated-fetch-compressed-build-cache
+  name: openjdk:10-jdk-slim
+  volumes:
+  - name: gradle-wrapper
+    path: /root/.gradle/wrapper
+  - name: gradle-caches
+    path: /root/.gradle/caches
+  - name: gcloud
+    path: /root/.gradle/curiostack/gcloud
+  - name: conda
+    path: /root/.gradle/curiostack/miniconda2-build
+  entrypoint: ./gradlew
+  args:
+  - continuousBuild
+  - --scan
+  - --stacktrace
+  - --no-daemon
+  - -Pcuriostack.revisionId=$REVISION_ID
   env:
   - CI=true
   - CI_MASTER=true
-  - CLOUDSDK_COMPUTE_ZONE=asia-northeast1
-- id: curio-generated-push-uncompressed-build-cache
-  waitFor:
-  - curio-generated-build-all
-  name: gcr.io/cloud-builders/gsutil
-  args:
-  - -o
-  - GSUtil:parallel_composite_upload_threshold=150M
-  - cp
-  - .gradle/cloudbuild-cache-uncompressed.tar
-  - gs://curioswitch-gradle-build-cache/cloudbuild-cache-uncompressed.tar
-  env:
-  - CI=true
 - id: curio-generated-push-compressed-build-cache
   waitFor:
   - curio-generated-build-all
-  name: gcr.io/cloud-builders/gsutil
+  name: curiostack/gsutil-lz4
+  volumes:
+  - name: gradle-wrapper
+    path: /root/.gradle/wrapper
+  - name: gradle-caches
+    path: /root/.gradle/caches
+  - name: gcloud
+    path: /root/.gradle/curiostack/gcloud
+  - name: conda
+    path: /root/.gradle/curiostack/miniconda2-build
+  entrypoint: bash
   args:
-  - -o
-  - GSUtil:parallel_composite_upload_threshold=150M
-  - cp
-  - .gradle/cloudbuild-cache-compressed.tar.gz
-  - gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.gz
-  env:
-  - CI=true
+  - -c
+  - tar -cpPf - /root/.gradle/wrapper /root/.gradle/caches /root/.gradle/curiostack/gcloud /root/.gradle/curiostack/miniconda2-build | lz4 -qc - | gsutil -o GSUtil:parallel_composite_upload_threshold=150M cp - gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4
 timeout: 60m

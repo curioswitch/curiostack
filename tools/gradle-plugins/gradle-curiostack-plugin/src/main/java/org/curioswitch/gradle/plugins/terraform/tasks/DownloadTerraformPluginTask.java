@@ -99,10 +99,12 @@ public class DownloadTerraformPluginTask extends DefaultTask {
         throw new UncheckedIOException("Could not download archive.", e);
       }
 
-      task.getProject().copy(copy -> {
-        copy.from(task.getProject().zipTree(archive));
-        copy.into(archiveDir);
-      });
+      task.getProject()
+          .copy(
+              copy -> {
+                copy.from(task.getProject().zipTree(archive));
+                copy.into(archiveDir);
+              });
     }
   }
 }
