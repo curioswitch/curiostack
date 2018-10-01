@@ -30,13 +30,12 @@ import org.simpleflatmapper.map.FieldKey;
 import org.simpleflatmapper.map.MapperBuilderErrorHandler;
 import org.simpleflatmapper.map.MapperBuildingException;
 import org.simpleflatmapper.map.MapperConfig;
-import org.simpleflatmapper.map.property.FieldMapperColumnDefinition;
 import org.simpleflatmapper.reflect.ReflectionService;
 
 /** Utilities for working with databases. */
 public final class DatabaseUtil {
 
-  private static final MapperConfig<JooqFieldKey, FieldMapperColumnDefinition<JooqFieldKey>>
+  private static final MapperConfig<JooqFieldKey>
       MAPPER_CONFIG =
           MapperConfig.<JooqFieldKey>fieldMapperConfig()
               .mapperBuilderErrorHandler(
