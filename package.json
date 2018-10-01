@@ -17,7 +17,7 @@
     "@babel/polyfill" : "7.0.0",
     "@babel/preset-env" : "7.1.0",
     "@babel/preset-react" : "7.0.0",
-    "@babel/runtime" : "7.1.2",
+    "@babel/runtime" : "7.0.0-beta.55",
     "@curiostack/base-node-dev" : "0.0.9",
     "@curiostack/base-web" : "0.0.33",
     "@gfx/zopfli" : "1.0.9",
