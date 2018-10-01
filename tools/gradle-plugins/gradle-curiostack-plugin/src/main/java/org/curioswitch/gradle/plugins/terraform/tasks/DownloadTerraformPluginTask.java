@@ -22,87 +22,88 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.gcloud.tasks;
+package org.curioswitch.gradle.plugins.terraform.tasks;
 
+import de.undercouch.gradle.tasks.download.DownloadAction;
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
-import org.apache.tools.ant.taskdefs.condition.Os;
-import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
-public class FetchToolCacheTask extends DefaultTask {
+public class DownloadTerraformPluginTask extends DefaultTask {
 
   // It is extremely hacky to use global state to propagate the Task to workers, but
   // it works so let's enjoy the speed.
-  private static final ConcurrentHashMap<String, FetchToolCacheTask> TASKS =
+  private static final ConcurrentHashMap<String, DownloadTerraformPluginTask> TASKS =
       new ConcurrentHashMap<>();
 
-  private final Property<String> src;
+  private final String pluginPackage;
+  private final String version;
 
   private final WorkerExecutor workerExecutor;
 
   @Inject
-  public FetchToolCacheTask(WorkerExecutor workerExecutor) {
+  public DownloadTerraformPluginTask(
+      String pluginPackage, String version, WorkerExecutor workerExecutor) {
+    this.pluginPackage = pluginPackage;
+    this.version = version;
     this.workerExecutor = workerExecutor;
-    src = getProject().getObjects().property(String.class);
-    onlyIf(unused -> "true".equals(System.getenv("CI")));
-  }
-
-  public FetchToolCacheTask setSrc(String src) {
-    this.src.set(src);
-    return this;
   }
 
   @TaskAction
   public void exec() {
-    System.out.println("Skipping fetchToolCacheTask");
     String mapKey = UUID.randomUUID().toString();
     TASKS.put(mapKey, this);
 
     workerExecutor.submit(
-        GsutilCopy.class,
+        DoInstallTerraformPluginTask.class,
         config -> {
           config.setIsolationMode(IsolationMode.NONE);
           config.params(mapKey);
         });
   }
 
-  public static class GsutilCopy implements Runnable {
+  public static class DoInstallTerraformPluginTask implements Runnable {
 
     private final String mapKey;
 
     @Inject
-    public GsutilCopy(String mapKey) {
+    public DoInstallTerraformPluginTask(String mapKey) {
       this.mapKey = mapKey;
     }
 
     @Override
     public void run() {
-      FetchToolCacheTask task = TASKS.remove(mapKey);
+      var task = TASKS.remove(mapKey);
 
-      var toolManager = DownloadedToolManager.get(task.getProject());
+      File archiveDir = task.getTemporaryDir();
+      String url = "https://" + task.pluginPackage + "/archive/" + task.version + ".zip";
+      File archive = new File(archiveDir, task.version + ".zip");
 
-      String gsutil = Os.isFamily(Os.FAMILY_WINDOWS) ? "gsutil" + ".cmd" : "gsutil";
+      var download = new DownloadAction(task.getProject());
+      try {
+        download.src(url);
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+      download.dest(archive);
+      try {
+        download.execute();
+      } catch (IOException e) {
+        throw new UncheckedIOException("Could not download archive.", e);
+      }
 
       task.getProject()
-          .exec(
-              exec -> {
-                exec.executable("bash");
-                exec.workingDir(toolManager.getCuriostackDir());
-
-                exec.args("-c", gsutil + " cp " + task.src.get() + " - | lz4 -dc - | tar -xp");
-
-                exec.setIgnoreExitValue(true);
-
-                toolManager.addAllToPath(exec);
-                exec.environment(
-                    "CLOUDSDK_PYTHON", toolManager.getBinDir("miniconda2-build").resolve("python"));
-                exec.environment("CLOUDSDK_PYTHON_SITEPACKAGES", "1");
+          .copy(
+              copy -> {
+                copy.from(task.getProject().zipTree(archive));
+                copy.into(archiveDir);
               });
     }
   }

@@ -22,35 +22,17 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.helm;
+import { shallow } from 'enzyme';
+import React from 'react';
 
-import org.gradle.api.Project;
-import org.gradle.api.provider.Property;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
-import org.immutables.value.Value.Modifiable;
-import org.immutables.value.Value.Style;
+import Button from '../index';
 
-@Modifiable
-@Style(create = "new", allParameters = true)
-public interface TillerExtension extends HasPublicType {
+const noop = () => undefined;
 
-  String NAME = "tiller";
-
-  static TillerExtension createAndAdd(Project project) {
-    var extension =
-        project
-            .getExtensions()
-            .create(
-                NAME, ModifiableTillerExtension.class, project.getObjects().property(String.class));
-    extension.getNamespace().set("tiller-prod");
-    return extension;
-  }
-
-  Property<String> getNamespace();
-
-  @Override
-  default TypeOf<?> getPublicType() {
-    return TypeOf.typeOf(TillerExtension.class);
-  }
-}
+describe('<Button />', () => {
+  it('renders normally', () => {
+    expect(
+      shallow(<Button x={100} y={3000} label="label" onClick={noop} />),
+    ).toMatchSnapshot();
+  });
+});

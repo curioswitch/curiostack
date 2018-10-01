@@ -26,42 +26,31 @@ package org.curioswitch.gradle.plugins.terraform.tasks;
 
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
 import org.curioswitch.gradle.plugins.gcloud.util.PlatformHelper;
-import org.curioswitch.gradle.plugins.helm.TillerExtension;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
-import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecSpec;
 
 public class HelmTask extends DefaultTask {
 
   private final ListProperty<String> args;
-  private Action<ExecSpec> execCustomizer = (execSpec -> {});
 
   public HelmTask() {
     setGroup("Helm");
 
     args = getProject().getObjects().listProperty(String.class);
 
-    var tillerConfig =
-        getProject().getRootProject().getExtensions().getByType(TillerExtension.class);
     args.add("--tiller-namespace");
-    args.add(tillerConfig.getNamespace());
+    args.add("tiller-prod");
   }
 
-  public HelmTask addArgs(ListProperty<String> args) {
+  public HelmTask args(ListProperty<String> args) {
     this.args.addAll(args);
     return this;
   }
 
-  public HelmTask addArgs(String... args) {
+  public HelmTask args(String... args) {
     this.args.addAll(args);
-    return this;
-  }
-
-  public HelmTask setExecCustomizer(Action<ExecSpec> execCustomizer) {
-    this.execCustomizer = execCustomizer;
     return this;
   }
 
@@ -78,7 +67,6 @@ public class HelmTask extends DefaultTask {
                   .resolve("helm"));
           exec.args(args.get());
           exec.environment("HELM_HOME", getProject().file("build/helm").getAbsolutePath());
-          execCustomizer.execute(exec);
         });
   }
 }

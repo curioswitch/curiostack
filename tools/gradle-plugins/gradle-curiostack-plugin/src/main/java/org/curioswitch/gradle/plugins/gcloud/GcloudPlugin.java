@@ -53,7 +53,6 @@ import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.UploadToolCacheTask;
-import org.curioswitch.gradle.plugins.helm.TillerExtension;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
@@ -65,17 +64,12 @@ import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Style;
 import org.immutables.value.Value.Style.BuilderVisibility;
 import org.immutables.value.Value.Style.ImplementationVisibility;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A plugin that adds tasks for automatically downloading the gcloud sdk and running commands using
- * it from gradle. Python 2 will have to be available for gcloud sdk commands to work. Eventually,
- * most commands should be migrated to using the gcloud Rest APIs to remove this dependency.
+ * it from gradle.
  */
 public class GcloudPlugin implements Plugin<Project> {
-
-  private static final Logger logger = LoggerFactory.getLogger(GcloudPlugin.class);
 
   private static final ObjectMapper OBJECT_MAPPER =
       new ObjectMapper(
@@ -147,8 +141,6 @@ public class GcloudPlugin implements Plugin<Project> {
                 }
               }
             });
-
-    TillerExtension.createAndAdd(project);
 
     project
         .getTasks()

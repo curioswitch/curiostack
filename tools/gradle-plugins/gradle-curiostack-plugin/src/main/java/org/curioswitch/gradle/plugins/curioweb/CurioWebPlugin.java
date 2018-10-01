@@ -79,8 +79,7 @@ public class CurioWebPlugin implements Plugin<Project> {
                   t.getInputs().dir(project.file("src"));
                   t.getInputs().file(project.file("package.json"));
                   // We assume the yarn task correctly handles up-to-date checks for node_modules,
-                  // so only
-                  // need to look at yarn.lock here.
+                  // so only need to look at yarn.lock here.
                   t.getInputs().file(project.getRootProject().file("yarn.lock"));
                   t.getOutputs().dirs(ImmutableMap.of("yarnBuild", project.file("build/web")));
                   if ("true"

@@ -63,13 +63,12 @@ public class TerraformPlugin implements Plugin<Project> {
                 t -> {
                   t.setArgs(ImmutableList.of("init", "-input=false"));
                   t.setExecCustomizer(
-                      exec -> {
-                        exec.environment(
-                            "TF_PLUGIN_CACHE_DIR",
-                            DownloadedToolManager.get(project)
-                                .getCuriostackDir()
-                                .resolve("terraform-plugins"));
-                      });
+                      exec ->
+                          exec.environment(
+                              "TF_PLUGIN_CACHE_DIR",
+                              DownloadedToolManager.get(project)
+                                  .getCuriostackDir()
+                                  .resolve("terraform-plugins")));
                   if (project.getName().equals("sysadmin")) {
                     t.finalizedBy(
                         createTerraformOutputTask(
@@ -92,35 +91,33 @@ public class TerraformPlugin implements Plugin<Project> {
                             .register(
                                 "terraformInitHelm",
                                 HelmTask.class,
-                                helm -> helm.addArgs("init", "--client-only")));
+                                helm -> helm.args("init", "--client-only")));
                   }
-                });
-
-    var terraformPlan =
-        project
-            .getTasks()
-            .create(
-                "terraformPlan",
-                TargetableTerraformTask.class,
-                t -> {
-                  t.setArgs(ImmutableList.of("plan", "-input=false"));
-                  t.dependsOn(terraformInit);
-                });
-
-    var terraformApply =
-        project
-            .getTasks()
-            .create(
-                "terraformApply",
-                TargetableTerraformTask.class,
-                t -> {
-                  t.setArgs(ImmutableList.of("apply"));
-                  t.dependsOn(terraformInit);
                 });
 
     project
         .getTasks()
-        .create(
+        .register(
+            "terraformPlan",
+            TargetableTerraformTask.class,
+            t -> {
+              t.setArgs(ImmutableList.of("plan", "-input=false"));
+              t.dependsOn(terraformInit);
+            });
+
+    project
+        .getTasks()
+        .register(
+            "terraformApply",
+            TargetableTerraformTask.class,
+            t -> {
+              t.setArgs(ImmutableList.of("apply"));
+              t.dependsOn(terraformInit);
+            });
+
+    project
+        .getTasks()
+        .register(
             "terraformCopyState",
             TerraformTask.class,
             t -> {
@@ -130,7 +127,7 @@ public class TerraformPlugin implements Plugin<Project> {
 
     project
         .getTasks()
-        .create(
+        .register(
             TerraformImportTask.NAME,
             TerraformImportTask.class,
             t -> {
@@ -140,7 +137,7 @@ public class TerraformPlugin implements Plugin<Project> {
 
     project
         .getTasks()
-        .create(
+        .register(
             TerraformOutputTask.NAME,
             TerraformOutputTask.class,
             t -> {
@@ -151,11 +148,13 @@ public class TerraformPlugin implements Plugin<Project> {
     var setupTerraform = DownloadToolUtil.getSetupTask(project, "terraform");
     project
         .getTasks()
-        .withType(TerraformTask.class, t -> t.dependsOn(setupTerraform, convertConfigs));
+        .withType(TerraformTask.class)
+        .configureEach(t -> t.dependsOn(setupTerraform, convertConfigs));
 
     project
         .getTasks()
-        .withType(HelmTask.class, t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "helm")));
+        .withType(HelmTask.class)
+        .configureEach(t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "helm")));
   }
 
   private static TaskProvider<TerraformOutputTask> createTerraformOutputTask(

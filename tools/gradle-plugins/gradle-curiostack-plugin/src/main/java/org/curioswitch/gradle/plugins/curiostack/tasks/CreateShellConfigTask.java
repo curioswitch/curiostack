@@ -79,7 +79,9 @@ public class CreateShellConfigTask extends DefaultTask {
         ImmutableList.of(
             MARKER,
             "export PATH=" + joinedPath + ":$PATH",
-            "export CLOUDSDK_PYTHON=" + toolManager.getBinDir("miniconda2-build").resolve("python"),
+            "export CLOUDSDK_PYTHON="
+                + PathUtil.toBashString(
+                    toolManager.getBinDir("miniconda2-build").resolve("python")),
             "export CLOUDSDK_PYTHON_SITEPACKAGES=1",
             ". "
                 + PathUtil.toBashString(

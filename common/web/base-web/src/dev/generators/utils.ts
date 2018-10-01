@@ -76,7 +76,7 @@ ${licenseFile
         .map((line) => ` ${line ? `* ${line}` : '*'}`)
         // We force all files in this repository to LF, so the published templates should be LF on
         // either Unix or Windows. If this causes problems on Windows, we'll need to post-filter
-        // all genenerated files with line-ending fix.
+        // all generated files with line-ending fix.
         .join('\n')}
  */
 
@@ -116,6 +116,6 @@ export function convertTypeArg(type: TypeArg): Type {
     case 'pure':
       return 'React.PureComponent';
     default:
-      throw new Error('Unknown type: ' + type);
+      throw new Error(`Unknown type: ${type}`);
   }
 }

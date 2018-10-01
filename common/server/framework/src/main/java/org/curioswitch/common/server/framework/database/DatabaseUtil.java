@@ -30,32 +30,30 @@ import org.simpleflatmapper.map.FieldKey;
 import org.simpleflatmapper.map.MapperBuilderErrorHandler;
 import org.simpleflatmapper.map.MapperBuildingException;
 import org.simpleflatmapper.map.MapperConfig;
-import org.simpleflatmapper.map.property.FieldMapperColumnDefinition;
 import org.simpleflatmapper.reflect.ReflectionService;
 
 /** Utilities for working with databases. */
 public final class DatabaseUtil {
 
-  private static final MapperConfig<JooqFieldKey, FieldMapperColumnDefinition<JooqFieldKey>>
-      MAPPER_CONFIG =
-          MapperConfig.<JooqFieldKey>fieldMapperConfig()
-              .mapperBuilderErrorHandler(
-                  new MapperBuilderErrorHandler() {
-                    @Override
-                    public void accessorNotFound(String msg) {
-                      throw new MapperBuildingException(msg);
-                    }
+  private static final MapperConfig<JooqFieldKey> MAPPER_CONFIG =
+      MapperConfig.<JooqFieldKey>fieldMapperConfig()
+          .mapperBuilderErrorHandler(
+              new MapperBuilderErrorHandler() {
+                @Override
+                public void accessorNotFound(String msg) {
+                  throw new MapperBuildingException(msg);
+                }
 
-                    @Override
-                    public void propertyNotFound(Type target, String property) {
-                      // Ignore, it is common to map from DB to less-complete types.
-                    }
+                @Override
+                public void propertyNotFound(Type target, String property) {
+                  // Ignore, it is common to map from DB to less-complete types.
+                }
 
-                    @Override
-                    public void customFieldError(FieldKey<?> key, String message) {
-                      throw new MapperBuildingException(message);
-                    }
-                  });
+                @Override
+                public void customFieldError(FieldKey<?> key, String message) {
+                  throw new MapperBuildingException(message);
+                }
+              });
 
   // Make singleton to allow better code generation.
   private static final SfmRecordMapperProvider MAPPER_PROVIDER =

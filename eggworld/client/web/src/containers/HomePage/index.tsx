@@ -48,13 +48,6 @@ import mogmogChokoSoundSrc from './assets/mogmog_choko.m4a';
 import mogmogCute1SoundSrc from './assets/mogmog_cute1.m4a';
 import mogmogNormal1SoundSrc from './assets/mogmog_normal1.m4a';
 
-// tslint:disable-next-line:no-var-requires
-const baconTest = require('./assets/bacon.png?xs=100&sm=33').default;
-// tslint:disable-next-line:no-var-requires
-const baconTest2 = require('./assets/bacon.png?xs=100&lossy=true').default;
-console.log(baconTest);
-console.log(baconTest2);
-
 const SOUNDS = [
   new Howl({
     src: [mogmogChokoSoundSrc],

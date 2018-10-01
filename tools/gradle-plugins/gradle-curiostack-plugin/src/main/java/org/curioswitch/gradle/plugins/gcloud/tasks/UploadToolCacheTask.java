@@ -108,7 +108,7 @@ public class UploadToolCacheTask extends DefaultTask {
                     "-c",
                     "tar -cpf - "
                         + String.join(" ", task.srcPaths.get())
-                        + " | "
+                        + " | lz4 -qc - |"
                         + gsutil
                         + " -o GSUtil:parallel_composite_upload_threshold=150M cp - "
                         + task.dest.get());

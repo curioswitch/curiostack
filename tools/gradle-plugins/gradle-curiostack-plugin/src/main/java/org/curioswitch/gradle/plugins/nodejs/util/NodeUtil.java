@@ -22,4 +22,20 @@
  * SOFTWARE.
  */
 
-it('does not have a test yet', () => undefined);
+package org.curioswitch.gradle.plugins.nodejs.util;
+
+import java.nio.file.Path;
+import org.curioswitch.gradle.helpers.platform.PathUtil;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
+import org.gradle.api.Project;
+
+public final class NodeUtil {
+
+  public static Path getNodeExe(Project project) {
+    var toolManager = DownloadedToolManager.get(project);
+    String command = PathUtil.getExeName("node");
+    return toolManager.getBinDir("node").resolve(command);
+  }
+
+  private NodeUtil() {}
+}
