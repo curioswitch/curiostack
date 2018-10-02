@@ -1,3 +1,3 @@
-FROM gcr.io/cloud-builders/gsutil
+FROM google/cloud-sdk:alpine
 
-RUN apt-get -y update && apt-get -y install liblz4-tool && rm -rf /var/lib/apt/lists/*
+RUN apk add lz4
