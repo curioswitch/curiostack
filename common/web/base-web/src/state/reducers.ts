@@ -31,6 +31,7 @@ import {
 } from 'react-router-redux';
 import { Reducer, ReducersMapObject } from 'redux';
 import { combineReducers } from 'redux-immutable';
+import { Actions, ActionTypes } from './actions';
 import { InjectableStore } from './store';
 
 export interface RouterStateRecord extends Record<RouterState>, RouterState {}
@@ -51,22 +52,34 @@ export function routeReducer(
   }
 }
 
+function createGlobalReducer(appReducer: Reducer<any>) {
+  return (state: any, action: Actions) => {
+    const processedState =
+      action.type === ActionTypes.RESET_STATE ? undefined : state;
+    return appReducer(processedState, action);
+  };
+}
+
 export function createInitalReducer(
   identityReducers: ReducersMapObject,
   nonInjectedReducers: ReducersMapObject,
 ): Reducer<any> {
-  return combineReducers({
-    ...identityReducers,
-    ...nonInjectedReducers,
-  });
+  return createGlobalReducer(
+    combineReducers({
+      ...identityReducers,
+      ...nonInjectedReducers,
+    }),
+  );
 }
 
 export default function createReducer(
   store: InjectableStore<any>,
 ): Reducer<any> {
-  return combineReducers({
-    ...store.identityReducers,
-    ...store.injectedReducers,
-    ...store.nonInjectedReducers,
-  });
+  return createGlobalReducer(
+    combineReducers({
+      ...store.identityReducers,
+      ...store.injectedReducers,
+      ...store.nonInjectedReducers,
+    }),
+  );
 }

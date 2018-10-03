@@ -49,7 +49,7 @@ const plugins = [
     },
     WEBPACK_PRERENDERING: false,
   }),
-  new ForkTsCheckerWebpackPlugin(),
+  new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true }),
   new HtmlWebpackPlugin({
     inject: true,
     template: 'src/index.html',
@@ -68,7 +68,7 @@ const configuration: Configuration = configureBase({
     chunkFilename: '[name].chunk.js',
     pathinfo: false,
   },
-  devtool: 'eval-source-map',
+  devtool: 'cheap-module-eval-source-map',
   optimization: {
     removeAvailableModules: false,
     removeEmptyChunks: false,

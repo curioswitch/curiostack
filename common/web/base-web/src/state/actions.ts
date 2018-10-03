@@ -44,3 +44,13 @@ export function createAction<T extends string, P>(type: T, payload?: P) {
 export type ActionsUnion<A extends ActionCreatorsMapObject> = ReturnType<
   A[keyof A]
 >;
+
+export enum ActionTypes {
+  RESET_STATE = '@@curiostack/RESET_STATE',
+}
+
+export const Actions = {
+  resetState: () => createAction(ActionTypes.RESET_STATE),
+};
+
+export type Actions = ActionsUnion<typeof Actions>;
