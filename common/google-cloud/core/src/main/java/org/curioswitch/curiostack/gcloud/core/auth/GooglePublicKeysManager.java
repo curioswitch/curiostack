@@ -146,9 +146,10 @@ public class GooglePublicKeysManager {
                       .map(
                           valueNode -> {
                             try {
-                              return (CERTIFICATE_FACTORY.generateCertificate(
+                              return CERTIFICATE_FACTORY
+                                  .generateCertificate(
                                       new ByteArrayInputStream(
-                                          valueNode.textValue().getBytes(StandardCharsets.UTF_8))))
+                                          valueNode.textValue().getBytes(StandardCharsets.UTF_8)))
                                   .getPublicKey();
                             } catch (CertificateException e) {
                               throw new IllegalArgumentException(

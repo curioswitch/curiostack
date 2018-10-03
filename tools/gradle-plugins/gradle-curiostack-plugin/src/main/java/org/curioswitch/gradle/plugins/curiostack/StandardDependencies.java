@@ -185,7 +185,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.errorprone")
-              .version("2.3.1")
+              .version("2.3.2-SNAPSHOT")
               .addModules("error_prone_core")
               .build(),
           ImmutableDependencySet.builder()
@@ -262,12 +262,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.lettuce")
-              .version("5.0.4.RELEASE")
+              .version("5.1.0.RELEASE")
               .addModules("lettuce-core")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.grpc")
-              .version("1.15.0")
+              .version("1.15.1")
               .addModules(
                   "grpc-all",
                   "grpc-auth",
@@ -404,7 +404,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.90")
+              .version("0.0.91")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -464,7 +464,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.simpleflatmapper")
-              .version("5.0.1")
+              .version("5.0.2")
               .addModules(
                   "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
               .build(),
@@ -476,7 +476,7 @@ public class StandardDependencies {
 
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:3.6.1",
+          "com.bmuschko:gradle-docker-plugin:3.6.2",
           "com.diffplug.spotless:spotless-plugin-gradle:3.15.0",
           "com.github.ben-manes:gradle-versions-plugin:0.20.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.6",

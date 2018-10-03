@@ -24,9 +24,6 @@
 
 package org.curioswitch.gradle.plugins.curioserver;
 
-import com.bmuschko.gradle.docker.DockerExtension;
-import com.bmuschko.gradle.docker.DockerJavaApplication;
-import com.bmuschko.gradle.docker.DockerJavaApplicationPlugin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.tools.jib.gradle.BuildImageTask;
 import com.google.cloud.tools.jib.gradle.DockerContextTask;
@@ -37,7 +34,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.gorylenko.GitPropertiesPlugin;
-import groovy.lang.GroovyObject;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -192,12 +188,6 @@ public class CurioServerPlugin implements Plugin<Project> {
                   t.setIgnoreExitValue(true);
                 });
           }
-
-          GroovyObject docker = project.getExtensions().getByType(DockerExtension.class);
-          DockerJavaApplication javaApplication =
-              (DockerJavaApplication) docker.getProperty("javaApplication");
-          javaApplication.setBaseImage("openjdk:10-jre-slim");
         });
-    project.getPluginManager().apply(DockerJavaApplicationPlugin.class);
   }
 }
