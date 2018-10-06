@@ -30,6 +30,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.Module;
 import dagger.Provides;
+import io.lettuce.core.RedisClient;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.resource.DefaultClientResources;
@@ -51,7 +52,7 @@ public abstract class RedisModule {
 
   @Provides
   @Singleton
-  static RedisClusterClient redisClient(RedisConfig config, MeterRegistry registry) {
+  static RedisClusterClient redisClusterClient(RedisConfig config, MeterRegistry registry) {
     RedisClusterClient client =
         RedisClusterClient.create(
             DefaultClientResources.builder()
@@ -63,6 +64,19 @@ public abstract class RedisModule {
             config.getUrl());
     client.setOptions(ClusterClientOptions.builder().validateClusterNodeMembership(false).build());
     return client;
+  }
+
+  @Provides
+  @Singleton
+  static RedisClient redisClient(RedisConfig config, MeterRegistry registry) {
+    return RedisClient.create(
+        DefaultClientResources.builder()
+            .eventExecutorGroup(CommonPools.workerGroup())
+            .eventLoopGroupProvider(ArmeriaEventLoopGroupProvider.INSTANCE)
+            .commandLatencyCollector(
+                new MicrometerCommandLatencyCollector(DEFAULT_METER_ID_PREFIX, registry))
+            .build(),
+        config.getUrl());
   }
 
   private RedisModule() {}

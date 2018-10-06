@@ -28,6 +28,7 @@ import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.plugins.ExtraPropertiesExtension;
 
 public class GolangSetupPlugin implements Plugin<Project> {
 
@@ -48,5 +49,17 @@ public class GolangSetupPlugin implements Plugin<Project> {
                       tool.getPathSubDirs().add("go/bin");
                       tool.getAdditionalCachedDirs().add("gopath");
                     }));
+
+    project
+        .getExtensions()
+        .getByType(ExtraPropertiesExtension.class)
+        .set(
+            "gopath",
+            project
+                .getGradle()
+                .getGradleUserHomeDir()
+                .toPath()
+                .resolve("curiostack")
+                .resolve("gopath"));
   }
 }

@@ -33,8 +33,10 @@ import com.google.protobuf.Message;
 import com.spotify.futures.CompletableFuturesExtra;
 import dagger.Lazy;
 import io.lettuce.core.ReadFrom;
+import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisException;
 import io.lettuce.core.SetArgs;
+import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -64,13 +66,18 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
   @Singleton
   public static class Factory {
 
-    private final Lazy<RedisClusterClient> redisClient;
+    private final Lazy<RedisClusterClient> redisClusterClient;
+    private final Lazy<RedisClient> redisClient;
     private final RedisConfig config;
     private final MeterRegistry meterRegistry;
 
     @Inject
     public Factory(
-        Lazy<RedisClusterClient> redisClient, RedisConfig config, MeterRegistry meterRegistry) {
+        Lazy<RedisClusterClient> redisClusterClient,
+        Lazy<RedisClient> redisClient,
+        RedisConfig config,
+        MeterRegistry meterRegistry) {
+      this.redisClusterClient = redisClusterClient;
       this.redisClient = redisClient;
       this.config = config;
       this.meterRegistry = meterRegistry;
@@ -131,12 +138,14 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
           localCacheSpec,
           config.isNoop()
               ? new NoopRemoteCache<>()
-              : createRedisRemoteCache(
-                  name,
-                  redisClient.get(),
-                  keyPrototype,
-                  valuePrototype,
-                  redisMasterOnly ? ReadFrom.MASTER : ReadFrom.NEAREST));
+              : config.isCluster()
+                  ? createRedisRemoteCache(
+                      name,
+                      redisClusterClient.get(),
+                      keyPrototype,
+                      valuePrototype,
+                      redisMasterOnly ? ReadFrom.MASTER : ReadFrom.NEAREST)
+                  : createRedisRemoteCache(name, redisClient.get(), keyPrototype, valuePrototype));
     }
 
     private <K extends Message, V extends Message> RemoteCache<K, V> createRedisRemoteCache(
@@ -150,6 +159,15 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
               new ProtobufRedisCodec<>(
                   (name + ":").getBytes(StandardCharsets.UTF_8), keyPrototype, valuePrototype));
       connection.setReadFrom(readFrom);
+      return new RedisClusterRemoteCache<>(connection.async(), name, meterRegistry);
+    }
+
+    private <K extends Message, V extends Message> RemoteCache<K, V> createRedisRemoteCache(
+        String name, RedisClient redisClient, K keyPrototype, V valuePrototype) {
+      StatefulRedisConnection<K, V> connection =
+          redisClient.connect(
+              new ProtobufRedisCodec<>(
+                  (name + ":").getBytes(StandardCharsets.UTF_8), keyPrototype, valuePrototype));
       return new RedisClusterRemoteCache<>(connection.async(), name, meterRegistry);
     }
   }

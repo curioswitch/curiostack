@@ -63,18 +63,6 @@ public class GolangPlugin implements Plugin<Project> {
 
     project.getPlugins().apply(BasePlugin.class);
 
-    project
-        .getExtensions()
-        .getByType(ExtraPropertiesExtension.class)
-        .set(
-            "gopath",
-            project
-                .getGradle()
-                .getGradleUserHomeDir()
-                .toPath()
-                .resolve("curiostack")
-                .resolve("gopath"));
-
     var golang = GolangExtension.createAndAdd(project);
 
     project
@@ -114,6 +102,18 @@ public class GolangPlugin implements Plugin<Project> {
     } catch (IOException e) {
       throw new UncheckedIOException("Could not create lock file.", e);
     }
+
+    project
+        .getExtensions()
+        .getByType(ExtraPropertiesExtension.class)
+        .set(
+            "gopath",
+            project
+                .getGradle()
+                .getGradleUserHomeDir()
+                .toPath()
+                .resolve("curiostack")
+                .resolve("gopath"));
 
     var downloadDeps =
         project
