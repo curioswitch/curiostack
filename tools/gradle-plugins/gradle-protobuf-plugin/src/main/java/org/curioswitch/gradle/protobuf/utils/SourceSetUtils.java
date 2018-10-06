@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,17 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
+package org.curioswitch.gradle.protobuf.utils;
 
-archivesBaseName = 'curio-auth-api'
+import org.curioswitch.gradle.helpers.task.TaskUtil;
+import org.gradle.api.tasks.SourceSet;
+
+public final class SourceSetUtils {
+
+  public static String getConfigName(String sourceSetName, String type) {
+    return sourceSetName.equals(SourceSet.MAIN_SOURCE_SET_NAME) ?
+        type : (sourceSetName + TaskUtil.toTaskSuffix(type));
+  }
+
+  private SourceSetUtils() {}
+}

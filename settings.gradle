@@ -25,7 +25,7 @@
 pluginManagement {
     resolutionStrategy {
         eachPlugin {
-            if (requested.id.namespace == 'org.curioswitch') {
+            if (requested.id.id == 'org.curioswitch.gradle-curiostack-plugin') {
                 useModule "org.curioswitch.curiostack:gradle-curiostack-plugin:${getProperty('org.curioswitch.curiostack.version')}"
             }
         }
@@ -103,5 +103,6 @@ include ':tools:gradle-plugins:gradle-conda-plugin'
 include ':tools:gradle-plugins:gradle-curiostack-plugin'
 include ':tools:gradle-plugins:gradle-golang-plugin'
 include ':tools:gradle-plugins:gradle-helpers'
+include ':tools:gradle-plugins:gradle-protobuf-plugin'
 include ':tools:gradle-plugins:gradle-tool-downloader-plugin'
 include ':tools:gradle-plugins:java-groovy-compat'
