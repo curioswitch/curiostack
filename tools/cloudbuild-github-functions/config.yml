@@ -34,32 +34,51 @@ repos:
             - GIT_ASKPASS=/tmp/cloudbuild-github-pass.sh
           secretEnv:
             - GITHUB_TOKEN
-        - id: curio-generated-fetch-uncompressed-build-cache
+        - id: curio-generated-fetch-builder-image
           waitFor:
           - '-'
-          name: gcr.io/cloud-builders/gsutil
+          name: openjdk:11-jdk-slim
           entrypoint: bash
           args:
           - -c
-          - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-uncompressed.tar .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-uncompressed.tar || echo Could not fetch uncompressed build cache...
+          - echo Fetched builder image.
         - id: curio-generated-fetch-compressed-build-cache
           waitFor:
           - '-'
-          name: gcr.io/cloud-builders/gsutil
+          name: curiostack/gsutil-lz4
+          volumes:
+          - name: gradle-wrapper
+            path: /root/.gradle/wrapper
+          - name: gradle-caches
+            path: /root/.gradle/caches
+          - name: gcloud
+            path: /root/.gradle/curiostack/gcloud
+          - name: conda
+            path: /root/.gradle/curiostack/miniconda2-build
           entrypoint: bash
           args:
           - -c
-          - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.gz .gradle/cloudbuild-cache-compressed.tar.gz && tar -xpPf .gradle/cloudbuild-cache-compressed.tar.gz || echo Could not fetch compressed build cache...
+          - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4 - | lz4 -dc - | tar -xpP || echo Could not fetch compressed build cache...
         - id: build-all
           waitFor:
           - fetch-source
-          - curio-generated-fetch-uncompressed-build-cache
           - curio-generated-fetch-compressed-build-cache
-          name: openjdk:10-jdk-slim
-          entrypoint: bash
+          name: openjdk:11-jdk-slim
+          volumes:
+          - name: gradle-wrapper
+            path: /root/.gradle/wrapper
+          - name: gradle-caches
+            path: /root/.gradle/caches
+          - name: gcloud
+            path: /root/.gradle/curiostack/gcloud
+          - name: conda
+            path: /root/.gradle/curiostack/miniconda2-build
+          entrypoint: ./gradlew
           args:
-          - -c
-          - "(test -e .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-compressed.tar.gz || echo No build cache yet.) && ./gradlew continuousBuild --stacktrace --no-daemon"
+          - continuousBuild
+          - --scan
+          - --stacktrace
+          - --no-daemon
           env:
           - CI=true
       timeout: 60m
