@@ -14,7 +14,7 @@ steps:
 - id: curio-generated-fetch-builder-image
   waitFor:
   - '-'
-  name: openjdk:10-jdk-slim
+  name: openjdk:11-jdk-slim
   entrypoint: bash
   args:
   - -c
@@ -40,7 +40,7 @@ steps:
   waitFor:
   - curio-generated-deepen-git-repo
   - curio-generated-fetch-compressed-build-cache
-  name: openjdk:10-jdk-slim
+  name: openjdk:11-jdk-slim
   volumes:
   - name: gradle-wrapper
     path: /root/.gradle/wrapper
