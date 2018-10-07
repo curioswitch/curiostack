@@ -34,5 +34,10 @@ public final class SourceSetUtils {
         type : (sourceSetName + TaskUtil.toTaskSuffix(type));
   }
 
+  public static String getTaskSuffix(String sourceSetName) {
+    return sourceSetName.equals(SourceSet.MAIN_SOURCE_SET_NAME) ?
+        "" : TaskUtil.toTaskSuffix(sourceSetName);
+  }
+
   private SourceSetUtils() {}
 }

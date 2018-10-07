@@ -28,6 +28,9 @@ pluginManagement {
             if (requested.id.id == 'org.curioswitch.gradle-curiostack-plugin') {
                 useModule "org.curioswitch.curiostack:gradle-curiostack-plugin:${getProperty('org.curioswitch.curiostack.version')}"
             }
+            if (requested.id.id == 'org.curioswitch.gradle-grpc-api-plugin') {
+                useModule "org.curioswitch.curiostack:gradle-curiostack-plugin:${getProperty('org.curioswitch.curiostack.version')}"
+            }
         }
     }
     repositories {

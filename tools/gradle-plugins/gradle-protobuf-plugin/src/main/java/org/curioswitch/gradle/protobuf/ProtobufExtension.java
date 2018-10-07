@@ -30,9 +30,11 @@ import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.immutables.value.Value.Modifiable;
@@ -50,17 +52,25 @@ public interface ProtobufExtension extends HasPublicType {
         project
             .getExtensions()
             .create(NAME, ModifiableProtobufExtension.class)
+            .setSources(
+                project.container(
+                    ConfigurableFileCollection.class,
+                    name ->
+                        new NamedConfigurableFileCollection(
+                            name, project.getLayout().configurableFiles())))
             .setOutputBaseDir(objects.property(File.class))
-            .setProtoc(Executable.create(objects));
+            .setProtoc(Executable.create(objects))
+            .setDescriptorSetOptions(DescriptorSetOptions.create(objects));
     extension.setLanguages(
         project.container(
-            ModifiableLanguageSettings.class,
-            name -> LanguageSettings.create(name, project.getObjects(), extension)));
+            LanguageSettings.class, name -> LanguageSettings.create(name, project.getObjects())));
 
     extension.getOutputBaseDir().set(project.file("build/generated/proto"));
 
     return extension;
   }
+
+  NamedDomainObjectContainer<ConfigurableFileCollection> getSources();
 
   Property<File> getOutputBaseDir();
 
@@ -71,12 +81,14 @@ public interface ProtobufExtension extends HasPublicType {
 
   Executable getProtoc();
 
-  NamedDomainObjectContainer<? extends LanguageSettings> getLanguages();
+  NamedDomainObjectContainer<LanguageSettings> getLanguages();
+
+  DescriptorSetOptions getDescriptorSetOptions();
 
   @Modifiable
   @ExtensionStyle
   interface Executable extends HasPublicType {
-    static ModifiableExecutable create(ObjectFactory objects) {
+    static Executable create(ObjectFactory objects) {
       return objects
           .newInstance(ModifiableExecutable.class)
           .setPath(objects.property(File.class))
@@ -101,8 +113,7 @@ public interface ProtobufExtension extends HasPublicType {
   @ExtensionStyle
   interface LanguageSettings extends Named, HasPublicType {
 
-    static ModifiableLanguageSettings create(
-        String name, ObjectFactory objects, ProtobufExtension protobuf) {
+    static ModifiableLanguageSettings create(String name, ObjectFactory objects) {
       ModifiableLanguageSettings settings =
           objects
               .newInstance(ModifiableLanguageSettings.class)
@@ -111,14 +122,20 @@ public interface ProtobufExtension extends HasPublicType {
               .setOptions(objects.listProperty(String.class))
               .setPlugin(Executable.create(objects));
 
-      settings
-          .getOutputDir()
-          .set(protobuf.getOutputBaseDir().map(baseDir -> new File(baseDir, name)));
-
       return settings;
     }
 
     Property<File> getOutputDir();
+
+    default LanguageSettings option(String option) {
+      getOptions().add(option);
+      return this;
+    }
+
+    default LanguageSettings option(Provider<String> option) {
+      getOptions().add(option);
+      return this;
+    }
 
     ListProperty<String> getOptions();
 
@@ -133,6 +150,34 @@ public interface ProtobufExtension extends HasPublicType {
     default TypeOf<?> getPublicType() {
       return TypeOf.typeOf(LanguageSettings.class);
     }
+  }
+
+  @Modifiable
+  @ExtensionStyle
+  interface DescriptorSetOptions {
+    static DescriptorSetOptions create(ObjectFactory objects) {
+      DescriptorSetOptions options =
+          objects
+              .newInstance(ModifiableDescriptorSetOptions.class)
+              .setEnabled(objects.property(Boolean.class))
+              .setPath(objects.property(File.class))
+              .setIncludeSourceInfo(objects.property(Boolean.class))
+              .setIncludeImports(objects.property(Boolean.class));
+
+      options.getEnabled().set(false);
+      options.getIncludeSourceInfo().set(false);
+      options.getIncludeImports().set(false);
+
+      return options;
+    }
+
+    Property<Boolean> getEnabled();
+
+    Property<File> getPath();
+
+    Property<Boolean> getIncludeSourceInfo();
+
+    Property<Boolean> getIncludeImports();
   }
 
   @Override

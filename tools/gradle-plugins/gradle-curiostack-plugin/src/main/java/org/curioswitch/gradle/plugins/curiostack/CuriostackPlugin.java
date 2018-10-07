@@ -38,8 +38,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
-import com.google.protobuf.gradle.ProtobufPlugin;
-import com.google.protobuf.gradle.ProtobufSourceDirectorySet;
 import com.palantir.baseline.plugins.BaselineIdea;
 import groovy.util.Node;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
@@ -535,7 +533,7 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     // Protobuf plugin doesn't add proto sourceset to allSource, which seems like an omission.
     // We add it to make sure license plugin picks up the files.
-    project
+    /*project
         .getPlugins()
         .withType(
             ProtobufPlugin.class,
@@ -548,7 +546,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                             .getExtensions()
                             .getByType(ProtobufSourceDirectorySet.class));
               }
-            });
+            });*/
 
     project
         .getPlugins()

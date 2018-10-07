@@ -59,6 +59,7 @@ dependencies {
     compile project(':common:google-cloud:cloud-storage')
     compile project(':tools:gradle-plugins:gradle-conda-plugin')
     compile project(':tools:gradle-plugins:gradle-golang-plugin')
+    compile project(':tools:gradle-plugins:gradle-protobuf-plugin')
     compile project(':tools:gradle-plugins:gradle-helpers')
     compile project(':tools:gradle-plugins:gradle-tool-downloader-plugin')
     compile project(':tools:gradle-plugins:java-groovy-compat')
@@ -71,7 +72,6 @@ dependencies {
     compile 'com.github.ben-manes:gradle-versions-plugin'
     compile 'com.google.cloud:google-cloud-storage'
     compile 'com.google.guava:guava'
-    compile 'com.google.protobuf:protobuf-gradle-plugin'
     compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin'
     compile 'com.palantir:gradle-baseline-java'
     compile 'gradle.plugin.com.boxfuse.client:gradle-plugin-publishing'

@@ -1,5 +1,3 @@
-import org.curioswitch.gradle.protobuf.ProtobufExtension
-
 /*
  * MIT License
  *
@@ -25,23 +23,10 @@ import org.curioswitch.gradle.protobuf.ProtobufExtension
  */
 
 plugins {
-    id("org.curioswitch.gradle-protobuf-plugin") version "0.0.1"
+    id("org.curioswitch.gradle-grpc-api-plugin")
+    java
 }
 
 base {
     archivesBaseName = "curio-auth-api"
-}
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    protobuf("io.grpc:grpc-protobuf:1.15.1")
-}
-
-protobuf {
-    protoc {
-        artifact.set("com.google.protobuf:protoc:3.6.1")
-    }
 }
