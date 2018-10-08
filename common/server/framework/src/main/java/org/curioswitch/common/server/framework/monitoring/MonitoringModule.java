@@ -94,6 +94,7 @@ public abstract class MonitoringModule {
 
   @Provides
   @Singleton
+  @SuppressWarnings("CloseableProvides")
   static Tracing tracing(Lazy<StackdriverReporter> reporter, MonitoringConfig config) {
     Tracing.Builder builder =
         Tracing.newBuilder()

@@ -14,7 +14,7 @@ steps:
 - id: curio-generated-fetch-builder-image
   waitFor:
   - '-'
-  name: openjdk:10-jdk-slim
+  name: openjdk:11-jdk-slim
   entrypoint: bash
   args:
   - -c

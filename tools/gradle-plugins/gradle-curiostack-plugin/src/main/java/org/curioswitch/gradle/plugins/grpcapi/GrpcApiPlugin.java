@@ -229,16 +229,15 @@ public class GrpcApiPlugin implements Plugin<Project> {
                     .create("addResolvedPluginScript")
                     .dependsOn(installTsProtocGen)
                     .doFirst(
-                        t -> {
-                          writeResolvedScript(
-                              project,
-                              DownloadedToolManager.get(project)
-                                  .getBinDir("node")
-                                  .resolve("node")
-                                  .toString(),
-                              "protoc-gen-ts-resolved",
-                              "ts-protoc-gen/lib/index");
-                        });
+                        t ->
+                            writeResolvedScript(
+                                project,
+                                DownloadedToolManager.get(project)
+                                    .getBinDir("node")
+                                    .resolve("node")
+                                    .toString(),
+                                "protoc-gen-ts-resolved",
+                                "ts-protoc-gen/lib/index"));
             addResolvedPluginScript
                 .getOutputs()
                 .files(
@@ -297,7 +296,8 @@ public class GrpcApiPlugin implements Plugin<Project> {
             SourceSetContainer sourceSets =
                 project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets();
             if (sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME).getAllJava().isEmpty()) {
-              project.getTasks().getByName("compileTestJava").setEnabled(false);
+              project.getTasks().named("compileTestJava").configure(t -> t.setEnabled(false));
+              project.getTasks().named("test").configure(t -> t.setEnabled(false));
             }
           }
         });

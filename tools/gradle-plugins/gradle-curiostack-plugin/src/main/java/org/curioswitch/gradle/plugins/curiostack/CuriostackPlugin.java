@@ -75,6 +75,7 @@ import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.Dependency
 import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
+import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
 import org.curioswitch.gradle.plugins.nodejs.util.NodeUtil;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
@@ -132,7 +133,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(CondaBuildEnvPlugin.class);
     plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
-    plugins.apply(org.curioswitch.gradle.plugins.nodejs.NodePlugin.class);
+    plugins.apply(NodePlugin.class);
     plugins.apply(ToolDownloaderPlugin.class);
 
     rootProject
@@ -257,6 +258,9 @@ public class CuriostackPlugin implements Plugin<Project> {
     project.getRepositories().maven(maven -> maven.setUrl("https://dl.bintray.com/mockito/maven"));
     project.getRepositories().mavenCentral();
     project.getRepositories().mavenLocal();
+    project
+        .getRepositories()
+        .maven(maven -> maven.setUrl("https://oss.sonatype.org/content/repositories/snapshots/"));
     project.getRepositories().maven(maven -> maven.setUrl("https://oss.jfrog.org/libs-snapshot"));
   }
 
@@ -317,7 +321,6 @@ public class CuriostackPlugin implements Plugin<Project> {
             .put("OptionalNotPresent", ERROR)
             .put("OverrideThrowableToString", ERROR)
             .put("PreconditionsInvalidPlaceholder", ERROR)
-            .put("ProtoFieldPreconditionsCheckNotNull", ERROR)
             .put("ShortCircuitBoolean", ERROR)
             .put("StaticGuardedByInstance", ERROR)
             .put("StreamResourceLeak", ERROR)
@@ -399,8 +402,8 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
 
     JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
-    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_1_10);
-    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_1_10);
+    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_11);
+    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_11);
 
     project
         .getTasks()
@@ -465,6 +468,9 @@ public class CuriostackPlugin implements Plugin<Project> {
     project
         .getDependencies()
         .add(ErrorPronePlugin.CONFIGURATION_NAME, "com.google.errorprone:error_prone_core");
+    project
+        .getDependencies()
+        .add(ErrorPronePlugin.CONFIGURATION_NAME, "com.google.auto.value:auto-value-annotations");
     project.afterEvaluate(CuriostackPlugin::addStandardJavaTestDependencies);
 
     project

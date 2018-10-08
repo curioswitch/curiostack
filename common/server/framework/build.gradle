@@ -30,10 +30,6 @@ archivesBaseName = 'curio-server-framework'
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
-// Spring dependencies plugin is not aware of classifiers. Eventually see if netflix plugins work
-// better (it is possibly a limitation of gradle itself).
-def sfmVersion = '3.18.1'
-
 dependencies {
     api project(':common:google-cloud:iam')
     api project(':common:google-cloud:trace')
@@ -51,7 +47,7 @@ dependencies {
     api 'io.zipkin.brave:brave'
     api 'org.apache.logging.log4j:log4j-api'
     api 'org.jooq:jooq'
-    api group: 'org.simpleflatmapper', name: 'sfm-jooq', classifier: 'jdk9', version: dependencyManagement.managedVersions['org.simpleflatmapper:sfm-jooq']
+    api 'org.simpleflatmapper:sfm-jooq'
 
     implementation 'com.auth0:java-jwt'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
@@ -76,9 +72,6 @@ dependencies {
     implementation 'org.apache.logging.log4j:log4j-slf4j-impl'
     implementation 'org.bouncycastle:bcpkix-jdk15on'
     implementation 'org.jctools:jctools-core'
-    ['sfm-converter', 'sfm-jdbc', 'sfm-map', 'sfm-reflect', 'sfm-util'].each {
-        implementation group: 'org.simpleflatmapper', name: it, classifier: 'jdk9', version: dependencyManagement.managedVersions["org.simpleflatmapper:${it}"]
-    }
 
     runtime 'com.google.cloud.sql:mysql-socket-factory-connector-j-8'
     runtime 'javax.xml.bind:jaxb-api'
