@@ -238,6 +238,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                     license.mapping(
                         ImmutableMap.of(
                             "conf", "DOUBLESLASH_STYLE",
+                            "go", "SLASHSTAR_STYLE",
                             "java", "SLASHSTAR_STYLE",
                             "proto", "SLASHSTAR_STYLE",
                             "yml", "SCRIPT_STYLE"));
