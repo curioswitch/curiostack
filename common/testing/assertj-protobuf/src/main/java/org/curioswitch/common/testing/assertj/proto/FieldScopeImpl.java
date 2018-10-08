@@ -53,6 +53,7 @@ import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Message;
 import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * Implementation of a {@link FieldScope}. It takes a logic component {@link FieldScopeLogic}, and
@@ -176,6 +177,7 @@ abstract class FieldScopeImpl extends FieldScope {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   @Override
+  @Nullable
   String usingCorrespondenceString(Optional<Descriptor> descriptor) {
     return usingCorrespondenceStringFunction().apply(descriptor);
   }
