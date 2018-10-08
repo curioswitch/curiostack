@@ -178,18 +178,12 @@ public class GcloudPlugin implements Plugin<Project> {
                             .tools()
                             .configureEach(
                                 tool -> {
-                                  if (tool.getName().equals("gcloud")
-                                      || tool.getName().equals("miniconda2-build")) {
-                                    // We use global cache for gcloud since it contains gsutil.
-                                    return;
-                                  }
-
                                   String toolCachePath =
                                       "gs://"
                                           + config.buildCacheStorageBucket()
                                           + "/cloudbuild-cache-tool-"
                                           + tool.getName()
-                                          + ".tar";
+                                          + ".tar.lz4";
 
                                   var downloadCache =
                                       project

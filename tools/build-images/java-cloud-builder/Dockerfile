@@ -20,24 +20,22 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-#
 
-# An image that inherits from itself. Any files stored outside the working directory volume, like
-# dependency jars, will be saved into the image. By rebuilding itself before any build of the
-# repository, dependency jars can be cached continuously.
+FROM openjdk:11-jdk-slim AS build
 
-# TODO(choko): Define a condition to clear and recreate the cache from scratch. The smartest
-# approach would look at the current source repositories dependencies and compare with the cached
-# dependencies, a basic approach would be to store the original build timestamp and look at it
+RUN apt-get update && \
+    apt-get install -y python-pip && pip install crcmod
 
-FROM openjdk:9-jdk-slim
+FROM openjdk:11-jdk-slim
 
-ADD . /src
-RUN cd /src && ./gradlew resolveDependencies yarn --stacktrace
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends python2.7-minimal libpython2.7-stdlib && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1 && \
+    rm -rf /var/lib/apt/lists/*
 
-FROM gcr.io/${cluster}/java-cloud-builder:bootstrap
+COPY --from=build /usr/local/lib/python2.7/dist-packages/ /usr/local/lib/python2.7/dist-packages/
+ADD https://storage.googleapis.com/pub/gsutil.tar.gz /tmp/gsutil/gsutil.tar.gz
 
-COPY --from=0 /root/.gradle/wrapper /root/.gradle/wrapper
-COPY --from=0 /root/.npm /root/.npm
-COPY --from=0 /usr/local/share/.cache /usr/local/share/.cache
-COPY --from=0 /root/.gradle/caches /root/.gradle/caches
+RUN tar -xzf /tmp/gsutil/gsutil.tar.gz -C /var && rm -rf /tmp/gsutil
+
+ENV PATH="/var/gsutil:${PATH}"
