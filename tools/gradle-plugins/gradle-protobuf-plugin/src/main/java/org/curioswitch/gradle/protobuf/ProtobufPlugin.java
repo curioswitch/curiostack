@@ -26,6 +26,7 @@ package org.curioswitch.gradle.protobuf;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gradle.osdetector.OsDetectorPlugin;
+import javax.inject.Inject;
 import org.curioswitch.common.helpers.immutables.CurioStyle;
 import org.curioswitch.gradle.protobuf.tasks.ExtractProtosTask;
 import org.curioswitch.gradle.protobuf.tasks.GenerateProtoTask;
@@ -34,8 +35,10 @@ import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.plugins.BasePlugin;
+import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
@@ -44,12 +47,19 @@ import org.immutables.value.Value.Immutable;
 
 public class ProtobufPlugin implements Plugin<Project> {
 
+  private final FileResolver fileResolver;
+
+  @Inject
+  public ProtobufPlugin(FileResolver fileResolver) {
+    this.fileResolver = fileResolver;
+  }
+
   @Override
   public void apply(Project project) {
     project.getPlugins().apply(BasePlugin.class);
     project.getPlugins().apply(OsDetectorPlugin.class);
 
-    ProtobufExtension extension = ProtobufExtension.createAndAdd(project);
+    ProtobufExtension extension = ProtobufExtension.createAndAdd(project, fileResolver);
 
     SourceSetTasks mainTasks = configureSourceSet("main", project, extension);
 
@@ -69,27 +79,64 @@ public class ProtobufPlugin implements Plugin<Project> {
                         if (sourceSet.getName().equals(SourceSet.MAIN_SOURCE_SET_NAME)) {
                           configureExtractIncludeTask(
                               mainTasks.extractIncludeProtos(), sourceSet, project);
-                          configureSourceSetOutput(sourceSet, mainTasks.generateProto(), project);
+                          configureSourceSetOutput(
+                              sourceSet, mainTasks.generateProto(), extension, project);
                         } else {
                           SourceSetTasks tasks =
                               configureSourceSet(sourceSet.getName(), project, extension);
                           configureExtractIncludeTask(
                               tasks.extractIncludeProtos(), sourceSet, project);
-                          configureSourceSetOutput(sourceSet, tasks.generateProto(), project);
+                          configureSourceSetOutput(
+                              sourceSet, tasks.generateProto(), extension, project);
                         }
                       });
             });
   }
 
   private static void configureSourceSetOutput(
-      SourceSet sourceSet, TaskProvider<GenerateProtoTask> generateProto, Project project) {
+      SourceSet sourceSet,
+      TaskProvider<GenerateProtoTask> generateProto,
+      ProtobufExtension extension,
+      Project project) {
     project.afterEvaluate(
         unused ->
-            generateProto.configure(
-                t ->
-                    t.getOutputDirs()
-                        .values()
-                        .forEach(outputDir -> sourceSet.java(java -> java.srcDir(outputDir)))));
+            extension
+                .getSources()
+                .getByName(
+                    sourceSet.getName(),
+                    source -> {
+                      ((ExtensionAware) sourceSet).getExtensions().add("proto", source);
+                      sourceSet.getAllSource().source(source);
+
+                      source.getSrcDirs().forEach(sourceSet.getOutput()::dir);
+                    }));
+
+    extension
+        .getLanguages()
+        .configureEach(
+            language -> {
+              String compileTaskName = sourceSet.getCompileTaskName(language.getName());
+              project
+                  .getTasks()
+                  .configureEach(
+                      t -> {
+                        // While a bit wasteful to do this match on every realized task, it
+                        // prevents unnecessary task realization and is probably fastest.
+                        if (t.getName().equals(compileTaskName)) {
+                          t.dependsOn(generateProto);
+                        }
+                      });
+
+              sourceSet
+                  .getJava()
+                  .srcDir(
+                      extension
+                          .getOutputBaseDir()
+                          .map(
+                              outputBaseDir ->
+                                  SourceSetUtils.getLanguageOutputDir(
+                                      language, outputBaseDir, sourceSet.getName())));
+            });
   }
 
   private static void configureExtractIncludeTask(
@@ -106,10 +153,8 @@ public class ProtobufPlugin implements Plugin<Project> {
 
   private static SourceSetTasks configureSourceSet(
       String sourceSetName, Project project, ProtobufExtension extension) {
-
-    NamedDomainObjectProvider<ConfigurableFileCollection> sources = extension
-        .getSources()
-        .register(sourceSetName, files -> files.from("src/" + sourceSetName + "/proto"));
+    NamedDomainObjectProvider<SourceDirectorySet> sources =
+        extension.getSources().register(sourceSetName);
 
     Configuration protobufConfiguration =
         project
@@ -152,7 +197,7 @@ public class ProtobufPlugin implements Plugin<Project> {
         t -> {
           t.dependsOn(extract, extractInclude);
 
-          t.getProtoFiles().from(sources.get());
+          t.getSources().source(sources.get());
 
           t.include(extract.get().getDestDir());
           t.include(extractInclude.get().getDestDir());

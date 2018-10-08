@@ -22,32 +22,26 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.protobuf.utils;
+package org.curioswitch.gradle.protobuf;
 
-import java.io.File;
-import org.curioswitch.gradle.helpers.task.TaskUtil;
-import org.curioswitch.gradle.protobuf.ProtobufExtension.LanguageSettings;
-import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.internal.file.DefaultSourceDirectorySet;
+import org.gradle.api.internal.file.FileResolver;
+import org.gradle.api.internal.file.collections.DefaultDirectoryFileTreeFactory;
 
-public final class SourceSetUtils {
+/**
+ * TODO(choko): Remove after Gradle 5, where public APIs exist to create {@link SourceDirectorySet}.
+ */
+public final class ProtobufSourceDirectorySet extends DefaultSourceDirectorySet
+    implements SourceDirectorySet {
 
-  public static String getConfigName(String sourceSetName, String type) {
-    return sourceSetName.equals(SourceSet.MAIN_SOURCE_SET_NAME)
-        ? type
-        : (sourceSetName + TaskUtil.toTaskSuffix(type));
+  public ProtobufSourceDirectorySet(String name, FileResolver fileResolver) {
+    super(
+        name,
+        String.format("%s Proto source", name),
+        fileResolver,
+        new DefaultDirectoryFileTreeFactory());
+    srcDir("src/" + name + "/proto");
+    include("**/*.proto");
   }
-
-  public static String getTaskSuffix(String sourceSetName) {
-    return sourceSetName.equals(SourceSet.MAIN_SOURCE_SET_NAME)
-        ? ""
-        : TaskUtil.toTaskSuffix(sourceSetName);
-  }
-
-  public static File getLanguageOutputDir(LanguageSettings language, File outputBaseDir, String sourceSetName) {
-    return language
-        .getOutputDir()
-        .getOrElse(outputBaseDir.toPath().resolve(sourceSetName).toFile());
-  }
-
-  private SourceSetUtils() {}
 }

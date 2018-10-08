@@ -81,14 +81,19 @@ public class ExtractProtosTask extends DefaultTask {
   public void exec() {
     checkNotNull(destDir.getOrNull(), "destDir must be set.");
 
+    getProject().delete(destDir);
+    getProject().mkdir(destDir);
+
     for (File file : files) {
       String mapKey = UUID.randomUUID().toString();
       TASKS.put(mapKey, this);
 
-      workerExecutor.submit(DoProtobufExtract.class, config -> {
-        config.setIsolationMode(IsolationMode.NONE);
-        config.params(file, mapKey);
-      });
+      workerExecutor.submit(
+          DoProtobufExtract.class,
+          config -> {
+            config.setIsolationMode(IsolationMode.NONE);
+            config.params(file, mapKey);
+          });
     }
   }
 

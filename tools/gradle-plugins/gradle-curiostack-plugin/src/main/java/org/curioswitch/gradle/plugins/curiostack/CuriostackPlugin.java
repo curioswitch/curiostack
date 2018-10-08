@@ -63,6 +63,7 @@ import net.ltgt.gradle.apt.AptPlugin;
 import net.ltgt.gradle.errorprone.CheckSeverity;
 import net.ltgt.gradle.errorprone.ErrorProneOptions;
 import net.ltgt.gradle.errorprone.ErrorPronePlugin;
+import nl.javadude.gradle.plugins.license.License;
 import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
@@ -233,7 +234,6 @@ public class CuriostackPlugin implements Plugin<Project> {
                   unused -> {
                     LicenseExtension license =
                         project.getExtensions().getByType(LicenseExtension.class);
-                    license.exclude("**/*.json");
                     license.setHeader(rootProject.file("LICENSE"));
                     license.mapping(
                         ImmutableMap.of(
@@ -241,6 +241,19 @@ public class CuriostackPlugin implements Plugin<Project> {
                             "java", "SLASHSTAR_STYLE",
                             "proto", "SLASHSTAR_STYLE",
                             "yml", "SCRIPT_STYLE"));
+
+                    project
+                        .getTasks()
+                        .withType(License.class)
+                        .configureEach(
+                            t -> {
+                              t.exclude("**/*.json");
+                              t.exclude(
+                                  f ->
+                                      f.getFile()
+                                          .toPath()
+                                          .startsWith(project.getBuildDir().toPath()));
+                            });
                   });
         });
 
@@ -512,7 +525,11 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
 
     SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
-    spotless.java((extension) -> extension.googleJavaFormat(GOOGLE_JAVA_FORMAT_VERSION));
+    spotless.java(
+        (java) -> {
+          java.target("src/**/*.java");
+          java.googleJavaFormat(GOOGLE_JAVA_FORMAT_VERSION);
+        });
 
     project
         .getTasks()
@@ -530,23 +547,6 @@ public class CuriostackPlugin implements Plugin<Project> {
                                 }
                               });
                     }));
-
-    // Protobuf plugin doesn't add proto sourceset to allSource, which seems like an omission.
-    // We add it to make sure license plugin picks up the files.
-    /*project
-        .getPlugins()
-        .withType(
-            ProtobufPlugin.class,
-            unused -> {
-              for (SourceSet sourceSet : sourceSets) {
-                sourceSet
-                    .getAllSource()
-                    .source(
-                        ((ExtensionAware) sourceSet)
-                            .getExtensions()
-                            .getByType(ProtobufSourceDirectorySet.class));
-              }
-            });*/
 
     project
         .getPlugins()

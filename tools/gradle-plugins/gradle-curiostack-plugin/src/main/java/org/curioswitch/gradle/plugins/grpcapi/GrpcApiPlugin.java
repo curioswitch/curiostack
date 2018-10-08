@@ -30,14 +30,12 @@ import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.tools.ant.taskdefs.condition.Os;
+import org.curioswitch.gradle.plugins.grpcapi.tasks.PackageWebTask;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
 import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
 import org.curioswitch.gradle.protobuf.ProtobufExtension;
@@ -46,8 +44,6 @@ import org.curioswitch.gradle.protobuf.tasks.GenerateProtoTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
-import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.BasePluginConvention;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -64,15 +60,7 @@ import org.gradle.api.tasks.SourceSetContainer;
  */
 public class GrpcApiPlugin implements Plugin<Project> {
 
-  private static final boolean IS_WINDOWS = Os.isFamily(Os.FAMILY_WINDOWS);
-
-  private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.9";
-  private static final String GOOGLE_PROTOBUF_VERSION = "3.6.1";
-  private static final String GRPC_WEB_CLIENT_VERSION = "0.6.3";
-  private static final String TS_PROTOC_GEN_VERSION = "0.7.6";
-  private static final String TYPES_GOOGLE_PROTOBUF_VERSION = "3.2.7";
-
-  private static final String PACKAGE_JSON_TEMPLATE;
+  public static final String PACKAGE_JSON_TEMPLATE;
 
   static {
     try {
@@ -83,6 +71,9 @@ public class GrpcApiPlugin implements Plugin<Project> {
       throw new UncheckedIOException("Could not read package-template.json", e);
     }
   }
+
+  private static final boolean IS_WINDOWS = Os.isFamily(Os.FAMILY_WINDOWS);
+  private static final String TS_PROTOC_GEN_VERSION = "0.7.6";
 
   private static final List<String> GRPC_DEPENDENCIES =
       Collections.unmodifiableList(Arrays.asList("grpc-core", "grpc-protobuf", "grpc-stub"));
@@ -145,7 +136,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
                     "js",
                     language -> {
                       language.option("import_style=commonjs,binary");
-                      language.getOutputDir().set(project.file("build/web"));
+                      language.getOutputDir().set(project.file("build/webprotos"));
                     });
             protobuf
                 .getLanguages()
@@ -159,7 +150,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
                               project.file(
                                   "node_modules/.bin/protoc-gen-ts" + (IS_WINDOWS ? ".cmd" : "")));
                       language.option("service=true");
-                      language.getOutputDir().set(project.file("build/web"));
+                      language.getOutputDir().set(project.file("build/webprotos"));
                     });
             project
                 .getTasks()
@@ -188,53 +179,20 @@ public class GrpcApiPlugin implements Plugin<Project> {
                           t.args("install", "--no-save", "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION);
                           t.getInputs().property("ts-protoc-gen-version", TS_PROTOC_GEN_VERSION);
                           t.getOutputs().dirs(ImmutableMap.of("nodeModules", "node_modules"));
-                          t.dependsOn(project.getTasks().named(BasePlugin.CLEAN_TASK_NAME));
                         });
 
-            String packageName =
-                config.webPackageName().isEmpty()
-                    ? project
-                        .getConvention()
-                        .getPlugin(BasePluginConvention.class)
-                        .getArchivesBaseName()
-                    : config.webPackageName();
-            Path packageJsonPath =
-                Paths.get(project.getBuildDir().getAbsolutePath(), "web", "package.json");
-            Task addPackageJson =
+            var packageWeb =
                 project
                     .getTasks()
-                    .create("packageJson")
-                    .dependsOn("generateProto")
-                    .doFirst(
-                        t -> {
-                          try {
-                            Files.write(
-                                packageJsonPath,
-                                PACKAGE_JSON_TEMPLATE
-                                    .replaceFirst("\\|PACKAGE_NAME\\|", packageName)
-                                    .replaceFirst(
-                                        "\\|TYPES_GOOGLE_PROTOBUF_VERSION\\|",
-                                        TYPES_GOOGLE_PROTOBUF_VERSION)
-                                    .replaceFirst(
-                                        "\\|GOOGLE_PROTOBUF_VERSION\\|", GOOGLE_PROTOBUF_VERSION)
-                                    .replaceFirst(
-                                        "\\|GRPC_WEB_CLIENT_VERSION\\|", GRPC_WEB_CLIENT_VERSION)
-                                    .replaceFirst(
-                                        "\\|CURIOSTACK_BASE_NODE_DEV_VERSION\\|",
-                                        CURIOSTACK_BASE_NODE_DEV_VERSION)
-                                    .getBytes(StandardCharsets.UTF_8));
-                          } catch (IOException e) {
-                            throw new UncheckedIOException("Could not write package.json.", e);
-                          }
-                        });
-            addPackageJson
-                .getOutputs()
-                .files(ImmutableMap.of("PACKAGE_JSON", packageJsonPath.toFile()));
+                    .register(
+                        "packageWeb",
+                        PackageWebTask.class,
+                        t -> t.dependsOn(project.getTasks().named("generateProto")));
 
             project
                 .getTasks()
                 .named("generateProto")
-                .configure(t -> t.dependsOn(installTsProtocGen).finalizedBy(addPackageJson));
+                .configure(t -> t.dependsOn(installTsProtocGen).finalizedBy(packageWeb));
 
             // Unclear why sometimes compileTestJava fails with "no source files" instead of being
             // skipped (usually when activating web), but it's not that hard to at least check the

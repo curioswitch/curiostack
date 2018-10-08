@@ -60,7 +60,6 @@ public class FetchToolCacheTask extends DefaultTask {
 
   @TaskAction
   public void exec() {
-    System.out.println("Skipping fetchToolCacheTask");
     String mapKey = UUID.randomUUID().toString();
     TASKS.put(mapKey, this);
 

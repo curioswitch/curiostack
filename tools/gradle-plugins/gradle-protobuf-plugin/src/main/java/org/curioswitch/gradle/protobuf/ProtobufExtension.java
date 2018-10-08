@@ -30,7 +30,8 @@ import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
-import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
@@ -45,7 +46,7 @@ public interface ProtobufExtension extends HasPublicType {
 
   String NAME = "protobuf";
 
-  static ModifiableProtobufExtension createAndAdd(Project project) {
+  static ModifiableProtobufExtension createAndAdd(Project project, FileResolver fileResolver) {
     ObjectFactory objects = project.getObjects();
 
     ModifiableProtobufExtension extension =
@@ -54,10 +55,9 @@ public interface ProtobufExtension extends HasPublicType {
             .create(NAME, ModifiableProtobufExtension.class)
             .setSources(
                 project.container(
-                    ConfigurableFileCollection.class,
+                    SourceDirectorySet.class,
                     name ->
-                        new NamedConfigurableFileCollection(
-                            name, project.getLayout().configurableFiles())))
+                        new ProtobufSourceDirectorySet(name, fileResolver)))
             .setOutputBaseDir(objects.property(File.class))
             .setProtoc(Executable.create(objects))
             .setDescriptorSetOptions(DescriptorSetOptions.create(objects));
@@ -70,7 +70,7 @@ public interface ProtobufExtension extends HasPublicType {
     return extension;
   }
 
-  NamedDomainObjectContainer<ConfigurableFileCollection> getSources();
+  NamedDomainObjectContainer<SourceDirectorySet> getSources();
 
   Property<File> getOutputBaseDir();
 

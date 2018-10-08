@@ -26,7 +26,6 @@ package org.curioswitch.gradle.protobuf.tasks;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import com.google.common.base.Splitter;
@@ -52,6 +51,8 @@ import org.curioswitch.gradle.protobuf.ProtobufExtension;
 import org.curioswitch.gradle.protobuf.ProtobufExtension.DescriptorSetOptions;
 import org.curioswitch.gradle.protobuf.ProtobufExtension.Executable;
 import org.curioswitch.gradle.protobuf.ProtobufExtension.LanguageSettings;
+import org.curioswitch.gradle.protobuf.ProtobufSourceDirectorySet;
+import org.curioswitch.gradle.protobuf.utils.SourceSetUtils;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -60,14 +61,12 @@ import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ResolvedConfiguration;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.artifacts.repositories.ArtifactRepository;
-import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.FileTree;
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectories;
@@ -89,8 +88,8 @@ public class GenerateProtoTask extends DefaultTask {
   private static final Splitter ARTIFACT_SPLITTER = Splitter.on(':');
 
   private final String sourceSetName;
-  private final ConfigurableFileCollection protoFiles;
-  private final ListProperty<Directory> includeDirs;
+  private final SourceDirectorySet sources;
+  private final SourceDirectorySet includeDirs;
   private final Property<File> protocPath;
   private final Property<String> protocArtifact;
   private final Property<File> outputBaseDir;
@@ -103,7 +102,10 @@ public class GenerateProtoTask extends DefaultTask {
 
   @Inject
   public GenerateProtoTask(
-      String sourceSetName, ProtobufExtension config, WorkerExecutor workerExecutor) {
+      String sourceSetName,
+      ProtobufExtension config,
+      WorkerExecutor workerExecutor,
+      FileResolver fileResolver) {
     this.sourceSetName = sourceSetName;
     this.workerExecutor = workerExecutor;
 
@@ -111,8 +113,8 @@ public class GenerateProtoTask extends DefaultTask {
 
     ObjectFactory objects = getProject().getObjects();
 
-    protoFiles = getProject().getLayout().configurableFiles();
-    includeDirs = objects.listProperty(Directory.class);
+    sources = new ProtobufSourceDirectorySet(sourceSetName, fileResolver);
+    includeDirs = new ProtobufSourceDirectorySet(sourceSetName + "-includes", fileResolver);
     protocPath = objects.property(File.class);
     protocArtifact = objects.property(String.class);
     outputBaseDir = objects.property(File.class);
@@ -132,26 +134,17 @@ public class GenerateProtoTask extends DefaultTask {
         .getIncludeImports()
         .set(config.getDescriptorSetOptions().getIncludeImports());
 
-    onlyIf(unused -> !protoFiles.isEmpty());
+    onlyIf(unused -> !sources.isEmpty());
   }
 
   @InputFiles
-  public ConfigurableFileCollection getProtoFiles() {
-    return protoFiles;
+  public SourceDirectorySet getSources() {
+    return sources;
   }
 
   @InputFiles
-  public Provider<List<FileTree>> getIncludeProtos() {
-    return includeDirs.map(
-        directories ->
-            directories
-                .stream()
-                .map(
-                    directory ->
-                        directory
-                            .getAsFileTree()
-                            .matching(patterns -> patterns.include("**/*.proto")))
-                .collect(toImmutableList()));
+  public SourceDirectorySet getIncludes() {
+    return includeDirs;
   }
 
   @OutputFile
@@ -168,7 +161,7 @@ public class GenerateProtoTask extends DefaultTask {
   }
 
   public GenerateProtoTask include(DirectoryProperty directory) {
-    includeDirs.add(directory);
+    includeDirs.srcDir(directory);
     return this;
   }
 
@@ -203,16 +196,17 @@ public class GenerateProtoTask extends DefaultTask {
 
     File protocPath = this.protocPath.getOrElse(downloadedTools.get(protocArtifact.get()));
 
-    ImmutableList.Builder<String> protocCommandBaseBuilder = ImmutableList.builder();
-    protocCommandBaseBuilder.add(protocPath.getAbsolutePath());
+    ImmutableList.Builder<String> protocCommand = ImmutableList.builder();
+    protocCommand.add(protocPath.getAbsolutePath());
 
     for (LanguageSettings language : languages) {
       String optionsPrefix = optionsPrefix(language.getOptions().getOrElse(ImmutableList.of()));
 
       String outputDir = getLanguageOutputDir(language).getAbsolutePath();
+      project.delete(outputDir);
       project.mkdir(outputDir);
 
-      protocCommandBaseBuilder.add("--" + language.getName() + "_out=" + optionsPrefix + outputDir);
+      protocCommand.add("--" + language.getName() + "_out=" + optionsPrefix + outputDir);
 
       Executable plugin = language.getPlugin();
       if (plugin.isPresent()) {
@@ -221,16 +215,13 @@ public class GenerateProtoTask extends DefaultTask {
                     plugin.getPath().getOrNull(),
                     () -> downloadedTools.get(plugin.getArtifact().get()))
                 .getAbsolutePath();
-        protocCommandBaseBuilder.add(
-            "--plugin=protoc-gen-" + language.getName() + "=" + pluginPath);
+        protocCommand.add("--plugin=protoc-gen-" + language.getName() + "=" + pluginPath);
       }
     }
 
-    Streams.concat(
-            getProtoFiles().getFiles().stream(),
-            includeDirs.getOrElse(ImmutableList.of()).stream().map(Directory::getAsFile))
-        .map(f -> "-I" + f.getAbsolutePath())
-        .forEach(protocCommandBaseBuilder::add);
+    Streams.concat(sources.getSrcDirs().stream(), includeDirs.getSrcDirs().stream())
+        .distinct()
+        .forEach(dir -> protocCommand.add("-I" + dir.getAbsolutePath()));
 
     if (descriptorSetOptions.getEnabled().get()) {
       File descriptorSetPath =
@@ -239,42 +230,38 @@ public class GenerateProtoTask extends DefaultTask {
               .getOrElse(project.file("build/descriptors/" + sourceSetName + ".dsc"));
       project.mkdir(descriptorSetPath.getParent());
 
-      protocCommandBaseBuilder.add("--descriptor_set_out=" + descriptorSetPath.getAbsolutePath());
+      protocCommand.add("--descriptor_set_out=" + descriptorSetPath.getAbsolutePath());
       if (descriptorSetOptions.getIncludeSourceInfo().get()) {
-        protocCommandBaseBuilder.add("--include_source_info");
+        protocCommand.add("--include_source_info");
       }
       if (descriptorSetOptions.getIncludeImports().get()) {
-        protocCommandBaseBuilder.add("--include_imports");
+        protocCommand.add("--include_imports");
       }
     }
-
-    List<String> protocCommandBase = protocCommandBaseBuilder.build();
 
     // Sort to ensure generated descriptors have a canonical representation
     // to avoid triggering unnecessary rebuilds downstream
-    for (File file : ImmutableList.sortedCopyOf(protoFiles.getAsFileTree())) {
-      String mapKey = UUID.randomUUID().toString();
-      TASKS.put(mapKey, this);
+    sources.getFiles().stream().map(File::getAbsolutePath).sorted().forEach(protocCommand::add);
 
-      workerExecutor.submit(
-          DoGenerateProto.class,
-          config -> {
-            config.setIsolationMode(IsolationMode.NONE);
-            config.params(file, protocCommandBase, mapKey);
-          });
-    }
+    String mapKey = UUID.randomUUID().toString();
+    TASKS.put(mapKey, this);
+
+    workerExecutor.submit(
+        DoGenerateProto.class,
+        config -> {
+          config.setIsolationMode(IsolationMode.NONE);
+          config.params(protocCommand.build(), mapKey);
+        });
   }
 
   public static class DoGenerateProto implements Runnable {
 
-    private final File file;
-    private final List<String> protocCommandBase;
+    private final List<String> protocCommand;
     private final String mapKey;
 
     @Inject
-    public DoGenerateProto(File file, List<String> protocCommandBase, String mapKey) {
-      this.file = file;
-      this.protocCommandBase = protocCommandBase;
+    public DoGenerateProto(List<String> protocCommand, String mapKey) {
+      this.protocCommand = protocCommand;
       this.mapKey = mapKey;
     }
 
@@ -285,12 +272,7 @@ public class GenerateProtoTask extends DefaultTask {
       task.getProject()
           .exec(
               exec -> {
-                List<String> command =
-                    ImmutableList.<String>builder()
-                        .addAll(protocCommandBase)
-                        .add(file.getAbsolutePath())
-                        .build();
-                exec.commandLine(command);
+                exec.commandLine(protocCommand);
 
                 task.execOverrides.forEach(a -> a.execute(exec));
               });
@@ -388,8 +370,6 @@ public class GenerateProtoTask extends DefaultTask {
   }
 
   private File getLanguageOutputDir(LanguageSettings language) {
-    return language
-        .getOutputDir()
-        .getOrElse(outputBaseDir.get().toPath().resolve(sourceSetName).toFile());
+    return SourceSetUtils.getLanguageOutputDir(language, outputBaseDir.get(), sourceSetName);
   }
 }
