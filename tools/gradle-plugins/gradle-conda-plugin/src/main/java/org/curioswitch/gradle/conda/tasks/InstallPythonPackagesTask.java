@@ -68,7 +68,20 @@ public class InstallPythonPackagesTask extends DefaultTask {
             sitePackagesDir = minicondaDir.resolve("lib/python2.7/site-packages");
           }
 
-          return packages.stream().anyMatch(pkg -> !Files.exists(sitePackagesDir.resolve(pkg)));
+          for (String pkg : packages) {
+            if (Files.exists(sitePackagesDir.resolve(pkg))) {
+              continue;
+            } else {
+              // Some packages only install a script, no library. Optimistically search for it.
+              if (toolManager.getBinDirs("miniconda2-build").stream().anyMatch(binDir ->
+                  Files.exists(binDir.resolve(pkg)))) {
+                continue;
+              }
+            }
+            return true;
+          }
+
+          return false;
         });
   }
 
