@@ -360,7 +360,7 @@ abstract class WellKnownTypeMarshaller<T extends Message> extends TypeSpecificMa
     public void doMerge(JsonParser parser, int currentDepth, Message.Builder messageBuilder)
         throws IOException {
       Struct.Builder builder = (Struct.Builder) messageBuilder;
-      while ((parser.nextValue()) != JsonToken.END_OBJECT) {
+      while (parser.nextValue() != JsonToken.END_OBJECT) {
         builder.putFields(
             parser.getCurrentName(), ValueMarshaller.INSTANCE.readValue(parser, currentDepth + 1));
       }
