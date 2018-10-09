@@ -37,7 +37,7 @@ repos:
         - id: curio-generated-fetch-builder-image
           waitFor:
           - '-'
-          name: openjdk:11-jdk-slim
+          name: curiostack/java-cloud-builder
           entrypoint: bash
           args:
           - -c
@@ -51,10 +51,6 @@ repos:
             path: /root/.gradle/wrapper
           - name: gradle-caches
             path: /root/.gradle/caches
-          - name: gcloud
-            path: /root/.gradle/curiostack/gcloud
-          - name: conda
-            path: /root/.gradle/curiostack/miniconda2-build
           dir: /root/.gradle
           entrypoint: ash
           args:
@@ -64,16 +60,12 @@ repos:
           waitFor:
           - fetch-source
           - curio-generated-fetch-compressed-build-cache
-          name: openjdk:11-jdk-slim
+          name: curiostack/java-cloud-builder
           volumes:
           - name: gradle-wrapper
             path: /root/.gradle/wrapper
           - name: gradle-caches
             path: /root/.gradle/caches
-          - name: gcloud
-            path: /root/.gradle/curiostack/gcloud
-          - name: conda
-            path: /root/.gradle/curiostack/miniconda2-build
           entrypoint: ./gradlew
           args:
           - continuousBuild
