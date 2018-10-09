@@ -175,6 +175,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
                         "installTsProtocGen",
                         NodeTask.class,
                         t -> {
+                          project.delete("node_modules");
                           t.setCommand("npm");
                           t.args("install", "--no-save", "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION);
                           t.getInputs().property("ts-protoc-gen-version", TS_PROTOC_GEN_VERSION);
