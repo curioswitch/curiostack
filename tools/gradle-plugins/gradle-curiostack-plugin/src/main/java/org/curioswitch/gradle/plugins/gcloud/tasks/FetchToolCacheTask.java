@@ -99,11 +99,6 @@ public class FetchToolCacheTask extends DefaultTask {
                 exec.args("-c", gsutil + " cp " + task.src.get() + " - | lz4 -dc - | tar -xp");
 
                 exec.setIgnoreExitValue(true);
-
-                toolManager.addAllToPath(exec);
-                exec.environment(
-                    "CLOUDSDK_PYTHON", toolManager.getBinDir("miniconda2-build").resolve("python"));
-                exec.environment("CLOUDSDK_PYTHON_SITEPACKAGES", "1");
               });
     }
   }
