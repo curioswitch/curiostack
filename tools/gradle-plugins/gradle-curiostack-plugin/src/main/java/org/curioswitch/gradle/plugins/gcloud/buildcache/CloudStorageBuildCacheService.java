@@ -87,7 +87,7 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
         if (buf.readableBytes() > 0) {
           getUnchecked(writer.write(chunk.nioBuffer(0, chunk.readableBytes())));
         } else {
-          writer.writeAndClose(buf).join();
+          writer.writeAndClose(chunk).join();
         }
       }
       success = true;
