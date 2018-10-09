@@ -43,7 +43,8 @@ public final class SourceSetUtils {
         : TaskUtil.toTaskSuffix(sourceSetName);
   }
 
-  public static File getLanguageOutputDir(LanguageSettings language, File outputBaseDir, String sourceSetName) {
+  public static File getLanguageOutputDir(
+      LanguageSettings language, File outputBaseDir, String sourceSetName) {
     return language
         .getOutputDir()
         .getOrElse(outputBaseDir.toPath().resolve(sourceSetName).toFile());

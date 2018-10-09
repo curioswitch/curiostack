@@ -41,7 +41,6 @@ public final class ProtobufSourceDirectorySet extends DefaultSourceDirectorySet
         String.format("%s Proto source", name),
         fileResolver,
         new DefaultDirectoryFileTreeFactory());
-    srcDir("src/" + name + "/proto");
     include("**/*.proto");
   }
 }

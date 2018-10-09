@@ -197,9 +197,8 @@ public class ProtobufPlugin implements Plugin<Project> {
         t -> {
           t.dependsOn(extract, extractInclude);
 
-          t.getSources().source(sources.get());
+          t.getSources().source(sources.get()).srcDir(extract.get().getDestDir());
 
-          t.include(extract.get().getDestDir());
           t.include(extractInclude.get().getDestDir());
 
           extension.getLanguages().all(t::language);

@@ -221,6 +221,7 @@ public class GenerateProtoTask extends DefaultTask {
 
     Streams.concat(sources.getSrcDirs().stream(), includeDirs.getSrcDirs().stream())
         .distinct()
+        .filter(File::exists)
         .forEach(dir -> protocCommand.add("-I" + dir.getAbsolutePath()));
 
     if (descriptorSetOptions.getEnabled().get()) {

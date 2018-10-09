@@ -73,8 +73,10 @@ public class InstallPythonPackagesTask extends DefaultTask {
               continue;
             } else {
               // Some packages only install a script, no library. Optimistically search for it.
-              if (toolManager.getBinDirs("miniconda2-build").stream().anyMatch(binDir ->
-                  Files.exists(binDir.resolve(pkg)))) {
+              if (toolManager
+                  .getBinDirs("miniconda2-build")
+                  .stream()
+                  .anyMatch(binDir -> Files.exists(binDir.resolve(pkg)))) {
                 continue;
               }
             }

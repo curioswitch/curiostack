@@ -57,7 +57,8 @@ public interface ProtobufExtension extends HasPublicType {
                 project.container(
                     SourceDirectorySet.class,
                     name ->
-                        new ProtobufSourceDirectorySet(name, fileResolver)))
+                        new ProtobufSourceDirectorySet(name, fileResolver)
+                            .srcDir("src/" + name + "/proto")))
             .setOutputBaseDir(objects.property(File.class))
             .setProtoc(Executable.create(objects))
             .setDescriptorSetOptions(DescriptorSetOptions.create(objects));
@@ -70,6 +71,12 @@ public interface ProtobufExtension extends HasPublicType {
     return extension;
   }
 
+  default ProtobufExtension sources(
+      Action<? super NamedDomainObjectContainer<SourceDirectorySet>> action) {
+    action.execute(getSources());
+    return this;
+  }
+
   NamedDomainObjectContainer<SourceDirectorySet> getSources();
 
   Property<File> getOutputBaseDir();
@@ -80,6 +87,12 @@ public interface ProtobufExtension extends HasPublicType {
   }
 
   Executable getProtoc();
+
+  default ProtobufExtension languages(
+      Action<? super NamedDomainObjectContainer<LanguageSettings>> action) {
+    action.execute(getLanguages());
+    return this;
+  }
 
   NamedDomainObjectContainer<LanguageSettings> getLanguages();
 
