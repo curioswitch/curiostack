@@ -140,8 +140,8 @@ public class DownloadToolTask extends DefaultTask {
 
   @TaskAction
   public void exec() {
-    checkNotNull(baseUrl.get(), "baseUrl must be set.");
-    checkNotNull(artifactPattern.get(), "artifactPattern must be set");
+    checkNotNull(baseUrl.getOrNull(), "baseUrl must be set.");
+    checkNotNull(artifactPattern.getOrNull(), "artifactPattern must be set");
 
     String mapKey = UUID.randomUUID().toString();
     TASKS.put(mapKey, this);

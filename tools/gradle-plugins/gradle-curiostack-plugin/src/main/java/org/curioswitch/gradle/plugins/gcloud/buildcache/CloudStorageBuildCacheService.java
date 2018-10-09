@@ -24,6 +24,8 @@
 
 package org.curioswitch.gradle.plugins.gcloud.buildcache;
 
+import static com.google.common.util.concurrent.Futures.getUnchecked;
+
 import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -80,7 +82,14 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
 
       FileWriter writer =
           cloudStorage.createFile(buildCacheKey.getHashCode(), ImmutableMap.of()).join();
-      writer.writeAndClose(buf).join();
+      while (buf.readableBytes() > 0) {
+        ByteBuf chunk = buf.readSlice(Math.min(buf.readableBytes(), 10 * 4 * 256 * 1000));
+        if (buf.readableBytes() > 0) {
+          getUnchecked(writer.write(chunk.nioBuffer(0, chunk.readableBytes())));
+        } else {
+          writer.writeAndClose(chunk).join();
+        }
+      }
       success = true;
     } finally {
       if (!success) {

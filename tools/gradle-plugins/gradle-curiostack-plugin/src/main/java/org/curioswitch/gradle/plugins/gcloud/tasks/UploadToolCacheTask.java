@@ -112,11 +112,6 @@ public class UploadToolCacheTask extends DefaultTask {
                         + gsutil
                         + " -o GSUtil:parallel_composite_upload_threshold=150M cp - "
                         + task.dest.get());
-
-                toolManager.addAllToPath(exec);
-                exec.environment(
-                    "CLOUDSDK_PYTHON", toolManager.getBinDir("miniconda2-build").resolve("python"));
-                exec.environment("CLOUDSDK_PYTHON_SITEPACKAGES", "1");
               });
     }
   }

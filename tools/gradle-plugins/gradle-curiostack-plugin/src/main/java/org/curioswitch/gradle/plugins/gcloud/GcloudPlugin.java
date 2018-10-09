@@ -178,18 +178,12 @@ public class GcloudPlugin implements Plugin<Project> {
                             .tools()
                             .configureEach(
                                 tool -> {
-                                  if (tool.getName().equals("gcloud")
-                                      || tool.getName().equals("miniconda2-build")) {
-                                    // We use global cache for gcloud since it contains gsutil.
-                                    return;
-                                  }
-
                                   String toolCachePath =
                                       "gs://"
                                           + config.buildCacheStorageBucket()
                                           + "/cloudbuild-cache-tool-"
                                           + tool.getName()
-                                          + ".tar";
+                                          + ".tar.lz4";
 
                                   var downloadCache =
                                       project
@@ -200,9 +194,6 @@ public class GcloudPlugin implements Plugin<Project> {
                                               FetchToolCacheTask.class,
                                               t -> {
                                                 t.setSrc(toolCachePath);
-                                                t.dependsOn(
-                                                    DownloadToolUtil.getDownloadTask(
-                                                        project, "gcloud"));
                                                 t.onlyIf(
                                                     unused ->
                                                         !Files.exists(
@@ -224,9 +215,6 @@ public class GcloudPlugin implements Plugin<Project> {
                                                 tool.getAdditionalCachedDirs()
                                                     .get()
                                                     .forEach(t::srcPath);
-                                                t.dependsOn(
-                                                    DownloadToolUtil.getDownloadTask(
-                                                        project, "gcloud"));
                                               });
 
                                   DownloadToolUtil.getDownloadTask(project, tool.getName())

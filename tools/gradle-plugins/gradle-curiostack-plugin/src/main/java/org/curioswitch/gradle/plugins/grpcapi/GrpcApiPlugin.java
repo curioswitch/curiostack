@@ -26,34 +26,24 @@ package org.curioswitch.gradle.plugins.grpcapi;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
-import com.google.protobuf.gradle.ExecutableLocator;
-import com.google.protobuf.gradle.GenerateProtoTask.DescriptorSetOptions;
-import com.google.protobuf.gradle.ProtobufConfigurator;
-import com.google.protobuf.gradle.ProtobufConfigurator.JavaGenerateProtoTaskCollection;
-import com.google.protobuf.gradle.ProtobufConvention;
-import com.google.protobuf.gradle.ProtobufPlugin;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.tools.ant.taskdefs.condition.Os;
-import org.codehaus.groovy.runtime.GStringImpl;
-import org.curioswitch.gradle.common.LambdaClosure;
+import org.curioswitch.gradle.plugins.grpcapi.tasks.PackageWebTask;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
 import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
+import org.curioswitch.gradle.protobuf.ProtobufExtension;
+import org.curioswitch.gradle.protobuf.ProtobufPlugin;
+import org.curioswitch.gradle.protobuf.tasks.GenerateProtoTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
-import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
-import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.BasePluginConvention;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -70,21 +60,7 @@ import org.gradle.api.tasks.SourceSetContainer;
  */
 public class GrpcApiPlugin implements Plugin<Project> {
 
-  private static final boolean IS_WINDOWS = Os.isFamily(Os.FAMILY_WINDOWS);
-
-  private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.9";
-  private static final String GOOGLE_PROTOBUF_VERSION = "3.6.1";
-  private static final String GRPC_WEB_CLIENT_VERSION = "0.6.3";
-  private static final String TS_PROTOC_GEN_VERSION = "0.7.6";
-  private static final String TYPES_GOOGLE_PROTOBUF_VERSION = "3.2.7";
-
-  private static final String RESOLVED_PLUGIN_SCRIPT_TEMPLATE =
-      "#!|NODE_PATH|\n" + "" + "require('|IMPORTED_MODULE|');";
-
-  private static final String RESOLVED_PLUGIN_CMD_TEMPLATE =
-      "@echo off\r\n\"|NODE_PATH|\" \"%~dp0\\protoc-gen-ts-resolved\" %*";
-
-  private static final String PACKAGE_JSON_TEMPLATE;
+  public static final String PACKAGE_JSON_TEMPLATE;
 
   static {
     try {
@@ -96,107 +72,95 @@ public class GrpcApiPlugin implements Plugin<Project> {
     }
   }
 
+  private static final boolean IS_WINDOWS = Os.isFamily(Os.FAMILY_WINDOWS);
+  private static final String TS_PROTOC_GEN_VERSION = "0.7.6";
+
   private static final List<String> GRPC_DEPENDENCIES =
       Collections.unmodifiableList(Arrays.asList("grpc-core", "grpc-protobuf", "grpc-stub"));
 
   @Override
   public void apply(Project project) {
     project.getPluginManager().apply(JavaLibraryPlugin.class);
+    project.getPluginManager().apply(ProtobufPlugin.class);
     project.getPluginManager().apply(NodePlugin.class);
 
     project.getExtensions().create(ImmutableGrpcExtension.NAME, GrpcExtension.class);
 
     GRPC_DEPENDENCIES.forEach(dep -> project.getDependencies().add("api", "io.grpc:" + dep));
 
+    ProtobufExtension protobuf = project.getExtensions().getByType(ProtobufExtension.class);
+
+    Map<String, String> managedVersions =
+        project.getExtensions().getByType(DependencyManagementExtension.class).getManagedVersions();
+
+    protobuf
+        .getProtoc()
+        .getArtifact()
+        .set("com.google.protobuf:protoc:" + managedVersions.get("com.google.protobuf:protoc"));
+    protobuf
+        .getLanguages()
+        .register(
+            "grpc",
+            language ->
+                language
+                    .getPlugin()
+                    .getArtifact()
+                    .set(
+                        "io.grpc:protoc-gen-grpc-java:"
+                            + managedVersions.get("io.grpc:grpc-core")));
+
     project.afterEvaluate(
         p -> {
           ImmutableGrpcExtension config = project.getExtensions().getByType(GrpcExtension.class);
 
-          Map<String, String> managedVersions =
-              project
-                  .getExtensions()
-                  .getByType(DependencyManagementExtension.class)
-                  .getManagedVersions();
-
-          ProtobufConfigurator protobuf =
-              project.getConvention().getPlugin(ProtobufConvention.class).getProtobuf();
-
-          protobuf.protoc(
-              LambdaClosure.of(
-                  (ExecutableLocator locator) ->
-                      locator.setArtifact(
-                          "com.google.protobuf:protoc:"
-                              + managedVersions.get("com.google.protobuf:protoc"))));
-
-          protobuf.plugins(
-              LambdaClosure.of(
-                  (NamedDomainObjectContainer<ExecutableLocator> locators) -> {
-                    locators
-                        .create("grpc")
-                        .setArtifact(
-                            "io.grpc:protoc-gen-grpc-java:"
-                                + managedVersions.get("io.grpc:grpc-core"));
-                    if (config.web()) {
-                      locators
-                          .create("ts")
-                          .setPath(
-                              project
-                                  .file(
-                                      "node_modules/.bin/protoc-gen-ts-resolved"
-                                          + (IS_WINDOWS ? ".cmd" : ""))
-                                  .getAbsolutePath());
-                    }
-                  }));
-
           String archivesBaseName =
               project.getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
-          String descriptorSetOutputPath =
-              project.getBuildDir()
-                  + "/resources/main/META-INF/armeria/grpc/"
-                  + project.getGroup()
-                  + "."
-                  + archivesBaseName
-                  + ".dsc";
-          protobuf.generateProtoTasks(
-              LambdaClosure.of(
-                  (JavaGenerateProtoTaskCollection tasks) -> {
-                    tasks
-                        .all()
-                        .forEach(
-                            task -> {
-                              task.getBuiltins().getByName("java").setOutputSubDir("");
-                              task.getPlugins().create("grpc").setOutputSubDir("");
-                              if (config.web()) {
-                                // We generate web protos into build/web to make it easier to
-                                // reference from other projects.
-                                task.getBuiltins()
-                                    .create("js")
-                                    .option("import_style=commonjs,binary")
-                                    .setOutputSubDir("../../../../web");
-                                task.getPlugins()
-                                    .create("ts")
-                                    .option("service=true")
-                                    .setOutputSubDir("../../../../web");
-                              }
-                            });
-                    tasks
-                        .ofSourceSet("main")
-                        .forEach(
-                            task -> {
-                              task.getOutputs().file(descriptorSetOutputPath);
-                              task.setGenerateDescriptorSet(true);
-                              DescriptorSetOptions options = task.getDescriptorSetOptions();
-                              options.setIncludeSourceInfo(true);
-                              options.setIncludeImports(true);
-                              options.setPath(
-                                  new GStringImpl(
-                                      new Object[] {}, new String[] {descriptorSetOutputPath}));
-                            });
-                  }));
-        });
+          var descriptorOptions = protobuf.getDescriptorSetOptions();
+          descriptorOptions
+              .getPath()
+              .set(
+                  project.file(
+                      "build/resources/main/META-INF/armeria/grpc/"
+                          + project.getGroup()
+                          + "."
+                          + archivesBaseName
+                          + ".dsc"));
+          descriptorOptions.getEnabled().set(true);
+          descriptorOptions.getIncludeSourceInfo().set(true);
+          descriptorOptions.getIncludeImports().set(true);
 
-    // Add the protobuf plugin last to make sure our afterEvaluate runs before it.
-    project.getPluginManager().apply(ProtobufPlugin.class);
+          if (config.web()) {
+            protobuf
+                .getLanguages()
+                .register(
+                    "js",
+                    language -> {
+                      language.option("import_style=commonjs,binary");
+                      language.getOutputDir().set(project.file("build/webprotos"));
+                    });
+            protobuf
+                .getLanguages()
+                .register(
+                    "ts",
+                    language -> {
+                      language
+                          .getPlugin()
+                          .getPath()
+                          .set(
+                              project.file(
+                                  "node_modules/.bin/protoc-gen-ts" + (IS_WINDOWS ? ".cmd" : "")));
+                      language.option("service=true");
+                      language.getOutputDir().set(project.file("build/webprotos"));
+                    });
+            project
+                .getTasks()
+                .withType(GenerateProtoTask.class)
+                .configureEach(
+                    t ->
+                        t.execOverride(
+                            exec -> DownloadedToolManager.get(project).addAllToPath(exec)));
+          }
+        });
 
     // Additional configuration of tasks created by protobuf plugin.
     project.afterEvaluate(
@@ -211,84 +175,25 @@ public class GrpcApiPlugin implements Plugin<Project> {
                         "installTsProtocGen",
                         NodeTask.class,
                         t -> {
+                          project.delete("node_modules");
                           t.setCommand("npm");
                           t.args("install", "--no-save", "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION);
                           t.getInputs().property("ts-protoc-gen-version", TS_PROTOC_GEN_VERSION);
                           t.getOutputs().dirs(ImmutableMap.of("nodeModules", "node_modules"));
-                          t.dependsOn(project.getTasks().named(BasePlugin.CLEAN_TASK_NAME));
                         });
 
-            // gradle-protobuf-plugin does not allow manipulating PATH for protoc invocation, so
-            // there's no way
-            // to point it at our downloaded nodejs. We go ahead and create our own plugin
-            // executable with the
-            // nodejs path resolved.
-            Task addResolvedPluginScript =
+            var packageWeb =
                 project
                     .getTasks()
-                    .create("addResolvedPluginScript")
-                    .dependsOn(installTsProtocGen)
-                    .doFirst(
-                        t ->
-                            writeResolvedScript(
-                                project,
-                                DownloadedToolManager.get(project)
-                                    .getBinDir("node")
-                                    .resolve("node")
-                                    .toString(),
-                                "protoc-gen-ts-resolved",
-                                "ts-protoc-gen/lib/index"));
-            addResolvedPluginScript
-                .getOutputs()
-                .files(
-                    ImmutableMap.of(
-                        "protoc-gen-ts-resolved",
-                        "node_modules/.bin/protoc-gen-ts-resolved",
-                        "protoc-gen-ts-resolved-cmd",
-                        "node_modules/.bin/protoc-gen-ts-resolved.cmd"));
+                    .register(
+                        "packageWeb",
+                        PackageWebTask.class,
+                        t -> t.dependsOn(project.getTasks().named("generateProto")));
 
-            String packageName =
-                config.webPackageName().isEmpty()
-                    ? project
-                        .getConvention()
-                        .getPlugin(BasePluginConvention.class)
-                        .getArchivesBaseName()
-                    : config.webPackageName();
-            Path packageJsonPath =
-                Paths.get(project.getBuildDir().getAbsolutePath(), "web", "package.json");
-            Task addPackageJson =
-                project
-                    .getTasks()
-                    .create("packageJson")
-                    .dependsOn("generateProto")
-                    .doFirst(
-                        t -> {
-                          try {
-                            Files.write(
-                                packageJsonPath,
-                                PACKAGE_JSON_TEMPLATE
-                                    .replaceFirst("\\|PACKAGE_NAME\\|", packageName)
-                                    .replaceFirst(
-                                        "\\|TYPES_GOOGLE_PROTOBUF_VERSION\\|",
-                                        TYPES_GOOGLE_PROTOBUF_VERSION)
-                                    .replaceFirst(
-                                        "\\|GOOGLE_PROTOBUF_VERSION\\|", GOOGLE_PROTOBUF_VERSION)
-                                    .replaceFirst(
-                                        "\\|GRPC_WEB_CLIENT_VERSION\\|", GRPC_WEB_CLIENT_VERSION)
-                                    .replaceFirst(
-                                        "\\|CURIOSTACK_BASE_NODE_DEV_VERSION\\|",
-                                        CURIOSTACK_BASE_NODE_DEV_VERSION)
-                                    .getBytes(StandardCharsets.UTF_8));
-                          } catch (IOException e) {
-                            throw new UncheckedIOException("Could not write package.json.", e);
-                          }
-                        });
-            addPackageJson
-                .getOutputs()
-                .files(ImmutableMap.of("PACKAGE_JSON", packageJsonPath.toFile()));
-
-            Task generateProto = project.getTasks().getByName("generateProto");
-            generateProto.dependsOn(addResolvedPluginScript).finalizedBy(addPackageJson);
+            project
+                .getTasks()
+                .named("generateProto")
+                .configure(t -> t.dependsOn(installTsProtocGen).finalizedBy(packageWeb));
 
             // Unclear why sometimes compileTestJava fails with "no source files" instead of being
             // skipped (usually when activating web), but it's not that hard to at least check the
@@ -301,31 +206,5 @@ public class GrpcApiPlugin implements Plugin<Project> {
             }
           }
         });
-  }
-
-  private static void writeResolvedScript(
-      Project project, String nodePath, String outputFilename, String importedModule) {
-    try {
-      Path path =
-          Files.write(
-              Paths.get(
-                  project.getProjectDir().getAbsolutePath(), "node_modules/.bin/" + outputFilename),
-              RESOLVED_PLUGIN_SCRIPT_TEMPLATE
-                  .replace("|NODE_PATH|", nodePath)
-                  .replace("|IMPORTED_MODULE|", importedModule)
-                  .getBytes(StandardCharsets.UTF_8));
-      path.toFile().setExecutable(true);
-      path =
-          Files.write(
-              Paths.get(
-                  project.getProjectDir().getAbsolutePath(),
-                  "node_modules/.bin/" + outputFilename + ".cmd"),
-              RESOLVED_PLUGIN_CMD_TEMPLATE
-                  .replace("|NODE_PATH|", nodePath)
-                  .getBytes(StandardCharsets.UTF_8));
-      path.toFile().setExecutable(true);
-    } catch (IOException e) {
-      throw new UncheckedIOException("Could not write resolved plugin script.", e);
-    }
   }
 }
