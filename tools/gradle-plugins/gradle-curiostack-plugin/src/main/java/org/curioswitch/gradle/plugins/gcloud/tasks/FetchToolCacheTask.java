@@ -60,6 +60,8 @@ public class FetchToolCacheTask extends DefaultTask {
 
   @TaskAction
   public void exec() {
+    getProject().mkdir(DownloadedToolManager.get(getProject()).getCuriostackDir());
+
     String mapKey = UUID.randomUUID().toString();
     TASKS.put(mapKey, this);
 
