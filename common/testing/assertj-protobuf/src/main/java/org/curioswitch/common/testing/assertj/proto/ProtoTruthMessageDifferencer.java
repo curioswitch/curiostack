@@ -597,7 +597,11 @@ final class ProtoTruthMessageDifferencer {
   // Requires at least one parameter is non-null.
   private static Message orDefaultForType(
       @NullableDecl Message input, @NullableDecl Message other) {
-    return (input != null) ? input : other.getDefaultInstanceForType();
+    if (input != null) {
+      return input;
+    }
+    checkNotNull(other, "One of input or other must not be null.");
+    return other.getDefaultInstanceForType();
   }
 
   private SingularField compareSingularMessage(

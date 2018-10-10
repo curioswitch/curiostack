@@ -22,21 +22,25 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
+package org.curioswitch.gradle.protobuf;
 
-archivesBaseName = 'curio-gateway-server'
-mainClassName = 'org.curioswitch.curiostack.gateway.GatewayMain'
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.internal.file.DefaultSourceDirectorySet;
+import org.gradle.api.internal.file.FileResolver;
+import org.gradle.api.internal.file.collections.DefaultDirectoryFileTreeFactory;
 
-dependencies {
-    compile project(':common:server:framework')
+/**
+ * TODO(choko): Remove after Gradle 5, where public APIs exist to create {@link SourceDirectorySet}.
+ */
+public final class ProtobufSourceDirectorySet extends DefaultSourceDirectorySet
+    implements SourceDirectorySet {
 
-    compile 'com.fasterxml.jackson.core:jackson-databind'
-    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
-    compile 'com.google.guava:guava'
-
-    annotationProcessor 'com.google.dagger:dagger-compiler'
-
-    annotationProcessor 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
+  public ProtobufSourceDirectorySet(String name, FileResolver fileResolver) {
+    super(
+        name,
+        String.format("%s Proto source", name),
+        fileResolver,
+        new DefaultDirectoryFileTreeFactory());
+    include("**/*.proto");
+  }
 }

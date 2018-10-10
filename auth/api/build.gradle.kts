@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2017 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,21 +22,11 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
+plugins {
+    id("org.curioswitch.gradle-grpc-api-plugin")
+    java
+}
 
-archivesBaseName = 'curio-gateway-server'
-mainClassName = 'org.curioswitch.curiostack.gateway.GatewayMain'
-
-dependencies {
-    compile project(':common:server:framework')
-
-    compile 'com.fasterxml.jackson.core:jackson-databind'
-    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
-    compile 'com.google.guava:guava'
-
-    annotationProcessor 'com.google.dagger:dagger-compiler'
-
-    annotationProcessor 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
+base {
+    archivesBaseName = "curio-auth-api"
 }

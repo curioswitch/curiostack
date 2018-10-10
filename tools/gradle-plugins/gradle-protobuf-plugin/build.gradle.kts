@@ -22,21 +22,40 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
-
-archivesBaseName = 'curio-gateway-server'
-mainClassName = 'org.curioswitch.curiostack.gateway.GatewayMain'
+plugins {
+    `java-gradle-plugin`
+    `maven-publish`
+}
 
 dependencies {
-    compile project(':common:server:framework')
+    compile(project(":common:curio-helpers"))
+    compile(project(":tools:gradle-plugins:gradle-helpers"))
 
-    compile 'com.fasterxml.jackson.core:jackson-databind'
-    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
-    compile 'com.google.guava:guava'
+    compile("com.google.gradle:osdetector-gradle-plugin:1.6.0")
+    compile("com.google.guava:guava")
 
-    annotationProcessor 'com.google.dagger:dagger-compiler'
+    annotationProcessor("org.immutables:value")
+    compileOnly("org.immutables:value-annotations")
+}
 
-    annotationProcessor 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
+gradlePlugin {
+    plugins {
+        register("protobuf") {
+            id = "org.curioswitch.gradle-protobuf-plugin"
+            implementationClass = "org.curioswitch.gradle.protobuf.ProtobufPlugin"
+        }
+    }
+}
+
+publishing {
+    publications {
+        register("maven", MavenPublication::class) {
+            pom {
+                name.set("Gradle Protobuf Plugin")
+                description.set("Gradle plugin to compile proto files into generated code.")
+                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
+                        "gradle-plugins/gradle-protobuf-plugin")
+            }
+        }
+    }
 }

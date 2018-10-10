@@ -56,6 +56,7 @@ import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Message;
+import javax.annotation.Nullable;
 import org.assertj.core.data.Offset;
 
 /**
@@ -125,6 +126,7 @@ public abstract class FluentEqualityConfig
   // For pretty-printing, does not affect behavior.
   abstract Function<? super Optional<Descriptor>, String> usingCorrespondenceStringFunction();
 
+  @Nullable
   final String usingCorrespondenceString(Optional<Descriptor> descriptor) {
     return usingCorrespondenceStringFunction().apply(descriptor);
   }

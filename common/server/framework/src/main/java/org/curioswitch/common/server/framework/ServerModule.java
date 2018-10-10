@@ -585,13 +585,13 @@ public abstract class ServerModule {
       service =
           service
               .decorate(
-                  ((delegate, ctx, req) -> {
+                  (delegate, ctx, req) -> {
                     DecodedJWT jwt = ctx.attr(JwtAuthorizer.DECODED_JWT).get();
                     String loggedInUserEmail =
                         jwt != null ? jwt.getClaim("email").asString() : "unknown";
                     RequestLoggingContext.put(ctx, "logged_in_user", loggedInUserEmail);
                     return delegate.serve(ctx, req);
-                  }))
+                  })
               .decorate(
                   new HttpAuthServiceBuilder()
                       .addTokenAuthorizer(

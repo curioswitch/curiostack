@@ -38,8 +38,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
-import com.google.protobuf.gradle.ProtobufPlugin;
-import com.google.protobuf.gradle.ProtobufSourceDirectorySet;
 import com.palantir.baseline.plugins.BaselineIdea;
 import groovy.util.Node;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
@@ -65,6 +63,7 @@ import net.ltgt.gradle.apt.AptPlugin;
 import net.ltgt.gradle.errorprone.CheckSeverity;
 import net.ltgt.gradle.errorprone.ErrorProneOptions;
 import net.ltgt.gradle.errorprone.ErrorPronePlugin;
+import nl.javadude.gradle.plugins.license.License;
 import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
@@ -75,6 +74,7 @@ import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.Dependency
 import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
+import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
 import org.curioswitch.gradle.plugins.nodejs.util.NodeUtil;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
@@ -132,7 +132,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(CondaBuildEnvPlugin.class);
     plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
-    plugins.apply(org.curioswitch.gradle.plugins.nodejs.NodePlugin.class);
+    plugins.apply(NodePlugin.class);
     plugins.apply(ToolDownloaderPlugin.class);
 
     rootProject
@@ -234,14 +234,27 @@ public class CuriostackPlugin implements Plugin<Project> {
                   unused -> {
                     LicenseExtension license =
                         project.getExtensions().getByType(LicenseExtension.class);
-                    license.exclude("**/*.json");
                     license.setHeader(rootProject.file("LICENSE"));
                     license.mapping(
                         ImmutableMap.of(
                             "conf", "DOUBLESLASH_STYLE",
+                            "go", "SLASHSTAR_STYLE",
                             "java", "SLASHSTAR_STYLE",
                             "proto", "SLASHSTAR_STYLE",
                             "yml", "SCRIPT_STYLE"));
+
+                    project
+                        .getTasks()
+                        .withType(License.class)
+                        .configureEach(
+                            t -> {
+                              t.exclude("**/*.json");
+                              t.exclude(
+                                  f ->
+                                      f.getFile()
+                                          .toPath()
+                                          .startsWith(project.getBuildDir().toPath()));
+                            });
                   });
         });
 
@@ -257,6 +270,9 @@ public class CuriostackPlugin implements Plugin<Project> {
     project.getRepositories().maven(maven -> maven.setUrl("https://dl.bintray.com/mockito/maven"));
     project.getRepositories().mavenCentral();
     project.getRepositories().mavenLocal();
+    project
+        .getRepositories()
+        .maven(maven -> maven.setUrl("https://oss.sonatype.org/content/repositories/snapshots/"));
     project.getRepositories().maven(maven -> maven.setUrl("https://oss.jfrog.org/libs-snapshot"));
   }
 
@@ -317,7 +333,6 @@ public class CuriostackPlugin implements Plugin<Project> {
             .put("OptionalNotPresent", ERROR)
             .put("OverrideThrowableToString", ERROR)
             .put("PreconditionsInvalidPlaceholder", ERROR)
-            .put("ProtoFieldPreconditionsCheckNotNull", ERROR)
             .put("ShortCircuitBoolean", ERROR)
             .put("StaticGuardedByInstance", ERROR)
             .put("StreamResourceLeak", ERROR)
@@ -399,8 +414,8 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
 
     JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
-    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_1_10);
-    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_1_10);
+    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_11);
+    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_11);
 
     project
         .getTasks()
@@ -465,6 +480,9 @@ public class CuriostackPlugin implements Plugin<Project> {
     project
         .getDependencies()
         .add(ErrorPronePlugin.CONFIGURATION_NAME, "com.google.errorprone:error_prone_core");
+    project
+        .getDependencies()
+        .add(ErrorPronePlugin.CONFIGURATION_NAME, "com.google.auto.value:auto-value-annotations");
     project.afterEvaluate(CuriostackPlugin::addStandardJavaTestDependencies);
 
     project
@@ -508,7 +526,11 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
 
     SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
-    spotless.java((extension) -> extension.googleJavaFormat(GOOGLE_JAVA_FORMAT_VERSION));
+    spotless.java(
+        (java) -> {
+          java.target("src/**/*.java");
+          java.googleJavaFormat(GOOGLE_JAVA_FORMAT_VERSION);
+        });
 
     project
         .getTasks()
@@ -526,23 +548,6 @@ public class CuriostackPlugin implements Plugin<Project> {
                                 }
                               });
                     }));
-
-    // Protobuf plugin doesn't add proto sourceset to allSource, which seems like an omission.
-    // We add it to make sure license plugin picks up the files.
-    project
-        .getPlugins()
-        .withType(
-            ProtobufPlugin.class,
-            unused -> {
-              for (SourceSet sourceSet : sourceSets) {
-                sourceSet
-                    .getAllSource()
-                    .source(
-                        ((ExtensionAware) sourceSet)
-                            .getExtensions()
-                            .getByType(ProtobufSourceDirectorySet.class));
-              }
-            });
 
     project
         .getPlugins()

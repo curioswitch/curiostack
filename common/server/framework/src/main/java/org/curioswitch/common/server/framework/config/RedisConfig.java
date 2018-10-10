@@ -39,6 +39,9 @@ public interface RedisConfig {
    */
   String getUrl();
 
+  /** Whether the redis server is using redis cluster. */
+  boolean isCluster();
+
   /**
    * Whether a noop cache should be used instead of redis. Should only be enabled for local
    * development.

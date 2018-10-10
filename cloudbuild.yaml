@@ -14,7 +14,7 @@ steps:
 - id: curio-generated-fetch-builder-image
   waitFor:
   - '-'
-  name: openjdk:10-jdk-slim
+  name: curiostack/java-cloud-builder
   entrypoint: bash
   args:
   - -c
@@ -28,28 +28,21 @@ steps:
     path: /root/.gradle/wrapper
   - name: gradle-caches
     path: /root/.gradle/caches
-  - name: gcloud
-    path: /root/.gradle/curiostack/gcloud
-  - name: conda
-    path: /root/.gradle/curiostack/miniconda2-build
-  entrypoint: bash
+  dir: /root/.gradle
+  entrypoint: ash
   args:
   - -c
-  - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4 - | lz4 -dc - | tar -xpP || echo Could not fetch compressed build cache...
+  - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4 - | lz4 -dc - | tar -xp || echo Could not fetch compressed build cache...
 - id: curio-generated-build-all
   waitFor:
   - curio-generated-deepen-git-repo
   - curio-generated-fetch-compressed-build-cache
-  name: openjdk:10-jdk-slim
+  name: curiostack/java-cloud-builder
   volumes:
   - name: gradle-wrapper
     path: /root/.gradle/wrapper
   - name: gradle-caches
     path: /root/.gradle/caches
-  - name: gcloud
-    path: /root/.gradle/curiostack/gcloud
-  - name: conda
-    path: /root/.gradle/curiostack/miniconda2-build
   entrypoint: ./gradlew
   args:
   - continuousBuild
@@ -69,12 +62,9 @@ steps:
     path: /root/.gradle/wrapper
   - name: gradle-caches
     path: /root/.gradle/caches
-  - name: gcloud
-    path: /root/.gradle/curiostack/gcloud
-  - name: conda
-    path: /root/.gradle/curiostack/miniconda2-build
-  entrypoint: bash
+  dir: /root/.gradle
+  entrypoint: ash
   args:
   - -c
-  - tar -cpPf - /root/.gradle/wrapper /root/.gradle/caches /root/.gradle/curiostack/gcloud /root/.gradle/curiostack/miniconda2-build | lz4 -qc - | gsutil -o GSUtil:parallel_composite_upload_threshold=150M cp - gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4
+  - tar -cpf - wrapper caches curiostack/gcloud curiostack/miniconda2-build | lz4 -qc - | gsutil -o GSUtil:parallel_composite_upload_threshold=150M cp - gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4
 timeout: 60m

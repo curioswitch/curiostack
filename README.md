@@ -7,12 +7,14 @@ See gradle-curiostack-plugin [README](tools/gradle-plugins/gradle-curiostack-plu
 
 ## Developing
 
-Curiostack requires JDK10.
+Curiostack requires JDK8 and JDK11.
 
 ```bash
-$ sudo add-apt-repository ppa:linuxuprising/java
+$ sudo add-apt-repository ppa:openjdk-r/ppa
 $ sudo apt-get update
-$ sudo apt-get install oracle-java9-installer
+$ sudo apt-get install openjdk-8-jdk-headless
+$ sudo apt-get install openjdk-11-jdk-headless
+$ sudo  update-java-alternatives --set java-1.11.0-openjdk-amd64
 ```
 
 First run

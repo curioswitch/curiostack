@@ -24,6 +24,8 @@
 
 package org.curioswitch.gradle.plugins.gcloud.buildcache;
 
+import static com.google.common.util.concurrent.Futures.getUnchecked;
+
 import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -57,8 +59,8 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
     }
     try (ByteBufInputStream s = new ByteBufInputStream(data)) {
       buildCacheEntryReader.readFrom(s);
-    } catch (IOException e) {
-      logger.warn("Exception processing cloud storage data.", e);
+    } catch (Throwable t) {
+      logger.warn("Exception processing cloud storage data.", t);
       return false;
     } finally {
       data.release();
@@ -80,8 +82,18 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
 
       FileWriter writer =
           cloudStorage.createFile(buildCacheKey.getHashCode(), ImmutableMap.of()).join();
-      writer.writeAndClose(buf).join();
+      while (buf.readableBytes() > 0) {
+        ByteBuf chunk = buf.readSlice(Math.min(buf.readableBytes(), 10 * 4 * 256 * 1000));
+        if (buf.readableBytes() > 0) {
+          getUnchecked(writer.write(chunk.nioBuffer(0, chunk.readableBytes())));
+        } else {
+          writer.writeAndClose(chunk).join();
+        }
+      }
       success = true;
+    } catch (Throwable t) {
+      logger.warn("Exception writing to cloud storage, ignoring.", t);
+      ;
     } finally {
       if (!success) {
         buf.release();

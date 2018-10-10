@@ -28,7 +28,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.curioswitch.gradle.golang.GolangPlugin;
+import org.curioswitch.gradle.golang.GolangSetupPlugin;
 import org.curioswitch.gradle.golang.tasks.GoTask;
 import org.curioswitch.gradle.helpers.platform.PathUtil;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
@@ -49,7 +49,7 @@ public class TerraformSetupPlugin implements Plugin<Project> {
         project.getParent() == null,
         "TerraformSetupPlugin can only be applied to the root project.");
     project.getPlugins().apply(ToolDownloaderPlugin.class);
-    project.getPlugins().apply(GolangPlugin.class);
+    project.getPlugins().apply(GolangSetupPlugin.class);
 
     project
         .getPlugins()
