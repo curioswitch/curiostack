@@ -227,7 +227,14 @@ public class GcloudPlugin implements Plugin<Project> {
                                       .configure(
                                           t ->
                                               uploadCache.configure(
-                                                  uc -> uc.setOnlyIf(unused -> t.getDidWork())));
+                                                  uc ->
+                                                      uc.setOnlyIf(
+                                                          unused ->
+                                                              "true"
+                                                                      .equals(
+                                                                          System.getenv(
+                                                                              "CI_MASTER"))
+                                                                  && t.getDidWork())));
 
                                   project
                                       .getPlugins()

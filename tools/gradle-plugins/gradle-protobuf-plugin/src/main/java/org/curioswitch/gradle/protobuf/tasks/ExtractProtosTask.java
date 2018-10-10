@@ -27,7 +27,6 @@ package org.curioswitch.gradle.protobuf.tasks;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.File;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
@@ -37,7 +36,6 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
 public class ExtractProtosTask extends DefaultTask {
@@ -85,35 +83,8 @@ public class ExtractProtosTask extends DefaultTask {
     getProject().mkdir(destDir);
 
     for (File file : files) {
-      String mapKey = UUID.randomUUID().toString();
-      TASKS.put(mapKey, this);
-
-      workerExecutor.submit(
-          DoProtobufExtract.class,
-          config -> {
-            config.setIsolationMode(IsolationMode.NONE);
-            config.params(file, mapKey);
-          });
-    }
-  }
-
-  public static class DoProtobufExtract implements Runnable {
-
-    private final File file;
-    private final String mapKey;
-
-    @Inject
-    public DoProtobufExtract(File file, String mapKey) {
-      this.file = file;
-      this.mapKey = mapKey;
-    }
-
-    @Override
-    public void run() {
-      ExtractProtosTask task = TASKS.remove(mapKey);
-
-      Project project = task.getProject();
-      File destDir = task.destDir.getAsFile().get();
+      Project project = getProject();
+      File destDir = this.destDir.getAsFile().get();
 
       if (file.isDirectory()) {
         project.copy(
@@ -137,11 +108,7 @@ public class ExtractProtosTask extends DefaultTask {
         project.copy(
             copy -> {
               copy.setIncludeEmptyDirs(false);
-              copy.from(
-                  project.zipTree(file),
-                  spec -> {
-                    spec.include("**/*.proto");
-                  });
+              copy.from(project.zipTree(file), spec -> spec.include("**/*.proto"));
               copy.into(destDir);
             });
       } else if (file.getPath().endsWith(".tar")

@@ -59,8 +59,8 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
     }
     try (ByteBufInputStream s = new ByteBufInputStream(data)) {
       buildCacheEntryReader.readFrom(s);
-    } catch (IOException e) {
-      logger.warn("Exception processing cloud storage data.", e);
+    } catch (Throwable t) {
+      logger.warn("Exception processing cloud storage data.", t);
       return false;
     } finally {
       data.release();
@@ -91,6 +91,9 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
         }
       }
       success = true;
+    } catch (Throwable t) {
+      logger.warn("Exception writing to cloud storage, ignoring.", t);
+      ;
     } finally {
       if (!success) {
         buf.release();
