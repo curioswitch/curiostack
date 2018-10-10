@@ -222,11 +222,19 @@ public class GcloudPlugin implements Plugin<Project> {
 
                                   // We disable cache upload by default and only enable it if a
                                   // setup task was run.
+                                  uploadCache.configure(t -> t.setOnlyIf(unused -> false));
                                   DownloadToolUtil.getSetupTask(project, tool.getName())
                                       .configure(
                                           t ->
                                               uploadCache.configure(
-                                                  uc -> uc.onlyIf(unused -> t.getDidWork())));
+                                                  uc ->
+                                                      uc.setOnlyIf(
+                                                          unused ->
+                                                              "true"
+                                                                      .equals(
+                                                                          System.getenv(
+                                                                              "CI_MASTER"))
+                                                                  && t.getDidWork())));
 
                                   project
                                       .getPlugins()
