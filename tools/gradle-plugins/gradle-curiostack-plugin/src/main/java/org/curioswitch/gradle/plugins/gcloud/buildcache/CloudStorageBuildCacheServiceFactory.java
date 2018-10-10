@@ -28,6 +28,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.linecorp.armeria.client.ClientOption;
+import com.linecorp.armeria.client.Clients;
 import com.linecorp.armeria.client.HttpClient;
 import java.io.IOException;
 import java.time.Clock;
@@ -73,7 +75,9 @@ public class CloudStorageBuildCacheServiceFactory
     GoogleCredentialsDecoratingClient.Factory credentialsDecoratorFactory =
         new GoogleCredentialsDecoratingClient.Factory(accessTokenProvider);
     HttpClient authenticatedGoogleApis =
-        GcloudAuthModule.authenticatedGoogleApisClient(googleApis, credentialsDecoratorFactory);
+        Clients.newDerivedClient(
+            GcloudAuthModule.authenticatedGoogleApisClient(googleApis, credentialsDecoratorFactory),
+            ClientOption.DEFAULT_MAX_RESPONSE_LENGTH.newValue(100 * 1000 * 1000L));
 
     StorageClient storageClient =
         new StorageClient(
