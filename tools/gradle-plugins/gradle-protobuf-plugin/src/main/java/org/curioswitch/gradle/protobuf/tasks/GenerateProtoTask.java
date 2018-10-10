@@ -360,7 +360,16 @@ public class GenerateProtoTask extends DefaultTask {
                                 && Objects.equals(dep.getVersion(), d.getVersion());
                           });
                   checkState(files.size() == 1);
-                  return new SimpleImmutableEntry<>(artifact, Iterables.getOnlyElement(files));
+
+                  File file = Iterables.getOnlyElement(files);
+                  if (!file.canExecute()) {
+                    if (!file.setExecutable(true)) {
+                      throw new IllegalStateException(
+                          "Could not set proto tool to executable: " + file.getAbsolutePath());
+                    }
+                  }
+
+                  return new SimpleImmutableEntry<>(artifact, file);
                 })
             .collect(toImmutableMap(Entry::getKey, Entry::getValue));
 
