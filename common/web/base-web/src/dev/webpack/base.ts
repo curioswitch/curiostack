@@ -36,6 +36,9 @@ const browsers = (packageJson.curiostack &&
 function configure(options: any): Configuration {
   const typescriptLoader = [
     {
+      loader: 'thread-loader',
+    },
+    {
       loader: 'babel-loader',
       options: {
         presets: [
@@ -81,7 +84,7 @@ function configure(options: any): Configuration {
         compilerOptions: {
           noEmit: false,
         },
-        transpileOnly: true,
+        happyPackMode: true,
         experimentalWatchApi: true,
         onlyCompileBundledFiles: true,
         reportFiles: ['src/**/*.{ts,tsx}'],
@@ -103,9 +106,14 @@ function configure(options: any): Configuration {
         {
           test: /\.js$/, // Transform all .js files required somewhere with Babel
           exclude: /node_modules/,
-          use: {
-            loader: 'babel-loader',
-          },
+          use: [
+            {
+              loader: 'thread-loader',
+            },
+            {
+              loader: 'babel-loader',
+            },
+          ],
         },
         {
           test: /\.ts(x?)$/,
@@ -141,7 +149,11 @@ function configure(options: any): Configuration {
         },
         {
           test: /\.md$/,
-          use: ['babel-loader', '@hugmanrique/react-markdown-loader'],
+          use: [
+            'thread-loader',
+            'babel-loader',
+            '@hugmanrique/react-markdown-loader',
+          ],
         },
       ],
     },

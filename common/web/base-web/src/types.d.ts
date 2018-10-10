@@ -75,12 +75,6 @@ declare module 'brotli-webpack-plugin' {
   export = BrotliPlugin;
 }
 
-declare module 'fork-ts-checker-webpack-plugin' {
-  import { Plugin } from 'webpack';
-  class ForkTsCheckerWebpackPlugin extends Plugin {}
-  export = ForkTsCheckerWebpackPlugin;
-}
-
 declare module 'koa-proxies' {
 
 }
