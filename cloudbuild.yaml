@@ -62,10 +62,6 @@ steps:
     path: /root/.gradle/wrapper
   - name: gradle-caches
     path: /root/.gradle/caches
-  - name: gcloud
-    path: /root/.gradle/curiostack/gcloud
-  - name: conda
-    path: /root/.gradle/curiostack/miniconda2-build
   dir: /root/.gradle
   entrypoint: ash
   args:
