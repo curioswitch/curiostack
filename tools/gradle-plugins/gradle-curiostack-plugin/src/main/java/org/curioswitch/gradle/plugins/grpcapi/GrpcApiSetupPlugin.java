@@ -26,13 +26,70 @@ package org.curioswitch.gradle.plugins.grpcapi;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Paths;
+import org.curioswitch.gradle.helpers.platform.OperatingSystem;
+import org.curioswitch.gradle.helpers.platform.PlatformHelper;
+import org.curioswitch.gradle.plugins.nodejs.NodeSetupPlugin;
+import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
+import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 public class GrpcApiSetupPlugin implements Plugin<Project> {
 
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+  private static final String TS_PROTOC_GEN_VERSION = "0.7.6";
+
   @Override
   public void apply(Project project) {
     checkState(project.getParent() == null, "GrpcApiSetupPlugin must be applied to root project.");
+    project.getPlugins().apply(ToolDownloaderPlugin.class);
+    project.getPlugins().apply(NodeSetupPlugin.class);
+
+    project
+        .getTasks()
+        .register(
+            "installTsProtocGen",
+            NodeTask.class,
+            t -> {
+              t.setCommand("npm");
+              t.args("install", "-g", "--no-save", "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION);
+              t.dependsOn(DownloadToolUtil.getDownloadTask(project, "node"));
+
+              t.onlyIf(
+                  unused -> {
+                    File packageJson =
+                        DownloadedToolManager.get(project)
+                            .getBinDir("node")
+                            .resolve(
+                                new PlatformHelper().getOs() != OperatingSystem.WINDOWS
+                                    ? "../lib"
+                                    : "")
+                            .resolve(Paths.get("node_modules", "ts-protoc-gen", "package.json"))
+                            .toFile();
+                    if (!packageJson.exists()) {
+                      return true;
+                    }
+                    try {
+                      if (!OBJECT_MAPPER
+                          .readTree(packageJson)
+                          .get("version")
+                          .asText()
+                          .equals(TS_PROTOC_GEN_VERSION)) {
+                        return true;
+                      }
+                    } catch (IOException e) {
+                      throw new UncheckedIOException("Could not read package.json", e);
+                    }
+                    return false;
+                  });
+            });
   }
 }
