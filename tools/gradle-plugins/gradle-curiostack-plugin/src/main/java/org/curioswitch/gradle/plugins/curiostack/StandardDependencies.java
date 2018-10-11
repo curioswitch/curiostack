@@ -147,7 +147,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.46.0")
+              .version("1.48.0")
               .addModules(
                   "google-cloud-bigquery",
                   "google-cloud-core",
@@ -185,7 +185,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.errorprone")
-              .version("2.3.2-SNAPSHOT")
+              .version("2.3.2")
               .addModules("error_prone_core")
               .build(),
           ImmutableDependencySet.builder()
@@ -211,7 +211,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.72.0")
+              .version("0.73.0")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -286,7 +286,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("4.1.29.Final")
+              .version("4.1.30.Final")
               .addModules(
                   "netty-buffer",
                   "netty-codec",
@@ -306,7 +306,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("2.0.15.Final")
+              .version("2.0.17.Final")
               .addModules("netty-tcnative-boringssl-static")
               .build(),
           ImmutableDependencySet.builder()
@@ -322,7 +322,7 @@ public class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("io.zipkin.gcp")
               .version("0.8.2")
-              .addModules("zipkin-translation-stackdriver")
+              .addModules("zipkin-propagation-stackdriver", "zipkin-translation-stackdriver")
               .build(),
           ImmutableDependencySet.builder()
               .group("javax.inject")
@@ -454,7 +454,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")
-              .version("2.22.1")
+              .version("2.23.0")
               .addModules("mockito-core", "mockito-junit-jupiter")
               .build(),
           ImmutableDependencySet.builder()
@@ -464,7 +464,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.simpleflatmapper")
-              .version("5.0.2")
+              .version("6.0.1")
               .addModules(
                   "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
               .build(),
@@ -476,7 +476,7 @@ public class StandardDependencies {
 
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:3.6.2",
+          "com.bmuschko:gradle-docker-plugin:3.6.4",
           "com.diffplug.spotless:spotless-plugin-gradle:3.15.0",
           "com.github.ben-manes:gradle-versions-plugin:0.20.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.6",
