@@ -24,7 +24,6 @@
 
 package org.curioswitch.gradle.plugins.grpcapi;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.IOException;
@@ -37,7 +36,6 @@ import java.util.Map;
 import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.plugins.grpcapi.tasks.PackageWebTask;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
-import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
 import org.curioswitch.gradle.protobuf.ProtobufExtension;
 import org.curioswitch.gradle.protobuf.ProtobufPlugin;
 import org.curioswitch.gradle.protobuf.tasks.GenerateProtoTask;
@@ -80,6 +78,8 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
+    project.getRootProject().getPlugins().apply(GrpcApiSetupPlugin.class);
+
     project.getPluginManager().apply(JavaLibraryPlugin.class);
     project.getPluginManager().apply(ProtobufPlugin.class);
     project.getPluginManager().apply(NodePlugin.class);
@@ -148,7 +148,9 @@ public class GrpcApiPlugin implements Plugin<Project> {
                           .getPath()
                           .set(
                               project.file(
-                                  "node_modules/.bin/protoc-gen-ts" + (IS_WINDOWS ? ".cmd" : "")));
+                                  DownloadedToolManager.get(project)
+                                      .getBinDir("node")
+                                      .resolve("protoc-gen-ts" + (IS_WINDOWS ? ".cmd" : ""))));
                       language.option("service=true");
                       language.getOutputDir().set(project.file("build/webprotos"));
                     });
@@ -169,18 +171,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
           if (config.web()) {
             var installTsProtocGen =
-                project
-                    .getTasks()
-                    .register(
-                        "installTsProtocGen",
-                        NodeTask.class,
-                        t -> {
-                          project.delete("node_modules");
-                          t.setCommand("npm");
-                          t.args("install", "--no-save", "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION);
-                          t.getInputs().property("ts-protoc-gen-version", TS_PROTOC_GEN_VERSION);
-                          t.getOutputs().dirs(ImmutableMap.of("nodeModules", "node_modules"));
-                        });
+                project.getRootProject().getTasks().named("installTsProtocGen");
 
             var packageWeb =
                 project

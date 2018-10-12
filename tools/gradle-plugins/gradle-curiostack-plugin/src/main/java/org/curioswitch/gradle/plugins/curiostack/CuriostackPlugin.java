@@ -270,9 +270,6 @@ public class CuriostackPlugin implements Plugin<Project> {
     project.getRepositories().maven(maven -> maven.setUrl("https://dl.bintray.com/mockito/maven"));
     project.getRepositories().mavenCentral();
     project.getRepositories().mavenLocal();
-    project
-        .getRepositories()
-        .maven(maven -> maven.setUrl("https://oss.sonatype.org/content/repositories/snapshots/"));
     project.getRepositories().maven(maven -> maven.setUrl("https://oss.jfrog.org/libs-snapshot"));
   }
 
