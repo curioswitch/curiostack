@@ -24,6 +24,7 @@
 package org.curioswitch.common.server.framework.database;
 
 import java.lang.reflect.Type;
+import org.jooq.Record;
 import org.simpleflatmapper.jooq.JooqFieldKey;
 import org.simpleflatmapper.jooq.SfmRecordMapperProvider;
 import org.simpleflatmapper.map.FieldKey;
@@ -35,8 +36,8 @@ import org.simpleflatmapper.reflect.ReflectionService;
 /** Utilities for working with databases. */
 public final class DatabaseUtil {
 
-  private static final MapperConfig<JooqFieldKey> MAPPER_CONFIG =
-      MapperConfig.<JooqFieldKey>fieldMapperConfig()
+  private static final MapperConfig<JooqFieldKey, Record> MAPPER_CONFIG =
+      MapperConfig.<JooqFieldKey, Record>fieldMapperConfig()
           .mapperBuilderErrorHandler(
               new MapperBuilderErrorHandler() {
                 @Override
