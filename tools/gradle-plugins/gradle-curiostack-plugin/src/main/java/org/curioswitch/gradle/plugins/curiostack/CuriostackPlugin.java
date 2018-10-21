@@ -393,7 +393,9 @@ public class CuriostackPlugin implements Plugin<Project> {
         .configureEach(
             task -> {
               task.getOptions().setIncremental(true);
-              task.getOptions().setCompilerArgs(ImmutableList.of("-XDcompilePolicy=byfile"));
+              task.getOptions()
+                  .setCompilerArgs(
+                      ImmutableList.of("-XDcompilePolicy=byfile", "-Adagger.gradle.incremental"));
               project
                   .getTasks()
                   .withType(SpotlessTask.class)
@@ -480,6 +482,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     project
         .getDependencies()
         .add(ErrorPronePlugin.CONFIGURATION_NAME, "com.google.auto.value:auto-value-annotations");
+
     project.afterEvaluate(CuriostackPlugin::addStandardJavaTestDependencies);
 
     project

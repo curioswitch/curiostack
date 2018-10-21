@@ -27,10 +27,11 @@ package org.curioswitch.common.server.framework.logging;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
+import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.ElementsIntoSet;
-import dagger.producers.monitoring.ProductionComponentMonitor.Factory;
+import dagger.producers.monitoring.ProductionComponentMonitor;
 import java.util.Set;
 import javax.inject.Singleton;
 import org.curioswitch.common.server.framework.ApplicationModule;
@@ -43,18 +44,23 @@ public abstract class LoggingModule {
   @Provides
   @Singleton
   static LoggingConfig config(Config config) {
+    System.out.println("foo");
     return ConfigBeanFactory.create(config.getConfig("logging"), ModifiableLoggingConfig.class)
         .toImmutable();
   }
 
   @Provides
   @ElementsIntoSet
-  static Set<Factory> loggingMonitor(LoggingConfig config) {
+  static Set<ProductionComponentMonitor.Factory> loggingMonitor(
+      Lazy<TracingProductionComponentMonitor.Factory> tracingFactory, LoggingConfig config) {
+    ImmutableSet.Builder<ProductionComponentMonitor.Factory> monitors = ImmutableSet.builder();
     if (config.getLogProducerExecution()) {
-      return ImmutableSet.of(new LoggingProductionComponentMonitor.Factory());
-    } else {
-      return ImmutableSet.of();
+      monitors.add(new LoggingProductionComponentMonitor.Factory());
     }
+    if (config.getTraceProducerExecution()) {
+      monitors.add(tracingFactory.get());
+    }
+    return monitors.build();
   }
 
   private LoggingModule() {}

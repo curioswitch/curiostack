@@ -33,6 +33,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
@@ -62,6 +63,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
+import org.gradle.api.tasks.Delete;
 
 public class CurioGenericCiPlugin implements Plugin<Project> {
 
@@ -87,7 +89,30 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       return;
     }
 
+    var cleanWrapper =
+        project
+            .getTasks()
+            .register(
+                "cleanWrapper",
+                Delete.class,
+                t -> {
+                  File gradleHome = project.getGradle().getGradleHomeDir();
+
+                  t.delete(new File(gradleHome, "docs"));
+                  t.delete(new File(gradleHome, "media"));
+                  t.delete(new File(gradleHome, "samples"));
+                  t.delete(new File(gradleHome, "src"));
+
+                  // Zip file should always be foldername-all.zip
+                  var archive = new File(gradleHome.getParent(), gradleHome.getName() + "-all.zip");
+                  t.delete(archive);
+                });
+
     Task continuousBuild = project.task("continuousBuild");
+
+    if (System.getenv("CI_MASTER") != null) {
+      continuousBuild.dependsOn(cleanWrapper);
+    }
 
     String releaseBranch = getCiBranchOrTag();
     if (releaseBranch != null && releaseBranch.startsWith("RELEASE_")) {

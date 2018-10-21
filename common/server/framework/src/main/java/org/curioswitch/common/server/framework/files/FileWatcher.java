@@ -128,27 +128,13 @@ public class FileWatcher implements AutoCloseable {
               })
           .forEach(
               path -> {
-                final Path resolved;
-                try {
-                  resolved = watchedDirs.get(key).resolve(path).toRealPath();
-                } catch (IOException e) {
-                  logger.warn("Unexpected exception resolving path: {}", path, e);
-                  return;
-                }
+                final Path resolved = watchedDirs.get(key).resolve(path);
                 Optional<Consumer<Path>> callback =
                     registeredPaths
                         .entrySet()
                         .stream()
                         .filter(
-                            e -> {
-                              try {
-                                return e.getKey().toRealPath().equals(resolved);
-                              } catch (IOException ex) {
-                                logger.warn(
-                                    "Unexpected exception resolving path: {}", e.getKey(), ex);
-                                return false;
-                              }
-                            })
+                            e -> e.getKey().equals(resolved))
                         .map(Entry::getValue)
                         .findFirst();
                 if (callback.isPresent()) {

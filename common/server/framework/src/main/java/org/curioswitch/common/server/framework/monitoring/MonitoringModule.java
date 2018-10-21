@@ -33,6 +33,7 @@ import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import com.linecorp.armeria.common.metric.PrometheusMeterRegistries;
 import com.linecorp.armeria.common.tracing.RequestContextCurrentTraceContext;
@@ -41,13 +42,16 @@ import com.typesafe.config.ConfigBeanFactory;
 import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
+import dagger.multibindings.IntoSet;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.hotspot.DefaultExports;
 import io.prometheus.client.log4j2.InstrumentedAppender;
+import java.io.Closeable;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.Properties;
+import java.util.Set;
 import javax.inject.Singleton;
 import javax.management.MBeanServer;
 import org.apache.logging.log4j.LogManager;
@@ -56,7 +60,9 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.curioswitch.common.server.framework.ApplicationModule;
 import org.curioswitch.common.server.framework.config.ModifiableMonitoringConfig;
 import org.curioswitch.common.server.framework.config.MonitoringConfig;
+import org.curioswitch.common.server.framework.inject.CloseOnStop;
 import org.curioswitch.gcloud.trace.GcloudTraceModule;
+import zipkin2.propagation.stackdriver.StackdriverTracePropagation;
 
 @Module(includes = {ApplicationModule.class, GcloudTraceModule.class})
 public abstract class MonitoringModule {
@@ -101,12 +107,20 @@ public abstract class MonitoringModule {
             .localServiceName(config.getServerName())
             .traceId128Bit(true)
             .supportsJoin(false)
-            .currentTraceContext(RequestContextCurrentTraceContext.INSTANCE)
+            .propagationFactory(StackdriverTracePropagation.FACTORY)
+            .currentTraceContext(RequestContextCurrentTraceContext.DEFAULT)
             .sampler(Sampler.ALWAYS_SAMPLE);
     if (config.isReportTraces()) {
       builder.spanReporter(reporter.get());
     }
     return builder.build();
+  }
+
+  @Provides
+  @IntoSet
+  @CloseOnStop
+  static Set<Closeable> close(Tracing tracing) {
+    return ImmutableSet.of(tracing);
   }
 
   private static void configureDefaultMetrics(MetricRegistry registry) {
