@@ -39,8 +39,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import org.curioswitch.gradle.plugins.curioserver.tasks.NativeImageTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ApplicationPlugin;
@@ -48,6 +50,8 @@ import org.gradle.api.plugins.ApplicationPluginConvention;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.BasePluginConvention;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
+import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.jvm.tasks.Jar;
 
 /**
  * A simple {@link Plugin} to reduce boilerplate when defining server projects. Contains common
@@ -60,9 +64,11 @@ public class CurioServerPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    project.getPluginManager().apply(ApplicationPlugin.class);
-    project.getPluginManager().apply(GitPropertiesPlugin.class);
-    project.getPluginManager().apply(JibPlugin.class);
+    project.getRootProject().getPlugins().apply(CurioServerSetupPlugin.class);
+
+    project.getPlugins().apply(ApplicationPlugin.class);
+    project.getPlugins().apply(GitPropertiesPlugin.class);
+    project.getPlugins().apply(JibPlugin.class);
     project
         .getExtensions()
         .create(ImmutableDeploymentExtension.NAME, DeploymentExtension.class, project);
@@ -91,6 +97,24 @@ public class CurioServerPlugin implements Plugin<Project> {
               t.dependsOn(project.getTasks().getByName(BasePlugin.ASSEMBLE_TASK_NAME));
               t.dependsOn(project.getRootProject().getTasks().getByName("gcloudSetup"));
             });
+
+    var jar = project.getTasks().withType(Jar.class).named("jar");
+    var nativeImage =
+        project
+            .getTasks()
+            .register(
+                "nativeImage",
+                NativeImageTask.class,
+                t -> {
+                  t.getClasspath()
+                      .from(
+                          project
+                              .getConfigurations()
+                              .named(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME));
+                  t.getJarFile().set(jar.get().getOutputs().getFiles().getSingleFile());
+
+                  t.dependsOn(jar, DownloadToolUtil.getSetupTask(project, "graalvm"));
+                });
 
     project.afterEvaluate(
         p -> {
@@ -141,6 +165,8 @@ public class CurioServerPlugin implements Plugin<Project> {
           var appPluginConvention =
               project.getConvention().getPlugin(ApplicationPluginConvention.class);
           appPluginConvention.setApplicationName(archivesBaseName);
+
+          nativeImage.configure(t -> t.getOutputName().set(archivesBaseName));
 
           jib.getFrom().setImage("openjdk:11-jre-slim");
           jib.getTo().setImage(config.imagePrefix() + config.baseName());

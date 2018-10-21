@@ -483,7 +483,6 @@ public class StandardDependencies {
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
           "com.netflix.nebula:gradle-dependency-lock-plugin:6.0.0",
           "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.5",
-          "gradle.plugin.com.palantir.graal:gradle-graal:0.1.1-7-gdcfac74",
           "com.palantir:gradle-baseline-java:0.10.0",
           "de.undercouch:gradle-download-task:3.4.3",
           "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.2.0",
