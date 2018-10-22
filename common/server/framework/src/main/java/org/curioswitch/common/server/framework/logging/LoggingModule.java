@@ -44,7 +44,6 @@ public abstract class LoggingModule {
   @Provides
   @Singleton
   static LoggingConfig config(Config config) {
-    System.out.println("foo");
     return ConfigBeanFactory.create(config.getConfig("logging"), ModifiableLoggingConfig.class)
         .toImmutable();
   }
