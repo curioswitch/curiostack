@@ -294,6 +294,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             .put("CatchFail", ERROR)
             .put("ClassCanBeStatic", ERROR)
             .put("ClassNewInstance", ERROR)
+            .put("CloseableProvides", OFF)
             .put("CollectionToArraySafeParameter", ERROR)
             .put("ComparableAndComparator", ERROR)
             .put("DateFormatConstant", ERROR)

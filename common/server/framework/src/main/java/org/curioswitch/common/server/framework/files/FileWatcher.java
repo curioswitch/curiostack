@@ -133,8 +133,7 @@ public class FileWatcher implements AutoCloseable {
                     registeredPaths
                         .entrySet()
                         .stream()
-                        .filter(
-                            e -> e.getKey().equals(resolved))
+                        .filter(e -> e.getKey().equals(resolved))
                         .map(Entry::getValue)
                         .findFirst();
                 if (callback.isPresent()) {
