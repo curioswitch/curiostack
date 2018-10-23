@@ -23,6 +23,7 @@
  */
 package org.curioswitch.common.server.framework.database;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.typesafe.config.Config;
@@ -33,14 +34,17 @@ import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
+import dagger.multibindings.ElementsIntoSet;
 import dagger.multibindings.IntoSet;
+import java.io.Closeable;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import javax.inject.Singleton;
-import javax.sql.DataSource;
 import org.curioswitch.common.server.framework.ApplicationModule;
 import org.curioswitch.common.server.framework.armeria.CurrentRequestContextForwardingExecutorService;
 import org.curioswitch.common.server.framework.config.DatabaseConfig;
 import org.curioswitch.common.server.framework.config.ModifiableDatabaseConfig;
+import org.curioswitch.common.server.framework.inject.CloseOnStop;
 import org.curioswitch.common.server.framework.inject.EagerInit;
 import org.jooq.Configuration;
 import org.jooq.DSLContext;
@@ -71,11 +75,13 @@ public abstract class DatabaseModule {
 
   @Provides
   @Singleton
-  static DataSource dataSource(DatabaseConfig config) {
+  static HikariDataSource dataSource(DatabaseConfig config) {
     HikariConfig hikari = new HikariConfig();
     hikari.setJdbcUrl(config.getJdbcUrl());
     hikari.setUsername(config.getUsername());
     hikari.setPassword(config.getPassword());
+    hikari.addDataSourceProperty("logger", "com.mysql.cj.log.Slf4JLogger");
+    hikari.addDataSourceProperty("maxLifetime", config.getConnectionMaxLifetime().getSeconds());
     hikari.addDataSourceProperty("cachePrepStmts", true);
     hikari.addDataSourceProperty("prepStmtCacheSize", 250);
     hikari.addDataSourceProperty("prepStmtCacheSqlLimit", 2048);
@@ -101,7 +107,7 @@ public abstract class DatabaseModule {
   @Provides
   @Singleton
   static DSLContext dbContext(
-      DataSource dataSource,
+      HikariDataSource dataSource,
       DatabaseConfig config,
       @ForDatabase ListeningExecutorService dbExecutor) {
     Configuration configuration =
@@ -124,6 +130,14 @@ public abstract class DatabaseModule {
   @EagerInit
   @IntoSet
   abstract Object init(DSLContext dslContext);
+
+  @Provides
+  @ElementsIntoSet
+  @CloseOnStop
+  static Set<Closeable> close(
+      HikariDataSource dataSource, @ForDatabase ListeningExecutorService executor) {
+    return ImmutableSet.of(dataSource, executor::shutdownNow);
+  }
 
   private DatabaseModule() {}
 }

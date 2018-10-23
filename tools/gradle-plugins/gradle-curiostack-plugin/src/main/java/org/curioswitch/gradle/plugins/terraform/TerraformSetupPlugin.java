@@ -32,7 +32,6 @@ import org.curioswitch.gradle.golang.GolangSetupPlugin;
 import org.curioswitch.gradle.golang.tasks.GoTask;
 import org.curioswitch.gradle.helpers.platform.PathUtil;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
-import org.curioswitch.gradle.plugins.terraform.tasks.DownloadTerraformPluginTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
@@ -111,48 +110,14 @@ public class TerraformSetupPlugin implements Plugin<Project> {
             .getTasks()
             .register(
                 "terraformDownloadKubernetesForkProvider",
-                DownloadTerraformPluginTask.class,
-                "github.com/anuraaga/terraform-provider-kubernetes",
-                "48a08093b8723473929e8132b7ccf9e0a61e23b9");
-
-    var terraformInstallKubernetesForm =
-        project
-            .getTasks()
-            .register(
-                "terraformInstallKubernetesForkProvider",
                 GoTask.class,
                 t -> {
-                  t.dependsOn(terraformDownloadKubernetesFork);
-                  t.args("install", "-mod=vendor");
+                  t.args("get", "github.com/sl1pm4t/terraform-provider-kubernetes");
                   t.onlyIf(
                       unused ->
                           !Files.exists(
-                              DownloadedToolManager.get(project)
-                                  .getBinDir("terraform")
-                                  .resolve(PathUtil.getExeName("terraform-provider-kubernetes"))));
-                  t.execCustomizer(
-                      exec ->
-                          exec.workingDir(
-                              terraformDownloadKubernetesFork
-                                  .get()
-                                  .getTemporaryDir()
-                                  .toPath()
-                                  .resolve(
-                                      "terraform-provider-kubernetes-48a08093b8723473929e8132b7ccf9e0a61e23b9")));
-                });
-
-    var terraformDownloadHelm =
-        project
-            .getTasks()
-            .register(
-                "terraformDownloadHelmProvider",
-                GoTask.class,
-                t -> {
-                  t.args("get", "github.com/mcuadros/terraform-provider-helm");
-                  t.onlyIf(
-                      unused ->
-                          !Files.exists(
-                              goBinDir.resolve(PathUtil.getExeName("terraform-provider-helm"))));
+                              goBinDir.resolve(
+                                  PathUtil.getExeName("terraform-provider-kubernetes"))));
                 });
 
     var terraformDownloadGsuite =
@@ -178,8 +143,7 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                 t -> {
                   t.dependsOn(
                       terraformDownloadK8s,
-                      terraformDownloadHelm,
-                      terraformInstallKubernetesForm,
+                      terraformDownloadKubernetesFork,
                       terraformDownloadGsuite);
                   t.into(DownloadedToolManager.get(project).getBinDir("terraform"));
                   t.from(goBinDir);

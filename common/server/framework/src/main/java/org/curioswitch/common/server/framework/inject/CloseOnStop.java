@@ -21,28 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package org.curioswitch.common.server.framework.inject;
 
-package org.curioswitch.common.server.framework.config;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.inject.Qualifier;
 
-import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Modifiable;
-
-/** Configuration related to logging. */
-@Immutable
-@Modifiable
-@JavaBeanStyle
-public interface LoggingConfig {
-
-  /**
-   * Whether to do fine-grained logging of individual producer function execution. This creates a
-   * lot of output and generally should only be enabled when debugging a specific issue.
-   */
-  boolean getLogProducerExecution();
-
-  /**
-   * Whether to do fine-grained tracing of individual producer function execution. This can cause
-   * significant overhead and should be used with care.
-   */
-  boolean getTraceProducerExecution();
-}
+/**
+ * {@link Qualifier} to use on {@link Object} type providers to indicate the provided objects should
+ * be closed after server shutdown.
+ *
+ * <p>For example,
+ *
+ * <pre>{@code
+ * {@literal @}Module
+ * public class MyModule {
+ *   {@literal @}Provides
+ *   {@literal @}Singleton
+ *   public Database database() {
+ *     return Database.connect();
+ *   }
+ *
+ *   {@literal @Provides}
+ *   {@literal @ElementsIntoSet}
+ *   {@literal @CloseOnStop}
+ *   public Set<Closeable> init(Database database) {
+ *     return ImmutableSet.of(database);
+ *   }
+ * }
+ * }</pre>
+ */
+@Qualifier
+@Retention(RetentionPolicy.CLASS)
+@Target({ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
+public @interface CloseOnStop {}

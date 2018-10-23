@@ -25,11 +25,7 @@
 package org.curioswitch.gradle.plugins.gcloud;
 
 import com.bmuschko.gradle.docker.DockerRemoteApiPlugin;
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage;
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile;
-import com.google.common.collect.ImmutableList;
-import org.curioswitch.gradle.plugins.gcloud.tasks.DeployDevDbPodTask;
-import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.flywaydb.gradle.FlywayExtension;
 import org.flywaydb.gradle.FlywayPlugin;
 import org.gradle.api.Plugin;
@@ -70,22 +66,5 @@ public class CurioDatabasePlugin implements Plugin<Project> {
       // Root privilege needs to be exposed to create users other than MYSQL_USER.
       generateDevDbDockerfile.environmentVariable("MYSQL_ROOT_PASSWORD", devAdminPassword);
     }
-
-    DockerBuildImage buildDevDbDockerImage =
-        project.getTasks().create("buildDevDbDockerImage", DockerBuildImage.class);
-    buildDevDbDockerImage.dependsOn(generateDevDbDockerfile);
-    buildDevDbDockerImage.setInputDir(generateDevDbDockerfile.getDestFile().getParentFile());
-    buildDevDbDockerImage.setTag(config.devDockerImageTag());
-
-    GcloudTask pushDevDbDockerImage =
-        project.getTasks().create("pushDevDbDockerImage", GcloudTask.class);
-    pushDevDbDockerImage.dependsOn(buildDevDbDockerImage);
-    pushDevDbDockerImage.setArgs(
-        ImmutableList.of("docker", "--", "push", config.devDockerImageTag()));
-
-    project
-        .getTasks()
-        .create("deployDevDb", DeployDevDbPodTask.class)
-        .dependsOn(pushDevDbDockerImage);
   }
 }

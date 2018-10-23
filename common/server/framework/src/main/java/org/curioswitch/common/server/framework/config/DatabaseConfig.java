@@ -51,4 +51,10 @@ public interface DatabaseConfig {
 
   /** Whether to log all queries to INFO level. */
   boolean getLogQueries();
+
+  /**
+   * The max lifetime for database connections. Should be less than the wait_timeout setting in the
+   * DB itself.
+   */
+  Duration getConnectionMaxLifetime();
 }

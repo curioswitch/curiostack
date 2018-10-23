@@ -36,6 +36,7 @@ import com.linecorp.armeria.common.RequestContext;
 import com.linecorp.armeria.common.grpc.GrpcSerializationFormats;
 import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
+import com.linecorp.armeria.server.ServerListener;
 import com.linecorp.armeria.server.Service;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.ServiceWithPathMappings;
@@ -72,6 +73,7 @@ import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.prometheus.client.CollectorRegistry;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -86,7 +88,6 @@ import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -121,6 +122,7 @@ import org.curioswitch.common.server.framework.files.FileWatcher;
 import org.curioswitch.common.server.framework.files.WatchedPath;
 import org.curioswitch.common.server.framework.filter.IpFilteringService;
 import org.curioswitch.common.server.framework.grpc.GrpcServiceDefinition;
+import org.curioswitch.common.server.framework.inject.CloseOnStop;
 import org.curioswitch.common.server.framework.inject.EagerInit;
 import org.curioswitch.common.server.framework.logging.LoggingModule;
 import org.curioswitch.common.server.framework.logging.RequestLoggingContext;
@@ -210,6 +212,10 @@ public abstract class ServerModule {
   @Multibinds
   @EagerInit
   abstract Set<Object> eagerInitializedDependencies();
+
+  @Multibinds
+  @CloseOnStop
+  abstract Set<Closeable> closeOnStopDependencies();
 
   @BindsOptionalOf
   abstract SslCommonNamesProvider sslCommonNamesProvider();
@@ -318,6 +324,7 @@ public abstract class ServerModule {
       JavascriptStaticConfig javascriptStaticConfig,
       MonitoringConfig monitoringConfig,
       SecurityConfig securityConfig,
+      @CloseOnStop Set<Closeable> closeOnStopDependencies,
       // Eagerly trigger bindings that are present, not actually used here.
       @EagerInit Set<Object> eagerInitializedDependencies) {
     for (WatchedPath watched : watchedPaths) {
@@ -385,9 +392,15 @@ public abstract class ServerModule {
     }
 
     if (!serverConfig.isDisableDocService()) {
+      DocServiceBuilder docService = new DocServiceBuilder();
+      if (!authConfig.getServiceAccountBase64().isEmpty()) {
+        docService.injectedScript(
+            "armeria.registerHeaderProvider(function() {\n"
+                + "  return firebase.auth().currentUser.getIdToken().then(token => { authorization: 'bearer ' + token });\n"
+                + "});");
+      }
       sb.serviceUnder(
-          "/internal/docs",
-          internalService(new DocServiceBuilder().build(), ipFilter, serverConfig));
+          "/internal/docs", internalService(docService.build(), ipFilter, serverConfig));
     }
     sb.service(
         "/internal/health", internalService(new HttpHealthCheckService(), ipFilter, serverConfig));
@@ -508,9 +521,30 @@ public abstract class ServerModule {
       sb.gracefulShutdownTimeout(Duration.ofSeconds(10), Duration.ofSeconds(30));
     }
 
-    postServerCustomizers.forEach(
-        (c) -> {
-          c.accept(sb);
+    postServerCustomizers.forEach((c) -> c.accept(sb));
+
+    sb.serverListener(
+        new ServerListener() {
+          @Override
+          public void serverStarting(Server server) {}
+
+          @Override
+          public void serverStarted(Server server) {}
+
+          @Override
+          public void serverStopping(Server server) {}
+
+          @Override
+          public void serverStopped(Server server) {
+            closeOnStopDependencies.forEach(
+                c -> {
+                  try {
+                    c.close();
+                  } catch (IOException e) {
+                    logger.info("Exception closing {}", c);
+                  }
+                });
+          }
         });
 
     Server server = sb.build();
@@ -530,11 +564,7 @@ public abstract class ServerModule {
             new Thread(
                 () -> {
                   logger.info("Shutting down server.");
-                  try {
-                    server.stop().get();
-                  } catch (InterruptedException | ExecutionException e) {
-                    logger.warn("Error shutting down server.", e);
-                  }
+                  server.stop().join();
                 }));
 
     if (!fileWatcherBuilder.isEmpty()) {

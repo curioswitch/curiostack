@@ -24,17 +24,18 @@
 package org.curioswitch.common.server.framework.armeria;
 
 import brave.Tracing;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.ClientFactoryBuilder;
-import com.linecorp.armeria.client.Endpoint;
 import com.linecorp.armeria.client.endpoint.EndpointGroupRegistry;
 import com.linecorp.armeria.client.endpoint.EndpointSelectionStrategy;
 import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroup;
 import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroupBuilder;
 import com.linecorp.armeria.client.endpoint.healthcheck.HttpHealthCheckedEndpointGroup;
 import com.linecorp.armeria.client.endpoint.healthcheck.HttpHealthCheckedEndpointGroupBuilder;
+import com.linecorp.armeria.client.logging.LoggingClientBuilder;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
 import com.linecorp.armeria.client.tracing.HttpTracingClient;
 import com.linecorp.armeria.common.HttpRequest;
@@ -155,7 +156,10 @@ public class ClientBuilderFactory {
             logger.info(
                 "Resolved new endpoints for {} : [ {} ]",
                 name,
-                endpoints.stream().map(Endpoint::authority).collect(Collectors.joining(","))));
+                endpoints
+                    .stream()
+                    .map(e -> MoreObjects.firstNonNull(e.ipAddr(), e.authority()))
+                    .collect(Collectors.joining(","))));
     HttpHealthCheckedEndpointGroup endpointGroup =
         new HttpHealthCheckedEndpointGroupBuilder(dnsEndpointGroup, "/internal/health")
             .clientFactory(clientFactory)
@@ -179,6 +183,8 @@ public class ClientBuilderFactory {
             HttpRequest.class,
             HttpResponse.class,
             MetricCollectingClient.newDecorator(RpcMetricLabels.grpcRequestLabeler("grpc_clients")))
-        .decorator(HttpRequest.class, HttpResponse.class, HttpTracingClient.newDecorator(tracing));
+        .decorator(HttpRequest.class, HttpResponse.class, HttpTracingClient.newDecorator(tracing))
+        .decorator(
+            HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator());
   }
 }
