@@ -24,8 +24,23 @@
 
 package org.curioswitch.gradle.helpers.platform;
 
+/**
+ * The operating system a plugin is running on. Currently supported operating systems are Linux,
+ * MacOS X, and Windows. Other unixes may work when treated as Linux but this is not supported.
+ */
 public enum OperatingSystem {
+  /**
+   * The Linux operating system.
+   */
   LINUX,
+
+  /**
+   * The MacOS X operating system.
+   */
   MAC_OSX,
+
+  /**
+   * The Windows operating system.
+   */
   WINDOWS,
 }

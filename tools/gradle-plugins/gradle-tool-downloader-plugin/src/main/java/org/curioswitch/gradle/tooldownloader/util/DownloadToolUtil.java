@@ -24,7 +24,10 @@
 
 package org.curioswitch.gradle.tooldownloader.util;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import org.curioswitch.gradle.helpers.task.TaskUtil;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
 import org.curioswitch.gradle.tooldownloader.tasks.SetupTask;
 import org.gradle.api.Project;
@@ -32,6 +35,14 @@ import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 
 public final class DownloadToolUtil {
+
+  public static DownloadedToolManager getManager(Project project) {
+    var toolManager =
+        (DownloadedToolManager)
+            project.getRootProject().getExtensions().getExtraProperties().get("toolManager");
+    checkNotNull(toolManager, "toolManager not found. Did you apply the tool-downloader plugin?");
+    return toolManager;
+  }
 
   public static TaskProvider<DownloadToolTask> getDownloadTask(Project project, String toolName) {
     return project
