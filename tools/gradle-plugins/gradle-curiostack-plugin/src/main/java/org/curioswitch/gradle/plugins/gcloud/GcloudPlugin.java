@@ -51,7 +51,6 @@ import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
 import org.curioswitch.gradle.plugins.gcloud.tasks.FetchToolCacheTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
-import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.UploadToolCacheTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
@@ -121,7 +120,6 @@ public class GcloudPlugin implements Plugin<Project> {
 
     ExtraPropertiesExtension ext = project.getExtensions().getExtraProperties();
     ext.set(GcloudTask.class.getSimpleName(), GcloudTask.class);
-    ext.set(RequestNamespaceCertTask.class.getSimpleName(), RequestNamespaceCertTask.class);
 
     project
         .getTasks()
