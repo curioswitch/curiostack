@@ -79,7 +79,7 @@ public class ToolDownloaderPlugin implements Plugin<Project> {
                       toolManager);
           var setup = project
               .getTasks()
-              .register("toolsSetup" + taskSuffix, SetupTask.class, tool);
+              .register("toolsSetup" + taskSuffix, SetupTask.class, tool.getName());
           setup.configure(t -> t.dependsOn(task));
           downloadAll.configure(t -> t.dependsOn(task));
           setupAll.configure(t -> t.dependsOn(setup));
