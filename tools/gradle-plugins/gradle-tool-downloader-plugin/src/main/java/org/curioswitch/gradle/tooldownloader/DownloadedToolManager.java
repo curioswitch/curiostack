@@ -39,6 +39,10 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.process.ProcessForkOptions;
 
+/**
+ * Manager of all the downloaded tools in a build. Can be used to access the tool directories and
+ * executables.
+ */
 public class DownloadedToolManager {
 
   public static DownloadedToolManager get(Project project) {

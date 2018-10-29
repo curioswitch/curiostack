@@ -35,7 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.curioswitch.gradle.helpers.platform.PathUtil;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
@@ -63,13 +62,6 @@ public class CreateShellConfigTask extends DefaultTask {
 
   @TaskAction
   public void exec() {
-    String joinedPath =
-        getPaths()
-            .stream()
-            .map(PathUtil::toBashString)
-            // Assume msys or cygwin for now.
-            .collect(Collectors.joining(":"));
-
     String homeDir = System.getProperty("user.shellHome", System.getProperty("user.home", ""));
     if (homeDir.isEmpty()) {
       return;
@@ -78,7 +70,9 @@ public class CreateShellConfigTask extends DefaultTask {
     List<String> configLines =
         ImmutableList.of(
             MARKER,
-            "export PATH=" + joinedPath + ":$PATH",
+            "export PATH="
+                + PathUtil.toBashString(toolManager.getCuriostackDir().resolve("shims"))
+                + ":$PATH",
             "export CLOUDSDK_PYTHON="
                 + PathUtil.toBashString(
                     toolManager.getBinDir("miniconda2-build").resolve("python")),

@@ -45,6 +45,19 @@ public final class PathUtil {
   }
 
   /**
+   * Returns a {@link String} representation of the {@link String} that can be included in a bash
+   * invocation. The {@code path} is often an interpolation.
+   */
+  public static String toBashString(String path) {
+    var helper = new PlatformHelper();
+    if (helper.getOs() != OperatingSystem.WINDOWS) {
+      return path;
+    } else {
+      return "$(cygpath " + path + ")";
+    }
+  }
+
+  /**
    * Returns the name appended with a platform specific exe extension. This currently just adds
    * .exe to the name on Windows.
    */

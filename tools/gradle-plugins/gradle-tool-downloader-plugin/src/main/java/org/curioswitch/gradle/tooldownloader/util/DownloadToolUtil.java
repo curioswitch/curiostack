@@ -34,8 +34,17 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 
+/**
+ * Utilities for working with the configuration of a downloaded tool.
+ */
 public final class DownloadToolUtil {
 
+  /**
+   * Returns the {@link DownloadedToolManager} registered to the root project of this build. This
+   * is the primary entry point for working with the downloaded tools.
+   *
+   * @param project A project in the build. The actually used project is the root project.
+   */
   public static DownloadedToolManager getManager(Project project) {
     var toolManager =
         (DownloadedToolManager)
@@ -44,6 +53,13 @@ public final class DownloadToolUtil {
     return toolManager;
   }
 
+  /**
+   * Returns the {@link TaskProvider} for the download task for a tool. Most users should use
+   * {@link #getSetupTask(Project, String)} which will also run any additional setup tasks.
+   *
+   * @param project A project in this build. The actually used project is the root project.
+   * @param toolName The name of the tool.
+   */
   public static TaskProvider<DownloadToolTask> getDownloadTask(Project project, String toolName) {
     return project
         .getRootProject()
@@ -52,6 +68,14 @@ public final class DownloadToolUtil {
         .named("toolsDownload" + TaskUtil.toTaskSuffix(toolName));
   }
 
+  /**
+   * Returns the {@link TaskProvider} for the setup task for this a tool. Most {@link Task}s that
+   * depend on a tool being present should declare a dependency on the returned
+   * {@link TaskProvider}.
+   *
+   * @param project A project in this build. The actually used project is the root project.
+   * @param toolName The name of the tool.
+   */
   public static TaskProvider<? extends Task> getSetupTask(Project project, String toolName) {
     return project
         .getRootProject()
