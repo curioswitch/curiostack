@@ -76,7 +76,6 @@ import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
 import org.curioswitch.gradle.plugins.nodejs.util.NodeUtil;
-import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
@@ -148,20 +147,16 @@ public class CuriostackPlugin implements Plugin<Project> {
     rootProject
         .getTasks()
         .register(
-            "rehash",
-            CreateShellConfigTask.class,
-            t -> DownloadedToolManager.get(rootProject).getAllBinDirs().forEach(t::path));
+            "updateShellConfig",
+            CreateShellConfigTask.class);
 
     rootProject
         .getTasks()
         .register(
             "setup",
             t -> {
-              t.dependsOn(rootProject.getTasks().named("toolsDownloadAll"));
-              t.dependsOn("gcloudSetup");
-              t.dependsOn("nodeSetup");
-              t.dependsOn("yarnSetup");
-              t.dependsOn("rehash");
+              t.dependsOn(rootProject.getTasks().named("toolsSetupAll"));
+              t.dependsOn("updateShellConfig");
             });
 
     String baselineFiles;

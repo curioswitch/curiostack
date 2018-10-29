@@ -54,7 +54,7 @@ public class SetupTask extends DefaultTask {
 
   @TaskAction
   public void exec() {
-    if ("true".equals(System.getenv("CI"))) {
+    if ("true".equals(System.getenv("CI")) || toolName.equals("graalvm")) {
       return;
     }
 
@@ -75,15 +75,16 @@ public class SetupTask extends DefaultTask {
     for (Path binDir : toolManager.getBinDirs(toolName)) {
       try (Stream<Path> s = Files.list(binDir)) {
         s.filter(Files::isExecutable)
+            // Git is mainly for use on CI, don't shim it on dev machines since it's never better.
+            .filter(p -> !p.getFileName().toString().startsWith("git"))
             .forEach(
-                path -> {
-                  workerExecutor.submit(
-                      WriteShim.class,
-                      config -> {
-                        config.setIsolationMode(IsolationMode.NONE);
-                        config.params(shimsPath.toString(), path.toString(), shimTemplate);
-                      });
-                });
+                path ->
+                    workerExecutor.submit(
+                        WriteShim.class,
+                        config -> {
+                          config.setIsolationMode(IsolationMode.NONE);
+                          config.params(shimsPath.toString(), path.toString(), shimTemplate);
+                        }));
       } catch (IOException e) {
         throw new UncheckedIOException("Could not open directory.", e);
       }

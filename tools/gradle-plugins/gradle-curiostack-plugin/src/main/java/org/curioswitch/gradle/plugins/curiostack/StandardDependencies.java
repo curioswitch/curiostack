@@ -394,7 +394,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.28")
+              .version("0.0.29")
               .addModules(
                   "armeria-google-cloud-core",
                   "armeria-google-cloud-iam",
@@ -404,7 +404,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.94")
+              .version("0.0.95")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()

@@ -24,8 +24,6 @@
 
 package org.curioswitch.gradle.plugins.curiostack.tasks;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
@@ -38,7 +36,6 @@ import java.util.List;
 import org.curioswitch.gradle.helpers.platform.PathUtil;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
 public class CreateShellConfigTask extends DefaultTask {
@@ -53,11 +50,6 @@ public class CreateShellConfigTask extends DefaultTask {
   public CreateShellConfigTask path(Path path) {
     paths = ImmutableList.<Path>builder().addAll(paths).add(path).build();
     return this;
-  }
-
-  @Input
-  public List<Path> getPaths() {
-    return paths.stream().map(Path::toAbsolutePath).collect(toImmutableList());
   }
 
   @TaskAction
@@ -112,6 +104,14 @@ public class CreateShellConfigTask extends DefaultTask {
       } catch (IOException e) {
         throw new UncheckedIOException("Could not write to shell file.", e);
       }
+    }
+
+    try {
+      Files.writeString(
+          getProject().getRootProject().file(".gradle/is-curiostack.txt").toPath(),
+          "Satisfying curiostiy");
+    } catch (IOException e) {
+      throw new UncheckedIOException("Could not write curiostack marker.", e);
     }
   }
 }
