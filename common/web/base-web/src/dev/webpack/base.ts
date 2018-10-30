@@ -163,7 +163,12 @@ function configure(options: any): Configuration {
       modules: ['src', 'node_modules'],
       extensions: ['.js', '.jsx', '.ts', '.tsx'],
       mainFields: ['browser', 'module', 'jsnext:main', 'main'],
-      plugins: [new TsconfigPathsPlugin()],
+      plugins: [
+        new TsconfigPathsPlugin({
+          extensions: ['.ts', '.tsx', '.js', '.jsx'],
+          mainFields: ['browser', 'module', 'jsnext:main', 'main'],
+        }),
+      ],
     },
     devtool: options.devtool,
     target: options.target || 'web',
