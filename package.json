@@ -19,7 +19,7 @@
     "@babel/preset-react" : "7.0.0",
     "@babel/runtime" : "7.0.0-beta.55",
     "@curiostack/base-node-dev" : "0.0.9",
-    "@curiostack/base-web" : "0.0.34",
+    "@curiostack/base-web" : "0.0.35",
     "@gfx/zopfli" : "1.0.9",
     "@hugmanrique/react-markdown-loader" : "0.0.2",
     "@types/history" : "4.7.2",
