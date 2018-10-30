@@ -59,6 +59,7 @@ export interface InjectableStore<S = any> extends Store<S> {
   injectedReducers: ReducersMapObject;
   injectedSagas: any;
   nonInjectedReducers: ReducersMapObject;
+  initialState: any;
 }
 
 function identityReducer<S>(state: S): S {
@@ -123,7 +124,7 @@ export default function configureStore<S extends object>(
     );
 
   const store = (createStore(
-    createInitalReducer(identityReducers, nonInjectedReducers),
+    createInitalReducer(identityReducers, nonInjectedReducers, initialState),
     // TODO(choko): Figure out what's wrong with the types that causes the need for this force-cast.
     globalInitialState as any,
     composeEnhancers(...enhancers),
@@ -135,6 +136,7 @@ export default function configureStore<S extends object>(
   store.nonInjectedReducers = nonInjectedReducers;
   store.injectedReducers = {}; // Reducer registry
   store.injectedSagas = {}; // Saga registry
+  store.initialState = initialState;
   // Make reducers hot reloadable, see http://mxs.is/googmo
   /* istanbul ignore next */
   if (module.hot) {
