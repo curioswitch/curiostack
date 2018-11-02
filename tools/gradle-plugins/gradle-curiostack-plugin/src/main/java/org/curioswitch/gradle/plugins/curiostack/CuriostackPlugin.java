@@ -222,6 +222,22 @@ public class CuriostackPlugin implements Plugin<Project> {
         project -> {
           project.getPlugins().withType(JavaPlugin.class, plugin -> setupJavaProject(project));
 
+          project.getPlugins().withType(DependencyManagementPlugin.class, unused -> {
+            DependencyManagementExtension dependencyManagement =
+                project.getExtensions().getByType(DependencyManagementExtension.class);
+            dependencyManagement.dependencies(
+                dependencies -> {
+                  for (DependencySet set : StandardDependencies.DEPENDENCY_SETS) {
+                    dependencies.dependencySet(
+                        ImmutableMap.of(
+                            "group", set.group(),
+                            "version", set.version()),
+                        dependencySet -> set.modules().forEach(dependencySet::entry));
+                  }
+                  StandardDependencies.DEPENDENCIES.forEach(dependencies::dependency);
+                });
+          });
+
           project
               .getPlugins()
               .withType(
@@ -453,20 +469,6 @@ public class CuriostackPlugin implements Plugin<Project> {
                   .getByType(ModuleApt.class)
                   .setAddAptDependencies(false);
             });
-
-    DependencyManagementExtension dependencyManagement =
-        project.getExtensions().getByType(DependencyManagementExtension.class);
-    dependencyManagement.dependencies(
-        dependencies -> {
-          for (DependencySet set : StandardDependencies.DEPENDENCY_SETS) {
-            dependencies.dependencySet(
-                ImmutableMap.of(
-                    "group", set.group(),
-                    "version", set.version()),
-                dependencySet -> set.modules().forEach(dependencySet::entry));
-          }
-          StandardDependencies.DEPENDENCIES.forEach(dependencies::dependency);
-        });
 
     // Pretty much all java code needs at least the Generated annotation.
     project

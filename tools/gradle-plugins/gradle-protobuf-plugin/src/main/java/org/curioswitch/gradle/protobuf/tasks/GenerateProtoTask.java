@@ -194,7 +194,10 @@ public class GenerateProtoTask extends DefaultTask {
 
     Map<String, File> downloadedTools = downloadTools(artifacts.build());
 
-    File protocPath = this.protocPath.getOrElse(downloadedTools.get(protocArtifact.get()));
+    File protocPath =
+        protocArtifact.isPresent()
+            ? downloadedTools.get(protocArtifact.get())
+            : this.protocPath.get();
 
     ImmutableList.Builder<String> protocCommand = ImmutableList.builder();
     protocCommand.add(protocPath.getAbsolutePath());
