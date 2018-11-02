@@ -202,7 +202,8 @@ public class StorageClient {
                 if (msg.status().equals(HttpStatus.OK)) {
                   return null;
                 } else {
-                  throw new IllegalStateException("Could not update metadata");
+                  throw new IllegalStateException(
+                      "Could not update metadata: " + msg.content().toStringUtf8());
                 }
               } finally {
                 ReferenceCountUtil.safeRelease(msg.content());
