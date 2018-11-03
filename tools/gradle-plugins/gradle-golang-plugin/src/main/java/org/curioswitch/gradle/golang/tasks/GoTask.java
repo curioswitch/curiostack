@@ -69,11 +69,9 @@ public class GoTask extends DefaultTask {
     this.workerExecutor = workerExecutor;
 
     var objects = getProject().getObjects();
-    command = objects.property(String.class);
-    args = objects.listProperty(String.class);
+    command = objects.property(String.class).value("go");
+    args = objects.listProperty(String.class).empty();
     execCustomizers = new ArrayList<>();
-
-    command.set("go");
   }
 
   public GoTask command(Property<String> command) {

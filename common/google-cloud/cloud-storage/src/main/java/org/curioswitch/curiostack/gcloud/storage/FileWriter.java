@@ -157,8 +157,10 @@ public class FileWriter {
    * minimal copies and optimal performance.
    */
   public ListenableFuture<Void> write(ByteBuffer data) {
-    ByteBuf nextBuf = Unpooled.wrappedBuffer(data);
+    return write(Unpooled.wrappedBuffer(data));
+  }
 
+  public ListenableFuture<Void> write(ByteBuf nextBuf) {
     final ByteBuf buf;
     if (unfinishedChunk == null) {
       buf = nextBuf;
@@ -179,7 +181,7 @@ public class FileWriter {
       return immediateFuture(null);
     }
 
-    ByteBuf nextChunk = buf.readSlice(alignedWritableBytes);
+    ByteBuf nextChunk = buf.readRetainedSlice(alignedWritableBytes);
     copyUnfinishedBuffer(buf);
     return CompletableFuturesExtra.toListenableFuture(uploadChunk(nextChunk, false));
   }
@@ -201,6 +203,7 @@ public class FileWriter {
       ByteBuf nextChunk = unfinishedChunk;
       unfinishedChunk = null;
       nextChunk.writeBytes(data);
+      data.release();
       return uploadChunk(nextChunk, true);
     }
   }

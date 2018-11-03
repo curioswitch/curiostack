@@ -63,10 +63,8 @@ public class NodeTask extends DefaultTask {
     execOverrides = new ArrayList<>();
 
     var objects = getProject().getObjects();
-    command = objects.property(String.class);
-    args = objects.listProperty(String.class);
-
-    command.set("yarn");
+    command = objects.property(String.class).value("yarn");
+    args = objects.listProperty(String.class).empty();
   }
 
   public NodeTask setCommand(String command) {
