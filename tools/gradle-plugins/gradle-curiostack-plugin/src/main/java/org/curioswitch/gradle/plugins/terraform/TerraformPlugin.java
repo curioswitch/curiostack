@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.UncheckedIOException;
+import java.util.List;
 import org.curioswitch.gradle.plugins.terraform.tasks.ConvertConfigsToJsonTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.HelmTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TargetableTerraformTask;
@@ -54,6 +55,32 @@ public class TerraformPlugin implements Plugin<Project> {
         project.getTasks().create(ConvertConfigsToJsonTask.NAME, ConvertConfigsToJsonTask.class);
     convertConfigs.dependsOn(BasePlugin.CLEAN_TASK_NAME);
 
+    List<TaskProvider<?>> sysadminOutputTasks =
+        project.getName().equals("sysadmin")
+            ? ImmutableList.of(
+                createTerraformOutputTask(
+                    project,
+                    "outputTillerCaCert",
+                    "tiller-ca-cert",
+                    project.file("build/helm/ca.pem")),
+                createTerraformOutputTask(
+                    project,
+                    "outputTillerCertKey",
+                    "tiller-client-key",
+                    project.file("build/helm/key.pem")),
+                createTerraformOutputTask(
+                    project,
+                    "outputTillerCert",
+                    "tiller-client-cert",
+                    project.file("build/helm/cert.pem")),
+                project
+                    .getTasks()
+                    .register(
+                        "terraformInitHelm",
+                        HelmTask.class,
+                        helm -> helm.args("init", "--client-only")))
+            : ImmutableList.of();
+
     var terraformInit =
         project
             .getTasks()
@@ -69,30 +96,7 @@ public class TerraformPlugin implements Plugin<Project> {
                               DownloadedToolManager.get(project)
                                   .getCuriostackDir()
                                   .resolve("terraform-plugins")));
-                  if (project.getName().equals("sysadmin")) {
-                    t.finalizedBy(
-                        createTerraformOutputTask(
-                            project,
-                            "outputTillerCaCert",
-                            "tiller-ca-cert",
-                            project.file("build/helm/ca.pem")),
-                        createTerraformOutputTask(
-                            project,
-                            "outputTillerCertKey",
-                            "tiller-client-key",
-                            project.file("build/helm/key.pem")),
-                        createTerraformOutputTask(
-                            project,
-                            "outputTillerCert",
-                            "tiller-client-cert",
-                            project.file("build/helm/cert.pem")),
-                        project
-                            .getTasks()
-                            .register(
-                                "terraformInitHelm",
-                                HelmTask.class,
-                                helm -> helm.args("init", "--client-only")));
-                  }
+                  sysadminOutputTasks.forEach(t::finalizedBy);
                 });
 
     project

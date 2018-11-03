@@ -49,8 +49,8 @@ public interface ToolDownloaderExtension extends Named, HasPublicType {
             .setVersion(objects.property(String.class))
             .setBaseUrl(objects.property(String.class))
             .setArtifactPattern(objects.property(String.class))
-            .setPathSubDirs(objects.listProperty(String.class))
-            .setAdditionalCachedDirs(objects.listProperty(String.class));
+            .setPathSubDirs(objects.listProperty(String.class).empty())
+            .setAdditionalCachedDirs(objects.listProperty(String.class).empty());
 
     extension.getArtifact().set(name);
 

@@ -144,11 +144,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
 
     rootProject.getTasks().register("setupGitHooks", SetupGitHooks.class);
-    rootProject
-        .getTasks()
-        .register(
-            "updateShellConfig",
-            CreateShellConfigTask.class);
+    rootProject.getTasks().register("updateShellConfig", CreateShellConfigTask.class);
 
     rootProject
         .getTasks()
@@ -222,21 +218,25 @@ public class CuriostackPlugin implements Plugin<Project> {
         project -> {
           project.getPlugins().withType(JavaPlugin.class, plugin -> setupJavaProject(project));
 
-          project.getPlugins().withType(DependencyManagementPlugin.class, unused -> {
-            DependencyManagementExtension dependencyManagement =
-                project.getExtensions().getByType(DependencyManagementExtension.class);
-            dependencyManagement.dependencies(
-                dependencies -> {
-                  for (DependencySet set : StandardDependencies.DEPENDENCY_SETS) {
-                    dependencies.dependencySet(
-                        ImmutableMap.of(
-                            "group", set.group(),
-                            "version", set.version()),
-                        dependencySet -> set.modules().forEach(dependencySet::entry));
-                  }
-                  StandardDependencies.DEPENDENCIES.forEach(dependencies::dependency);
-                });
-          });
+          project
+              .getPlugins()
+              .withType(
+                  DependencyManagementPlugin.class,
+                  unused -> {
+                    DependencyManagementExtension dependencyManagement =
+                        project.getExtensions().getByType(DependencyManagementExtension.class);
+                    dependencyManagement.dependencies(
+                        dependencies -> {
+                          for (DependencySet set : StandardDependencies.DEPENDENCY_SETS) {
+                            dependencies.dependencySet(
+                                ImmutableMap.of(
+                                    "group", set.group(),
+                                    "version", set.version()),
+                                dependencySet -> set.modules().forEach(dependencySet::entry));
+                          }
+                          StandardDependencies.DEPENDENCIES.forEach(dependencies::dependency);
+                        });
+                  });
 
           project
               .getPlugins()
@@ -408,10 +408,6 @@ public class CuriostackPlugin implements Plugin<Project> {
               task.getOptions()
                   .setCompilerArgs(
                       ImmutableList.of("-XDcompilePolicy=byfile", "-Adagger.gradle.incremental"));
-              project
-                  .getTasks()
-                  .withType(SpotlessTask.class)
-                  .configureEach(spotlessTask -> spotlessTask.dependsOn(task));
 
               ErrorProneOptions errorProne =
                   ((ExtensionAware) task.getOptions())
@@ -423,6 +419,11 @@ public class CuriostackPlugin implements Plugin<Project> {
                 errorProne.setChecks(checks);
               }
             });
+
+    project
+        .getTasks()
+        .withType(SpotlessTask.class)
+        .configureEach(task -> task.dependsOn(project.getTasks().withType(JavaCompile.class)));
 
     JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
     javaPlugin.setSourceCompatibility(JavaVersion.VERSION_11);

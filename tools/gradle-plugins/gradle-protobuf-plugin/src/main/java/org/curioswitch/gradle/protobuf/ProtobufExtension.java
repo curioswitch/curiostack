@@ -132,7 +132,7 @@ public interface ProtobufExtension extends HasPublicType {
               .newInstance(ModifiableLanguageSettings.class)
               .setName(name)
               .setOutputDir(objects.property(File.class))
-              .setOptions(objects.listProperty(String.class))
+              .setOptions(objects.listProperty(String.class).empty())
               .setPlugin(Executable.create(objects));
 
       return settings;
