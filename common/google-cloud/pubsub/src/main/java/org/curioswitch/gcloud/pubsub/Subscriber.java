@@ -163,7 +163,7 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
     requestObserver.onCompleted();
   }
 
-  // synchronized just to make sure requestObserver is written out for the callback thread.
+  // synchronized just to make sure requestObserver is written out for the event loop thread.
   private synchronized void open() {
     // Reset in case this is a reconnect.
     ctx = null;
