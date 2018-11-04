@@ -35,19 +35,27 @@ import com.google.auto.factory.Provided;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.pubsub.v1.ProjectTopicName;
 import com.google.pubsub.v1.PublishRequest;
 import com.google.pubsub.v1.PublisherGrpc.PublisherFutureStub;
 import com.google.pubsub.v1.PubsubMessage;
 import org.curioswitch.common.helpers.immutables.CurioStyle;
 import org.curioswitch.gcloud.pubsub.Publisher.Factory;
 import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Style;
 
 @AutoFactory(implementing = Factory.class)
 public class Publisher {
 
   public interface Factory {
     Publisher create(PublisherOptions options);
+  }
+
+  public static PublisherOptions.Builder newOptions(String topic) {
+    return new PublisherOptions.Builder().topic(topic);
+  }
+
+  public static PublisherOptions.Builder newOptions(ProjectTopicName topic) {
+    return new PublisherOptions.Builder().topic(topic.toString());
   }
 
   private final PublisherFutureStub stub;
@@ -94,7 +102,6 @@ public class Publisher {
 
   @Immutable
   @CurioStyle
-  @Style(build = "buildOptions")
   interface PublisherOptions {
     class Builder extends ImmutablePublisherOptions.Builder {}
 

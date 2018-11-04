@@ -38,6 +38,7 @@ import com.google.cloud.pubsub.v1.AckReplyConsumer;
 import com.google.cloud.pubsub.v1.MessageReceiver;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.util.Timestamps;
+import com.google.pubsub.v1.ProjectSubscriptionName;
 import com.google.pubsub.v1.PubsubMessage;
 import com.google.pubsub.v1.ReceivedMessage;
 import com.google.pubsub.v1.StreamingPullRequest;
@@ -63,13 +64,24 @@ import javax.annotation.Nullable;
 import org.curioswitch.common.helpers.immutables.CurioStyle;
 import org.curioswitch.gcloud.pubsub.Subscriber.Factory;
 import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Style;
 
 @AutoFactory(implementing = Factory.class)
 public class Subscriber implements Closeable, StreamObserver<StreamingPullResponse> {
 
   public interface Factory {
     Subscriber create(SubscriberOptions options);
+  }
+
+  public static SubscriberOptions.Builder newOptions(
+      String subscription, MessageReceiver receiver) {
+    return new SubscriberOptions.Builder().subscription(subscription).messageReceiver(receiver);
+  }
+
+  public static SubscriberOptions.Builder newOptions(
+      ProjectSubscriptionName subscription, MessageReceiver receiver) {
+    return new SubscriberOptions.Builder()
+        .subscription(subscription.toString())
+        .messageReceiver(receiver);
   }
 
   private static final Duration INITIAL_CHANNEL_RECONNECT_BACKOFF = Duration.ofMillis(100);
@@ -251,7 +263,6 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
 
   @Immutable
   @CurioStyle
-  @Style(build = "buildOptions")
   interface SubscriberOptions {
 
     class Builder extends ImmutableSubscriberOptions.Builder {}
