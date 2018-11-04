@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.google.common.collect.ImmutableList;
 import com.google.pubsub.v1.ReceivedMessage;
 import com.google.pubsub.v1.StreamingPullRequest;
 import com.google.pubsub.v1.StreamingPullResponse;
@@ -35,10 +36,18 @@ import com.google.pubsub.v1.SubscriberGrpc.SubscriberStub;
 import com.linecorp.armeria.client.Clients;
 import com.linecorp.armeria.client.grpc.GrpcClientOptions;
 import com.linecorp.armeria.common.RequestContext;
+import com.linecorp.armeria.common.metric.MoreMeters;
+import com.linecorp.armeria.common.metric.NoopMeterRegistry;
 import com.linecorp.armeria.unsafe.grpc.GrpcUnsafeBufferUtil;
 import io.grpc.stub.StreamObserver;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tag;
+import io.micrometer.core.instrument.Timer;
 import java.io.Closeable;
 import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.curioswitch.common.helpers.immutables.CurioStyle;
@@ -59,6 +68,11 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
   private final SubscriberStub stub;
   private final SubscriberOptions options;
 
+  private final Counter receivedMessages;
+  private final Counter ackedMessages;
+  private final Counter nackedMessages;
+  private final Timer messageProcessingTime;
+
   private Duration streamReconnectBackoff = INITIAL_CHANNEL_RECONNECT_BACKOFF;
 
   @Nullable private StreamObserver<StreamingPullRequest> requestObserver;
@@ -66,13 +80,27 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
 
   private volatile boolean closed;
 
-  public Subscriber(@Provided SubscriberStub stub, SubscriberOptions options) {
+  public Subscriber(
+      @Provided SubscriberStub stub,
+      @Provided Optional<MeterRegistry> meterRegistry,
+      SubscriberOptions options) {
     this.stub =
         options.getUnsafeWrapBuffers()
             ? Clients.newDerivedClient(
                 stub, GrpcClientOptions.UNSAFE_WRAP_RESPONSE_BUFFERS.newValue(true))
             : stub;
     this.options = options;
+
+    MeterRegistry registry = meterRegistry.orElse(NoopMeterRegistry.get());
+
+    List<Tag> tags = ImmutableList.of(Tag.of("subscription", options.getSubscription()));
+
+    receivedMessages = registry.counter("subscriber-received-messages", tags);
+    ackedMessages = registry.counter("subscriber-acked-messages", tags);
+    nackedMessages = registry.counter("subscriber-nacked-messages", tags);
+
+    messageProcessingTime =
+        MoreMeters.newTimer(registry, "subscriber-message-processing-time", tags);
   }
 
   public void start() {
@@ -87,7 +115,10 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
 
     streamReconnectBackoff = INITIAL_CHANNEL_RECONNECT_BACKOFF;
 
+    receivedMessages.increment(value.getReceivedMessagesCount());
+
     for (ReceivedMessage message : value.getReceivedMessagesList()) {
+      long startTimeNanos = System.nanoTime();
       options
           .getMessageReceiver()
           .receiveMessage(
@@ -95,7 +126,9 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
               new AckReplyConsumer() {
                 @Override
                 public void ack() {
-                  release();
+                  releaseAndRecord();
+
+                  ackedMessages.increment();
 
                   checkNotNull(requestObserver, "onNext called before start()");
                   requestObserver.onNext(
@@ -104,7 +137,9 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
 
                 @Override
                 public void nack() {
-                  release();
+                  releaseAndRecord();
+
+                  nackedMessages.increment();
 
                   checkNotNull(requestObserver, "onNext called before start()");
                   requestObserver.onNext(
@@ -114,10 +149,13 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
                           .build());
                 }
 
-                private void release() {
+                private void releaseAndRecord() {
                   if (options.getUnsafeWrapBuffers()) {
                     GrpcUnsafeBufferUtil.releaseBuffer(message, ctx);
                   }
+
+                  messageProcessingTime.record(
+                      System.nanoTime() - startTimeNanos, TimeUnit.NANOSECONDS);
                 }
               });
     }
