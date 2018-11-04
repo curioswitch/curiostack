@@ -24,35 +24,27 @@
 
 package org.curioswitch.gcloud.pubsub;
 
-import com.google.pubsub.v1.PublisherGrpc.PublisherFutureStub;
-import com.google.pubsub.v1.SubscriberGrpc.SubscriberFutureStub;
-import com.google.pubsub.v1.SubscriberGrpc.SubscriberStub;
-import dagger.Binds;
-import dagger.Module;
-import dagger.Provides;
-import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
-import org.curioswitch.curiostack.gcloud.core.grpc.GrpcApiClientBuilder;
+import io.grpc.StatusRuntimeException;
 
-@Module(includes = GcloudAuthModule.class)
-public abstract class GcloudPubSubModule {
+final class StatusUtil {
 
-  @Binds
-  abstract Subscriber.Factory subscriberFactory(SubscriberFactory factory);
-
-  @Provides
-  static PublisherFutureStub publisher(GrpcApiClientBuilder clientBuilder) {
-    return clientBuilder.create("https://pubsub.googleapis.com/", PublisherFutureStub.class);
+  static boolean isRetryable(Throwable error) {
+    if (!(error instanceof StatusRuntimeException)) {
+      return true;
+    }
+    StatusRuntimeException statusRuntimeException = (StatusRuntimeException) error;
+    switch (statusRuntimeException.getStatus().getCode()) {
+      case DEADLINE_EXCEEDED:
+      case INTERNAL:
+      case CANCELLED:
+      case RESOURCE_EXHAUSTED:
+      case ABORTED:
+      case UNAVAILABLE:
+        return true;
+      default:
+        return false;
+    }
   }
 
-  @Provides
-  static SubscriberFutureStub subscriber(GrpcApiClientBuilder clientBuilder) {
-    return clientBuilder.create("https://pubsub.googleapis.com/", SubscriberFutureStub.class);
-  }
-
-  @Provides
-  static SubscriberStub streamingSubscriber(GrpcApiClientBuilder clientBuilder) {
-    return clientBuilder.create("https://pubsub.googleapis.com/", SubscriberStub.class);
-  }
-
-  private GcloudPubSubModule() {}
+  private StatusUtil() {}
 }

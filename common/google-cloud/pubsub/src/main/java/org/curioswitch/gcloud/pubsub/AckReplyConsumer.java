@@ -21,38 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+/*
+ * Copyright 2017 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.curioswitch.gcloud.pubsub;
 
-import com.google.pubsub.v1.PublisherGrpc.PublisherFutureStub;
-import com.google.pubsub.v1.SubscriberGrpc.SubscriberFutureStub;
-import com.google.pubsub.v1.SubscriberGrpc.SubscriberStub;
-import dagger.Binds;
-import dagger.Module;
-import dagger.Provides;
-import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
-import org.curioswitch.curiostack.gcloud.core.grpc.GrpcApiClientBuilder;
+/**
+ * Accepts a reply, sending it to the service.
+ */
+public interface AckReplyConsumer {
+  /**
+   * Acknowledges that the message has been successfully processed. The service will not send the
+   * message again.
+   */
+  void ack();
 
-@Module(includes = GcloudAuthModule.class)
-public abstract class GcloudPubSubModule {
-
-  @Binds
-  abstract Subscriber.Factory subscriberFactory(SubscriberFactory factory);
-
-  @Provides
-  static PublisherFutureStub publisher(GrpcApiClientBuilder clientBuilder) {
-    return clientBuilder.create("https://pubsub.googleapis.com/", PublisherFutureStub.class);
-  }
-
-  @Provides
-  static SubscriberFutureStub subscriber(GrpcApiClientBuilder clientBuilder) {
-    return clientBuilder.create("https://pubsub.googleapis.com/", SubscriberFutureStub.class);
-  }
-
-  @Provides
-  static SubscriberStub streamingSubscriber(GrpcApiClientBuilder clientBuilder) {
-    return clientBuilder.create("https://pubsub.googleapis.com/", SubscriberStub.class);
-  }
-
-  private GcloudPubSubModule() {}
+  /**
+   * Signals that the message has not been successfully processed. The service should resend the
+   * message.
+   */
+  void nack();
 }
