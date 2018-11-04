@@ -34,6 +34,8 @@ import brave.propagation.TraceContext.Extractor;
 import brave.propagation.TraceContextOrSamplingFlags;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.google.cloud.pubsub.v1.AckReplyConsumer;
+import com.google.cloud.pubsub.v1.MessageReceiver;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.util.Timestamps;
 import com.google.pubsub.v1.PubsubMessage;
