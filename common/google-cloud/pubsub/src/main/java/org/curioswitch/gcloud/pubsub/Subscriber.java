@@ -263,7 +263,7 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
 
   @Immutable
   @CurioStyle
-  interface SubscriberOptions {
+  public interface SubscriberOptions {
 
     class Builder extends ImmutableSubscriberOptions.Builder {}
 

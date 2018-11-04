@@ -102,7 +102,7 @@ public class Publisher {
 
   @Immutable
   @CurioStyle
-  interface PublisherOptions {
+  public interface PublisherOptions {
     class Builder extends ImmutablePublisherOptions.Builder {}
 
     /** Topic which the publisher publishes to. */
