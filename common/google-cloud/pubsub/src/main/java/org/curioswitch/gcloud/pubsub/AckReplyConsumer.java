@@ -39,9 +39,7 @@
 
 package org.curioswitch.gcloud.pubsub;
 
-/**
- * Accepts a reply, sending it to the service.
- */
+/** Accepts a reply, sending it to the service. */
 public interface AckReplyConsumer {
   /**
    * Acknowledges that the message has been successfully processed. The service will not send the

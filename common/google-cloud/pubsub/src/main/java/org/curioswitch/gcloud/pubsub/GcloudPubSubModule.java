@@ -39,6 +39,9 @@ public abstract class GcloudPubSubModule {
   @Binds
   abstract Subscriber.Factory subscriberFactory(SubscriberFactory factory);
 
+  @Binds
+  abstract Publisher.Factory publisherFactory(PublisherFactory factory);
+
   @Provides
   static PublisherFutureStub publisher(GrpcApiClientBuilder clientBuilder) {
     return clientBuilder.create("https://pubsub.googleapis.com/", PublisherFutureStub.class);
