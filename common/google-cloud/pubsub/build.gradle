@@ -37,6 +37,7 @@ dependencies {
 
     api 'com.google.api.grpc:grpc-google-cloud-pubsub-v1'
 
+    implementation 'com.google.protobuf:protobuf-java-util'
     implementation 'com.linecorp.armeria:armeria-grpc'
 
     annotationProcessor 'com.google.auto.factory:auto-factory'

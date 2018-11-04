@@ -26,9 +26,17 @@ package org.curioswitch.gcloud.pubsub;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import brave.Span;
+import brave.Span.Kind;
+import brave.Tracer;
+import brave.Tracing;
+import brave.propagation.TraceContext.Extractor;
+import brave.propagation.TraceContextOrSamplingFlags;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.google.common.collect.ImmutableList;
+import com.google.protobuf.util.Timestamps;
+import com.google.pubsub.v1.PubsubMessage;
 import com.google.pubsub.v1.ReceivedMessage;
 import com.google.pubsub.v1.StreamingPullRequest;
 import com.google.pubsub.v1.StreamingPullResponse;
@@ -73,6 +81,9 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
   private final Counter nackedMessages;
   private final Timer messageProcessingTime;
 
+  private final Tracer tracer;
+  private final Extractor<PubsubMessage> traceExtractor;
+
   private Duration streamReconnectBackoff = INITIAL_CHANNEL_RECONNECT_BACKOFF;
 
   @Nullable private StreamObserver<StreamingPullRequest> requestObserver;
@@ -83,6 +94,7 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
   public Subscriber(
       @Provided SubscriberStub stub,
       @Provided Optional<MeterRegistry> meterRegistry,
+      @Provided Tracing tracing,
       SubscriberOptions options) {
     this.stub =
         options.getUnsafeWrapBuffers()
@@ -101,6 +113,12 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
 
     messageProcessingTime =
         MoreMeters.newTimer(registry, "subscriber-message-processing-time", tags);
+
+    tracer = tracing.tracer();
+    traceExtractor =
+        tracing
+            .propagation()
+            .extractor((message, key) -> message.getAttributesOrDefault(key, null));
   }
 
   public void start() {
@@ -118,6 +136,20 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
     receivedMessages.increment(value.getReceivedMessagesCount());
 
     for (ReceivedMessage message : value.getReceivedMessagesList()) {
+      TraceContextOrSamplingFlags contextOrFlags = traceExtractor.extract(message.getMessage());
+
+      // Add an artificial span modeling the time spent within Pub/Sub until getting here.
+      Span span =
+          contextOrFlags.context() != null
+              ? tracer.joinSpan(contextOrFlags.context())
+              : tracer.nextSpan(contextOrFlags);
+
+      span.kind(Kind.SERVER)
+          .name("google.pubsub.v1.Publisher.Publish")
+          .tag("subscription", options.getSubscription())
+          .start(Timestamps.toMicros(message.getMessage().getPublishTime()))
+          .finish();
+
       long startTimeNanos = System.nanoTime();
       options
           .getMessageReceiver()
