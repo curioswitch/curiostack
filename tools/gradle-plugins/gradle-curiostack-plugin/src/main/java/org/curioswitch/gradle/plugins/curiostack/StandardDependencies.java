@@ -136,11 +136,6 @@ public class StandardDependencies {
               .addModules("auto-common")
               .build(),
           ImmutableDependencySet.builder()
-              .group("com.google.auto.factory")
-              .version("1.0-beta5")
-              .addModules("auto-factory")
-              .build(),
-          ImmutableDependencySet.builder()
               .group("com.google.code.findbugs")
               .version("3.0.2")
               .addModules("jsr305")
@@ -464,7 +459,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.simpleflatmapper")
-              .version("6.0.4")
+              .version("6.0.5")
               .addModules(
                   "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
               .build(),

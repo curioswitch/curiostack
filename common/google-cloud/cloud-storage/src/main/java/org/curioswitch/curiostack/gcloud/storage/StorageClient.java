@@ -53,7 +53,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -233,15 +232,25 @@ public class StorageClient {
 
     String getName();
 
-    Optional<String> getCacheControl();
+    default String getCacheControl() {
+      return "";
+    }
 
-    Optional<String> getContentDisposition();
+    default String getContentDisposition() {
+      return "";
+    }
 
-    Optional<String> getContentEncoding();
+    default String getContentEncoding() {
+      return "";
+    }
 
-    Optional<String> getContentLanguage();
+    default String getContentLanguage() {
+      return "";
+    }
 
-    Optional<String> getContentType();
+    default String getContentType() {
+      return "";
+    }
 
     Map<String, String> getMetadata();
   }
