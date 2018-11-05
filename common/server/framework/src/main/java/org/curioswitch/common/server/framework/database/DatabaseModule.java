@@ -40,6 +40,7 @@ import java.io.Closeable;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import javax.inject.Singleton;
+import javax.sql.DataSource;
 import org.curioswitch.common.server.framework.ApplicationModule;
 import org.curioswitch.common.server.framework.armeria.CurrentRequestContextForwardingExecutorService;
 import org.curioswitch.common.server.framework.config.DatabaseConfig;
@@ -75,7 +76,7 @@ public abstract class DatabaseModule {
 
   @Provides
   @Singleton
-  static HikariDataSource dataSource(DatabaseConfig config) {
+  static DataSource dataSource(DatabaseConfig config) {
     HikariConfig hikari = new HikariConfig();
     hikari.setJdbcUrl(config.getJdbcUrl());
     hikari.setUsername(config.getUsername());
@@ -107,7 +108,7 @@ public abstract class DatabaseModule {
   @Provides
   @Singleton
   static DSLContext dbContext(
-      HikariDataSource dataSource,
+      DataSource dataSource,
       DatabaseConfig config,
       @ForDatabase ListeningExecutorService dbExecutor) {
     Configuration configuration =
@@ -135,8 +136,8 @@ public abstract class DatabaseModule {
   @ElementsIntoSet
   @CloseOnStop
   static Set<Closeable> close(
-      HikariDataSource dataSource, @ForDatabase ListeningExecutorService executor) {
-    return ImmutableSet.of(dataSource, executor::shutdownNow);
+      DataSource dataSource, @ForDatabase ListeningExecutorService executor) {
+    return ImmutableSet.of((HikariDataSource) dataSource, executor::shutdownNow);
   }
 
   private DatabaseModule() {}

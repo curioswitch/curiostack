@@ -152,5 +152,10 @@ public class TerraformSetupPlugin implements Plugin<Project> {
 
     DownloadToolUtil.getSetupTask(project, "terraform")
         .configure(setupTerraform -> setupTerraform.dependsOn(terraformCopyPlugins));
+
+    var setupGo = DownloadToolUtil.getSetupTask(project, "go");
+    setupGo.configure(t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build")));
+
+    project.getTasks().withType(GoTask.class).configureEach(t -> t.dependsOn(setupGo));
   }
 }

@@ -34,6 +34,7 @@ dependencies {
     api project(':common:google-cloud:iam')
     api project(':common:google-cloud:trace')
 
+    api 'com.auth0:java-jwt'
     api 'com.google.dagger:dagger'
     api 'com.google.dagger:dagger-producers'
     api 'com.google.firebase:firebase-admin'
@@ -49,7 +50,6 @@ dependencies {
     api 'org.jooq:jooq'
     api 'org.simpleflatmapper:sfm-jooq'
 
-    implementation 'com.auth0:java-jwt'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-guava'

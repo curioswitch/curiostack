@@ -106,6 +106,7 @@ public class DownloadedToolManager {
         Stream.concat(
                 tools
                     .stream()
+                    .filter(tool -> !tool.getName().equals("graalvm"))
                     .flatMap(
                         tool -> {
                           Path toolDir = getToolDir(tool.getName()).toAbsolutePath();
