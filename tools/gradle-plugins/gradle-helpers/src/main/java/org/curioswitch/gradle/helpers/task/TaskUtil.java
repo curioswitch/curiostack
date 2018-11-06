@@ -26,16 +26,14 @@ package org.curioswitch.gradle.helpers.task;
 
 import com.google.common.base.CaseFormat;
 
-/**
- * Utility methods for working with {@link org.gradle.api.Task}s in plugins.
- */
+/** Utility methods for working with {@link org.gradle.api.Task}s in plugins. */
 public final class TaskUtil {
 
   /**
    * Returns a {@link String} that is appropriate for use as the suffix of a task name by converting
    * from lowercase hyphens or snake case to upper-camelcase. This is commonly needed when writing
-   * multiple tasks of the same type for different configurations, where the configuration's name
-   * is the suffix of the task.
+   * multiple tasks of the same type for different configurations, where the configuration's name is
+   * the suffix of the task.
    */
   public static String toTaskSuffix(String name) {
     return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name.replace('-', '_'));

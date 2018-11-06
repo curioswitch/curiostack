@@ -26,9 +26,7 @@ package org.curioswitch.gradle.helpers.platform;
 
 import java.nio.file.Path;
 
-/**
- * Utilities for working with file paths.
- */
+/** Utilities for working with file paths. */
 public final class PathUtil {
 
   /**
@@ -58,8 +56,8 @@ public final class PathUtil {
   }
 
   /**
-   * Returns the name appended with a platform specific exe extension. This currently just adds
-   * .exe to the name on Windows.
+   * Returns the name appended with a platform specific exe extension. This currently just adds .exe
+   * to the name on Windows.
    */
   public static String getExeName(String name) {
     var helper = new PlatformHelper();

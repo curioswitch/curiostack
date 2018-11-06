@@ -27,17 +27,13 @@ package org.curioswitch.gradle.helpers.platform;
 import javax.inject.Inject;
 import org.apache.tools.ant.taskdefs.condition.Os;
 
-/**
- * A helper for determining information about the platform running Gradle.
- */
+/** A helper for determining information about the platform running Gradle. */
 public class PlatformHelper {
 
   @Inject
   public PlatformHelper() {}
 
-  /**
-   * Returns the {@link OperatingSystem} that is currently being run on.
-   */
+  /** Returns the {@link OperatingSystem} that is currently being run on. */
   public OperatingSystem getOs() {
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
       return OperatingSystem.WINDOWS;
