@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+. gradle/get-jdk.sh
+
 ##############################################################################
 ##
 ##  Gradle start up script for UN*X
