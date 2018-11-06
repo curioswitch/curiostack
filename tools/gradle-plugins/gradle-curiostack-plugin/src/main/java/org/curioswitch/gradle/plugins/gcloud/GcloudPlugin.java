@@ -170,11 +170,11 @@ public class GcloudPlugin implements Plugin<Project> {
             project
                 .getPlugins()
                 .withType(ToolDownloaderPlugin.class)
-                .configureEach(
+                .all(
                     plugin ->
                         plugin
                             .tools()
-                            .configureEach(
+                            .all(
                                 tool -> {
                                   String toolCachePath =
                                       "gs://"

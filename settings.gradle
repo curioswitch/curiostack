@@ -69,9 +69,8 @@ buildscript {
 
 apply plugin: 'org.curioswitch.gradle-gcloud-build-cache-plugin'
 
-// TODO(choko): Use something a little less specific. Since Google Container Builder doesn't seem
-// to add the standard CI variable, we'll add it to the cloudbuild later.
 def isCiServer = System.getenv().containsKey('CI')
+def isMasterBuild = System.getenv().containsKey('CI_MASTER')
 
 buildCache {
     local {
@@ -80,7 +79,7 @@ buildCache {
     remote(org.curioswitch.gradle.plugins.gcloud.buildcache.CloudStorageBuildCache) {
         project = 'curioswitch-cluster'
         bucket = 'curioswitch-gradle-build-cache'
-        push = isCiServer
+        push = isMasterBuild
     }
 }
 
