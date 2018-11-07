@@ -53,7 +53,7 @@ public class UploadToolCacheTask extends DefaultTask {
     this.workerExecutor = workerExecutor;
 
     dest = getProject().getObjects().property(String.class);
-    srcPaths = getProject().getObjects().listProperty(String.class);
+    srcPaths = getProject().getObjects().listProperty(String.class).empty();
 
     onlyIf(unused -> "true".equals(System.getenv("CI_MASTER")));
   }

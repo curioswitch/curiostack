@@ -113,10 +113,6 @@ gradlePlugin {
             id = 'org.curioswitch.gradle-curio-cloudbuild-github-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.cloudbuild.CloudbuildGithubPlugin'
         }
-        cluster {
-            id = 'org.curioswitch.gradle-curio-cluster-plugin'
-            implementationClass = 'org.curioswitch.gradle.plugins.gcloud.ClusterPlugin'
-        }
         curiostack {
             id = 'org.curioswitch.gradle-curiostack-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.curiostack.CuriostackPlugin'

@@ -24,13 +24,112 @@
 
 package org.curioswitch.gradle.tooldownloader.tasks;
 
+import com.google.common.io.Resources;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
+import javax.inject.Inject;
+import org.curioswitch.gradle.helpers.platform.PathUtil;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.workers.IsolationMode;
+import org.gradle.workers.WorkerExecutor;
 
 public class SetupTask extends DefaultTask {
 
+  private final String toolName;
+  private final WorkerExecutor workerExecutor;
+
+  @Inject
+  public SetupTask(String toolName, WorkerExecutor workerExecutor) {
+    this.toolName = toolName;
+    this.workerExecutor = workerExecutor;
+  }
+
   @TaskAction
   public void exec() {
-    // No-op action to ensure setup task is considered to have done work if it was configured.
+    if ("true".equals(System.getenv("CI")) || toolName.equals("graalvm")) {
+      return;
+    }
+
+    DownloadedToolManager toolManager = DownloadToolUtil.getManager(getProject());
+
+    Path shimsPath = toolManager.getCuriostackDir().resolve("shims");
+    getProject().mkdir(shimsPath);
+
+    final String shimTemplate;
+    try {
+      shimTemplate =
+          Resources.toString(
+              Resources.getResource("tooldownloader/shim-template.sh"), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      throw new UncheckedIOException("Could not open shim template.", e);
+    }
+
+    for (Path binDir : toolManager.getBinDirs(toolName)) {
+      try (Stream<Path> s = Files.list(binDir)) {
+        s.filter(Files::isExecutable)
+            // Git is mainly for use on CI, don't shim it on dev machines since it's never better.
+            .filter(p -> !p.getFileName().toString().startsWith("git"))
+            .forEach(
+                path ->
+                    workerExecutor.submit(
+                        WriteShim.class,
+                        config -> {
+                          config.setIsolationMode(IsolationMode.NONE);
+                          config.params(shimsPath.toString(), path.toString(), shimTemplate);
+                        }));
+      } catch (IOException e) {
+        throw new UncheckedIOException("Could not open directory.", e);
+      }
+    }
+  }
+
+  public static class WriteShim implements Runnable {
+
+    private final String shimsPath;
+    private final String exePath;
+    private final String shimTemplate;
+
+    @Inject
+    public WriteShim(String shimsPath, String exePath, String shimTemplate) {
+      this.shimsPath = shimsPath;
+      this.exePath = exePath;
+      this.shimTemplate = shimTemplate;
+    }
+
+    @Override
+    public void run() {
+      Path shimsPath = Paths.get(this.shimsPath);
+      Path exePath = Paths.get(this.exePath);
+
+      Path shimPath = shimsPath.resolve(exePath.getFileName());
+
+      String shim =
+          shimTemplate
+              .replace(
+                  "||REPO_PATH||",
+                  PathUtil.toBashString(
+                      "$(git rev-parse --show-toplevel 2>/dev/null || echo /dev/null)"))
+              .replace("||TOOL_EXE_PATH||", PathUtil.toBashString(exePath))
+              .replace("||EXE_NAME||", exePath.getFileName().toString())
+              .replace("||SHIMS_PATH||", PathUtil.toBashString(shimsPath));
+
+      try {
+        com.google.common.io.Files.asCharSink(shimPath.toFile(), StandardCharsets.UTF_8)
+            .write(shim);
+        if (!shimPath.toFile().setExecutable(true)) {
+          throw new IOException("Could not make shim file executable.");
+        }
+      } catch (IOException e) {
+        throw new UncheckedIOException("Could not write to shim file.", e);
+      }
+    }
   }
 }

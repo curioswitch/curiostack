@@ -118,7 +118,7 @@ public class GenerateProtoTask extends DefaultTask {
     protocPath = objects.property(File.class);
     protocArtifact = objects.property(String.class);
     outputBaseDir = objects.property(File.class);
-    languages = objects.listProperty(LanguageSettings.class);
+    languages = objects.listProperty(LanguageSettings.class).empty();
 
     protocPath.set(config.getProtoc().getPath());
     protocArtifact.set(config.getProtoc().getArtifact());
@@ -194,7 +194,10 @@ public class GenerateProtoTask extends DefaultTask {
 
     Map<String, File> downloadedTools = downloadTools(artifacts.build());
 
-    File protocPath = this.protocPath.getOrElse(downloadedTools.get(protocArtifact.get()));
+    File protocPath =
+        protocArtifact.isPresent()
+            ? downloadedTools.get(protocArtifact.get())
+            : this.protocPath.get();
 
     ImmutableList.Builder<String> protocCommand = ImmutableList.builder();
     protocCommand.add(protocPath.getAbsolutePath());

@@ -43,8 +43,8 @@ public interface CondaExtension extends Named, HasPublicType {
             .newInstance(ModifiableCondaExtension.class)
             .setName(name)
             .setVersion(objects.property(String.class))
-            .setPackages(objects.listProperty(String.class))
-            .setPythonPackages(objects.listProperty(String.class));
+            .setPackages(objects.listProperty(String.class).empty())
+            .setPythonPackages(objects.listProperty(String.class).empty());
 
     return extension;
   }

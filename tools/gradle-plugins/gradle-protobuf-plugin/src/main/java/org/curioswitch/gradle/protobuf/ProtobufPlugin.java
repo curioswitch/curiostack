@@ -116,16 +116,10 @@ public class ProtobufPlugin implements Plugin<Project> {
         .configureEach(
             language -> {
               String compileTaskName = sourceSet.getCompileTaskName(language.getName());
-              project
-                  .getTasks()
-                  .configureEach(
-                      t -> {
-                        // While a bit wasteful to do this match on every realized task, it
-                        // prevents unnecessary task realization and is probably fastest.
-                        if (t.getName().equals(compileTaskName)) {
-                          t.dependsOn(generateProto);
-                        }
-                      });
+              var compileTask = project.getTasks().findByName(compileTaskName);
+              if (compileTask != null) {
+                compileTask.dependsOn(generateProto);
+              }
 
               sourceSet
                   .getJava()

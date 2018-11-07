@@ -76,7 +76,6 @@ import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
 import org.curioswitch.gradle.plugins.nodejs.util.NodeUtil;
-import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
@@ -145,23 +144,15 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
 
     rootProject.getTasks().register("setupGitHooks", SetupGitHooks.class);
-    rootProject
-        .getTasks()
-        .register(
-            "rehash",
-            CreateShellConfigTask.class,
-            t -> DownloadedToolManager.get(rootProject).getAllBinDirs().forEach(t::path));
+    rootProject.getTasks().register("updateShellConfig", CreateShellConfigTask.class);
 
     rootProject
         .getTasks()
         .register(
             "setup",
             t -> {
-              t.dependsOn(rootProject.getTasks().named("toolsDownloadAll"));
-              t.dependsOn("gcloudSetup");
-              t.dependsOn("nodeSetup");
-              t.dependsOn("yarnSetup");
-              t.dependsOn("rehash");
+              t.dependsOn(rootProject.getTasks().named("toolsSetupAll"));
+              t.dependsOn("updateShellConfig");
             });
 
     String baselineFiles;
@@ -226,6 +217,26 @@ public class CuriostackPlugin implements Plugin<Project> {
     rootProject.allprojects(
         project -> {
           project.getPlugins().withType(JavaPlugin.class, plugin -> setupJavaProject(project));
+
+          project
+              .getPlugins()
+              .withType(
+                  DependencyManagementPlugin.class,
+                  unused -> {
+                    DependencyManagementExtension dependencyManagement =
+                        project.getExtensions().getByType(DependencyManagementExtension.class);
+                    dependencyManagement.dependencies(
+                        dependencies -> {
+                          for (DependencySet set : StandardDependencies.DEPENDENCY_SETS) {
+                            dependencies.dependencySet(
+                                ImmutableMap.of(
+                                    "group", set.group(),
+                                    "version", set.version()),
+                                dependencySet -> set.modules().forEach(dependencySet::entry));
+                          }
+                          StandardDependencies.DEPENDENCIES.forEach(dependencies::dependency);
+                        });
+                  });
 
           project
               .getPlugins()
@@ -397,10 +408,6 @@ public class CuriostackPlugin implements Plugin<Project> {
               task.getOptions()
                   .setCompilerArgs(
                       ImmutableList.of("-XDcompilePolicy=byfile", "-Adagger.gradle.incremental"));
-              project
-                  .getTasks()
-                  .withType(SpotlessTask.class)
-                  .configureEach(spotlessTask -> spotlessTask.dependsOn(task));
 
               ErrorProneOptions errorProne =
                   ((ExtensionAware) task.getOptions())
@@ -412,6 +419,11 @@ public class CuriostackPlugin implements Plugin<Project> {
                 errorProne.setChecks(checks);
               }
             });
+
+    project
+        .getTasks()
+        .withType(SpotlessTask.class)
+        .configureEach(task -> task.dependsOn(project.getTasks().withType(JavaCompile.class)));
 
     JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
     javaPlugin.setSourceCompatibility(JavaVersion.VERSION_11);
@@ -458,20 +470,6 @@ public class CuriostackPlugin implements Plugin<Project> {
                   .getByType(ModuleApt.class)
                   .setAddAptDependencies(false);
             });
-
-    DependencyManagementExtension dependencyManagement =
-        project.getExtensions().getByType(DependencyManagementExtension.class);
-    dependencyManagement.dependencies(
-        dependencies -> {
-          for (DependencySet set : StandardDependencies.DEPENDENCY_SETS) {
-            dependencies.dependencySet(
-                ImmutableMap.of(
-                    "group", set.group(),
-                    "version", set.version()),
-                dependencySet -> set.modules().forEach(dependencySet::entry));
-          }
-          StandardDependencies.DEPENDENCIES.forEach(dependencies::dependency);
-        });
 
     // Pretty much all java code needs at least the Generated annotation.
     project

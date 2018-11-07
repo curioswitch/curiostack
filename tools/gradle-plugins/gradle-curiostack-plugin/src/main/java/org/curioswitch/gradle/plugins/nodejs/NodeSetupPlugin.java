@@ -171,6 +171,21 @@ public class NodeSetupPlugin implements Plugin<Project> {
             .getTasks()
             .register(UpdateNodeResolutions.CHECK_NAME, UpdateNodeResolutions.class, true);
 
+    var yarnWarning =
+        project
+            .getTasks()
+            .register(
+                "yarnWarning",
+                task ->
+                    task.doFirst(
+                        unused ->
+                            project
+                                .getLogger()
+                                .warn(
+                                    "yarn task failed. If you have updated a dependency and the "
+                                        + "error says 'Your lockfile needs to be updated.', run \n\n"
+                                        + "./gradlew yarnUpdate")));
+
     var yarn =
         project
             .getTasks()
@@ -212,22 +227,7 @@ public class NodeSetupPlugin implements Plugin<Project> {
                     }
                   }
 
-                  var yarnWarning =
-                      project
-                          .getTasks()
-                          .register(
-                              "yarnWarning",
-                              task -> {
-                                task.onlyIf(unused -> t.getState().getFailure() != null);
-                                task.doFirst(
-                                    unused ->
-                                        project
-                                            .getLogger()
-                                            .warn(
-                                                "yarn task failed. If you have updated a dependency and the "
-                                                    + "error says 'Your lockfile needs to be updated.', run \n\n"
-                                                    + "./gradlew yarnUpdate"));
-                              });
+                  yarnWarning.get().onlyIf(unused -> t.getState().getFailure() != null);
                   t.finalizedBy(yarnWarning, checkNodeResolutions);
                 });
 

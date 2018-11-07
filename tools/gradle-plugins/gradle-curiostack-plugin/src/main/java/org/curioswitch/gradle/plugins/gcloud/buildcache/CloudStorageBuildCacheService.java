@@ -57,13 +57,11 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
     if (data == null) {
       return false;
     }
-    try (ByteBufInputStream s = new ByteBufInputStream(data)) {
+    try (ByteBufInputStream s = new ByteBufInputStream(data, true)) {
       buildCacheEntryReader.readFrom(s);
     } catch (Throwable t) {
       logger.warn("Exception processing cloud storage data.", t);
       return false;
-    } finally {
-      data.release();
     }
     return true;
   }
@@ -71,7 +69,7 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
   @Override
   public void store(BuildCacheKey buildCacheKey, BuildCacheEntryWriter buildCacheEntryWriter) {
     ByteBuf buf = PooledByteBufAllocator.DEFAULT.buffer((int) buildCacheEntryWriter.getSize());
-    boolean success = false;
+
     try {
       try (ByteBufOutputStream os = new ByteBufOutputStream(buf)) {
         buildCacheEntryWriter.writeTo(os);
@@ -83,21 +81,17 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
       FileWriter writer =
           cloudStorage.createFile(buildCacheKey.getHashCode(), ImmutableMap.of()).join();
       while (buf.readableBytes() > 0) {
-        ByteBuf chunk = buf.readSlice(Math.min(buf.readableBytes(), 10 * 4 * 256 * 1000));
+        ByteBuf chunk = buf.readRetainedSlice(Math.min(buf.readableBytes(), 10 * 4 * 256 * 1000));
         if (buf.readableBytes() > 0) {
-          getUnchecked(writer.write(chunk.nioBuffer(0, chunk.readableBytes())));
+          getUnchecked(writer.write(chunk));
         } else {
           writer.writeAndClose(chunk).join();
         }
       }
-      success = true;
     } catch (Throwable t) {
       logger.warn("Exception writing to cloud storage, ignoring.", t);
-      ;
     } finally {
-      if (!success) {
-        buf.release();
-      }
+      buf.release();
     }
   }
 

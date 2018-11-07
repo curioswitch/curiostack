@@ -71,7 +71,6 @@ public class GrpcApiPlugin implements Plugin<Project> {
   }
 
   private static final boolean IS_WINDOWS = Os.isFamily(Os.FAMILY_WINDOWS);
-  private static final String TS_PROTOC_GEN_VERSION = "0.7.6";
 
   private static final List<String> GRPC_DEPENDENCIES =
       Collections.unmodifiableList(Arrays.asList("grpc-core", "grpc-protobuf", "grpc-stub"));
