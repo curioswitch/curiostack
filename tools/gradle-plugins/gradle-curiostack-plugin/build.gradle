@@ -87,7 +87,7 @@ dependencies {
     compile 'org.bouncycastle:bcpkix-jdk15on'
 
     // Flyway plugin uses the gradle classpath, so adding this allows flyway to access cloud sql.
-    runtime 'com.google.cloud.sql:mysql-socket-factory-connector-j-8'
+    runtime 'com.google.cloud.sql:mysql-socket-factory'
     runtime 'mysql:mysql-connector-java'
 
     // TODO(choko): Remove after jooq fixes this requirement - https://github.com/jOOQ/jOOQ/issues/6879
