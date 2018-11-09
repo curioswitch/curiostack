@@ -74,7 +74,7 @@ dependencies {
     implementation 'org.bouncycastle:bcpkix-jdk15on'
     implementation 'org.jctools:jctools-core'
 
-    runtime 'com.google.cloud.sql:mysql-socket-factory-connector-j-8'
+    runtime 'com.google.cloud.sql:mysql-socket-factory'
     runtime 'javax.xml.bind:jaxb-api'
     runtime 'com.sun.xml.bind:jaxb-impl'
     runtime 'mysql:mysql-connector-java'

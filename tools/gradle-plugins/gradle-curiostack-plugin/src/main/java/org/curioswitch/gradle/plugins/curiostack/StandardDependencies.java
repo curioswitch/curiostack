@@ -50,7 +50,7 @@ public class StandardDependencies {
   public static final String HELM_VERSION = "2.10.0";
   public static final String MINICONDA_VERSION = "4.5.11";
   public static final String TERRAFORM_VERSION = "0.11.10";
-  public static final String NODE_VERSION = "11.1.0";
+  public static final String NODE_VERSION = "10.13.0";
   public static final String YARN_VERSION = "1.12.1";
 
   static final String GOOGLE_JAVA_FORMAT_VERSION = "1.6";
@@ -281,7 +281,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("4.1.30.Final")
+              .version("4.1.31.Final")
               .addModules(
                   "netty-buffer",
                   "netty-codec",
@@ -301,7 +301,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("2.0.17.Final")
+              .version("2.0.19.Final")
               .addModules("netty-tcnative-boringssl-static")
               .build(),
           ImmutableDependencySet.builder()
@@ -399,7 +399,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.95")
+              .version("0.0.96")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()

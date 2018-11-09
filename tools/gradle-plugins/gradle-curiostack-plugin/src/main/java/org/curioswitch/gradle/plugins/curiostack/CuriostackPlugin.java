@@ -620,7 +620,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                                   "mysql:mysql-connector-java",
                                   // Not sure why this isn't automatically added.
                                   "com.google.guava:guava",
-                                  "com.google.cloud.sql:mysql-socket-factory-connector-j-8")) {
+                                  "com.google.cloud.sql:mysql-socket-factory")) {
                             project.getDependencies().add("jooqRuntime", dependency);
                           }
                         }));
