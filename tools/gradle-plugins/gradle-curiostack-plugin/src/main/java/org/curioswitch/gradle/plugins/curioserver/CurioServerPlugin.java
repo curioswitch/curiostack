@@ -24,21 +24,14 @@
 
 package org.curioswitch.gradle.plugins.curioserver;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.tools.jib.gradle.BuildImageTask;
 import com.google.cloud.tools.jib.gradle.DockerContextTask;
 import com.google.cloud.tools.jib.gradle.JibExtension;
 import com.google.cloud.tools.jib.gradle.JibPlugin;
 import com.google.cloud.tools.jib.image.ImageFormat;
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.gorylenko.GitPropertiesPlugin;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import org.curioswitch.gradle.plugins.curioserver.tasks.NativeImageTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
@@ -59,9 +52,6 @@ import org.gradle.jvm.tasks.Jar;
  */
 public class CurioServerPlugin implements Plugin<Project> {
 
-  private static final Splitter DOCKER_IMAGE_SPLITTER = Splitter.on('/');
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
   @Override
   public void apply(Project project) {
     project.getRootProject().getPlugins().apply(CurioServerSetupPlugin.class);
@@ -75,7 +65,7 @@ public class CurioServerPlugin implements Plugin<Project> {
 
     project.getNormalization().getRuntimeClasspath().ignore("git.properties");
 
-    // We don't use distributions so don't build them. Users can still reenable in afterevaluate if
+    // We don't use distributions so don't build them. Users can still reenable in afterEvaluate if
     // they really need it.
     project.getTasks().named("distTar").configure(t -> t.setEnabled(false));
     project.getTasks().named("distZip").configure(t -> t.setEnabled(false));
@@ -97,6 +87,18 @@ public class CurioServerPlugin implements Plugin<Project> {
               t.dependsOn(project.getTasks().getByName(BasePlugin.ASSEMBLE_TASK_NAME));
               t.dependsOn(project.getRootProject().getTasks().getByName("gcloudSetup"));
             });
+
+    jib.container(container -> {
+      container.setFormat(ImageFormat.Docker);
+      container.setPorts(ImmutableList.of("8080"));
+    });
+
+    jib.getFrom().setImage("openjdk:11-jre-slim");
+    jib.getTo().setCredHelper(
+              DownloadedToolManager.get(project)
+                  .getBinDir("gcloud")
+                  .resolve("docker-credential-gcr")
+                  .toString());
 
     var jar = project.getTasks().withType(Jar.class).named("jar");
     var nativeImage =
@@ -121,44 +123,6 @@ public class CurioServerPlugin implements Plugin<Project> {
           ImmutableDeploymentExtension config =
               project.getExtensions().getByType(DeploymentExtension.class);
 
-          project
-              .getTasks()
-              .withType(
-                  BuildImageTask.class,
-                  t ->
-                      t.doFirst(
-                          unused -> {
-                            var output = new ByteArrayOutputStream();
-                            project.exec(
-                                exec -> {
-                                  exec.setExecutable(
-                                      DownloadedToolManager.get(project)
-                                          .getBinDir("gcloud")
-                                          .resolve("docker-credential-gcr"));
-                                  exec.args("get");
-
-                                  String registry =
-                                      DOCKER_IMAGE_SPLITTER
-                                          .splitToList(config.imagePrefix())
-                                          .get(0);
-                                  exec.setStandardInput(
-                                      new ByteArrayInputStream(
-                                          registry.getBytes(StandardCharsets.UTF_8)));
-                                  exec.setStandardOutput(output);
-                                });
-                            try {
-                              var creds = OBJECT_MAPPER.readTree(output.toByteArray());
-                              jib.getTo()
-                                  .auth(
-                                      auth -> {
-                                        auth.setUsername(creds.get("Username").asText());
-                                        auth.setPassword(creds.get("Secret").asText());
-                                      });
-                            } catch (IOException e) {
-                              throw new UncheckedIOException("Could not parse credentials.", e);
-                            }
-                          }));
-
           String archivesBaseName =
               project.getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
 
@@ -168,7 +132,6 @@ public class CurioServerPlugin implements Plugin<Project> {
 
           nativeImage.configure(t -> t.getOutputName().set(archivesBaseName));
 
-          jib.getFrom().setImage("openjdk:11-jre-slim");
           jib.getTo().setImage(config.imagePrefix() + config.baseName());
 
           String releaseBranch =
@@ -184,9 +147,7 @@ public class CurioServerPlugin implements Plugin<Project> {
               .setTags(ImmutableSet.of(releaseBranch != null ? releaseBranch : config.imageTag()));
           jib.container(
               container -> {
-                container.setFormat(ImageFormat.Docker);
                 container.setMainClass(appPluginConvention.getMainClassName());
-                container.setPorts(ImmutableList.of("8080"));
               });
           project
               .getTasks()

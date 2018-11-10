@@ -70,7 +70,7 @@ dependencies {
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
     compile 'com.diffplug.spotless:spotless-plugin-gradle'
     compile 'com.github.ben-manes:gradle-versions-plugin'
-    compile 'com.google.cloud:google-cloud-storage'
+    compile 'com.google.auth:google-auth-library-oauth2-http'
     compile 'com.google.guava:guava'
     compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin'
     compile 'com.palantir:gradle-baseline-java'

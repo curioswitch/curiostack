@@ -127,7 +127,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("1.33.0")
+              .version("1.34.0")
               .addModules("grpc-google-cloud-pubsub-v1")
               .build(),
           ImmutableDependencySet.builder()
@@ -142,7 +142,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.51.0")
+              .version("1.52.0")
               .addModules(
                   "google-cloud-bigquery",
                   "google-cloud-core",
@@ -419,7 +419,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.immutables")
-              .version("2.7.1")
+              .version("2.7.2")
               .addModules("builder", "value", "value-annotations")
               .build(),
           ImmutableDependencySet.builder()
@@ -434,7 +434,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jooq")
-              .version("3.11.6")
+              .version("3.11.7")
               .addModules("jooq", "jooq-codegen", "jooq-meta")
               .build(),
           ImmutableDependencySet.builder()
@@ -459,7 +459,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.simpleflatmapper")
-              .version("6.0.5")
+              .version("6.0.7")
               .addModules(
                   "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
               .build(),
@@ -471,7 +471,7 @@ public class StandardDependencies {
 
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:4.0.3",
+          "com.bmuschko:gradle-docker-plugin:4.0.4",
           "com.diffplug.spotless:spotless-plugin-gradle:3.16.0",
           "com.github.ben-manes:gradle-versions-plugin:0.20.0",
           "com.google.gradle:osdetector-gradle-plugin:1.6.0",
@@ -482,7 +482,7 @@ public class StandardDependencies {
           "com.palantir:gradle-baseline-java:0.10.0",
           "de.undercouch:gradle-download-task:3.4.3",
           "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.2.1",
-          "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.9.13",
+          "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.10.0",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.0.0-beta1",
           "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
