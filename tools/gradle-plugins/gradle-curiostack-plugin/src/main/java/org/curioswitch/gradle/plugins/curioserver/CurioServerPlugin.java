@@ -88,17 +88,19 @@ public class CurioServerPlugin implements Plugin<Project> {
               t.dependsOn(project.getRootProject().getTasks().getByName("gcloudSetup"));
             });
 
-    jib.container(container -> {
-      container.setFormat(ImageFormat.Docker);
-      container.setPorts(ImmutableList.of("8080"));
-    });
+    jib.container(
+        container -> {
+          container.setFormat(ImageFormat.Docker);
+          container.setPorts(ImmutableList.of("8080"));
+        });
 
     jib.getFrom().setImage("openjdk:11-jre-slim");
-    jib.getTo().setCredHelper(
-              DownloadedToolManager.get(project)
-                  .getBinDir("gcloud")
-                  .resolve("docker-credential-gcr")
-                  .toString());
+    jib.getTo()
+        .setCredHelper(
+            DownloadedToolManager.get(project)
+                .getBinDir("gcloud")
+                .resolve("docker-credential-gcr")
+                .toString());
 
     var jar = project.getTasks().withType(Jar.class).named("jar");
     var nativeImage =
@@ -146,9 +148,7 @@ public class CurioServerPlugin implements Plugin<Project> {
           jib.getTo()
               .setTags(ImmutableSet.of(releaseBranch != null ? releaseBranch : config.imageTag()));
           jib.container(
-              container -> {
-                container.setMainClass(appPluginConvention.getMainClassName());
-              });
+              container -> container.setMainClass(appPluginConvention.getMainClassName()));
           project
               .getTasks()
               .withType(

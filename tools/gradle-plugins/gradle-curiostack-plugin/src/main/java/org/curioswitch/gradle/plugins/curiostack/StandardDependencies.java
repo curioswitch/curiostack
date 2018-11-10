@@ -419,7 +419,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.immutables")
-              .version("2.7.2")
+              .version("2.7.1")
               .addModules("builder", "value", "value-annotations")
               .build(),
           ImmutableDependencySet.builder()
