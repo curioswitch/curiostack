@@ -40,7 +40,7 @@
     "inquirer": "5.0.1",
     "js-yaml": "3.10.0",
     "parse-duration": "0.1.1",
-    "request": "2.83.0",
+    "request": "2.88.0",
     "request-promise-native": "1.0.5",
     "source-map-support": "0.5.3"
   },

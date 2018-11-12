@@ -22,10 +22,9 @@
  * SOFTWARE.
  */
 
-import { injectGlobal } from 'styled-components';
+import { createGlobalStyle } from 'styled-components';
 
-// tslint:disable-next-line:no-unused-expression
-injectGlobal`
+export default createGlobalStyle`
   html,
   body {
     height: 100%;

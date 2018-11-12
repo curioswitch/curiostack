@@ -24,6 +24,7 @@
 
 import path from 'path';
 
+import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import { Configuration } from 'webpack';
 
 // tslint:disable-next-line:no-var-requires
@@ -162,6 +163,12 @@ function configure(options: any): Configuration {
       modules: ['src', 'node_modules'],
       extensions: ['.js', '.jsx', '.ts', '.tsx'],
       mainFields: ['browser', 'module', 'jsnext:main', 'main'],
+      plugins: [
+        new TsconfigPathsPlugin({
+          extensions: ['.ts', '.tsx', '.js', '.jsx'],
+          mainFields: ['browser', 'module', 'jsnext:main', 'main'],
+        }),
+      ],
     },
     devtool: options.devtool,
     target: options.target || 'web',

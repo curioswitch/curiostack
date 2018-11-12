@@ -52,10 +52,10 @@ export function routeReducer(
   }
 }
 
-function createGlobalReducer(appReducer: Reducer<any>) {
+function createGlobalReducer(appReducer: Reducer<any>, initialState: any) {
   return (state: any, action: Actions) => {
     const processedState =
-      action.type === ActionTypes.RESET_STATE ? undefined : state;
+      action.type === ActionTypes.RESET_STATE ? initialState : state;
     return appReducer(processedState, action);
   };
 }
@@ -63,12 +63,14 @@ function createGlobalReducer(appReducer: Reducer<any>) {
 export function createInitalReducer(
   identityReducers: ReducersMapObject,
   nonInjectedReducers: ReducersMapObject,
+  initialState: any,
 ): Reducer<any> {
   return createGlobalReducer(
     combineReducers({
       ...identityReducers,
       ...nonInjectedReducers,
     }),
+    initialState,
   );
 }
 
@@ -81,5 +83,6 @@ export default function createReducer(
       ...store.injectedReducers,
       ...store.nonInjectedReducers,
     }),
+    store.initialState,
   );
 }
