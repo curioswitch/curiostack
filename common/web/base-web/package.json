@@ -39,7 +39,8 @@
     "@babel/polyfill": "7.0.0",
     "@babel/preset-env": "7.1.0",
     "@babel/preset-react": "7.0.0",
-    "@babel/runtime": "7.0.0-beta.55",
+    "@babel/runtime": "7.1.5",
+    "@babel/runtime-corejs2": "7.1.5",
     "@curiostack/base-node-dev": "0.0.9",
     "@gfx/zopfli": "1.0.9",
     "@hugmanrique/react-markdown-loader": "0.0.2",
@@ -141,6 +142,7 @@
     "@types/rimraf": "2.0.2",
     "@types/serialize-javascript": "1.5.0",
     "@types/sharp": "0.21.0",
+    "@types/styled-components": "4.0.3",
     "@types/webpack-dev-server": "3.1.1",
     "copyfiles": "2.1.0",
     "klaw-sync": "6.0.0"
