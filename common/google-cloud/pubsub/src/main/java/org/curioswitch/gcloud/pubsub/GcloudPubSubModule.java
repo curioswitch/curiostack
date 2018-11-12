@@ -27,13 +27,21 @@ package org.curioswitch.gcloud.pubsub;
 import com.google.pubsub.v1.PublisherGrpc.PublisherFutureStub;
 import com.google.pubsub.v1.SubscriberGrpc.SubscriberFutureStub;
 import com.google.pubsub.v1.SubscriberGrpc.SubscriberStub;
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
+import java.time.Duration;
 import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
 import org.curioswitch.curiostack.gcloud.core.grpc.GrpcApiClientBuilder;
 
 @Module(includes = GcloudAuthModule.class)
 public abstract class GcloudPubSubModule {
+
+  @Binds
+  abstract Subscriber.Factory subscriberFactory(SubscriberFactory factory);
+
+  @Binds
+  abstract Publisher.Factory publisherFactory(PublisherFactory factory);
 
   @Provides
   static PublisherFutureStub publisher(GrpcApiClientBuilder clientBuilder) {
@@ -47,7 +55,11 @@ public abstract class GcloudPubSubModule {
 
   @Provides
   static SubscriberStub streamingSubscriber(GrpcApiClientBuilder clientBuilder) {
-    return clientBuilder.create("https://pubsub.googleapis.com/", SubscriberStub.class);
+    return clientBuilder
+        .newBuilder("https://pubsub.googleapis.com/")
+        .defaultMaxResponseLength(Integer.MAX_VALUE)
+        .defaultResponseTimeout(Duration.ZERO)
+        .build(SubscriberStub.class);
   }
 
   private GcloudPubSubModule() {}

@@ -69,9 +69,8 @@ buildscript {
 
 apply plugin: 'org.curioswitch.gradle-gcloud-build-cache-plugin'
 
-// TODO(choko): Use something a little less specific. Since Google Container Builder doesn't seem
-// to add the standard CI variable, we'll add it to the cloudbuild later.
 def isCiServer = System.getenv().containsKey('CI')
+def isMasterBuild = System.getenv().containsKey('CI_MASTER')
 
 buildCache {
     local {
@@ -80,11 +79,11 @@ buildCache {
     remote(org.curioswitch.gradle.plugins.gcloud.buildcache.CloudStorageBuildCache) {
         project = 'curioswitch-cluster'
         bucket = 'curioswitch-gradle-build-cache'
-        push = isCiServer
+        push = isMasterBuild
     }
 }
 
-include ':auth:api', ':auth:server'
+// include ':auth:api', ':auth:server'
 include ':common:curio-helpers'
 include ':common:google-cloud:cloud-storage'
 include ':common:google-cloud:core'
@@ -98,10 +97,10 @@ include ':common:testing:framework'
 include ':cluster:terraform:kube-deployers'
 include ':cluster:terraform:sysadmin'
 include ':database:yourmakedb:dev'
-include ':eggworld:api', 'eggworld:client:web', ':eggworld:server'
+// include ':eggworld:api', 'eggworld:client:web', ':eggworld:server'
 include ':gateway:server'
 include ':tools:cloudbuild-github-functions'
-include ':tools:golang-test'
+// include ':tools:golang-test'
 include ':tools:gradle-plugins:gradle-conda-plugin'
 include ':tools:gradle-plugins:gradle-curiostack-plugin'
 include ':tools:gradle-plugins:gradle-golang-plugin'

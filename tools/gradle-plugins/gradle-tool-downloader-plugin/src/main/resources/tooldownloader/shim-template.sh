@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # MIT License
 #
@@ -19,7 +20,15 @@
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+#SOFTWARE.
 #
 
-version = 0.0.4
+
+MARKER=||REPO_PATH||/.gradle/is-curiostack.txt
+
+if [ -f "$MARKER" ]; then
+  ||TOOL_EXE_PATH|| "$@"
+else
+  export PATH=$(p=$(echo $PATH | tr ":" "\n" | grep -v "||SHIMS_PATH||" | tr "\n" ":"); echo ${p%:})
+  ||EXE_NAME|| "$@"
+fi

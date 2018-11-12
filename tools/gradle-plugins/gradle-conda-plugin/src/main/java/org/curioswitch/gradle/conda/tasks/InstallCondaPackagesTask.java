@@ -52,7 +52,7 @@ public class InstallCondaPackagesTask extends DefaultTask {
   @Inject
   public InstallCondaPackagesTask(CondaExtension conda, DownloadedToolManager toolManager) {
     name = conda.getName();
-    packages = getProject().getObjects().listProperty(String.class);
+    packages = getProject().getObjects().listProperty(String.class).empty();
     this.toolManager = toolManager;
 
     packages.set(conda.getPackages());

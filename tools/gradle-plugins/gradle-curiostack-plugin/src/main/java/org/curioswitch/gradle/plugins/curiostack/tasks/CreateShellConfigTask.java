@@ -24,8 +24,6 @@
 
 package org.curioswitch.gradle.plugins.curiostack.tasks;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
@@ -35,11 +33,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.curioswitch.gradle.helpers.platform.PathUtil;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
 public class CreateShellConfigTask extends DefaultTask {
@@ -56,20 +52,8 @@ public class CreateShellConfigTask extends DefaultTask {
     return this;
   }
 
-  @Input
-  public List<Path> getPaths() {
-    return paths.stream().map(Path::toAbsolutePath).collect(toImmutableList());
-  }
-
   @TaskAction
   public void exec() {
-    String joinedPath =
-        getPaths()
-            .stream()
-            .map(PathUtil::toBashString)
-            // Assume msys or cygwin for now.
-            .collect(Collectors.joining(":"));
-
     String homeDir = System.getProperty("user.shellHome", System.getProperty("user.home", ""));
     if (homeDir.isEmpty()) {
       return;
@@ -78,7 +62,9 @@ public class CreateShellConfigTask extends DefaultTask {
     List<String> configLines =
         ImmutableList.of(
             MARKER,
-            "export PATH=" + joinedPath + ":$PATH",
+            "export PATH="
+                + PathUtil.toBashString(toolManager.getCuriostackDir().resolve("shims"))
+                + ":$PATH",
             "export CLOUDSDK_PYTHON="
                 + PathUtil.toBashString(
                     toolManager.getBinDir("miniconda2-build").resolve("python")),
@@ -118,6 +104,14 @@ public class CreateShellConfigTask extends DefaultTask {
       } catch (IOException e) {
         throw new UncheckedIOException("Could not write to shell file.", e);
       }
+    }
+
+    try {
+      Files.writeString(
+          getProject().getRootProject().file(".gradle/is-curiostack.txt").toPath(),
+          "Satisfying curiostiy");
+    } catch (IOException e) {
+      throw new UncheckedIOException("Could not write curiostack marker.", e);
     }
   }
 }

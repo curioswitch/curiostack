@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2018 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,30 +22,29 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.gcloud.tasks;
+package org.curioswitch.gcloud.pubsub;
 
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.NamespaceBuilder;
-import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import org.curioswitch.gradle.plugins.gcloud.ClusterExtension;
-import org.curioswitch.gradle.plugins.gcloud.ImmutableClusterExtension;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.TaskAction;
+import io.grpc.StatusRuntimeException;
 
-public class CreateClusterNamespaceTask extends DefaultTask {
+final class StatusUtil {
 
-  @TaskAction
-  public void exec() {
-    ImmutableClusterExtension cluster =
-        getProject().getExtensions().getByType(ClusterExtension.class);
-    Namespace namespace =
-        new NamespaceBuilder()
-            .withMetadata(new ObjectMetaBuilder().withName(cluster.namespace()).build())
-            .build();
-
-    KubernetesClient client = new DefaultKubernetesClient();
-    client.resource(namespace).createOrReplace();
+  static boolean isRetryable(Throwable error) {
+    if (!(error instanceof StatusRuntimeException)) {
+      return true;
+    }
+    StatusRuntimeException statusRuntimeException = (StatusRuntimeException) error;
+    switch (statusRuntimeException.getStatus().getCode()) {
+      case DEADLINE_EXCEEDED:
+      case INTERNAL:
+      case CANCELLED:
+      case RESOURCE_EXHAUSTED:
+      case ABORTED:
+      case UNAVAILABLE:
+        return true;
+      default:
+        return false;
+    }
   }
+
+  private StatusUtil() {}
 }

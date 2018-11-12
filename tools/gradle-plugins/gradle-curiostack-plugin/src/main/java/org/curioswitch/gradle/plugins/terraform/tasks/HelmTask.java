@@ -38,7 +38,7 @@ public class HelmTask extends DefaultTask {
   public HelmTask() {
     setGroup("Helm");
 
-    args = getProject().getObjects().listProperty(String.class);
+    args = getProject().getObjects().listProperty(String.class).empty();
 
     args.add("--tiller-namespace");
     args.add("tiller-prod");

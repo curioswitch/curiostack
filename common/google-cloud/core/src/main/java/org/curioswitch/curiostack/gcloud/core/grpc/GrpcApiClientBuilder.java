@@ -49,7 +49,7 @@ public class GrpcApiClientBuilder {
     this.credentialsDecorator = credentialsDecorator;
   }
 
-  public <T> T create(String url, Class<T> clz) {
+  public ClientBuilder newBuilder(String url) {
     return new ClientBuilder("gproto+" + url)
         .decorator(
             HttpRequest.class,
@@ -59,6 +59,8 @@ public class GrpcApiClientBuilder {
                   @Override
                   public HttpResponse execute(ClientRequestContext ctx, HttpRequest req)
                       throws Exception {
+                    // Many Google services do not support the standard application/grpc+proto
+                    // header...
                     req.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/grpc");
                     return delegate().execute(ctx, req);
                   }
@@ -70,7 +72,11 @@ public class GrpcApiClientBuilder {
             HttpRequest.class,
             HttpResponse.class,
             MetricCollectingClient.newDecorator(MetricLabels.grpcRequestLabeler()))
-        .decorator(HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator())
-        .build(clz);
+        .decorator(
+            HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator());
+  }
+
+  public <T> T create(String url, Class<T> clz) {
+    return newBuilder(url).build(clz);
   }
 }

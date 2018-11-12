@@ -93,7 +93,7 @@ public class DownloadToolTask extends DefaultTask {
     version = objects.property(String.class);
     baseUrl = objects.property(String.class);
     artifactPattern = objects.property(String.class);
-    additionalCacheDirs = objects.listProperty(String.class);
+    additionalCacheDirs = objects.listProperty(String.class).empty();
 
     name = config.getName();
     artifact.set(config.getArtifact());

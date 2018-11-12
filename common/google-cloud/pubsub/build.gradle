@@ -33,10 +33,22 @@ targetCompatibility = '1.8'
 dependencies {
     api project(':common:google-cloud:core')
 
+    implementation project(':common:curio-helpers')
+
     api 'com.google.api.grpc:grpc-google-cloud-pubsub-v1'
+    api 'com.google.cloud:google-cloud-pubsub'
+
+    implementation 'com.google.protobuf:protobuf-java-util'
+    implementation 'com.linecorp.armeria:armeria-grpc'
+
+    annotationProcessor 'com.google.auto.factory:auto-factory'
+    compileOnly 'com.google.auto.factory:auto-factory'
 
     annotationProcessor 'com.google.dagger:dagger-compiler'
     compileOnly 'com.google.dagger:dagger'
+
+    annotationProcessor 'org.immutables:value'
+    compileOnly 'org.immutables:value-annotations'
 }
 
 publishing {

@@ -63,6 +63,7 @@ public class ToolDownloaderPlugin implements Plugin<Project> {
         .set("toolManager", toolManager);
 
     var downloadAll = project.getTasks().register("toolsDownloadAll");
+    var setupAll = project.getTasks().register("toolsSetupAll");
 
     tools.configureEach(
         tool -> {
@@ -76,10 +77,13 @@ public class ToolDownloaderPlugin implements Plugin<Project> {
                       tool,
                       platformHelper,
                       toolManager);
-          project
-              .getTasks()
-              .register("toolsSetup" + taskSuffix, SetupTask.class, t -> t.dependsOn(task));
+          var setup =
+              project
+                  .getTasks()
+                  .register("toolsSetup" + taskSuffix, SetupTask.class, tool.getName());
+          setup.configure(t -> t.dependsOn(task));
           downloadAll.configure(t -> t.dependsOn(task));
+          setupAll.configure(t -> t.dependsOn(setup));
         });
   }
 

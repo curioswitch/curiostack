@@ -27,6 +27,7 @@ package org.curioswitch.common.server.framework.database;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.ExecuteContext;
+import org.jooq.conf.ParamType;
 import org.jooq.impl.DefaultExecuteListener;
 
 /**
@@ -39,6 +40,6 @@ final class QueryLogger extends DefaultExecuteListener {
 
   @Override
   public void executeStart(ExecuteContext ctx) {
-    logger.info(ctx.sql());
+    logger.info(ctx.query().getSQL(ParamType.INLINED));
   }
 }

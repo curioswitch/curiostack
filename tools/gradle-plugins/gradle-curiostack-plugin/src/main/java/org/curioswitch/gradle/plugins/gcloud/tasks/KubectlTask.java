@@ -44,7 +44,7 @@ public class KubectlTask extends DefaultTask {
   public KubectlTask() {
     setGroup("gcloud");
 
-    args = getProject().getObjects().listProperty(String.class);
+    args = getProject().getObjects().listProperty(String.class).empty();
   }
 
   public KubectlTask setArgs(Iterable<String> args) {

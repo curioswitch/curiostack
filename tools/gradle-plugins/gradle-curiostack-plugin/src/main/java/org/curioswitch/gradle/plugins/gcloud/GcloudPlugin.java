@@ -51,7 +51,6 @@ import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
 import org.curioswitch.gradle.plugins.gcloud.tasks.FetchToolCacheTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
-import org.curioswitch.gradle.plugins.gcloud.tasks.RequestNamespaceCertTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.UploadToolCacheTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
@@ -121,7 +120,6 @@ public class GcloudPlugin implements Plugin<Project> {
 
     ExtraPropertiesExtension ext = project.getExtensions().getExtraProperties();
     ext.set(GcloudTask.class.getSimpleName(), GcloudTask.class);
-    ext.set(RequestNamespaceCertTask.class.getSimpleName(), RequestNamespaceCertTask.class);
 
     project
         .getTasks()
@@ -172,11 +170,11 @@ public class GcloudPlugin implements Plugin<Project> {
             project
                 .getPlugins()
                 .withType(ToolDownloaderPlugin.class)
-                .configureEach(
+                .all(
                     plugin ->
                         plugin
                             .tools()
-                            .configureEach(
+                            .all(
                                 tool -> {
                                   String toolCachePath =
                                       "gs://"
@@ -222,19 +220,15 @@ public class GcloudPlugin implements Plugin<Project> {
 
                                   // We disable cache upload by default and only enable it if a
                                   // setup task was run.
-                                  uploadCache.configure(t -> t.setOnlyIf(unused -> false));
-                                  DownloadToolUtil.getSetupTask(project, tool.getName())
-                                      .configure(
-                                          t ->
-                                              uploadCache.configure(
-                                                  uc ->
-                                                      uc.setOnlyIf(
-                                                          unused ->
-                                                              "true"
-                                                                      .equals(
-                                                                          System.getenv(
-                                                                              "CI_MASTER"))
-                                                                  && t.getDidWork())));
+                                  uploadCache.configure(
+                                      uc ->
+                                          uc.setOnlyIf(
+                                              unused ->
+                                                  "true".equals(System.getenv("CI_MASTER"))
+                                                      && DownloadToolUtil.getSetupTask(
+                                                              project, tool.getName())
+                                                          .get()
+                                                          .getDidWork()));
 
                                   project
                                       .getPlugins()
