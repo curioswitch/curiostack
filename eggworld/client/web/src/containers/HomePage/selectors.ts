@@ -41,8 +41,9 @@ const selectHomePageDomain = (state: GlobalState) => state.homePage;
  * Default selector used by HomePage
  */
 
-const selectHomePage = createSelector(selectHomePageDomain, (substate: State) =>
-  substate.toObject(),
+const selectHomePage = createSelector(
+  selectHomePageDomain,
+  (substate: State) => substate.toObject(),
 );
 
 export default selectHomePage;
