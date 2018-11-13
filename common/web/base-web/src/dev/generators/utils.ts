@@ -46,21 +46,16 @@ export function componentExists(comp: string) {
   return components.indexOf(comp) >= 0;
 }
 
-handlebars.registerHelper(
-  'properCase',
-  (val: string) =>
-    val.length > 0 ? val[0].toUpperCase() + val.substring(1) : '',
+handlebars.registerHelper('properCase', (val: string) =>
+  val.length > 0 ? val[0].toUpperCase() + val.substring(1) : '',
 );
 
-handlebars.registerHelper(
-  'camelCase',
-  (val: string) =>
-    val.length > 0 ? val[0].toLowerCase() + val.substring(1) : '',
+handlebars.registerHelper('camelCase', (val: string) =>
+  val.length > 0 ? val[0].toLowerCase() + val.substring(1) : '',
 );
 
-handlebars.registerHelper(
-  'curly',
-  (_: any, open: boolean) => (open ? '{' : '}'),
+handlebars.registerHelper('curly', (_: any, open: boolean) =>
+  open ? '{' : '}',
 );
 
 function findLicenseHeader() {
