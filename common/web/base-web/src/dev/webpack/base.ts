@@ -85,7 +85,9 @@ function configure(options: any): Configuration {
         compilerOptions: {
           noEmit: false,
         },
+        allowTsInNodeModules: true,
         happyPackMode: true,
+        experimentalFileCaching: true,
         experimentalWatchApi: true,
         onlyCompileBundledFiles: true,
         reportFiles: ['src/**/*.{ts,tsx}'],
