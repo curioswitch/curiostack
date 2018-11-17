@@ -150,13 +150,12 @@ async function run(ctx: LoaderContext, content: Buffer) {
 
   const reversedBreakpoints = Object.keys(breakpoints).reverse();
   const sizes = reversedBreakpoints
-    .map(
-      (breakpoint, i) =>
-        i !== reversedBreakpoints.length - 1
-          ? `(min-width: ${loaderOptions.breakpoints[breakpoint]}) ${
-              breakpoints[breakpoint]
-            }vw`
-          : `${breakpoints[breakpoint]}vw`,
+    .map((breakpoint, i) =>
+      i !== reversedBreakpoints.length - 1
+        ? `(min-width: ${loaderOptions.breakpoints[breakpoint]}) ${
+            breakpoints[breakpoint]
+          }vw`
+        : `${breakpoints[breakpoint]}vw`,
     )
     .join(', ');
   const sources = formats.map((format) => ({

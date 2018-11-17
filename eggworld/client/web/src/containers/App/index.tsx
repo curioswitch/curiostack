@@ -28,10 +28,13 @@ import { Route, Switch } from 'react-router-dom';
 import HomePage from '../HomePage/loader';
 import NotFoundPage from '../NotFoundPage/loader';
 
+import GlobalStyles from '../../global-styles';
+
 export default class App extends React.Component {
   public render() {
     return (
       <>
+        <GlobalStyles />
         <Switch>
           <Route exact path="/" component={HomePage} />
           <Route path="" component={NotFoundPage} />

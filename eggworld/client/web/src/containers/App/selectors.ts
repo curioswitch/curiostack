@@ -30,6 +30,9 @@ import { GlobalState } from '../../state';
 const selectRoute = (state: GlobalState): RouterState => state.route;
 
 const makeSelectLocation = () =>
-  createSelector(selectRoute, (routeState) => routeState.location);
+  createSelector(
+    selectRoute,
+    (routeState) => routeState.location,
+  );
 
 export { makeSelectLocation };

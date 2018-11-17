@@ -58,7 +58,7 @@ export default ({ key, saga, mode }: Options) => <TOriginalProps extends {}>(
       WrappedComponent.name ||
       'Component'})`;
 
-    private injectors = getInjectors(this.context.store);
+    private injectors = getInjectors((this as any).context.store);
 
     public componentWillMount() {
       const { injectSaga } = this.injectors;
