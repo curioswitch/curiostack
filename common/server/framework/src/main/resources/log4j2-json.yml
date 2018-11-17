@@ -31,14 +31,11 @@ Configuration:
       name: Console_Appender
       target: SYSTEM_OUT
       direct: true
-      JsonLayout:
+      StackdriverJsonLayout:
         compact: true
         eventEol: true
         properties: true
         stacktraceAsString: true
-        KeyValuePair:
-        - key: severity
-          value: "${stackdriver:severity}"
 
   Loggers:
     Root:
