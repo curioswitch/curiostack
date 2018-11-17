@@ -46,7 +46,7 @@ public class StandardDependencies {
     String version();
   }
 
-  public static final String GCLOUD_VERSION = "224.0.0";
+  public static final String GCLOUD_VERSION = "225.0.0";
   public static final String HELM_VERSION = "2.10.0";
   public static final String MINICONDA_VERSION = "4.5.11";
   public static final String TERRAFORM_VERSION = "0.11.10";
@@ -54,7 +54,7 @@ public class StandardDependencies {
   public static final String YARN_VERSION = "1.12.3";
 
   static final String GOOGLE_JAVA_FORMAT_VERSION = "1.6";
-  static final String GRADLE_VERSION = "5.0-rc-1";
+  static final String GRADLE_VERSION = "5.0-rc-3";
 
   private static final String JACKSON_VERSION = "2.9.7";
 
@@ -77,7 +77,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.auth")
-              .version("0.11.0")
+              .version("0.12.0")
               .addModules("google-auth-library-oauth2-http")
               .build(),
           ImmutableDependencySet.builder()
@@ -122,12 +122,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("0.34.0")
+              .version("0.36.0")
               .addModules("grpc-google-cloud-trace-v1")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("1.34.0")
+              .version("1.35.0")
               .addModules("grpc-google-cloud-pubsub-v1")
               .build(),
           ImmutableDependencySet.builder()
@@ -142,7 +142,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.52.0")
+              .version("1.53.0")
               .addModules(
                   "google-cloud-bigquery",
                   "google-cloud-core",
@@ -211,7 +211,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.spotify")
-              .version("4.0.0")
+              .version("4.1.1")
               .addModules("futures-extra")
               .build(),
           ImmutableDependencySet.builder()
@@ -331,7 +331,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.9.3")
+              .version("1.9.4")
               .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
@@ -369,7 +369,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.awaitility")
-              .version("3.1.2")
+              .version("3.1.3")
               .addModules("awaitility")
               .build(),
           ImmutableDependencySet.builder()
@@ -419,7 +419,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.immutables")
-              .version("2.7.1")
+              .version("2.7.3")
               .addModules("builder", "value", "value-annotations")
               .build(),
           ImmutableDependencySet.builder()
@@ -459,7 +459,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.simpleflatmapper")
-              .version("6.0.7")
+              .version("6.0.9")
               .addModules(
                   "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
               .build(),
