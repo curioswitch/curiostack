@@ -24,13 +24,10 @@
 
 package org.curioswitch.gradle.plugins.gcloud;
 
-import java.io.File;
-import java.nio.file.Paths;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
 import org.immutables.value.Value;
-import org.immutables.value.Value.Derived;
 import org.immutables.value.Value.Modifiable;
 import org.immutables.value.Value.Style;
 
@@ -97,28 +94,6 @@ public interface ImmutableGcloudExtension {
 
   default String buildCacheStorageBucket() {
     return clusterResourceName("gradle-build-cache");
-  }
-
-  default boolean download() {
-    return true;
-  }
-
-  default File workDir() {
-    return Paths.get(gradleProject().getProjectDir().getAbsolutePath(), ".gradle", "gcloud")
-        .toFile();
-  }
-
-  default String version() {
-    return "204.0.0";
-  }
-
-  default String distBaseUrl() {
-    return "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/";
-  }
-
-  @Derived
-  default PlatformConfig platformConfig() {
-    return PlatformConfig.fromExtension(this);
   }
 
   default String clusterResourceName(String resource) {
