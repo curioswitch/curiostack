@@ -31,7 +31,6 @@ import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
@@ -46,7 +45,7 @@ public interface ProtobufExtension extends HasPublicType {
 
   String NAME = "protobuf";
 
-  static ModifiableProtobufExtension createAndAdd(Project project, FileResolver fileResolver) {
+  static ModifiableProtobufExtension createAndAdd(Project project) {
     ObjectFactory objects = project.getObjects();
 
     ModifiableProtobufExtension extension =
@@ -57,8 +56,7 @@ public interface ProtobufExtension extends HasPublicType {
                 project.container(
                     SourceDirectorySet.class,
                     name ->
-                        new ProtobufSourceDirectorySet(name, fileResolver)
-                            .srcDir("src/" + name + "/proto")))
+                        objects.sourceDirectorySet(name, name).srcDir("src/" + name + "/proto")))
             .setOutputBaseDir(objects.property(File.class))
             .setProtoc(Executable.create(objects))
             .setDescriptorSetOptions(DescriptorSetOptions.create(objects));

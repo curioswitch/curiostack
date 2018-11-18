@@ -485,6 +485,7 @@ public class StandardDependencies {
           "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.10.0",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.0.0-beta1",
           "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
+          "gradle.plugin.com.palantir.graal:gradle-graal:0.2.0-4-g255fd1f",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
           "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE",
           "javax.activation:activation:1.1.1",
