@@ -55,8 +55,12 @@ public interface ProtobufExtension extends HasPublicType {
             .setSources(
                 project.container(
                     SourceDirectorySet.class,
-                    name ->
-                        objects.sourceDirectorySet(name, name).srcDir("src/" + name + "/proto")))
+                    name -> {
+                      var directorySet =
+                          objects.sourceDirectorySet(name, name).srcDir("src/" + name + "/proto");
+                      directorySet.include("**/*.proto");
+                      return directorySet;
+                    }))
             .setOutputBaseDir(objects.property(File.class))
             .setProtoc(Executable.create(objects))
             .setDescriptorSetOptions(DescriptorSetOptions.create(objects));

@@ -54,7 +54,7 @@ public class StandardDependencies {
   public static final String YARN_VERSION = "1.12.3";
 
   static final String GOOGLE_JAVA_FORMAT_VERSION = "1.6";
-  static final String GRADLE_VERSION = "5.0-rc-3";
+  static final String GRADLE_VERSION = "5.0-rc-4";
 
   private static final String JACKSON_VERSION = "2.9.7";
 
@@ -190,7 +190,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.guava")
-              .version("27.0-jre")
+              .version("27.0.1-jre")
               .addModules("guava", "guava-testlib")
               .build(),
           ImmutableDependencySet.builder()
@@ -364,7 +364,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.assertj")
-              .version("3.2.0")
+              .version("3.2.1")
               .addModules("assertj-guava")
               .build(),
           ImmutableDependencySet.builder()
@@ -449,7 +449,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")
-              .version("2.23.2")
+              .version("2.23.4")
               .addModules("mockito-core", "mockito-junit-jupiter")
               .build(),
           ImmutableDependencySet.builder()

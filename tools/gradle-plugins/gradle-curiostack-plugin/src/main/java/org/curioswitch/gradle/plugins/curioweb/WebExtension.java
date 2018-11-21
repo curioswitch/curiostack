@@ -38,7 +38,9 @@ public interface WebExtension extends HasPublicType {
   String NAME = "web";
 
   static ModifiableWebExtension createAndAdd(Project project) {
-    return project.getExtensions().create(NAME, ModifiableWebExtension.class)
+    return project
+        .getExtensions()
+        .create(NAME, ModifiableWebExtension.class)
         .setJavaPackage(project.getObjects().property(String.class));
   }
 

@@ -100,9 +100,7 @@ public class GenerateProtoTask extends DefaultTask {
 
   @Inject
   public GenerateProtoTask(
-      String sourceSetName,
-      ProtobufExtension config,
-      WorkerExecutor workerExecutor) {
+      String sourceSetName, ProtobufExtension config, WorkerExecutor workerExecutor) {
     this.sourceSetName = sourceSetName;
     this.workerExecutor = workerExecutor;
 
@@ -111,7 +109,10 @@ public class GenerateProtoTask extends DefaultTask {
     ObjectFactory objects = getProject().getObjects();
 
     sources = objects.sourceDirectorySet(sourceSetName, sourceSetName);
-    includeDirs = objects.sourceDirectorySet(sourceSetName + "-includes", sourceSetName + "-includes");
+    sources.include("**/*.proto");
+    includeDirs =
+        objects.sourceDirectorySet(sourceSetName + "-includes", sourceSetName + "-includes");
+    includeDirs.include("**/*.proto");
     protocPath = objects.property(File.class);
     protocArtifact = objects.property(String.class);
     outputBaseDir = objects.property(File.class);
