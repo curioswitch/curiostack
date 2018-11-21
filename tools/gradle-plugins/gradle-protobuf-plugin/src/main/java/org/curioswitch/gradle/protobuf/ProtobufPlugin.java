@@ -26,7 +26,6 @@ package org.curioswitch.gradle.protobuf;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gradle.osdetector.OsDetectorPlugin;
-import javax.inject.Inject;
 import org.curioswitch.common.helpers.immutables.CurioStyle;
 import org.curioswitch.gradle.protobuf.tasks.ExtractProtosTask;
 import org.curioswitch.gradle.protobuf.tasks.GenerateProtoTask;
@@ -36,7 +35,6 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.JavaBasePlugin;
@@ -47,19 +45,12 @@ import org.immutables.value.Value.Immutable;
 
 public class ProtobufPlugin implements Plugin<Project> {
 
-  private final FileResolver fileResolver;
-
-  @Inject
-  public ProtobufPlugin(FileResolver fileResolver) {
-    this.fileResolver = fileResolver;
-  }
-
   @Override
   public void apply(Project project) {
     project.getPlugins().apply(BasePlugin.class);
     project.getPlugins().apply(OsDetectorPlugin.class);
 
-    ProtobufExtension extension = ProtobufExtension.createAndAdd(project, fileResolver);
+    ProtobufExtension extension = ProtobufExtension.createAndAdd(project);
 
     SourceSetTasks mainTasks = configureSourceSet("main", project, extension);
 

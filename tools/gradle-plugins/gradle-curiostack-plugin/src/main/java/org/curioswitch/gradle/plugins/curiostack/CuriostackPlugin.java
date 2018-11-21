@@ -407,7 +407,10 @@ public class CuriostackPlugin implements Plugin<Project> {
               task.getOptions().setIncremental(true);
               task.getOptions()
                   .setCompilerArgs(
-                      ImmutableList.of("-XDcompilePolicy=byfile", "-Adagger.gradle.incremental"));
+                      ImmutableList.of(
+                          "-XDcompilePolicy=byfile",
+                          "-Adagger.gradle.incremental",
+                          "-Aimmutables.gradle.incremental"));
 
               ErrorProneOptions errorProne =
                   ((ExtensionAware) task.getOptions())

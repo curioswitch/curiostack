@@ -22,41 +22,32 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.gcloud;
+package org.curioswitch.gradle.plugins.curioweb;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
-import javax.annotation.Nullable;
+import org.curioswitch.gradle.helpers.immutables.ExtensionStyle;
 import org.gradle.api.Project;
-import org.immutables.value.Value;
+import org.gradle.api.provider.Property;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
 import org.immutables.value.Value.Modifiable;
-import org.immutables.value.Value.Style;
 
-/** Configuration for setting up a Kubernetes cluster resource. */
 @Modifiable
-@Style(create = "new", typeModifiable = "*", defaultAsDefault = true, typeAbstract = "Immutable*")
-public interface ImmutableClusterExtension {
+@ExtensionStyle
+public interface WebExtension extends HasPublicType {
 
-  String NAME = "cluster";
+  String NAME = "web";
 
-  @Value.Parameter
-  Project gradleProject();
-
-  /** The name of a namespace to create, or {@code null} if no namespace to create. */
-  @Nullable
-  default String namespace() {
-    return null;
+  static ModifiableWebExtension createAndAdd(Project project) {
+    return project
+        .getExtensions()
+        .create(NAME, ModifiableWebExtension.class)
+        .setJavaPackage(project.getObjects().property(String.class));
   }
 
-  default List<String> extraNamespaceTlsHosts() {
-    return ImmutableList.of();
-  }
+  Property<String> getJavaPackage();
 
-  @Nullable
-  default String serviceAccountName() {
-    if (namespace() == null) {
-      return null;
-    }
-    return "cluster-" + namespace();
+  @Override
+  default TypeOf<?> getPublicType() {
+    return TypeOf.typeOf(WebExtension.class);
   }
 }

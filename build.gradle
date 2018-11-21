@@ -23,17 +23,12 @@
  */
 
 plugins {
-    id 'com.gradle.build-scan' version '2.0.1'
+    id 'com.gradle.build-scan' version '2.0.2'
     id 'org.curioswitch.gradle-curiostack-plugin'
 }
 
 allprojects {
     project.group = 'org.curioswitch.curiostack'
-
-    tasks.withType(org.gradle.plugin.devel.tasks.ValidateTaskProperties) {
-        // Disable this until Gradle 5 fixes Java 11 compatability.
-        enabled = false
-    }
 
     plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
         project.apply plugin: 'com.jfrog.bintray'

@@ -51,7 +51,6 @@ import org.curioswitch.gradle.protobuf.ProtobufExtension;
 import org.curioswitch.gradle.protobuf.ProtobufExtension.DescriptorSetOptions;
 import org.curioswitch.gradle.protobuf.ProtobufExtension.Executable;
 import org.curioswitch.gradle.protobuf.ProtobufExtension.LanguageSettings;
-import org.curioswitch.gradle.protobuf.ProtobufSourceDirectorySet;
 import org.curioswitch.gradle.protobuf.utils.SourceSetUtils;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -63,7 +62,6 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.artifacts.repositories.ArtifactRepository;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
@@ -102,10 +100,7 @@ public class GenerateProtoTask extends DefaultTask {
 
   @Inject
   public GenerateProtoTask(
-      String sourceSetName,
-      ProtobufExtension config,
-      WorkerExecutor workerExecutor,
-      FileResolver fileResolver) {
+      String sourceSetName, ProtobufExtension config, WorkerExecutor workerExecutor) {
     this.sourceSetName = sourceSetName;
     this.workerExecutor = workerExecutor;
 
@@ -113,8 +108,11 @@ public class GenerateProtoTask extends DefaultTask {
 
     ObjectFactory objects = getProject().getObjects();
 
-    sources = new ProtobufSourceDirectorySet(sourceSetName, fileResolver);
-    includeDirs = new ProtobufSourceDirectorySet(sourceSetName + "-includes", fileResolver);
+    sources = objects.sourceDirectorySet(sourceSetName, sourceSetName);
+    sources.include("**/*.proto");
+    includeDirs =
+        objects.sourceDirectorySet(sourceSetName + "-includes", sourceSetName + "-includes");
+    includeDirs.include("**/*.proto");
     protocPath = objects.property(File.class);
     protocArtifact = objects.property(String.class);
     outputBaseDir = objects.property(File.class);

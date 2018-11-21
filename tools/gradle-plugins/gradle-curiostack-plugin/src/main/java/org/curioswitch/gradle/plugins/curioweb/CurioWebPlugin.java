@@ -42,7 +42,7 @@ public class CurioWebPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    project.getExtensions().create("web", WebExtension.class);
+    var config = WebExtension.createAndAdd(project);
 
     project.getPlugins().apply(JavaLibraryPlugin.class);
     project.getPlugins().apply(NodePlugin.class);
@@ -90,20 +90,15 @@ public class CurioWebPlugin implements Plugin<Project> {
                   }
                 });
 
-    var copyWeb =
-        project
-            .getTasks()
-            .register(
-                "copyWeb",
-                Copy.class,
-                t -> {
-                  t.dependsOn(buildWeb);
-                  t.from("build/web");
-                });
-    project.afterEvaluate(
-        p -> {
-          ImmutableWebExtension web = project.getExtensions().getByType(WebExtension.class);
-          copyWeb.configure(t -> t.into("build/javaweb/" + web.javaPackage().replace('.', '/')));
-        });
+    project
+        .getTasks()
+        .register(
+            "copyWeb",
+            Copy.class,
+            t -> {
+              t.dependsOn(buildWeb);
+              t.from("build/web");
+              t.into(config.getJavaPackage().map(pkg -> "build/javaweb/" + pkg.replace('.', '/')));
+            });
   }
 }
