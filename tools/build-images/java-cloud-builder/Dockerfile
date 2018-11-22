@@ -34,7 +34,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /usr/local/lib/python2.7/dist-packages/ /usr/local/lib/python2.7/dist-packages/
-ADD https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-219.0.1-linux-x86_64.tar.gz /tmp/gcloud/gcloud.tar.gz
+ADD https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-225.0.0-linux-x86_64.tar.gz /tmp/gcloud/gcloud.tar.gz
 
 RUN tar -xzf /tmp/gcloud/gcloud.tar.gz -C /var && rm -rf /tmp/gcloud
 
