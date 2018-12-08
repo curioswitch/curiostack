@@ -26,6 +26,8 @@ FROM openjdk:11-jdk-slim AS build
 RUN apt-get update && \
     apt-get install -y python-pip && pip install crcmod
 
+FROM google/cloud-sdk:slim AS gcloud
+
 FROM openjdk:11-jdk-slim
 
 RUN apt-get update && \
@@ -34,8 +36,6 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /usr/local/lib/python2.7/dist-packages/ /usr/local/lib/python2.7/dist-packages/
-ADD https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-225.0.0-linux-x86_64.tar.gz /tmp/gcloud/gcloud.tar.gz
+COPY --from=gcloud /usr/lib/google-cloud-sdk /usr/lib/google-cloud-sdk
 
-RUN tar -xzf /tmp/gcloud/gcloud.tar.gz -C /var && rm -rf /tmp/gcloud
-
-ENV PATH="/var/google-cloud-sdk/bin:${PATH}"
+ENV PATH="/usr/lib/google-cloud-sdk/bin:${PATH}"
