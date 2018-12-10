@@ -69,6 +69,9 @@ import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
 import nu.studer.gradle.jooq.JooqTask;
 import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
+import org.curioswitch.gradle.golang.GolangExtension;
+import org.curioswitch.gradle.golang.GolangPlugin;
+import org.curioswitch.gradle.golang.tasks.JibTask;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
 import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
@@ -76,6 +79,7 @@ import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
 import org.curioswitch.gradle.plugins.nodejs.util.NodeUtil;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
@@ -236,6 +240,30 @@ public class CuriostackPlugin implements Plugin<Project> {
                           }
                           StandardDependencies.DEPENDENCIES.forEach(dependencies::dependency);
                         });
+                  });
+
+          project
+              .getPlugins()
+              .withType(
+                  GolangPlugin.class,
+                  unused -> {
+                    project
+                        .getExtensions()
+                        .getByType(GolangExtension.class)
+                        .jib(
+                            jib ->
+                                jib.getCredentialHelper()
+                                    .set(
+                                        DownloadedToolManager.get(project)
+                                            .getBinDir("gcloud")
+                                            .resolve("docker-credential-gcr")));
+                    project
+                        .getTasks()
+                        .withType(JibTask.class)
+                        .configureEach(
+                            t ->
+                                t.dependsOn(
+                                    project.getRootProject().getTasks().getByName("gcloudSetup")));
                   });
 
           project

@@ -33,13 +33,12 @@ import com.google.common.collect.Streams;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
 import org.curioswitch.gradle.golang.tasks.GoTask;
-import org.curioswitch.gradle.golang.tasks.GolangExtension;
-import org.curioswitch.gradle.helpers.platform.OperatingSystem;
-import org.curioswitch.gradle.helpers.platform.PlatformHelper;
+import org.curioswitch.gradle.golang.tasks.JibTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.GradleException;
@@ -241,6 +240,13 @@ public class GolangPlugin implements Plugin<Project> {
 
           for (String goOs : goOses) {
             for (String goArch : goArchs) {
+              String outputDir = goOs.isEmpty() ? "current" : goOs;
+              if (!goArch.isEmpty()) {
+                outputDir += '-' + goArch;
+              }
+              String outPath =
+                  goBuildDir.resolve(outputDir).resolve(exeName).toString()
+                      + (goOs.equals("windows") ? ".exe" : "");
               var goBuild =
                   project
                       .getTasks()
@@ -248,15 +254,6 @@ public class GolangPlugin implements Plugin<Project> {
                           "goBuild" + toTaskSuffix(goOs) + toTaskSuffix(goArch),
                           GoTask.class,
                           t -> {
-                            String outputDir = goOs.isEmpty() ? "current" : goOs;
-                            if (!goArch.isEmpty()) {
-                              outputDir += '-' + goArch;
-                            }
-                            String outPath =
-                                goBuildDir.resolve(outputDir).resolve(exeName).toString();
-                            if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
-                              outPath += ".exe";
-                            }
                             t.args("build", "-o", outPath);
                             t.execCustomizer(
                                 exec -> {
@@ -276,6 +273,15 @@ public class GolangPlugin implements Plugin<Project> {
                                 DownloadToolUtil.getSetupTask(project, golang.getConda().get()),
                                 downloadDeps);
                           });
+              project
+                  .getTasks()
+                  .register(
+                      "jib" + toTaskSuffix(goOs) + toTaskSuffix(goArch),
+                      JibTask.class,
+                      t -> {
+                        t.dependsOn(goBuild);
+                        t.setExePath(Paths.get(outPath));
+                      });
               goBuildAll.configure(t -> t.dependsOn(goBuild));
             }
           }

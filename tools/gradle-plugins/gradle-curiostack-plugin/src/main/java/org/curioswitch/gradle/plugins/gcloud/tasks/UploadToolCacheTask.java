@@ -33,7 +33,6 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
 public class UploadToolCacheTask extends DefaultTask {
@@ -73,12 +72,9 @@ public class UploadToolCacheTask extends DefaultTask {
     String mapKey = UUID.randomUUID().toString();
     TASKS.put(mapKey, this);
 
-    workerExecutor.submit(
-        GsutilCopy.class,
-        config -> {
-          config.setIsolationMode(IsolationMode.NONE);
-          config.params(mapKey);
-        });
+    // We usually execute long-running tasks in the executor but directly run for now since gsutil
+    // seems to be flaky under high concurrency.
+    new GsutilCopy(mapKey).run();
   }
 
   public static class GsutilCopy implements Runnable {

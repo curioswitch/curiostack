@@ -38,29 +38,22 @@ public final class GrpcGraphUtil {
 
   /**
    * Wires the result of a {@link ListenableFuture} to the response handling methods of a {@link
-   * StreamObserver}.
+   * StreamObserver} for a {@link
+   * org.curioswitch.common.server.framework.grpc.GrpcProductionComponent} which takes no arguments.
    */
-  public static <T> void unary(ListenableFuture<T> graphFuture, StreamObserver<T> observer) {
+  public static <Resp extends Message, C extends GrpcProductionComponent<Resp>> void unary(
+      StreamObserver<Resp> observer, Provider<C> component) {
     Futures.addCallback(
-        graphFuture,
-        new FutureCallback<T>() {
-          @Override
-          public void onSuccess(@Nullable T result) {
-            observer.onNext(result);
-            observer.onCompleted();
-          }
-
-          @Override
-          public void onFailure(Throwable t) {
-            observer.onError(t);
-          }
-        },
+        component.get().execute(),
+        new UnaryStreamObserverCallback<>(observer),
         MoreExecutors.directExecutor());
   }
 
   /**
-   * Invokes a unary {@link GrpcProductionComponent} with the provided request and graph factory.
+   * Invokes a unary {@link org.curioswitch.common.server.framework.grpc.GrpcProductionComponent}
+   * with the provided request and graph factory.
    */
+  @SuppressWarnings("InconsistentOverloads")
   public static <
           G,
           Resp extends Message,
@@ -69,19 +62,28 @@ public final class GrpcGraphUtil {
       void unary(G graph, StreamObserver<Resp> observer, Provider<B> componentBuilder) {
     Futures.addCallback(
         componentBuilder.get().graph(graph).build().execute(),
-        new FutureCallback<Resp>() {
-          @Override
-          public void onSuccess(@Nullable Resp result) {
-            observer.onNext(result);
-            observer.onCompleted();
-          }
-
-          @Override
-          public void onFailure(Throwable t) {
-            observer.onError(t);
-          }
-        },
+        new UnaryStreamObserverCallback<>(observer),
         MoreExecutors.directExecutor());
+  }
+
+  private static class UnaryStreamObserverCallback<T> implements FutureCallback<T> {
+
+    private final StreamObserver<T> observer;
+
+    private UnaryStreamObserverCallback(StreamObserver<T> observer) {
+      this.observer = observer;
+    }
+
+    @Override
+    public void onSuccess(@Nullable T result) {
+      observer.onNext(result);
+      observer.onCompleted();
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+      observer.onError(t);
+    }
   }
 
   private GrpcGraphUtil() {}

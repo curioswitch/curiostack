@@ -25,7 +25,6 @@
 package org.curioswitch.gradle.plugins.curioserver;
 
 import com.google.cloud.tools.jib.gradle.BuildImageTask;
-import com.google.cloud.tools.jib.gradle.DockerContextTask;
 import com.google.cloud.tools.jib.gradle.JibExtension;
 import com.google.cloud.tools.jib.gradle.JibPlugin;
 import com.google.cloud.tools.jib.image.ImageFormat;
@@ -94,7 +93,7 @@ public class CurioServerPlugin implements Plugin<Project> {
           container.setPorts(ImmutableList.of("8080"));
         });
 
-    jib.getFrom().setImage("openjdk:11-jre-slim");
+    jib.getFrom().setImage("curiostack/java-cloud-runner");
     jib.getTo()
         .setCredHelper(
             DownloadedToolManager.get(project)
@@ -149,11 +148,6 @@ public class CurioServerPlugin implements Plugin<Project> {
               .setTags(ImmutableSet.of(releaseBranch != null ? releaseBranch : config.imageTag()));
           jib.container(
               container -> container.setMainClass(appPluginConvention.getMainClassName()));
-          project
-              .getTasks()
-              .withType(
-                  DockerContextTask.class,
-                  t -> t.setTargetDir(project.file("build/jib").getAbsolutePath()));
 
           String revisionId =
               (String) project.getRootProject().findProperty("curiostack.revisionId");

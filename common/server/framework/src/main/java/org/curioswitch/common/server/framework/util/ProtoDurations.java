@@ -22,42 +22,26 @@
  * SOFTWARE.
  */
 
-plugins {
-    `java-gradle-plugin`
-    `maven-publish`
-}
+package org.curioswitch.common.server.framework.util;
 
-dependencies {
-    compile(project(":common:curio-helpers"))
-    compile(project(":tools:gradle-plugins:gradle-conda-plugin"))
-    compile(project(":tools:gradle-plugins:gradle-tool-downloader-plugin"))
-    compile(project(":tools:gradle-plugins:gradle-helpers"))
+import com.google.protobuf.Duration;
+import com.google.protobuf.util.Durations;
 
-    compile("gradle.plugin.com.google.cloud.tools:jib-gradle-plugin")
-    compile("com.google.guava:guava")
+/**
+ * Common utilities for dealing with {@link Duration}, such as conversion to {@link java.time}
+ * types.
+ */
+public final class ProtoDurations {
 
-    annotationProcessor("org.immutables:value")
-    compileOnly("org.immutables:value-annotations")
-}
+  /** Converts a {@link java.time.Duration} to {@link Duration}. */
+  public static Duration fromJavaTime(java.time.Duration d) {
+    return Durations.fromNanos(d.toNanos());
+  }
 
-gradlePlugin {
-    plugins {
-        register("golang") {
-            id = "org.curioswitch.gradle-golang-plugin"
-            implementationClass = "org.curioswitch.gradle.golang.GolangPlugin"
-        }
-    }
-}
+  /** Converts a {@link Duration} to {@link java.time.Duration}. */
+  public static java.time.Duration toJavaTime(Duration d) {
+    return java.time.Duration.ofNanos(Durations.toNanos(d));
+  }
 
-publishing {
-    publications {
-        register("maven", MavenPublication::class) {
-            pom {
-                name.set("Gradle Golang Plugin")
-                description.set("Gradle plugin to build Go binaries.")
-                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
-                        "gradle-plugins/gradle-golang-plugin")
-            }
-        }
-    }
+  private ProtoDurations() {}
 }

@@ -36,7 +36,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nullable;
 
-class RedisClusterRemoteCache<K, V> implements RemoteCache<K, V> {
+class RedisRemoteCache<K, V> implements RemoteCache<K, V> {
 
   private final RedisClusterAsyncCommands<K, V> redis;
   private final String name;
@@ -44,8 +44,7 @@ class RedisClusterRemoteCache<K, V> implements RemoteCache<K, V> {
   private final Counter success;
   private final Counter failure;
 
-  RedisClusterRemoteCache(
-      RedisClusterAsyncCommands<K, V> redis, String name, MeterRegistry registry) {
+  RedisRemoteCache(RedisClusterAsyncCommands<K, V> redis, String name, MeterRegistry registry) {
     this.redis = redis;
     this.name = name;
 
@@ -60,20 +59,17 @@ class RedisClusterRemoteCache<K, V> implements RemoteCache<K, V> {
 
   @Override
   public CompletionStage<V> get(K key) {
-    Span span = newSpan("get");
-    return record(redis.get(key), span, true);
+    return redis.get(key);
   }
 
   @Override
   public CompletionStage<String> set(K key, V value, SetArgs setArgs) {
-    Span span = newSpan("set");
-    return record(redis.set(key, value, setArgs), span, false);
+    return redis.set(key, value, setArgs);
   }
 
   @Override
   public CompletionStage<Long> del(K key) {
-    Span span = newSpan("del");
-    return record(redis.del(key), span, false);
+    return redis.del(key);
   }
 
   @Nullable
@@ -83,28 +79,5 @@ class RedisClusterRemoteCache<K, V> implements RemoteCache<K, V> {
       return null;
     }
     return tracer.nextSpan().kind(Kind.CLIENT).name(method).tag("component", name).start();
-  }
-
-  private <T> CompletionStage<T> record(
-      CompletionStage<T> stage, @Nullable Span span, boolean recordHit) {
-    return stage.whenComplete(
-        (val, t) -> {
-          if (t != null) {
-            failure.increment();
-          } else {
-            success.increment();
-          }
-          if (span != null) {
-            if (t != null) {
-              span.tag("result", "error");
-            } else {
-              span.tag("result", "success");
-            }
-            if (recordHit) {
-              span.tag("hit", val != null ? "true" : "false");
-            }
-            span.finish();
-          }
-        });
   }
 }

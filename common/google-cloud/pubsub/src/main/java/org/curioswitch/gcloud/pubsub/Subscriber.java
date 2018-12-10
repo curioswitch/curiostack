@@ -60,6 +60,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 import org.curioswitch.common.helpers.immutables.CurioStyle;
 import org.curioswitch.gcloud.pubsub.Subscriber.Factory;
@@ -149,6 +150,8 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
 
     receivedMessages.increment(value.getReceivedMessagesCount());
 
+    AtomicInteger pendingAcks = new AtomicInteger(value.getReceivedMessagesCount());
+
     for (ReceivedMessage message : value.getReceivedMessagesList()) {
       TraceContextOrSamplingFlags contextOrFlags = traceExtractor.extract(message.getMessage());
 
@@ -156,7 +159,9 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
       Span span =
           contextOrFlags.context() != null
               ? tracer.joinSpan(contextOrFlags.context())
-              : tracer.nextSpan(contextOrFlags);
+              // We want each message to be a new trace rather than having a long trace for the
+              // entire stream.
+              : tracer.newTrace();
 
       span.kind(Kind.SERVER)
           .name("google.pubsub.v1.Publisher.Publish")
@@ -196,8 +201,8 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
                 }
 
                 private void releaseAndRecord() {
-                  if (options.getUnsafeWrapBuffers()) {
-                    GrpcUnsafeBufferUtil.releaseBuffer(message, ctx);
+                  if (pendingAcks.decrementAndGet() == 0 && options.getUnsafeWrapBuffers()) {
+                    GrpcUnsafeBufferUtil.releaseBuffer(value, ctx);
                   }
 
                   messageProcessingTime.record(
