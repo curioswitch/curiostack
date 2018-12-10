@@ -25,8 +25,11 @@ package org.curioswitch.common.server.framework.mapper;
 
 import com.google.auto.service.AutoService;
 import com.google.protobuf.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import org.curioswitch.common.server.framework.util.ProtoDurations;
 import org.curioswitch.common.server.framework.util.ProtoTimestamps;
 import org.simpleflatmapper.converter.AbstractConverterFactoryProducer;
 import org.simpleflatmapper.converter.ConverterFactory;
@@ -61,6 +64,27 @@ public class ProtobufConverterFactoryProducer extends AbstractConverterFactoryPr
             return null;
           }
           return ProtoTimestamps.fromLocalDateTime(ldt, ZoneOffset.UTC);
+        });
+    constantConverter(
+        consumer,
+        Instant.class,
+        Timestamp.class,
+        i -> {
+          if (i == null) {
+            return null;
+          }
+          return ProtoTimestamps.fromInstant(i);
+        });
+
+    constantConverter(
+        consumer,
+        Duration.class,
+        com.google.protobuf.Duration.class,
+        d -> {
+          if (d == null) {
+            return null;
+          }
+          return ProtoDurations.fromJavaTime(d);
         });
   }
 }

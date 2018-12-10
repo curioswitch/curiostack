@@ -148,30 +148,33 @@ public class ClientBuilderFactory {
 
   public ClientBuilder create(String name, String url) {
     URI uri = URI.create(url);
-    DnsAddressEndpointGroup dnsEndpointGroup =
-        new DnsAddressEndpointGroupBuilder(uri.getHost()).port(uri.getPort()).ttl(1, 10).build();
-    DnsAddressEndpointGroup.of(uri.getHost(), uri.getPort());
-    dnsEndpointGroup.addListener(
-        endpoints ->
-            logger.info(
-                "Resolved new endpoints for {} : [ {} ]",
-                name,
-                endpoints
-                    .stream()
-                    .map(e -> MoreObjects.firstNonNull(e.ipAddr(), e.authority()))
-                    .collect(Collectors.joining(","))));
-    HttpHealthCheckedEndpointGroup endpointGroup =
-        new HttpHealthCheckedEndpointGroupBuilder(dnsEndpointGroup, "/internal/health")
-            .clientFactory(clientFactory)
-            .protocol(SessionProtocol.HTTPS)
-            .retryInterval(Duration.ofSeconds(3))
-            .build();
-    EndpointGroupRegistry.register(name, endpointGroup, EndpointSelectionStrategy.ROUND_ROBIN);
-    endpointGroup.newMeterBinder(name).bindTo(meterRegistry);
+    if (uri.getAuthority().endsWith("cluster.local")) {
+      DnsAddressEndpointGroup dnsEndpointGroup =
+          new DnsAddressEndpointGroupBuilder(uri.getHost()).port(uri.getPort()).ttl(1, 10).build();
+      DnsAddressEndpointGroup.of(uri.getHost(), uri.getPort());
+      dnsEndpointGroup.addListener(
+          endpoints ->
+              logger.info(
+                  "Resolved new endpoints for {} : [ {} ]",
+                  name,
+                  endpoints
+                      .stream()
+                      .map(e -> MoreObjects.firstNonNull(e.ipAddr(), e.authority()))
+                      .collect(Collectors.joining(","))));
+      HttpHealthCheckedEndpointGroup endpointGroup =
+          new HttpHealthCheckedEndpointGroupBuilder(dnsEndpointGroup, "/internal/health")
+              .clientFactory(clientFactory)
+              .protocol(SessionProtocol.HTTPS)
+              .retryInterval(Duration.ofSeconds(3))
+              .build();
+      EndpointGroupRegistry.register(name, endpointGroup, EndpointSelectionStrategy.ROUND_ROBIN);
+      endpointGroup.newMeterBinder(name).bindTo(meterRegistry);
 
-    ClientBuilder builder =
-        new ClientBuilder(uri.getScheme() + "://group:" + name + Strings.nullToEmpty(uri.getPath()))
-            .factory(clientFactory);
+      url = uri.getScheme() + "://group:" + name + Strings.nullToEmpty(uri.getPath());
+    }
+
+    ClientBuilder builder = new ClientBuilder(url).factory(clientFactory);
+
     if (googleCredentialsDecoratingClient != null) {
       builder.decorator(
           HttpRequest.class,

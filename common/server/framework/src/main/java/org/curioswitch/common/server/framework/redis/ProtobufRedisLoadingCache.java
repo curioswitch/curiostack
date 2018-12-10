@@ -159,7 +159,7 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
               new ProtobufRedisCodec<>(
                   (name + ":").getBytes(StandardCharsets.UTF_8), keyPrototype, valuePrototype));
       connection.setReadFrom(readFrom);
-      return new RedisClusterRemoteCache<>(connection.async(), name, meterRegistry);
+      return new RedisRemoteCache<>(connection.async(), name, meterRegistry);
     }
 
     private <K extends Message, V extends Message> RemoteCache<K, V> createRedisRemoteCache(
@@ -168,7 +168,7 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
           redisClient.connect(
               new ProtobufRedisCodec<>(
                   (name + ":").getBytes(StandardCharsets.UTF_8), keyPrototype, valuePrototype));
-      return new RedisClusterRemoteCache<>(connection.async(), name, meterRegistry);
+      return new RedisRemoteCache<>(connection.async(), name, meterRegistry);
     }
   }
 

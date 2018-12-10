@@ -35,6 +35,7 @@ import java.util.concurrent.CompletionStage;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.curioswitch.common.server.framework.logging.RequestLoggingContext;
 
 public class SslAuthorizer implements Authorizer<HttpRequest> {
 
@@ -65,6 +66,9 @@ public class SslAuthorizer implements Authorizer<HttpRequest> {
             .getSubjectX500Principal()
             .getName()
             .substring("CN=".length());
+
+    RequestLoggingContext.put(ctx, "sslCommonName", name);
+
     boolean authorized = commonNamesProvider.get().contains(name);
     if (authorized) {
       return CompletableFuture.completedFuture(true);

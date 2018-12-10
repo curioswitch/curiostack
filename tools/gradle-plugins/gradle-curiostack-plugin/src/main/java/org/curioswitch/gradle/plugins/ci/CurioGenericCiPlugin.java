@@ -47,6 +47,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.curioswitch.gradle.golang.GolangExtension;
+import org.curioswitch.gradle.golang.GolangPlugin;
+import org.curioswitch.gradle.golang.tasks.JibTask;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -114,6 +117,16 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       continuousBuild.dependsOn(cleanWrapper);
     }
 
+    project.allprojects(
+        proj ->
+            proj.getPlugins()
+                .withType(
+                    GolangPlugin.class,
+                    unused ->
+                        proj.getExtensions()
+                            .getByType(GolangExtension.class)
+                            .jib(jib -> jib.getAdditionalTags().addAll(getRevisionTags(proj)))));
+
     String releaseBranch = getCiBranchOrTag();
     if (releaseBranch != null && releaseBranch.startsWith("RELEASE_")) {
       project
@@ -154,6 +167,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
             if (task != null) {
               continuousBuild.dependsOn(task);
             }
+            continuousBuild.dependsOn(p.getTasks().withType(JibTask.class));
             Task dependentsTask = p.getTasks().findByName("buildDependents");
             if (dependentsTask != null) {
               continuousBuild.dependsOn(dependentsTask);
@@ -344,7 +358,28 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                 releaseBuild.dependsOn(affectedProject.getTasks().getByName("build"));
                 releaseBuild.dependsOn(affectedProject.getTasks().getByName("jib"));
               });
+      affectedProject
+          .getPlugins()
+          .withType(
+              GolangPlugin.class,
+              unused -> {
+                releaseBuild.dependsOn(affectedProject.getTasks().getByName("build"));
+                releaseBuild.dependsOn(affectedProject.getTasks().withType(JibTask.class));
+              });
     }
+  }
+
+  public static List<String> getRevisionTags(Project project) {
+    var tags = new ImmutableList.Builder<String>();
+    String revisionId = (String) project.getRootProject().findProperty("curiostack.revisionId");
+    if (revisionId != null) {
+      tags.add(revisionId);
+    }
+    String branch = getCiBranchOrTag();
+    if (branch != null && branch.startsWith("RELEASE_")) {
+      tags.add(branch);
+    }
+    return tags.build();
   }
 
   @Nullable

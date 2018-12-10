@@ -22,10 +22,13 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.golang.tasks;
+package org.curioswitch.gradle.golang;
 
+import java.nio.file.Path;
 import org.curioswitch.gradle.helpers.immutables.ExtensionStyle;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.reflect.HasPublicType;
@@ -47,7 +50,8 @@ public interface GolangExtension extends HasPublicType {
             .setExecutableName(objects.property(String.class))
             .setGoOses(objects.listProperty(String.class).empty())
             .setGoArchs(objects.listProperty(String.class).empty())
-            .setConda(objects.property(String.class).value("miniconda2-build"));
+            .setConda(objects.property(String.class).value("miniconda2-build"))
+            .setJib(Jib.create(objects));
     return extension;
   }
 
@@ -58,6 +62,49 @@ public interface GolangExtension extends HasPublicType {
   ListProperty<String> getGoArchs();
 
   Property<String> getConda();
+
+  @Modifiable
+  @ExtensionStyle
+  interface Jib {
+    static Jib create(ObjectFactory objects) {
+      return objects
+          .newInstance(ModifiableJib.class)
+          .setBaseImage(objects.property(String.class))
+          .setTargetImage(objects.property(String.class))
+          .setAdditionalTags(objects.listProperty(String.class).empty())
+          .setUser(objects.property(String.class))
+          .setVolumes(objects.listProperty(String.class).empty())
+          .setPorts(objects.listProperty(Integer.class).empty())
+          .setArgs(objects.listProperty(String.class).empty())
+          .setWorkingDir(objects.property(String.class))
+          .setCredentialHelper(objects.property(Path.class));
+    }
+
+    Property<String> getBaseImage();
+
+    Property<String> getTargetImage();
+
+    ListProperty<String> getAdditionalTags();
+
+    Property<String> getUser();
+
+    ListProperty<String> getVolumes();
+
+    ListProperty<Integer> getPorts();
+
+    ListProperty<String> getArgs();
+
+    Property<String> getWorkingDir();
+
+    Property<Path> getCredentialHelper();
+  }
+
+  Jib getJib();
+
+  default GolangExtension jib(Action<? super Jib> action) {
+    action.execute(getJib());
+    return this;
+  }
 
   @Override
   default TypeOf<?> getPublicType() {

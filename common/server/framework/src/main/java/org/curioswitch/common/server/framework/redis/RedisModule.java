@@ -25,6 +25,7 @@ package org.curioswitch.common.server.framework.redis;
 
 import static org.curioswitch.common.server.framework.redis.RedisConstants.DEFAULT_METER_ID_PREFIX;
 
+import brave.Tracing;
 import com.linecorp.armeria.common.CommonPools;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
@@ -34,6 +35,7 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.resource.DefaultClientResources;
+import io.lettuce.core.tracing.BraveTracing;
 import io.micrometer.core.instrument.MeterRegistry;
 import javax.inject.Singleton;
 import org.curioswitch.common.server.framework.config.ModifiableRedisConfig;
@@ -52,7 +54,8 @@ public abstract class RedisModule {
 
   @Provides
   @Singleton
-  static RedisClusterClient redisClusterClient(RedisConfig config, MeterRegistry registry) {
+  static RedisClusterClient redisClusterClient(
+      RedisConfig config, MeterRegistry registry, Tracing tracing) {
     RedisClusterClient client =
         RedisClusterClient.create(
             DefaultClientResources.builder()
@@ -60,6 +63,7 @@ public abstract class RedisModule {
                 .eventLoopGroupProvider(ArmeriaEventLoopGroupProvider.INSTANCE)
                 .commandLatencyCollector(
                     new MicrometerCommandLatencyCollector(DEFAULT_METER_ID_PREFIX, registry))
+                .tracing(BraveTracing.create(tracing))
                 .build(),
             config.getUrl());
     client.setOptions(ClusterClientOptions.builder().validateClusterNodeMembership(false).build());
@@ -68,13 +72,14 @@ public abstract class RedisModule {
 
   @Provides
   @Singleton
-  static RedisClient redisClient(RedisConfig config, MeterRegistry registry) {
+  static RedisClient redisClient(RedisConfig config, MeterRegistry registry, Tracing tracing) {
     return RedisClient.create(
         DefaultClientResources.builder()
             .eventExecutorGroup(CommonPools.workerGroup())
             .eventLoopGroupProvider(ArmeriaEventLoopGroupProvider.INSTANCE)
             .commandLatencyCollector(
                 new MicrometerCommandLatencyCollector(DEFAULT_METER_ID_PREFIX, registry))
+            .tracing(BraveTracing.create(tracing))
             .build(),
         config.getUrl());
   }

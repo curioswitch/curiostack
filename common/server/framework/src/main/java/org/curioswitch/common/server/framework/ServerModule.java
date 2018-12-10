@@ -24,6 +24,7 @@
 package org.curioswitch.common.server.framework;
 
 import brave.Tracing;
+import brave.propagation.TraceContext;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.collect.ImmutableSet;
 import com.linecorp.armeria.common.Flags;
@@ -649,7 +650,16 @@ public abstract class ServerModule {
             .decorate(
                 MetricCollectingService.newDecorator(
                     RpcMetricLabels.grpcRequestLabeler("grpc_services")))
-            .decorate(HttpTracingService.newDecorator(tracing));
+            .decorate(HttpTracingService.newDecorator(tracing))
+            .decorate(
+                (delegate, ctx, req) -> {
+                  TraceContext traceCtx = tracing.currentTraceContext().get();
+                  if (traceCtx != null) {
+                    RequestLoggingContext.put(ctx, "traceId", traceCtx.traceIdString());
+                    RequestLoggingContext.put(ctx, "spanId", Long.toHexString(traceCtx.spanId()));
+                  }
+                  return delegate.serve(ctx, req);
+                });
     return service;
   }
 
