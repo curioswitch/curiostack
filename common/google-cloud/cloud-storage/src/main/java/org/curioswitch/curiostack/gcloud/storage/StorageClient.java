@@ -23,12 +23,13 @@
  */
 package org.curioswitch.curiostack.gcloud.storage;
 
+import static com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.common.net.UrlEscapers;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.common.CommonPools;
@@ -52,11 +53,13 @@ import io.netty.util.ReferenceCountUtil;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.curioswitch.curiostack.gcloud.storage.StorageModule.ForStorage;
+import org.immutables.value.Value.Derived;
 import org.immutables.value.Value.Immutable;
 
 /**
@@ -107,7 +110,7 @@ public class StorageClient {
   /** Create a new file for uploading data to cloud storage. */
   public CompletableFuture<FileWriter> createFile(
       FileRequest request, EventLoop eventLoop, ByteBufAllocator alloc) {
-    HttpData data = createFileRequest(request, alloc);
+    HttpData data = serializeRequest(request, alloc);
 
     HttpHeaders headers =
         HttpHeaders.of(HttpMethod.POST, uploadUrl).contentType(MediaType.JSON_UTF_8);
@@ -150,8 +153,7 @@ public class StorageClient {
    */
   public CompletableFuture<ByteBuf> readFile(
       String filename, EventLoop eventLoop, ByteBufAllocator alloc) {
-    String url =
-        objectUrlPrefix + UrlEscapers.urlPathSegmentEscaper().escape(filename) + "?alt=media";
+    String url = objectUrlPrefix + urlPathSegmentEscaper().escape(filename) + "?alt=media";
 
     return httpClient
         .get(url)
@@ -186,23 +188,61 @@ public class StorageClient {
 
   public CompletableFuture<Void> updateFileMetadata(
       FileRequest request, EventLoop eventLoop, ByteBufAllocator alloc) {
-    String url = objectUrlPrefix + UrlEscapers.urlPathSegmentEscaper().escape(request.getName());
-    HttpData data = createFileRequest(request, alloc);
+    String url = objectUrlPrefix + urlPathSegmentEscaper().escape(request.getName());
+    return sendMutationRequest(HttpMethod.PUT, request, url, eventLoop, alloc);
+  }
 
-    HttpHeaders headers = HttpHeaders.of(HttpMethod.PATCH, url).contentType(MediaType.JSON_UTF_8);
-    HttpResponse res = httpClient.execute(headers, data);
-    return res.aggregate(eventLoop)
+  public CompletableFuture<Void> compose(ComposeRequest request) {
+    return compose(request, CommonPools.workerGroup().next(), PooledByteBufAllocator.DEFAULT);
+  }
+
+  public CompletableFuture<Void> compose(
+      ComposeRequest request, EventLoop eventLoop, ByteBufAllocator alloc) {
+    String url =
+        objectUrlPrefix
+            + urlPathSegmentEscaper().escape(request.getDestination().getName())
+            + "/compose";
+    return sendMutationRequest(HttpMethod.POST, request, url, eventLoop, alloc);
+  }
+
+  public CompletableFuture<Void> delete(String filename) {
+    String url = objectUrlPrefix + urlPathSegmentEscaper().escape(filename);
+    HttpHeaders headers = HttpHeaders.of(HttpMethod.DELETE, url).contentType(MediaType.JSON_UTF_8);
+    return httpClient
+        .execute(headers)
+        .aggregate()
         .handle(
             (msg, t) -> {
               if (t != null) {
-                throw new RuntimeException("Unexpected error creating new file.", t);
+                throw new RuntimeException("Unexpected error composing file.", t);
+              }
+              if (msg.status().equals(HttpStatus.OK)) {
+                return null;
+              } else {
+                throw new IllegalStateException(
+                    "Could not delete file: " + msg.content().toStringUtf8());
+              }
+            });
+  }
+
+  private CompletableFuture<Void> sendMutationRequest(
+      HttpMethod method, Object request, String url, EventLoop eventLoop, ByteBufAllocator alloc) {
+    HttpData data = serializeRequest(request, alloc);
+
+    HttpHeaders headers = HttpHeaders.of(HttpMethod.POST, url).contentType(MediaType.JSON_UTF_8);
+    HttpResponse res = httpClient.execute(headers, data);
+    return res.aggregateWithPooledObjects(eventLoop, alloc)
+        .handle(
+            (msg, t) -> {
+              if (t != null) {
+                throw new RuntimeException("Unexpected error composing file.", t);
               }
               try {
                 if (msg.status().equals(HttpStatus.OK)) {
                   return null;
                 } else {
                   throw new IllegalStateException(
-                      "Could not update metadata: " + msg.content().toStringUtf8());
+                      "Could not compose file: " + msg.content().toStringUtf8());
                 }
               } finally {
                 ReferenceCountUtil.safeRelease(msg.content());
@@ -210,7 +250,7 @@ public class StorageClient {
             });
   }
 
-  private static HttpData createFileRequest(FileRequest request, ByteBufAllocator alloc) {
+  private static HttpData serializeRequest(Object request, ByteBufAllocator alloc) {
     ByteBuf buf = alloc.buffer();
     try (ByteBufOutputStream os = new ByteBufOutputStream(buf)) {
       OBJECT_MAPPER.writeValue((DataOutput) os, request);
@@ -253,5 +293,28 @@ public class StorageClient {
     }
 
     Map<String, String> getMetadata();
+  }
+
+  @Immutable
+  @JsonSerialize(as = ImmutableComposeRequest.class)
+  @JsonDeserialize(as = ImmutableComposeRequest.class)
+  interface ComposeRequest {
+    class Builder extends ImmutableComposeRequest.Builder {}
+
+    @Derived
+    default String getKind() {
+      return "storage#composeRequest";
+    }
+
+    @Immutable
+    @JsonSerialize(as = ImmutableSourceObject.class)
+    @JsonDeserialize(as = ImmutableSourceObject.class)
+    interface SourceObject {
+      String getName();
+    }
+
+    List<SourceObject> getSourceObjects();
+
+    FileRequest getDestination();
   }
 }

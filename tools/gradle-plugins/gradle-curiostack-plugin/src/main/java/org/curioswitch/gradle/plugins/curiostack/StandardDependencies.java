@@ -92,7 +92,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.auto.value")
-              .version("1.6.3rc2")
+              .version("1.6.3")
               .addModules("auto-value", "auto-value-annotations")
               .build(),
           ImmutableDependencySet.builder()
@@ -122,7 +122,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("0.37.0")
+              .version("0.38.0")
               .addModules("grpc-google-cloud-trace-v1")
               .build(),
           ImmutableDependencySet.builder()
@@ -211,7 +211,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.spotify")
-              .version("4.1.1")
+              .version("4.1.2")
               .addModules("futures-extra")
               .build(),
           ImmutableDependencySet.builder()
@@ -311,7 +311,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.brave")
-              .version("5.5.2")
+              .version("5.6.0")
               .addModules("brave", "brave-instrumentation-mysql", "brave-instrumentation-mysql8")
               .build(),
           ImmutableDependencySet.builder()
@@ -389,7 +389,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.30")
+              .version("0.0.31")
               .addModules(
                   "armeria-google-cloud-core",
                   "armeria-google-cloud-iam",
@@ -449,7 +449,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")
-              .version("2.23.9")
+              .version("2.23.11")
               .addModules("mockito-core", "mockito-junit-jupiter")
               .build(),
           ImmutableDependencySet.builder()

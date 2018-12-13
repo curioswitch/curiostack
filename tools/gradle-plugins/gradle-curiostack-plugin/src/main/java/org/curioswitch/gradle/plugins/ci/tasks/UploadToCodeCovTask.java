@@ -22,35 +22,34 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.ci;
+package org.curioswitch.gradle.plugins.ci.tasks;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.curioswitch.gradle.helpers.immutables.ExtensionStyle;
-import org.gradle.api.Project;
-import org.gradle.api.provider.ListProperty;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
-import org.immutables.value.Value.Modifiable;
+import com.linecorp.armeria.client.HttpClient;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.curioswitch.gradle.conda.exec.CondaExecUtil;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.TaskAction;
 
-@Modifiable
-@ExtensionStyle
-public interface CiExtension extends HasPublicType {
+public class UploadToCodeCovTask extends DefaultTask {
 
-  String NAME = "ci";
+  @TaskAction
+  public void exec() throws Exception {
+    var codeCovUploader =
+        HttpClient.of("https://codecov.io").get("/bash").aggregate().join().content();
+    File tempDir = getTemporaryDir();
+    tempDir.createNewFile();
 
-  static CiExtension createAndAdd(Project project) {
-    return project.getExtensions().create(NAME, ModifiableCiExtension.class)
-        .setReleaseTagPrefixes(new HashMap<>())
-        .setCodeCoverageExcludedProjects(project.getObjects().listProperty(String.class).empty());
-  }
+    Path codeCovScript = Paths.get(tempDir.getAbsolutePath(), "codecov.sh");
 
-  Map<String, ? extends Iterable<String>> releaseTagPrefixes();
+    Files.write(codeCovScript, codeCovUploader.array());
 
-  ListProperty<String> getCodeCoverageExcludedProjects();
+    getProject().exec(exec -> {
+      exec.setCommandLine("bash < " + codeCovScript);
 
-  @Override
-  default TypeOf<?> getPublicType() {
-    return TypeOf.typeOf(CiExtension.class);
+      CondaExecUtil.condaExec(exec, getProject());
+    });
   }
 }

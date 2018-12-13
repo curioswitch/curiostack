@@ -43,6 +43,9 @@ pluginManagement {
             url 'http://palantir.bintray.com/releases'
         }
         mavenLocal()
+        maven {
+            url 'https://jitpack.io'
+        }
     }
 }
 
