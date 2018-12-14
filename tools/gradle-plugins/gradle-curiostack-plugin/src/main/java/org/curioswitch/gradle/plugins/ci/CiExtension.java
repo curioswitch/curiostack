@@ -40,7 +40,9 @@ public interface CiExtension extends HasPublicType {
   String NAME = "ci";
 
   static CiExtension createAndAdd(Project project) {
-    return project.getExtensions().create(NAME, ModifiableCiExtension.class)
+    return project
+        .getExtensions()
+        .create(NAME, ModifiableCiExtension.class)
         .setReleaseTagPrefixes(new HashMap<>())
         .setCodeCoverageExcludedProjects(project.getObjects().listProperty(String.class).empty());
   }

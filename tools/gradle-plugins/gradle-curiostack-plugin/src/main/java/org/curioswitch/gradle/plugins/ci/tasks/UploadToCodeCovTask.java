@@ -46,10 +46,12 @@ public class UploadToCodeCovTask extends DefaultTask {
 
     Files.write(codeCovScript, codeCovUploader.array());
 
-    getProject().exec(exec -> {
-      exec.setCommandLine("bash < " + codeCovScript);
+    getProject()
+        .exec(
+            exec -> {
+              exec.setCommandLine("bash < " + codeCovScript);
 
-      CondaExecUtil.condaExec(exec, getProject());
-    });
+              CondaExecUtil.condaExec(exec, getProject());
+            });
   }
 }
