@@ -49,7 +49,9 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.curioswitch.gradle.golang.GolangExtension;
 import org.curioswitch.gradle.golang.GolangPlugin;
+import org.curioswitch.gradle.golang.tasks.GoTestTask;
 import org.curioswitch.gradle.golang.tasks.JibTask;
+import org.curioswitch.gradle.plugins.ci.tasks.UploadToCodeCovTask;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -65,8 +67,12 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.UnknownTaskException;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
+import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.tasks.Delete;
+import org.gradle.testing.jacoco.plugins.JacocoPlugin;
+import org.gradle.testing.jacoco.tasks.JacocoReport;
 
 public class CurioGenericCiPlugin implements Plugin<Project> {
 
@@ -86,7 +92,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
           "curio-generic-ci-plugin can only be " + "applied to the root project.");
     }
 
-    CiExtension.createAndAdd(project);
+    var config = CiExtension.createAndAdd(project);
 
     if (System.getenv("CI") == null && !project.hasProperty("ci")) {
       return;
@@ -113,7 +119,8 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
 
     Task continuousBuild = project.task("continuousBuild");
 
-    if (System.getenv("CI_MASTER") != null) {
+    boolean isMaster = System.getenv("CI_MASTER") != null;
+    if (isMaster) {
       continuousBuild.dependsOn(cleanWrapper);
     }
 
@@ -137,6 +144,51 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       return;
     }
 
+    var uploadCoverage = project.getTasks().create("uploadToCodeCov", UploadToCodeCovTask.class);
+    continuousBuild.dependsOn(uploadCoverage);
+
+    project.allprojects(
+        proj -> {
+          proj.getPlugins()
+              .withType(JavaPlugin.class, unused -> proj.getPlugins().apply(JacocoPlugin.class));
+
+          proj.getPlugins()
+              .withType(
+                  GolangPlugin.class,
+                  unused ->
+                      proj.getTasks()
+                          .withType(GoTestTask.class)
+                          .configureEach(
+                              t -> {
+                                t.coverage(true);
+                                uploadCoverage.dependsOn(t);
+                              }));
+        });
+
+    project.subprojects(
+        proj ->
+            proj.getPlugins()
+                .withType(
+                    JacocoPlugin.class,
+                    unused -> {
+                      var testReport =
+                          proj.getTasks().named("jacocoTestReport", JacocoReport.class);
+                      uploadCoverage.dependsOn(testReport);
+                      testReport.configure(
+                          t ->
+                              t.reports(
+                                  reports -> {
+                                    reports.getXml().setEnabled(true);
+                                    reports.getHtml().setEnabled(true);
+                                    reports.getCsv().setEnabled(false);
+                                  }));
+                      try {
+                        proj.getTasks().named("build").configure(t -> t.dependsOn(testReport));
+                      } catch (UnknownTaskException e) {
+                        // Ignore.
+                      }
+                    }));
+
     final Set<Project> affectedProjects;
     try {
       affectedProjects = computeAffectedProjects(project);
@@ -156,6 +208,9 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                     if (task != null) {
                       continuousBuild.dependsOn(task);
                     }
+                    if (isMaster) {
+                      continuousBuild.dependsOn(p.getTasks().withType(JibTask.class));
+                    }
                   }));
       return;
     }
@@ -167,7 +222,9 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
             if (task != null) {
               continuousBuild.dependsOn(task);
             }
-            continuousBuild.dependsOn(p.getTasks().withType(JibTask.class));
+            if (isMaster) {
+              continuousBuild.dependsOn(p.getTasks().withType(JibTask.class));
+            }
             Task dependentsTask = p.getTasks().findByName("buildDependents");
             if (dependentsTask != null) {
               continuousBuild.dependsOn(dependentsTask);

@@ -79,9 +79,9 @@ public class GrpcApiPlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getRootProject().getPlugins().apply(GrpcApiSetupPlugin.class);
 
-    project.getPluginManager().apply(JavaLibraryPlugin.class);
-    project.getPluginManager().apply(ProtobufPlugin.class);
-    project.getPluginManager().apply(NodePlugin.class);
+    project.getPlugins().apply(JavaLibraryPlugin.class);
+    project.getPlugins().apply(ProtobufPlugin.class);
+    project.getPlugins().apply(NodePlugin.class);
 
     project.getExtensions().create(ImmutableGrpcExtension.NAME, GrpcExtension.class);
 

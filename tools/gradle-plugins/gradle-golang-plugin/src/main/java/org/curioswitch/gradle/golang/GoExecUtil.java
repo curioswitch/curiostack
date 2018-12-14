@@ -22,37 +22,27 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.ci;
+package org.curioswitch.gradle.golang;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.curioswitch.gradle.helpers.immutables.ExtensionStyle;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Project;
-import org.gradle.api.provider.ListProperty;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
-import org.immutables.value.Value.Modifiable;
+import org.gradle.api.plugins.ExtraPropertiesExtension;
+import org.gradle.process.ExecSpec;
 
-@Modifiable
-@ExtensionStyle
-public interface CiExtension extends HasPublicType {
+public final class GoExecUtil {
 
-  String NAME = "ci";
+  public static void goExec(ExecSpec exec, Project project, String command, Iterable<String> args) {
+    var toolManager = DownloadedToolManager.get(project);
 
-  static CiExtension createAndAdd(Project project) {
-    return project
-        .getExtensions()
-        .create(NAME, ModifiableCiExtension.class)
-        .setReleaseTagPrefixes(new HashMap<>())
-        .setCodeCoverageExcludedProjects(project.getObjects().listProperty(String.class).empty());
+    exec.executable(toolManager.getBinDir("go").resolve(command));
+    exec.args(args);
+    exec.environment("GOROOT", toolManager.getToolDir("go").resolve("go"));
+    exec.environment(
+        "GOPATH", project.getExtensions().getByType(ExtraPropertiesExtension.class).get("gopath"));
+    exec.environment("GOFLAGS", "-mod=readonly");
+
+    toolManager.addAllToPath(exec);
   }
 
-  Map<String, ? extends Iterable<String>> releaseTagPrefixes();
-
-  ListProperty<String> getCodeCoverageExcludedProjects();
-
-  @Override
-  default TypeOf<?> getPublicType() {
-    return TypeOf.typeOf(CiExtension.class);
-  }
+  private GoExecUtil() {}
 }

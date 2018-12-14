@@ -29,15 +29,14 @@ import static org.curioswitch.gradle.helpers.task.TaskUtil.toTaskSuffix;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
 import org.curioswitch.gradle.golang.tasks.GoTask;
+import org.curioswitch.gradle.golang.tasks.GoTestTask;
 import org.curioswitch.gradle.golang.tasks.JibTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
@@ -175,18 +174,8 @@ public class GolangPlugin implements Plugin<Project> {
             .getTasks()
             .register(
                 "goTest",
-                GoTask.class,
+                GoTestTask.class,
                 t -> {
-                  var testPackageDirs =
-                      Streams.stream(
-                              project.fileTree(
-                                  project.getProjectDir(), ft -> ft.include("**/*_test.go")))
-                          .map(f -> f.getParentFile().toPath())
-                          .map(p -> project.getProjectDir().toPath().relativize(p).toString())
-                          .map(p -> p.isEmpty() ? "." : "./" + p)
-                          .distinct()
-                          .collect(Collectors.joining(" "));
-                  t.args("test", testPackageDirs);
                   t.execCustomizer(
                       exec ->
                           CondaExecUtil.condaExec(

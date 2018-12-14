@@ -38,10 +38,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
+import org.curioswitch.gradle.golang.GoExecUtil;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -115,7 +114,7 @@ public class GoTask extends DefaultTask {
   }
 
   @TaskAction
-  void exec() {
+  void exec() throws Exception {
     String mapKey = UUID.randomUUID().toString();
     TASKS.put(mapKey, this);
 
@@ -161,20 +160,7 @@ public class GoTask extends DefaultTask {
         task.getProject()
             .exec(
                 exec -> {
-                  var toolManager = DownloadedToolManager.get(task.getProject());
-
-                  exec.executable(toolManager.getBinDir("go").resolve(task.command.get()));
-                  exec.args(task.args.get());
-                  exec.environment("GOROOT", toolManager.getToolDir("go").resolve("go"));
-                  exec.environment(
-                      "GOPATH",
-                      task.getProject()
-                          .getExtensions()
-                          .getByType(ExtraPropertiesExtension.class)
-                          .get("gopath"));
-                  exec.environment("GOFLAGS", "-mod=readonly");
-
-                  toolManager.addAllToPath(exec);
+                  GoExecUtil.goExec(exec, task.getProject(), task.command.get(), task.args.get());
 
                   for (var execCustomizer : task.execCustomizers) {
                     execCustomizer.execute(exec);
