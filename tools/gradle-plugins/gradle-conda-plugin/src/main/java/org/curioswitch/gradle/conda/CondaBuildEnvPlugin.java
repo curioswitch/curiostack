@@ -50,18 +50,33 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
               conda
                   .getPackages()
                   .addAll(
-                      "automake", "autoconf", "gcc_linux-64", "gxx_linux-64", "gfortran_linux-64");
+                      "automake",
+                      "autoconf",
+                      "curl",
+                      "gcc_linux-64",
+                      "gxx_linux-64",
+                      "gfortran_linux-64");
               break;
             case MAC_OSX:
               conda
                   .getPackages()
                   .addAll(
-                      "automake", "autoconf", "clang_osx-64", "clangxx_osx-64", "gfortran_osx-64");
+                      "automake",
+                      "autoconf",
+                      "curl",
+                      "clang_osx-64",
+                      "clangxx_osx-64",
+                      "gfortran_osx-64");
               break;
             case WINDOWS:
               conda
                   .getPackages()
-                  .addAll("m2-automake1.15", "m2-autoconf", "m2w64-gcc", "m2w64-gcc-fortran");
+                  .addAll(
+                      "m2-automake1.15",
+                      "m2-curl",
+                      "m2-autoconf",
+                      "m2w64-gcc",
+                      "m2w64-gcc-fortran");
               break;
           }
         });
