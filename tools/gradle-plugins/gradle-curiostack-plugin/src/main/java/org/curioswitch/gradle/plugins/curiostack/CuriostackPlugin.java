@@ -310,7 +310,6 @@ public class CuriostackPlugin implements Plugin<Project> {
     project.getRepositories().mavenCentral();
     project.getRepositories().mavenLocal();
     project.getRepositories().maven(maven -> maven.setUrl("https://oss.jfrog.org/libs-snapshot"));
-    project.getRepositories().maven(maven -> maven.setUrl("https://jitpack.io"));
   }
 
   private static void setupJavaProject(Project project) {
