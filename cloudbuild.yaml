@@ -53,6 +53,9 @@ steps:
   env:
   - CI=true
   - CI_MASTER=true
+  - CLOUDBUILD_BUILD_ID=$_BUILD_ID
+  secretEnv:
+    - CODECOV_TOKEN
 - id: curio-generated-push-compressed-build-cache
   waitFor:
   - curio-generated-build-all
@@ -68,3 +71,8 @@ steps:
   - -c
   - tar -cpf - wrapper caches curiostack/gcloud curiostack/miniconda2-build | lz4 -qc - | gsutil -o GSUtil:parallel_composite_upload_threshold=150M cp - gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4
 timeout: 60m
+secrets:
+- kmsKeyName: projects/curioswitch-cluster/locations/us-central1/keyRings/cloudbuild/cryptoKeys/github
+  secretEnv:
+    CODECOV_TOKEN: CiQAxdYgHOdQ5tY7WYjvBYlUsXk9g4GvELjEJZhEIFcxrkuDKY4STQA/OpLB7g9Gr8K5MZrwZXVDH/Ste1P6ZOFJl0TYILjU31c72w8Mmhde5JJv1VyEHW+67h8UARJHh6yOktrGFBU6wGzKDud0p6az3PoW
+

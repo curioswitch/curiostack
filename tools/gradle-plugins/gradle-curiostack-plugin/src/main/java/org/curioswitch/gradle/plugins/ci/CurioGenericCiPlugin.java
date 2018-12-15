@@ -51,8 +51,11 @@ import org.curioswitch.gradle.golang.GolangExtension;
 import org.curioswitch.gradle.golang.GolangPlugin;
 import org.curioswitch.gradle.golang.tasks.GoTestTask;
 import org.curioswitch.gradle.golang.tasks.JibTask;
+import org.curioswitch.gradle.plugins.ci.tasks.FetchCodeCovCacheTask;
+import org.curioswitch.gradle.plugins.ci.tasks.UploadCodeCovCacheTask;
 import org.curioswitch.gradle.plugins.ci.tasks.UploadToCodeCovTask;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -144,7 +147,25 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       return;
     }
 
-    var uploadCoverage = project.getTasks().create("uploadToCodeCov", UploadToCodeCovTask.class);
+    var fetchCodeCovCache =
+        project.getTasks().create("fetchCodeCovCache", FetchCodeCovCacheTask.class);
+
+    var uploadCodeCovCache =
+        project.getTasks().create("uploadCodeCovCache", UploadCodeCovCacheTask.class);
+
+    var uploadCoverage =
+        project
+            .getTasks()
+            .create(
+                "uploadToCodeCov",
+                UploadToCodeCovTask.class,
+                t -> {
+                  t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build"));
+                  if (isMaster) {
+                    t.finalizedBy(uploadCodeCovCache);
+                  }
+                });
+
     continuousBuild.dependsOn(uploadCoverage);
 
     project.allprojects(
@@ -161,7 +182,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                           .configureEach(
                               t -> {
                                 t.coverage(true);
-                                uploadCoverage.dependsOn(t);
+                                uploadCoverage.mustRunAfter(t);
                               }));
         });
 
@@ -173,7 +194,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                     unused -> {
                       var testReport =
                           proj.getTasks().named("jacocoTestReport", JacocoReport.class);
-                      uploadCoverage.dependsOn(testReport);
+                      uploadCoverage.mustRunAfter(testReport);
                       testReport.configure(
                           t ->
                               t.reports(
@@ -214,6 +235,10 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                   }));
       return;
     }
+
+    // We only fetch the code cov cache on non-full builds since we don't need to propagate for
+    // full ones.
+    uploadCoverage.dependsOn(fetchCodeCovCache);
 
     for (Project proj : affectedProjects) {
       proj.afterEvaluate(

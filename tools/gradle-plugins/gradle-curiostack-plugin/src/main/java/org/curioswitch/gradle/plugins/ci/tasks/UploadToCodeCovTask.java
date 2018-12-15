@@ -24,6 +24,7 @@
 
 package org.curioswitch.gradle.plugins.ci.tasks;
 
+import com.google.common.base.Splitter;
 import com.linecorp.armeria.client.HttpClient;
 import java.io.File;
 import java.nio.file.Files;
@@ -31,9 +32,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 public class UploadToCodeCovTask extends DefaultTask {
+
+  private static final Splitter REMOTE_REF_SPLITTER = Splitter.on('/');
+
+  @OutputFile
+  public File getCodeCovReportFile() {
+    return getProject().file("build/codecov-report.txt");
+  }
 
   @TaskAction
   public void exec() throws Exception {
@@ -46,10 +55,38 @@ public class UploadToCodeCovTask extends DefaultTask {
 
     Files.write(codeCovScript, codeCovUploader.array());
 
+    codeCovScript.toFile().setExecutable(true);
+
     getProject()
         .exec(
             exec -> {
-              exec.setCommandLine("bash < " + codeCovScript);
+              exec.setCommandLine(
+                  codeCovScript.toAbsolutePath().toString(),
+                  "-d > ",
+                  getCodeCovReportFile().getAbsolutePath());
+
+              CondaExecUtil.condaExec(exec, getProject());
+            });
+
+    getProject()
+        .exec(
+            exec -> {
+              exec.setCommandLine(
+                  codeCovScript.toAbsolutePath().toString(),
+                  "-f",
+                  getCodeCovReportFile().getAbsolutePath());
+
+              String prRemoteRef = System.getenv("GITHUB_PR_REMOTE_REF");
+              if (prRemoteRef != null) {
+                // Format is refs/pull/${pull.number}/head, just do a simple parse
+                String prNumber = REMOTE_REF_SPLITTER.splitToList(prRemoteRef).get(2);
+                exec.environment("VCS_PULL_REQUEST", prNumber);
+              }
+
+              String buildId = System.getenv("CLOUDBUILD_BUILD_ID");
+              if (buildId != null) {
+                exec.environment("CI_BUILD_ID", buildId);
+              }
 
               CondaExecUtil.condaExec(exec, getProject());
             });

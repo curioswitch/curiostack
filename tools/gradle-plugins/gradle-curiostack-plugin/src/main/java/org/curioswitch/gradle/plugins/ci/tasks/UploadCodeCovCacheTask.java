@@ -22,48 +22,65 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.gcloud.tasks;
+package org.curioswitch.gradle.plugins.ci.tasks;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
-import org.apache.tools.ant.taskdefs.condition.Os;
+import org.curioswitch.gradle.helpers.platform.OperatingSystem;
+import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
-public class UploadToolCacheTask extends DefaultTask {
+public class UploadCodeCovCacheTask extends DefaultTask {
 
   // It is extremely hacky to use global state to propagate the Task to workers, but
   // it works so let's enjoy the speed.
-  private static final ConcurrentHashMap<String, UploadToolCacheTask> TASKS =
+  private static final ConcurrentHashMap<String, UploadCodeCovCacheTask> TASKS =
       new ConcurrentHashMap<>();
 
   private final Property<String> dest;
-  private final ListProperty<String> srcPaths;
 
   private final WorkerExecutor workerExecutor;
 
   @Inject
-  public UploadToolCacheTask(WorkerExecutor workerExecutor) {
+  public UploadCodeCovCacheTask(WorkerExecutor workerExecutor) {
     this.workerExecutor = workerExecutor;
 
     dest = getProject().getObjects().property(String.class);
-    srcPaths = getProject().getObjects().listProperty(String.class).empty();
-
-    onlyIf(unused -> "true".equals(System.getenv("CI_MASTER")));
   }
 
-  public UploadToolCacheTask setDest(String dest) {
+  @InputFile
+  public File getCodeCovReportFile() {
+    return getProject().file("build/codecov-report.txt");
+  }
+
+  @Input
+  public Property<String> getDest() {
+    return dest;
+  }
+
+  public UploadCodeCovCacheTask setDest(String dest) {
     this.dest.set(dest);
     return this;
   }
 
-  public UploadToolCacheTask srcPath(String srcPath) {
-    this.srcPaths.add(srcPath);
+  public UploadCodeCovCacheTask setDest(Provider<String> dest) {
+    this.dest.set(dest);
     return this;
   }
 
@@ -72,37 +89,60 @@ public class UploadToolCacheTask extends DefaultTask {
     String mapKey = UUID.randomUUID().toString();
     TASKS.put(mapKey, this);
 
-    // We usually execute long-running tasks in the executor but directly run for now since gsutil
-    // seems to be flaky under high concurrency.
-    new DoUploadToolCache(mapKey).run();
+    workerExecutor.submit(
+        UploadReports.class,
+        config -> {
+          config.setIsolationMode(IsolationMode.NONE);
+          config.params(mapKey);
+        });
   }
 
-  public static class DoUploadToolCache implements Runnable {
+  public static class UploadReports implements Runnable {
+
     private final String mapKey;
 
     @Inject
-    public DoUploadToolCache(String mapKey) {
+    public UploadReports(String mapKey) {
       this.mapKey = mapKey;
     }
 
     @Override
     public void run() {
-      UploadToolCacheTask task = TASKS.remove(mapKey);
+      var task = TASKS.remove(mapKey);
+
+      final List<String> coverageFiles;
+      try (var lines = Files.lines(task.getCodeCovReportFile().toPath())) {
+        coverageFiles =
+            lines
+                .filter(line -> line.startsWith("# path="))
+                .map(line -> line.substring("# path=".length()))
+                .filter(filename -> Files.exists(task.getProject().file(filename).toPath()))
+                .map(line -> "./" + line)
+                .collect(toImmutableList());
+      } catch (IOException e) {
+        throw new UncheckedIOException("Could not read coverage report dump", e);
+      }
+
       var toolManager = DownloadedToolManager.get(task.getProject());
-      String gsutil = Os.isFamily(Os.FAMILY_WINDOWS) ? "gsutil" + ".cmd" : "gsutil";
+
+      String gsutil =
+          new PlatformHelper().getOs() == OperatingSystem.WINDOWS ? "gsutil.cmd" : "gsutil";
+
       task.getProject()
           .exec(
               exec -> {
                 exec.executable("bash");
-                exec.workingDir(toolManager.getCuriostackDir());
+
                 exec.args(
                     "-c",
-                    "tar -cpf - "
-                        + String.join(" ", task.srcPaths.get())
-                        + " | lz4 -qc - |"
+                    "tar -cpzf - "
+                        + String.join(" ", coverageFiles)
+                        + " | "
                         + gsutil
-                        + " -o GSUtil:parallel_composite_upload_threshold=150M cp - "
+                        + " cp - "
                         + task.dest.get());
+
+                toolManager.addAllToPath(exec);
               });
     }
   }

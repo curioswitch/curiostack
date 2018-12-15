@@ -46,11 +46,11 @@ public class StandardDependencies {
     String version();
   }
 
-  public static final String GCLOUD_VERSION = "227.0.0";
+  public static final String GCLOUD_VERSION = "228.0.0";
   public static final String HELM_VERSION = "2.10.0";
   public static final String MINICONDA_VERSION = "4.5.11";
-  public static final String TERRAFORM_VERSION = "0.11.10";
-  public static final String NODE_VERSION = "10.14.1";
+  public static final String TERRAFORM_VERSION = "0.11.11";
+  public static final String NODE_VERSION = "10.14.2";
   public static final String YARN_VERSION = "1.12.3";
 
   static final String GOOGLE_JAVA_FORMAT_VERSION = "1.6";
@@ -122,12 +122,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("0.38.0")
+              .version("0.39.0")
               .addModules("grpc-google-cloud-trace-v1")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
-              .version("1.37.0")
+              .version("1.38.0")
               .addModules("grpc-google-cloud-pubsub-v1")
               .build(),
           ImmutableDependencySet.builder()
@@ -142,7 +142,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.cloud")
-              .version("1.55.0")
+              .version("1.56.0")
               .addModules(
                   "google-cloud-bigquery",
                   "google-cloud-core",
@@ -331,7 +331,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.9.5")
+              .version("1.9.6")
               .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
@@ -459,7 +459,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.simpleflatmapper")
-              .version("6.0.11")
+              .version("6.0.12")
               .addModules(
                   "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
               .build(),
@@ -472,7 +472,7 @@ public class StandardDependencies {
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
           "com.bmuschko:gradle-docker-plugin:4.1.0",
-          "com.diffplug.spotless:spotless-plugin-gradle:3.16.0",
+          "com.diffplug.spotless:spotless-plugin-gradle:3.17.0",
           "com.github.ben-manes:gradle-versions-plugin:0.20.0",
           "com.google.gradle:osdetector-gradle-plugin:1.6.0",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.6",
