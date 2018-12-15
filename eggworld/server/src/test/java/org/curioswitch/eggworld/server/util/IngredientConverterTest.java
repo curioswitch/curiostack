@@ -24,10 +24,41 @@
 
 package org.curioswitch.eggworld.server.util;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.curioswitch.common.testing.assertj.CurioAssertions.assertThat;
+
+import org.curioswitch.eggworld.api.Ingredient;
 import org.junit.jupiter.api.Test;
 
 class IngredientConverterTest {
 
   @Test
-  void normal() {}
+  void toYummly() {
+    for (var ingredient : Ingredient.values()) {
+      if (ingredient == Ingredient.UNRECOGNIZED) {
+        continue;
+      }
+      assertThat(IngredientConverter.FORWARD.convert(ingredient))
+          .isEqualTo(ingredient.name().toLowerCase());
+    }
+  }
+
+  @Test
+  void fromYummly() {
+    for (var ingredient : Ingredient.values()) {
+      if (ingredient == Ingredient.UNRECOGNIZED) {
+        continue;
+      }
+      assertThat(IngredientConverter.REVERSE.convert(ingredient.name().toLowerCase()))
+          .isEqualTo(ingredient);
+    }
+  }
+
+  @Test
+  void unrecognized() {
+    assertThatThrownBy(() -> IngredientConverter.FORWARD.convert(Ingredient.UNRECOGNIZED))
+        .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> IngredientConverter.REVERSE.convert("foobarchoko"))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
 }
