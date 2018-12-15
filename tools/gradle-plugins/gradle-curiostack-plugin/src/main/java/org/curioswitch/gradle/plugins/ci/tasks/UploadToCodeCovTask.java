@@ -71,10 +71,10 @@ public class UploadToCodeCovTask extends DefaultTask {
     getProject()
         .exec(
             exec -> {
-              exec.setCommandLine(
-                  codeCovScript.toAbsolutePath().toString(),
-                  "-f",
-                  getCodeCovReportFile().getAbsolutePath());
+              // Ideally we would just upload the dump, but codecov seems to mix logging output and
+              // the report when dumping to stdout which doesn't parse correctly. Luckilty the dump
+              // is fast enough that it's not a big deal.
+              exec.setCommandLine(codeCovScript.toAbsolutePath().toString());
 
               String prRemoteRef = System.getenv("GITHUB_PR_REMOTE_REF");
               if (prRemoteRef != null) {
