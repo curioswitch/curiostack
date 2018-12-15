@@ -46,6 +46,8 @@ import org.curioswitch.gradle.conda.CondaPlugin;
 import org.curioswitch.gradle.conda.ModifiableCondaExtension;
 import org.curioswitch.gradle.helpers.task.TaskUtil;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
+import org.curioswitch.gradle.plugins.ci.tasks.FetchCodeCovCacheTask;
+import org.curioswitch.gradle.plugins.ci.tasks.UploadCodeCovCacheTask;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
 import org.curioswitch.gradle.plugins.gcloud.tasks.FetchToolCacheTask;
@@ -165,6 +167,25 @@ public class GcloudPlugin implements Plugin<Project> {
         p -> {
           ImmutableGcloudExtension config =
               project.getExtensions().getByType(GcloudExtension.class);
+
+          project
+              .getTasks()
+              .withType(UploadCodeCovCacheTask.class)
+              .configureEach(
+                  t ->
+                      t.setDest(
+                          "gs://"
+                              + config.buildCacheStorageBucket()
+                              + "/cloudbuild-cache-codecov.tar.gz"));
+          project
+              .getTasks()
+              .withType(FetchCodeCovCacheTask.class)
+              .configureEach(
+                  t ->
+                      t.setSrc(
+                          "gs://"
+                              + config.buildCacheStorageBucket()
+                              + "/cloudbuild-cache-codecov.tar.gz"));
 
           if (System.getenv("CI") != null) {
             project
