@@ -24,7 +24,7 @@
 FROM openjdk:11-jre-slim
 
 ADD https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz /tmp/gcloud/profiler_java_agent.tar.gz
-ADD https://storage.googleapis.com/cloud-debugger/compute-java/debian-wheezy/cdbg_java_agent_service_account.tar.gz /tmp/gcloud/cdbg_java_agent_service_account.tar.gz
+ADD https://github.com/GoogleCloudPlatform/cloud-debug-java/releases/download/v2.21/cdbg_java_agent_service_account.tar.gz /tmp/gcloud/cdbg_java_agent_service_account.tar.gz
 
 RUN mkdir /opt/cprof && \
   tar -xzf /tmp/gcloud/profiler_java_agent.tar.gz -C /opt/cprof && \
