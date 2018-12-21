@@ -27,6 +27,7 @@ package org.curioswitch.gradle.protobuf;
 import com.google.common.collect.ImmutableList;
 import com.google.gradle.osdetector.OsDetectorPlugin;
 import org.curioswitch.common.helpers.immutables.CurioStyle;
+import org.curioswitch.gradle.protobuf.ProtobufExtension.LanguageSettings;
 import org.curioswitch.gradle.protobuf.tasks.ExtractProtosTask;
 import org.curioswitch.gradle.protobuf.tasks.GenerateProtoTask;
 import org.curioswitch.gradle.protobuf.utils.SourceSetUtils;
@@ -178,6 +179,11 @@ public class ProtobufPlugin implements Plugin<Project> {
                 GenerateProtoTask.class,
                 sourceSetName,
                 extension);
+
+    // To ensure languages are added in order, we have to make sure this is hooked up eagerly.
+    var languages = project.getObjects().listProperty(LanguageSettings.class).empty();
+    extension.getLanguages().all(languages::add);
+
     generateProto.configure(
         t -> {
           t.dependsOn(extract, extractInclude);
@@ -185,8 +191,7 @@ public class ProtobufPlugin implements Plugin<Project> {
           t.getSources().source(sources.get()).srcDir(extract.get().getDestDir());
 
           t.include(extractInclude.get().getDestDir());
-
-          extension.getLanguages().all(t::language);
+          t.setLanguages(languages);
         });
     return ImmutableSourceSetTasks.builder()
         .extractProtos(extract)
