@@ -266,7 +266,7 @@ public class StorageClient {
   @JsonSerialize(as = ImmutableFileRequest.class)
   @JsonDeserialize(as = ImmutableFileRequest.class)
   @JsonInclude(Include.NON_EMPTY)
-  interface FileRequest {
+  public interface FileRequest {
 
     class Builder extends ImmutableFileRequest.Builder {}
 
@@ -298,7 +298,7 @@ public class StorageClient {
   @Immutable
   @JsonSerialize(as = ImmutableComposeRequest.class)
   @JsonDeserialize(as = ImmutableComposeRequest.class)
-  interface ComposeRequest {
+  public interface ComposeRequest {
     class Builder extends ImmutableComposeRequest.Builder {}
 
     @Derived
@@ -310,6 +310,8 @@ public class StorageClient {
     @JsonSerialize(as = ImmutableSourceObject.class)
     @JsonDeserialize(as = ImmutableSourceObject.class)
     interface SourceObject {
+      class Builder extends ImmutableSourceObject.Builder {}
+
       String getName();
     }
 

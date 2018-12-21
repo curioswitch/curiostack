@@ -56,7 +56,7 @@ public class StandardDependencies {
   static final String GOOGLE_JAVA_FORMAT_VERSION = "1.6";
   static final String GRADLE_VERSION = "5.0";
 
-  private static final String JACKSON_VERSION = "2.9.7";
+  private static final String JACKSON_VERSION = "2.9.8";
 
   static final ImmutableList<DependencySet> DEPENDENCY_SETS =
       ImmutableList.of(
@@ -206,17 +206,17 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.76.2")
+              .version("0.77.0")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.spotify")
-              .version("4.1.2")
+              .version("4.1.3")
               .addModules("futures-extra")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.squareup.retrofit2")
-              .version("2.4.0")
+              .version("2.5.0")
               .addModules(
                   "adapter-guava",
                   "adapter-java8",
@@ -252,7 +252,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.fabric8")
-              .version("4.1.0")
+              .version("4.1.1")
               .addModules("kubernetes-client")
               .build(),
           ImmutableDependencySet.builder()
@@ -389,7 +389,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.31")
+              .version("0.0.32")
               .addModules(
                   "armeria-google-cloud-core",
                   "armeria-google-cloud-iam",
@@ -459,7 +459,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.simpleflatmapper")
-              .version("6.0.12")
+              .version("6.0.13")
               .addModules(
                   "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
               .build(),
@@ -471,10 +471,10 @@ public class StandardDependencies {
 
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:4.1.0",
+          "com.bmuschko:gradle-docker-plugin:4.2.0",
           "com.diffplug.spotless:spotless-plugin-gradle:3.17.0",
           "com.github.ben-manes:gradle-versions-plugin:0.20.0",
-          "com.google.gradle:osdetector-gradle-plugin:1.6.0",
+          "com.google.gradle:osdetector-gradle-plugin:1.6.1",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.6",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
           "com.netflix.nebula:gradle-dependency-lock-plugin:6.0.0",
@@ -482,7 +482,7 @@ public class StandardDependencies {
           "com.palantir:gradle-baseline-java:0.10.0",
           "de.undercouch:gradle-download-task:3.4.3",
           "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.2.4",
-          "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.10.2-RAG1",
+          "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.0.0-rc1",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.0.0-beta1",
           "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
           "gradle.plugin.com.palantir.graal:gradle-graal:0.2.0-4-g255fd1f",
