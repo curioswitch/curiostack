@@ -39,7 +39,7 @@ resource:
   # one use case.
   google_service_account_key:
     cluster-ingress-prod-gcp-service-account-key-credentials-json:
-      service_account_id: "${module.cluster-ingress-prod.gcp_service_account_email}"
+      service_account_id: "${module.cluster-ingress-prod.gcp_service_account_id}"
   kubernetes_secret:
     cluster-ingress-prod-gcp-key-secret-credentials-json:
       metadata:

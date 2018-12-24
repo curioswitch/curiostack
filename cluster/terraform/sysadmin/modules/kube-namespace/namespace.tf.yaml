@@ -57,12 +57,14 @@ data:
       vars:
         namespace: "${var.name}"
 output:
+  gcp_service_account_id:
+    value: 'projects/${var.project_id}/serviceAccounts/cluster-${coalesce(var.gcp_service_account_name_override, var.name)}@${var.project_id}.iam.gserviceaccount.com'
   gcp_service_account_email:
     value: 'cluster-${coalesce(var.gcp_service_account_name_override, var.name)}@${var.project_id}.iam.gserviceaccount.com'
 resource:
   google_service_account_key:
     gcp-service-account-key:
-      service_account_id: 'cluster-${coalesce(var.gcp_service_account_name_override, var.name)}@${var.project_id}.iam.gserviceaccount.com'
+      service_account_id: 'projects/${var.project_id}/serviceAccounts/cluster-${coalesce(var.gcp_service_account_name_override, var.name)}@${var.project_id}.iam.gserviceaccount.com'
   kubernetes_namespace:
     namespace:
       metadata:
