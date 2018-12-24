@@ -26,10 +26,15 @@ package org.curioswitch.common.server.framework.logging;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import brave.Span;
+import brave.Tracing;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 import com.linecorp.armeria.common.RequestContext;
+import com.linecorp.armeria.server.ServiceRequestContext;
 import io.netty.util.AttributeKey;
+import java.util.Optional;
+import javax.inject.Inject;
 
 public final class RequestLoggingContext {
 
@@ -63,5 +68,26 @@ public final class RequestLoggingContext {
     return loggingContext;
   }
 
-  private RequestLoggingContext() {}
+  private final RequestContext ctx;
+  private final Optional<Tracing> tracing;
+
+  @Inject
+  public RequestLoggingContext(ServiceRequestContext ctx, Optional<Tracing> tracing) {
+    this.ctx = ctx;
+    this.tracing = tracing;
+  }
+
+  public void addToLogs(String key, String value) {
+    put(ctx, key, value);
+  }
+
+  public void addToLogsAndSpan(String key, String value) {
+    addToLogs(key, value);
+    if (tracing.isPresent()) {
+      Span span = tracing.get().tracer().currentSpan();
+      if (span != null) {
+        span.tag(key, value);
+      }
+    }
+  }
 }

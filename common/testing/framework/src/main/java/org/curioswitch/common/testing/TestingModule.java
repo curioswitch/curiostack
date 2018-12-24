@@ -23,7 +23,11 @@
  */
 package org.curioswitch.common.testing;
 
+import static org.mockito.Mockito.mock;
+
 import dagger.Module;
+import dagger.Provides;
+import org.curioswitch.common.server.framework.logging.RequestLoggingContext;
 import org.curioswitch.common.testing.database.DatabaseTestingModule;
 
 /**
@@ -32,4 +36,12 @@ import org.curioswitch.common.testing.database.DatabaseTestingModule;
  * in {@code includes} because they will be ignored.
  */
 @Module(includes = {DatabaseTestingModule.class})
-public abstract class TestingModule {}
+public abstract class TestingModule {
+
+  @Provides
+  static RequestLoggingContext requestLoggingContext() {
+    return mock(RequestLoggingContext.class);
+  }
+
+  private TestingModule() {}
+}

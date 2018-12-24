@@ -69,7 +69,7 @@ public class StackdriverReporter implements Reporter<Span>, Flushable, AutoClose
 
   @Override
   public void flush() {
-    List<Span> spans = new ArrayList<>();
+    List<Span> spans = new ArrayList<>(queue.size());
     queue.drain(spans::add);
     if (spans.isEmpty()) {
       return;
