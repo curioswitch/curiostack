@@ -51,6 +51,9 @@ variable:
     type: string
   tiller_ca_cert:
     type: string
+  depends_on:
+    type: list
+    default: []
 output:
   cluster_host:
     value: '${google_container_cluster.cluster.endpoint}'

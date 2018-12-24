@@ -36,11 +36,9 @@ variable:
     type: string
   tf_crypto_key:
     type: string
-output:
-  gcp_service_account_email:
-    value: "${google_service_account.gcp-service-account.email}"
-  name:
-    value: "${var.name}"
+  depends_on:
+    type: list
+    default: []
 data:
   google_kms_secret:
     iap_oauth_client_id:
@@ -58,22 +56,17 @@ data:
       template: "${file(\"${path.module}/cdn-backend-config.yaml\")}"
       vars:
         namespace: "${var.name}"
+output:
+  gcp_service_account_email:
+    value: 'cluster-${coalesce(var.gcp_service_account_name_override, var.name)}@${var.project_id}.iam.gserviceaccount.com'
 resource:
+  google_service_account_key:
+    gcp-service-account-key:
+      service_account_id: 'cluster-${coalesce(var.gcp_service_account_name_override, var.name)}@${var.project_id}.iam.gserviceaccount.com'
   kubernetes_namespace:
     namespace:
       metadata:
         name: "${var.name}"
-  google_service_account:
-    gcp-service-account:
-      account_id: "cluster-${coalesce(var.gcp_service_account_name_override, var.name)}"
-      display_name: "cluster-${coalesce(var.gcp_service_account_name_override, var.name)}"
-  google_service_account_key:
-    gcp-service-account-key:
-      service_account_id: "${google_service_account.gcp-service-account.name}"
-  google_project_iam_member:
-    gcp-service-account-role:
-      role: "projects/${var.project_id}/roles/ClusterNamespace"
-      member: "serviceAccount:${google_service_account.gcp-service-account.email}"
   tls_private_key:
     internal-tls:
       algorithm: ECDSA
@@ -85,10 +78,10 @@ resource:
       subject:
         common_name: "${var.name}.ns.cluster.curioswitch.org"
       dns_names:
-      - "*.${var.name}"
-      - "*.${var.name}.svc"
-      - "*.${var.name}.svc.cluster.local"
-      - "*.${var.name}.pod.cluster.local"
+        - "*.${var.name}"
+        - "*.${var.name}.svc"
+        - "*.${var.name}.svc.cluster.local"
+        - "*.${var.name}.pod.cluster.local"
   tls_locally_signed_cert:
     internal-tls:
       cert_request_pem: "${tls_cert_request.internal-tls.cert_request_pem}"
@@ -99,11 +92,7 @@ resource:
       validity_period_hours: 87600
       # 1 year
       early_renewal_hours: 8760
-      allowed_uses:
-      - digital signature
-      - key encipherment
-      - server auth
-      - client auth
+      allowed_uses: []
   kubernetes_secret:
     gcp-key-secret:
       metadata:
@@ -142,13 +131,3 @@ resource:
       content: "${data.template_file.cdn-backend-config.rendered}"
       depends_on:
       - kubernetes_namespace.namespace
-  gsuite_group:
-    admins:
-      email: "gke-security-${var.name}@curioswitch.org"
-      name: "gke-security-${var.name}@curioswitch.org"
-      description: "Admins for namespace ${var.name}"
-  gsuite_group_member:
-    gke-security-group:
-      group: gke-security-groups@curioswitch.org
-      email: "${gsuite_group.admins.email}"
-      role: MEMBER

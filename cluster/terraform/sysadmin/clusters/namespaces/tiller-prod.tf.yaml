@@ -1,0 +1,5 @@
+module:
+  cluster-tiller-prod:
+    source: './modules/kube-namespace-global'
+    name: tiller-prod
+    project_id: '${var.project_id}'

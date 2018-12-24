@@ -24,90 +24,16 @@ module:
   # A namespace to run tiller, the service that backs the helm package manager.
   # Has admin access to the entire cluster.
   cluster-tiller-prod:
-    source: "./modules/kube-namespace"
+    source: "../kube-namespace"
     name: tiller-prod
     project_id: "${var.project_id}"
-    ca_algorithm: "${tls_private_key.cluster-ca-key.algorithm}"
-    ca_private_key: "${tls_private_key.cluster-ca-key.private_key_pem}"
-    ca_cert: "${tls_self_signed_cert.cluster-ca-cert.cert_pem}"
-    tf_crypto_key: "${google_kms_crypto_key.terraform_state_key.id}"
-# We create a custom CA for tiller. Only clients using certificates signed by it
-# will be able to use helm.
-output:
-  tiller-ca-cert:
-    value: "${tls_self_signed_cert.tiller-ca-cert.cert_pem}"
-    sensitive: true
-  tiller-server-key:
-    value: "${tls_private_key.tiller-server-key.private_key_pem}"
-    sensitive: true
-  tiller-server-cert:
-    value: "${tls_locally_signed_cert.tiller-server-cert.cert_pem}"
-    sensitive: true
-  tiller-client-key:
-    value: "${tls_private_key.tiller-client-key.private_key_pem}"
-    sensitive: true
-  tiller-client-cert:
-    value: "${tls_locally_signed_cert.tiller-client-cert.cert_pem}"
-    sensitive: true
+    ca_algorithm: "${var.ca_algorithm}"
+    ca_private_key: "${var.ca_private_key}"
+    ca_cert: "${var.ca_cert}"
+    tf_crypto_key: "${var.tf_crypto_key}"
+    depends_on:
+      - google_container_cluster.cluster.endpoint
 resource:
-  tls_private_key:
-    tiller-ca-key:
-      algorithm: ECDSA
-      ecdsa_curve: P256
-    tiller-server-key:
-      algorithm: ECDSA
-      ecdsa_curve: P256
-    tiller-client-key:
-      algorithm: ECDSA
-      ecdsa_curve: P256
-  tls_self_signed_cert:
-    tiller-ca-cert:
-      key_algorithm: "${tls_private_key.tiller-ca-key.algorithm}"
-      private_key_pem: "${tls_private_key.tiller-ca-key.private_key_pem}"
-      subject:
-        common_name: Tiller CA
-      # 10 years
-      validity_period_hours: 87600
-      # 9 years
-      early_renewal_hours: 78840
-      is_ca_certificate: true
-      allowed_uses: []
-  tls_cert_request:
-    tiller-server-cert:
-      key_algorithm: "${tls_private_key.tiller-server-key.algorithm}"
-      private_key_pem: "${tls_private_key.tiller-server-key.private_key_pem}"
-      subject:
-        common_name: tiller-server
-      dns_names:
-      - localhost
-      ip_addresses:
-      - 127.0.0.1
-    tiller-client-cert:
-      key_algorithm: "${tls_private_key.tiller-client-key.algorithm}"
-      private_key_pem: "${tls_private_key.tiller-client-key.private_key_pem}"
-      subject:
-        common_name: tiller-client
-  tls_locally_signed_cert:
-    tiller-server-cert:
-      cert_request_pem: "${tls_cert_request.tiller-server-cert.cert_request_pem}"
-      ca_key_algorithm: "${tls_private_key.tiller-ca-key.algorithm}"
-      ca_private_key_pem: "${tls_private_key.tiller-ca-key.private_key_pem}"
-      ca_cert_pem: "${tls_self_signed_cert.tiller-ca-cert.cert_pem}"
-      # 10 years
-      validity_period_hours: 87600
-      # 9 years
-      early_renewal_hours: 78840
-      allowed_uses: []
-    tiller-client-cert:
-      cert_request_pem: "${tls_cert_request.tiller-client-cert.cert_request_pem}"
-      ca_key_algorithm: "${tls_private_key.tiller-ca-key.algorithm}"
-      ca_private_key_pem: "${tls_private_key.tiller-ca-key.private_key_pem}"
-      ca_cert_pem: "${tls_self_signed_cert.tiller-ca-cert.cert_pem}"
-      # 10 years
-      validity_period_hours: 87600
-      # 9 years
-      early_renewal_hours: 78840
-      allowed_uses: []
   kubernetes_secret:
     tiller-secret:
       metadata:
@@ -116,9 +42,9 @@ resource:
       depends_on:
         - module.cluster-tiller-prod
       data:
-        tls.key: "${tls_private_key.tiller-server-key.private_key_pem}"
-        tls.crt: "${tls_locally_signed_cert.tiller-server-cert.cert_pem}"
-        ca.crt: "${tls_self_signed_cert.tiller-ca-cert.cert_pem}"
+        tls.key: '${var.tiller_server_key}'
+        tls.crt: '${var.tiller_server_cert}'
+        ca.crt: '${var.tiller_ca_cert}'
   kubernetes_service:
     tiller-service:
       depends_on:
@@ -139,26 +65,26 @@ resource:
             port: 44134
   k8s_manifest:
     tiller_service_account:
-      content: "${file(\"./kube/namespaces/tiller-prod/tiller-service-account.yaml\")}"
+      content: '${file("${path.module}/tiller-prod/tiller-service-account.yaml")}'
       depends_on:
-      - module.cluster-tiller-prod
+        - module.cluster-tiller-prod
     tiller_cluster_role_binding:
-      content: "${file(\"./kube/namespaces/tiller-prod/tiller-cluster-role-binding.yaml\")}"
+      content: '${file("${path.module}/tiller-prod/tiller-cluster-role-binding.yaml")}'
       depends_on:
-      - k8s_manifest.tiller_service_account
+        - k8s_manifest.tiller_service_account
     tiller_deployment:
-      content: "${file(\"./kube/namespaces/tiller-prod/tiller-deployment.yaml\")}"
+      content: '${file("${path.module}/tiller-prod/tiller-deployment.yaml")}'
       depends_on:
         - kubernetes_secret.tiller-secret
         - k8s_manifest.tiller_cluster_role_binding
   null_resource:
     tiller_is_up:
       triggers:
-        tiller_config: "${k8s_manifest.tiller_deployment.content}"
-        force_trigger: "1"
+        tiller_config: '${k8s_manifest.tiller_deployment.content}'
+        force_trigger: '1'
       provisioner:
         local-exec:
-          command: "kube/namespaces/tiller-prod/wait-for-tiller.sh"
+          command: '${path.module}/tiller-prod/wait-for-tiller.sh'
           interpreter:
             - bash
       depends_on:

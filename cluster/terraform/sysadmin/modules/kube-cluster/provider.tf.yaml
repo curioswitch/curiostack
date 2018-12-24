@@ -1,0 +1,17 @@
+provider:
+  kubernetes:
+    version: 1.4.0
+    host: '${google_container_cluster.cluster.endpoint}'
+    cluster_ca_certificate: '${base64decode(google_container_cluster.cluster.master_auth.0.cluster_ca_certificate)}'
+  k8s:
+    kubeconfig_context: 'gke_${var.project_id}_${google_container_cluster.cluster.region}_${google_container_cluster.cluster.name}'
+  helm:
+    version: 0.7.0
+    namespace: tiller-prod
+    enable_tls: true
+    home: '../helm'
+    client_key: '../helm/key.pem'
+    client_certificate: '../helm/cert.pem'
+    ca_certificate: '../helm/ca.pem'
+    kubernetes:
+      config_context: 'gke_${var.project_id}_${google_container_cluster.cluster.region}_${google_container_cluster.cluster.name}'

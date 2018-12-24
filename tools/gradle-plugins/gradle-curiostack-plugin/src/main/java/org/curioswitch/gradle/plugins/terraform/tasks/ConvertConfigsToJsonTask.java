@@ -97,12 +97,15 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
 
       Path relativePath = getProject().getProjectDir().toPath().relativize(path);
       final Path outPath;
-      if (relativePath.getNameCount() > 1 && !relativePath.startsWith("modules")) {
-        String filenamePrefix = "";
-        for (int i = 0; i < relativePath.getNameCount() - 1; i++) {
-          filenamePrefix += relativePath.getName(i).toFile() + "-";
+      if (relativePath.getNameCount() > 1) {
+        if (!relativePath.startsWith("modules")) {
+          outPath = outputDir.resolve(flattenFilename(relativePath, jsonFilename));
+        } else {
+          // Modules will always have a top-level directory where this should go.
+          outPath = outputDir
+              .resolve(relativePath.subpath(0, 3))
+              .resolveSibling(flattenFilename(relativePath, jsonFilename));
         }
-        outPath = outputDir.resolve(filenamePrefix + jsonFilename);
       } else {
         outPath =
             outputDir
@@ -122,6 +125,14 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
             config.params(file, outPath.toFile());
           });
     }
+  }
+
+  private static String flattenFilename(Path relativePath, String filename) {
+    String filenamePrefix = "";
+    for (int i = 0; i < relativePath.getNameCount() - 1; i++) {
+      filenamePrefix += relativePath.getName(i).toFile() + "-";
+    }
+    return filenamePrefix + filename;
   }
 
   public static class ConvertToJson implements Runnable {

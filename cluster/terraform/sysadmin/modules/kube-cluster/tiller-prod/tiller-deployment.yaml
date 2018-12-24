@@ -57,7 +57,7 @@ spec:
           value: "1"
         - name: TILLER_TLS_CERTS
           value: /etc/certs
-        image: gcr.io/kubernetes-helm/tiller:v2.10.0
+        image: gcr.io/kubernetes-helm/tiller:v2.12.1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:

@@ -23,20 +23,22 @@
 data:
   google_kms_secret:
     yummly_api_id:
-      crypto_key: "${google_kms_crypto_key.terraform_state_key.id}"
+      crypto_key: "${var.tf_crypto_key}"
       ciphertext: "CiQAnaPXy3SxWLhlwNkJwrLt3wLk8HoPrpQfGRUQ4N1D1izcCfgSMQA4+Xivn9BEm+rfU28UElcJ3QbEEJ8jV3TpbNVA/3FciKuNGx5R8YrWr2kjnlvj1R8="
     yummly_api_key:
-      crypto_key: "${google_kms_crypto_key.terraform_state_key.id}"
+      crypto_key: "${var.tf_crypto_key}"
       ciphertext: "CiQAnaPXy/rchQatYWmA5V9FT+qTLtxTQDZHvDlGNvK2LTCUtqgSSAA4+XivZVvAfEF9vxEULCiJKbZkZduyR4I7a/eZFW3IAis6I54uO7wEyePUmPBOsGZp13wjOIrmyDUBFngmgCbE/0VQKMnCaA=="
 module:
   cluster-eggworld-dev:
-    source: "./modules/kube-namespace"
+    source: "../kube-namespace"
     name: eggworld-dev
     project_id: "${var.project_id}"
-    ca_algorithm: "${tls_private_key.cluster-ca-key.algorithm}"
-    ca_private_key: "${tls_private_key.cluster-ca-key.private_key_pem}"
-    ca_cert: "${tls_self_signed_cert.cluster-ca-cert.cert_pem}"
-    tf_crypto_key: "${google_kms_crypto_key.terraform_state_key.id}"
+    ca_algorithm: "${var.ca_algorithm}"
+    ca_private_key: "${var.ca_private_key}"
+    ca_cert: "${var.ca_cert}"
+    tf_crypto_key: "${var.tf_crypto_key}"
+    depends_on:
+      - google_container_cluster.cluster.endpoint
 resource:
   kubernetes_secret:
     yummly_api_key:

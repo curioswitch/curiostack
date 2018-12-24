@@ -20,26 +20,33 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-module:
-  cluster-monitoring-prod:
-    source: "../kube-namespace"
-    name: monitoring-prod
-    project_id: "${var.project_id}"
-    ca_algorithm: "${var.ca_algorithm}"
-    ca_private_key: "${var.ca_private_key}"
-    ca_cert: "${var.ca_cert}"
-    tf_crypto_key: "${var.tf_crypto_key}"
-    depends_on:
-      - google_container_cluster.cluster.endpoint
+variable:
+  name:
+    type: string
+  project_id:
+    type: string
+  gcp_service_account_name_override:
+    type: string
+    default: ""
+output:
+  gcp_service_account_email:
+    value: "${google_service_account.gcp_service_account.email}"
 resource:
-  helm_release:
-    prometheus_20180923:
-      name: prometheus-20180923
-      chart: stable/prometheus
-      version: 7.1.2
-      namespace: monitoring-prod
-      values:
-        - '${file("${path.module}/monitoring-prod/prometheus-values.yaml")}'
-      depends_on:
-        - module.cluster-monitoring-prod
-        - null_resource.tiller_is_up
+  google_service_account:
+    gcp_service_account:
+      account_id: "cluster-${coalesce(var.gcp_service_account_name_override, var.name)}"
+      display_name: "cluster-${coalesce(var.gcp_service_account_name_override, var.name)}"
+  google_project_iam_member:
+    gcp_service_account_role:
+      role: "projects/${var.project_id}/roles/ClusterNamespace"
+      member: "serviceAccount:${google_service_account.gcp_service_account.email}"
+  gsuite_group:
+    admins:
+      email: "gke-security-${var.name}@curioswitch.org"
+      name: "gke-security-${var.name}@curioswitch.org"
+      description: "Admins for namespace ${var.name}"
+  gsuite_group_member:
+    gke_security_group:
+      group: gke-security-groups@curioswitch.org
+      email: "${gsuite_group.admins.email}"
+      role: MEMBER

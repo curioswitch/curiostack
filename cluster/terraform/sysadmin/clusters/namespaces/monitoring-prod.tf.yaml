@@ -1,0 +1,5 @@
+module:
+  cluster-monitoring-prod:
+    source: './modules/kube-namespace-global'
+    name: monitoring-prod
+    project_id: '${var.project_id}'

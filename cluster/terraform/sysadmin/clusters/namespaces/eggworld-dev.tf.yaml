@@ -1,0 +1,5 @@
+module:
+  cluster-eggworld-dev:
+    source: './modules/kube-namespace-global'
+    name: eggworld-dev
+    project_id: '${var.project_id}'

@@ -1,0 +1,10 @@
+module:
+  cluster-ingress-prod:
+    source: './modules/kube-namespace-global'
+    name: ingress-prod
+    project_id: '${var.project_id}'
+resource:
+  google_project_iam_member:
+    ingress-prod-gcp-service-account-role-dns:
+      role: "roles/dns.admin"
+      member: "serviceAccount:${module.cluster-ingress-prod.gcp_service_account_email}"
