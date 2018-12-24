@@ -33,10 +33,10 @@ module:
       - google_container_cluster.cluster.endpoint
 resource:
   helm_release:
-    prometheus_20180923:
-      name: prometheus-20180923
+    prometheus_20181224:
+      name: prometheus-20181224
       chart: stable/prometheus
-      version: 7.1.2
+      version: 8.3.0
       namespace: monitoring-prod
       values:
         - '${file("${path.module}/monitoring-prod/prometheus-values.yaml")}'

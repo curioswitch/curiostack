@@ -58,17 +58,6 @@ alertmanager:
     type: NodePort
 
 server:
-  global:
-    ## How frequently to scrape targets by default
-    ##
-    scrape_interval: 1m
-    ## How long until a scrape request times out
-    ##
-    scrape_timeout: 10s
-    ## How frequently to evaluate rules
-    ##
-    evaluation_interval: 1m
-
   ingress:
     ## If true, Prometheus server Ingress will be created
     ##
@@ -99,6 +88,9 @@ server:
     size: 20Gi
 
   replicaCount: 1
+
+  statefulSet:
+    enabled: true
 
   service:
     annotations:
