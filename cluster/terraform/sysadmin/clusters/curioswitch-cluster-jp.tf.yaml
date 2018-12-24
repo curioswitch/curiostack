@@ -1,0 +1,18 @@
+module:
+  curioswitch_cluster_jp:
+    source: './modules/kube-cluster'
+    name: '${var.project_id}-jp'
+    project_id: '${var.project_id}'
+    region: asia-northeast1
+    machine_type: n1-standard-1
+    min_nodes_per_zone: 1
+    max_nodes_per_zone: 1
+    zones:
+      - asia-northeast1-a
+    ca_algorithm: '${tls_private_key.cluster-ca-key.algorithm}'
+    ca_private_key: '${tls_private_key.cluster-ca-key.private_key_pem}'
+    ca_cert: '${tls_self_signed_cert.cluster-ca-cert.cert_pem}'
+    tf_crypto_key: '${google_kms_crypto_key.terraform_state_key.id}'
+    tiller_server_key: '${tls_private_key.tiller-server-key.private_key_pem}'
+    tiller_server_cert: '${tls_locally_signed_cert.tiller-server-cert.cert_pem}'
+    tiller_ca_cert: '${tls_self_signed_cert.tiller-ca-cert.cert_pem}'

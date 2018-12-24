@@ -1,0 +1,6 @@
+resource:
+  gsuite_group:
+    gke-security-groups:
+      email: gke-security-groups@curioswitch.org
+      name: gke-security-groups@curioswitch.org
+      description: Meta-group for namespace admin groups

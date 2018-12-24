@@ -83,7 +83,7 @@ resource:
       key_algorithm: "${tls_private_key.internal-tls.algorithm}"
       private_key_pem: "${tls_private_key.internal-tls.private_key_pem}"
       subject:
-        common_name: "${var.name}.ns.cluster.stellarstation.com"
+        common_name: "${var.name}.ns.cluster.curioswitch.org"
       dns_names:
       - "*.${var.name}"
       - "*.${var.name}.svc"
@@ -97,8 +97,8 @@ resource:
       ca_cert_pem: "${var.ca_cert}"
       # 10 years
       validity_period_hours: 87600
-      # 9 years
-      early_renewal_hours: 78840
+      # 1 year
+      early_renewal_hours: 8760
       allowed_uses:
       - digital signature
       - key encipherment

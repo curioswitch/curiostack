@@ -1,0 +1,93 @@
+# MIT License
+#
+# Copyright (c) 2018 Choko (choko@curioswitch.org)
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+variable:
+  name:
+    type: string
+  project_id:
+    type: string
+  region:
+    type: string
+  machine_type:
+    type: string
+  min_nodes_per_zone:
+    type: string
+  max_nodes_per_zone:
+    type: string
+  zones:
+    type: list
+    default: []
+    description: 'The zones to start nodes in. If empty, all zones in the region will be used.'
+  ca_algorithm:
+    type: string
+  ca_private_key:
+    type: string
+  ca_cert:
+    type: string
+  tf_crypto_key:
+    type: string
+  tiller_server_key:
+    type: string
+  tiller_server_cert:
+    type: string
+  tiller_ca_cert:
+    type: string
+output:
+  cluster_host:
+    value: '${google_container_cluster.cluster.endpoint}'
+  cluster_ca:
+    value: '${google_container_cluster.cluster.master_auth.0.cluster_ca_certificate}'
+resource:
+  google_container_cluster:
+    cluster:
+      name: '${var.name}'
+      region: '${var.region}'
+      # For a regional cluster, this is not "additional" zones but the actual zones used.
+      additional_zones: '${var.zones}'
+      initial_node_count: 1
+      remove_default_node_pool: true
+      min_master_version: latest
+      logging_service: logging.googleapis.com/kubernetes
+      monitoring_service: monitoring.googleapis.com/kubernetes
+      master_auth:
+        username: ''
+        password: ''
+        client_certificate_config:
+          issue_client_certificate: false
+      ip_allocation_policy:
+        create_subnetwork: false
+  google_container_node_pool:
+    pool:
+      name: 'pool-${var.machine_type}'
+      region: '${google_container_cluster.cluster.zone}'
+      cluster: '${google_container_cluster.cluster.name}'
+      initial_node_count: '${var.min_nodes_per_zone}'
+      max_pods_per_node: 110
+      node_config:
+        machine_type: '${var.machine_type}'
+        image_type: COS_CONTAINERD
+      autoscaling:
+        min_node_count: '${var.min_nodes_per_zone}'
+        max_node_count: '${var.max_nodes_per_zone}'
+      management:
+        auto_repair: true
+        auto_upgrade: true
