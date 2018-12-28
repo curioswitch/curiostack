@@ -1,6 +1,11 @@
 # curiostack
 Full stack to help satisfy curiosity
 
+## Company Resources
+
+Looking for guidelines and documents outlining best practices for designing a company, not just the
+engineering codebase? Check out our resources [here](./docs/company) which can hopefully help.
+
 ## Set up
 
 See gradle-curiostack-plugin [README](tools/gradle-plugins/gradle-curiostack-plugin/README.md) for setting up the gradle plugins.
