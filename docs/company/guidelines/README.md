@@ -16,3 +16,6 @@ positive, not negative, value from them.
 
 - [Code Reviews](./code-review) - Guidelines and practices for doing code review using GitHub.
 Engineering teams will want to familiarize themselves with these to ensure a healthy codebase.
+
+- [Templates](./templates) - Templates for documents that are commonly used during both development
+and operation of a product.
