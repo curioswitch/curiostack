@@ -102,9 +102,10 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
           outPath = outputDir.resolve(flattenFilename(relativePath, jsonFilename));
         } else {
           // Modules will always have a top-level directory where this should go.
-          outPath = outputDir
-              .resolve(relativePath.subpath(0, 3))
-              .resolveSibling(flattenFilename(relativePath, jsonFilename));
+          outPath =
+              outputDir
+                  .resolve(relativePath.subpath(0, 3))
+                  .resolveSibling(flattenFilename(relativePath, jsonFilename));
         }
       } else {
         outPath =

@@ -22,23 +22,22 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
-
-archivesBaseName = 'curio-auth-server'
-mainClassName = 'org.curioswitch.auth.server.Main'
-
-dependencies {
-    compile project(':auth:api')
-    compile project(':common:server:framework')
-
-    annotationProcessor 'com.google.dagger:dagger-compiler'
-    compile 'com.google.dagger:dagger'
+plugins {
+    id("org.curioswitch.gradle-curio-server-plugin")
 }
 
-deployment {
-    types {
-        alpha {
-            namespace = 'auth-dev'
-        }
-    }
+base {
+    archivesBaseName = "curio-auth-server"
+}
+
+application {
+    mainClassName = "org.curioswitch.auth.server.Main"
+}
+
+dependencies {
+    compile(project(":auth:api"))
+    compile(project(":common:server:framework"))
+
+    annotationProcessor("com.google.dagger:dagger-compiler")
+    compile("com.google.dagger:dagger")
 }

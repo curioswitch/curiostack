@@ -75,6 +75,7 @@ import org.curioswitch.gradle.golang.tasks.JibTask;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
 import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
+import org.curioswitch.gradle.plugins.curiostack.tasks.GenerateApiServerTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
@@ -198,6 +199,8 @@ public class CuriostackPlugin implements Plugin<Project> {
     if (!rootProject.file(".baseline").exists()) {
       rootProject.getTasks().named("ideaProject").configure(t -> t.dependsOn(baselineUpdateConfig));
     }
+
+    rootProject.getTasks().register("generateApiServer", GenerateApiServerTask.class);
 
     rootProject.afterEvaluate(
         (p) ->

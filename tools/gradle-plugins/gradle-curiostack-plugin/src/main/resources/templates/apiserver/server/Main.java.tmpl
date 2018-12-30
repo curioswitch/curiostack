@@ -1,0 +1,33 @@
+{{ copyright }}
+package {{ java_package }}.server;
+
+import com.linecorp.armeria.server.Server;
+import dagger.Binds;
+import dagger.Component;
+import dagger.Module;
+import dagger.multibindings.IntoSet;
+import io.grpc.BindableService;
+import javax.inject.Singleton;
+import org.curioswitch.common.server.framework.ServerModule;
+
+public class {{ service_name }}Main {
+
+  @Module(includes = ServerModule.class)
+  abstract static class {{ service_name }}Module {
+    @Binds
+    @IntoSet
+    abstract BindableService service({{ service_name }} service);
+  }
+
+  @Singleton
+  @Component(modules = {{ service_name }}Module.class)
+  interface ServerComponent {
+    Server server();
+  }
+
+  public static void main(String[] args) {
+    Dagger{{ service_name }}Main_ServerComponent.create().server();
+  }
+
+  private {{ service_name }}Main() {}
+}

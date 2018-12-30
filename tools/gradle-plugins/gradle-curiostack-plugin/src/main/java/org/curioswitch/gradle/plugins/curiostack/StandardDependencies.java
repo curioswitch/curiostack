@@ -476,6 +476,7 @@ public class StandardDependencies {
           "com.github.ben-manes:gradle-versions-plugin:0.20.0",
           "com.google.gradle:osdetector-gradle-plugin:1.6.1",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.6",
+          "com.hubspot.jinjava:jinjava:2.4.12",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
           "com.netflix.nebula:gradle-dependency-lock-plugin:6.0.0",
           "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.5",
