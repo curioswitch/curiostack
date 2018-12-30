@@ -8,5 +8,11 @@ going through the same processes and can work together most effectively.
 
 ## Index
 
-- [Communication](./communication-guidelines) - Best practices to encourage effective communication
+- [Communication](./communication) - Best practices to encourage effective communication
 across the company to ensure productivity is not lost just trying to communicate.
+
+- [Meetings](./meeting) - Concrete tips for planning and running meetings to achieve
+positive, not negative, value from them.
+
+- [Code Reviews](./code-review) - Guidelines and practices for doing code review using GitHub.
+Engineering teams will want to familiarize themselves with these to ensure a healthy codebase.

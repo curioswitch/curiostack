@@ -321,6 +321,9 @@ same as that of the notes for consistency, and it should have a link to the orig
 at the header, so in case audience wants to comment on a particular section of the notes, it's easy 
 to do so.
 
+More details on concrete steps that can improve meeting efficiency are at the 
+[Meeting Guidelines](../meeting).
+
 ## Drive
 
 All file storage at CurioSwitch is in Google Drive - Google Drive provides extensive collaboration 
