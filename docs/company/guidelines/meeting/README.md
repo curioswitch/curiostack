@@ -12,7 +12,7 @@ and always keep an eye on achieving output. Specific guidelines for external mee
 [end](#external-meetings).
 
 Some of these guidelines have already been mentioned in the 
-[Communications Guidelines](../communication).
+[Communications Guidelines](../communication#meetings).
 
 ## Before the meeting
 
