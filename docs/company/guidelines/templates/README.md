@@ -15,7 +15,7 @@ stakeholders and functions related to the product and iron out ambiguous points 
 development cycle.
 
 - [Post-mortem](https://drive.google.com/open?id=1vy1KzDVpDIM6Vyr39pzhZGyHHorsZzlex49bwl8idQc) -
-Post-mortems are to reflect on unfortuanate but inevitable times in product development, when there
+Post-mortems are to reflect on unfortanate but inevitable times in product development, when there
 is an incident that significantly impacts users or the development process. Post-mortems are an
 opportunity to reflect, understand why an issue occurred, and create and execute on action items to
 ensure the issue doesn't reoccur. Development teams will always have issues and make mistakes, so it
