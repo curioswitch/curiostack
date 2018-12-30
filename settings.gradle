@@ -57,10 +57,6 @@ buildscript {
             url 'http://palantir.bintray.com/releases'
         }
         mavenLocal()
-        // TODO(choko): Remove after https://github.com/etiennestuder/gradle-jooq-plugin/issues/71
-        maven {
-            url 'https://jitpack.io'
-        }
     }
     dependencies {
         classpath "org.curioswitch.curiostack:gradle-curiostack-plugin:${getProperty('org.curioswitch.curiostack.version')}"
