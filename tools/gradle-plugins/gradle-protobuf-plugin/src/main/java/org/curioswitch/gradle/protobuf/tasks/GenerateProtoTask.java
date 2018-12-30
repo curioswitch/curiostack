@@ -163,6 +163,11 @@ public class GenerateProtoTask extends DefaultTask {
     return this;
   }
 
+  public GenerateProtoTask setLanguages(ListProperty<LanguageSettings> languages) {
+    this.languages.set(languages);
+    return this;
+  }
+
   public GenerateProtoTask language(LanguageSettings language) {
     languages.add(language);
     return this;

@@ -21,7 +21,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM openjdk:11-jre-slim
+FROM debian:stretch-backports AS debian
+
+RUN apt-get -y update && apt-get -y install openjdk-11-jre-headless
 
 ADD https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz /tmp/gcloud/profiler_java_agent.tar.gz
 ADD https://github.com/GoogleCloudPlatform/cloud-debug-java/releases/download/v2.21/cdbg_java_agent_service_account.tar.gz /tmp/gcloud/cdbg_java_agent_service_account.tar.gz
@@ -31,3 +33,16 @@ RUN mkdir /opt/cprof && \
   mkdir /opt/cdbg && \
   tar -xzf /tmp/gcloud/cdbg_java_agent_service_account.tar.gz -C /opt/cdbg && \
   rm -rf /tmp/gcloud
+
+FROM gcr.io/distroless/base:debug
+
+COPY --from=debian /usr/lib/jvm/java-11-openjdk-amd64 /usr/lib/jvm/java-11-openjdk-amd64
+COPY --from=debian /opt/cprof /opt/cprof
+COPY --from=debian /opt/cdbg /opt/cdbg
+COPY --from=debian ["/lib/x86_64-linux-gnu/libz.so.1", "/lib/x86_64-linux-gnu/libgcc_s.so.1", "/lib/x86_64-linux-gnu/"]
+COPY --from=debian ["/usr/lib/x86_64-linux-gnu/libstdc++.so.6", "/usr/lib/x86_64-linux-gnu/"]
+
+ENV PATH="/usr/lib/jvm/java-11-openjdk-amd64/bin:${PATH}"
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
+
+ENTRYPOINT jshell
