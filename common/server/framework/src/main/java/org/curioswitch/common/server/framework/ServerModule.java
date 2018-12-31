@@ -103,7 +103,6 @@ import org.curioswitch.common.server.framework.armeria.SslContextKeyConverter;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthConfig;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthModule;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthorizer;
-import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthServiceBuilder;
 import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthorizer;
 import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthorizer.Factory;
 import org.curioswitch.common.server.framework.auth.iam.IamAuthorizer;
@@ -600,7 +599,7 @@ public abstract class ServerModule {
       ServerConfig serverConfig,
       FirebaseAuthConfig authConfig) {
     if (sslCommonNamesProvider.isPresent()) {
-      GoogleIdAuthServiceBuilder authServiceBuilder = new GoogleIdAuthServiceBuilder();
+      HttpAuthServiceBuilder authServiceBuilder = new HttpAuthServiceBuilder();
       if (serverConfig.isEnableGoogleIdAuthorization()) {
         authServiceBuilder.addOAuth2(
             googleIdAuthorizer.get().create(sslCommonNamesProvider.get()),
