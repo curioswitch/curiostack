@@ -98,14 +98,10 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.curioswitch.common.server.framework.armeria.Constants;
 import org.curioswitch.common.server.framework.armeria.SslContextKeyConverter;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthConfig;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthModule;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthorizer;
-import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthorizer;
-import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthorizer.Factory;
-import org.curioswitch.common.server.framework.auth.iam.IamAuthorizer;
 import org.curioswitch.common.server.framework.auth.jwt.JwtAuthorizer;
 import org.curioswitch.common.server.framework.auth.jwt.JwtModule;
 import org.curioswitch.common.server.framework.auth.jwt.JwtVerifier.Algorithm;
@@ -311,8 +307,6 @@ public abstract class ServerModule {
       MeterRegistry meterRegistry,
       Tracing tracing,
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
-      Lazy<GoogleIdAuthorizer.Factory> googleIdAuthorizer,
-      Lazy<IamAuthorizer> iamAuthorizer,
       Lazy<JwtAuthorizer.Factory> jwtAuthorizer,
       Lazy<JavascriptStaticService> javascriptStaticService,
       Optional<SelfSignedCertificate> selfSignedCertificate,
@@ -459,8 +453,6 @@ public abstract class ServerModule {
                     s.decorate(definition.decorator()),
                     tracing,
                     firebaseAuthorizer,
-                    googleIdAuthorizer,
-                    iamAuthorizer,
                     jwtAuthorizer,
                     sslCommonNamesProvider0,
                     serverConfig,
@@ -472,8 +464,6 @@ public abstract class ServerModule {
                 service.decorate(definition.decorator()),
                 tracing,
                 firebaseAuthorizer,
-                googleIdAuthorizer,
-                iamAuthorizer,
                 jwtAuthorizer,
                 sslCommonNamesProvider,
                 serverConfig,
@@ -488,8 +478,6 @@ public abstract class ServerModule {
               definition.service(),
               tracing,
               firebaseAuthorizer,
-              googleIdAuthorizer,
-              iamAuthorizer,
               jwtAuthorizer,
               sslCommonNamesProvider,
               serverConfig,
@@ -592,26 +580,14 @@ public abstract class ServerModule {
       Service<HttpRequest, HttpResponse> service,
       Tracing tracing,
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
-      Lazy<Factory> googleIdAuthorizer,
-      Lazy<IamAuthorizer> iamAuthorizer,
       Lazy<JwtAuthorizer.Factory> jwtAuthorizer,
       Optional<SslCommonNamesProvider> sslCommonNamesProvider,
       ServerConfig serverConfig,
       FirebaseAuthConfig authConfig) {
-    if (sslCommonNamesProvider.isPresent()) {
+    if (sslCommonNamesProvider.isPresent() && !serverConfig.isDisableSslAuthorization()) {
       HttpAuthServiceBuilder authServiceBuilder = new HttpAuthServiceBuilder();
-      if (serverConfig.isEnableGoogleIdAuthorization()) {
-        authServiceBuilder.addOAuth2(
-            googleIdAuthorizer.get().create(sslCommonNamesProvider.get()),
-            Constants.X_CLUSTER_AUTHORIZATION);
-      }
-      if (!serverConfig.isDisableSslAuthorization()) {
-        authServiceBuilder.add(new SslAuthorizer(sslCommonNamesProvider.get()));
-      }
+      authServiceBuilder.add(new SslAuthorizer(sslCommonNamesProvider.get()));
       service = service.decorate(authServiceBuilder.newDecorator());
-    }
-    if (serverConfig.isEnableIamAuthorization()) {
-      service = new HttpAuthServiceBuilder().addOAuth2(iamAuthorizer.get()).build(service);
     }
     if (serverConfig.isEnableIapAuthorization()) {
       service =
@@ -657,7 +633,7 @@ public abstract class ServerModule {
                   TraceContext traceCtx = tracing.currentTraceContext().get();
                   if (traceCtx != null) {
                     RequestLoggingContext.put(ctx, "traceId", traceCtx.traceIdString());
-                    RequestLoggingContext.put(ctx, "spanId", Long.toHexString(traceCtx.spanId()));
+                    RequestLoggingContext.put(ctx, "spanId", traceCtx.spanIdString());
                   }
                   return delegate.serve(ctx, req);
                 });

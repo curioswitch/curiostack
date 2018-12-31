@@ -53,7 +53,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.net.ssl.TrustManagerFactory;
@@ -62,7 +61,6 @@ import org.apache.logging.log4j.Logger;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
 import org.curioswitch.common.server.framework.util.ResourceUtil;
-import org.curioswitch.curiostack.gcloud.core.auth.GoogleCredentialsDecoratingClient;
 import org.curioswitch.curiostack.gcloud.core.auth.GoogleCredentialsDecoratingClient.Factory;
 
 /**
@@ -81,9 +79,6 @@ public class ClientBuilderFactory {
           Client<HttpRequest, HttpResponse>, LoggingClient<HttpRequest, HttpResponse>>
       loggingClient;
 
-  @Nullable
-  private final GoogleCredentialsDecoratingClient.Factory googleCredentialsDecoratingClient;
-
   @Inject
   public ClientBuilderFactory(
       MeterRegistry meterRegistry,
@@ -97,10 +92,6 @@ public class ClientBuilderFactory {
     this.tracing = tracing;
     this.meterRegistry = meterRegistry;
     this.loggingClient = loggingClient;
-    this.googleCredentialsDecoratingClient =
-        serverConfig.isEnableGoogleIdAuthorization()
-            ? googleCredentialsDecoratingClient.get()
-            : null;
     final TrustManagerFactory trustManagerFactory;
     if (serverConfig.isDisableClientCertificateVerification()) {
       logger.warn("Disabling client SSL verification. This should only happen on local!");
@@ -184,10 +175,6 @@ public class ClientBuilderFactory {
 
     ClientBuilder builder = new ClientBuilder(url).factory(clientFactory);
 
-    if (googleCredentialsDecoratingClient != null) {
-      builder.decorator(
-          googleCredentialsDecoratingClient.newIdTokenDecorator(Constants.X_CLUSTER_AUTHORIZATION));
-    }
     return builder
         .decorator(
             MetricCollectingClient.newDecorator(RpcMetricLabels.grpcRequestLabeler("grpc_clients")))
