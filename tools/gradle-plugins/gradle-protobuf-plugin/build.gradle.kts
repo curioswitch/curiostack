@@ -31,7 +31,7 @@ dependencies {
     compile(project(":common:curio-helpers"))
     compile(project(":tools:gradle-plugins:gradle-helpers"))
 
-    compile("com.google.gradle:osdetector-gradle-plugin:1.6.0")
+    compile("com.google.gradle:osdetector-gradle-plugin")
     compile("com.google.guava:guava")
 
     annotationProcessor("org.immutables:value")

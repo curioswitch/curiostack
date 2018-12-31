@@ -175,7 +175,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.dagger")
-              .version("2.19")
+              .version("2.20")
               .addModules("dagger", "dagger-compiler", "dagger-producers")
               .build(),
           ImmutableDependencySet.builder()
@@ -206,7 +206,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.77.0")
+              .version("0.78.1")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -399,12 +399,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.98")
+              .version("0.0.99")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.13")
+              .version("0.0.14")
               .addModules("curio-testing-framework")
               .build(),
           ImmutableDependencySet.builder()
@@ -419,7 +419,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.immutables")
-              .version("2.7.3")
+              .version("2.7.4")
               .addModules("builder", "value", "value-annotations")
               .build(),
           ImmutableDependencySet.builder()
@@ -434,7 +434,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jooq")
-              .version("3.11.7")
+              .version("3.11.8")
               .addModules("jooq", "jooq-codegen", "jooq-meta")
               .build(),
           ImmutableDependencySet.builder()
