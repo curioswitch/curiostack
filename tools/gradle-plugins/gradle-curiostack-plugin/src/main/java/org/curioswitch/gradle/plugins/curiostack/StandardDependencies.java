@@ -266,11 +266,13 @@ public class StandardDependencies {
               .addModules(
                   "grpc-all",
                   "grpc-auth",
+                  "grpc-context",
                   "grpc-core",
                   "grpc-netty",
                   "grpc-netty-shaded",
                   "grpc-okhttp",
                   "grpc-protobuf",
+                  "grpc-protobuf-lite",
                   "grpc-services",
                   "grpc-stub")
               .build(),
