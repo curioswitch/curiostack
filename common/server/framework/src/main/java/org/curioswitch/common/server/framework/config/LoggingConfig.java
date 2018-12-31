@@ -24,6 +24,7 @@
 
 package org.curioswitch.common.server.framework.config;
 
+import java.util.List;
 import org.curioswitch.common.server.framework.immutables.JavaBeanStyle;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Modifiable;
@@ -45,4 +46,28 @@ public interface LoggingConfig {
    * significant overhead and should be used with care.
    */
   boolean getTraceProducerExecution();
+
+  /**
+   * Header names that will not be logged to request logs. By default, AUTHORIZATION is not logged.
+   */
+  List<String> getBlacklistedRequestHeaders();
+
+  /** Header names that will not be logged to response logs. */
+  List<String> getBlacklistedResponseHeaders();
+
+  /** Whether to log content in request logs. */
+  boolean getLogRequestContent();
+
+  /** Whether to log content in response logs. */
+  boolean getLogResponseContent();
+
+  /** Whether to log all server requests. By default, only unsuccessful requests are logged. */
+  boolean getLogAllServerRequests();
+
+  /**
+   * Whether to log all client requests. When full request logging is desired, it is generally
+   * sufficient to only enable {@code logAllServerRequests} without also logging client requests. By
+   * default, only unsuccessful requests are logged
+   */
+  boolean getLogAllClientRequests();
 }

@@ -46,7 +46,7 @@ import com.linecorp.armeria.server.auth.OAuth2Token;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import com.linecorp.armeria.server.healthcheck.HttpHealthCheckService;
-import com.linecorp.armeria.server.logging.LoggingServiceBuilder;
+import com.linecorp.armeria.server.logging.LoggingService;
 import com.linecorp.armeria.server.metric.MetricCollectingService;
 import com.linecorp.armeria.server.metric.PrometheusExpositionService;
 import com.linecorp.armeria.server.tracing.HttpTracingService;
@@ -305,6 +305,8 @@ public abstract class ServerModule {
       Set<Consumer<ServerBuilder>> serverCustomizers,
       Set<PostServerCustomizer> postServerCustomizers,
       Set<WatchedPath> watchedPaths,
+      Function<Service<HttpRequest, HttpResponse>, LoggingService<HttpRequest, HttpResponse>>
+          loggingService,
       MetricsHttpService metricsHttpService,
       CollectorRegistry collectorRegistry,
       MeterRegistry meterRegistry,
@@ -515,7 +517,7 @@ public abstract class ServerModule {
       sb.decorator(httpsOnlyServiceFactory.newDecorator());
     }
 
-    sb.decorator(new LoggingServiceBuilder().newDecorator());
+    sb.decorator(loggingService);
     sb.meterRegistry(meterRegistry);
 
     if (serverConfig.getEnableGracefulShutdown()) {
