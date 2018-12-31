@@ -281,7 +281,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("4.1.31.Final")
+              .version("4.1.32.Final")
               .addModules(
                   "netty-buffer",
                   "netty-codec",
@@ -301,7 +301,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.netty")
-              .version("2.0.19.Final")
+              .version("2.0.20.Final")
               .addModules("netty-tcnative-boringssl-static")
               .build(),
           ImmutableDependencySet.builder()
@@ -459,7 +459,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.simpleflatmapper")
-              .version("6.0.13")
+              .version("6.1.0")
               .addModules(
                   "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
               .build(),
