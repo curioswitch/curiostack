@@ -114,6 +114,10 @@ gradlePlugin {
             id = 'org.curioswitch.gradle-curio-cloudbuild-github-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.cloudbuild.CloudbuildGithubPlugin'
         }
+        codelabs {
+            id = 'org.curioswitch.gradle-codelabs-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.codelabs.CodelabsPlugin'
+        }
         curiostack {
             id = 'org.curioswitch.gradle-curiostack-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.curiostack.CuriostackPlugin'
