@@ -122,10 +122,8 @@ base {
 
 Now let's look at the proto file. All proto files go in the `src/main/proto` subdirectory of the Gradle project. Any files not in that directory will not be compiled or usable.
 
-<aside class="warning">
-
-Notice that the proto file has been added to a directory corresponding to the proto package. This is required so other proto files can `import` it using the proto package. Don't move the file without also updating its proto package.
-</aside>
+Negative
+: Notice that the proto file has been added to a directory corresponding to the proto package. This is required so other proto files can `import` it using the proto package. Don't move the file without also updating its proto package.
 
 The proto file is where all APIs are defined when using gRPC and Protocol Buffers - it is its own syntax for defining structures and methods. The Protocol Buffer compiler will then convert these files into language-specific code (e.g., .java files) which can be used in applications. Before going on, it is a good idea to read the  [Protocol Buffers Overview](https://developers.google.com/protocol-buffers/docs/overview) to understand what and why it is.
 
@@ -173,7 +171,7 @@ In Protocol Buffers, the top-level definition of a set of data is a message. A m
 
 Any API method has two messages, a request message and a response message. Since our method will accept a string in the request and return a string in the response, we will define two messages containing these fields.
 
-#### **hello-world-service.proto**
+#### hello-world-service.proto
 
 ```
 ...
@@ -199,13 +197,11 @@ service HelloWorldService {
 
 Now we have a request and a response that we will be able to use to define our `hello` API method. `HelloRequest` accepts the name of the user and `HelloResponse` returns the greeting. Notice that the messages and fields have detailed comments - API definitions must always have clear comments documenting every message and field. Without documentation, clients will not know how to use the API, leading to at best confusion, and at worst mistakes. Unlike other API definition systems such as a JSON-based REST API, there is no need to have the documentation anywhere else such as a wiki - the proto file is the ground truth of both the definition of the API and its usage documentation.
 
-<aside class="special">
+Positive
+: Astute readers may notice that the structure of HelloRequest and HelloResponse are the same. This may lead to believing it's ok to just define one message for both the request and the response. Don't - we **always** define separate messages for requests and responses because
 
-Astute readers may notice that the structure of HelloRequest and HelloResponse are the same. This may lead to believing it's ok to just define one message for both the request and the response. Don't - we **always** define separate messages for requests and responses because
-
-* The structure of the request and response are intrinsically unrelated. Even if they happen to be the same now, they will likely diverge in the future.
-* Trying to share the same structure for different concepts will likely lead to poor documentation.
-</aside>
+  * The structure of the request and response are intrinsically unrelated. Even if they happen to be the same now, they will likely diverge in the future.
+  * Trying to share the same structure for different concepts will likely lead to poor documentation.
 
 For more advanced usage of Protocol Buffers, check out the  [language guide](https://developers.google.com/protocol-buffers/docs/proto3).
 
@@ -213,7 +209,7 @@ For more advanced usage of Protocol Buffers, check out the  [language guide](htt
 
 Now that we've defined the request and response messages, we can add our API method to the service. Adding a method is as simple as adding the name, request, and response to the service definition.
 
-#### h**ello-world-service.protoo**
+#### hello-world-service.proto
 
 ```
 // `HelloWorldService` provides functionality for greeting users.
@@ -228,16 +224,12 @@ service HelloWorldService {
 
 Again, notice that we have added detailed comments to the service and the method. Without comments, clients would not have any idea of what the `Hello` method could do or its restrictions.
 
-<aside class="special">
-
-The naming and casing conventions are not arbitrary - Protocol Buffers use UpperCamelCase for message, service, and method names and lower_snake_case for field names. Check out the  [style guide](https://developers.google.com/protocol-buffers/docs/style) and always keep it in mind when writing proto files.
-</aside>
+Positive
+: The naming and casing conventions are not arbitrary - Protocol Buffers use UpperCamelCase for message, service, and method names and lower_snake_case for field names. Check out the  [style guide](https://developers.google.com/protocol-buffers/docs/style) and always keep it in mind when writing proto files.
 
 ### **Building**
 
 Congratulations! You have defined your first API. You can verify the syntax by trying to build the Gradle project.
-
-.
 
 This will invoke the Protocol Buffers compiler to convert the proto file into Java code as well as compile the Java code for use in applications. A properly configured application would be able to get a greeting with something as simple as
 
