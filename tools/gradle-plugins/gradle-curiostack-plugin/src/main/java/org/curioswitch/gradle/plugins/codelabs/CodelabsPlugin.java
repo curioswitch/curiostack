@@ -57,7 +57,7 @@ public class CodelabsPlugin implements Plugin<Project> {
 
                   t.executable(claatPath);
 
-                  var mdFileTree = project.fileTree(".");
+                  var mdFileTree = project.fileTree("src");
                   mdFileTree.exclude("build").include("**/*.md");
 
                   t.getInputs().files(mdFileTree);
@@ -95,7 +95,7 @@ public class CodelabsPlugin implements Plugin<Project> {
                       unused ->
                           project.copy(
                               copy -> {
-                                copy.from("build/claat");
+                                copy.from("build/claat", ".firebaserc", "firebase.json");
                                 copy.into("build/site");
                               }));
                 });
