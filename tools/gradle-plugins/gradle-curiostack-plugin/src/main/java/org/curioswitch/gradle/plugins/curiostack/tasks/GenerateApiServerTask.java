@@ -54,17 +54,17 @@ public class GenerateApiServerTask extends DefaultTask {
         "input",
         ImmutableMap.of(
             "message",
-                "What is the path that the files should be written to (e.g., path/to/project)?",
-            "addproperty", "outputPath"));
-    ant.invokeMethod(
-        "input",
-        ImmutableMap.of(
-            "message",
             "What is name of the project? Two artifacts, {name}-api and {name}-server will "
                 + "be generated. {name}-server will be used in deployments and should be relatively "
                 + "concise. The name should be hyphen-case",
             "addproperty",
             "name"));
+    ant.invokeMethod(
+        "input",
+        ImmutableMap.of(
+            "message",
+                "What is the path that the files should be written to (e.g., path/to/project)?",
+            "addproperty", "outputPath"));
     ant.invokeMethod(
         "input",
         ImmutableMap.of(
@@ -136,6 +136,7 @@ public class GenerateApiServerTask extends DefaultTask {
 
     String apiDependency = ':' + (outputPathStr + "/api").replace("/", ":");
 
+    String name = (String) ant.getProperty("name");
     String protoPackage = (String) ant.getProperty("protoPackage");
     String javaPackage = (String) ant.getProperty("javaPackage");
     String serviceName = (String) ant.getProperty("serviceName");
@@ -143,7 +144,7 @@ public class GenerateApiServerTask extends DefaultTask {
     Map<String, Object> context =
         ImmutableMap.<String, Object>builder()
             .put("copyright", copyright)
-            .put("name", ant.getProperty("name"))
+            .put("name", name)
             .put("proto_package", protoPackage)
             .put("java_package", javaPackage)
             .put("service_name", serviceName)
@@ -158,7 +159,7 @@ public class GenerateApiServerTask extends DefaultTask {
         "templates/apiserver/api/service.proto.tmpl",
         context,
         apiOutputPath.resolve(
-            "src/main/proto/" + protoPackage.replace(".", "/") + "/service.proto"));
+            "src/main/proto/" + protoPackage.replace(".", "/") + "/" + name + "-service.proto"));
 
     render(
         "templates/apiserver/server/build.gradle.kts.tmpl",
