@@ -24,6 +24,7 @@
 
 package org.curioswitch.gradle.plugins.curioserver.tasks;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import java.io.File;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.plugins.ApplicationPluginConvention;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
@@ -47,16 +49,18 @@ public class NativeImageTask extends DefaultTask {
   private final ConfigurableFileCollection classpath;
   private final DirectoryProperty outputDir;
   private final Property<String> outputName;
+  private final ListProperty<String> options;
 
   public NativeImageTask() {
-    jarFile = getProject().getLayout().fileProperty();
+    var objects = getProject().getObjects();
+
+    jarFile = objects.fileProperty();
     classpath = getProject().getLayout().configurableFiles();
 
-    outputDir = getProject().getLayout().directoryProperty();
+    outputDir = objects.directoryProperty();
     outputDir.set(getProject().file("build/graal"));
-
-    outputName = getProject().getObjects().property(String.class);
-    outputName.set("app");
+    outputName = objects.property(String.class).value("app");
+    options = objects.listProperty(String.class).empty();
   }
 
   @InputFile
@@ -72,6 +76,11 @@ public class NativeImageTask extends DefaultTask {
   @Input
   public Property<String> getOutputName() {
     return outputName;
+  }
+
+  @Input
+  public ListProperty<String> getOptions() {
+    return options;
   }
 
   @OutputDirectory
@@ -96,14 +105,15 @@ public class NativeImageTask extends DefaultTask {
                   DownloadedToolManager.get(getProject())
                       .getBinDir("graalvm")
                       .resolve("native-image"));
-              exec.args(
-                  "-cp",
-                  classpathArg,
-                  "-H:Path=",
-                  outputDir.getAsFile().get().getAbsolutePath(),
-                  "-H:Name=",
-                  outputName.get(),
-                  appPluginConvention.getMainClassName());
+              var args = new ImmutableList.Builder<String>();
+              args.add(
+                      "-cp",
+                      classpathArg,
+                      "-H:Path=" + outputDir.getAsFile().get().getAbsolutePath(),
+                      "-H:name=" + outputName.get())
+                  .addAll(options.get())
+                  .add(appPluginConvention.getMainClassName());
+              exec.args(args);
             });
   }
 }

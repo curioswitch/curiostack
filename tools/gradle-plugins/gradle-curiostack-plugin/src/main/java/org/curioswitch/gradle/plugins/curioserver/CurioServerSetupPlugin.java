@@ -48,7 +48,7 @@ public class CurioServerSetupPlugin implements Plugin<Project> {
                 plugin.registerToolIfAbsent(
                     "graalvm",
                     tool -> {
-                      tool.getVersion().set("1.0.0-rc8");
+                      tool.getVersion().set("1.0.0-rc10");
                       tool.getBaseUrl().set("https://github.com/oracle/graal/releases/download/");
                       tool.getArtifactPattern()
                           .set("vm-[revision]/[artifact]-ce-[revision]-[classifier].[ext]");
