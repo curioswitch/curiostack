@@ -5,13 +5,13 @@ status: [published]
 author: chokoswitch
 categories: API
 tags: api
-feedback link: https://github.com/curioswitch/curiostack/issues
+feedback link: https://github.com/curioswitch/curiostack/issues/new
 
 ---
 
 # Defining a gRPC API
 
-[Codelab Feedback](https://github.com/curioswitch/curiostack/issues)
+[Codelab Feedback](https://github.com/curioswitch/curiostack/issues/new)
 
 
 ## Introduction

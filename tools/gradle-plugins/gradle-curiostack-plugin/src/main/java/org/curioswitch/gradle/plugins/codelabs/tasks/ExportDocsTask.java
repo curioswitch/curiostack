@@ -72,7 +72,7 @@ public class ExportDocsTask extends DefaultTask {
 
     getProject().exec(exec -> {
       exec.executable(ClaatTaskUtil.getClaatPath(getProject()));
-      exec.args("export");
+      exec.args("export", "-prefix", "../");
       exec.args(mdFiles);
 
       exec.workingDir(outputDir);
