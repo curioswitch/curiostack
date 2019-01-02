@@ -83,8 +83,7 @@ public class CloudStorageBuildCacheServiceFactory
                         new DnsNameResolverBuilder()
                             .channelType(TransportType.datagramChannelType(eventLoopGroup))
                             .nameServerProvider(DnsServerAddressStreamProviders.platformDefault())
-                            .optResourceEnabled(false)
-                            .traceEnabled(true)))
+                            .optResourceEnabled(false)))
             .build();
     HttpClient googleApis =
         new HttpClientBuilder("https://www.googleapis.com/")
