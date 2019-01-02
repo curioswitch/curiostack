@@ -28,13 +28,20 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.linecorp.armeria.client.ClientFactoryBuilder;
 import com.linecorp.armeria.client.ClientOption;
 import com.linecorp.armeria.client.Clients;
 import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.HttpClientBuilder;
+import com.linecorp.armeria.client.logging.LoggingClientBuilder;
+import com.linecorp.armeria.common.HttpRequest;
+import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.internal.TransportType;
+import io.netty.resolver.dns.DnsAddressResolverGroup;
+import io.netty.resolver.dns.DnsNameResolverBuilder;
+import io.netty.resolver.dns.DnsServerAddressStreamProviders;
 import java.io.IOException;
 import java.time.Clock;
-import java.util.Optional;
-import org.curioswitch.curiostack.gcloud.core.GcloudModule;
 import org.curioswitch.curiostack.gcloud.core.auth.AccessTokenProvider;
 import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
 import org.curioswitch.curiostack.gcloud.core.auth.GoogleCredentialsDecoratingClient;
@@ -68,7 +75,22 @@ public class CloudStorageBuildCacheServiceFactory
               + "./gradlew :gcloud_auth_application-default_login? Disabling build cache.");
       return new NoOpBuildCacheService();
     }
-    HttpClient googleApis = GcloudModule.googleApisClient(Optional.empty());
+    var clientFactory =
+        new ClientFactoryBuilder()
+            .addressResolverGroupFactory(
+                eventLoopGroup ->
+                    new DnsAddressResolverGroup(
+                        new DnsNameResolverBuilder()
+                            .channelType(TransportType.datagramChannelType(eventLoopGroup))
+                            .nameServerProvider(DnsServerAddressStreamProviders.platformDefault())
+                            .optResourceEnabled(false)
+                            .traceEnabled(true)))
+            .build();
+    HttpClient googleApis =
+        new HttpClientBuilder("https://www.googleapis.com/")
+            .factory(clientFactory)
+            .decorator(HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator())
+            .build();
     AccessTokenProvider.Factory accessTokenProviderFactory =
         new AccessTokenProvider.Factory(googleApis, Clock.systemUTC());
     AccessTokenProvider accessTokenProvider = accessTokenProviderFactory.create(credentials);
