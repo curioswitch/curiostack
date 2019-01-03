@@ -85,11 +85,7 @@ public class CloudStorageBuildCacheServiceFactory
                             .nameServerProvider(DnsServerAddressStreamProviders.platformDefault())
                             .optResourceEnabled(false)))
             .build();
-    HttpClient googleApis =
-        new HttpClientBuilder("https://www.googleapis.com/")
-            .factory(clientFactory)
-            .decorator(HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator())
-            .build();
+    HttpClient googleApis = GcloudModule.googleApisClient(Optional.empty());
     AccessTokenProvider.Factory accessTokenProviderFactory =
         new AccessTokenProvider.Factory(googleApis, Clock.systemUTC());
     AccessTokenProvider accessTokenProvider = accessTokenProviderFactory.create(credentials);

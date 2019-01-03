@@ -22,6 +22,15 @@
  * SOFTWARE.
  */
 
+import org.curioswitch.gradle.plugins.codelabs.tasks.ExportDocsTask
+
 plugins {
     id("org.curioswitch.gradle-codelabs-plugin")
+}
+
+tasks {
+    named<ExportDocsTask>("exportDocs") {
+        urlPrefix.set("/codelabs/")
+        gaTrackingId.set("UA-131658887-1")
+    }
 }
