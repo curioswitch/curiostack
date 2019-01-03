@@ -72,10 +72,11 @@ dependencies {
     compile 'com.github.ben-manes:gradle-versions-plugin'
     compile 'com.google.auth:google-auth-library-oauth2-http'
     compile 'com.google.guava:guava'
+    compile 'com.hubspot.jinjava:jinjava:2.4.12'
     compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin'
     compile 'com.palantir:gradle-baseline-java'
     compile 'gradle.plugin.com.boxfuse.client:gradle-plugin-publishing'
-    compile 'com.google.cloud.tools:jib-gradle-plugin:0.10.2-RAG1'
+    compile 'gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.0.0-rc1'
     compile 'gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties'
     compile 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin'
     compile 'io.fabric8:kubernetes-client'
@@ -113,6 +114,10 @@ gradlePlugin {
             id = 'org.curioswitch.gradle-curio-cloudbuild-github-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.cloudbuild.CloudbuildGithubPlugin'
         }
+        codelabs {
+            id = 'org.curioswitch.gradle-codelabs-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.codelabs.CodelabsPlugin'
+        }
         curiostack {
             id = 'org.curioswitch.gradle-curiostack-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.curiostack.CuriostackPlugin'
@@ -128,6 +133,10 @@ gradlePlugin {
         grpcApi {
             id = 'org.curioswitch.gradle-grpc-api-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.grpcapi.GrpcApiPlugin'
+        }
+        node {
+            id = 'org.curioswitch.gradle-node-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.nodejs.NodePlugin'
         }
         server {
             id = 'org.curioswitch.gradle-curio-server-plugin'

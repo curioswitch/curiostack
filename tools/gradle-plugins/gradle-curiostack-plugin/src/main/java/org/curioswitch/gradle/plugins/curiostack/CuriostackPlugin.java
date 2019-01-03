@@ -75,7 +75,9 @@ import org.curioswitch.gradle.golang.tasks.JibTask;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.StandardDependencies.DependencySet;
 import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
+import org.curioswitch.gradle.plugins.curiostack.tasks.GenerateApiServerTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
+import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateProjectSettingsTask;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
 import org.curioswitch.gradle.plugins.nodejs.util.NodeUtil;
@@ -88,6 +90,7 @@ import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolutionStrategy;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.artifacts.repositories.MavenRepositoryContentDescriptor;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.JavaLibraryPlugin;
@@ -199,6 +202,15 @@ public class CuriostackPlugin implements Plugin<Project> {
       rootProject.getTasks().named("ideaProject").configure(t -> t.dependsOn(baselineUpdateConfig));
     }
 
+    var updateProjectSettings =
+        rootProject.getTasks().register("updateProjectSettings", UpdateProjectSettingsTask.class);
+    rootProject
+        .getTasks()
+        .register(
+            "generateApiServer",
+            GenerateApiServerTask.class,
+            t -> t.finalizedBy(updateProjectSettings));
+
     rootProject.afterEvaluate(
         (p) ->
             rootProject
@@ -218,114 +230,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                           .withXml(provider -> setupWorkspaceXml(rootProject, provider));
                     }));
 
-    rootProject.allprojects(
-        project -> {
-          project.getPlugins().withType(JavaPlugin.class, plugin -> setupJavaProject(project));
-
-          project
-              .getPlugins()
-              .withType(
-                  DependencyManagementPlugin.class,
-                  unused -> {
-                    DependencyManagementExtension dependencyManagement =
-                        project.getExtensions().getByType(DependencyManagementExtension.class);
-                    dependencyManagement.dependencies(
-                        dependencies -> {
-                          for (DependencySet set : StandardDependencies.DEPENDENCY_SETS) {
-                            dependencies.dependencySet(
-                                ImmutableMap.of(
-                                    "group", set.group(),
-                                    "version", set.version()),
-                                dependencySet -> set.modules().forEach(dependencySet::entry));
-                          }
-                          StandardDependencies.DEPENDENCIES.forEach(dependencies::dependency);
-                        });
-                  });
-
-          project
-              .getPlugins()
-              .withType(
-                  GolangPlugin.class,
-                  unused -> {
-                    project
-                        .getExtensions()
-                        .getByType(GolangExtension.class)
-                        .jib(
-                            jib ->
-                                jib.getCredentialHelper()
-                                    .set(
-                                        DownloadedToolManager.get(project)
-                                            .getBinDir("gcloud")
-                                            .resolve("docker-credential-gcr")));
-                    project
-                        .getTasks()
-                        .withType(JibTask.class)
-                        .configureEach(
-                            t ->
-                                t.dependsOn(
-                                    project.getRootProject().getTasks().getByName("gcloudSetup")));
-                  });
-
-          project
-              .getPlugins()
-              .withType(
-                  LicensePlugin.class,
-                  unused -> {
-                    LicenseExtension license =
-                        project.getExtensions().getByType(LicenseExtension.class);
-                    license.setHeader(rootProject.file("LICENSE"));
-                    license.mapping(
-                        ImmutableMap.of(
-                            "conf", "DOUBLESLASH_STYLE",
-                            "go", "SLASHSTAR_STYLE",
-                            "java", "SLASHSTAR_STYLE",
-                            "proto", "SLASHSTAR_STYLE",
-                            "yml", "SCRIPT_STYLE"));
-
-                    project
-                        .getTasks()
-                        .withType(License.class)
-                        .configureEach(
-                            t -> {
-                              t.exclude("**/*.json");
-                              t.exclude(
-                                  f ->
-                                      f.getFile()
-                                          .toPath()
-                                          .startsWith(project.getBuildDir().toPath()));
-                            });
-                  });
-        });
-
-    setupDataSources(rootProject);
-  }
-
-  private static void setupRepositories(Project project) {
-    project.getRepositories().jcenter();
-    project.getRepositories().gradlePluginPortal();
-    project
-        .getRepositories()
-        .maven(maven -> maven.setUrl("https://dl.bintray.com/curioswitch/curiostack"));
-    project.getRepositories().maven(maven -> maven.setUrl("https://dl.bintray.com/mockito/maven"));
-    project.getRepositories().mavenCentral();
-    project.getRepositories().mavenLocal();
-    project.getRepositories().maven(maven -> maven.setUrl("https://oss.jfrog.org/libs-snapshot"));
-  }
-
-  private static void setupJavaProject(Project project) {
-    setupRepositories(project);
-
-    PluginContainer plugins = project.getPlugins();
-    plugins.apply(AptPlugin.class);
-    plugins.apply(AptIdeaPlugin.class);
-    plugins.apply(BaselineIdea.class);
-    plugins.apply(DependencyManagementPlugin.class);
-    plugins.apply(ErrorPronePlugin.class);
-    plugins.apply(LicensePlugin.class);
-    plugins.apply(SpotlessPlugin.class);
-    plugins.apply(VersionsPlugin.class);
-
-    Map<String, CheckSeverity> checks =
+    Map<String, CheckSeverity> errorProneChecks =
         ImmutableMap.<String, CheckSeverity>builder()
             .put("BadComparable", ERROR)
             .put("BoxedPrimitiveConstructor", ERROR)
@@ -427,6 +332,132 @@ public class CuriostackPlugin implements Plugin<Project> {
             .put("WildcardImport", ERROR)
             .build();
 
+    rootProject.allprojects(
+        project -> {
+          project
+              .getPlugins()
+              .withType(JavaPlugin.class, plugin -> setupJavaProject(project, errorProneChecks));
+
+          project
+              .getPlugins()
+              .withType(
+                  DependencyManagementPlugin.class,
+                  unused -> {
+                    DependencyManagementExtension dependencyManagement =
+                        project.getExtensions().getByType(DependencyManagementExtension.class);
+                    dependencyManagement.dependencies(
+                        dependencies -> {
+                          for (DependencySet set : StandardDependencies.DEPENDENCY_SETS) {
+                            dependencies.dependencySet(
+                                ImmutableMap.of(
+                                    "group", set.group(),
+                                    "version", set.version()),
+                                dependencySet -> set.modules().forEach(dependencySet::entry));
+                          }
+                          StandardDependencies.DEPENDENCIES.forEach(dependencies::dependency);
+                        });
+                  });
+
+          project
+              .getPlugins()
+              .withType(
+                  GolangPlugin.class,
+                  unused -> {
+                    project
+                        .getExtensions()
+                        .getByType(GolangExtension.class)
+                        .jib(
+                            jib ->
+                                jib.getCredentialHelper()
+                                    .set(
+                                        DownloadedToolManager.get(project)
+                                            .getBinDir("gcloud")
+                                            .resolve("docker-credential-gcr")));
+                    project
+                        .getTasks()
+                        .withType(JibTask.class)
+                        .configureEach(
+                            t ->
+                                t.dependsOn(
+                                    project.getRootProject().getTasks().getByName("gcloudSetup")));
+                  });
+
+          project
+              .getPlugins()
+              .withType(
+                  LicensePlugin.class,
+                  unused -> {
+                    LicenseExtension license =
+                        project.getExtensions().getByType(LicenseExtension.class);
+                    license.setHeader(rootProject.file("LICENSE"));
+                    license.mapping(
+                        ImmutableMap.of(
+                            "conf", "DOUBLESLASH_STYLE",
+                            "go", "SLASHSTAR_STYLE",
+                            "java", "SLASHSTAR_STYLE",
+                            "proto", "SLASHSTAR_STYLE",
+                            "yml", "SCRIPT_STYLE"));
+
+                    project
+                        .getTasks()
+                        .withType(License.class)
+                        .configureEach(
+                            t -> {
+                              t.exclude("**/*.json");
+                              t.exclude(
+                                  f ->
+                                      f.getFile()
+                                          .toPath()
+                                          .startsWith(project.getBuildDir().toPath()));
+                            });
+                  });
+        });
+
+    setupDataSources(rootProject);
+  }
+
+  private static void setupRepositories(Project project) {
+    project.getRepositories().jcenter();
+    project.getRepositories().gradlePluginPortal();
+    project
+        .getRepositories()
+        .maven(
+            maven -> {
+              maven.setUrl("https://dl.bintray.com/curioswitch/curiostack");
+              maven.mavenContent(MavenRepositoryContentDescriptor::releasesOnly);
+            });
+    project
+        .getRepositories()
+        .maven(
+            maven -> {
+              maven.setUrl("https://dl.bintray.com/mockito/maven");
+              maven.mavenContent(MavenRepositoryContentDescriptor::releasesOnly);
+            });
+    project.getRepositories().mavenCentral();
+    project.getRepositories().mavenLocal();
+    project
+        .getRepositories()
+        .maven(
+            maven -> {
+              maven.setUrl("https://oss.jfrog.org/libs-snapshot");
+              maven.mavenContent(MavenRepositoryContentDescriptor::snapshotsOnly);
+            });
+  }
+
+  private static void setupJavaProject(
+      Project project, Map<String, CheckSeverity> errorProneChecks) {
+    setupRepositories(project);
+
+    PluginContainer plugins = project.getPlugins();
+    plugins.apply(AptPlugin.class);
+    plugins.apply(AptIdeaPlugin.class);
+    plugins.apply(BaselineIdea.class);
+    plugins.apply(DependencyManagementPlugin.class);
+    plugins.apply(ErrorPronePlugin.class);
+    plugins.apply(LicensePlugin.class);
+    plugins.apply(SpotlessPlugin.class);
+    plugins.apply(VersionsPlugin.class);
+
     project
         .getTasks()
         .withType(JavaCompile.class)
@@ -447,7 +478,7 @@ public class CuriostackPlugin implements Plugin<Project> {
               if (errorProne != null) {
                 errorProne.setDisableWarningsInGeneratedCode(true);
                 errorProne.setExcludedPaths("(.*/build/.*|.*/gen-src/.*)");
-                errorProne.setChecks(checks);
+                errorProne.setChecks(errorProneChecks);
               }
             });
 
@@ -492,7 +523,7 @@ public class CuriostackPlugin implements Plugin<Project> {
 
               project
                   .getTasks()
-                  .named("clean")
+                  .named("cleanIdea")
                   .configure(
                       t -> t.doLast(unused -> project.file(project.getName() + ".iml").delete()));
 
@@ -598,38 +629,6 @@ public class CuriostackPlugin implements Plugin<Project> {
               if (jmhRegex != null) {
                 jmh.setInclude((String) jmhRegex);
               }
-
-              // We will use the jmhManaged for any dependencies that should only be applied to JMH
-              // but should be resolved by our managed dependencies. We need a separate
-              // configuration
-              // to be able to provide the resolution workaround described below.
-              Configuration jmhManaged = project.getConfigurations().create("jmhManaged");
-              Configuration jmhConfiguration = project.getConfigurations().getByName("jmh");
-              jmhConfiguration.extendsFrom(jmhManaged);
-
-              // JMH plugin uses a detached configuration to build an uber-jar, which
-              // dependencyManagement
-              // doesn't know about. Work around this by forcing parent configurations to be
-              // resolved and
-              // added directly to the jmh configuration, which overwrites the otherwise
-              // unresolvable
-              // dependency.
-              project.afterEvaluate(
-                  p ->
-                      jmhConfiguration
-                          .getExtendsFrom()
-                          .forEach(
-                              parent -> {
-                                parent
-                                    .getResolvedConfiguration()
-                                    .getFirstLevelModuleDependencies()
-                                    .forEach(
-                                        dep -> {
-                                          project
-                                              .getDependencies()
-                                              .add("jmh", dep.getModule().toString());
-                                        });
-                              }));
             });
 
     project

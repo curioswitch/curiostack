@@ -25,14 +25,28 @@
 package org.curioswitch.common.server.framework.logging;
 
 import com.google.common.collect.ImmutableSet;
+import com.linecorp.armeria.client.Client;
+import com.linecorp.armeria.client.logging.LoggingClient;
+import com.linecorp.armeria.client.logging.LoggingClientBuilder;
+import com.linecorp.armeria.common.HttpHeaders;
+import com.linecorp.armeria.common.HttpRequest;
+import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.common.logging.LogLevel;
+import com.linecorp.armeria.common.logging.LoggingDecoratorBuilder;
+import com.linecorp.armeria.server.Service;
+import com.linecorp.armeria.server.logging.LoggingService;
+import com.linecorp.armeria.server.logging.LoggingServiceBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.ElementsIntoSet;
+import dagger.multibindings.Multibinds;
 import dagger.producers.monitoring.ProductionComponentMonitor;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import javax.inject.Singleton;
 import org.curioswitch.common.server.framework.ApplicationModule;
 import org.curioswitch.common.server.framework.config.LoggingConfig;
@@ -41,11 +55,65 @@ import org.curioswitch.common.server.framework.config.ModifiableLoggingConfig;
 @Module(includes = ApplicationModule.class)
 public abstract class LoggingModule {
 
+  @Multibinds
+  abstract @RequestHeaderSanitizer Set<Consumer<HttpHeaders>> requestHeaderSanitizers();
+
+  @Multibinds
+  abstract @ResponseHeaderSanitizer Set<Consumer<HttpHeaders>> responseHeaderSanitizers();
+
   @Provides
   @Singleton
   static LoggingConfig config(Config config) {
     return ConfigBeanFactory.create(config.getConfig("logging"), ModifiableLoggingConfig.class)
         .toImmutable();
+  }
+
+  @Provides
+  @Singleton
+  static Function<Service<HttpRequest, HttpResponse>, LoggingService<HttpRequest, HttpResponse>>
+      loggingService(
+          LoggingConfig config,
+          @RequestHeaderSanitizer Set<Consumer<HttpHeaders>> requestHeaderSanitizers,
+          @ResponseHeaderSanitizer Set<Consumer<HttpHeaders>> responseHeaderSanitizers) {
+    LoggingServiceBuilder builder = new LoggingServiceBuilder();
+    configureLoggingDecorator(builder, config, requestHeaderSanitizers, responseHeaderSanitizers);
+    if (config.getLogAllServerRequests()) {
+      builder.requestLogLevel(LogLevel.INFO);
+      builder.successfulResponseLogLevel(LogLevel.INFO);
+    }
+    return builder.newDecorator();
+  }
+
+  @Provides
+  @Singleton
+  static Function<Client<HttpRequest, HttpResponse>, LoggingClient<HttpRequest, HttpResponse>>
+      loggingClient(
+          LoggingConfig config,
+          @RequestHeaderSanitizer Set<Consumer<HttpHeaders>> requestHeaderSanitizers,
+          @ResponseHeaderSanitizer Set<Consumer<HttpHeaders>> responseHeaderSanitizers) {
+    LoggingClientBuilder builder = new LoggingClientBuilder();
+    configureLoggingDecorator(builder, config, requestHeaderSanitizers, responseHeaderSanitizers);
+    if (config.getLogAllClientRequests()) {
+      builder.requestLogLevel(LogLevel.INFO);
+      builder.successfulResponseLogLevel(LogLevel.INFO);
+    }
+    return builder.newDecorator();
+  }
+
+  private static void configureLoggingDecorator(
+      LoggingDecoratorBuilder<?> builder,
+      LoggingConfig config,
+      @RequestHeaderSanitizer Set<Consumer<HttpHeaders>> requestHeaderSanitizers,
+      @ResponseHeaderSanitizer Set<Consumer<HttpHeaders>> responseHeaderSanitizers) {
+    if (!config.getBlacklistedRequestHeaders().isEmpty() || !requestHeaderSanitizers.isEmpty()) {
+      builder.requestHeadersSanitizer(
+          new HeaderSanitizer(requestHeaderSanitizers, config.getBlacklistedRequestHeaders()));
+    }
+
+    if (!config.getBlacklistedResponseHeaders().isEmpty() || !responseHeaderSanitizers.isEmpty()) {
+      builder.responseHeadersSanitizer(
+          new HeaderSanitizer(responseHeaderSanitizers, config.getBlacklistedResponseHeaders()));
+    }
   }
 
   @Provides

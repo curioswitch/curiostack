@@ -57,10 +57,6 @@ buildscript {
             url 'http://palantir.bintray.com/releases'
         }
         mavenLocal()
-        // TODO(choko): Remove after https://github.com/etiennestuder/gradle-jooq-plugin/issues/71
-        maven {
-            url 'https://jitpack.io'
-        }
     }
     dependencies {
         classpath "org.curioswitch.curiostack:gradle-curiostack-plugin:${getProperty('org.curioswitch.curiostack.version')}"
@@ -83,29 +79,4 @@ buildCache {
     }
 }
 
-include ':auth:api', ':auth:server'
-include ':common:curio-helpers'
-include ':common:google-cloud:cloud-storage'
-include ':common:google-cloud:core'
-include ':common:google-cloud:iam'
-include ':common:google-cloud:pubsub'
-include ':common:google-cloud:trace'
-include ':common:grpc:protobuf-jackson'
-include ':common:server:framework'
-include ':common:testing:assertj-protobuf'
-include ':common:testing:framework'
-include ':cluster:terraform:kube-deployers'
-include ':cluster:terraform:sysadmin'
-include ':database:yourmakedb:dev'
-include ':eggworld:api', 'eggworld:client:web', ':eggworld:server'
-include ':gateway:server'
-include ':tools:cloudbuild-github-functions'
-include ':tools:curiostack-bom'
-include ':tools:golang-test'
-include ':tools:gradle-plugins:gradle-conda-plugin'
-include ':tools:gradle-plugins:gradle-curiostack-plugin'
-include ':tools:gradle-plugins:gradle-golang-plugin'
-include ':tools:gradle-plugins:gradle-helpers'
-include ':tools:gradle-plugins:gradle-protobuf-plugin'
-include ':tools:gradle-plugins:gradle-tool-downloader-plugin'
-include ':tools:gradle-plugins:java-groovy-compat'
+apply from: 'project.settings.gradle.kts'

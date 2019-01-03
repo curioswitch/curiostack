@@ -46,7 +46,7 @@ import com.linecorp.armeria.server.auth.OAuth2Token;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import com.linecorp.armeria.server.healthcheck.HttpHealthCheckService;
-import com.linecorp.armeria.server.logging.LoggingServiceBuilder;
+import com.linecorp.armeria.server.logging.LoggingService;
 import com.linecorp.armeria.server.metric.MetricCollectingService;
 import com.linecorp.armeria.server.metric.PrometheusExpositionService;
 import com.linecorp.armeria.server.tracing.HttpTracingService;
@@ -98,15 +98,10 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.curioswitch.common.server.framework.armeria.Constants;
 import org.curioswitch.common.server.framework.armeria.SslContextKeyConverter;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthConfig;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthModule;
 import org.curioswitch.common.server.framework.auth.firebase.FirebaseAuthorizer;
-import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthServiceBuilder;
-import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthorizer;
-import org.curioswitch.common.server.framework.auth.googleid.GoogleIdAuthorizer.Factory;
-import org.curioswitch.common.server.framework.auth.iam.IamAuthorizer;
 import org.curioswitch.common.server.framework.auth.jwt.JwtAuthorizer;
 import org.curioswitch.common.server.framework.auth.jwt.JwtModule;
 import org.curioswitch.common.server.framework.auth.jwt.JwtVerifier.Algorithm;
@@ -305,13 +300,13 @@ public abstract class ServerModule {
       Set<Consumer<ServerBuilder>> serverCustomizers,
       Set<PostServerCustomizer> postServerCustomizers,
       Set<WatchedPath> watchedPaths,
+      Function<Service<HttpRequest, HttpResponse>, LoggingService<HttpRequest, HttpResponse>>
+          loggingService,
       MetricsHttpService metricsHttpService,
       CollectorRegistry collectorRegistry,
       MeterRegistry meterRegistry,
       Tracing tracing,
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
-      Lazy<GoogleIdAuthorizer.Factory> googleIdAuthorizer,
-      Lazy<IamAuthorizer> iamAuthorizer,
       Lazy<JwtAuthorizer.Factory> jwtAuthorizer,
       Lazy<JavascriptStaticService> javascriptStaticService,
       Optional<SelfSignedCertificate> selfSignedCertificate,
@@ -458,8 +453,6 @@ public abstract class ServerModule {
                     s.decorate(definition.decorator()),
                     tracing,
                     firebaseAuthorizer,
-                    googleIdAuthorizer,
-                    iamAuthorizer,
                     jwtAuthorizer,
                     sslCommonNamesProvider0,
                     serverConfig,
@@ -471,8 +464,6 @@ public abstract class ServerModule {
                 service.decorate(definition.decorator()),
                 tracing,
                 firebaseAuthorizer,
-                googleIdAuthorizer,
-                iamAuthorizer,
                 jwtAuthorizer,
                 sslCommonNamesProvider,
                 serverConfig,
@@ -487,8 +478,6 @@ public abstract class ServerModule {
               definition.service(),
               tracing,
               firebaseAuthorizer,
-              googleIdAuthorizer,
-              iamAuthorizer,
               jwtAuthorizer,
               sslCommonNamesProvider,
               serverConfig,
@@ -515,7 +504,7 @@ public abstract class ServerModule {
       sb.decorator(httpsOnlyServiceFactory.newDecorator());
     }
 
-    sb.decorator(new LoggingServiceBuilder().newDecorator());
+    sb.decorator(loggingService);
     sb.meterRegistry(meterRegistry);
 
     if (serverConfig.getEnableGracefulShutdown()) {
@@ -591,26 +580,14 @@ public abstract class ServerModule {
       Service<HttpRequest, HttpResponse> service,
       Tracing tracing,
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
-      Lazy<Factory> googleIdAuthorizer,
-      Lazy<IamAuthorizer> iamAuthorizer,
       Lazy<JwtAuthorizer.Factory> jwtAuthorizer,
       Optional<SslCommonNamesProvider> sslCommonNamesProvider,
       ServerConfig serverConfig,
       FirebaseAuthConfig authConfig) {
-    if (sslCommonNamesProvider.isPresent()) {
-      GoogleIdAuthServiceBuilder authServiceBuilder = new GoogleIdAuthServiceBuilder();
-      if (serverConfig.isEnableGoogleIdAuthorization()) {
-        authServiceBuilder.addOAuth2(
-            googleIdAuthorizer.get().create(sslCommonNamesProvider.get()),
-            Constants.X_CLUSTER_AUTHORIZATION);
-      }
-      if (!serverConfig.isDisableSslAuthorization()) {
-        authServiceBuilder.add(new SslAuthorizer(sslCommonNamesProvider.get()));
-      }
+    if (sslCommonNamesProvider.isPresent() && !serverConfig.isDisableSslAuthorization()) {
+      HttpAuthServiceBuilder authServiceBuilder = new HttpAuthServiceBuilder();
+      authServiceBuilder.add(new SslAuthorizer(sslCommonNamesProvider.get()));
       service = service.decorate(authServiceBuilder.newDecorator());
-    }
-    if (serverConfig.isEnableIamAuthorization()) {
-      service = new HttpAuthServiceBuilder().addOAuth2(iamAuthorizer.get()).build(service);
     }
     if (serverConfig.isEnableIapAuthorization()) {
       service =
@@ -656,7 +633,7 @@ public abstract class ServerModule {
                   TraceContext traceCtx = tracing.currentTraceContext().get();
                   if (traceCtx != null) {
                     RequestLoggingContext.put(ctx, "traceId", traceCtx.traceIdString());
-                    RequestLoggingContext.put(ctx, "spanId", Long.toHexString(traceCtx.spanId()));
+                    RequestLoggingContext.put(ctx, "spanId", traceCtx.spanIdString());
                   }
                   return delegate.serve(ctx, req);
                 });

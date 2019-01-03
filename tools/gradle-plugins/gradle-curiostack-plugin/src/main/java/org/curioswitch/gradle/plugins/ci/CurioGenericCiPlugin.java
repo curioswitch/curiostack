@@ -166,7 +166,9 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                   }
                 });
 
-    continuousBuild.dependsOn(uploadCoverage);
+    if (System.getenv("CI") != null) {
+      continuousBuild.dependsOn(uploadCoverage);
+    }
 
     project.allprojects(
         proj -> {

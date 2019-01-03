@@ -1,0 +1,27 @@
+{{ copyright }}
+
+plugins {
+    id("org.curioswitch.gradle-curio-server-plugin")
+}
+
+base {
+    archivesBaseName = "{{ name }}-server"
+}
+
+application {
+    mainClassName = "{{ java_package }}.server.{{ service_name }}Main"
+}
+
+dependencies {
+    compile(project("{{ api_dependency }}"))
+
+    compile("org.curioswitch.curiostack:curio-server-framework")
+
+    annotationProcessor("com.google.dagger:dagger-compiler")
+    annotationProcessor("org.immutables:value")
+    compileOnly("org.immutables:value")
+
+    testAnnotationProcessor("com.google.dagger:dagger-compiler")
+    testAnnotationProcessor("org.immutables:value")
+    testCompileOnly("org.immutables:value")
+}

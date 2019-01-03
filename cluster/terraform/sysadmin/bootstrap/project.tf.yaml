@@ -38,14 +38,29 @@ resource:
         prevent_destroy: true
 
   google_project_service:
+    primary-admin:
+      project: "${google_project.primary_project.project_id}"
+      service: admin.googleapis.com
+      lifecycle:
+        prevent_destroy: true
     primary-compute:
       project: "${google_project.primary_project.project_id}"
       service: compute.googleapis.com
       lifecycle:
         prevent_destroy: true
-    primary-admin:
+    primary-debugger:
       project: "${google_project.primary_project.project_id}"
-      service: admin.googleapis.com
+      service: clouddebugger.googleapis.com
+      lifecycle:
+        prevent_destroy: true
+    primary-profiler:
+      project: "${google_project.primary_project.project_id}"
+      service: cloudprofiler.googleapis.com
+      lifecycle:
+        prevent_destroy: true
+    primary-trace:
+      project: "${google_project.primary_project.project_id}"
+      service: cloudtrace.googleapis.com
       lifecycle:
         prevent_destroy: true
     sysadmin-compute:

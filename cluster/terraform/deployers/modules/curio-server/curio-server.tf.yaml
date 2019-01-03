@@ -1,0 +1,267 @@
+# MIT License
+#
+# Copyright (c) 2018 Choko (choko@curioswitch.org)
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+variable:
+  name:
+    type: string
+  namespace:
+    type: string
+  replicas:
+    type: string
+  type:
+    type: string
+  image_name:
+    type: string
+  image_tag:
+    type: string
+  request_cpu:
+    type: string
+  request_memory_mb:
+    type: string
+  extra_jvm_args:
+    type: string
+    default: ""
+  external_host:
+    type: string
+    default: ""
+  iap:
+    type: string
+    default: false
+  http2:
+    type: string
+    default: false
+  static_site:
+    type: string
+    default: false
+  acls:
+    type: list
+    default: []
+  secret_volumes:
+    type: list
+    default: []
+  gcr_url:
+    type: string
+    default: asia.gcr.io
+  project_id:
+    type: string
+    default: curioswitch-cluster
+  environment_secrets:
+    type: list
+    default: []
+    description: Up to 5 secret names to populate into the containers environment variables.
+data:
+  template_file:
+    rpcacls:
+      template: "${file(\"${path.module}/rpcacls.yaml\")}"
+      vars:
+        name: "rpcacls-${var.name}"
+        namespace: "${var.namespace}"
+        rpcacls_json: "${jsonencode(zipmap(
+                   var.acls,
+                   slice(
+                     list(
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\"),
+                        map(\"rate\", \"*\")
+                     ),
+                  0,
+                  length(var.acls)
+                )
+                ))}"
+resource:
+  k8s_manifest:
+    rpcacls:
+      content: "${data.template_file.rpcacls.rendered}"
+  kubernetes_service:
+    service:
+      metadata:
+        # FML...
+        annotations: '${
+          merge(
+            map(
+              "prometheus.io/path", "/internal/metrics",
+              "prometheus.io/port", "8080",
+              "prometheus.io/probe", "true",
+              "prometheus.io/scheme", "https",
+              "prometheus.io/scrape", "true",
+              "service.alpha.kubernetes.io/app-protocols", "${jsonencode(map("https", var.http2 ? "HTTP2" : "HTTPS"))}"
+            ),
+            zipmap(
+              compact(list(var.iap ? "beta.cloud.google.com/backend-config" : "")),
+              compact(list(var.iap ? jsonencode(map("ports", map("https", "iap-backend-config"))) : ""))
+            )
+          )
+        }'
+        name: "${var.name}"
+        namespace: "${var.namespace}"
+      spec:
+        type: '${var.external_host == "" ? "ClusterIP" : "NodePort"}'
+        cluster_ip: '${var.external_host == "" ? "None" : ""}'
+        port:
+        - name: https
+          port: 8080
+        selector:
+          name: "${var.name}"
+      depends_on: []
+    internal-service:
+      count: '${var.static_site ? 1 : 0}'
+      metadata:
+        annotations:
+          service.alpha.kubernetes.io/app-protocols: '${jsonencode(map("https", var.http2 ? "HTTP2" : "HTTPS"))}'
+          beta.cloud.google.com/backend-config: '${jsonencode(map("ports", map("https", "iap-backend-config")))}'
+        name: "${var.name}-internal"
+        namespace: "${var.namespace}"
+      spec:
+        type: NodePort
+        port:
+        - name: https
+          port: 8080
+        selector:
+          name: "${var.name}"
+      depends_on: []
+    static-service:
+      count: '${var.static_site ? 1 : 0}'
+      metadata:
+        annotations:
+          service.alpha.kubernetes.io/app-protocols: '${jsonencode(map("https", var.http2 ? "HTTP2" : "HTTPS"))}'
+          beta.cloud.google.com/backend-config: '${jsonencode(map("ports", map("https", "cdn-backend-config")))}'
+        name: "${var.name}-static"
+        namespace: "${var.namespace}"
+      spec:
+        type: NodePort
+        port:
+        - name: https
+          port: 8080
+        selector:
+          name: "${var.name}"
+      depends_on: []
+  kubernetes_ingress:
+    ingress:
+      count: '${var.external_host == "" ? 0 : var.static_site ? 0 : 1}'
+      metadata:
+        annotations:
+          kubernetes.io/tls-acme: 'true'
+        name: '${var.name}'
+        namespace: '${var.namespace}'
+      spec:
+        rule:
+        - host: '${var.external_host}'
+          http:
+            path:
+            - backend:
+                service_name: '${var.name}'
+                service_port: 8080
+              path_regex: /*
+        tls:
+          secret_name: '${var.name}-tls'
+          hosts:
+          - '${var.external_host}'
+    ingress-static:
+      count: '${var.static_site ? 1 : 0}'
+      metadata:
+        annotations:
+          kubernetes.io/tls-acme: 'true'
+        name: '${var.name}'
+        namespace: '${var.namespace}'
+      spec:
+        rule:
+        - host: '${var.external_host}'
+          http:
+            path:
+            - backend:
+                service_name: '${var.name}-internal'
+                service_port: 8080
+              path_regex: /internal/*
+            - backend:
+                service_name: '${var.name}-internal'
+                service_port: 8080
+              path_regex: /_gcp_gatekeeper/*
+            - backend:
+                service_name: '${var.name}-static'
+                service_port: 8080
+              path_regex: /static/*
+            - backend:
+                service_name: '${var.name}'
+                service_port: 8080
+              path_regex: /*
+        tls:
+          secret_name: '${var.name}-tls'
+          hosts:
+          - '${var.external_host}'

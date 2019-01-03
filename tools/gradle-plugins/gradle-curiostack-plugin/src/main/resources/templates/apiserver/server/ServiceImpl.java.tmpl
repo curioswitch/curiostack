@@ -1,0 +1,13 @@
+{{ copyright }}
+package {{ java_package }}.server;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import {{ java_package }}.api.{{ service_name }}Grpc.{{ service_name }}ImplBase;
+
+@Singleton
+public class {{ service_name }} extends {{ service_name }}ImplBase {
+
+  @Inject
+  {{ service_name }}() {}
+}

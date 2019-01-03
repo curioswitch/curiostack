@@ -26,6 +26,7 @@ package org.curioswitch.common.server.framework.armeria;
 import brave.Tracing;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
+import com.linecorp.armeria.client.Client;
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.ClientFactoryBuilder;
@@ -35,7 +36,7 @@ import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroup;
 import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroupBuilder;
 import com.linecorp.armeria.client.endpoint.healthcheck.HttpHealthCheckedEndpointGroup;
 import com.linecorp.armeria.client.endpoint.healthcheck.HttpHealthCheckedEndpointGroupBuilder;
-import com.linecorp.armeria.client.logging.LoggingClientBuilder;
+import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
 import com.linecorp.armeria.client.tracing.HttpTracingClient;
 import com.linecorp.armeria.common.HttpRequest;
@@ -50,8 +51,8 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.net.ssl.TrustManagerFactory;
@@ -60,7 +61,7 @@ import org.apache.logging.log4j.Logger;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
 import org.curioswitch.common.server.framework.util.ResourceUtil;
-import org.curioswitch.curiostack.gcloud.core.auth.GoogleCredentialsDecoratingClient;
+import org.curioswitch.curiostack.gcloud.core.auth.GoogleCredentialsDecoratingClient.Factory;
 
 /**
  * A convenience factory that sets up a {@link ClientBuilder} with appropriate default parameters.
@@ -74,24 +75,23 @@ public class ClientBuilderFactory {
   private final ClientFactory clientFactory;
   private final Tracing tracing;
   private final MeterRegistry meterRegistry;
-
-  @Nullable
-  private final GoogleCredentialsDecoratingClient.Factory googleCredentialsDecoratingClient;
+  private final Function<
+          Client<HttpRequest, HttpResponse>, LoggingClient<HttpRequest, HttpResponse>>
+      loggingClient;
 
   @Inject
   public ClientBuilderFactory(
       MeterRegistry meterRegistry,
       Tracing tracing,
+      Function<Client<HttpRequest, HttpResponse>, LoggingClient<HttpRequest, HttpResponse>>
+          loggingClient,
       Optional<SelfSignedCertificate> selfSignedCertificate,
       Optional<TrustManagerFactory> caTrustManager,
-      Lazy<GoogleCredentialsDecoratingClient.Factory> googleCredentialsDecoratingClient,
+      Lazy<Factory> googleCredentialsDecoratingClient,
       ServerConfig serverConfig) {
     this.tracing = tracing;
     this.meterRegistry = meterRegistry;
-    this.googleCredentialsDecoratingClient =
-        serverConfig.isEnableGoogleIdAuthorization()
-            ? googleCredentialsDecoratingClient.get()
-            : null;
+    this.loggingClient = loggingClient;
     final TrustManagerFactory trustManagerFactory;
     if (serverConfig.isDisableClientCertificateVerification()) {
       logger.warn("Disabling client SSL verification. This should only happen on local!");
@@ -175,19 +175,10 @@ public class ClientBuilderFactory {
 
     ClientBuilder builder = new ClientBuilder(url).factory(clientFactory);
 
-    if (googleCredentialsDecoratingClient != null) {
-      builder.decorator(
-          HttpRequest.class,
-          HttpResponse.class,
-          googleCredentialsDecoratingClient.newIdTokenDecorator(Constants.X_CLUSTER_AUTHORIZATION));
-    }
     return builder
         .decorator(
-            HttpRequest.class,
-            HttpResponse.class,
             MetricCollectingClient.newDecorator(RpcMetricLabels.grpcRequestLabeler("grpc_clients")))
-        .decorator(HttpRequest.class, HttpResponse.class, HttpTracingClient.newDecorator(tracing))
-        .decorator(
-            HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator());
+        .decorator(HttpTracingClient.newDecorator(tracing))
+        .decorator(loggingClient);
   }
 }

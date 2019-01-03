@@ -1,0 +1,9 @@
+{
+  "name": "@curiostack/developers",
+  "version": "1.0.0",
+  "description": "CurioStack developer portal.",
+  "license": "MIT",
+  "devDependencies": {
+    "firebase-tools": "6.2.2"
+  }
+}

@@ -68,6 +68,7 @@ public class CloudStorageBuildCacheServiceFactory
               + "./gradlew :gcloud_auth_application-default_login? Disabling build cache.");
       return new NoOpBuildCacheService();
     }
+
     HttpClient googleApis = GcloudModule.googleApisClient(Optional.empty());
     AccessTokenProvider.Factory accessTokenProviderFactory =
         new AccessTokenProvider.Factory(googleApis, Clock.systemUTC());

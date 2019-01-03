@@ -1,0 +1,42 @@
+# MIT License
+#
+# Copyright (c) 2018 Choko (choko@curioswitch.org)
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+module:
+  curioswitch_cluster_jp:
+    source: './modules/kube-cluster'
+    name: '${var.project_id}-jp'
+    project_id: '${var.project_id}'
+    region: asia-northeast1
+    machine_type: n1-standard-1
+    min_nodes_per_zone: 1
+    max_nodes_per_zone: 1
+    zones:
+      - asia-northeast1-a
+    ca_algorithm: '${tls_private_key.cluster-ca-key.algorithm}'
+    ca_private_key: '${tls_private_key.cluster-ca-key.private_key_pem}'
+    ca_cert: '${tls_self_signed_cert.cluster-ca-cert.cert_pem}'
+    tf_crypto_key: '${google_kms_crypto_key.terraform_state_key.id}'
+    tiller_server_key: '${tls_private_key.tiller-server-key.private_key_pem}'
+    tiller_server_cert: '${tls_locally_signed_cert.tiller-server-cert.cert_pem}'
+    tiller_ca_cert: '${tls_self_signed_cert.tiller-ca-cert.cert_pem}'
+    depends_on:
+      - module.cluster-*
