@@ -48,6 +48,7 @@ public class DownloadDepsTask extends DefaultTask {
   public Property<Integer> getDepsVersion() {
     return depsVersion;
   }
+
   @OutputDirectory
   public DirectoryProperty getOutputDir() {
     return outputDir;
@@ -55,11 +56,13 @@ public class DownloadDepsTask extends DefaultTask {
 
   @TaskAction
   public void exec() {
-    getProject().exec(exec -> {
-      exec.executable(ClaatTaskUtil.getClaatPath(getProject()));
-      exec.args("build");
+    getProject()
+        .exec(
+            exec -> {
+              exec.executable(ClaatTaskUtil.getClaatPath(getProject()));
+              exec.args("build");
 
-      exec.workingDir(outputDir);
-    });
+              exec.workingDir(outputDir);
+            });
   }
 }

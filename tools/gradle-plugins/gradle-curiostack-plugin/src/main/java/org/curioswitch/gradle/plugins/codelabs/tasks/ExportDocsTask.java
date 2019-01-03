@@ -85,15 +85,17 @@ public class ExportDocsTask extends DefaultTask {
             .map(File::getAbsolutePath)
             .collect(toImmutableList());
 
-    getProject().exec(exec -> {
-      exec.executable(ClaatTaskUtil.getClaatPath(getProject()));
-      exec.args("export", "-prefix", urlPrefix.get());
-      if (gaTrackingId.isPresent()) {
-        exec.args("-ga", gaTrackingId.get());
-      }
-      exec.args(mdFiles);
+    getProject()
+        .exec(
+            exec -> {
+              exec.executable(ClaatTaskUtil.getClaatPath(getProject()));
+              exec.args("export", "-prefix", urlPrefix.get());
+              if (gaTrackingId.isPresent()) {
+                exec.args("-ga", gaTrackingId.get());
+              }
+              exec.args(mdFiles);
 
-      exec.workingDir(outputDir);
-    });
+              exec.workingDir(outputDir);
+            });
   }
 }

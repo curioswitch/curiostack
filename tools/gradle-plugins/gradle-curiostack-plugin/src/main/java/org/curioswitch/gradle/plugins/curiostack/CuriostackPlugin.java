@@ -421,20 +421,27 @@ public class CuriostackPlugin implements Plugin<Project> {
     project.getRepositories().gradlePluginPortal();
     project
         .getRepositories()
-        .maven(maven -> {
-          maven.setUrl("https://dl.bintray.com/curioswitch/curiostack");
-          maven.mavenContent(MavenRepositoryContentDescriptor::releasesOnly);
-        });
-    project.getRepositories().maven(maven -> {
-      maven.setUrl("https://dl.bintray.com/mockito/maven");
-      maven.mavenContent(MavenRepositoryContentDescriptor::releasesOnly);
-    });
+        .maven(
+            maven -> {
+              maven.setUrl("https://dl.bintray.com/curioswitch/curiostack");
+              maven.mavenContent(MavenRepositoryContentDescriptor::releasesOnly);
+            });
+    project
+        .getRepositories()
+        .maven(
+            maven -> {
+              maven.setUrl("https://dl.bintray.com/mockito/maven");
+              maven.mavenContent(MavenRepositoryContentDescriptor::releasesOnly);
+            });
     project.getRepositories().mavenCentral();
     project.getRepositories().mavenLocal();
-    project.getRepositories().maven(maven -> {
-      maven.setUrl("https://oss.jfrog.org/libs-snapshot");
-      maven.mavenContent(MavenRepositoryContentDescriptor::snapshotsOnly);
-    });
+    project
+        .getRepositories()
+        .maven(
+            maven -> {
+              maven.setUrl("https://oss.jfrog.org/libs-snapshot");
+              maven.mavenContent(MavenRepositoryContentDescriptor::snapshotsOnly);
+            });
   }
 
   private static void setupJavaProject(
@@ -622,38 +629,6 @@ public class CuriostackPlugin implements Plugin<Project> {
               if (jmhRegex != null) {
                 jmh.setInclude((String) jmhRegex);
               }
-
-              // We will use the jmhManaged for any dependencies that should only be applied to JMH
-              // but should be resolved by our managed dependencies. We need a separate
-              // configuration
-              // to be able to provide the resolution workaround described below.
-              Configuration jmhManaged = project.getConfigurations().create("jmhManaged");
-              Configuration jmhConfiguration = project.getConfigurations().getByName("jmh");
-              jmhConfiguration.extendsFrom(jmhManaged);
-
-              // JMH plugin uses a detached configuration to build an uber-jar, which
-              // dependencyManagement
-              // doesn't know about. Work around this by forcing parent configurations to be
-              // resolved and
-              // added directly to the jmh configuration, which overwrites the otherwise
-              // unresolvable
-              // dependency.
-              project.afterEvaluate(
-                  p ->
-                      jmhConfiguration
-                          .getExtendsFrom()
-                          .forEach(
-                              parent -> {
-                                parent
-                                    .getResolvedConfiguration()
-                                    .getFirstLevelModuleDependencies()
-                                    .forEach(
-                                        dep -> {
-                                          project
-                                              .getDependencies()
-                                              .add("jmh", dep.getModule().toString());
-                                        });
-                              }));
             });
 
     project

@@ -112,8 +112,7 @@ public class UpdateProjectSettingsTask extends DefaultTask {
           }
         }
       }
-      Files.writeString(
-          projectSettings, String.join(System.lineSeparator(), newLines));
+      Files.writeString(projectSettings, String.join(System.lineSeparator(), newLines));
     }
   }
 }

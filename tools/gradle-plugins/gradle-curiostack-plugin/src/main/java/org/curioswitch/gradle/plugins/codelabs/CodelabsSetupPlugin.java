@@ -39,41 +39,46 @@ public class CodelabsSetupPlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     checkState(
-        project.getParent() == null, "codelabs-setup-plugin can only be applied to the root project.");
+        project.getParent() == null,
+        "codelabs-setup-plugin can only be applied to the root project.");
 
     project
         .getPlugins()
         .withType(
             ToolDownloaderPlugin.class,
             plugin -> {
-                plugin.registerToolIfAbsent(
-                    "claat",
-                    tool -> {
-                      tool.getVersion().set("1.1.0");
-                      tool.getBaseUrl().set("https://github.com/googlecodelabs/tools/releases/download/");
-                      tool.getArtifactPattern().set("v[revision]/[artifact]-[classifier][ext]");
+              plugin.registerToolIfAbsent(
+                  "claat",
+                  tool -> {
+                    tool.getVersion().set("1.1.0");
+                    tool.getBaseUrl()
+                        .set("https://github.com/googlecodelabs/tools/releases/download/");
+                    tool.getArtifactPattern().set("v[revision]/[artifact]-[classifier][ext]");
 
-                      // Not an archive.
-                      tool.getOsExtensions().getLinux().set("");
-                      tool.getOsExtensions().getMac().set("");
-                      tool.getOsExtensions().getWindows().set(".exe");
+                    // Not an archive.
+                    tool.getOsExtensions().getLinux().set("");
+                    tool.getOsExtensions().getMac().set("");
+                    tool.getOsExtensions().getWindows().set(".exe");
 
-                      tool.getPathSubDirs().add("");
-                    });
+                    tool.getPathSubDirs().add("");
+                  });
               var download = DownloadToolUtil.getDownloadTask(project, "claat");
               // Not an archive.
-              download.configure(t -> t.setArchiveExtractAction(file -> {
-                var toolDir = plugin.toolManager().getToolDir("claat");
-                var filename = "claat";
-                if (file.getName().endsWith(".exe")) {
-                  filename += ".exe";
-                }
-                try {
-                  Files.move(file.toPath(), toolDir.resolve(filename));
-                } catch (IOException e) {
-                  throw new UncheckedIOException("Could not move claat.", e);
-                }
-              }));
+              download.configure(
+                  t ->
+                      t.setArchiveExtractAction(
+                          file -> {
+                            var toolDir = plugin.toolManager().getToolDir("claat");
+                            var filename = "claat";
+                            if (file.getName().endsWith(".exe")) {
+                              filename += ".exe";
+                            }
+                            try {
+                              Files.move(file.toPath(), toolDir.resolve(filename));
+                            } catch (IOException e) {
+                              throw new UncheckedIOException("Could not move claat.", e);
+                            }
+                          }));
             });
   }
 }

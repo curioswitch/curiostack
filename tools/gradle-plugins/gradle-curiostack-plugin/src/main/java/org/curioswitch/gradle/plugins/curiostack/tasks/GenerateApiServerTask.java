@@ -49,8 +49,11 @@ public class GenerateApiServerTask extends DefaultTask {
   public void exec() {
     var ant = getAnt();
     ant.invokeMethod(
-        "echo", ImmutableMap.of("message", "Generating an API server (see "
-            + "https://codelabs.developers.curioswitch.org/defining-a-grpc-api/#1) for details."));
+        "echo",
+        ImmutableMap.of(
+            "message",
+            "Generating an API server (see "
+                + "https://codelabs.developers.curioswitch.org/defining-a-grpc-api/#1) for details."));
     ant.invokeMethod(
         "input",
         ImmutableMap.of(
