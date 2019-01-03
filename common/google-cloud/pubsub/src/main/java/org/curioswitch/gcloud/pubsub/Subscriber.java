@@ -101,8 +101,8 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
 
   private Duration streamReconnectBackoff = INITIAL_CHANNEL_RECONNECT_BACKOFF;
 
-  @Nullable private StreamObserver<StreamingPullRequest> requestObserver;
-  @Nullable private RequestContext ctx;
+  @Nullable private volatile StreamObserver<StreamingPullRequest> requestObserver;
+  @Nullable private volatile RequestContext ctx;
 
   private volatile boolean closed;
 
@@ -125,6 +125,7 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
     receivedMessages = registry.counter("subscriber-received-messages", tags);
     ackedMessages = registry.counter("subscriber-acked-messages", tags);
     nackedMessages = registry.counter("subscriber-nacked-messages", tags);
+    registry.gauge("reconnect-backoff-millis", tags, streamReconnectBackoff, Duration::toMillis);
 
     messageProcessingTime =
         MoreMeters.newTimer(registry, "subscriber-message-processing-time", tags);
@@ -169,6 +170,8 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
           .start(Timestamps.toMicros(message.getMessage().getPublishTime()))
           .finish();
 
+      StreamObserver<StreamingPullRequest> requestObserver = this.requestObserver;
+
       long startTimeNanos = System.nanoTime();
       options
           .getMessageReceiver()
@@ -201,7 +204,7 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
                 }
 
                 private void releaseAndRecord() {
-                  if (pendingAcks.decrementAndGet() == 0 && options.getUnsafeWrapBuffers()) {
+                  if (options.getUnsafeWrapBuffers() && pendingAcks.decrementAndGet() == 0) {
                     GrpcUnsafeBufferUtil.releaseBuffer(value, ctx);
                   }
 
@@ -252,8 +255,7 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
     requestObserver.onCompleted();
   }
 
-  // synchronized just to make sure requestObserver is written out for the event loop thread.
-  private synchronized void open() {
+  private void open() {
     // Reset in case this is a reconnect.
     ctx = null;
 
