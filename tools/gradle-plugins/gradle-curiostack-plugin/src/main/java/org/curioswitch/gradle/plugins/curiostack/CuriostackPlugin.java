@@ -90,6 +90,7 @@ import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolutionStrategy;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.artifacts.repositories.MavenRepositoryContentDescriptor;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.JavaLibraryPlugin;
@@ -420,11 +421,20 @@ public class CuriostackPlugin implements Plugin<Project> {
     project.getRepositories().gradlePluginPortal();
     project
         .getRepositories()
-        .maven(maven -> maven.setUrl("https://dl.bintray.com/curioswitch/curiostack"));
-    project.getRepositories().maven(maven -> maven.setUrl("https://dl.bintray.com/mockito/maven"));
+        .maven(maven -> {
+          maven.setUrl("https://dl.bintray.com/curioswitch/curiostack");
+          maven.mavenContent(MavenRepositoryContentDescriptor::releasesOnly);
+        });
+    project.getRepositories().maven(maven -> {
+      maven.setUrl("https://dl.bintray.com/mockito/maven");
+      maven.mavenContent(MavenRepositoryContentDescriptor::releasesOnly);
+    });
     project.getRepositories().mavenCentral();
     project.getRepositories().mavenLocal();
-    project.getRepositories().maven(maven -> maven.setUrl("https://oss.jfrog.org/libs-snapshot"));
+    project.getRepositories().maven(maven -> {
+      maven.setUrl("https://oss.jfrog.org/libs-snapshot");
+      maven.mavenContent(MavenRepositoryContentDescriptor::snapshotsOnly);
+    });
   }
 
   private static void setupJavaProject(
