@@ -31,8 +31,7 @@ import java.lang.annotation.Target;
 import javax.inject.Qualifier;
 
 /**
- * A {@link Qualifier} to use on {@link
- * java.util.function.Consumer<com.linecorp.armeria.common.HttpHeaders>} to indicate the provided
+ * A {@link Qualifier} to use on {@link java.util.function.Consumer} to indicate the provided
  * consumer should be used to sanitize request headers. The consumer will be provided a mutable
  * {@link com.linecorp.armeria.common.HttpHeaders} and should remove any headers that are not
  * appropriate for logging in request logs.
