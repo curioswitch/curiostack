@@ -114,7 +114,7 @@
   "workspaces": [
     "common/web/base-node-dev",
     "common/web/base-web",
-    "docs/codelabs",
+    "developer-portal",
     "eggworld/api/build/web",
     "eggworld/client/web",
     "tools/cloudbuild-github",

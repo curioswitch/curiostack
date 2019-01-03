@@ -1,9 +1,0 @@
-{
-  "name": "@curiostack/codelabs",
-  "version": "1.0.0",
-  "description": "CurioStack codelabs, for understanding how to use its technology.",
-  "license": "MIT",
-  "devDependencies": {
-    "firebase-tools": "6.2.2"
-  }
-}

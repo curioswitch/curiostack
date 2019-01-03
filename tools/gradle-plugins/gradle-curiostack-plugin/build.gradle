@@ -134,6 +134,10 @@ gradlePlugin {
             id = 'org.curioswitch.gradle-grpc-api-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.grpcapi.GrpcApiPlugin'
         }
+        node {
+            id = 'org.curioswitch.gradle-node-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.nodejs.NodePlugin'
+        }
         server {
             id = 'org.curioswitch.gradle-curio-server-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin'
