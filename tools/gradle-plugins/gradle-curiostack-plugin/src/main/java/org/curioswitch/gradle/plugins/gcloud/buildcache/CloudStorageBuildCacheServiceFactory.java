@@ -28,14 +28,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.linecorp.armeria.client.ClientFactoryBuilder;
 import com.linecorp.armeria.client.ClientOption;
 import com.linecorp.armeria.client.Clients;
 import com.linecorp.armeria.client.HttpClient;
-import com.linecorp.armeria.internal.TransportType;
-import io.netty.resolver.dns.DnsAddressResolverGroup;
-import io.netty.resolver.dns.DnsNameResolverBuilder;
-import io.netty.resolver.dns.DnsServerAddressStreamProviders;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.Optional;
@@ -73,16 +68,7 @@ public class CloudStorageBuildCacheServiceFactory
               + "./gradlew :gcloud_auth_application-default_login? Disabling build cache.");
       return new NoOpBuildCacheService();
     }
-    var clientFactory =
-        new ClientFactoryBuilder()
-            .addressResolverGroupFactory(
-                eventLoopGroup ->
-                    new DnsAddressResolverGroup(
-                        new DnsNameResolverBuilder()
-                            .channelType(TransportType.datagramChannelType(eventLoopGroup))
-                            .nameServerProvider(DnsServerAddressStreamProviders.platformDefault())
-                            .optResourceEnabled(false)))
-            .build();
+
     HttpClient googleApis = GcloudModule.googleApisClient(Optional.empty());
     AccessTokenProvider.Factory accessTokenProviderFactory =
         new AccessTokenProvider.Factory(googleApis, Clock.systemUTC());
