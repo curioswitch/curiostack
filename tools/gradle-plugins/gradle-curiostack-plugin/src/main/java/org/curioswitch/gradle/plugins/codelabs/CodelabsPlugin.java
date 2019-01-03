@@ -27,6 +27,7 @@ package org.curioswitch.gradle.plugins.codelabs;
 import org.curioswitch.gradle.plugins.codelabs.tasks.DownloadDepsTask;
 import org.curioswitch.gradle.plugins.codelabs.tasks.ExportDocsTask;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePlugin;
@@ -40,6 +41,7 @@ public class CodelabsPlugin implements Plugin<Project> {
     project.getPlugins().apply(BasePlugin.class);
     project.getPlugins().apply(NodePlugin.class);
 
+    var setupClaat = DownloadToolUtil.getSetupTask(project, "claat");
     var exportDocs =
         project
             .getTasks()
@@ -47,6 +49,8 @@ public class CodelabsPlugin implements Plugin<Project> {
                 "exportDocs",
                 ExportDocsTask.class,
                 t -> {
+                  t.dependsOn(setupClaat);
+
                   var mdFileTree = project.fileTree("src");
                   mdFileTree.exclude("build").include("**/*.md");
 
@@ -61,6 +65,8 @@ public class CodelabsPlugin implements Plugin<Project> {
                 "downloadDeps",
                 DownloadDepsTask.class,
                 t -> {
+                  t.dependsOn(setupClaat);
+
                   t.getDepsVersion().set(1);
                   t.getOutputDir().set(project.file("build/deps"));
                 });
