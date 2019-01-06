@@ -73,6 +73,7 @@ public class CodelabsSetupPlugin implements Plugin<Project> {
                             if (file.getName().endsWith(".exe")) {
                               filename += ".exe";
                             }
+                            file.setExecutable(true);
                             try {
                               Files.move(file.toPath(), toolDir.resolve(filename));
                             } catch (IOException e) {
