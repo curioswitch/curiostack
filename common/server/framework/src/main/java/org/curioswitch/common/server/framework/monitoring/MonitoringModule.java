@@ -24,7 +24,6 @@
 package org.curioswitch.common.server.framework.monitoring;
 
 import brave.Tracing;
-import brave.sampler.Sampler;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jvm.BufferPoolMetricSet;
@@ -109,7 +108,7 @@ public abstract class MonitoringModule {
             .supportsJoin(false)
             .propagationFactory(StackdriverTracePropagation.FACTORY)
             .currentTraceContext(RequestContextCurrentTraceContext.DEFAULT)
-            .sampler(Sampler.ALWAYS_SAMPLE);
+            .sampler(new CountingSampler(config.getTraceSamplingRate()));
     if (config.isReportTraces()) {
       builder.spanReporter(reporter.get());
     }
