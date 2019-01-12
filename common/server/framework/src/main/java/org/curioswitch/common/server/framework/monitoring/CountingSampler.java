@@ -25,10 +25,10 @@
 package org.curioswitch.common.server.framework.monitoring;
 
 import brave.sampler.Sampler;
-import com.google.common.math.LongMath;
+import com.google.common.math.IntMath;
 import java.util.BitSet;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A {@link Sampler} which samples traces at a given sample rate. Unlike the upstream sampler,
@@ -50,12 +50,12 @@ class CountingSampler extends Sampler {
     return new CountingSampler(rate);
   }
 
-  private final AtomicLong counter;
+  private final AtomicInteger counter;
   private final int numBuckets;
   private final BitSet sampleDecisions;
 
   CountingSampler(float samplingRate) {
-    counter = new AtomicLong();
+    counter = new AtomicInteger();
 
     numBuckets = numBuckets(samplingRate);
     int numFilledBuckets = (int) (samplingRate * numBuckets);
@@ -68,7 +68,7 @@ class CountingSampler extends Sampler {
     // It's highly unlikely the total number of sampling decisions would reach the limit of a Long,
     // but if it did it would wrap to a negative number but the mod will remain positive and
     // will continue to cycle through decisions.
-    return sampleDecisions.get((int) (LongMath.mod(counter.getAndIncrement(), numBuckets)));
+    return sampleDecisions.get((IntMath.mod(counter.getAndIncrement(), numBuckets)));
   }
 
   private static int numBuckets(float samplingRate) {
