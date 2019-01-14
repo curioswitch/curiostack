@@ -421,7 +421,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.immutables")
-              .version("2.7.4")
+              .version("2.7.5")
               .addModules("builder", "value", "value-annotations")
               .build(),
           ImmutableDependencySet.builder()
@@ -473,7 +473,7 @@ public class StandardDependencies {
 
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:4.2.0",
+          "com.bmuschko:gradle-docker-plugin:4.3.0",
           "com.diffplug.spotless:spotless-plugin-gradle:3.17.0",
           "com.github.ben-manes:gradle-versions-plugin:0.20.0",
           "com.google.gradle:osdetector-gradle-plugin:1.6.1",
