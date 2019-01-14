@@ -13744,7 +13744,7 @@ sum-up@^1.0.1:
   dependencies:
     chalk "^1.0.0"
 
-superstatic@^6.0.1:
+superstatic@6.0.4, superstatic@^6.0.1:
   version "6.0.4"
   resolved "https://registry.yarnpkg.com/superstatic/-/superstatic-6.0.4.tgz#5c38fe05e2e9513b68d5ba2798925e4839c151dd"
   integrity sha512-Nfli9mSPa9fJloKuDeUOdqC1lcw4c4SnxiWPB8s7Yn1iYo7Ja3pj7qc8AXMqHVqn/Kf7QsxBjAeOJTpuJ0mcrQ==

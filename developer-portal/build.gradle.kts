@@ -41,9 +41,19 @@ tasks {
         }
     }
 
+    val assemble = named("assemble") {
+        dependsOn(mergeSite);
+    }
+
     val deploy by registering(NodeTask::class) {
-        dependsOn(rootProject.tasks.named("yarn"), mergeSite)
+        dependsOn(rootProject.tasks.named("yarn"), assemble)
 
         args("run", "firebase", "deploy")
+    }
+
+    val preview by registering(NodeTask::class) {
+        dependsOn(rootProject.tasks.named("yarn"), assemble)
+
+        args("run", "superstatic", "--port=8080")
     }
 }
