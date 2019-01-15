@@ -108,7 +108,7 @@ public abstract class MonitoringModule {
             .supportsJoin(false)
             .propagationFactory(StackdriverTracePropagation.FACTORY)
             .currentTraceContext(RequestContextCurrentTraceContext.DEFAULT)
-            .sampler(new CountingSampler(config.getTraceSamplingRate()));
+            .sampler(new CountingSampler((float) config.getTraceSamplingRate()));
     if (config.isReportTraces()) {
       builder.spanReporter(reporter.get());
     }

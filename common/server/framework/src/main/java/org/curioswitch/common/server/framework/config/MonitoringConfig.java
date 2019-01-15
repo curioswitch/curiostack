@@ -50,5 +50,5 @@ public interface MonitoringConfig {
   Duration getTraceReportInterval();
 
   /** The sampling rate for traces. 1.0 means all traces are sampled. */
-  float getTraceSamplingRate();
+  double getTraceSamplingRate();
 }

@@ -31,15 +31,15 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A {@link Sampler} which samples traces at a given sample rate. Unlike the upstream sampler,
- * this supports smaller sampling rates down to 0.000001 and does not use synchronization. The
- * smaller the sampling rate, the more memory will be used, with a maximum of 128K (1 million bits).
+ * A {@link Sampler} which samples traces at a given sample rate. Unlike the upstream sampler, this
+ * supports smaller sampling rates down to 0.000001 and does not use synchronization. The smaller
+ * the sampling rate, the more memory will be used, with a maximum of 128K (1 million bits).
  */
 class CountingSampler extends Sampler {
 
   /**
    * @param rate 0 means never sample, 1 means always sample. Otherwise minimum sample rate is 0.01,
-   * or 1% of traces
+   *     or 1% of traces
    */
   public static Sampler create(final float rate) {
     if (rate == 0) return NEVER_SAMPLE;
@@ -68,7 +68,7 @@ class CountingSampler extends Sampler {
     // It's highly unlikely the total number of sampling decisions would reach the limit of a Long,
     // but if it did it would wrap to a negative number but the mod will remain positive and
     // will continue to cycle through decisions.
-    return sampleDecisions.get((IntMath.mod(counter.getAndIncrement(), numBuckets)));
+    return sampleDecisions.get(IntMath.mod(counter.getAndIncrement(), numBuckets));
   }
 
   private static int numBuckets(float samplingRate) {
@@ -88,7 +88,7 @@ class CountingSampler extends Sampler {
   /**
    * Reservoir sampling algorithm borrowed from Stack Overflow.
    *
-   * http://stackoverflow.com/questions/12817946/generate-a-random-bitset-with-n-1s
+   * <p>http://stackoverflow.com/questions/12817946/generate-a-random-bitset-with-n-1s
    */
   private static BitSet randomBitSet(int size, int cardinality, Random rnd) {
     BitSet result = new BitSet(size);

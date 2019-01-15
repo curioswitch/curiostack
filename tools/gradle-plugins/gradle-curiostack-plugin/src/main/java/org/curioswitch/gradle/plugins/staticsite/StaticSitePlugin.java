@@ -39,29 +39,44 @@ public class StaticSitePlugin implements Plugin<Project> {
 
     var config = StaticSiteExtension.create(project);
 
-    var mergeSite = project.getTasks().register("mergeSite", Copy.class, t -> {
-      t.from("src");
-      t.into("build/site");
+    var mergeSite =
+        project
+            .getTasks()
+            .register(
+                "mergeSite",
+                Copy.class,
+                t -> {
+                  t.from("src");
+                  t.into("build/site");
 
-      for (SiteProject site : config.getSites().get()) {
-        t.dependsOn(site.getProject().getTasks().named("assemble"));
-        t.from(site.getBuildDir(), copy -> copy.into(site.getOutputSubDir()));
-      }
-    });
+                  for (SiteProject site : config.getSites().get()) {
+                    t.dependsOn(site.getProject().getTasks().named("assemble"));
+                    t.from(site.getBuildDir(), copy -> copy.into(site.getOutputSubDir()));
+                  }
+                });
 
     var assemble = project.getTasks().named("assemble");
     assemble.configure(t -> t.dependsOn(mergeSite));
 
     var yarn = project.getRootProject().getTasks().named("yarn");
-    project.getTasks().register("deploy", NodeTask.class, t -> {
-      t.dependsOn(yarn, assemble);
-      t.args("run", "firebase", "deploy");
-    });
+    project
+        .getTasks()
+        .register(
+            "deploy",
+            NodeTask.class,
+            t -> {
+              t.dependsOn(yarn, assemble);
+              t.args("run", "firebase", "deploy");
+            });
 
-
-    project.getTasks().register("preview", NodeTask.class, t -> {
-      t.dependsOn(yarn, assemble);
-      t.args("run", "superstatic", "--port=8080");
-    });
+    project
+        .getTasks()
+        .register(
+            "preview",
+            NodeTask.class,
+            t -> {
+              t.dependsOn(yarn, assemble);
+              t.args("run", "superstatic", "--port=8080");
+            });
   }
 }
