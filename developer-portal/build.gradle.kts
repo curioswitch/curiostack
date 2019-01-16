@@ -22,28 +22,10 @@
  * SOFTWARE.
  */
 
-import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask
-
 plugins {
-    id("org.curioswitch.gradle-node-plugin")
+    id("org.curioswitch.gradle-curio-static-site-plugin")
 }
 
-tasks {
-    val mergeSite by registering(Copy::class) {
-        dependsOn(project(":docs:codelabs").tasks.named("assemble"))
-
-        into("build/site")
-
-        from("index.html")
-
-        from(project(":docs:codelabs").file("build/site")) {
-            into("codelabs")
-        }
-    }
-
-    val deploy by registering(NodeTask::class) {
-        dependsOn(rootProject.tasks.named("yarn"), mergeSite)
-
-        args("run", "firebase", "deploy")
-    }
+staticSite {
+    site(project(":docs:codelabs"), "codelabs")
 }

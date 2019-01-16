@@ -1,6 +1,14 @@
 # curiostack
 Full stack to help satisfy curiosity
 
+## Developer resources
+
+Developers should start at our developer portal, [https://developers.curioswitch.org](https://developers.curioswitch.org).
+The content is still light, but the codelabs should help get started with concepts quickly.
+
+Also until the coverage of the codelabs goes up, it is also important to go through this `README` and
+maybe even some of the code to understand what's available. 
+
 ## Company Resources
 
 Looking for guidelines and documents outlining best practices for designing a company, not just the
