@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.common.testing.assertj;
 
 import com.google.common.util.concurrent.ListenableFuture;
