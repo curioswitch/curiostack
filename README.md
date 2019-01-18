@@ -1,5 +1,5 @@
 # curiostack
-Full stack to help satisfy curiosity
+Very full stack to help satisfy curiosity
 
 ## Developer resources
 
