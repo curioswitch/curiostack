@@ -72,11 +72,11 @@ dependencies {
     compile 'com.github.ben-manes:gradle-versions-plugin'
     compile 'com.google.auth:google-auth-library-oauth2-http'
     compile 'com.google.guava:guava'
-    compile 'com.hubspot.jinjava:jinjava:2.4.12'
+    compile 'com.hubspot.jinjava:jinjava'
     compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin'
     compile 'com.palantir:gradle-baseline-java'
     compile 'gradle.plugin.com.boxfuse.client:gradle-plugin-publishing'
-    compile 'gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.0.0-rc1'
+    compile 'gradle.plugin.com.google.cloud.tools:jib-gradle-plugin'
     compile 'gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties'
     compile 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin'
     compile 'io.fabric8:kubernetes-client'
@@ -141,6 +141,10 @@ gradlePlugin {
         server {
             id = 'org.curioswitch.gradle-curio-server-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin'
+        }
+        staticSite {
+            id = 'org.curioswitch.gradle-curio-static-site-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.staticsite.StaticSitePlugin'
         }
         terraform {
             id = 'org.curioswitch.gradle-terraform-plugin'

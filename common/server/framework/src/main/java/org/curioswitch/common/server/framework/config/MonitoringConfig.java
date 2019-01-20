@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -48,4 +48,7 @@ public interface MonitoringConfig {
 
   /** The interval for reporting traces. */
   Duration getTraceReportInterval();
+
+  /** The sampling rate for traces. 1.0 means all traces are sampled. */
+  double getTraceSamplingRate();
 }
