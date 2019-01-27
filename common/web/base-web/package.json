@@ -27,6 +27,12 @@
     "lint": "tslint --project tsconfig.json"
   },
   "dependencies": {
+    "@storybook/addon-actions": "4.1.11",
+    "@storybook/addon-backgrounds": "4.1.11",
+    "@storybook/addon-links": "4.1.11",
+    "@storybook/addon-options": "4.1.11",
+    "@storybook/addon-viewport": "4.1.11",
+    "@storybook/react": "4.1.11",
     "@babel/core": "7.2.2",
     "@babel/plugin-proposal-async-generator-functions": "7.2.0",
     "@babel/plugin-proposal-class-properties": "7.3.0",
@@ -58,6 +64,10 @@
     "@types/react-router-dom": "4.3.1",
     "@types/react-router-redux": "5.0.17",
     "@types/redux-immutable": "4.0.1",
+    "@types/storybook__addon-actions": "3.4.1",
+    "@types/storybook__addon-backgrounds": "4.1.0",
+    "@types/storybook__addon-options": "4.0.0",
+    "@types/storybook__react": "4.0.0",
     "@types/styled-components": "4.1.6",
     "@types/webpack-env": "1.13.6",
     "babel-core": "7.0.0-bridge.0",
