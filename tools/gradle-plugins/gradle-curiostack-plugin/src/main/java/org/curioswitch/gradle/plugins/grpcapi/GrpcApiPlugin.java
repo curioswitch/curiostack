@@ -40,6 +40,7 @@ import org.curioswitch.gradle.protobuf.ProtobufExtension;
 import org.curioswitch.gradle.protobuf.ProtobufPlugin;
 import org.curioswitch.gradle.protobuf.tasks.GenerateProtoTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePluginConvention;
@@ -140,7 +141,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
             protobuf
                 .getLanguages()
                 .register(
-                    "ts",
+                    "grpc-web",
                     language -> {
                       language
                           .getPlugin()
@@ -148,9 +149,11 @@ public class GrpcApiPlugin implements Plugin<Project> {
                           .set(
                               project.file(
                                   DownloadedToolManager.get(project)
-                                      .getBinDir("node")
-                                      .resolve("protoc-gen-ts" + (IS_WINDOWS ? ".cmd" : ""))));
-                      language.option("service=true");
+                                      .getToolDir("protoc-gen-grpc-web")
+                                      .resolve(
+                                          "protoc-gen-grpc-web" + (IS_WINDOWS ? ".exe" : ""))));
+                      language.option("import_style=typescript");
+                      language.option("mode=grpcweb");
                       language.getOutputDir().set(project.file("build/webprotos"));
                     });
             project
@@ -169,8 +172,8 @@ public class GrpcApiPlugin implements Plugin<Project> {
           ImmutableGrpcExtension config = project.getExtensions().getByType(GrpcExtension.class);
 
           if (config.web()) {
-            var installTsProtocGen =
-                project.getRootProject().getTasks().named("installTsProtocGen");
+            var installProtocGenGrpcWeb =
+                DownloadToolUtil.getSetupTask(project, "protoc-gen-grpc-web");
 
             var packageWeb =
                 project
@@ -183,7 +186,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
             project
                 .getTasks()
                 .named("generateProto")
-                .configure(t -> t.dependsOn(installTsProtocGen).finalizedBy(packageWeb));
+                .configure(t -> t.dependsOn(installProtocGenGrpcWeb).finalizedBy(packageWeb));
 
             // Unclear why sometimes compileTestJava fails with "no source files" instead of being
             // skipped (usually when activating web), but it's not that hard to at least check the

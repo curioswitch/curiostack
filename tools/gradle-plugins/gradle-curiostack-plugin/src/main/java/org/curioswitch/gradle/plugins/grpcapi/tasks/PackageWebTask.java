@@ -44,7 +44,7 @@ public class PackageWebTask extends DefaultTask {
 
   private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.9";
   private static final String GOOGLE_PROTOBUF_VERSION = "3.6.1";
-  private static final String GRPC_WEB_CLIENT_VERSION = "0.6.3";
+  private static final String GRPC_WEB_VERSION = "1.0.3";
   private static final String TYPES_GOOGLE_PROTOBUF_VERSION = "3.2.7";
 
   @Input
@@ -57,7 +57,7 @@ public class PackageWebTask extends DefaultTask {
     return ImmutableList.of(
         CURIOSTACK_BASE_NODE_DEV_VERSION,
         GOOGLE_PROTOBUF_VERSION,
-        GRPC_WEB_CLIENT_VERSION,
+        GRPC_WEB_VERSION,
         TYPES_GOOGLE_PROTOBUF_VERSION);
   }
 
@@ -90,7 +90,7 @@ public class PackageWebTask extends DefaultTask {
             .replaceFirst("\\|PACKAGE_NAME\\|", packageName)
             .replaceFirst("\\|TYPES_GOOGLE_PROTOBUF_VERSION\\|", TYPES_GOOGLE_PROTOBUF_VERSION)
             .replaceFirst("\\|GOOGLE_PROTOBUF_VERSION\\|", GOOGLE_PROTOBUF_VERSION)
-            .replaceFirst("\\|GRPC_WEB_CLIENT_VERSION\\|", GRPC_WEB_CLIENT_VERSION)
+            .replaceFirst("\\|GRPC_WEB_VERSION\\|", GRPC_WEB_VERSION)
             .replaceFirst(
                 "\\|CURIOSTACK_BASE_NODE_DEV_VERSION\\|", CURIOSTACK_BASE_NODE_DEV_VERSION));
 

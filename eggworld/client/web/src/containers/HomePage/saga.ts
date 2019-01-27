@@ -24,7 +24,6 @@
 
 import { takeLatest } from '@curiostack/base-web';
 
-import { grpc } from 'grpc-web-client';
 import { all, AllEffect, call, put, select } from 'redux-saga/effects';
 
 import {
@@ -33,41 +32,30 @@ import {
   FindRecipeRequest,
   FindRecipeResponse,
 } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb';
-import { EggworldService } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb_service';
+import { EggworldServiceClient } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-serviceServiceClientPb';
 
 import { Actions, ActionTypes } from './actions';
 
 import selectHomePage from './selectors';
 
-async function execute(method: any, request: any) {
-  return new Promise((resolve: (param: any) => void, reject) =>
-    grpc.unary(method, {
-      request,
-      host: '/api',
-      onEnd: (response) => {
-        if (response.status !== grpc.Code.OK) {
-          reject(
-            new Error(
-              `Error communicating with API. grpc-status: ${
-                response.status
-              } grpc-message: ${response.statusMessage}`,
-            ),
-          );
-        } else {
-          resolve(response.message);
-        }
-      },
-    }),
-  );
-}
+const client = new EggworldServiceClient('/api', null, null);
 
 function* doCheckIngredients({
   payload: ingredients,
 }: ReturnType<typeof Actions.checkIngredients>) {
   const request = new CheckIngredientsRequest();
   request.setSelectedIngredientList(ingredients);
-  const response: CheckIngredientsResponse = yield call(() =>
-    execute(EggworldService.CheckIngredients, request),
+  const response: CheckIngredientsResponse = yield call(
+    () =>
+      new Promise((resolve, reject) =>
+        client.checkIngredients(request, {}, (err, resp) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(resp);
+          }
+        }),
+      ),
   );
   yield put(Actions.checkIngredientsResponse(response));
 }
@@ -76,8 +64,17 @@ function* doCook() {
   const state = yield select(selectHomePage);
   const request = new FindRecipeRequest();
   request.setIngredientList(state.eatenFood);
-  const response: FindRecipeResponse = yield call(() =>
-    execute(EggworldService.FindRecipe, request),
+  const response: FindRecipeResponse = yield call(
+    () =>
+      new Promise((resolve, reject) =>
+        client.findRecipe(request, {}, (err, resp) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(resp);
+          }
+        }),
+      ),
   );
   yield put(Actions.cookResponse(response.getRecipeUrl()));
 }

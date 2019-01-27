@@ -67,12 +67,12 @@ function findLicenseHeader() {
       const lineEnd = licenseFile.indexOf('\r\n') < 0 ? '\n' : '\r\n';
       return `/*
 ${licenseFile
-        .split(lineEnd)
-        .map((line) => ` ${line ? `* ${line}` : '*'}`)
-        // We force all files in this repository to LF, so the published templates should be LF on
-        // either Unix or Windows. If this causes problems on Windows, we'll need to post-filter
-        // all generated files with line-ending fix.
-        .join('\n')}
+  .split(lineEnd)
+  .map((line) => ` ${line ? `* ${line}` : '*'}`)
+  // We force all files in this repository to LF, so the published templates should be LF on
+  // either Unix or Windows. If this causes problems on Windows, we'll need to post-filter
+  // all generated files with line-ending fix.
+  .join('\n')}
  */
 
 `;
