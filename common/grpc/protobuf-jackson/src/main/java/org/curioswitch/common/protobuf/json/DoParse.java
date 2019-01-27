@@ -236,8 +236,10 @@ final class DoParse implements ByteCodeAppender, Implementation {
 
     Map<String, FieldDescription> fieldsByName = CodeGenUtil.fieldsByName(implementationContext);
 
+    List<FieldDescriptor> sortedFields = CodeGenUtil.sorted(descriptor.getFields());
+
     // Fields stored in order of number, so to get the highest number we take the last field.
-    FieldDescriptor lastField = Iterables.getLast(descriptor.getFields(), null);
+    FieldDescriptor lastField = Iterables.getLast(sortedFields, null);
     // Field numbers are 1 or greater so we will allocate the same size as the last field number
     // and subtract 1 when keeping track.
     int lastFieldNumber = lastField != null ? lastField.getNumber() : 0;
@@ -309,7 +311,7 @@ final class DoParse implements ByteCodeAppender, Implementation {
             Parser_getCurrentName,
             locals.store(LocalVariable.fieldName)));
 
-    for (FieldDescriptor f : descriptor.getFields()) {
+    for (FieldDescriptor f : sortedFields) {
       Label afterNameCheck = new Label();
       Label afterField = new Label();
       ProtoFieldInfo field = new ProtoFieldInfo(f, prototype);

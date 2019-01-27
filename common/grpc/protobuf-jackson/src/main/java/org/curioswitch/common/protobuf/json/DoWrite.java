@@ -329,7 +329,7 @@ final class DoWrite implements ByteCodeAppender, Implementation {
 
     // We output serialization code for each field, with an accompanying presence-check if-statement
     // based on the includeDefaults parameter.
-    for (FieldDescriptor f : descriptor.getFields()) {
+    for (FieldDescriptor f : CodeGenUtil.sorted(descriptor.getFields())) {
       ProtoFieldInfo field = new ProtoFieldInfo(f, prototype);
 
       StackManipulation getValue =

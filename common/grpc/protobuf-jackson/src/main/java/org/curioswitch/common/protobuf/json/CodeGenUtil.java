@@ -23,9 +23,13 @@
  */
 package org.curioswitch.common.protobuf.json;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.Descriptors.Descriptor;
+import com.google.protobuf.Descriptors.FieldDescriptor;
 import java.lang.reflect.Method;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import net.bytebuddy.description.field.FieldDescription;
 import net.bytebuddy.description.method.MethodDescription;
@@ -38,6 +42,21 @@ import net.bytebuddy.implementation.bytecode.member.MethodInvocation;
  * buddy builder and the generated instrumentation.
  */
 final class CodeGenUtil {
+
+  /**
+   * Returns the fields sorted in order of field number. By default, they are sorted in order of
+   * definition in the proto file.
+   */
+  static List<FieldDescriptor> sorted(List<FieldDescriptor> fields) {
+    return ImmutableList.sortedCopyOf(
+        new Comparator<FieldDescriptor>() {
+          @Override
+          public int compare(FieldDescriptor o1, FieldDescriptor o2) {
+            return Integer.compare(o1.getNumber(), o2.getNumber());
+          }
+        },
+        fields);
+  }
 
   /**
    * Returns the name of the java field storing a {@link TypeSpecificMarshaller} for the given

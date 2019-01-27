@@ -56,6 +56,7 @@ import com.google.protobuf.util.JsonTestProto.TestAny;
 import com.google.protobuf.util.JsonTestProto.TestCustomJsonName;
 import com.google.protobuf.util.JsonTestProto.TestDuration;
 import com.google.protobuf.util.JsonTestProto.TestFieldMask;
+import com.google.protobuf.util.JsonTestProto.TestFieldOrder;
 import com.google.protobuf.util.JsonTestProto.TestMap;
 import com.google.protobuf.util.JsonTestProto.TestOneof;
 import com.google.protobuf.util.JsonTestProto.TestRecursive;
@@ -768,6 +769,11 @@ public class MessageMarshallerTest {
   @Test
   public void protoFieldAlreadyCamelCase() throws Exception {
     assertMatchesUpstream(TestRegression.newBuilder().addFeedIds(1).build());
+  }
+
+  @Test
+  public void fieldsOutOfOrder() throws Exception {
+    assertMatchesUpstream(TestFieldOrder.newBuilder().setValue1("foo").setValue2("bar").build());
   }
 
   private static String recursiveJson(int numRecursions) {

@@ -204,3 +204,9 @@ message TestRegression {
   // https://github.com/curioswitch/curiostack/issues/7
   repeated int64 feedIds = 1;
 }
+
+message TestFieldOrder {
+  string value2 = 300;
+
+  string value1 = 1;
+}

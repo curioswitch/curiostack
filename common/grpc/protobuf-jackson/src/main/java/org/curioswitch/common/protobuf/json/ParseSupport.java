@@ -74,8 +74,6 @@ public final class ParseSupport {
    * Returns whether the {@link JsonToken} is '}'. This is the terminating condition when iterating
    * over fields in a JSON object. Does not advance the token as if it's not the end, it means it's
    * a field and needs to be parsed, not skipped.
-   *
-   * @param token
    */
   public static boolean checkObjectEnd(JsonToken token) {
     return token == JsonToken.END_OBJECT;
