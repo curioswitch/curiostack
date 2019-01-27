@@ -61,7 +61,7 @@ async function run() {
 
   const storybookConfigDir = path.resolve(process.cwd(), '.storybook');
   if (fs.existsSync(storybookConfigDir)) {
-    storybook({
+    await storybook({
       mode: 'static',
       configDir: storybookConfigDir,
       outputDir: path.resolve(process.cwd(), 'build', 'storybook'),

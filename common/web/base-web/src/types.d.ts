@@ -25,13 +25,9 @@
 // tslint:disable:max-classes-per-file
 
 // TODO(choko): Figure out why @types/intl isn't enough.
-declare module 'intl' {
+declare module 'intl' {}
 
-}
-
-declare module 'intl/locale-data/jsonp/*.js' {
-
-}
+declare module 'intl/locale-data/jsonp/*.js' {}
 
 declare module '*.json' {
   const value: {
@@ -51,7 +47,7 @@ declare module '@storybook/react/standalone' {
     configDir: string;
     outputDir: string;
   }
-  function storybook(options: DevOptions | StaticOptions);
+  function storybook(options: DevOptions | StaticOptions): Promise<any>;
   export = storybook;
 }
 
@@ -90,9 +86,7 @@ declare module 'brotli-webpack-plugin' {
   export = BrotliPlugin;
 }
 
-declare module 'koa-proxies' {
-
-}
+declare module 'koa-proxies' {}
 
 declare module 'webapp-webpack-plugin' {
   import { Plugin } from 'webpack';
