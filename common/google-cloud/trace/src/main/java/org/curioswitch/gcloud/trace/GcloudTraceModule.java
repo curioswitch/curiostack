@@ -23,7 +23,7 @@
  */
 package org.curioswitch.gcloud.trace;
 
-import com.google.devtools.cloudtrace.v1.TraceServiceGrpc.TraceServiceFutureStub;
+import com.google.devtools.cloudtrace.v2.TraceServiceGrpc.TraceServiceFutureStub;
 import dagger.Module;
 import dagger.Provides;
 import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;

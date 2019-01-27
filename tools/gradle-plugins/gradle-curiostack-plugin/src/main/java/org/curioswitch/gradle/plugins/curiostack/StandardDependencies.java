@@ -127,6 +127,11 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.api.grpc")
+              .version("0.44.0")
+              .addModules("grpc-google-cloud-trace-v2")
+              .build(),
+          ImmutableDependencySet.builder()
+              .group("com.google.api.grpc")
               .version("1.43.0")
               .addModules("grpc-google-cloud-pubsub-v1")
               .build(),

@@ -22,12 +22,12 @@
  * SOFTWARE.
  */
 
+import { ConnectedRouter } from 'connected-react-router';
 import { createBrowserHistory, History } from 'history';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Loadable from 'react-loadable';
 import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'react-router-redux';
 import { Store } from 'redux';
 import { ThemeProvider } from 'styled-components';
 
