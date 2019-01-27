@@ -23,9 +23,11 @@
  * SOFTWARE.
  */
 
+import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 
+import storybook from '@storybook/react/standalone';
 import rimraf from 'rimraf';
 import { Configuration } from 'webpack';
 import saneWebpack from 'webpack-sane-compiler';
@@ -55,6 +57,15 @@ async function run() {
     if (result.stats.hasErrors()) {
       throw new Error();
     }
+  }
+
+  const storybookConfigDir = path.resolve(process.cwd(), '.storybook');
+  if (fs.existsSync(storybookConfigDir)) {
+    storybook({
+      mode: 'static',
+      configDir: storybookConfigDir,
+      outputDir: path.resolve(process.cwd(), 'build', 'storybook'),
+    });
   }
 }
 

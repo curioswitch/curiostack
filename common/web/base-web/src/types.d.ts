@@ -40,6 +40,21 @@ declare module '*.json' {
   export = value;
 }
 
+declare module '@storybook/react/standalone' {
+  interface DevOptions {
+    mode: 'dev';
+    port: number;
+    configDir: string;
+  }
+  interface StaticOptions {
+    mode: 'static';
+    configDir: string;
+    outputDir: string;
+  }
+  function storybook(options: DevOptions | StaticOptions);
+  export = storybook;
+}
+
 declare module 'autodll-webpack-plugin' {
   import { Plugin } from 'webpack';
   interface Entry {
