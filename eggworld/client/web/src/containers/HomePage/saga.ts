@@ -24,7 +24,7 @@
 
 import { takeLatest } from '@curiostack/base-web';
 
-import { all, AllEffect, call, put, select } from 'redux-saga/effects';
+import { all, call, put, select } from 'redux-saga/effects';
 
 import {
   CheckIngredientsRequest,
@@ -80,7 +80,7 @@ function* doCook() {
 }
 
 // Individual exports for testing
-export default function* rootSaga(): IterableIterator<AllEffect> {
+export default function* rootSaga() {
   yield all([
     takeLatest(ActionTypes.CHECK_INGREDIENTS, doCheckIngredients),
     takeLatest(ActionTypes.COOK, doCook),
