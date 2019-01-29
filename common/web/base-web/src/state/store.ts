@@ -136,7 +136,7 @@ export default function configureStore<S extends object>(
   store.nonInjectedReducers = nonInjectedReducers;
   store.injectedReducers = {}; // Reducer registry
   store.injectedSagas = {}; // Saga registry
-  store.initialState = initialState;
+  store.initialState = globalInitialState;
   // Make reducers hot reloadable, see http://mxs.is/googmo
   /* istanbul ignore next */
   if (module.hot) {
