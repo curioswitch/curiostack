@@ -64,7 +64,7 @@ async function run() {
     await storybook({
       mode: 'static',
       configDir: storybookConfigDir,
-      outputDir: path.resolve(process.cwd(), 'build', 'storybook'),
+      outputDir: './build/storybook',
     });
   }
 }

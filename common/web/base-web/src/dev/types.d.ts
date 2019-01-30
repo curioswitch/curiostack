@@ -24,6 +24,21 @@
 
 // tslint:disable:max-classes-per-file
 
+declare module '@storybook/react/standalone' {
+  interface DevOptions {
+    mode: 'dev';
+    port: number;
+    configDir: string;
+  }
+  interface StaticOptions {
+    mode: 'static';
+    configDir: string;
+    outputDir: string;
+  }
+  function storybook(options: DevOptions | StaticOptions): Promise<any>;
+  export = storybook;
+}
+
 // TODO(choko): Figure out why @types/intl isn't enough.
 declare module 'intl' {
 

@@ -152,7 +152,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
                                       .getToolDir("protoc-gen-grpc-web")
                                       .resolve(
                                           "protoc-gen-grpc-web" + (IS_WINDOWS ? ".exe" : ""))));
-                      language.option("import_style=typescript");
+                      language.option("import_style=commonjs+dts");
                       language.option("mode=grpcweb");
                       language.getOutputDir().set(project.file("build/webprotos"));
                     });

@@ -98,7 +98,14 @@ public class StandardDependencies {
           ImmutableDependencySet.builder()
               .group("com.fasterxml.jackson.core")
               .version(JACKSON_VERSION)
-              .addModules("jackson-annotations", "jackson-core", "jackson-databind")
+              .addModules(
+                  "jackson-annotations",
+                  "jackson-core",
+                  "jackson-databind",
+                  "jackson-dataformat-xml",
+                  "jackson-dataformat-yaml",
+                  "jackson-datatype-guava",
+                  "jackson-datatype-jsr310")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.fasterxml.jackson.dataformat")
@@ -396,7 +403,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.32")
+              .version("0.0.33")
               .addModules(
                   "armeria-google-cloud-core",
                   "armeria-google-cloud-iam",
@@ -406,7 +413,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.curioswitch.curiostack")
-              .version("0.0.100")
+              .version("0.0.101")
               .addModules("curio-server-framework")
               .build(),
           ImmutableDependencySet.builder()

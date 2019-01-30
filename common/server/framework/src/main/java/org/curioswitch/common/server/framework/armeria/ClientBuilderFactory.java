@@ -42,11 +42,15 @@ import com.linecorp.armeria.client.tracing.HttpTracingClient;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.SessionProtocol;
+import com.linecorp.armeria.internal.TransportType;
 import dagger.Lazy;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import io.netty.resolver.dns.DnsAddressResolverGroup;
+import io.netty.resolver.dns.DnsNameResolverBuilder;
+import io.netty.resolver.dns.DnsServerAddressStreamProviders;
 import java.net.URI;
 import java.time.Duration;
 import java.util.Optional;
@@ -139,11 +143,20 @@ public class ClientBuilderFactory {
     } else {
       clientTlsCustomizer = clientCertificateCustomizer;
     }
-    clientFactory =
+    ClientFactoryBuilder factoryBuilder =
         new ClientFactoryBuilder()
             .sslContextCustomizer(clientTlsCustomizer)
-            .meterRegistry(meterRegistry)
-            .build();
+            .meterRegistry(meterRegistry);
+    if (serverConfig.getDisableEdns()) {
+      factoryBuilder.addressResolverGroupFactory(
+          eventLoopGroup ->
+              new DnsAddressResolverGroup(
+                  new DnsNameResolverBuilder()
+                      .channelType(TransportType.datagramChannelType(eventLoopGroup))
+                      .nameServerProvider(DnsServerAddressStreamProviders.platformDefault())
+                      .optResourceEnabled(false)));
+    }
+    clientFactory = factoryBuilder.build();
   }
 
   public ClientBuilder create(String name, String url) {

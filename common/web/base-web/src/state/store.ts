@@ -26,7 +26,10 @@
  * Create the store with asynchronously loaded reducers
  */
 
-import { connectRouter, routerMiddleware } from 'connected-react-router';
+import {
+  connectRouter,
+  routerMiddleware,
+} from 'connected-react-router/immutable';
 import { History } from 'history';
 import { Record } from 'immutable';
 import {

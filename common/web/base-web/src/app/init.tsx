@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import { ConnectedRouter } from 'connected-react-router';
+import { ConnectedRouter } from 'connected-react-router/immutable';
 import { createBrowserHistory, History } from 'history';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -77,7 +77,7 @@ export default function init(config: WebappConfig) {
         initialState[key] = languageProviderInitialState.merge(
           preloadedState[key],
         );
-      } else if (key === 'route') {
+      } else if (key === 'router') {
         initialState[key] = routeInitialState.merge(preloadedState[key]);
       } else if (initialState[key] && initialState[key].mergeDeep) {
         initialState[key] = initialState[key].mergeDeep(preloadedState[key]);
