@@ -48,6 +48,4 @@ RUN ["/busybox/sh", "-c", "ln -s /usr/lib/jvm/java-11-openjdk-amd64/bin/java /us
 COPY --from=debian /opt/cprof /opt/cprof
 COPY --from=debian /opt/cdbg /opt/cdbg
 
-ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
-
 ENTRYPOINT ["/usr/bin/java", "-jar"]
