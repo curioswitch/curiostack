@@ -22,14 +22,14 @@
  * SOFTWARE.
  */
 
+import { RouterState } from 'connected-react-router';
 import { Record } from 'immutable';
-import { RouterState } from 'react-router-redux';
 
 import { LanguageState } from '../containers/LanguageProvider/reducer';
 
 export interface GlobalStateBase {
   readonly language: LanguageState;
-  readonly route: RouterState;
+  readonly router: RouterState;
 }
 
 export interface GlobalStateRecordBase

@@ -1,4 +1,4 @@
-import { RouterState } from 'react-router-redux';
+import { RouterState } from 'connected-react-router';
 import { createSelector } from 'reselect';
 
 import { GlobalState } from '../../app';
@@ -7,7 +7,7 @@ import { State, StateProps } from './reducer';
 
 const selectApp = (state: GlobalState): State => state.app;
 
-export const selectRoute = (state: GlobalState): RouterState => state.route;
+export const selectRoute = (state: GlobalState): RouterState => state.router;
 
 export interface SelectedProps extends StateProps {
   readonly route: RouterState;

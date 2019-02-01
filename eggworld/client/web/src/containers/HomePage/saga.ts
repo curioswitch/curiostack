@@ -24,42 +24,21 @@
 
 import { takeLatest } from '@curiostack/base-web';
 
-import { grpc } from 'grpc-web-client';
-import { all, AllEffect, call, put, select } from 'redux-saga/effects';
+import { all, call, put, select } from 'redux-saga/effects';
 
+import { EggworldServicePromiseClient } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_grpc_web_pb';
 import {
   CheckIngredientsRequest,
   CheckIngredientsResponse,
   FindRecipeRequest,
   FindRecipeResponse,
 } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb';
-import { EggworldService } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb_service';
 
 import { Actions, ActionTypes } from './actions';
 
 import selectHomePage from './selectors';
 
-async function execute(method: any, request: any) {
-  return new Promise((resolve: (param: any) => void, reject) =>
-    grpc.unary(method, {
-      request,
-      host: '/api',
-      onEnd: (response) => {
-        if (response.status !== grpc.Code.OK) {
-          reject(
-            new Error(
-              `Error communicating with API. grpc-status: ${
-                response.status
-              } grpc-message: ${response.statusMessage}`,
-            ),
-          );
-        } else {
-          resolve(response.message);
-        }
-      },
-    }),
-  );
-}
+const client = new EggworldServicePromiseClient('/api', null, null);
 
 function* doCheckIngredients({
   payload: ingredients,
@@ -67,7 +46,7 @@ function* doCheckIngredients({
   const request = new CheckIngredientsRequest();
   request.setSelectedIngredientList(ingredients);
   const response: CheckIngredientsResponse = yield call(() =>
-    execute(EggworldService.CheckIngredients, request),
+    client.checkIngredients(request),
   );
   yield put(Actions.checkIngredientsResponse(response));
 }
@@ -77,13 +56,13 @@ function* doCook() {
   const request = new FindRecipeRequest();
   request.setIngredientList(state.eatenFood);
   const response: FindRecipeResponse = yield call(() =>
-    execute(EggworldService.FindRecipe, request),
+    client.findRecipe(request),
   );
   yield put(Actions.cookResponse(response.getRecipeUrl()));
 }
 
 // Individual exports for testing
-export default function* rootSaga(): IterableIterator<AllEffect> {
+export default function* rootSaga() {
   yield all([
     takeLatest(ActionTypes.CHECK_INGREDIENTS, doCheckIngredients),
     takeLatest(ActionTypes.COOK, doCook),

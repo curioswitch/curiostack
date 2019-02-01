@@ -26,16 +26,10 @@ package org.curioswitch.gradle.plugins.grpcapi;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Paths;
-import org.curioswitch.gradle.helpers.platform.OperatingSystem;
-import org.curioswitch.gradle.helpers.platform.PlatformHelper;
+import java.nio.file.Files;
 import org.curioswitch.gradle.plugins.nodejs.NodeSetupPlugin;
-import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
-import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
@@ -43,9 +37,7 @@ import org.gradle.api.Project;
 
 public class GrpcApiSetupPlugin implements Plugin<Project> {
 
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-  private static final String TS_PROTOC_GEN_VERSION = "0.7.6";
+  private static final String PROTOC_GEN_GRPC_WEB_VERSION = "1.0.4-alpha1";
 
   @Override
   public void apply(Project project) {
@@ -54,42 +46,51 @@ public class GrpcApiSetupPlugin implements Plugin<Project> {
     project.getPlugins().apply(NodeSetupPlugin.class);
 
     project
-        .getTasks()
-        .register(
-            "installTsProtocGen",
-            NodeTask.class,
-            t -> {
-              t.setCommand("npm");
-              t.args("install", "-g", "--no-save", "ts-protoc-gen@" + TS_PROTOC_GEN_VERSION);
-              t.dependsOn(DownloadToolUtil.getDownloadTask(project, "node"));
+        .getPlugins()
+        .withType(
+            ToolDownloaderPlugin.class,
+            plugin -> {
+              plugin.registerToolIfAbsent(
+                  "protoc-gen-grpc-web",
+                  tool -> {
+                    tool.getVersion().set(PROTOC_GEN_GRPC_WEB_VERSION);
+                    tool.getBaseUrl()
+                        .set("https://github.com/chokoswitch/grpc-web/releases/download/");
+                    tool.getArtifactPattern()
+                        .set("[revision]/[artifact]-[revision]-[classifier][ext]");
+                    var classifiers = tool.getOsClassifiers();
+                    classifiers.getLinux().set("linux-x86_64");
+                    classifiers.getMac().set("darwin-x86_64");
+                    classifiers.getWindows().set("windows-x86_64");
 
-              t.onlyIf(
-                  unused -> {
-                    File packageJson =
-                        DownloadedToolManager.get(project)
-                            .getBinDir("node")
-                            .resolve(
-                                new PlatformHelper().getOs() != OperatingSystem.WINDOWS
-                                    ? "../lib"
-                                    : "")
-                            .resolve(Paths.get("node_modules", "ts-protoc-gen", "package.json"))
-                            .toFile();
-                    if (!packageJson.exists()) {
-                      return true;
-                    }
-                    try {
-                      if (!OBJECT_MAPPER
-                          .readTree(packageJson)
-                          .get("version")
-                          .asText()
-                          .equals(TS_PROTOC_GEN_VERSION)) {
-                        return true;
-                      }
-                    } catch (IOException e) {
-                      throw new UncheckedIOException("Could not read package.json", e);
-                    }
-                    return false;
+                    // Not an archive.
+                    var extensions = tool.getOsExtensions();
+                    extensions.getLinux().set("");
+                    extensions.getMac().set("");
+                    extensions.getWindows().set(".exe");
+
+                    tool.getPathSubDirs().add("");
                   });
+
+              var download = DownloadToolUtil.getDownloadTask(project, "protoc-gen-grpc-web");
+              // Not an archive.
+              download.configure(
+                  t ->
+                      t.setArchiveExtractAction(
+                          file -> {
+                            var toolDir = plugin.toolManager().getToolDir("protoc-gen-grpc-web");
+                            var filename = "protoc-gen-grpc-web";
+                            if (file.getName().endsWith(".exe")) {
+                              filename += ".exe";
+                            }
+                            file.setExecutable(true);
+                            try {
+                              Files.move(file.toPath(), toolDir.resolve(filename));
+                            } catch (IOException e) {
+                              throw new UncheckedIOException(
+                                  "Could not move protoc-gen-grpc-web.", e);
+                            }
+                          }));
             });
   }
 }

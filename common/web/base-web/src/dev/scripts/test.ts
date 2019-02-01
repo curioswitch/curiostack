@@ -23,6 +23,10 @@
  * SOFTWARE.
  */
 
+// TODO(choko): Remove after fix for https://github.com/facebook/jest/issues/7704 is released.
+// tslint:disable-next-line: no-var-requires
+require('jest-cli/build/cli');
+
 import { run } from 'jest-cli';
 
 const CONFIG = {

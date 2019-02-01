@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-import PropTypes from 'prop-types';
 import React from 'react';
+import { ReactReduxContext, ReactReduxContextValue } from 'react-redux';
 
 import getInjectors from '../state/saga/injector';
 
@@ -31,6 +31,10 @@ interface Options {
   key: string;
   saga: any;
   mode?: string;
+}
+
+interface HocProps {
+  reduxCtx: ReactReduxContextValue;
 }
 
 /**
@@ -49,16 +53,12 @@ export default ({ key, saga, mode }: Options) => <TOriginalProps extends {}>(
     | React.ComponentClass<TOriginalProps>
     | React.StatelessComponent<TOriginalProps>,
 ) => {
-  class InjectSaga extends React.Component<TOriginalProps> {
-    public static contextTypes = {
-      store: PropTypes.object.isRequired,
-    };
-
+  class InjectSaga extends React.Component<TOriginalProps & HocProps> {
     public static displayName = `withSaga(${WrappedComponent.displayName ||
       WrappedComponent.name ||
       'Component'})`;
 
-    private injectors = getInjectors((this as any).context.store);
+    private injectors = getInjectors(this.props.reduxCtx.store as any);
 
     public componentWillMount() {
       const { injectSaga } = this.injectors;
@@ -73,8 +73,13 @@ export default ({ key, saga, mode }: Options) => <TOriginalProps extends {}>(
     }
 
     public render() {
-      return <WrappedComponent {...this.props} />;
+      const { reduxCtx, ...others } = this.props as any;
+      return <WrappedComponent {...others} />;
     }
   }
-  return InjectSaga;
+  return (props: TOriginalProps) => (
+    <ReactReduxContext.Consumer>
+      {(value) => <InjectSaga reduxCtx={value} {...props} />}
+    </ReactReduxContext.Consumer>
+  );
 };

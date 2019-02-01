@@ -5,7 +5,7 @@
   "dependencies": {
     "@types/google-protobuf": "|TYPES_GOOGLE_PROTOBUF_VERSION|",
     "google-protobuf": "|GOOGLE_PROTOBUF_VERSION|",
-    "grpc-web-client": "|GRPC_WEB_CLIENT_VERSION|"
+    "grpc-web": "|GRPC_WEB_VERSION|"
   },
   "devDependencies": {
     "@curiostack/base-node-dev": "|CURIOSTACK_BASE_NODE_DEV_VERSION|"

@@ -102,7 +102,7 @@ async function run(locals: any) {
   // Create redux store with history
   const initialState = {
     ...appConfig.initialState,
-    route: routeInitialState.set('location', createLocation(p)),
+    router: routeInitialState.set('location', createLocation(p)),
     ...locals.pathStates[locals.path],
   };
   const history = createHistory();
@@ -121,7 +121,7 @@ async function run(locals: any) {
     <RenderedPage
       messages={appConfig.messages}
       store={store}
-      location={initialState.route.location}
+      location={initialState.router.location}
       modules={modules}
       component={component}
       theme={appConfig.theme || {}}

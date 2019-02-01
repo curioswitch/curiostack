@@ -19,7 +19,7 @@
     }
   },
   "dependencies": {
-    "@curiostack/base-web": "0.0.37",
+    "@curiostack/base-web": "0.0.40",
     "@curiostack/eggworld-api": "1.0.0",
     "history": "4.7.2",
     "howler": "2.0.15",

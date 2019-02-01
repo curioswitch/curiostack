@@ -25,13 +25,13 @@
 package org.curioswitch.gradle.plugins.curioweb;
 
 import com.google.common.collect.ImmutableMap;
+import org.curioswitch.gradle.plugins.curioweb.tasks.CopyWebTask;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
 import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
-import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.SourceSet;
 
 /**
@@ -94,11 +94,12 @@ public class CurioWebPlugin implements Plugin<Project> {
         .getTasks()
         .register(
             "copyWeb",
-            Copy.class,
+            CopyWebTask.class,
             t -> {
               t.dependsOn(buildWeb);
-              t.from("build/web");
-              t.into(config.getJavaPackage().map(pkg -> "build/javaweb/" + pkg.replace('.', '/')));
+
+              t.getJavaPackage().set(config.getJavaPackage());
+              t.getStorybookJavaPackage().set(config.getStorybookJavaPackage());
             });
   }
 }

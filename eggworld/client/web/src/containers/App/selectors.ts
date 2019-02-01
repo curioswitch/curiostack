@@ -22,12 +22,12 @@
  * SOFTWARE.
  */
 
-import { RouterState } from 'react-router-redux';
+import { RouterState } from 'connected-react-router';
 import { createSelector } from 'reselect';
 
 import { GlobalState } from '../../state';
 
-const selectRoute = (state: GlobalState): RouterState => state.route;
+const selectRoute = (state: GlobalState): RouterState => state.router;
 
 const makeSelectLocation = () =>
   createSelector(

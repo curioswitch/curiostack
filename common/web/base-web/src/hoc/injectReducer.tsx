@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-import PropTypes from 'prop-types';
 import React from 'react';
+import { ReactReduxContext, ReactReduxContextValue } from 'react-redux';
 import { Reducer } from 'redux';
 
 import getInjectors from '../state/injector';
@@ -31,6 +31,10 @@ import getInjectors from '../state/injector';
 interface Options {
   key: string;
   reducer: Reducer;
+}
+
+interface HocProps {
+  reduxCtx: ReactReduxContextValue;
 }
 
 /**
@@ -45,16 +49,12 @@ export default ({ key, reducer }: Options) => <TOriginalProps extends {}>(
     | React.ComponentClass<TOriginalProps>
     | React.StatelessComponent<TOriginalProps>,
 ) => {
-  class ReducerInjector extends React.Component<TOriginalProps> {
-    public static contextTypes = {
-      store: PropTypes.object.isRequired,
-    };
-
+  class ReducerInjector extends React.Component<TOriginalProps & HocProps> {
     public static displayName = `withReducer(${WrappedComponent.displayName ||
       WrappedComponent.name ||
       'Component'})`;
 
-    private injectors = getInjectors((this as any).context.store);
+    private injectors = getInjectors(this.props.reduxCtx.store as any);
 
     public componentWillMount() {
       const { injectReducer } = this.injectors;
@@ -62,8 +62,13 @@ export default ({ key, reducer }: Options) => <TOriginalProps extends {}>(
     }
 
     public render() {
-      return <WrappedComponent {...this.props} />;
+      const { reduxCtx, ...others } = this.props as any;
+      return <WrappedComponent {...others} />;
     }
   }
-  return ReducerInjector;
+  return (props: TOriginalProps) => (
+    <ReactReduxContext.Consumer>
+      {(value) => <ReducerInjector reduxCtx={value} {...props} />}
+    </ReactReduxContext.Consumer>
+  );
 };

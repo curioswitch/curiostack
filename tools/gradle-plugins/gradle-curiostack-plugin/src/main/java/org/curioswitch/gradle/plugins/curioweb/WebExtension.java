@@ -41,10 +41,13 @@ public interface WebExtension extends HasPublicType {
     return project
         .getExtensions()
         .create(NAME, ModifiableWebExtension.class)
-        .setJavaPackage(project.getObjects().property(String.class));
+        .setJavaPackage(project.getObjects().property(String.class))
+        .setStorybookJavaPackage(project.getObjects().property(String.class));
   }
 
   Property<String> getJavaPackage();
+
+  Property<String> getStorybookJavaPackage();
 
   @Override
   default TypeOf<?> getPublicType() {

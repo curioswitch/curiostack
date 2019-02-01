@@ -22,13 +22,9 @@
  * SOFTWARE.
  */
 
+import { RouterState } from 'connected-react-router';
 import { createLocation } from 'history';
 import { Record } from 'immutable';
-import {
-  LOCATION_CHANGE,
-  LocationChangeAction,
-  RouterState,
-} from 'react-router-redux';
 import { Reducer, ReducersMapObject } from 'redux';
 import { combineReducers } from 'redux-immutable';
 import { Actions, ActionTypes } from './actions';
@@ -38,19 +34,8 @@ export interface RouterStateRecord extends Record<RouterState>, RouterState {}
 
 export const routeInitialState: RouterStateRecord = Record<RouterState>({
   location: createLocation(''),
+  action: 'POP',
 })();
-
-export function routeReducer(
-  state: RouterStateRecord,
-  action: LocationChangeAction,
-): RouterStateRecord {
-  switch (action.type) {
-    case LOCATION_CHANGE:
-      return state.set('location', action.payload);
-    default:
-      return state;
-  }
-}
 
 function createGlobalReducer(appReducer: Reducer<any>, initialState: any) {
   return (state: any, action: Actions) => {

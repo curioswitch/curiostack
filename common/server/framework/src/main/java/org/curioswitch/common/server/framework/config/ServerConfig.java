@@ -141,4 +141,10 @@ public interface ServerConfig {
    * deployments.
    */
   boolean getEnableGracefulShutdown();
+
+  /**
+   * Whether EDNS should be disabled in clients. This is required when connecting to a server in an
+   * environment with a DNS server that doesn't support EDNS.
+   */
+  boolean getDisableEdns();
 }

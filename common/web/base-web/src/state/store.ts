@@ -26,9 +26,12 @@
  * Create the store with asynchronously loaded reducers
  */
 
+import {
+  connectRouter,
+  routerMiddleware,
+} from 'connected-react-router/immutable';
 import { History } from 'history';
 import { Record } from 'immutable';
-import { routerMiddleware } from 'react-router-redux';
 import {
   applyMiddleware,
   compose,
@@ -47,7 +50,6 @@ import { GlobalStateBase } from './index';
 import createReducer, {
   createInitalReducer,
   routeInitialState,
-  routeReducer,
   RouterStateRecord,
 } from './reducers';
 
@@ -66,15 +68,15 @@ function identityReducer<S>(state: S): S {
   return state;
 }
 
-const nonInjectedReducers = {
-  language: languageProviderReducer as Reducer<LanguageStateRecord>,
-  route: routeReducer as Reducer<RouterStateRecord>,
-};
-
 export default function configureStore<S extends object>(
   initialState: S,
   history: History,
 ): InjectableStore<any> {
+  const nonInjectedReducers = {
+    language: languageProviderReducer as Reducer<LanguageStateRecord>,
+    router: connectRouter(history) as Reducer<RouterStateRecord>,
+  };
+
   // Create the store with two middlewares
   // 1. sagaMiddleware: Makes redux-sagas work
   // 2. routerMiddleware: Syncs the location/URL path to the state
@@ -105,7 +107,7 @@ export default function configureStore<S extends object>(
     {},
     {
       language: languageProviderInitialState,
-      route: routeInitialState,
+      router: routeInitialState,
     },
     initialState,
   );

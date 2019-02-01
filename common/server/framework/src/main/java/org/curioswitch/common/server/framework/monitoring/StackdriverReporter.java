@@ -26,9 +26,8 @@ package org.curioswitch.common.server.framework.monitoring;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.google.devtools.cloudtrace.v1.PatchTracesRequest;
-import com.google.devtools.cloudtrace.v1.TraceServiceGrpc.TraceServiceFutureStub;
-import com.google.devtools.cloudtrace.v1.Traces;
+import com.google.devtools.cloudtrace.v2.BatchWriteSpansRequest;
+import com.google.devtools.cloudtrace.v2.TraceServiceGrpc.TraceServiceFutureStub;
 import com.google.protobuf.Empty;
 import dagger.Lazy;
 import java.io.Flushable;
@@ -43,7 +42,7 @@ import org.jctools.queues.MessagePassingQueue;
 import org.jctools.queues.MpscCompoundQueue;
 import zipkin2.Span;
 import zipkin2.reporter.Reporter;
-import zipkin2.translation.stackdriver.TraceTranslator;
+import zipkin2.translation.stackdriver.SpanTranslator;
 
 @Singleton
 public class StackdriverReporter implements Reporter<Span>, Flushable, AutoCloseable {
@@ -74,14 +73,18 @@ public class StackdriverReporter implements Reporter<Span>, Flushable, AutoClose
     if (spans.isEmpty()) {
       return;
     }
-    PatchTracesRequest request =
-        PatchTracesRequest.newBuilder()
-            .setProjectId(projectId)
-            .setTraces(
-                Traces.newBuilder().addAllTraces(TraceTranslator.translateSpans(projectId, spans)))
+
+    List<com.google.devtools.cloudtrace.v2.Span> translated =
+        SpanTranslator.translate(projectId, spans);
+
+    BatchWriteSpansRequest request =
+        BatchWriteSpansRequest.newBuilder()
+            .setName("projects/" + projectId)
+            .addAllSpans(translated)
             .build();
+
     Futures.addCallback(
-        traceServiceClient.get().patchTraces(request),
+        traceServiceClient.get().batchWriteSpans(request),
         new FutureCallback<Empty>() {
           @Override
           public void onFailure(Throwable t) {
