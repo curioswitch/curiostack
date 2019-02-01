@@ -32,7 +32,10 @@ RUN mkdir /opt/cprof && \
   tar -xzf /tmp/gcloud/profiler_java_agent.tar.gz -C /opt/cprof && \
   mkdir /opt/cdbg && \
   tar -xzf /tmp/gcloud/cdbg_java_agent_service_account.tar.gz -C /opt/cdbg && \
-  rm -rf /tmp/gcloud
+  rm -rf /tmp/gcloud && \
+  keytool -importkeystore -srckeystore /etc/ssl/certs/java/cacerts -destkeystore /etc/ssl/certs/java/cacerts.jks -deststoretype JKS -srcstorepass changeit -deststorepass changeit -noprompt && \
+  mv /etc/ssl/certs/java/cacerts.jks /etc/ssl/certs/java/cacerts && \
+  /var/lib/dpkg/info/ca-certificates-java.postinst configure
 
 FROM gcr.io/distroless/cc:debug
 
