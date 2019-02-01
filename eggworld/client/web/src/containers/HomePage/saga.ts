@@ -26,36 +26,27 @@ import { takeLatest } from '@curiostack/base-web';
 
 import { all, call, put, select } from 'redux-saga/effects';
 
+import { EggworldServicePromiseClient } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_grpc_web_pb';
 import {
   CheckIngredientsRequest,
   CheckIngredientsResponse,
   FindRecipeRequest,
   FindRecipeResponse,
 } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb';
-import { EggworldServiceClient } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-serviceServiceClientPb';
 
 import { Actions, ActionTypes } from './actions';
 
 import selectHomePage from './selectors';
 
-const client = new EggworldServiceClient('/api', null, null);
+const client = new EggworldServicePromiseClient('/api', null, null);
 
 function* doCheckIngredients({
   payload: ingredients,
 }: ReturnType<typeof Actions.checkIngredients>) {
   const request = new CheckIngredientsRequest();
   request.setSelectedIngredientList(ingredients);
-  const response: CheckIngredientsResponse = yield call(
-    () =>
-      new Promise((resolve, reject) =>
-        client.checkIngredients(request, {}, (err, resp) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(resp);
-          }
-        }),
-      ),
+  const response: CheckIngredientsResponse = yield call(() =>
+    client.checkIngredients(request),
   );
   yield put(Actions.checkIngredientsResponse(response));
 }
@@ -64,17 +55,8 @@ function* doCook() {
   const state = yield select(selectHomePage);
   const request = new FindRecipeRequest();
   request.setIngredientList(state.eatenFood);
-  const response: FindRecipeResponse = yield call(
-    () =>
-      new Promise((resolve, reject) =>
-        client.findRecipe(request, {}, (err, resp) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(resp);
-          }
-        }),
-      ),
+  const response: FindRecipeResponse = yield call(() =>
+    client.findRecipe(request),
   );
   yield put(Actions.cookResponse(response.getRecipeUrl()));
 }
