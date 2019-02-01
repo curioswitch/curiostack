@@ -23,7 +23,7 @@
 
 FROM debian:stretch-backports AS debian
 
-RUN apt-get -y update && apt-get -y install openjdk-11-jre-headless zlib1g
+RUN apt-get -y update && apt-get -y install openjdk-11-jre-headless zlib1g ca-certificates-java
 
 ADD https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz /tmp/gcloud/profiler_java_agent.tar.gz
 ADD https://github.com/GoogleCloudPlatform/cloud-debug-java/releases/download/v2.21/cdbg_java_agent_service_account.tar.gz /tmp/gcloud/cdbg_java_agent_service_account.tar.gz
@@ -35,6 +35,8 @@ RUN mkdir /opt/cprof && \
   rm -rf /tmp/gcloud
 
 FROM gcr.io/distroless/cc:debug
+
+COPY --from=debian /etc/ssl/certs/java/ /etc/ssl/certs/java/
 
 COPY --from=debian /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1.2.8
 RUN ["/busybox/sh", "-c", "ln -s /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1"]
