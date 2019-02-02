@@ -72,7 +72,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.auth0")
-              .version("3.6.0")
+              .version("3.7.0")
               .addModules("java-jwt")
               .build(),
           ImmutableDependencySet.builder()
@@ -463,7 +463,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")
-              .version("2.23.16")
+              .version("2.24.0")
               .addModules("mockito-core", "mockito-junit-jupiter")
               .build(),
           ImmutableDependencySet.builder()
@@ -508,7 +508,7 @@ public class StandardDependencies {
           "javax.annotation:javax.annotation-api:1.3.2",
           "javax.xml.bind:jaxb-api:2.3.0",
           "me.champeau.gradle:jmh-gradle-plugin:0.4.8",
-          "mysql:mysql-connector-java:8.0.14",
+          "mysql:mysql-connector-java:8.0.15",
           "net.ltgt.gradle:gradle-apt-plugin:0.20",
           "net.ltgt.gradle:gradle-errorprone-plugin:0.6.1",
           "nu.studer:gradle-jooq-plugin:3.0.2");
