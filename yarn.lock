@@ -832,6 +832,18 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
+"@curiostack/base-node-dev@0.0.9":
+  version "0.0.11"
+  dependencies:
+    "@types/node" "10.12.18"
+    prettier "1.16.1"
+    rimraf "2.6.3"
+    tslint "5.12.1"
+    tslint-config-airbnb-base "0.2.0"
+    tslint-config-prettier "1.17.0"
+    tslint-plugin-prettier "2.0.1"
+    typescript "3.2.4"
+
 "@curiostack/cloudbuild-github@0.0.12":
   version "0.0.12"
   resolved "https://registry.yarnpkg.com/@curiostack/cloudbuild-github/-/cloudbuild-github-0.0.12.tgz#d1acd42dbab647c3952dd2181cfedaa2355d9b69"

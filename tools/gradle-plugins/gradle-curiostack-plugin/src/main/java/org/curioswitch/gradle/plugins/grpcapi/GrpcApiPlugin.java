@@ -174,6 +174,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
           if (config.web()) {
             var installProtocGenGrpcWeb =
                 DownloadToolUtil.getSetupTask(project, "protoc-gen-grpc-web");
+            var generateProto = project.getTasks().named("generateProto");
 
             var packageWeb =
                 project
@@ -181,12 +182,16 @@ public class GrpcApiPlugin implements Plugin<Project> {
                     .register(
                         "packageWeb",
                         PackageWebTask.class,
-                        t -> t.dependsOn(project.getTasks().named("generateProto")));
+                        t -> t.dependsOn(generateProto));
+
+            generateProto.configure(
+                t -> t.dependsOn(installProtocGenGrpcWeb).finalizedBy(packageWeb));
 
             project
+                .getRootProject()
                 .getTasks()
-                .named("generateProto")
-                .configure(t -> t.dependsOn(installProtocGenGrpcWeb).finalizedBy(packageWeb));
+                .named("yarn")
+                .configure(t -> t.dependsOn(generateProto));
 
             // Unclear why sometimes compileTestJava fails with "no source files" instead of being
             // skipped (usually when activating web), but it's not that hard to at least check the

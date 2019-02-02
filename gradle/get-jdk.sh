@@ -16,16 +16,25 @@ if [ -z "$CI" ]; then
     MINGW* )
       windows=true
       ;;
+    MSYS* )
+      windows=true
+      ;;
     Linux* )
       linux=true
       ;;
   esac
 
   GRADLE_HOME="${GRADLE_USER_HOME:-${HOME}/.gradle}"
+
+  if [ ! -z "$USERPROFILE" ]; then
+    # msys
+    USERPROFILE_CYG=$(cygpath $USERPROFILE)
+    GRADLE_HOME="${USERPROFILE_CYG}/.gradle"
+  fi
+
   OPENJDK_DIR="$GRADLE_HOME/curiostack/openjdk"
 
   export JAVA_HOME="$OPENJDK_DIR/jdk-11.0.1"
-
 
   if "$linux" = "true"; then
     SRC="https://download.java.net/java/GA/jdk11/13/GPL/openjdk-11.0.1_linux-x64_bin.tar.gz"
