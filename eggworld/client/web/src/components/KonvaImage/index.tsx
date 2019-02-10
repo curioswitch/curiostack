@@ -22,11 +22,11 @@
  * SOFTWARE.
  */
 
-import { ShapeConfig } from 'konva';
+import { NodeConfig, ShapeConfig } from 'konva';
 import React from 'react';
-import { Image as ReactKonvaImage, KonvaNodeProps } from 'react-konva';
+import { Image as ReactKonvaImage, KonvaNodeEvents } from 'react-konva';
 
-interface Props extends ShapeConfig, KonvaNodeProps {
+interface Props extends ShapeConfig, NodeConfig, KonvaNodeEvents {
   src: string;
 }
 

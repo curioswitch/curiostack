@@ -24,7 +24,7 @@
     "history": "4.7.2",
     "howler": "2.0.15",
     "konva": "2.5.1",
-    "react-konva": "16.6.11",
+    "react-konva": "16.8.0",
     "sanitize.css": "5.0.0"
   },
   "devDependencies": {
