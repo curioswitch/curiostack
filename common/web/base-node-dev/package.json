@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-node-dev",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Curiostack's base dev dependencies for non-browser applications.",
   "main": "build/index.js",
   "repository": "curioswitch/curiostack",
@@ -16,13 +16,13 @@
     "lint": "tslint --project tsconfig.json"
   },
   "dependencies": {
-    "@types/node": "10.12.18",
-    "prettier": "1.16.1",
+    "@types/node": "10.12.24",
+    "prettier": "1.16.4",
     "rimraf": "2.6.3",
     "tslint": "5.12.1",
     "tslint-config-airbnb-base": "0.2.0",
-    "tslint-config-prettier": "1.17.0",
+    "tslint-config-prettier": "1.18.0",
     "tslint-plugin-prettier": "2.0.1",
-    "typescript": "3.2.4"
+    "typescript": "3.3.3"
   }
 }
