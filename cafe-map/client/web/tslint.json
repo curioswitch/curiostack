@@ -1,0 +1,3 @@
+{
+  "extends": "@curiostack/base-web/build/dev/tslint-config"
+}
