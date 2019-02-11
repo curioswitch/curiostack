@@ -20,59 +20,18 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
-import { injectReducer, injectSaga } from '@curiostack/base-web';
-
+import { GoogleApiWrapper, Map, ProvidedProps } from 'google-maps-react';
 import React from 'react';
-import Helmet from 'react-helmet';
-import { hot } from 'react-hot-loader/root';
-import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl';
-import { connect } from 'react-redux';
-import { compose } from 'redux';
 
-import Map from '../../components/Map';
+type Props = ProvidedProps;
 
-import { DispatchProps, mapDispatchToProps } from './actions';
-import messages from './messages';
-import reducer from './reducer';
-import saga from './saga';
-import selectHomePage from './selectors';
-
-type Props = DispatchProps & InjectedIntlProps;
-
-
-
-const HomePage: React.FunctionComponent<Props> = React.memo((props) => {
-  const {
-    intl: { formatMessage: _ },
-  } = props;
-  return (
-    <>
-      <Helmet title={_(messages.title)} />
-      <h1>
-        <FormattedMessage {...messages.header} />
-      </h1>
-      <Map />
-    </>
-  );
+const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
+  const { google } = props;
+  return <Map google={google} zoom={12} />;
 });
 
-const withConnect = connect(
-  selectHomePage,
-  mapDispatchToProps,
-);
-const withReducer = injectReducer({
-  reducer,
-  key: 'homePage',
-});
-const withSaga = injectSaga({ saga, key: 'homePage' });
-
-export default compose(
-  injectIntl,
-  withReducer,
-  withSaga,
-  withConnect,
-  hot,
-)(HomePage);
+export default GoogleApiWrapper({
+  apiKey: 'foo',
+})(MapContainer);

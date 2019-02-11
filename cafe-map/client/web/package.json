@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@curiostack/base-web": "0.0.0-managed",
+    "@material-ui/core": "3.9.2",
     "google-maps-react": "2.0.2"
   },
   "devDependencies": {

@@ -25,6 +25,7 @@
 
 import { injectReducer } from '@curiostack/base-web';
 
+import CssBaseline from '@material-ui/core/CssBaseline';
 import React from 'react';
 import Helmet from 'react-helmet';
 import { hot } from 'react-hot-loader/root';
@@ -54,6 +55,7 @@ class App extends React.PureComponent<Props> {
           defaultTitle={_(messages.defaultTitle)}
           titleTemplate={_(messages.titleTemplate)}
         />
+        <CssBaseline />
         <Switch>
           <Route exact path="/" component={HomePage} />
           <Route component={NotFoundPage} />
