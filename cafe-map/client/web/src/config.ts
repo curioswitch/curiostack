@@ -22,18 +22,14 @@
  * SOFTWARE.
  */
 
-import { GoogleApiWrapper, Map, ProvidedProps } from 'google-maps-react';
-import React from 'react';
+export interface GoogleConfig {
+  apiKey: string;
+}
 
-import CONFIG from '../../config';
+export interface Config {
+  google: GoogleConfig;
+}
 
-type Props = ProvidedProps;
+const config: Config = (window as any).CONFIG;
 
-const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
-  const { google } = props;
-  return <Map google={google} zoom={12} />;
-});
-
-export default GoogleApiWrapper({
-  apiKey: CONFIG.google.apiKey,
-})(MapContainer);
+export default config;
