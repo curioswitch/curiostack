@@ -49,11 +49,3 @@ dependencies {
     testAnnotationProcessor("org.immutables:value-annotations")
     testCompileOnly("org.immutables:value")
 }
-
-deployment {
-    types {
-        alpha {
-            namespace = 'cafemap-dev'
-        }
-    }
-}
