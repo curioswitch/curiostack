@@ -20,20 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-provider:
-  google:
-    project: "${var.project_id}"
-    region: asia-northeast1
-    version: "1.19"
-  gsuite:
-    credentials: "${base64decode(google_service_account_key.terraform_service_account.private_key)}"
-    impersonated_user_email: choko@curioswitch.org
-    oauth_scopes:
-      - https://www.googleapis.com/auth/admin.directory.group
-  helm:
-    namespace: tiller-prod
-    enable_tls: true
-    home: "../helm"
-    client_key: "../helm/key.pem"
-    client_certificate: "../helm/cert.pem"
-    ca_certificate: "../helm/ca.pem"
+module:
+  cluster-cafemap-dev:
+    source: './modules/kube-namespace-global'
+    name: cafemap-dev
+    project_id: '${var.project_id}'
