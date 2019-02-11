@@ -1,16 +1,16 @@
 module:
-  eggworld-server-alpha:
+  cafemap-server-alpha:
     source: "./modules/curio-server"
-    name: eggworld-server-alpha
-    namespace: eggworld-dev
+    name: cafemap-server-alpha
+    namespace: cafemap-dev
     replicas: 1
     type: alpha
-    image_name: eggworld-server
+    image_name: cafe-map-server
     image_tag: latest
     request_cpu: 0.01
     request_memory_mb: 256
-    external_host: eggworld-alpha.curioswitch.org
+    external_host: cafemap-alpha.curioswitch.org
     http2: true
     iap: true
     environment_secrets:
-      - yummly-api-key
+      - cafemap-secrets
