@@ -28,10 +28,12 @@ import com.linecorp.armeria.server.Server;
 import dagger.Binds;
 import dagger.Component;
 import dagger.Module;
+import dagger.Provides;
 import dagger.multibindings.IntoSet;
 import io.grpc.BindableService;
 import javax.inject.Singleton;
 import org.curioswitch.common.server.framework.ServerModule;
+import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
 
 public class CafeMapServiceMain {
 
@@ -40,6 +42,14 @@ public class CafeMapServiceMain {
     @Binds
     @IntoSet
     abstract BindableService service(CafeMapService service);
+
+    @Provides
+    @IntoSet
+    static StaticSiteServiceDefinition staticSite() {
+      return new StaticSiteServiceDefinition.Builder()
+          .classpathRoot("/org/curioswitch/cafemap/web")
+          .build();
+    }
   }
 
   @Singleton

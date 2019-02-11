@@ -23,17 +23,21 @@
  *
  */
 
-import { ActionsUnion } from '@curiostack/base-web';
+import { ActionsUnion, createAction } from '@curiostack/base-web';
 import { bindActionCreators, Dispatch } from 'redux';
 
-export enum ActionTypes {}
+export enum ActionTypes {
+  SELECT_MARKER = 'HomePage/SELECT_MARKER',
+}
 
-export const Actions = {};
+export const Actions = {
+  selectMarker: () => createAction(ActionTypes.SELECT_MARKER),
+};
 
 export type Actions = ActionsUnion<typeof Actions>;
 
 export type DispatchProps = typeof Actions;
 
 export function mapDispatchToProps(dispatch: Dispatch<Actions>): DispatchProps {
-  return bindActionCreators(Actions, dispatch as any);
+  return bindActionCreators(Actions, dispatch);
 }

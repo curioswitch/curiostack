@@ -23,7 +23,7 @@
  *
  */
 
-import { GlobalState } from '../../app';
+import { GlobalState } from '../../state';
 
 import { StateProps } from './reducer';
 

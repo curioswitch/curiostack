@@ -42,8 +42,6 @@ import selectHomePage from './selectors';
 
 type Props = DispatchProps & InjectedIntlProps;
 
-
-
 const HomePage: React.FunctionComponent<Props> = React.memo((props) => {
   const {
     intl: { formatMessage: _ },

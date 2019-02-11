@@ -27,14 +27,14 @@ import { RouterState } from 'connected-react-router';
 import { Record } from 'immutable';
 import { createSelector } from 'reselect';
 
-import { GlobalState } from '../../app';
+import { GlobalState } from '../../state';
 
 import { State, StateProps } from './reducer';
 
 const selectApp = (state: GlobalState): State => state.app;
 
 export const selectRoute = (state: GlobalState): Record<RouterState> =>
-  state.router;
+  state.router as any;
 
 export interface SelectedProps extends StateProps {
   readonly route: RouterState;

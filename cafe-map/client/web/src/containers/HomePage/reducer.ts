@@ -23,16 +23,19 @@
  *
  */
 
+import { Marker } from 'google-maps-react';
 import { Record } from 'immutable';
 
 import { Actions } from './actions';
 
 export interface StateProps {
+  selectedMarker?: Marker;
 }
 
 export type State = Readonly<StateProps> & Record<StateProps>;
 
 export const initialState = Record<StateProps>({
+  selectedMarker: undefined,
 })();
 
 export default function(state: State, action: Actions): State {

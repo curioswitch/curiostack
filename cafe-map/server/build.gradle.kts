@@ -37,14 +37,15 @@ application {
 
 dependencies {
     compile(project(":cafe-map:api"))
+    compile(project(":cafe-map:client:web"))
 
     compile("org.curioswitch.curiostack:curio-server-framework")
 
     annotationProcessor("com.google.dagger:dagger-compiler")
-    annotationProcessor("org.immutables:value")
+    annotationProcessor("org.immutables:value-annotations")
     compileOnly("org.immutables:value")
 
     testAnnotationProcessor("com.google.dagger:dagger-compiler")
-    testAnnotationProcessor("org.immutables:value")
+    testAnnotationProcessor("org.immutables:value-annotations")
     testCompileOnly("org.immutables:value")
 }

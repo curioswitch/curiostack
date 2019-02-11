@@ -20,11 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
-import { injectGlobal } from 'styled-components';
-
-// tslint:disable-next-line:no-unused-expression
-injectGlobal`
-`;
+// tslint:disable-next-line:no-empty
+it('need to add tests', () => {});
