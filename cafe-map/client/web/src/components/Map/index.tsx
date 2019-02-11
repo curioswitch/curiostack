@@ -22,16 +22,152 @@
  * SOFTWARE.
  */
 
-import { GoogleApiWrapper, Map, ProvidedProps } from 'google-maps-react';
+import {
+  GoogleApiWrapper,
+  Map,
+  MapProps,
+  ProvidedProps,
+} from 'google-maps-react';
 import React from 'react';
 
 import CONFIG from '../../config';
 
 type Props = ProvidedProps;
 
+function initMap(_props?: MapProps, map?: google.maps.Map) {
+  if (!map) {
+    return;
+  }
+  map.setOptions({
+    styles: [
+      {
+        featureType: 'administrative.locality',
+        elementType: 'labels.text',
+        stylers: [
+          {
+            visibility: 'off',
+          },
+        ],
+      },
+      {
+        featureType: 'landscape',
+        elementType: 'geometry.fill',
+        stylers: [
+          {
+            color: '#fefffd',
+          },
+        ],
+      },
+      {
+        featureType: 'landscape',
+        elementType: 'labels',
+        stylers: [
+          {
+            visibility: 'off',
+          },
+        ],
+      },
+      {
+        featureType: 'landscape',
+        elementType: 'labels.icon',
+        stylers: [
+          {
+            visibility: 'off',
+          },
+        ],
+      },
+      {
+        featureType: 'landscape',
+        elementType: 'labels.text',
+        stylers: [
+          {
+            visibility: 'off',
+          },
+        ],
+      },
+      {
+        featureType: 'landscape',
+        elementType: 'labels.text.fill',
+        stylers: [
+          {
+            visibility: 'off',
+          },
+        ],
+      },
+      {
+        featureType: 'landscape',
+        elementType: 'labels.text.stroke',
+        stylers: [
+          {
+            visibility: 'off',
+          },
+        ],
+      },
+      {
+        featureType: 'road',
+        elementType: 'geometry.fill',
+        stylers: [
+          {
+            color: '#ffd26d',
+          },
+          {
+            weight: 2,
+          },
+        ],
+      },
+      {
+        featureType: 'road',
+        elementType: 'geometry.stroke',
+        stylers: [
+          {
+            visibility: 'off',
+          },
+        ],
+      },
+      {
+        featureType: 'transit.line',
+        elementType: 'geometry.fill',
+        stylers: [
+          {
+            weight: 4.5,
+          },
+        ],
+      },
+      {
+        featureType: 'transit.line',
+        elementType: 'labels.text',
+        stylers: [
+          {
+            visibility: 'off',
+          },
+        ],
+      },
+      {
+        featureType: 'transit.station',
+        elementType: 'geometry.fill',
+        stylers: [
+          {
+            color: '#ffccd0',
+          },
+          {
+            weight: 0.5,
+          },
+        ],
+      },
+    ],
+  });
+}
+
 const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
   const { google } = props;
-  return <Map google={google} zoom={12} />;
+  return (
+    <Map
+      onReady={initMap}
+      google={google}
+      zoom={12}
+      centerAroundCurrentLocation={true}
+    />
+  );
 });
 
 export default GoogleApiWrapper({
