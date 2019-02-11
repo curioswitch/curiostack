@@ -28,7 +28,7 @@ import { injectReducer, injectSaga } from '@curiostack/base-web';
 import React from 'react';
 import Helmet from 'react-helmet';
 import { hot } from 'react-hot-loader/root';
-import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl';
+import { InjectedIntlProps, injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 
@@ -49,9 +49,6 @@ const HomePage: React.FunctionComponent<Props> = React.memo((props) => {
   return (
     <>
       <Helmet title={_(messages.title)} />
-      <h1>
-        <FormattedMessage {...messages.header} />
-      </h1>
       <Map />
     </>
   );
