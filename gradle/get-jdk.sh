@@ -34,21 +34,21 @@ if [ -z "$CI" ]; then
 
   OPENJDK_DIR="$GRADLE_HOME/curiostack/openjdk"
 
-  export JAVA_HOME="$OPENJDK_DIR/jdk-11.0.1"
+  export JAVA_HOME="$OPENJDK_DIR/jdk-11.0.2"
 
   if "$linux" = "true"; then
-    SRC="https://download.java.net/java/GA/jdk11/13/GPL/openjdk-11.0.1_linux-x64_bin.tar.gz"
-    DEST="$OPENJDK_DIR/openjdk-11.0.1_linux-x64_bin.tar.gz"
+    SRC="https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz"
+    DEST="$OPENJDK_DIR/openjdk-11.0.2_linux-x64_bin.tar.gz"
   fi
 
   if "$darwin" = "true"; then
-    SRC="https://download.java.net/java/GA/jdk11/13/GPL/openjdk-11.0.1_osx-x64_bin.tar.gz"
-    DEST="$OPENJDK_DIR/openjdk-11.0.1_osx-x64_bin.tar.gz"
+    SRC="https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_osx-x64_bin.tar.gz"
+    DEST="$OPENJDK_DIR/openjdk-11.0.2_osx-x64_bin.tar.gz"
   fi
 
   if "$windows" = "true"; then
-    SRC="https://download.java.net/java/GA/jdk11/13/GPL/openjdk-11.0.1_windows-x64_bin.zip"
-    DEST="$OPENJDK_DIR/openjdk-11.0.1_osx-x64_bin.tar.gz"
+    SRC="https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_windows-x64_bin.zip"
+    DEST="$OPENJDK_DIR/openjdk-11.0.2_windows-x64_bin.zip"
   fi
 
   if [ ! -d "$JAVA_HOME" ]; then
