@@ -25,6 +25,9 @@
 // curio-auto-generated DO NOT MANUALLY EDIT
 include(":auth:api")
 include(":auth:server")
+include(":cafe-map:api")
+include(":cafe-map:client:web")
+include(":cafe-map:server")
 include(":cluster:terraform:deployers")
 include(":cluster:terraform:sysadmin")
 include(":common:curio-helpers")

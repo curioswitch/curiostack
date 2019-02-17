@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,51 +22,14 @@
  * SOFTWARE.
  */
 
-import { NodeConfig, ShapeConfig } from 'konva';
-import React from 'react';
-import { Image as ReactKonvaImage, KonvaNodeEvents } from 'react-konva';
-
-interface Props extends ShapeConfig, NodeConfig, KonvaNodeEvents {
-  src: string;
+export interface GoogleConfig {
+  apiKey: string;
 }
 
-interface State {
-  image?: HTMLImageElement;
+export interface Config {
+  google: GoogleConfig;
 }
 
-class KonvaImage extends React.PureComponent<Props, State> {
-  public state: State = {
-    image: undefined,
-  };
+const config: Config = (window as any).CONFIG;
 
-  public componentDidMount() {
-    const image = new Image();
-    image.onload = () => {
-      if (!this.state.image) {
-        this.setState({
-          image,
-        });
-      }
-    };
-    image.src = this.props.src;
-  }
-
-  public componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.src === this.props.src || !this.state.image) {
-      return;
-    }
-    this.state.image.src = nextProps.src;
-  }
-
-  public render() {
-    return (
-      <>
-        {this.state.image ? (
-          <ReactKonvaImage image={this.state.image} {...this.props} />
-        ) : null}
-      </>
-    );
-  }
-}
-
-export default KonvaImage;
+export default config;

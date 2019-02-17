@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,53 +20,23 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
  */
 
-import { NodeConfig, ShapeConfig } from 'konva';
 import React from 'react';
-import { Image as ReactKonvaImage, KonvaNodeEvents } from 'react-konva';
+import { hot } from 'react-hot-loader';
+import { FormattedMessage } from 'react-intl';
 
-interface Props extends ShapeConfig, NodeConfig, KonvaNodeEvents {
-  src: string;
-}
+import messages from './messages';
 
-interface State {
-  image?: HTMLImageElement;
-}
-
-class KonvaImage extends React.PureComponent<Props, State> {
-  public state: State = {
-    image: undefined,
-  };
-
-  public componentDidMount() {
-    const image = new Image();
-    image.onload = () => {
-      if (!this.state.image) {
-        this.setState({
-          image,
-        });
-      }
-    };
-    image.src = this.props.src;
-  }
-
-  public componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.src === this.props.src || !this.state.image) {
-      return;
-    }
-    this.state.image.src = nextProps.src;
-  }
-
+class NotFoundPage extends React.PureComponent {
   public render() {
     return (
-      <>
-        {this.state.image ? (
-          <ReactKonvaImage image={this.state.image} {...this.props} />
-        ) : null}
-      </>
+      <h1>
+        <FormattedMessage {...messages.header} />
+      </h1>
     );
   }
 }
 
-export default KonvaImage;
+export default hot(module)(NotFoundPage);

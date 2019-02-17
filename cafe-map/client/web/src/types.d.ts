@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,53 +20,63 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
  */
 
-import { NodeConfig, ShapeConfig } from 'konva';
-import React from 'react';
-import { Image as ReactKonvaImage, KonvaNodeEvents } from 'react-konva';
+/* tslint:disable:max-classes-per-file */
+/* tslint:disable:no-namespace */
 
-interface Props extends ShapeConfig, NodeConfig, KonvaNodeEvents {
-  src: string;
+interface AutoMessages {
+  [key: string]: string;
+}
+namespace ReactIntl {
+  function defineMessages<T extends AutoMessages>(messages: T): Messages;
 }
 
-interface State {
-  image?: HTMLImageElement;
+declare module 'react-intl' {
+  export = ReactIntl;
 }
 
-class KonvaImage extends React.PureComponent<Props, State> {
-  public state: State = {
-    image: undefined,
-  };
-
-  public componentDidMount() {
-    const image = new Image();
-    image.onload = () => {
-      if (!this.state.image) {
-        this.setState({
-          image,
-        });
-      }
-    };
-    image.src = this.props.src;
-  }
-
-  public componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.src === this.props.src || !this.state.image) {
-      return;
-    }
-    this.state.image.src = nextProps.src;
-  }
-
-  public render() {
-    return (
-      <>
-        {this.state.image ? (
-          <ReactKonvaImage image={this.state.image} {...this.props} />
-        ) : null}
-      </>
-    );
-  }
+declare module '*.json' {
+  const value: any;
+  export default value;
 }
 
-export default KonvaImage;
+declare module '*.png' {
+  const value: string;
+  export default value;
+}
+
+declare module '*.jpg' {
+  const value: string;
+  export default value;
+}
+
+declare module '*.svg' {
+  const value: string;
+  export default value;
+}
+
+declare module '*.eot' {
+  const value: string;
+  export default value;
+}
+
+declare module '*.ttf' {
+  const value: string;
+  export default value;
+}
+
+declare module '*.woff' {
+  const value: string;
+  export default value;
+}
+
+declare module '*.woff2' {
+  const value: string;
+  export default value;
+}
+
+declare module 'intl/locale-data/jsonp/*.js' {
+
+}

@@ -20,20 +20,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-provider:
-  google:
-    project: "${var.project_id}"
-    region: asia-northeast1
-    version: "1.19"
-  gsuite:
-    credentials: "${base64decode(google_service_account_key.terraform_service_account.private_key)}"
-    impersonated_user_email: choko@curioswitch.org
-    oauth_scopes:
-      - https://www.googleapis.com/auth/admin.directory.group
-  helm:
-    namespace: tiller-prod
-    enable_tls: true
-    home: "../helm"
-    client_key: "../helm/key.pem"
-    client_certificate: "../helm/cert.pem"
-    ca_certificate: "../helm/ca.pem"
+data:
+  google_kms_secret:
+    google_maps_api_key_dev:
+      crypto_key: "${var.tf_crypto_key}"
+      ciphertext: "CiQAnaPXy+yuWQhDApHL3C8f9kAXKHtlui6MvDJ0qj7fNg6/wAgSUAA4+XivKGMqyBHgM+mnap6IcHnhU52Xt0JNopisFJLeyy6C1wWUaNLuugV2X9iNEJcl7fA7HePB/roGrfR2GZgEYJpSmTlo4L/RBWCmVt3s"
+module:
+  cluster-cafemap-dev:
+    source: "../kube-namespace"
+    name: cafemap-dev
+    project_id: "${var.project_id}"
+    ca_algorithm: "${var.ca_algorithm}"
+    ca_private_key: "${var.ca_private_key}"
+    ca_cert: "${var.ca_cert}"
+    tf_crypto_key: "${var.tf_crypto_key}"
+    depends_on:
+      - google_container_cluster.cluster.endpoint
+resource:
+  kubernetes_secret:
+    cafemap_secrets_dev:
+      metadata:
+        name: cafemap-secrets
+        namespace: cafemap-dev
+      depends_on:
+        - module.cluster-cafemap-dev
+      data:
+        GOOGLE_MAPS_API_KEY: "${data.google_kms_secret.google_maps_api_key_dev.plaintext}"

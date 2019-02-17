@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,53 +20,28 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
  */
 
-import { NodeConfig, ShapeConfig } from 'konva';
-import React from 'react';
-import { Image as ReactKonvaImage, KonvaNodeEvents } from 'react-konva';
+import { Record } from 'immutable';
 
-interface Props extends ShapeConfig, NodeConfig, KonvaNodeEvents {
-  src: string;
+import { Actions, ActionTypes } from './actions';
+
+export interface StateProps {
+  readonly globalErrorMessage: string;
 }
 
-interface State {
-  image?: HTMLImageElement;
-}
+export type State = Readonly<StateProps> & Record<StateProps>;
 
-class KonvaImage extends React.PureComponent<Props, State> {
-  public state: State = {
-    image: undefined,
-  };
+export const initialState = Record<StateProps>({
+  globalErrorMessage: '',
+})();
 
-  public componentDidMount() {
-    const image = new Image();
-    image.onload = () => {
-      if (!this.state.image) {
-        this.setState({
-          image,
-        });
-      }
-    };
-    image.src = this.props.src;
-  }
-
-  public componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.src === this.props.src || !this.state.image) {
-      return;
-    }
-    this.state.image.src = nextProps.src;
-  }
-
-  public render() {
-    return (
-      <>
-        {this.state.image ? (
-          <ReactKonvaImage image={this.state.image} {...this.props} />
-        ) : null}
-      </>
-    );
+export default function(state: State, action: Actions): State {
+  switch (action.type) {
+    case ActionTypes.SET_GLOBAL_ERROR_MESSAGE:
+      return state.set('globalErrorMessage', action.payload);
+    default:
+      return state;
   }
 }
-
-export default KonvaImage;

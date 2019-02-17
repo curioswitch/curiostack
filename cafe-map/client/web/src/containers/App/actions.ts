@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,53 +20,27 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
  */
 
-import { NodeConfig, ShapeConfig } from 'konva';
-import React from 'react';
-import { Image as ReactKonvaImage, KonvaNodeEvents } from 'react-konva';
+import { ActionsUnion, createAction } from '@curiostack/base-web';
+import { LOCATION_CHANGE } from 'connected-react-router';
+import { bindActionCreators, Dispatch } from 'redux';
 
-interface Props extends ShapeConfig, NodeConfig, KonvaNodeEvents {
-  src: string;
+export enum ActionTypes {
+  SET_GLOBAL_ERROR_MESSAGE = 'App/SET_GLOBAL_ERROR_MESSAGE',
 }
 
-interface State {
-  image?: HTMLImageElement;
+export const Actions = {
+  locationChange: () => createAction(LOCATION_CHANGE),
+  setGlobalErrorMessage: (errorMessage: string) =>
+    createAction(ActionTypes.SET_GLOBAL_ERROR_MESSAGE, errorMessage),
+};
+
+export type Actions = ActionsUnion<typeof Actions>;
+
+export type DispatchProps = typeof Actions;
+
+export function mapDispatchToProps(dispatch: Dispatch<Actions>): DispatchProps {
+  return bindActionCreators(Actions, dispatch);
 }
-
-class KonvaImage extends React.PureComponent<Props, State> {
-  public state: State = {
-    image: undefined,
-  };
-
-  public componentDidMount() {
-    const image = new Image();
-    image.onload = () => {
-      if (!this.state.image) {
-        this.setState({
-          image,
-        });
-      }
-    };
-    image.src = this.props.src;
-  }
-
-  public componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.src === this.props.src || !this.state.image) {
-      return;
-    }
-    this.state.image.src = nextProps.src;
-  }
-
-  public render() {
-    return (
-      <>
-        {this.state.image ? (
-          <ReactKonvaImage image={this.state.image} {...this.props} />
-        ) : null}
-      </>
-    );
-  }
-}
-
-export default KonvaImage;
