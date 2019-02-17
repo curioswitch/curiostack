@@ -24,7 +24,7 @@ data:
   google_kms_secret:
     google_maps_api_key_dev:
       crypto_key: "${var.tf_crypto_key}"
-      ciphertext: "CiQAnaPXy6ZD6Cbvc+Zv+tO/okrUauR1tsVtdWyKzmlUzpC+ksgSSAA4+XivvMPy2cpwTJ9yd+IESaCAthm9YThtV4dlxNw2YokczFbd00E0NR7SiOfTIrp78m3HWEyW75m+YqYVOTXXH7hCxWaQqQ=="
+      ciphertext: "CiQAnaPXy+yuWQhDApHL3C8f9kAXKHtlui6MvDJ0qj7fNg6/wAgSUAA4+XivKGMqyBHgM+mnap6IcHnhU52Xt0JNopisFJLeyy6C1wWUaNLuugV2X9iNEJcl7fA7HePB/roGrfR2GZgEYJpSmTlo4L/RBWCmVt3s"
 module:
   cluster-cafemap-dev:
     source: "../kube-namespace"
