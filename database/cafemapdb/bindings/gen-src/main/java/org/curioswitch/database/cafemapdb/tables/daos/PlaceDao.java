@@ -4,6 +4,7 @@
 package org.curioswitch.database.cafemapdb.tables.daos;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.annotation.Generated;
@@ -90,5 +91,19 @@ public class PlaceDao extends DAOImpl<PlaceRecord, org.curioswitch.database.cafe
      */
     public List<org.curioswitch.database.cafemapdb.tables.pojos.Place> fetchByInstagramId(String... values) {
         return fetch(Place.PLACE.INSTAGRAM_ID, values);
+    }
+
+    /**
+     * Fetch records that have <code>created_at IN (values)</code>
+     */
+    public List<org.curioswitch.database.cafemapdb.tables.pojos.Place> fetchByCreatedAt(LocalDateTime... values) {
+        return fetch(Place.PLACE.CREATED_AT, values);
+    }
+
+    /**
+     * Fetch records that have <code>updated_at IN (values)</code>
+     */
+    public List<org.curioswitch.database.cafemapdb.tables.pojos.Place> fetchByUpdatedAt(LocalDateTime... values) {
+        return fetch(Place.PLACE.UPDATED_AT, values);
     }
 }
