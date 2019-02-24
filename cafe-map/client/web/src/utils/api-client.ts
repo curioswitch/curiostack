@@ -20,31 +20,26 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
-import { ActionsUnion, createAction } from '@curiostack/base-web';
-import { bindActionCreators, Dispatch } from 'redux';
+import { Metadata } from 'grpc-web';
 
-import { GetPlacesResponse } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
+import { CafeMapServicePromiseClient } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_grpc_web_pb';
+import {
+  GetPlacesRequest,
+  GetPlacesResponse,
+} from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
-export enum ActionTypes {
-  GET_PLACES = 'HomePage/GET_PLACES',
-  GET_PLACES_RESPONSE = 'HomePage/GET_PLACES_RESPONSE',
-  SELECT_MARKER = 'HomePage/SELECT_MARKER',
-}
+export default class ApiClient {
+  private client = new CafeMapServicePromiseClient('/api', null, null);
 
-export const Actions = {
-  getPlaces: () => createAction(ActionTypes.GET_PLACES),
-  getPlacesResponse: (response: GetPlacesResponse) =>
-    createAction(ActionTypes.GET_PLACES_RESPONSE, response),
-  selectMarker: () => createAction(ActionTypes.SELECT_MARKER),
-};
+  public async getPlaces(
+    request: GetPlacesRequest,
+  ): Promise<GetPlacesResponse> {
+    return this.client.getPlaces(request, await this.getMetadata());
+  }
 
-export type Actions = ActionsUnion<typeof Actions>;
-
-export type DispatchProps = typeof Actions;
-
-export function mapDispatchToProps(dispatch: Dispatch<Actions>): DispatchProps {
-  return bindActionCreators(Actions, dispatch);
+  private async getMetadata(): Promise<Metadata> {
+    return {};
+  }
 }

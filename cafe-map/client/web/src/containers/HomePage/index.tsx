@@ -25,7 +25,7 @@
 
 import { injectReducer, injectSaga } from '@curiostack/base-web';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Helmet from 'react-helmet';
 import { hot } from 'react-hot-loader/root';
 import { InjectedIntlProps, injectIntl } from 'react-intl';
@@ -36,20 +36,28 @@ import Map from '../../components/Map';
 
 import { DispatchProps, mapDispatchToProps } from './actions';
 import messages from './messages';
-import reducer from './reducer';
+import reducer, { StateProps } from './reducer';
 import saga from './saga';
 import selectHomePage from './selectors';
 
-type Props = DispatchProps & InjectedIntlProps;
+type Props = DispatchProps & InjectedIntlProps & StateProps;
 
 const HomePage: React.FunctionComponent<Props> = React.memo((props) => {
   const {
+    getPlaces,
+    places,
     intl: { formatMessage: _ },
   } = props;
+
+  useEffect(() => {
+    getPlaces();
+    return;
+  }, []);
+
   return (
     <>
       <Helmet title={_(messages.title)} />
-      <Map />
+      <Map places={places} />
     </>
   );
 });

@@ -26,13 +26,21 @@ import {
   GoogleApiWrapper,
   Map,
   MapProps,
+  Marker,
   ProvidedProps,
 } from 'google-maps-react';
+import { List } from 'immutable';
 import React from 'react';
+
+import { Place } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
 import CONFIG from '../../config';
 
-type Props = ProvidedProps;
+interface OwnProps {
+  places: List<Place>;
+}
+
+type Props = ProvidedProps & OwnProps;
 
 function initMap(_props?: MapProps, map?: google.maps.Map) {
   if (!map) {
@@ -159,14 +167,24 @@ function initMap(_props?: MapProps, map?: google.maps.Map) {
 }
 
 const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
-  const { google } = props;
+  const { google, places } = props;
   return (
     <Map
       onReady={initMap}
       google={google}
       zoom={12}
       centerAroundCurrentLocation={true}
-    />
+    >
+      {places.map((place) => (
+        <Marker
+          title={place.getName()}
+          position={{
+            lat: place.getPosition().getLatitude(),
+            lng: place.getPosition().getLongitude(),
+          }}
+        />
+      ))}
+    </Map>
   );
 });
 

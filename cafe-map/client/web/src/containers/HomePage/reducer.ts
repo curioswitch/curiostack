@@ -24,22 +24,28 @@
  */
 
 import { Marker } from 'google-maps-react';
-import { Record } from 'immutable';
+import { List, Record } from 'immutable';
 
-import { Actions } from './actions';
+import { Place } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
+
+import { Actions, ActionTypes } from './actions';
 
 export interface StateProps {
+  places: List<Place>;
   selectedMarker?: Marker;
 }
 
 export type State = Readonly<StateProps> & Record<StateProps>;
 
 export const initialState = Record<StateProps>({
+  places: List(),
   selectedMarker: undefined,
 })();
 
 export default function(state: State, action: Actions): State {
   switch (action.type) {
+    case ActionTypes.GET_PLACES_RESPONSE:
+      return state.set('places', List(action.payload.getPlaceList()));
     default:
       return state;
   }
