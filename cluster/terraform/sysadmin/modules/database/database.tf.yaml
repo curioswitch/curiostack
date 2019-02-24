@@ -35,6 +35,8 @@ output:
   root_password:
     value: '${random_string.root_password.result}'
     sensitive: true
+  instance_name:
+    value: '${google_sql_database_instance.db_instance.name}'
 resource:
   google_sql_database_instance:
     db_instance:
