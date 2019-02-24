@@ -4,6 +4,7 @@
 package org.curioswitch.database.cafemapdb.tables;
 
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,7 +42,7 @@ import org.jooq.types.ULong;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Place extends TableImpl<PlaceRecord> {
 
-    private static final long serialVersionUID = 747851045;
+    private static final long serialVersionUID = -438248026;
 
     /**
      * The reference instance of <code>cafemapdb.place</code>
@@ -80,6 +81,16 @@ public class Place extends TableImpl<PlaceRecord> {
      * The column <code>cafemapdb.place.instagram_id</code>.
      */
     public final TableField<PlaceRecord, String> INSTAGRAM_ID = createField("instagram_id", org.jooq.impl.SQLDataType.VARCHAR(255), this, "");
+
+    /**
+     * The column <code>cafemapdb.place.created_at</code>.
+     */
+    public final TableField<PlaceRecord, LocalDateTime> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.LOCALDATETIME.nullable(false).defaultValue(org.jooq.impl.DSL.field("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.LOCALDATETIME)), this, "");
+
+    /**
+     * The column <code>cafemapdb.place.updated_at</code>.
+     */
+    public final TableField<PlaceRecord, LocalDateTime> UPDATED_AT = createField("updated_at", org.jooq.impl.SQLDataType.LOCALDATETIME.nullable(false).defaultValue(org.jooq.impl.DSL.field("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.LOCALDATETIME)), this, "");
 
     /**
      * Create a <code>cafemapdb.place</code> table reference
@@ -152,6 +163,14 @@ public class Place extends TableImpl<PlaceRecord> {
     @Override
     public List<UniqueKey<PlaceRecord>> getKeys() {
         return Arrays.<UniqueKey<PlaceRecord>>asList(Keys.KEY_PLACE_PRIMARY);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TableField<PlaceRecord, LocalDateTime> getRecordTimestamp() {
+        return CREATED_AT;
     }
 
     /**

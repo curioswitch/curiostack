@@ -4,6 +4,8 @@
 package org.curioswitch.database.cafemapdb.tables.pojos;
 
 
+import java.time.LocalDateTime;
+
 import javax.annotation.Generated;
 
 import org.curioswitch.database.cafemapdb.tables.interfaces.IPlace;
@@ -23,13 +25,15 @@ import org.jooq.types.ULong;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Place implements IPlace {
 
-    private static final long serialVersionUID = 21359633;
+    private static final long serialVersionUID = 1666271495;
 
-    private final ULong  id;
-    private final String name;
-    private final Double latitude;
-    private final Double longitude;
-    private final String instagramId;
+    private final ULong         id;
+    private final String        name;
+    private final Double        latitude;
+    private final Double        longitude;
+    private final String        instagramId;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime updatedAt;
 
     public Place(IPlace value) {
         this.id = value.getId();
@@ -37,20 +41,26 @@ public class Place implements IPlace {
         this.latitude = value.getLatitude();
         this.longitude = value.getLongitude();
         this.instagramId = value.getInstagramId();
+        this.createdAt = value.getCreatedAt();
+        this.updatedAt = value.getUpdatedAt();
     }
 
     public Place(
-        ULong  id,
-        String name,
-        Double latitude,
-        Double longitude,
-        String instagramId
+        ULong         id,
+        String        name,
+        Double        latitude,
+        Double        longitude,
+        String        instagramId,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
     ) {
         this.id = id;
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
         this.instagramId = instagramId;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     @Override
@@ -76,6 +86,16 @@ public class Place implements IPlace {
     @Override
     public String getInstagramId() {
         return this.instagramId;
+    }
+
+    @Override
+    public LocalDateTime getCreatedAt() {
+        return this.createdAt;
+    }
+
+    @Override
+    public LocalDateTime getUpdatedAt() {
+        return this.updatedAt;
     }
 
     @Override
@@ -117,6 +137,18 @@ public class Place implements IPlace {
         }
         else if (!instagramId.equals(other.instagramId))
             return false;
+        if (createdAt == null) {
+            if (other.createdAt != null)
+                return false;
+        }
+        else if (!createdAt.equals(other.createdAt))
+            return false;
+        if (updatedAt == null) {
+            if (other.updatedAt != null)
+                return false;
+        }
+        else if (!updatedAt.equals(other.updatedAt))
+            return false;
         return true;
     }
 
@@ -129,6 +161,8 @@ public class Place implements IPlace {
         result = prime * result + ((this.latitude == null) ? 0 : this.latitude.hashCode());
         result = prime * result + ((this.longitude == null) ? 0 : this.longitude.hashCode());
         result = prime * result + ((this.instagramId == null) ? 0 : this.instagramId.hashCode());
+        result = prime * result + ((this.createdAt == null) ? 0 : this.createdAt.hashCode());
+        result = prime * result + ((this.updatedAt == null) ? 0 : this.updatedAt.hashCode());
         return result;
     }
 
@@ -141,6 +175,8 @@ public class Place implements IPlace {
         sb.append(", ").append(latitude);
         sb.append(", ").append(longitude);
         sb.append(", ").append(instagramId);
+        sb.append(", ").append(createdAt);
+        sb.append(", ").append(updatedAt);
 
         sb.append(")");
         return sb.toString();

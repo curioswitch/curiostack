@@ -5,6 +5,7 @@ package org.curioswitch.database.cafemapdb.tables.interfaces;
 
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 import javax.annotation.Generated;
 
@@ -48,4 +49,14 @@ public interface IPlace extends Serializable {
      * Getter for <code>cafemapdb.place.instagram_id</code>.
      */
     public String getInstagramId();
+
+    /**
+     * Getter for <code>cafemapdb.place.created_at</code>.
+     */
+    public LocalDateTime getCreatedAt();
+
+    /**
+     * Getter for <code>cafemapdb.place.updated_at</code>.
+     */
+    public LocalDateTime getUpdatedAt();
 }
