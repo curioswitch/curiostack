@@ -49,25 +49,6 @@ function initMap(_props?: MapProps, map?: google.maps.Map) {
   map.setOptions({
     styles: [
       {
-        featureType: 'administrative.locality',
-        elementType: 'labels.text',
-        stylers: [
-          {
-            visibility: 'off',
-          },
-        ],
-      },
-      {
-        featureType: 'landscape',
-        elementType: 'geometry.fill',
-        stylers: [
-          {
-            color: '#fefffd',
-          },
-        ],
-      },
-      {
-        featureType: 'landscape',
         elementType: 'labels',
         stylers: [
           {
@@ -76,8 +57,7 @@ function initMap(_props?: MapProps, map?: google.maps.Map) {
         ],
       },
       {
-        featureType: 'landscape',
-        elementType: 'labels.icon',
+        featureType: 'administrative.land_parcel',
         stylers: [
           {
             visibility: 'off',
@@ -85,7 +65,7 @@ function initMap(_props?: MapProps, map?: google.maps.Map) {
         ],
       },
       {
-        featureType: 'landscape',
+        featureType: 'administrative.land_parcel',
         elementType: 'labels.text',
         stylers: [
           {
@@ -94,32 +74,10 @@ function initMap(_props?: MapProps, map?: google.maps.Map) {
         ],
       },
       {
-        featureType: 'landscape',
-        elementType: 'labels.text.fill',
+        featureType: 'administrative.neighborhood',
         stylers: [
           {
             visibility: 'off',
-          },
-        ],
-      },
-      {
-        featureType: 'landscape',
-        elementType: 'labels.text.stroke',
-        stylers: [
-          {
-            visibility: 'off',
-          },
-        ],
-      },
-      {
-        featureType: 'road',
-        elementType: 'geometry.fill',
-        stylers: [
-          {
-            color: '#ffd26d',
-          },
-          {
-            weight: 2,
           },
         ],
       },
@@ -128,37 +86,34 @@ function initMap(_props?: MapProps, map?: google.maps.Map) {
         elementType: 'geometry.stroke',
         stylers: [
           {
-            visibility: 'off',
+            weight: 2,
           },
         ],
       },
       {
-        featureType: 'transit.line',
+        featureType: 'transit',
+        elementType: 'geometry.stroke',
+        stylers: [
+          {
+            weight: 1,
+          },
+        ],
+      },
+      {
+        featureType: 'transit.station.rail',
         elementType: 'geometry.fill',
         stylers: [
           {
-            weight: 4.5,
+            weight: 2,
           },
         ],
       },
       {
-        featureType: 'transit.line',
-        elementType: 'labels.text',
+        featureType: 'transit.station.rail',
+        elementType: 'geometry.stroke',
         stylers: [
           {
-            visibility: 'off',
-          },
-        ],
-      },
-      {
-        featureType: 'transit.station',
-        elementType: 'geometry.fill',
-        stylers: [
-          {
-            color: '#ffccd0',
-          },
-          {
-            weight: 0.5,
+            weight: 2,
           },
         ],
       },
