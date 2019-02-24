@@ -32,12 +32,16 @@ import dagger.Provides;
 import dagger.multibindings.IntoSet;
 import io.grpc.BindableService;
 import javax.inject.Singleton;
+import org.curioswitch.cafemap.server.places.GetPlacesGraph;
 import org.curioswitch.common.server.framework.ServerModule;
+import org.curioswitch.common.server.framework.database.DatabaseModule;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
 
 public class CafeMapServiceMain {
 
-  @Module(includes = ServerModule.class)
+  @Module(
+      includes = {DatabaseModule.class, ServerModule.class},
+      subcomponents = {GetPlacesGraph.Component.class})
   abstract static class CafeMapServiceModule {
     @Binds
     @IntoSet
