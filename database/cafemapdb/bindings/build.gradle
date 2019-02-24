@@ -1,0 +1,93 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+apply plugin: 'java-library'
+apply plugin: 'nu.studer.jooq'
+
+dependencies {
+    api 'org.jooq:jooq'
+
+    implementation 'com.google.guava:guava'
+    implementation 'mysql:mysql-connector-java'
+
+    jooqRuntime 'mysql:mysql-connector-java'
+}
+
+jooq {
+    version = '3.11.9'
+    curioswitchDb(sourceSets.main) {
+        jdbc {
+            driver = 'com.mysql.jdbc.Driver'
+            url = 'jdbc:mysql://google/cafemapdb'
+            user = 'root'
+            password = rootProject.findProperty('devPassword') ?: ''
+            properties {
+                property {
+                    key = 'cloudSqlInstance'
+                    value = 'curioswitch-cluster:asia-northeast1:curioswitchdb-dev'
+                }
+                property {
+                    key = 'socketFactory'
+                    value = 'com.google.cloud.sql.mysql.SocketFactory'
+                }
+            }
+        }
+        generator {
+            database {
+                recordTimestampFields = 'created_at|updated_at'
+                inputSchema = 'cafemapdb'
+            }
+            generate {
+                daos = true
+                deprecated = false
+                fluentSetters = true
+                immutableInterfaces = true
+                immutablePojos = true
+                javaTimeTypes = true
+                pojosEqualsAndHashCode = true
+                records = true
+                relations = true
+            }
+            target {
+                packageName = 'org.curioswitch.database.cafemapdb'
+                directory = "$projectDir/gen-src/main/java"
+            }
+        }
+    }
+}
+
+gradle.taskGraph.whenReady { graph ->
+    def tasks = graph.allTasks
+    if (tasks.find { it.path == ':database:stellarstationdb:bindings:compileJava' }) {
+        tasks.findAll { it.name == 'generateStellarstationDbJooqSchemaSource' }.each { task ->
+            task.enabled = false
+        }
+    }
+}
+
+afterEvaluate {
+    tasks.cleanGenerateCurioswitchDbJooqSchemaSource.enabled = false
+    tasks.spotlessJava.enabled = false
+    tasks.spotlessJavaApply.enabled = false
+}
