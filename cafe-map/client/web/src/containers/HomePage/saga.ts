@@ -23,8 +23,26 @@
  *
  */
 
-import { all, AllEffect } from 'redux-saga/effects';
+import { all, AllEffect, call, put, takeLatest } from 'redux-saga/effects';
+
+import {
+  GetPlacesRequest,
+  GetPlacesResponse,
+} from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
+
+import ApiClient from '../../utils/api-client';
+
+import { Actions, ActionTypes } from './actions';
+
+function* getPlaces() {
+  const client = new ApiClient();
+
+  const response: GetPlacesResponse = yield call(() =>
+    client.getPlaces(new GetPlacesRequest()),
+  );
+  yield put(Actions.getPlacesResponse(response));
+}
 
 export default function* rootSaga(): IterableIterator<AllEffect<{}>> {
-  yield all([]);
+  yield all([takeLatest(ActionTypes.GET_PLACES, getPlaces)]);
 }
