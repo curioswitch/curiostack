@@ -20,16 +20,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-module:
-  curioswitchdb_dev:
-    source: './modules/database'
-    instance_name: curioswitchdb-dev
-    tier: db-f1-micro
-  dbuser_cafemap_server:
-    source: './modules/database-user'
-    dev_instance: '${module.curioswitchdb_dev.instance_name}'
-    username: cafemap_server
-  dbuser_instagram_scraper:
-    source: './modules/database-user'
-    dev_instance: '${module.curioswitchdb_dev.instance_name}'
-    username: insta_scraper
+
+variable:
+  dev_instance:
+    type: string
+  username:
+    type: string
+output:
+  dev_password:
+    value: '${random_string.dev_password.result}'
+    sensitive: true
+  prod_password:
+    value: '${random_string.prod_password.result}'
+    sensitive: true
+resource:
+  random_string:
+    dev_password:
+      length: 32
+      special: false
+    prod_password:
+      length: 32
+      special: false
+  google_sql_user:
+    dev_user:
+      name: '${var.username}'
+      instance: '${var.dev_instance}'
+      host: '%'
+      password: '${random_string.dev_password.result}'
