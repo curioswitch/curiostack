@@ -86,6 +86,15 @@ gradle.taskGraph.whenReady { graph ->
     }
 }
 
+gradle.taskGraph.whenReady { graph ->
+    def tasks = graph.allTasks
+    if (tasks.find { it.path == ':database:cafemapdb:bindings:compileJava' }) {
+        tasks.findAll { it.name == 'generateCurioswitchDbJooqSchemaSource' }.each { task ->
+            task.enabled = false
+        }
+    }
+}
+
 afterEvaluate {
     tasks.cleanGenerateCurioswitchDbJooqSchemaSource.enabled = false
     tasks.spotlessJava.enabled = false

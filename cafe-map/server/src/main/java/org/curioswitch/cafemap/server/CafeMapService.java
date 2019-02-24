@@ -24,13 +24,29 @@
 
 package org.curioswitch.cafemap.server;
 
+import io.grpc.stub.StreamObserver;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 import org.curioswitch.cafemap.api.CafeMapServiceGrpc.CafeMapServiceImplBase;
+import org.curioswitch.cafemap.api.GetPlacesRequest;
+import org.curioswitch.cafemap.api.GetPlacesResponse;
+import org.curioswitch.cafemap.server.places.GetPlacesGraph;
+import org.curioswitch.common.server.framework.grpc.GrpcGraphUtil;
 
 @Singleton
 public class CafeMapService extends CafeMapServiceImplBase {
 
+  private final Provider<GetPlacesGraph.Component.Builder> getPlacesGraph;
+
   @Inject
-  CafeMapService() {}
+  CafeMapService(Provider<GetPlacesGraph.Component.Builder> getPlacesGraph) {
+    this.getPlacesGraph = getPlacesGraph;
+  }
+
+  @Override
+  public void getPlaces(
+      GetPlacesRequest request, StreamObserver<GetPlacesResponse> responseObserver) {
+    GrpcGraphUtil.unary(new GetPlacesGraph(request), responseObserver, getPlacesGraph);
+  }
 }
