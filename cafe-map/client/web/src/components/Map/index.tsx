@@ -84,15 +84,6 @@ function initMap(_props?: MapProps, map?: google.maps.Map) {
         ],
       },
       {
-        featureType: 'administrative.land_parcel',
-        elementType: 'labels.text',
-        stylers: [
-          {
-            visibility: 'off',
-          },
-        ],
-      },
-      {
         featureType: 'administrative.neighborhood',
         stylers: [
           {
@@ -101,38 +92,49 @@ function initMap(_props?: MapProps, map?: google.maps.Map) {
         ],
       },
       {
+        featureType: 'landscape',
+        elementType: 'geometry.stroke',
+        stylers: [
+          {
+            color: '#ffffff',
+          },
+        ],
+      },
+      {
+        featureType: 'landscape.man_made',
+        elementType: 'geometry.stroke',
+        stylers: [
+          {
+            visibility: 'off',
+          },
+        ],
+      },
+      {
+        featureType: 'road',
+        elementType: 'geometry.fill',
+        stylers: [
+          {
+            color: '#ffffff',
+          },
+        ],
+      },
+      {
         featureType: 'road',
         elementType: 'geometry.stroke',
         stylers: [
           {
-            weight: 2,
+            color: '#ffffff',
+          },
+          {
+            visibility: 'off',
           },
         ],
       },
       {
-        featureType: 'transit',
-        elementType: 'geometry.stroke',
+        featureType: 'transit.line',
         stylers: [
           {
-            weight: 1,
-          },
-        ],
-      },
-      {
-        featureType: 'transit.station.rail',
-        elementType: 'geometry.fill',
-        stylers: [
-          {
-            weight: 2,
-          },
-        ],
-      },
-      {
-        featureType: 'transit.station.rail',
-        elementType: 'geometry.stroke',
-        stylers: [
-          {
-            weight: 2,
+            weight: 1.5,
           },
         ],
       },
