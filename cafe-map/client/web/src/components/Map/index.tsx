@@ -36,11 +36,30 @@ import { Place } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-
 
 import CONFIG from '../../config';
 
+import lawsonSvg from './images/lawson.svg';
+import pinkMarkerSvg from './images/pink-marker.svg';
+import sevenElevenSvg from './images/seven-eleven.svg';
+
 interface OwnProps {
   places: List<Place>;
 }
 
 type Props = ProvidedProps & OwnProps;
+
+const TEST_PLACES = [
+  {
+    title: 'セブンイレブン',
+    lat: 35.5517657,
+    lng: 139.6741667,
+    icon: sevenElevenSvg,
+  },
+  {
+    title: 'ローソン',
+    lat: 35.5511861,
+    lng: 139.6725258,
+    icon: lawsonSvg,
+  },
+];
 
 function initMap(_props?: MapProps, map?: google.maps.Map) {
   if (!map) {
@@ -136,6 +155,23 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
           position={{
             lat: place.getPosition().getLatitude(),
             lng: place.getPosition().getLongitude(),
+          }}
+          icon={{
+            url: pinkMarkerSvg,
+            scaledSize: new google.maps.Size(64, 64),
+          }}
+        />
+      ))}
+      {TEST_PLACES.map((place) => (
+        <Marker
+          title={place.title}
+          position={{
+            lat: place.lat,
+            lng: place.lng,
+          }}
+          icon={{
+            url: place.icon,
+            scaledSize: new google.maps.Size(64, 64),
           }}
         />
       ))}
