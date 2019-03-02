@@ -127,6 +127,8 @@
     "cafe-map/client/web",
     "common/web/base-node-dev",
     "common/web/base-web",
+    "common/web/eslint-config-base",
+    "common/web/eslint-config-web",
     "developer-portal",
     "eggworld/api/build/web",
     "eggworld/client/web",
