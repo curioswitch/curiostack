@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,22 +22,30 @@
  * SOFTWARE.
  */
 
-import { WebappConfig } from '@curiostack/base-web';
-import 'sanitize.css/sanitize.css';
-
-import enMessages from './translations/en.json';
-
-import { initialState } from './state';
-
-import App from './containers/App';
-
-const config: WebappConfig = {
-  initialState,
-  component: App,
-  messages: {
-    en: enMessages,
+module.exports = {
+  extends: [
+    '@curiostack/base',
+    'airbnb',
+    'prettier',
+    'prettier/@typescript-eslint',
+    'prettier/react',
+  ],
+  rules: {
+    'import/no-extraneous-dependencies': 'off',
+    'react/jsx-filename-extension': [
+      'error',
+      { extensions: ['.js', '.jsx', 'ts', 'tsx'] },
+    ],
   },
-  defaultLocale: 'en',
+  settings: {
+    'import/extensions': ['.js', '.jsx', '.ts', '.tsx'],
+    'import/parsers': {
+      '@typescript-eslint/parser': ['.ts', '.tsx'],
+    },
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      },
+    },
+  },
 };
-
-export default config;

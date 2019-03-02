@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,22 +22,37 @@
  * SOFTWARE.
  */
 
-import { WebappConfig } from '@curiostack/base-web';
-import 'sanitize.css/sanitize.css';
-
-import enMessages from './translations/en.json';
-
-import { initialState } from './state';
-
-import App from './containers/App';
-
-const config: WebappConfig = {
-  initialState,
-  component: App,
-  messages: {
-    en: enMessages,
+module.exports = {
+  extends: [
+    'airbnb-base',
+    'plugin:@typescript-eslint/recommended',
+    // TODO(choko): Use this after https://github.com/benmosher/eslint-plugin-import/pull/1277
+    // is released.
+    // 'plugin:import/typescript',
+    'prettier',
+    'prettier/@typescript-eslint',
+  ],
+  plugins: ['prettier'],
+  rules: {
+    'import/no-extraneous-dependencies': 'off',
+    'prettier/prettier': [
+      'error',
+      {
+        arrowParens: 'always',
+        singleQuote: true,
+        trailingComma: 'all',
+      },
+    ],
   },
-  defaultLocale: 'en',
+  settings: {
+    'import/extensions': ['.js', '.jsx', '.ts', '.tsx'],
+    'import/parsers': {
+      '@typescript-eslint/parser': ['.ts', '.tsx'],
+    },
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      },
+    },
+  },
 };
-
-export default config;
