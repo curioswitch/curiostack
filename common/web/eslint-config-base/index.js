@@ -34,6 +34,7 @@ module.exports = {
   ],
   plugins: ['prettier'],
   rules: {
+    'import/no-extraneous-dependencies': 'off',
     'prettier/prettier': [
       'error',
       {
