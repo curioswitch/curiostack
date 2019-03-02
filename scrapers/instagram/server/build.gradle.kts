@@ -36,6 +36,7 @@ application {
 }
 
 dependencies {
+    compile(project(":database:cafemapdb:bindings"))
     compile(project(":scrapers:instagram:api"))
 
     compile("org.curioswitch.curiostack:curio-server-framework")
