@@ -144,6 +144,7 @@ function initMap(_props?: MapProps, map?: google.maps.Map) {
 
 const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
   const { google, places } = props;
+
   return (
     <Map
       onReady={initMap}
@@ -158,6 +159,12 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
             lat: place.getPosition().getLatitude(),
             lng: place.getPosition().getLongitude(),
           }}
+          // tslint:disable-next-line:jsx-no-lambda
+          onClick={() =>
+            window.open(
+              `https://www.instagram.com/explore/locations/${place.getInstagramId()}/`,
+            )
+          }
           icon={{
             url: pinkMarkerSvg,
             scaledSize: new google.maps.Size(64, 64),
