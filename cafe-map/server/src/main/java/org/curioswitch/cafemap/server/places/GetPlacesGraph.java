@@ -26,6 +26,7 @@ package org.curioswitch.cafemap.server.places;
 
 import static org.curioswitch.database.cafemapdb.tables.Place.PLACE;
 
+import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import dagger.producers.ProducerModule;
@@ -81,6 +82,7 @@ public class GetPlacesGraph {
                 .setLatitude(place.getLatitude())
                 .setLongitude(place.getLongitude())
                 .build())
+        .setInstagramId(Strings.nullToEmpty(place.getInstagramId()))
         .build();
   }
 }
