@@ -39,8 +39,13 @@ import CONFIG from '../../config';
 import lawsonSvg from './images/lawson.svg';
 import pinkMarkerSvg from './images/pink-marker.svg';
 import sevenElevenSvg from './images/seven-eleven.svg';
+import treeSvg from './images/tree.svg';
 
 interface OwnProps {
+  doGetLandmarks: () => void;
+  doSetMap: (map: google.maps.Map) => void;
+
+  landmarks: List<google.maps.places.PlaceResult>;
   places: List<Place>;
 }
 
@@ -61,10 +66,7 @@ const TEST_PLACES = [
   },
 ];
 
-function initMap(_props?: MapProps, map?: google.maps.Map) {
-  if (!map) {
-    return;
-  }
+function initMap(map: google.maps.Map) {
   map.setOptions({
     styles: [
       {
@@ -143,11 +145,21 @@ function initMap(_props?: MapProps, map?: google.maps.Map) {
 }
 
 const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
-  const { google, places } = props;
+  const { doGetLandmarks, doSetMap, google, landmarks, places } = props;
+
+  const onMapReady = (_props?: MapProps, map?: google.maps.Map) => {
+    if (map) {
+      doSetMap(map);
+      initMap(map);
+
+      // onBoundsChanged doesn't work for some reason.
+      map.addListener('bounds_changed', doGetLandmarks);
+    }
+  };
 
   return (
     <Map
-      onReady={initMap}
+      onReady={onMapReady}
       google={google}
       zoom={12}
       centerAroundCurrentLocation={true}
@@ -171,6 +183,16 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
           }}
         />
       ))}
+      {landmarks.map((place) => (
+        <Marker
+          title={place.name}
+          position={place.geometry.location}
+          icon={{
+            url: treeSvg,
+            scaledSize: new google.maps.Size(64, 64),
+          }}
+        />
+      ))}
       {TEST_PLACES.map((place) => (
         <Marker
           title={place.title}
@@ -190,4 +212,5 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
 
 export default GoogleApiWrapper({
   apiKey: CONFIG.google.apiKey,
+  libraries: ['places'],
 })(MapContainer);

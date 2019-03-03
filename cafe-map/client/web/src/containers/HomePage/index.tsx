@@ -44,9 +44,12 @@ type Props = DispatchProps & InjectedIntlProps & StateProps;
 
 const HomePage: React.FunctionComponent<Props> = React.memo((props) => {
   const {
+    getLandmarks,
     getPlaces,
+    landmarks,
     places,
     intl: { formatMessage: _ },
+    setMap,
   } = props;
 
   useEffect(() => {
@@ -57,7 +60,12 @@ const HomePage: React.FunctionComponent<Props> = React.memo((props) => {
   return (
     <>
       <Helmet title={_(messages.title)} />
-      <Map places={places} />
+      <Map
+        doGetLandmarks={getLandmarks}
+        doSetMap={setMap}
+        landmarks={landmarks}
+        places={places}
+      />
     </>
   );
 });

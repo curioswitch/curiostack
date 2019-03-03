@@ -50,3 +50,7 @@ dependencies {
     testAnnotationProcessor("org.immutables:value-annotations")
     testCompileOnly("org.immutables:value")
 }
+
+deployment {
+    types.maybeCreate("alpha").setNamespace("cafemap-dev")
+}
