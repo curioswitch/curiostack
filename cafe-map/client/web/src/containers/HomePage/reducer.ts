@@ -31,6 +31,8 @@ import { Place } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-
 import { Actions, ActionTypes } from './actions';
 
 export interface StateProps {
+  map?: google.maps.Map;
+  landmarks: List<google.maps.places.PlaceResult>;
   places: List<Place>;
   selectedMarker?: Marker;
 }
@@ -38,14 +40,20 @@ export interface StateProps {
 export type State = Readonly<StateProps> & Record<StateProps>;
 
 export const initialState = Record<StateProps>({
+  map: undefined,
+  landmarks: List(),
   places: List(),
   selectedMarker: undefined,
 })();
 
 export default function(state: State, action: Actions): State {
   switch (action.type) {
+    case ActionTypes.GET_LANDMARKS_RESPONSE:
+      return state.set('landmarks', List(action.payload));
     case ActionTypes.GET_PLACES_RESPONSE:
       return state.set('places', List(action.payload.getPlaceList()));
+    case ActionTypes.SET_MAP:
+      return state.set('map', action.payload);
     default:
       return state;
   }

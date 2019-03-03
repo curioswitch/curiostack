@@ -23,7 +23,15 @@
  *
  */
 
-import { all, AllEffect, call, put, takeLatest } from 'redux-saga/effects';
+import {
+  all,
+  AllEffect,
+  call,
+  put,
+  select,
+  takeLatest,
+  throttle,
+} from 'redux-saga/effects';
 
 import {
   GetPlacesRequest,
@@ -33,6 +41,36 @@ import {
 import ApiClient from '../../utils/api-client';
 
 import { Actions, ActionTypes } from './actions';
+import { selectMap } from './selectors';
+
+function* getLandmarks() {
+  const map: google.maps.Map | undefined = yield select(selectMap);
+  if (!map) {
+    return;
+  }
+  const places = new google.maps.places.PlacesService(map);
+
+  const results: google.maps.places.PlaceResult[] = yield call(
+    () =>
+      new Promise<google.maps.places.PlaceResult[]>((resolve, reject) => {
+        places.nearbySearch(
+          {
+            bounds: map.getBounds()!,
+            type: 'park',
+          },
+          (res, status) => {
+            if (status !== google.maps.places.PlacesServiceStatus.OK) {
+              reject(new Error(`Error searching for places: ${status}`));
+            } else {
+              resolve(res);
+            }
+          },
+        );
+      }),
+  );
+
+  yield put(Actions.getLandmarksResponse(results));
+}
 
 function* getPlaces() {
   const client = new ApiClient();
@@ -44,5 +82,8 @@ function* getPlaces() {
 }
 
 export default function* rootSaga(): IterableIterator<AllEffect<{}>> {
-  yield all([takeLatest(ActionTypes.GET_PLACES, getPlaces)]);
+  yield all([
+    takeLatest(ActionTypes.GET_PLACES, getPlaces),
+    throttle(2000, ActionTypes.GET_LANDMARKS, getLandmarks),
+  ]);
 }

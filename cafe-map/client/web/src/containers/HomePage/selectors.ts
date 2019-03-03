@@ -30,4 +30,7 @@ import { StateProps } from './reducer';
 export const selectHomePage = (state: GlobalState): StateProps =>
   state.homePage.toObject();
 
+export const selectMap = (state: GlobalState): google.maps.Map | undefined =>
+  state.homePage.map;
+
 export default selectHomePage;
