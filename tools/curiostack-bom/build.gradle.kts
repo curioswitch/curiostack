@@ -385,7 +385,7 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "org.curioswitch.curiostack",
-        "0.0.101",
+        "0.0.102",
         listOf("curio-server-framework")
     ),
     DependencySet(

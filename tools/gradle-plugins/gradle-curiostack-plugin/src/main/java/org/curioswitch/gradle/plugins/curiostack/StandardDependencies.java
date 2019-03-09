@@ -24,7 +24,6 @@
 
 package org.curioswitch.gradle.plugins.curiostack;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Style;

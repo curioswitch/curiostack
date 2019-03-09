@@ -666,14 +666,7 @@ public class CuriostackPlugin implements Plugin<Project> {
 
     dependencies.add(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME, "com.google.code.findbugs:jsr305");
     dependencies.add(
-        testConfiguration.getName(),
-        "true"
-                .equals(
-                    project
-                        .getRootProject()
-                        .findProperty("org.curioswitch.curiostack.is_curiostack"))
-            ? project.project(":common:testing:framework")
-            : "org.curioswitch.curiostack:curio-testing-framework");
+        testConfiguration.getName(), "org.curioswitch.curiostack:curio-testing-framework");
     dependencies.add(testConfiguration.getName(), "org.assertj:assertj-core");
     dependencies.add(testConfiguration.getName(), "org.awaitility:awaitility");
     dependencies.add(testConfiguration.getName(), "junit:junit");
