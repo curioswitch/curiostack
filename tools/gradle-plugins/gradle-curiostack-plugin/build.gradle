@@ -96,7 +96,7 @@ dependencies {
     runtime 'org.glassfish.jaxb:jaxb-runtime'
 
     annotationProcessor 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
+    compileOnly 'org.immutables:value-annotations'
 }
 
 gradlePlugin {
