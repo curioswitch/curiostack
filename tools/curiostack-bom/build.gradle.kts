@@ -23,9 +23,7 @@
  */
 
 plugins {
-    `java-library`
-    `maven-publish`
-    id("io.spring.dependency-management")
+    `java-platform`
 }
 
 val JACKSON_VERSION = "2.9.7"
@@ -471,27 +469,15 @@ val DEPENDENCIES = listOf(
     "nu.studer:gradle-jooq-plugin:3.0.2"
 )
 
-dependencyManagement {
-    dependencies {
+dependencies {
+    constraints {
         for (set in DEPENDENCY_SETS) {
-            dependencySet(mapOf("group" to set.group, "version" to set.version)) {
-                set.modules.forEach(::entry)
+            for (module in set.modules) {
+                api("${set.group}:${module}:${set.version}")
             }
         }
-        DEPENDENCIES.forEach(::dependency)
-    }
-}
-
-publishing {
-    publications {
-        register("maven", MavenPublication::class) {
-            pom {
-                name.set("Curiostack Bill-of-Materials")
-                description.set("BOM specifying versions for all standard Curiostack dependencies.")
-                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
-                    "curiostack-bom")
-                setPackaging("pom")
-            }
+        for (dependency in DEPENDENCIES) {
+            api(dependency)
         }
     }
 }
