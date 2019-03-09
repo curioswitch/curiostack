@@ -52,5 +52,5 @@ dependencies {
 }
 
 deployment {
-    types.maybeCreate("alpha").setNamespace("cafemap-dev")
+    types.maybeCreate("alpha").setNamespace("cafemap-dev").setDeploymentName("cafemap-server-alpha")
 }
