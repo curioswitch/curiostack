@@ -24,17 +24,17 @@
 package org.curioswitch.common.server.framework.staticsite;
 
 import com.google.common.collect.ImmutableSet;
+import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.server.AbstractPathMapping;
+import com.linecorp.armeria.server.HttpService;
 import com.linecorp.armeria.server.PathMappingContext;
 import com.linecorp.armeria.server.PathMappingResult;
-import com.linecorp.armeria.server.Service;
-import com.linecorp.armeria.server.ServiceRequestContext;
-import com.linecorp.armeria.server.ServiceRequestContextWrapper;
-import com.linecorp.armeria.server.SimpleDecoratingService;
+import com.linecorp.armeria.server.ServerCacheControl;
 import com.linecorp.armeria.server.composition.AbstractCompositeService;
 import com.linecorp.armeria.server.composition.CompositeServiceEntry;
+import com.linecorp.armeria.server.file.HttpFileBuilder;
 import com.linecorp.armeria.server.file.HttpFileService;
 import com.linecorp.armeria.server.file.HttpFileServiceBuilder;
 import java.util.Set;
@@ -83,89 +83,26 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
    */
   public static StaticSiteService of(String staticPath, String classpathRoot) {
     HttpFileService fileService =
-        HttpFileServiceBuilder.forClassPath(classpathRoot).serveCompressedFiles(true).build();
-    return new StaticSiteService(staticPath, fileService);
+        HttpFileServiceBuilder.forClassPath(classpathRoot)
+            .serveCompressedFiles(true)
+            .cacheControl(ServerCacheControl.IMMUTABLE)
+            .addHeader(HttpHeaderNames.VARY, "Accept-Encoding")
+            .build();
+
+    HttpService indexService =
+        HttpFileBuilder.ofResource("index.html")
+            .cacheControl(ServerCacheControl.DISABLED)
+            .build()
+            .asService();
+
+    return new StaticSiteService(staticPath, fileService, indexService);
   }
 
   @SuppressWarnings("ConstructorInvokesOverridable")
-  private StaticSiteService(String staticPath, HttpFileService fileService) {
+  private StaticSiteService(
+      String staticPath, HttpFileService fileService, HttpService indexService) {
     super(
-        CompositeServiceEntry.ofPrefix(
-            staticPath, fileService.decorate(InfiniteCachingService.newDecorator())),
-        CompositeServiceEntry.ofExact("/sw.js", fileService),
-        CompositeServiceEntry.ofCatchAll(
-            fileService
-                .orElse(fileService.decorate(HistoryFallbackService::new))
-                .decorate(IndexHtmlService::new)));
-  }
-
-  private static class IndexHtmlService extends SimpleDecoratingService<HttpRequest, HttpResponse> {
-
-    private IndexHtmlService(Service<HttpRequest, HttpResponse> delegate) {
-      super(delegate);
-    }
-
-    @Override
-    public HttpResponse serve(ServiceRequestContext ctx, HttpRequest req) throws Exception {
-      if (ctx.mappedPath().indexOf('.', ctx.mappedPath().lastIndexOf('/') + 1) != -1
-          || ctx.mappedPath().charAt(ctx.mappedPath().length() - 1) == '/') {
-        // A path that ends with '/' will be handled by HttpFileService correctly, and otherwise if
-        // it has a '.' in the last path segment, assume it is a filename.
-        return delegate().serve(ctx, req);
-      }
-      return delegate().serve(new ContextWrapper(ctx), req);
-    }
-
-    private static class ContextWrapper extends ServiceRequestContextWrapper {
-
-      private final String indexPath;
-
-      /** Creates a new instance. */
-      private ContextWrapper(ServiceRequestContext delegate) {
-        super(delegate);
-        indexPath = delegate.mappedPath() + "/index.html";
-      }
-
-      @Override
-      public String mappedPath() {
-        return indexPath;
-      }
-
-      @Override
-      public String decodedMappedPath() {
-        return indexPath;
-      }
-    }
-  }
-
-  private static class HistoryFallbackService
-      extends SimpleDecoratingService<HttpRequest, HttpResponse> {
-
-    private HistoryFallbackService(Service<HttpRequest, HttpResponse> delegate) {
-      super(delegate);
-    }
-
-    @Override
-    public HttpResponse serve(ServiceRequestContext ctx, HttpRequest req) throws Exception {
-      return delegate().serve(new ContextWrapper(ctx), req);
-    }
-
-    private static class ContextWrapper extends ServiceRequestContextWrapper {
-
-      /** Creates a new instance. */
-      private ContextWrapper(ServiceRequestContext delegate) {
-        super(delegate);
-      }
-
-      @Override
-      public String mappedPath() {
-        return "/index.html";
-      }
-
-      @Override
-      public String decodedMappedPath() {
-        return "/index.html";
-      }
-    }
+        CompositeServiceEntry.ofPrefix(staticPath, fileService),
+        CompositeServiceEntry.ofCatchAll(indexService));
   }
 }
