@@ -45,7 +45,9 @@ import org.curioswitch.scrapers.instagram.api.ScrapeLocationsRequest;
 import org.curioswitch.scrapers.instagram.api.ScrapeLocationsResponse;
 import org.curioswitch.scrapers.instagram.server.models.Location;
 import org.curioswitch.scrapers.instagram.server.models.LocationsPage;
+import org.curioswitch.scrapers.instagram.server.models.PostPage;
 import org.curioswitch.scrapers.instagram.server.models.ProfilePage;
+import org.curioswitch.scrapers.instagram.server.models.TagPage;
 import org.curioswitch.scrapers.instagram.server.util.SharedDataExtractor;
 
 @ProducerModule
@@ -66,6 +68,12 @@ public class ScrapeLocationsGraph {
   }
 
   @Qualifier
+  @interface HashtagPage {}
+
+  @Qualifier
+  @interface FetchedPostPage {}
+
+  @Qualifier
   @interface UserPage {}
 
   @Qualifier
@@ -74,6 +82,54 @@ public class ScrapeLocationsGraph {
   @Produces
   ScrapeLocationsRequest request() {
     return request;
+  }
+
+  @Produces
+  @HashtagPage
+  static ListenableFuture<List<@Nullable AggregatedHttpMessage>> fetchHashtags(
+      ScrapeLocationsRequest request, HttpClient instagramClient, ServiceRequestContext ctx) {
+    return Futures.successfulAsList(
+        request
+            .getHashtagList()
+            .stream()
+            .map(
+                hashtag ->
+                    toListenableFuture(
+                        instagramClient
+                            .get("/explore/tags/" + hashtag + '/')
+                            .aggregateWithPooledObjects(ctx.eventLoop(), ctx.alloc())))
+            .collect(toImmutableList()));
+  }
+
+  @Produces
+  @FetchedPostPage
+  static ListenableFuture<List<@Nullable AggregatedHttpMessage>> fetchPosts(
+      @HashtagPage List<@Nullable AggregatedHttpMessage> hashtagPages,
+      SharedDataExtractor sharedDataExtractor,
+      HttpClient instagramClient,
+      ServiceRequestContext ctx) {
+    return Futures.successfulAsList(
+        hashtagPages
+            .stream()
+            .filter(Objects::nonNull)
+            .map(page -> sharedDataExtractor.extractSharedData(page, TagPage.class))
+            .flatMap(
+                page ->
+                    page.getEntryData()
+                        .getTagPage()
+                        .get(0)
+                        .getGraphql()
+                        .getHashtag()
+                        .getPosts()
+                        .getEdges()
+                        .stream())
+            .map(
+                post ->
+                    toListenableFuture(
+                        instagramClient
+                            .get("/p/" + post.getNode().getShortcode() + '/')
+                            .aggregateWithPooledObjects(ctx.eventLoop(), ctx.alloc())))
+            .collect(toImmutableList()));
   }
 
   @Produces
@@ -95,17 +151,25 @@ public class ScrapeLocationsGraph {
 
   @Produces
   @LocationPage
-  static ListenableFuture<List<@Nullable AggregatedHttpMessage>> fetchPosts(
+  static ListenableFuture<List<@Nullable AggregatedHttpMessage>> fetchLocations(
+      @FetchedPostPage List<@Nullable AggregatedHttpMessage> postPages,
       @UserPage List<@Nullable AggregatedHttpMessage> userPages,
       HttpClient instagramClient,
       SharedDataExtractor sharedDataExtractor,
       ServiceRequestContext ctx) {
     return Futures.successfulAsList(
-        userPages
-            .stream()
-            .filter(Objects::nonNull)
-            .map(page -> sharedDataExtractor.extractSharedData(page, ProfilePage.class))
-            .flatMap(ScrapeLocationsGraph::getLocationPageIds)
+        Stream.concat(
+                userPages
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .map(page -> sharedDataExtractor.extractSharedData(page, ProfilePage.class))
+                    .flatMap(ScrapeLocationsGraph::getLocationPageIds),
+                postPages
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .map(page -> sharedDataExtractor.extractSharedData(page, PostPage.class))
+                    .map(ScrapeLocationsGraph::getLocationPageId)
+                    .filter(s -> !s.isEmpty()))
             .distinct()
             .map(
                 locationId ->
@@ -144,6 +208,15 @@ public class ScrapeLocationsGraph {
         .map(edge -> edge.getNode().getLocation())
         .filter(Objects::nonNull)
         .map(Location::getId);
+  }
+
+  private static String getLocationPageId(PostPage page) {
+    var location = page.getEntryData().getPostPage().get(0).getGraphql().getPost().getLocation();
+    if (location != null) {
+      return location.getId();
+    } else {
+      return "";
+    }
   }
 
   private static ScrapeLocationsResponse.LocationPage convertLocationPage(
