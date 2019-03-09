@@ -24,6 +24,9 @@
 
 package org.curioswitch.scrapers.instagram.server;
 
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static org.curioswitch.database.cafemapdb.tables.Place.PLACE;
+
 import com.fasterxml.jackson.core.JsonGenerator.Feature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,16 +39,27 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoSet;
 import io.grpc.BindableService;
+import java.util.function.Function;
 import javax.inject.Singleton;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.curioswitch.common.server.framework.ServerModule;
 import org.curioswitch.common.server.framework.armeria.ClientBuilderFactory;
+import org.curioswitch.common.server.framework.database.DatabaseModule;
+import org.curioswitch.database.cafemapdb.tables.records.PlaceRecord;
 import org.curioswitch.scrapers.instagram.api.InstagramScraperServiceGrpc.InstagramScraperServiceBlockingStub;
 import org.curioswitch.scrapers.instagram.api.ScrapeLocationsRequest;
+import org.curioswitch.scrapers.instagram.api.ScrapeLocationsResponse.LocationPage;
 import org.curioswitch.scrapers.instagram.server.locations.ScrapeLocationsGraph;
+import org.jooq.DSLContext;
 
 public class InstagramScraperServiceMain {
 
-  @Module(includes = ServerModule.class, subcomponents = ScrapeLocationsGraph.Component.class)
+  private static final Logger logger = LogManager.getLogger();
+
+  @Module(
+      includes = {DatabaseModule.class, ServerModule.class},
+      subcomponents = ScrapeLocationsGraph.Component.class)
   abstract static class InstagramScraperServiceModule {
     @Binds
     @IntoSet
@@ -81,6 +95,8 @@ public class InstagramScraperServiceMain {
   interface ServerComponent {
     Server server();
 
+    DSLContext db();
+
     InstagramScraperServiceBlockingStub scraperClient();
   }
 
@@ -92,9 +108,38 @@ public class InstagramScraperServiceMain {
 
     var response =
         scraperClient.scrapeLocations(
-            ScrapeLocationsRequest.newBuilder().addUsername("rinkoroom").build());
+            ScrapeLocationsRequest.newBuilder()
+                .addUsername("rinkoroom")
+                .addUsername("607keih")
+                .addUsername("hidekazu.cafe")
+                .addUsername("chiemi51s")
+                .addUsername("genkihiro08061028")
+                .addUsername("nicefotoco")
+                .addUsername("cafemiru.jp")
+                .addHashtag("%E8%A1%A8%E5%8F%82%E9%81%93%E3%82%AB%E3%83%95%E3%82%A7")
+                .build());
 
-    System.out.println(response);
+    var deduped =
+        response
+            .getLocationList()
+            .stream()
+            .collect(toImmutableMap(LocationPage::getId, Function.identity(), (a, b) -> a));
+
+    var db = component.db();
+
+    for (var location : deduped.values()) {
+      PlaceRecord record = db.newRecord(PLACE);
+      record
+          .setName(location.getName())
+          .setInstagramId(location.getId())
+          .setLatitude(location.getLatitude())
+          .setLongitude(location.getLongitude());
+      db.insertInto(PLACE).set(record).onDuplicateKeyUpdate().set(record).execute();
+    }
+
+    logger.info("Finished writing places.");
+
+    System.exit(0);
   }
 
   private InstagramScraperServiceMain() {}

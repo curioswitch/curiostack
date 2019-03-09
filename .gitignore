@@ -109,6 +109,7 @@ gradle-app.setting
 
 .idea
 .ideaDatasources
+dataSources
 
 ## File-based project format:
 *.iml

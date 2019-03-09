@@ -29,5 +29,53 @@ package org.curioswitch.cafemap.api;
 option java_package = "org.curioswitch.cafemap.api";
 option java_multiple_files = true;
 
+// A LatLng is a point in geographical coordinates: latitude and longitude.
+message LatLng {
+  // The latitude of a point, in degrees. Must be in the range [-90, 90].
+  double latitude = 1;
+
+  // The longitude of a point, in degrees. Must be in the range [-180, 180].
+  double longitude = 2;
+}
+
+// A rectangle in geographical coordinates, including one that crosses the 180 degrees longitudinal
+// meridian.
+//
+// See: https://developers.google.com/maps/documentation/javascript/reference/coordinates#LatLngBounds
+message LatLngBounds {
+  // The `LatLng` of the southwest corner of the bounding box.
+  LatLng south_west = 1;
+
+  // The `LatLng` of the northeast corner of the bounding box.
+  LatLng north_east = 2;
+}
+
+// A request for the `GetPlaces` method.
+message GetPlacesRequest {
+  // The viewport to get places for. Only places falling inside the viewport will be returned.
+  LatLngBounds viewport = 1;
+}
+
+// A place, typically rendered on a map.
+message Place {
+  // The position of the place.
+  LatLng position = 1;
+
+  // The name of the place.
+  string name = 2;
+
+  // The location ID of this place on Instagram. Not set if this location was not found on
+  // Instagram.
+  string instagram_id = 3;
+}
+
+// A response for the `GetPlaces` method.
+message GetPlacesResponse {
+  // Places corresponding to `GetPlacesRequest`.
+  repeated Place place = 1;
+}
+
 service CafeMapService {
+  // Returns a list of places.
+  rpc GetPlaces (GetPlacesRequest) returns (GetPlacesResponse);
 }

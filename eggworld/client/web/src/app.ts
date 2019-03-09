@@ -29,9 +29,7 @@ import enMessages from './translations/en.json';
 
 import { initialState } from './state';
 
-// Import root app
-// tslint:disable-next-line:no-var-requires
-const App = require('containers/App').default;
+import App from './containers/App';
 
 const config: WebappConfig = {
   initialState,

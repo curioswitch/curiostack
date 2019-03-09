@@ -38,6 +38,7 @@ application {
 dependencies {
     compile(project(":cafe-map:api"))
     compile(project(":cafe-map:client:web"))
+    compile(project(":database:cafemapdb:bindings"))
 
     compile("org.curioswitch.curiostack:curio-server-framework")
 
@@ -48,4 +49,8 @@ dependencies {
     testAnnotationProcessor("com.google.dagger:dagger-compiler")
     testAnnotationProcessor("org.immutables:value-annotations")
     testCompileOnly("org.immutables:value")
+}
+
+deployment {
+    types.maybeCreate("alpha").setNamespace("cafemap-dev").setDeploymentName("cafemap-server-alpha")
 }

@@ -26,7 +26,6 @@ package org.curioswitch.scrapers.instagram.server.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linecorp.armeria.common.AggregatedHttpMessage;
-import com.linecorp.armeria.unsafe.ByteBufHttpData;
 import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.ByteBufInputStream;
 import java.io.ByteArrayInputStream;
@@ -49,7 +48,7 @@ public class SharedDataExtractor {
   public <T> T extractSharedData(AggregatedHttpMessage page, Class<T> dataType) {
     final InputStream contentStream;
     if (page.content() instanceof ByteBufHolder) {
-      contentStream = new ByteBufInputStream(((ByteBufHttpData) page.content()).content(), true);
+      contentStream = new ByteBufInputStream(((ByteBufHolder) page.content()).content(), true);
     } else {
       contentStream = new ByteArrayInputStream(page.content().array());
     }

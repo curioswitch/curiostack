@@ -26,40 +26,50 @@ import {
   GoogleApiWrapper,
   Map,
   MapProps,
+  Marker,
   ProvidedProps,
 } from 'google-maps-react';
+import { List } from 'immutable';
 import React from 'react';
+
+import { Place } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
 import CONFIG from '../../config';
 
-type Props = ProvidedProps;
+import lawsonSvg from './images/lawson.svg';
+import pinkMarkerSvg from './images/pink-marker.svg';
+import sevenElevenSvg from './images/seven-eleven.svg';
+import treeSvg from './images/tree.svg';
 
-function initMap(_props?: MapProps, map?: google.maps.Map) {
-  if (!map) {
-    return;
-  }
+interface OwnProps {
+  doGetLandmarks: () => void;
+  doSetMap: (map: google.maps.Map) => void;
+
+  landmarks: List<google.maps.places.PlaceResult>;
+  places: List<Place>;
+}
+
+type Props = ProvidedProps & OwnProps;
+
+const TEST_PLACES = [
+  {
+    title: 'セブンイレブン',
+    lat: 35.5517657,
+    lng: 139.6741667,
+    icon: sevenElevenSvg,
+  },
+  {
+    title: 'ローソン',
+    lat: 35.5511861,
+    lng: 139.6725258,
+    icon: lawsonSvg,
+  },
+];
+
+function initMap(map: google.maps.Map) {
   map.setOptions({
     styles: [
       {
-        featureType: 'administrative.locality',
-        elementType: 'labels.text',
-        stylers: [
-          {
-            visibility: 'off',
-          },
-        ],
-      },
-      {
-        featureType: 'landscape',
-        elementType: 'geometry.fill',
-        stylers: [
-          {
-            color: '#fefffd',
-          },
-        ],
-      },
-      {
-        featureType: 'landscape',
         elementType: 'labels',
         stylers: [
           {
@@ -68,8 +78,15 @@ function initMap(_props?: MapProps, map?: google.maps.Map) {
         ],
       },
       {
-        featureType: 'landscape',
-        elementType: 'labels.icon',
+        featureType: 'administrative.land_parcel',
+        stylers: [
+          {
+            visibility: 'off',
+          },
+        ],
+      },
+      {
+        featureType: 'administrative.neighborhood',
         stylers: [
           {
             visibility: 'off',
@@ -78,45 +95,15 @@ function initMap(_props?: MapProps, map?: google.maps.Map) {
       },
       {
         featureType: 'landscape',
-        elementType: 'labels.text',
+        elementType: 'geometry.stroke',
         stylers: [
           {
-            visibility: 'off',
+            color: '#ffffff',
           },
         ],
       },
       {
-        featureType: 'landscape',
-        elementType: 'labels.text.fill',
-        stylers: [
-          {
-            visibility: 'off',
-          },
-        ],
-      },
-      {
-        featureType: 'landscape',
-        elementType: 'labels.text.stroke',
-        stylers: [
-          {
-            visibility: 'off',
-          },
-        ],
-      },
-      {
-        featureType: 'road',
-        elementType: 'geometry.fill',
-        stylers: [
-          {
-            color: '#ffd26d',
-          },
-          {
-            weight: 2,
-          },
-        ],
-      },
-      {
-        featureType: 'road',
+        featureType: 'landscape.man_made',
         elementType: 'geometry.stroke',
         stylers: [
           {
@@ -125,32 +112,31 @@ function initMap(_props?: MapProps, map?: google.maps.Map) {
         ],
       },
       {
-        featureType: 'transit.line',
+        featureType: 'road',
         elementType: 'geometry.fill',
         stylers: [
           {
-            weight: 4.5,
+            color: '#ffffff',
           },
         ],
       },
       {
-        featureType: 'transit.line',
-        elementType: 'labels.text',
+        featureType: 'road',
+        elementType: 'geometry.stroke',
         stylers: [
+          {
+            color: '#ffffff',
+          },
           {
             visibility: 'off',
           },
         ],
       },
       {
-        featureType: 'transit.station',
-        elementType: 'geometry.fill',
+        featureType: 'transit.line',
         stylers: [
           {
-            color: '#ffccd0',
-          },
-          {
-            weight: 0.5,
+            weight: 1.5,
           },
         ],
       },
@@ -159,17 +145,72 @@ function initMap(_props?: MapProps, map?: google.maps.Map) {
 }
 
 const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
-  const { google } = props;
+  const { doGetLandmarks, doSetMap, google, landmarks, places } = props;
+
+  const onMapReady = (_props?: MapProps, map?: google.maps.Map) => {
+    if (map) {
+      doSetMap(map);
+      initMap(map);
+
+      // onBoundsChanged doesn't work for some reason.
+      map.addListener('bounds_changed', doGetLandmarks);
+    }
+  };
+
   return (
     <Map
-      onReady={initMap}
+      onReady={onMapReady}
       google={google}
       zoom={12}
       centerAroundCurrentLocation={true}
-    />
+    >
+      {places.map((place) => (
+        <Marker
+          title={place.getName()}
+          position={{
+            lat: place.getPosition().getLatitude(),
+            lng: place.getPosition().getLongitude(),
+          }}
+          // tslint:disable-next-line:jsx-no-lambda
+          onClick={() =>
+            window.open(
+              `https://www.instagram.com/explore/locations/${place.getInstagramId()}/`,
+            )
+          }
+          icon={{
+            url: pinkMarkerSvg,
+            scaledSize: new google.maps.Size(45, 45),
+          }}
+        />
+      ))}
+      {landmarks.map((place) => (
+        <Marker
+          title={place.name}
+          position={place.geometry.location}
+          icon={{
+            url: treeSvg,
+            scaledSize: new google.maps.Size(45, 45),
+          }}
+        />
+      ))}
+      {TEST_PLACES.map((place) => (
+        <Marker
+          title={place.title}
+          position={{
+            lat: place.lat,
+            lng: place.lng,
+          }}
+          icon={{
+            url: place.icon,
+            scaledSize: new google.maps.Size(45, 45),
+          }}
+        />
+      ))}
+    </Map>
   );
 });
 
 export default GoogleApiWrapper({
   apiKey: CONFIG.google.apiKey,
+  libraries: ['places'],
 })(MapContainer);
