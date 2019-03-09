@@ -119,7 +119,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.github.ben-manes.caffeine")
-              .version("2.6.2")
+              .version("2.7.0")
               .addModules("caffeine")
               .build(),
           ImmutableDependencySet.builder()
@@ -192,7 +192,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.errorprone")
-              .version("2.3.2")
+              .version("2.3.3")
               .addModules("error_prone_annotations", "error_prone_core")
               .build(),
           ImmutableDependencySet.builder()
@@ -202,12 +202,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.guava")
-              .version("27.0.1-jre")
+              .version("27.1-jre")
               .addModules("guava", "guava-testlib")
               .build(),
           ImmutableDependencySet.builder()
               .group("com.google.protobuf")
-              .version("3.6.1")
+              .version("3.7.0")
               .addModules("protobuf-java", "protobuf-java-util")
               .build(),
           // protoc often diverges from protobuf-java
@@ -218,7 +218,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("com.linecorp.armeria")
-              .version("0.79.0")
+              .version("0.81.0")
               .addModules("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
               .build(),
           ImmutableDependencySet.builder()
@@ -264,17 +264,17 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.fabric8")
-              .version("4.1.2")
+              .version("4.1.3")
               .addModules("kubernetes-client")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.lettuce")
-              .version("5.1.4.RELEASE")
+              .version("5.1.5.RELEASE")
               .addModules("lettuce-core")
               .build(),
           ImmutableDependencySet.builder()
               .group("io.grpc")
-              .version("1.18.0")
+              .version("1.19.0")
               .addModules(
                   "grpc-all",
                   "grpc-auth",
@@ -330,7 +330,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("io.zipkin.gcp")
-              .version("0.10.1")
+              .version("0.10.2")
               .addModules("brave-propagation-stackdriver", "zipkin-translation-stackdriver")
               .build(),
           ImmutableDependencySet.builder()
@@ -345,7 +345,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("net.bytebuddy")
-              .version("1.9.8")
+              .version("1.9.10")
               .addModules("byte-buddy", "byte-buddy-agent")
               .build(),
           ImmutableDependencySet.builder()
@@ -373,7 +373,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.assertj")
-              .version("3.12.0")
+              .version("3.12.1")
               .addModules("assertj-core")
               .build(),
           ImmutableDependencySet.builder()
@@ -448,7 +448,7 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.jooq")
-              .version("3.11.9")
+              .version("3.11.10")
               .addModules("jooq", "jooq-codegen", "jooq-meta")
               .build(),
           ImmutableDependencySet.builder()
@@ -458,12 +458,12 @@ public class StandardDependencies {
               .build(),
           ImmutableDependencySet.builder()
               .group("org.junit.vintage")
-              .version("5.3.2")
+              .version("5.4.0")
               .addModules("junit-vintage-engine")
               .build(),
           ImmutableDependencySet.builder()
               .group("org.mockito")
-              .version("2.24.4")
+              .version("2.25.0")
               .addModules("mockito-core", "mockito-junit-jupiter")
               .build(),
           ImmutableDependencySet.builder()
@@ -485,10 +485,10 @@ public class StandardDependencies {
 
   static final ImmutableList<String> DEPENDENCIES =
       ImmutableList.of(
-          "com.bmuschko:gradle-docker-plugin:4.4.1",
+          "com.bmuschko:gradle-docker-plugin:4.6.1",
           "com.diffplug.spotless:spotless-plugin-gradle:3.18.0",
-          "com.github.ben-manes:gradle-versions-plugin:0.20.0",
-          "com.google.gradle:osdetector-gradle-plugin:1.6.1",
+          "com.github.ben-manes:gradle-versions-plugin:0.21.0",
+          "com.google.gradle:osdetector-gradle-plugin:1.6.2",
           "com.google.protobuf:protobuf-gradle-plugin:0.8.6",
           "com.hubspot.jinjava:jinjava:2.4.15",
           "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
@@ -497,12 +497,12 @@ public class StandardDependencies {
           "com.palantir:gradle-baseline-java:0.10.0",
           "de.undercouch:gradle-download-task:3.4.3",
           "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.2.4",
-          "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.0.0",
+          "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.0.2",
           "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.0.0",
           "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
           "gradle.plugin.com.palantir.graal:gradle-graal:0.2.0-4-g255fd1f",
           "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
-          "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE",
+          "io.spring.gradle:dependency-management-plugin:1.0.7.RELEASE",
           "it.unimi.dsi:fastutil:8.2.2",
           "javax.activation:activation:1.1.1",
           "javax.annotation:javax.annotation-api:1.3.2",
@@ -510,7 +510,7 @@ public class StandardDependencies {
           "me.champeau.gradle:jmh-gradle-plugin:0.4.8",
           "mysql:mysql-connector-java:8.0.15",
           "net.ltgt.gradle:gradle-apt-plugin:0.21",
-          "net.ltgt.gradle:gradle-errorprone-plugin:0.7",
+          "net.ltgt.gradle:gradle-errorprone-plugin:0.7.1",
           "nu.studer:gradle-jooq-plugin:3.0.3");
 
   private StandardDependencies() {}
