@@ -24,9 +24,10 @@
 
 plugins {
     `java-platform`
+    `maven-publish`
 }
 
-val JACKSON_VERSION = "2.9.7"
+val JACKSON_VERSION = "2.9.8"
 
 data class DependencySet(val group: String, val version: String, val modules: List<String>)
 
@@ -43,12 +44,12 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "com.auth0",
-        "3.4.1",
+        "3.7.0",
         listOf("java-jwt")
     ),
     DependencySet(
         "com.google.auth",
-        "0.12.0",
+        "0.13.0",
         listOf("google-auth-library-oauth2-http")
     ),
     DependencySet(
@@ -63,13 +64,20 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "com.google.auto.value",
-        "1.6.3rc1",
+        "1.6.3",
         listOf("auto-value", "auto-value-annotations")
     ),
     DependencySet(
         "com.fasterxml.jackson.core",
         JACKSON_VERSION,
-        listOf("jackson-annotations", "jackson-core", "jackson-databind")
+        listOf(
+            "jackson-annotations",
+            "jackson-core",
+            "jackson-databind",
+            "jackson-dataformat-xml",
+            "jackson-dataformat-yaml",
+            "jackson-datatype-guava",
+            "jackson-datatype-jsr310")
     ),
     DependencySet(
         "com.fasterxml.jackson.dataformat",
@@ -83,22 +91,27 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "com.github.ben-manes.caffeine",
-        "2.6.2",
+        "2.7.0",
         listOf("caffeine")
     ),
     DependencySet(
         "com.google.api-client",
-        "1.27.0",
+        "1.28.0",
         listOf("google-api-client")
     ),
     DependencySet(
         "com.google.api.grpc",
-        "0.37.0",
+        "0.44.0",
         listOf("grpc-google-cloud-trace-v1")
     ),
     DependencySet(
         "com.google.api.grpc",
-        "1.36.0",
+        "0.44.0",
+        listOf("grpc-google-cloud-trace-v2")
+    ),
+    DependencySet(
+        "com.google.api.grpc",
+        "1.43.0",
         listOf("grpc-google-cloud-pubsub-v1")
     ),
     DependencySet(
@@ -113,7 +126,7 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "com.google.cloud",
-        "1.54.0",
+        "1.61.0",
         listOf(
             "google-cloud-bigquery",
             "google-cloud-core",
@@ -133,7 +146,7 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "com.google.cloud.sql",
-        "1.0.11",
+        "1.0.12",
         listOf(
             "mysql-socket-factory",
             "mysql-socket-factory-connector-j-6",
@@ -146,27 +159,27 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "com.google.dagger",
-        "2.19",
+        "2.21",
         listOf("dagger", "dagger-compiler", "dagger-producers")
     ),
     DependencySet(
         "com.google.errorprone",
-        "2.3.2",
-        listOf("error_prone_core")
+        "2.3.3",
+        listOf("error_prone_annotations", "error_prone_core")
     ),
     DependencySet(
         "com.google.firebase",
-        "6.6.0",
+        "6.7.0",
         listOf("firebase-admin")
     ),
     DependencySet(
         "com.google.guava",
-        "27.0.1-jre",
+        "27.1-jre",
         listOf("guava", "guava-testlib")
     ),
     DependencySet(
         "com.google.protobuf",
-        "3.6.1",
+        "3.7.0",
         listOf("protobuf-java", "protobuf-java-util")
     ),
     // protoc often diverges from protobuf-java
@@ -177,17 +190,17 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "com.linecorp.armeria",
-        "0.76.2",
+        "0.81.0",
         listOf("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
     ),
     DependencySet(
         "com.spotify",
-        "4.1.1",
+        "4.1.3",
         listOf("futures-extra")
     ),
     DependencySet(
         "com.squareup.retrofit2",
-        "2.4.0",
+        "2.5.0",
         listOf(
             "adapter-guava",
             "adapter-java8",
@@ -208,7 +221,7 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "com.zaxxer",
-        "3.2.0",
+        "3.3.1",
         listOf("HikariCP")
     ),
     DependencySet(
@@ -223,36 +236,38 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "io.fabric8",
-        "4.1.0",
+        "4.1.3",
         listOf("kubernetes-client")
     ),
     DependencySet(
         "io.lettuce",
-        "5.1.3.RELEASE",
+        "5.1.5.RELEASE",
         listOf("lettuce-core")
     ),
     DependencySet(
         "io.grpc",
-        "1.16.1",
+        "1.19.0",
         listOf(
             "grpc-all",
             "grpc-auth",
+            "grpc-context",
             "grpc-core",
             "grpc-netty",
             "grpc-netty-shaded",
             "grpc-okhttp",
             "grpc-protobuf",
+            "grpc-protobuf-lite",
             "grpc-services",
             "grpc-stub")
     ),
     DependencySet(
         "io.micrometer",
-        "1.1.1",
+        "1.1.3",
         listOf("micrometer-core", "micrometer-registry-prometheus")
     ),
     DependencySet(
         "io.netty",
-        "4.1.31.Final",
+        "4.1.32.Final",
         listOf(
             "netty-buffer",
             "netty-codec",
@@ -272,22 +287,22 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "io.netty",
-        "2.0.19.Final",
+        "2.0.20.Final",
         listOf("netty-tcnative-boringssl-static")
     ),
     DependencySet(
         "io.prometheus",
-        "0.5.0",
+        "0.6.0",
         listOf("simpleclient", "simpleclient_hotspot", "simpleclient_log4j2")
     ),
     DependencySet(
         "io.zipkin.brave",
-        "5.5.1",
+        "5.6.1",
         listOf("brave", "brave-instrumentation-mysql", "brave-instrumentation-mysql8")
     ),
     DependencySet(
         "io.zipkin.gcp",
-        "0.8.3",
+        "0.10.2",
         listOf("brave-propagation-stackdriver", "zipkin-translation-stackdriver")
     ),
     DependencySet(
@@ -302,12 +317,12 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "net.bytebuddy",
-        "1.9.5",
+        "1.9.10",
         listOf("byte-buddy", "byte-buddy-agent")
     ),
     DependencySet(
         "org.apache.beam",
-        "2.4.0",
+        "2.9.0",
         listOf(
             "beam-runners-direct-java",
             "beam-runners-google-cloud-dataflow-java",
@@ -325,12 +340,12 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "org.apache.logging.log4j",
-        "2.11.1",
+        "2.11.2",
         listOf("log4j-api", "log4j-core", "log4j-jcl", "log4j-jul", "log4j-slf4j-impl")
     ),
     DependencySet(
         "org.assertj",
-        "3.11.1",
+        "3.12.1",
         listOf("assertj-core")
     ),
     DependencySet(
@@ -340,12 +355,12 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "org.awaitility",
-        "3.1.3",
+        "3.1.6",
         listOf("awaitility")
     ),
     DependencySet(
         "org.bouncycastle",
-        "1.60",
+        "1.61",
         listOf("bcpkix-jdk15on", "bcprov-jdk15on")
     ),
     DependencySet(
@@ -355,12 +370,12 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "org.codehaus.groovy",
-        "2.4.12",
+        "2.5.4",
         listOf("groovy")
     ),
     DependencySet(
         "org.curioswitch.curiostack",
-        "0.0.29",
+        "0.0.33",
         listOf(
             "armeria-google-cloud-core",
             "armeria-google-cloud-iam",
@@ -370,12 +385,12 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "org.curioswitch.curiostack",
-        "0.0.97",
+        "0.0.101",
         listOf("curio-server-framework")
     ),
     DependencySet(
         "org.curioswitch.curiostack",
-        "0.0.13",
+        "0.0.14",
         listOf("curio-testing-framework")
     ),
     DependencySet(
@@ -390,7 +405,7 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "org.immutables",
-        "2.7.3",
+        "2.7.5",
         listOf("builder", "value", "value-annotations")
     ),
     DependencySet(
@@ -405,22 +420,22 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "org.jooq",
-        "3.11.7",
+        "3.11.10",
         listOf("jooq", "jooq-codegen", "jooq-meta")
     ),
     DependencySet(
         "org.junit.jupiter",
-        "5.3.2",
+        "5.4.0",
         listOf("junit-jupiter-api", "junit-jupiter-engine", "junit-jupiter-params")
     ),
     DependencySet(
         "org.junit.vintage",
-        "5.3.2",
+        "5.4.0",
         listOf("junit-vintage-engine")
     ),
     DependencySet(
         "org.mockito",
-        "2.23.8",
+        "2.25.0",
         listOf("mockito-core", "mockito-junit-jupiter")
     ),
     DependencySet(
@@ -430,7 +445,7 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "org.simpleflatmapper",
-        "6.0.9",
+        "6.4.0",
         listOf(
             "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
     ),
@@ -442,31 +457,33 @@ val DEPENDENCY_SETS = listOf(
 )
 
 val DEPENDENCIES = listOf(
-    "com.bmuschko:gradle-docker-plugin:4.0.4",
-    "com.diffplug.spotless:spotless-plugin-gradle:3.16.0",
-    "com.github.ben-manes:gradle-versions-plugin:0.20.0",
-    "com.google.gradle:osdetector-gradle-plugin:1.6.0",
+    "com.bmuschko:gradle-docker-plugin:4.6.1",
+    "com.diffplug.spotless:spotless-plugin-gradle:3.18.0",
+    "com.github.ben-manes:gradle-versions-plugin:0.21.0",
+    "com.google.gradle:osdetector-gradle-plugin:1.6.2",
     "com.google.protobuf:protobuf-gradle-plugin:0.8.6",
+    "com.hubspot.jinjava:jinjava:2.4.15",
     "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
     "com.netflix.nebula:gradle-dependency-lock-plugin:6.0.0",
     "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.5",
     "com.palantir:gradle-baseline-java:0.10.0",
     "de.undercouch:gradle-download-task:3.4.3",
-    "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.2.1",
-    "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:0.10.0",
-    "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.0.0-beta1",
+    "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:5.2.4",
+    "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.0.2",
+    "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.0.0",
     "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
     "gradle.plugin.com.palantir.graal:gradle-graal:0.2.0-4-g255fd1f",
     "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
-    "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE",
+    "io.spring.gradle:dependency-management-plugin:1.0.7.RELEASE",
+    "it.unimi.dsi:fastutil:8.2.2",
     "javax.activation:activation:1.1.1",
     "javax.annotation:javax.annotation-api:1.3.2",
     "javax.xml.bind:jaxb-api:2.3.0",
-    "me.champeau.gradle:jmh-gradle-plugin:0.4.7",
-    "mysql:mysql-connector-java:8.0.13",
-    "net.ltgt.gradle:gradle-apt-plugin:0.19",
-    "net.ltgt.gradle:gradle-errorprone-plugin:0.6",
-    "nu.studer:gradle-jooq-plugin:3.0.2"
+    "me.champeau.gradle:jmh-gradle-plugin:0.4.8",
+    "mysql:mysql-connector-java:8.0.15",
+    "net.ltgt.gradle:gradle-apt-plugin:0.21",
+    "net.ltgt.gradle:gradle-errorprone-plugin:0.7.1",
+    "nu.studer:gradle-jooq-plugin:3.0.3"
 )
 
 dependencies {
@@ -478,6 +495,20 @@ dependencies {
         }
         for (dependency in DEPENDENCIES) {
             api(dependency)
+        }
+    }
+}
+
+publishing {
+    publications {
+        register("maven", MavenPublication::class) {
+            pom {
+                name.set("Curiostack Bill-of-Materials")
+                description.set("BOM specifying versions for all standard Curiostack dependencies.")
+                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
+                    "curiostack-bom")
+                setPackaging("pom")
+            }
         }
     }
 }

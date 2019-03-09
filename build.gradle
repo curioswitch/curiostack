@@ -66,12 +66,17 @@ allprojects {
             publishing {
                 publications {
                     maven(MavenPublication) {
-                        from components.java
-
                         artifactId = project.archivesBaseName
 
-                        artifact project.tasks.javadocJar
-                        artifact project.tasks.sourceJar
+                        if (project.name != 'curiostack-bom') {
+                            from components.java
+
+
+                            artifact project.tasks.javadocJar
+                            artifact project.tasks.sourceJar
+                        } else {
+                            from components.javaPlatform
+                        }
 
                         pom {
                             licenses {
