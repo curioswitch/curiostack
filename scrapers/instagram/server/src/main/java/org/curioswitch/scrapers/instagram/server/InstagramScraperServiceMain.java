@@ -116,6 +116,7 @@ public class InstagramScraperServiceMain {
                 .addUsername("genkihiro08061028")
                 .addUsername("nicefotoco")
                 .addUsername("cafemiru.jp")
+                .addHashtag("%E8%A1%A8%E5%8F%82%E9%81%93%E3%82%AB%E3%83%95%E3%82%A7")
                 .build());
 
     var deduped =
@@ -137,6 +138,8 @@ public class InstagramScraperServiceMain {
     }
 
     logger.info("Finished writing places.");
+
+    System.exit(0);
   }
 
   private InstagramScraperServiceMain() {}
