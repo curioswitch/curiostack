@@ -179,7 +179,7 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
           }
           icon={{
             url: pinkMarkerSvg,
-            scaledSize: new google.maps.Size(64, 64),
+            scaledSize: new google.maps.Size(45, 45),
           }}
         />
       ))}
@@ -189,7 +189,7 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
           position={place.geometry.location}
           icon={{
             url: treeSvg,
-            scaledSize: new google.maps.Size(64, 64),
+            scaledSize: new google.maps.Size(45, 45),
           }}
         />
       ))}
@@ -202,7 +202,7 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
           }}
           icon={{
             url: place.icon,
-            scaledSize: new google.maps.Size(64, 64),
+            scaledSize: new google.maps.Size(45, 45),
           }}
         />
       ))}
