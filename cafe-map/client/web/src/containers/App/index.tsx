@@ -37,6 +37,7 @@ import { reducer as formReducer } from 'redux-form/immutable';
 
 import HomePage from '../HomePage/loader';
 import NotFoundPage from '../NotFoundPage/Loadable';
+import PlacePage from '../PlacePage/loader';
 
 import { DispatchProps, mapDispatchToProps } from './actions';
 import messages from './messages';
@@ -59,6 +60,7 @@ class App extends React.PureComponent<Props> {
         <CssBaseline />
         <Switch>
           <Route exact path="/" component={HomePage} />
+          <Route exact path="/place/:id" component={PlacePage} />
           <Route component={NotFoundPage} />
         </Switch>
       </>

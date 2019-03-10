@@ -32,6 +32,7 @@ import dagger.Provides;
 import dagger.multibindings.IntoSet;
 import io.grpc.BindableService;
 import javax.inject.Singleton;
+import org.curioswitch.cafemap.server.places.GetPlaceGraph;
 import org.curioswitch.cafemap.server.places.GetPlacesGraph;
 import org.curioswitch.common.server.framework.ServerModule;
 import org.curioswitch.common.server.framework.database.DatabaseModule;
@@ -41,7 +42,7 @@ public class CafeMapServiceMain {
 
   @Module(
       includes = {DatabaseModule.class, ServerModule.class},
-      subcomponents = {GetPlacesGraph.Component.class})
+      subcomponents = {GetPlacesGraph.Component.class, GetPlaceGraph.Component.class})
   abstract static class CafeMapServiceModule {
     @Binds
     @IntoSet

@@ -22,30 +22,33 @@
  * SOFTWARE.
  */
 
-import { Metadata } from 'grpc-web';
+import {
+  all,
+  AllEffect,
+  call,
+  put,
+  takeLatest,
+} from 'redux-saga/effects';
 
-import { CafeMapServicePromiseClient } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_grpc_web_pb';
 import {
   GetPlaceRequest,
   GetPlaceResponse,
-  GetPlacesRequest,
-  GetPlacesResponse,
 } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
-export default class ApiClient {
-  private client = new CafeMapServicePromiseClient('/api', null, null);
+import ApiClient from '../../utils/api-client';
 
-  public async getPlace(request: GetPlaceRequest): Promise<GetPlaceResponse> {
-    return this.client.getPlace(request, await this.getMetadata());
-  }
+import { Actions, ActionTypes } from './actions';
 
-  public async getPlaces(
-    request: GetPlacesRequest,
-  ): Promise<GetPlacesResponse> {
-    return this.client.getPlaces(request, await this.getMetadata());
-  }
+function* getPlace({ payload: id }: ReturnType<typeof Actions.doGetPlace>) {
+  const client = new ApiClient();
 
-  private async getMetadata(): Promise<Metadata> {
-    return {};
-  }
+  const request = new GetPlaceRequest();
+  request.setInstagramId(id);
+  const response: GetPlaceResponse = yield call(() => client.getPlace(request));
+
+  yield put(Actions.doGetPlaceResponse(response));
+}
+
+export default function* rootSaga(): IterableIterator<AllEffect<{}>> {
+  yield all([takeLatest(ActionTypes.GET_PLACE, getPlace)]);
 }

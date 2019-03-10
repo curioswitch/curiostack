@@ -33,11 +33,16 @@ import {
   initialState as homePageInitialState,
   State as HomePageState,
 } from './containers/HomePage/reducer';
+import {
+  initialState as placePageInitialState,
+  State as PlacePageState,
+} from './containers/PlacePage/reducer';
 
 interface OwnGlobalState {
   app: AppState;
   form: Map<string, any>;
   homePage: HomePageState;
+  placePage: PlacePageState;
 }
 
 export type GlobalState = GlobalStateBase & OwnGlobalState;
@@ -46,6 +51,7 @@ const initialState: OwnGlobalState = {
   app: appInitialState,
   form: Map(),
   homePage: homePageInitialState,
+  placePage: placePageInitialState,
 };
 
 export default initialState;

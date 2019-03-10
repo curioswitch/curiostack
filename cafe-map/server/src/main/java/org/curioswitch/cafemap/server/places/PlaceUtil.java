@@ -22,30 +22,25 @@
  * SOFTWARE.
  */
 
-import { Metadata } from 'grpc-web';
+package org.curioswitch.cafemap.server.places;
 
-import { CafeMapServicePromiseClient } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_grpc_web_pb';
-import {
-  GetPlaceRequest,
-  GetPlaceResponse,
-  GetPlacesRequest,
-  GetPlacesResponse,
-} from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
+import com.google.common.base.Strings;
+import org.curioswitch.cafemap.api.LatLng;
+import org.curioswitch.database.cafemapdb.tables.pojos.Place;
 
-export default class ApiClient {
-  private client = new CafeMapServicePromiseClient('/api', null, null);
+final class PlaceUtil {
 
-  public async getPlace(request: GetPlaceRequest): Promise<GetPlaceResponse> {
-    return this.client.getPlace(request, await this.getMetadata());
+  static org.curioswitch.cafemap.api.Place convertPlace(Place place) {
+    return org.curioswitch.cafemap.api.Place.newBuilder()
+        .setName(place.getName())
+        .setPosition(
+            LatLng.newBuilder()
+                .setLatitude(place.getLatitude())
+                .setLongitude(place.getLongitude())
+                .build())
+        .setInstagramId(Strings.nullToEmpty(place.getInstagramId()))
+        .build();
   }
 
-  public async getPlaces(
-    request: GetPlacesRequest,
-  ): Promise<GetPlacesResponse> {
-    return this.client.getPlaces(request, await this.getMetadata());
-  }
-
-  private async getMetadata(): Promise<Metadata> {
-    return {};
-  }
+  private PlaceUtil() {}
 }

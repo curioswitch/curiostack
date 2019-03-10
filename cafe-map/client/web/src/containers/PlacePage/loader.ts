@@ -22,30 +22,10 @@
  * SOFTWARE.
  */
 
-import { Metadata } from 'grpc-web';
+import { LoadingIndicator } from '@curiostack/base-web';
+import Loadable from 'react-loadable';
 
-import { CafeMapServicePromiseClient } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_grpc_web_pb';
-import {
-  GetPlaceRequest,
-  GetPlaceResponse,
-  GetPlacesRequest,
-  GetPlacesResponse,
-} from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
-
-export default class ApiClient {
-  private client = new CafeMapServicePromiseClient('/api', null, null);
-
-  public async getPlace(request: GetPlaceRequest): Promise<GetPlaceResponse> {
-    return this.client.getPlace(request, await this.getMetadata());
-  }
-
-  public async getPlaces(
-    request: GetPlacesRequest,
-  ): Promise<GetPlacesResponse> {
-    return this.client.getPlaces(request, await this.getMetadata());
-  }
-
-  private async getMetadata(): Promise<Metadata> {
-    return {};
-  }
-}
+export default Loadable({
+  loader: () => import('../PlacePage'),
+  loading: LoadingIndicator,
+} as any);
