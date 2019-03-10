@@ -37,6 +37,7 @@ import { reducer as formReducer } from 'redux-form/immutable';
 
 import HomePage from '../HomePage/loader';
 import NotFoundPage from '../NotFoundPage/Loadable';
+import PlacePage from '../PlacePage/loader';
 
 import { DispatchProps, mapDispatchToProps } from './actions';
 import messages from './messages';
@@ -49,6 +50,7 @@ class App extends React.PureComponent<Props> {
   public render() {
     const {
       intl: { formatMessage: _ },
+      route,
     } = this.props;
     return (
       <>
@@ -57,8 +59,9 @@ class App extends React.PureComponent<Props> {
           titleTemplate={_(messages.titleTemplate)}
         />
         <CssBaseline />
-        <Switch>
+        <Switch location={route.location}>
           <Route exact path="/" component={HomePage} />
+          <Route exact path="/place/:id" component={PlacePage} />
           <Route component={NotFoundPage} />
         </Switch>
       </>

@@ -25,6 +25,8 @@
 
 import { injectReducer, injectSaga } from '@curiostack/base-web';
 import Grid from '@material-ui/core/Grid';
+import { push } from 'connected-react-router';
+import { LocationDescriptorObject } from 'history';
 import React, { useCallback, useEffect } from 'react';
 import Helmet from 'react-helmet';
 import { hot } from 'react-hot-loader/root';
@@ -44,7 +46,11 @@ import reducer, { StateProps } from './reducer';
 import saga from './saga';
 import selectHomePage from './selectors';
 
-type Props = DispatchProps & InjectedIntlProps & StateProps;
+interface OwnDispatchProps extends DispatchProps {
+  doPush: (url: string) => void;
+}
+
+type Props = OwnDispatchProps & InjectedIntlProps & StateProps;
 
 const SearchBoxWrapper = styled.div`
   position: absolute;
@@ -75,6 +81,7 @@ const SearchBoxContainer: React.FunctionComponent<SearchBoxProps> = React.memo(
 const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
   (props) => {
     const {
+      doPush,
       doSearch,
       getLandmarks,
       getPlaces,
@@ -90,6 +97,11 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
       return;
     }, []);
 
+    const openPlacePage = useCallback((id: string) => {
+      doPush(`/place/${id}`);
+      return;
+    }, []);
+
     const handleSearchSubmit = useCallback(handleSubmit(doSearch), [doSearch]);
 
     return (
@@ -101,6 +113,7 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
         <Map
           doGetLandmarks={getLandmarks}
           doSetMap={setMap}
+          onOpenPlace={openPlacePage}
           landmarks={landmarks}
           places={places}
         />
@@ -111,7 +124,10 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
 
 const withConnect = connect(
   selectHomePage,
-  mapDispatchToProps,
+  (dispatch) => ({
+    ...mapDispatchToProps(dispatch),
+    doPush: (location: LocationDescriptorObject) => dispatch(push(location)),
+  }),
 );
 const withReducer = injectReducer({
   reducer,

@@ -45,6 +45,8 @@ interface OwnProps {
   doGetLandmarks: () => void;
   doSetMap: (map: google.maps.Map) => void;
 
+  onOpenPlace: (id: string) => void;
+
   landmarks: List<google.maps.places.PlaceResult>;
   places: List<Place>;
 }
@@ -146,20 +148,25 @@ function initMap(map: google.maps.Map) {
 }
 
 const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
-  const { doGetLandmarks, doSetMap, google, landmarks, places } = props;
+  const {
+    doGetLandmarks,
+    doSetMap,
+    google,
+    landmarks,
+    onOpenPlace,
+    places,
+  } = props;
 
-  const onMapReady = (_props?: MapProps, map?: google.maps.Map) => {
+  const onMapReady = useCallback((_props?: MapProps, map?: google.maps.Map) => {
     if (map) {
       doSetMap(map);
       initMap(map);
-
-      // onBoundsChanged doesn't work for some reason.
-      map.addListener('bounds_changed', doGetLandmarks);
     }
-  };
+  }, []);
 
   return (
     <Map
+      onIdle={doGetLandmarks}
       onReady={onMapReady}
       google={google}
       zoom={12}
@@ -173,14 +180,9 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
             lat: place.getPosition().getLatitude(),
             lng: place.getPosition().getLongitude(),
           }}
-          // tslint:disable-next-line:jsx-no-lambda
-          onClick={useCallback(
-            () =>
-              window.open(
-                `https://www.instagram.com/explore/locations/${place.getInstagramId()}/`,
-              ),
-            [place.getInstagramId()],
-          )}
+          onClick={useCallback(() => onOpenPlace(place.getInstagramId()), [
+            place.getInstagramId(),
+          ])}
           icon={{
             url: pinkMarkerSvg,
             scaledSize: new google.maps.Size(45, 45),

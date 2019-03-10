@@ -22,30 +22,28 @@
  * SOFTWARE.
  */
 
-import { Metadata } from 'grpc-web';
+import { ActionsUnion, createAction } from '@curiostack/base-web';
+import { bindActionCreators, Dispatch } from 'redux';
 
-import { CafeMapServicePromiseClient } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_grpc_web_pb';
-import {
-  GetPlaceRequest,
-  GetPlaceResponse,
-  GetPlacesRequest,
-  GetPlacesResponse,
-} from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
+import { GetPlaceResponse } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
-export default class ApiClient {
-  private client = new CafeMapServicePromiseClient('/api', null, null);
+export enum ActionTypes {
+  GET_PLACE = 'HomePage/GET_PLACE',
+  GET_PLACE_RESPONSE = 'HomePage/GET_PLACE_RESPONSE',
+}
 
-  public async getPlace(request: GetPlaceRequest): Promise<GetPlaceResponse> {
-    return this.client.getPlace(request, await this.getMetadata());
-  }
+export const Actions = {
+  doGetPlace: (id: string) => createAction(ActionTypes.GET_PLACE, id),
+  doGetPlaceResponse: (response: GetPlaceResponse) =>
+    createAction(ActionTypes.GET_PLACE_RESPONSE, response),
+  // TODO(choko): Fix typing so a no-payload action isn't required.
+  dummy: () => createAction('dummy'),
+};
 
-  public async getPlaces(
-    request: GetPlacesRequest,
-  ): Promise<GetPlacesResponse> {
-    return this.client.getPlaces(request, await this.getMetadata());
-  }
+export type Actions = ActionsUnion<typeof Actions>;
 
-  private async getMetadata(): Promise<Metadata> {
-    return {};
-  }
+export type DispatchProps = typeof Actions;
+
+export function mapDispatchToProps(dispatch: Dispatch<Actions>): DispatchProps {
+  return bindActionCreators(Actions, dispatch);
 }
