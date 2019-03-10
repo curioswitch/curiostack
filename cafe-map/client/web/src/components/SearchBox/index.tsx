@@ -22,30 +22,40 @@
  * SOFTWARE.
  */
 
-import { GlobalStateBase } from '@curiostack/base-web';
-import { Map } from 'immutable';
+import IconButton from '@material-ui/core/IconButton';
+import InputBase from '@material-ui/core/InputBase';
+import Paper from '@material-ui/core/Paper';
+import SearchIcon from '@material-ui/icons/Search';
+import React from 'react';
+import { WrappedFieldProps } from 'redux-form';
+import styled from 'styled-components';
 
-import {
-  initialState as appInitialState,
-  State as AppState,
-} from './containers/App/reducer';
-import {
-  initialState as homePageInitialState,
-  State as HomePageState,
-} from './containers/HomePage/reducer';
-
-interface OwnGlobalState {
-  app: AppState;
-  form: Map<string, any>;
-  homePage: HomePageState;
+export interface SearchBoxProps {
+  className?: string;
+  onSearch: () => void;
 }
 
-export type GlobalState = GlobalStateBase & OwnGlobalState;
+const SearchBox: React.FunctionComponent<
+  SearchBoxProps & WrappedFieldProps
+> = ({ className, input, onSearch, meta: { touched, invalid } }) => (
+  <Paper className={className} elevation={1}>
+    <InputBase
+      placeholder="Find a station"
+      fullWidth
+      type="search"
+      endAdornment={
+        <IconButton aria-label="Search" onClick={onSearch}>
+          <SearchIcon />
+        </IconButton>
+      }
+      error={touched && invalid}
+      {...input}
+    />
+  </Paper>
+);
 
-const initialState: OwnGlobalState = {
-  app: appInitialState,
-  form: Map(),
-  homePage: homePageInitialState,
-};
+const StyledSearchBox = styled(React.memo(SearchBox))`
+  padding-left: 10px;
+`;
 
-export default initialState;
+export default StyledSearchBox;

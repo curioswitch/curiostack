@@ -33,11 +33,13 @@ export enum ActionTypes {
   GET_LANDMARKS_RESPONSE = 'HomePage/GET_LANDMARKS_RESPONSE',
   GET_PLACES = 'HomePage/GET_PLACES',
   GET_PLACES_RESPONSE = 'HomePage/GET_PLACES_RESPONSE',
+  SEARCH = 'HomePage/SEARCH',
   SELECT_MARKER = 'HomePage/SELECT_MARKER',
   SET_MAP = 'HomePage/SET_MAP',
 }
 
 export const Actions = {
+  doSearch: () => createAction(ActionTypes.SEARCH),
   getLandmarks: () => createAction(ActionTypes.GET_LANDMARKS),
   getLandmarksResponse: (places: google.maps.places.PlaceResult[]) =>
     createAction(ActionTypes.GET_LANDMARKS_RESPONSE, places),

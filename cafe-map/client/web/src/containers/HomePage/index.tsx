@@ -24,15 +24,19 @@
  */
 
 import { injectReducer, injectSaga } from '@curiostack/base-web';
-
-import React, { useEffect } from 'react';
+import Grid from '@material-ui/core/Grid';
+import React, { useCallback, useEffect } from 'react';
 import Helmet from 'react-helmet';
 import { hot } from 'react-hot-loader/root';
 import { InjectedIntlProps, injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
+import { InjectedFormProps } from 'redux-form';
+import { Field, reduxForm } from 'redux-form/immutable';
+import styled from 'styled-components';
 
 import Map from '../../components/Map';
+import SearchBox, { SearchBoxProps } from '../../components/SearchBox';
 
 import { DispatchProps, mapDispatchToProps } from './actions';
 import messages from './messages';
@@ -42,33 +46,68 @@ import selectHomePage from './selectors';
 
 type Props = DispatchProps & InjectedIntlProps & StateProps;
 
-const HomePage: React.FunctionComponent<Props> = React.memo((props) => {
-  const {
-    getLandmarks,
-    getPlaces,
-    landmarks,
-    places,
-    intl: { formatMessage: _ },
-    setMap,
-  } = props;
+const SearchBoxWrapper = styled.div`
+  position: absolute;
+  top: 10px;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  background: transparent;
+  pointer-events: none;
 
-  useEffect(() => {
-    getPlaces();
-    return;
-  }, []);
+  ${SearchBox} {
+    pointer-events: auto;
+  }
+`;
 
-  return (
-    <>
-      <Helmet title={_(messages.title)} />
-      <Map
-        doGetLandmarks={getLandmarks}
-        doSetMap={setMap}
-        landmarks={landmarks}
-        places={places}
-      />
-    </>
-  );
-});
+const SearchBoxContainer: React.FunctionComponent<SearchBoxProps> = React.memo(
+  (props) => (
+    <SearchBoxWrapper>
+      <Grid container justify="center" alignItems="center">
+        <Grid item xs={11} md={6}>
+          <Field name="query" component={SearchBox} {...props} />
+        </Grid>
+      </Grid>
+    </SearchBoxWrapper>
+  ),
+);
+
+const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
+  (props) => {
+    const {
+      doSearch,
+      getLandmarks,
+      getPlaces,
+      handleSubmit,
+      landmarks,
+      places,
+      intl: { formatMessage: _ },
+      setMap,
+    } = props;
+
+    useEffect(() => {
+      getPlaces();
+      return;
+    }, []);
+
+    const handleSearchSubmit = useCallback(handleSubmit(doSearch), [doSearch]);
+
+    return (
+      <>
+        <Helmet title={_(messages.title)} />
+        <form onSubmit={handleSearchSubmit}>
+          <SearchBoxContainer onSearch={handleSearchSubmit} />
+        </form>
+        <Map
+          doGetLandmarks={getLandmarks}
+          doSetMap={setMap}
+          landmarks={landmarks}
+          places={places}
+        />
+      </>
+    );
+  },
+);
 
 const withConnect = connect(
   selectHomePage,
@@ -85,5 +124,8 @@ export default compose(
   withReducer,
   withSaga,
   withConnect,
+  reduxForm({
+    form: 'homePage',
+  }),
   hot,
 )(HomePage);
