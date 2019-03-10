@@ -33,6 +33,7 @@ import { InjectedIntlProps, injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import { compose, Reducer } from 'redux';
+import { reducer as formReducer } from 'redux-form/immutable';
 
 import HomePage from '../HomePage/loader';
 import NotFoundPage from '../NotFoundPage/Loadable';
@@ -73,10 +74,12 @@ const withReducer = injectReducer({
   reducer: reducer as Reducer<any>,
   key: 'app',
 });
+const withFormReducer = injectReducer({ key: 'form', reducer: formReducer });
 
 export default compose(
   injectIntl,
   withReducer,
+  withFormReducer,
   withConnect,
   hot,
 )(App);

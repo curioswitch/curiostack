@@ -23,6 +23,7 @@
  *
  */
 
+import { formValueSelector } from 'redux-form/immutable';
 import {
   all,
   AllEffect,
@@ -40,6 +41,7 @@ import {
 
 import ApiClient from '../../utils/api-client';
 
+import { GlobalState } from '../../state';
 import { Actions, ActionTypes } from './actions';
 import { selectMap } from './selectors';
 
@@ -81,9 +83,48 @@ function* getPlaces() {
   yield put(Actions.getPlacesResponse(response));
 }
 
+const selectSearchForm = (state: GlobalState) =>
+  formValueSelector('homePage')(state, 'query');
+
+function* search() {
+  const map: google.maps.Map | undefined = yield select(selectMap);
+  if (!map) {
+    return;
+  }
+  const places = new google.maps.places.PlacesService(map);
+
+  const query: string = yield select(selectSearchForm);
+
+  const results: google.maps.places.PlaceResult[] = yield call(
+    () =>
+      new Promise<google.maps.places.PlaceResult[]>((resolve, reject) => {
+        places.textSearch(
+          {
+            query,
+            bounds: map.getBounds()!,
+            type: 'transit_station',
+          },
+          (res, status) => {
+            if (status !== google.maps.places.PlacesServiceStatus.OK) {
+              reject(new Error(`Error searching for places: ${status}`));
+            } else {
+              resolve(res);
+            }
+          },
+        );
+      }),
+  );
+
+  if (results.length > 0) {
+    const place = results[0];
+    map.fitBounds(place.geometry.viewport);
+  }
+}
+
 export default function* rootSaga(): IterableIterator<AllEffect<{}>> {
   yield all([
     takeLatest(ActionTypes.GET_PLACES, getPlaces),
+    takeLatest(ActionTypes.SEARCH, search),
     throttle(2000, ActionTypes.GET_LANDMARKS, getLandmarks),
   ]);
 }

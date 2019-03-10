@@ -30,7 +30,7 @@ import {
   ProvidedProps,
 } from 'google-maps-react';
 import { List } from 'immutable';
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { Place } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
@@ -68,6 +68,7 @@ const TEST_PLACES = [
 
 function initMap(map: google.maps.Map) {
   map.setOptions({
+    disableDefaultUI: true,
     styles: [
       {
         elementType: 'labels',
@@ -166,17 +167,20 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
     >
       {places.map((place) => (
         <Marker
+          key={place.getInstagramId()}
           title={place.getName()}
           position={{
             lat: place.getPosition().getLatitude(),
             lng: place.getPosition().getLongitude(),
           }}
           // tslint:disable-next-line:jsx-no-lambda
-          onClick={() =>
-            window.open(
-              `https://www.instagram.com/explore/locations/${place.getInstagramId()}/`,
-            )
-          }
+          onClick={useCallback(
+            () =>
+              window.open(
+                `https://www.instagram.com/explore/locations/${place.getInstagramId()}/`,
+              ),
+            [place.getInstagramId()],
+          )}
           icon={{
             url: pinkMarkerSvg,
             scaledSize: new google.maps.Size(45, 45),
