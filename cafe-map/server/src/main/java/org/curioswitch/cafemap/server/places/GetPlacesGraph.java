@@ -71,5 +71,4 @@ public class GetPlacesGraph {
         .addAllPlace(places.stream().map(PlaceUtil::convertPlace)::iterator)
         .build();
   }
-
 }
