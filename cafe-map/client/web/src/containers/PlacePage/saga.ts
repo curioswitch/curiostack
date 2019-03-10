@@ -22,13 +22,7 @@
  * SOFTWARE.
  */
 
-import {
-  all,
-  AllEffect,
-  call,
-  put,
-  takeLatest,
-} from 'redux-saga/effects';
+import { all, AllEffect, call, put, takeLatest } from 'redux-saga/effects';
 
 import {
   GetPlaceRequest,

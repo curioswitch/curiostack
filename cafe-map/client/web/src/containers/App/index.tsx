@@ -50,6 +50,7 @@ class App extends React.PureComponent<Props> {
   public render() {
     const {
       intl: { formatMessage: _ },
+      route,
     } = this.props;
     return (
       <>
@@ -58,7 +59,7 @@ class App extends React.PureComponent<Props> {
           titleTemplate={_(messages.titleTemplate)}
         />
         <CssBaseline />
-        <Switch>
+        <Switch location={route.location}>
           <Route exact path="/" component={HomePage} />
           <Route exact path="/place/:id" component={PlacePage} />
           <Route component={NotFoundPage} />
