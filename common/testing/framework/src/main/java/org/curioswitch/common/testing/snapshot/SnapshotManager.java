@@ -76,9 +76,7 @@ enum SnapshotManager {
             (cls, snapshots) -> {
               Path path = getSnapshotPath(cls);
               Map<String, JsonNode> serialized =
-                  snapshots
-                      .entrySet()
-                      .stream()
+                  snapshots.entrySet().stream()
                       .map(
                           entry -> {
                             try {

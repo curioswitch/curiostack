@@ -90,9 +90,7 @@ class RoutingService implements HttpService {
 
   @Nullable
   private HttpClient find(PathOnlyMappingContext mappingContext) {
-    return clients
-        .entrySet()
-        .stream()
+    return clients.entrySet().stream()
         .filter(entry -> entry.getKey().apply(mappingContext).isPresent())
         .map(Entry::getValue)
         .findFirst()

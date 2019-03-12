@@ -53,7 +53,7 @@ public class StandardDependencies {
   public static final String YARN_VERSION = "1.13.0";
 
   static final String GOOGLE_JAVA_FORMAT_VERSION = "1.7";
-  static final String GRADLE_VERSION = "5.3-rc-1";
+  static final String GRADLE_VERSION = "5.3-rc-2";
 
   private StandardDependencies() {}
 }

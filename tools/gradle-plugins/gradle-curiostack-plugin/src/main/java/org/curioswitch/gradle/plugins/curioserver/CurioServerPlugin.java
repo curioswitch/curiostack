@@ -31,6 +31,7 @@ import com.google.cloud.tools.jib.image.ImageFormat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.gorylenko.GitPropertiesPlugin;
+import java.util.Set;
 import org.curioswitch.gradle.plugins.curioserver.tasks.NativeImageTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
@@ -143,16 +144,22 @@ public class CurioServerPlugin implements Plugin<Project> {
                       .getByType(ExtraPropertiesExtension.class)
                       .getProperties()
                       .get("curiostack.releaseBranch");
+          String revisionId =
+              (String) project.getRootProject().findProperty("curiostack.revisionId");
 
-          jib.getTo()
-              .setTags(ImmutableSet.of(releaseBranch != null ? releaseBranch : config.imageTag()));
+          final Set<String> tags;
+          if (releaseBranch != null) {
+            tags = ImmutableSet.of(releaseBranch);
+          } else if (revisionId != null) {
+            tags = ImmutableSet.of(config.imageTag(), revisionId);
+          } else {
+            tags = ImmutableSet.of(config.imageTag());
+          }
+          jib.getTo().setTags(tags);
           jib.container(
               container -> container.setMainClass(appPluginConvention.getMainClassName()));
 
-          String revisionId =
-              (String) project.getRootProject().findProperty("curiostack.revisionId");
           if (revisionId != null) {
-            jib.getTo().setTags(ImmutableSet.of(config.imageTag(), revisionId));
             var alpha = config.getTypes().getByName("alpha");
             patchAlpha.configure(
                 t -> {

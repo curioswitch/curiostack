@@ -60,9 +60,7 @@ class RoutingConfigLoader {
     }
 
     Map<String, HttpClient> clients =
-        config
-            .getTargets()
-            .stream()
+        config.getTargets().stream()
             .collect(
                 toImmutableMap(
                     Target::getName,
@@ -71,9 +69,7 @@ class RoutingConfigLoader {
                             .create(t.getName(), addSerializationFormat(t.getUrl()))
                             .build(HttpClient.class)));
 
-    return config
-        .getRules()
-        .stream()
+    return config.getRules().stream()
         .collect(
             toImmutableMap(
                 r -> PathMapping.of(r.getPathPattern()), r -> clients.get(r.getTarget())));

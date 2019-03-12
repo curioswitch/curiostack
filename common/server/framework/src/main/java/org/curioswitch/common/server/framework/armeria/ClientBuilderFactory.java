@@ -170,8 +170,7 @@ public class ClientBuilderFactory {
               logger.info(
                   "Resolved new endpoints for {} : [ {} ]",
                   name,
-                  endpoints
-                      .stream()
+                  endpoints.stream()
                       .map(e -> MoreObjects.firstNonNull(e.ipAddr(), e.authority()))
                       .collect(Collectors.joining(","))));
       HttpHealthCheckedEndpointGroup endpointGroup =

@@ -91,8 +91,7 @@ public class IpFilteringService extends SimpleDecoratingService<HttpRequest, Htt
   }
 
   private static List<IpFilterRule> parseRules(List<String> ipRules) {
-    return ipRules
-        .stream()
+    return ipRules.stream()
         .map(
             rule -> {
               List<String> parts = RULE_SPLITTER.splitToList(rule);

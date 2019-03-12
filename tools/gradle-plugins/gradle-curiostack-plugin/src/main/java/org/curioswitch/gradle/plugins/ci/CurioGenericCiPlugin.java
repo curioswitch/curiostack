@@ -97,7 +97,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
 
     var config = CiExtension.createAndAdd(project);
 
-    if (System.getenv("CI") == null && !project.hasProperty("ci")) {
+    if (!"true".equals(System.getenv("CI")) && !project.hasProperty("ci")) {
       return;
     }
 
@@ -276,21 +276,17 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
     }
 
     Set<Path> affectedPaths =
-        affectedRelativeFilePaths
-            .stream()
+        affectedRelativeFilePaths.stream()
             .map(p -> Paths.get(project.getRootDir().getAbsolutePath(), p))
             .collect(Collectors.toSet());
 
     Map<Path, Project> projectsByPath =
         Collections.unmodifiableMap(
-            project
-                .getAllprojects()
-                .stream()
+            project.getAllprojects().stream()
                 .collect(
                     Collectors.toMap(
                         p -> Paths.get(p.getProjectDir().getAbsolutePath()), Function.identity())));
-    return affectedPaths
-        .stream()
+    return affectedPaths.stream()
         .map(f -> getProjectForFile(f, projectsByPath))
         .collect(Collectors.toSet());
   }
@@ -365,8 +361,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
           break;
       }
     }
-    return affectedRelativePaths
-        .stream()
+    return affectedRelativePaths.stream()
         .filter(path -> !IGNORED_ROOT_FILES.contains(path))
         .collect(toImmutableSet());
   }
@@ -414,9 +409,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
     if (affectedProjects.isEmpty()) {
       // Not a statically defined tag, try to guess.
       var parts =
-          RELEASE_TAG_SPLITTER
-              .splitToList(branch.substring("RELEASE_".length()))
-              .stream()
+          RELEASE_TAG_SPLITTER.splitToList(branch.substring("RELEASE_".length())).stream()
               .map(Ascii::toLowerCase)
               .collect(toImmutableList());
       for (int i = parts.size(); i >= 1; i--) {

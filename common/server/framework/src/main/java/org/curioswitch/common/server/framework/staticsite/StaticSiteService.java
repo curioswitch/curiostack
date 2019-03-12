@@ -28,6 +28,10 @@ import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.server.HttpService;
 import com.linecorp.armeria.server.ServerCacheControl;
+import com.linecorp.armeria.server.Service;
+import com.linecorp.armeria.server.ServiceRequestContext;
+import com.linecorp.armeria.server.ServiceRequestContextWrapper;
+import com.linecorp.armeria.server.SimpleDecoratingService;
 import com.linecorp.armeria.server.composition.AbstractCompositeService;
 import com.linecorp.armeria.server.composition.CompositeServiceEntry;
 import com.linecorp.armeria.server.file.HttpFileBuilder;
@@ -59,24 +63,68 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
             .addHeader(HttpHeaderNames.VARY, "Accept-Encoding")
             .build();
 
-    HttpFileService prerenderedIndexService =
-        HttpFileServiceBuilder.forClassPath(classpathRoot).serveCompressedFiles(true).build();
-
-    HttpService indexService =
+    HttpService indexHtmlService =
         HttpFileBuilder.ofResource(classpathRoot + "/index.html")
             .cacheControl(ServerCacheControl.DISABLED)
             .build()
             .asService();
 
-    return new StaticSiteService(
-        staticPath, staticFileService, prerenderedIndexService.orElse(indexService));
+    TrailingSlashAddingService indexService =
+        HttpFileServiceBuilder.forClassPath(classpathRoot)
+            .serveCompressedFiles(true)
+            .cacheControl(ServerCacheControl.DISABLED)
+            .build()
+            .orElse(indexHtmlService)
+            .decorate(TrailingSlashAddingService::new);
+
+    return new StaticSiteService(staticPath, staticFileService, indexService);
   }
 
   @SuppressWarnings("ConstructorInvokesOverridable")
   private StaticSiteService(
-      String staticPath, HttpFileService fileService, HttpService indexService) {
+      String staticPath, HttpFileService fileService, TrailingSlashAddingService indexService) {
     super(
         CompositeServiceEntry.ofPrefix(staticPath, fileService),
         CompositeServiceEntry.ofCatchAll(indexService));
+  }
+
+  private static class TrailingSlashAddingService
+      extends SimpleDecoratingService<HttpRequest, HttpResponse> {
+
+    private TrailingSlashAddingService(Service<HttpRequest, HttpResponse> delegate) {
+      super(delegate);
+    }
+
+    @Override
+    public HttpResponse serve(ServiceRequestContext ctx, HttpRequest req) throws Exception {
+      if (ctx.mappedPath().indexOf('.', ctx.mappedPath().lastIndexOf('/') + 1) != -1
+          || ctx.mappedPath().charAt(ctx.mappedPath().length() - 1) == '/') {
+        // A path that ends with '/' will be handled by HttpFileService correctly, and otherwise if
+        // it has a '.' in the last path segment, assume it is a filename.
+        return delegate().serve(ctx, req);
+      }
+      return delegate().serve(new ContextWrapper(ctx), req);
+    }
+
+    private static class ContextWrapper extends ServiceRequestContextWrapper {
+
+      private final String indexPath;
+
+      /** Creates a new instance. */
+      private ContextWrapper(ServiceRequestContext delegate) {
+        super(delegate);
+        indexPath = delegate.mappedPath() + "/";
+      }
+
+      @Override
+      public String mappedPath() {
+        return indexPath;
+      }
+
+      @Override
+      public String decodedMappedPath() {
+        return indexPath;
+      }
+    }
   }
 }

@@ -107,6 +107,7 @@ import org.gradle.external.javadoc.CoreJavadocOptions;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
+import org.gradle.testing.jacoco.plugins.JacocoPlugin;
 
 public class CuriostackPlugin implements Plugin<Project> {
 
@@ -465,6 +466,19 @@ public class CuriostackPlugin implements Plugin<Project> {
                 errorProne.setExcludedPaths("(.*/build/.*|.*/gen-src/.*)");
                 errorProne.setChecks(errorProneChecks);
               }
+            });
+
+    project
+        .getPlugins()
+        .withType(
+            JacocoPlugin.class,
+            unused -> {
+              project
+                  .getDependencies()
+                  .add(JacocoPlugin.AGENT_CONFIGURATION_NAME, "org.jacoco:org.jacoco.agent");
+              project
+                  .getDependencies()
+                  .add(JacocoPlugin.ANT_CONFIGURATION_NAME, "org.jacoco:org.jacoco.ant");
             });
 
     project
