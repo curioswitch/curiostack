@@ -117,7 +117,7 @@ function* search() {
 
   if (results.length > 0) {
     const place = results[0];
-    map.fitBounds(place.geometry.viewport);
+    map.fitBounds(place.geometry!.viewport);
   }
 }
 
