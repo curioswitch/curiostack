@@ -75,19 +75,19 @@ public class UpdateProjectSettingsTask extends DefaultTask {
         });
 
     List<String> projectPaths =
-        buildFiles
-            .stream()
+        buildFiles.stream()
             .map(
                 path ->
                     Streams.stream(path.getParent())
                         .map(Path::toString)
                         .collect(Collectors.joining(":", ":", "")))
+            .sorted()
             .collect(toImmutableList());
 
     List<String> newIncludes = new ArrayList<>();
     newIncludes.add("// curio-auto-generated DO NOT MANUALLY EDIT");
     projectPaths.stream().map(path -> "include(\"" + path + "\")").forEach(newIncludes::add);
-    newIncludes.add("// curio-auto-generated DO NOT MANUALLY EDIT");
+    newIncludes.add("// curio-auto-generated DO NOT MANUALLY EDIT\n");
 
     Path projectSettings = getProject().file("project.settings.gradle.kts").toPath();
     if (!Files.exists(projectSettings)) {

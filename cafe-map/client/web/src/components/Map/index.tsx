@@ -192,7 +192,7 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
       {landmarks.map((place) => (
         <Marker
           title={place.name}
-          position={place.geometry.location}
+          position={place.geometry!.location}
           icon={{
             url: treeSvg,
             scaledSize: new google.maps.Size(45, 45),

@@ -26,7 +26,6 @@ package org.curioswitch.gradle.protobuf.tasks;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.File;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -35,23 +34,14 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.workers.WorkerExecutor;
 
 public class ExtractProtosTask extends DefaultTask {
-
-  // It is extremely hacky to use global state to propagate the Task to workers, but
-  // it works so let"s enjoy the speed.
-  private static final ConcurrentHashMap<String, ExtractProtosTask> TASKS =
-      new ConcurrentHashMap<>();
 
   private final ConfigurableFileCollection files;
   private final DirectoryProperty destDir;
 
-  private final WorkerExecutor workerExecutor;
-
   @Inject
-  public ExtractProtosTask(WorkerExecutor workerExecutor) {
-    this.workerExecutor = workerExecutor;
+  public ExtractProtosTask() {
 
     files = getProject().getLayout().configurableFiles();
     destDir = newOutputDirectory();

@@ -80,7 +80,6 @@ dependencies {
     compile 'gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties'
     compile 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin'
     compile 'io.fabric8:kubernetes-client'
-    compile 'io.spring.gradle:dependency-management-plugin'
     compile 'me.champeau.gradle:jmh-gradle-plugin'
     compile 'net.ltgt.gradle:gradle-apt-plugin'
     compile 'net.ltgt.gradle:gradle-errorprone-plugin'
@@ -97,7 +96,7 @@ dependencies {
     runtime 'org.glassfish.jaxb:jaxb-runtime'
 
     annotationProcessor 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
+    compileOnly 'org.immutables:value-annotations'
 }
 
 gradlePlugin {

@@ -61,8 +61,7 @@ public class SharedDataExtractor {
     }
 
     var scripts = doc.getElementsByTag("script");
-    return scripts
-        .stream()
+    return scripts.stream()
         .filter(script -> script.html().trim().startsWith("window._sharedData = "))
         .findAny()
         .map(

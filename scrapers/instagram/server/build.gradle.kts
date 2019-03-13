@@ -36,10 +36,10 @@ application {
 }
 
 dependencies {
+    compile(project(":common:server:framework"))
     compile(project(":database:cafemapdb:bindings"))
     compile(project(":scrapers:instagram:api"))
 
-    compile("org.curioswitch.curiostack:curio-server-framework")
     compile("org.jsoup:jsoup:1.11.3")
 
     annotationProcessor("com.google.dagger:dagger-compiler")

@@ -434,9 +434,7 @@ public class GcloudPlugin implements Plugin<Project> {
                             ImmutableCloudBuild.builder()
                                 .from(existingCloudBuild)
                                 .steps(
-                                    existingCloudBuild
-                                            .steps()
-                                            .stream()
+                                    existingCloudBuild.steps().stream()
                                             .filter(
                                                 step -> !step.id().startsWith("curio-generated-"))
                                         ::iterator)

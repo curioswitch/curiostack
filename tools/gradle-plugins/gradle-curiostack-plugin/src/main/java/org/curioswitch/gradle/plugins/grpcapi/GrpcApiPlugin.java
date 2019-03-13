@@ -25,14 +25,12 @@
 package org.curioswitch.gradle.plugins.grpcapi;
 
 import com.google.common.io.Resources;
-import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.plugins.grpcapi.tasks.PackageWebTask;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
@@ -90,24 +88,13 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
     ProtobufExtension protobuf = project.getExtensions().getByType(ProtobufExtension.class);
 
-    Map<String, String> managedVersions =
-        project.getExtensions().getByType(DependencyManagementExtension.class).getManagedVersions();
-
-    protobuf
-        .getProtoc()
-        .getArtifact()
-        .set("com.google.protobuf:protoc:" + managedVersions.get("com.google.protobuf:protoc"));
+    protobuf.getProtoc().getArtifact().set("com.google.protobuf:protoc:3.7.0");
     protobuf
         .getLanguages()
         .register(
             "grpc",
             language ->
-                language
-                    .getPlugin()
-                    .getArtifact()
-                    .set(
-                        "io.grpc:protoc-gen-grpc-java:"
-                            + managedVersions.get("io.grpc:grpc-core")));
+                language.getPlugin().getArtifact().set("io.grpc:protoc-gen-grpc-java:1.19.0"));
 
     project.afterEvaluate(
         p -> {
@@ -174,19 +161,21 @@ public class GrpcApiPlugin implements Plugin<Project> {
           if (config.web()) {
             var installProtocGenGrpcWeb =
                 DownloadToolUtil.getSetupTask(project, "protoc-gen-grpc-web");
+            var generateProto = project.getTasks().named("generateProto");
 
             var packageWeb =
                 project
                     .getTasks()
-                    .register(
-                        "packageWeb",
-                        PackageWebTask.class,
-                        t -> t.dependsOn(project.getTasks().named("generateProto")));
+                    .register("packageWeb", PackageWebTask.class, t -> t.dependsOn(generateProto));
+
+            generateProto.configure(
+                t -> t.dependsOn(installProtocGenGrpcWeb).finalizedBy(packageWeb));
 
             project
+                .getRootProject()
                 .getTasks()
-                .named("generateProto")
-                .configure(t -> t.dependsOn(installProtocGenGrpcWeb).finalizedBy(packageWeb));
+                .named("yarn")
+                .configure(t -> t.dependsOn(generateProto));
 
             // Unclear why sometimes compileTestJava fails with "no source files" instead of being
             // skipped (usually when activating web), but it's not that hard to at least check the

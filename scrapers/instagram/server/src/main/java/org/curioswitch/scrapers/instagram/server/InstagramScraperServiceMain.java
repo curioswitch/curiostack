@@ -120,9 +120,7 @@ public class InstagramScraperServiceMain {
                 .build());
 
     var deduped =
-        response
-            .getLocationList()
-            .stream()
+        response.getLocationList().stream()
             .collect(toImmutableMap(LocationPage::getId, Function.identity(), (a, b) -> a));
 
     var db = component.db();

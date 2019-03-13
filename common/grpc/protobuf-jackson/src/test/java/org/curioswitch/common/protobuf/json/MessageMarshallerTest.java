@@ -73,6 +73,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class MessageMarshallerTest {
@@ -677,6 +678,7 @@ public class MessageMarshallerTest {
   }
 
   @Test
+  @Ignore
   public void defaultDoesNotHtmlExcape() throws Exception {
     TestAllTypes message = TestAllTypes.newBuilder().setOptionalString("=").build();
     assertMatchesUpstream(message);

@@ -151,9 +151,7 @@ public class GenerateProtoTask extends DefaultTask {
 
   @OutputDirectories
   public Map<String, File> getOutputDirs() {
-    return languages
-        .getOrElse(ImmutableList.of())
-        .stream()
+    return languages.getOrElse(ImmutableList.of()).stream()
         .collect(toImmutableMap(LanguageSettings::getName, this::getLanguageOutputDir));
   }
 
@@ -300,8 +298,7 @@ public class GenerateProtoTask extends DefaultTask {
     repositories.mavenCentral();
 
     Dependency[] dependencies =
-        artifacts
-            .stream()
+        artifacts.stream()
             .map(
                 artifact -> {
                   checkArgument(!artifact.isEmpty(), "artifact must not be empty");

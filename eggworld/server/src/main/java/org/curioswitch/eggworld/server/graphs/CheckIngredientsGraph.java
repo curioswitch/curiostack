@@ -87,11 +87,7 @@ public class CheckIngredientsGraph {
   @Produces
   static CheckIngredientsResponse response(SearchResponse searchResponse) {
     List<Ingredient> availableIngredients =
-        searchResponse
-            .facetCounts()
-            .ingredient()
-            .entrySet()
-            .stream()
+        searchResponse.facetCounts().ingredient().entrySet().stream()
             .filter(e -> SUPPORTED_INGREDIENTS.contains(e.getKey()) && e.getValue() > 0)
             .map(e -> IngredientConverter.REVERSE.convert(e.getKey()))
             .collect(toImmutableList());

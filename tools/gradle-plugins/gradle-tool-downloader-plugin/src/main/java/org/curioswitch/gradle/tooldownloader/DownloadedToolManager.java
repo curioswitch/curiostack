@@ -83,9 +83,7 @@ public class DownloadedToolManager {
     checkNotNull(toolName, "toolName");
     var tool = tools.findByName(toolName);
     checkState(tool != null, "Tool %s not registered.", toolName);
-    return tool.getPathSubDirs()
-        .get()
-        .stream()
+    return tool.getPathSubDirs().get().stream()
         .map(
             subDir ->
                 curiostackDir.resolve(toolName).resolve(tool.getVersion().get()).resolve(subDir))
@@ -93,9 +91,7 @@ public class DownloadedToolManager {
   }
 
   public List<Path> getAllBinDirs() {
-    return tools
-        .getNames()
-        .stream()
+    return tools.getNames().stream()
         .flatMap(tool -> getBinDirs(tool).stream())
         .collect(toImmutableList());
   }
@@ -103,8 +99,7 @@ public class DownloadedToolManager {
   public void addAllToPath(ProcessForkOptions exec, Path... additionalPathItems) {
     String toolsPath =
         Stream.concat(
-                tools
-                    .stream()
+                tools.stream()
                     .filter(tool -> !tool.getName().equals("graalvm"))
                     .flatMap(
                         tool -> {

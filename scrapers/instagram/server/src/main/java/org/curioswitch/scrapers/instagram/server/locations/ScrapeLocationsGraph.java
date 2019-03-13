@@ -89,9 +89,7 @@ public class ScrapeLocationsGraph {
   static ListenableFuture<List<@Nullable AggregatedHttpMessage>> fetchHashtags(
       ScrapeLocationsRequest request, HttpClient instagramClient, ServiceRequestContext ctx) {
     return Futures.successfulAsList(
-        request
-            .getHashtagList()
-            .stream()
+        request.getHashtagList().stream()
             .map(
                 hashtag ->
                     toListenableFuture(
@@ -109,20 +107,13 @@ public class ScrapeLocationsGraph {
       HttpClient instagramClient,
       ServiceRequestContext ctx) {
     return Futures.successfulAsList(
-        hashtagPages
-            .stream()
+        hashtagPages.stream()
             .filter(Objects::nonNull)
             .map(page -> sharedDataExtractor.extractSharedData(page, TagPage.class))
             .flatMap(
                 page ->
-                    page.getEntryData()
-                        .getTagPage()
-                        .get(0)
-                        .getGraphql()
-                        .getHashtag()
-                        .getPosts()
-                        .getEdges()
-                        .stream())
+                    page.getEntryData().getTagPage().get(0).getGraphql().getHashtag().getPosts()
+                        .getEdges().stream())
             .map(
                 post ->
                     toListenableFuture(
@@ -137,9 +128,7 @@ public class ScrapeLocationsGraph {
   static ListenableFuture<List<@Nullable AggregatedHttpMessage>> fetchUserPages(
       ScrapeLocationsRequest request, HttpClient instagramClient, ServiceRequestContext ctx) {
     return Futures.successfulAsList(
-        request
-            .getUsernameList()
-            .stream()
+        request.getUsernameList().stream()
             .map(
                 username ->
                     toListenableFuture(
@@ -159,13 +148,11 @@ public class ScrapeLocationsGraph {
       ServiceRequestContext ctx) {
     return Futures.successfulAsList(
         Stream.concat(
-                userPages
-                    .stream()
+                userPages.stream()
                     .filter(Objects::nonNull)
                     .map(page -> sharedDataExtractor.extractSharedData(page, ProfilePage.class))
                     .flatMap(ScrapeLocationsGraph::getLocationPageIds),
-                postPages
-                    .stream()
+                postPages.stream()
                     .filter(Objects::nonNull)
                     .map(page -> sharedDataExtractor.extractSharedData(page, PostPage.class))
                     .map(ScrapeLocationsGraph::getLocationPageId)
@@ -186,8 +173,7 @@ public class ScrapeLocationsGraph {
       SharedDataExtractor sharedDataExtractor) {
     return ScrapeLocationsResponse.newBuilder()
         .addAllLocation(
-            locationPages
-                    .stream()
+            locationPages.stream()
                     .filter(Objects::nonNull)
                     .map(page -> sharedDataExtractor.extractSharedData(page, LocationsPage.class))
                     .map(ScrapeLocationsGraph::convertLocationPage)
@@ -196,15 +182,8 @@ public class ScrapeLocationsGraph {
   }
 
   private static Stream<String> getLocationPageIds(ProfilePage profilePage) {
-    return profilePage
-        .getEntryData()
-        .getProfilePage()
-        .get(0)
-        .getGraphql()
-        .getUser()
-        .getTimeline()
-        .getEdges()
-        .stream()
+    return profilePage.getEntryData().getProfilePage().get(0).getGraphql().getUser().getTimeline()
+        .getEdges().stream()
         .map(edge -> edge.getNode().getLocation())
         .filter(Objects::nonNull)
         .map(Location::getId);

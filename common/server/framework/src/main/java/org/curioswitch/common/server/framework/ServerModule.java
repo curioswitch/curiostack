@@ -130,7 +130,6 @@ import org.curioswitch.common.server.framework.security.HttpsOnlyService;
 import org.curioswitch.common.server.framework.security.SecurityModule;
 import org.curioswitch.common.server.framework.server.HttpServiceDefinition;
 import org.curioswitch.common.server.framework.server.PostServerCustomizer;
-import org.curioswitch.common.server.framework.staticsite.InfiniteCachingService;
 import org.curioswitch.common.server.framework.staticsite.JavascriptStaticService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
@@ -486,8 +485,7 @@ public abstract class ServerModule {
 
     if (javascriptStaticConfig.getVersion() != 0) {
       sb.service(
-          "/static/jsconfig-" + javascriptStaticConfig.getVersion(),
-          javascriptStaticService.get().decorate(InfiniteCachingService.newDecorator()));
+          "/static/jsconfig-" + javascriptStaticConfig.getVersion(), javascriptStaticService.get());
     }
 
     for (StaticSiteServiceDefinition staticSite : staticSites) {

@@ -38,9 +38,8 @@ application {
 dependencies {
     compile(project(":cafe-map:api"))
     compile(project(":cafe-map:client:web"))
+    compile(project(":common:server:framework"))
     compile(project(":database:cafemapdb:bindings"))
-
-    compile("org.curioswitch.curiostack:curio-server-framework")
 
     annotationProcessor("com.google.dagger:dagger-compiler")
     annotationProcessor("org.immutables:value-annotations")

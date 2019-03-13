@@ -24,17 +24,28 @@
 package org.curioswitch.common.server.framework.staticsite;
 
 import com.linecorp.armeria.common.HttpData;
+import com.linecorp.armeria.common.HttpHeaderNames;
+import com.linecorp.armeria.common.HttpHeaders;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.server.AbstractHttpService;
+import com.linecorp.armeria.server.ServerCacheControl;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigRenderOptions;
 import javax.inject.Inject;
 
 public class JavascriptStaticService extends AbstractHttpService {
+
+  private final HttpHeaders INFINITE_CACHE_HEADERS =
+      HttpHeaders.of(
+              HttpHeaderNames.CACHE_CONTROL,
+              ServerCacheControl.IMMUTABLE.asHeaderValue(),
+              HttpHeaderNames.VARY,
+              "Accept-Encoding")
+          .asImmutable();
 
   private final HttpData response;
 
@@ -47,6 +58,7 @@ public class JavascriptStaticService extends AbstractHttpService {
 
   @Override
   protected HttpResponse doGet(ServiceRequestContext ctx, HttpRequest req) {
+    ctx.addAdditionalResponseHeaders(INFINITE_CACHE_HEADERS);
     return HttpResponse.of(HttpStatus.OK, MediaType.JAVASCRIPT_UTF_8, response);
   }
 }

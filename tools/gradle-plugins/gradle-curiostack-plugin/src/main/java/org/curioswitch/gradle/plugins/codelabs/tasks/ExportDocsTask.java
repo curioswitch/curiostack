@@ -78,10 +78,7 @@ public class ExportDocsTask extends DefaultTask {
   @TaskAction
   public void exec() {
     List<String> mdFiles =
-        this.mdFiles
-            .get()
-            .getFiles()
-            .stream()
+        this.mdFiles.get().getFiles().stream()
             .map(File::getAbsolutePath)
             .collect(toImmutableList());
 

@@ -117,8 +117,7 @@ public class FileWatcher implements AutoCloseable {
         return;
       }
 
-      key.pollEvents()
-          .stream()
+      key.pollEvents().stream()
           .filter(e -> e.kind() != StandardWatchEventKinds.OVERFLOW)
           .map(
               e -> {
@@ -130,9 +129,7 @@ public class FileWatcher implements AutoCloseable {
               path -> {
                 final Path resolved = watchedDirs.get(key).resolve(path);
                 Optional<Consumer<Path>> callback =
-                    registeredPaths
-                        .entrySet()
-                        .stream()
+                    registeredPaths.entrySet().stream()
                         .filter(e -> e.getKey().equals(resolved))
                         .map(Entry::getValue)
                         .findFirst();

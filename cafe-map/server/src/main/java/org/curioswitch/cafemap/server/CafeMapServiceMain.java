@@ -52,7 +52,7 @@ public class CafeMapServiceMain {
     @IntoSet
     static StaticSiteServiceDefinition staticSite() {
       return new StaticSiteServiceDefinition.Builder()
-          .classpathRoot("/org/curioswitch/cafemap/web")
+          .classpathRoot("org/curioswitch/cafemap/web")
           .build();
     }
   }

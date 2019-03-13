@@ -68,9 +68,7 @@ public class InstallCondaPackagesTask extends DefaultTask {
           } catch (IOException e) {
             throw new UncheckedIOException("Could not list meta directory.", e);
           }
-          return !packages
-              .get()
-              .stream()
+          return !packages.get().stream()
               .allMatch(pkg -> metaFiles.stream().anyMatch(f -> f.startsWith(pkg)));
         });
   }
