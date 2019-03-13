@@ -22,30 +22,11 @@
  * SOFTWARE.
  */
 
-import { Metadata } from 'grpc-web';
+import { GlobalState } from '../../state';
 
-import { CafeMapServicePromiseClient } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_grpc_web_pb';
-import {
-  GetPlaceRequest,
-  GetPlaceResponse,
-  GetPlacesRequest,
-  GetPlacesResponse,
-} from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
+import { StateProps } from './reducer';
 
-export default class ApiClient {
-  private client = new CafeMapServicePromiseClient('/api', null, null);
+export const selectPlacePage = (state: GlobalState): StateProps =>
+  state.placePage.toObject();
 
-  public async getPlace(request: GetPlaceRequest): Promise<GetPlaceResponse> {
-    return this.client.getPlace(request, await this.getMetadata());
-  }
-
-  public async getPlaces(
-    request: GetPlacesRequest,
-  ): Promise<GetPlacesResponse> {
-    return this.client.getPlaces(request, await this.getMetadata());
-  }
-
-  private async getMetadata(): Promise<Metadata> {
-    return {};
-  }
-}
+export default selectPlacePage;

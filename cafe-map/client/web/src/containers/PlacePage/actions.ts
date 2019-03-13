@@ -20,35 +20,24 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 import { ActionsUnion, createAction } from '@curiostack/base-web';
 import { bindActionCreators, Dispatch } from 'redux';
 
-import { GetPlacesResponse } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
+import { GetPlaceResponse } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
 export enum ActionTypes {
-  GET_LANDMARKS = 'HomePage/GET_LANDMARKS',
-  GET_LANDMARKS_RESPONSE = 'HomePage/GET_LANDMARKS_RESPONSE',
-  GET_PLACES = 'HomePage/GET_PLACES',
-  GET_PLACES_RESPONSE = 'HomePage/GET_PLACES_RESPONSE',
-  SEARCH = 'HomePage/SEARCH',
-  SELECT_MARKER = 'HomePage/SELECT_MARKER',
-  SET_MAP = 'HomePage/SET_MAP',
+  GET_PLACE = 'HomePage/GET_PLACE',
+  GET_PLACE_RESPONSE = 'HomePage/GET_PLACE_RESPONSE',
 }
 
 export const Actions = {
-  doSearch: () => createAction(ActionTypes.SEARCH),
-  getLandmarks: () => createAction(ActionTypes.GET_LANDMARKS),
-  getLandmarksResponse: (places: google.maps.places.PlaceResult[]) =>
-    createAction(ActionTypes.GET_LANDMARKS_RESPONSE, places),
-
-  getPlaces: () => createAction(ActionTypes.GET_PLACES),
-  getPlacesResponse: (response: GetPlacesResponse) =>
-    createAction(ActionTypes.GET_PLACES_RESPONSE, response),
-  selectMarker: () => createAction(ActionTypes.SELECT_MARKER),
-  setMap: (map: google.maps.Map) => createAction(ActionTypes.SET_MAP, map),
+  doGetPlace: (id: string) => createAction(ActionTypes.GET_PLACE, id),
+  doGetPlaceResponse: (response: GetPlaceResponse) =>
+    createAction(ActionTypes.GET_PLACE_RESPONSE, response),
+  // TODO(choko): Fix typing so a no-payload action isn't required.
+  dummy: () => createAction('dummy'),
 };
 
 export type Actions = ActionsUnion<typeof Actions>;

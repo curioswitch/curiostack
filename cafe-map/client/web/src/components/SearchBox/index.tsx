@@ -22,30 +22,40 @@
  * SOFTWARE.
  */
 
-import { Metadata } from 'grpc-web';
+import IconButton from '@material-ui/core/IconButton';
+import InputBase from '@material-ui/core/InputBase';
+import Paper from '@material-ui/core/Paper';
+import SearchIcon from '@material-ui/icons/Search';
+import React from 'react';
+import { WrappedFieldProps } from 'redux-form';
+import styled from 'styled-components';
 
-import { CafeMapServicePromiseClient } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_grpc_web_pb';
-import {
-  GetPlaceRequest,
-  GetPlaceResponse,
-  GetPlacesRequest,
-  GetPlacesResponse,
-} from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
-
-export default class ApiClient {
-  private client = new CafeMapServicePromiseClient('/api', null, null);
-
-  public async getPlace(request: GetPlaceRequest): Promise<GetPlaceResponse> {
-    return this.client.getPlace(request, await this.getMetadata());
-  }
-
-  public async getPlaces(
-    request: GetPlacesRequest,
-  ): Promise<GetPlacesResponse> {
-    return this.client.getPlaces(request, await this.getMetadata());
-  }
-
-  private async getMetadata(): Promise<Metadata> {
-    return {};
-  }
+export interface SearchBoxProps {
+  className?: string;
+  onSearch: () => void;
 }
+
+const SearchBox: React.FunctionComponent<
+  SearchBoxProps & WrappedFieldProps
+> = ({ className, input, onSearch, meta: { touched, invalid } }) => (
+  <Paper className={className} elevation={1}>
+    <InputBase
+      placeholder="Find a station"
+      fullWidth
+      type="search"
+      endAdornment={
+        <IconButton aria-label="Search" onClick={onSearch}>
+          <SearchIcon />
+        </IconButton>
+      }
+      error={touched && invalid}
+      {...input}
+    />
+  </Paper>
+);
+
+const StyledSearchBox = styled(React.memo(SearchBox))`
+  padding-left: 10px;
+`;
+
+export default StyledSearchBox;

@@ -75,7 +75,22 @@ message GetPlacesResponse {
   repeated Place place = 1;
 }
 
+// A request for the `GetPlace` method.
+message GetPlaceRequest {
+  // The Instagram ID of the place.
+  string instagram_id = 1;
+}
+
+// A response for the `GetPlace` method.
+message GetPlaceResponse {
+  // The place corresponding to `GetPlaceRequest`.
+  Place place = 1;
+}
+
 service CafeMapService {
   // Returns a list of places.
   rpc GetPlaces (GetPlacesRequest) returns (GetPlacesResponse);
+
+  // Returns the single, specified place.
+  rpc GetPlace(GetPlaceRequest) returns (GetPlaceResponse);
 }

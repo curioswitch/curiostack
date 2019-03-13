@@ -22,30 +22,27 @@
  * SOFTWARE.
  */
 
-import { Metadata } from 'grpc-web';
+import { Record } from 'immutable';
 
-import { CafeMapServicePromiseClient } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_grpc_web_pb';
-import {
-  GetPlaceRequest,
-  GetPlaceResponse,
-  GetPlacesRequest,
-  GetPlacesResponse,
-} from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
+import { Place } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
-export default class ApiClient {
-  private client = new CafeMapServicePromiseClient('/api', null, null);
+import { Actions, ActionTypes } from './actions';
 
-  public async getPlace(request: GetPlaceRequest): Promise<GetPlaceResponse> {
-    return this.client.getPlace(request, await this.getMetadata());
-  }
+export interface StateProps {
+  place?: Place;
+}
 
-  public async getPlaces(
-    request: GetPlacesRequest,
-  ): Promise<GetPlacesResponse> {
-    return this.client.getPlaces(request, await this.getMetadata());
-  }
+export type State = Readonly<StateProps> & Record<StateProps>;
 
-  private async getMetadata(): Promise<Metadata> {
-    return {};
+export const initialState = Record<StateProps>({
+  place: undefined,
+})();
+
+export default function(state: State, action: Actions): State {
+  switch (action.type) {
+    case ActionTypes.GET_PLACE_RESPONSE:
+      return state.set('place', action.payload.getPlace());
+    default:
+      return state;
   }
 }

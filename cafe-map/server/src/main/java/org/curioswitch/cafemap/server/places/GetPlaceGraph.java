@@ -31,44 +31,48 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import dagger.producers.ProducerModule;
 import dagger.producers.Produces;
 import dagger.producers.ProductionSubcomponent;
-import java.util.List;
-import org.curioswitch.cafemap.api.GetPlacesRequest;
-import org.curioswitch.cafemap.api.GetPlacesResponse;
+import org.curioswitch.cafemap.api.GetPlaceRequest;
+import org.curioswitch.cafemap.api.GetPlaceResponse;
 import org.curioswitch.common.server.framework.database.ForDatabase;
 import org.curioswitch.common.server.framework.grpc.GrpcProductionComponent;
 import org.curioswitch.database.cafemapdb.tables.pojos.Place;
 import org.jooq.DSLContext;
 
 @ProducerModule
-public class GetPlacesGraph {
+public class GetPlaceGraph {
 
-  @ProductionSubcomponent(modules = GetPlacesGraph.class)
-  public interface Component extends GrpcProductionComponent<GetPlacesResponse> {
+  @ProductionSubcomponent(modules = GetPlaceGraph.class)
+  public interface Component extends GrpcProductionComponent<GetPlaceResponse> {
     @ProductionSubcomponent.Builder
-    interface Builder extends GrpcProductionComponentBuilder<GetPlacesGraph, Component, Builder> {}
+    interface Builder extends GrpcProductionComponentBuilder<GetPlaceGraph, Component, Builder> {}
   }
 
-  private final GetPlacesRequest request;
+  private final GetPlaceRequest request;
 
-  public GetPlacesGraph(GetPlacesRequest request) {
+  public GetPlaceGraph(GetPlaceRequest request) {
     this.request = request;
   }
 
   @Produces
-  GetPlacesRequest request() {
+  GetPlaceRequest request() {
     return request;
   }
 
   @Produces
-  static ListenableFuture<List<Place>> fetchPlaces(
-      DSLContext cafemapdb, @ForDatabase ListeningExecutorService dbExecutor) {
-    return dbExecutor.submit(() -> cafemapdb.selectFrom(PLACE).fetchInto(Place.class));
+  static ListenableFuture<Place> fetchPlace(
+      GetPlaceRequest request,
+      DSLContext cafemapDb,
+      @ForDatabase ListeningExecutorService dbExecutor) {
+    return dbExecutor.submit(
+        () ->
+            cafemapDb
+                .selectFrom(PLACE)
+                .where(PLACE.INSTAGRAM_ID.eq(request.getInstagramId()))
+                .fetchOneInto(Place.class));
   }
 
   @Produces
-  static GetPlacesResponse response(List<Place> places) {
-    return GetPlacesResponse.newBuilder()
-        .addAllPlace(places.stream().map(PlaceUtil::convertPlace)::iterator)
-        .build();
+  static GetPlaceResponse response(Place place) {
+    return GetPlaceResponse.newBuilder().setPlace(PlaceUtil.convertPlace(place)).build();
   }
 }
