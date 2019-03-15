@@ -39,7 +39,7 @@ import CONFIG from '../../config';
 import lawsonSvg from './images/lawson.svg';
 import pinkMarkerSvg from './images/pink-marker.svg';
 import sevenElevenSvg from './images/seven-eleven.svg';
-import treeSvg from './images/tree.svg';
+import treeSvg from './images/park.svg';
 
 interface OwnProps {
   doGetLandmarks: () => void;
@@ -180,9 +180,10 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
             lat: place.getPosition().getLatitude(),
             lng: place.getPosition().getLongitude(),
           }}
-          onClick={useCallback(() => onOpenPlace(place.getInstagramId()), [
-            place.getInstagramId(),
-          ])}
+          onClick={
+            // tslint:disable-next-line
+            () => onOpenPlace(place.getInstagramId())
+          }
           icon={{
             url: pinkMarkerSvg,
             scaledSize: new google.maps.Size(45, 45),
