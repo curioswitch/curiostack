@@ -29,13 +29,28 @@ import {
   Marker,
   ProvidedProps,
 } from 'google-maps-react';
-import { List } from 'immutable';
+import { List, Map as ImmutableMap } from 'immutable';
 import React, { useCallback } from 'react';
 
 import { Place } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
 import CONFIG from '../../config';
 
+import airportSvg from './images/airport.svg';
+import amusementParkSvg from './images/amusement_park.svg';
+import barSvg from './images/bar.svg';
+import beautySalonSvg from './images/beauty_salon.svg';
+import busStationSvg from './images/bus_station.svg';
+import convenienceStoreSvg from './images/convenience_store.svg';
+import doctorSvg from './images/doctor.svg';
+import electroncisStoreSvg from './images/electronics_store.svg';
+import fireStationSvg from './images/fire_station.svg';
+import gasStationSvg from './images/gas_station.svg';
+import hairCareSvg from './images/hair_care.svg';
+import hospitalSvg from './images/hospital.svg';
+import parkSvg from './images/park.svg';
+import parkingSvg from './images/parking.svg';
+import petStoreSvg from './images/pet_store.svg';
 import lawsonSvg from './images/lawson.svg';
 import pinkMarkerSvg from './images/pink-marker.svg';
 import sevenElevenSvg from './images/seven-eleven.svg';
