@@ -78,13 +78,11 @@ interface PlaceSearchResponse {
 async function nearbySearch(
   places: google.maps.places.PlacesService,
   bounds: google.maps.LatLngBounds,
-  pageToken?: string,
 ): Promise<PlaceSearchResponse> {
   return new Promise<PlaceSearchResponse>((resolve, reject) => {
     places.nearbySearch(
       {
         bounds,
-        pagetoken: pageToken,
       } as any,
       (results, status, pagination) => {
         if (status !== google.maps.places.PlacesServiceStatus.OK) {
@@ -110,15 +108,16 @@ function* getLandmarks() {
 
   const landmarks: google.maps.places.PlaceResult[] = [];
   const seenIds: Set<string> = new Set();
-  let pageToken: string | undefined = undefined;
 
-  for (let i = 0; i < 5; i += 1) {
+  for (let i = 0; i < 1; i += 1) {
     if (landmarks.length >= 10) {
       yield put(Actions.getLandmarksResponse(landmarks));
       return;
     }
 
-    const response: PlaceSearchResponse = yield call(() => nearbySearch(places, bounds, pageToken));
+    const response: PlaceSearchResponse = yield call(() =>
+      nearbySearch(places, bounds),
+    );
     for (const place of response.results) {
       if (seenIds.has(place.place_id!)) {
         continue;
@@ -132,26 +131,8 @@ function* getLandmarks() {
       }
     }
   }
-
-  const results: google.maps.places.PlaceResult[] = yield call(
-    () =>
-      new Promise<google.maps.places.PlaceResult[]>((resolve, reject) => {
-        places.nearbySearch(
-          {
-            bounds: map.getBounds()!,
-          },
-          (res, status) => {
-            if (status !== google.maps.places.PlacesServiceStatus.OK) {
-              reject(new Error(`Error searching for places: ${status}`));
-            } else {
-              resolve(res);
-            }
-          },
-        );
-      }),
-  );
-
-  yield put(Actions.getLandmarksResponse(results));
+  yield put(Actions.getLandmarksResponse(landmarks));
+  return;
 }
 
 function* getPlaces() {
