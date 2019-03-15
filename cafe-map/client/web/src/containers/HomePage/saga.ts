@@ -78,11 +78,13 @@ interface PlaceSearchResponse {
 async function nearbySearch(
   places: google.maps.places.PlacesService,
   bounds: google.maps.LatLngBounds,
+  type?: string,
 ): Promise<PlaceSearchResponse> {
   return new Promise<PlaceSearchResponse>((resolve, reject) => {
     places.nearbySearch(
       {
         bounds,
+        type,
       } as any,
       (results, status, pagination) => {
         if (status !== google.maps.places.PlacesServiceStatus.OK) {
@@ -110,10 +112,10 @@ function* getLandmarks() {
   const seenIds: Set<string> = new Set();
 
   for (let i = 0; i < 1; i += 1) {
-    if (landmarks.length >= 10) {
+    /*if (landmarks.length >= 10) {
       yield put(Actions.getLandmarksResponse(landmarks));
       return;
-    }
+    }*/
 
     const response: PlaceSearchResponse = yield call(() =>
       nearbySearch(places, bounds),
@@ -131,6 +133,36 @@ function* getLandmarks() {
       }
     }
   }
+
+  for (const t of [
+    'beauty_salon',
+    'gas_station',
+    'park',
+    'book_store',
+    'hospital',
+    'post_office',
+    'school',
+  ]) {
+    let response: PlaceSearchResponse;
+    try {
+      response = yield call(() => nearbySearch(places, bounds, t));
+    } catch (e) {
+      continue;
+    }
+    for (const place of response.results) {
+      if (seenIds.has(place.place_id!)) {
+        continue;
+      }
+      seenIds.add(place.place_id!);
+      for (const type of place.types!) {
+        if (LANDMARK_TYPES.has(type)) {
+          landmarks.push(place);
+          break;
+        }
+      }
+    }
+  }
+
   yield put(Actions.getLandmarksResponse(landmarks));
   return;
 }
