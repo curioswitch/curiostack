@@ -45,33 +45,126 @@ import { GlobalState } from '../../state';
 import { Actions, ActionTypes } from './actions';
 import { selectMap } from './selectors';
 
+const LANDMARK_TYPES = new Set([
+  'airport',
+  'amusement_park',
+  'bar',
+  'beauty_salon',
+  'book_store',
+  'bus_station',
+  'convenience_store',
+  'doctor',
+  'electronics_store',
+  'fire_station',
+  'gas_station',
+  'hair_care',
+  'hospital',
+  'park',
+  'parking',
+  'pet_store',
+  'police',
+  'post_office',
+  'school',
+  'stadium',
+  'taxi_stand',
+  'zoo',
+]);
+
+interface PlaceSearchResponse {
+  results: google.maps.places.PlaceResult[];
+  pagination: google.maps.places.PlaceSearchPagination;
+}
+
+async function nearbySearch(
+  places: google.maps.places.PlacesService,
+  bounds: google.maps.LatLngBounds,
+  type?: string,
+): Promise<PlaceSearchResponse> {
+  return new Promise<PlaceSearchResponse>((resolve, reject) => {
+    places.nearbySearch(
+      {
+        bounds,
+        type,
+      } as any,
+      (results, status, pagination) => {
+        if (status !== google.maps.places.PlacesServiceStatus.OK) {
+          reject(new Error(`Error searching for places: ${status}`));
+        } else {
+          resolve({
+            results,
+            pagination,
+          });
+        }
+      },
+    );
+  });
+}
+
 function* getLandmarks() {
   const map: google.maps.Map | undefined = yield select(selectMap);
   if (!map) {
     return;
   }
   const places = new google.maps.places.PlacesService(map);
+  const bounds = map.getBounds()!;
 
-  const results: google.maps.places.PlaceResult[] = yield call(
-    () =>
-      new Promise<google.maps.places.PlaceResult[]>((resolve, reject) => {
-        places.nearbySearch(
-          {
-            bounds: map.getBounds()!,
-            type: 'park',
-          },
-          (res, status) => {
-            if (status !== google.maps.places.PlacesServiceStatus.OK) {
-              reject(new Error(`Error searching for places: ${status}`));
-            } else {
-              resolve(res);
-            }
-          },
-        );
-      }),
-  );
+  const landmarks: google.maps.places.PlaceResult[] = [];
+  const seenIds: Set<string> = new Set();
 
-  yield put(Actions.getLandmarksResponse(results));
+  for (let i = 0; i < 1; i += 1) {
+    /*if (landmarks.length >= 10) {
+      yield put(Actions.getLandmarksResponse(landmarks));
+      return;
+    }*/
+
+    const response: PlaceSearchResponse = yield call(() =>
+      nearbySearch(places, bounds),
+    );
+    for (const place of response.results) {
+      if (seenIds.has(place.place_id!)) {
+        continue;
+      }
+      seenIds.add(place.place_id!);
+      for (const type of place.types!) {
+        if (LANDMARK_TYPES.has(type)) {
+          landmarks.push(place);
+          break;
+        }
+      }
+    }
+  }
+
+  for (const t of [
+    'beauty_salon',
+    'gas_station',
+    'park',
+    'book_store',
+    'hospital',
+    'post_office',
+    'school',
+  ]) {
+    let response: PlaceSearchResponse;
+    try {
+      response = yield call(() => nearbySearch(places, bounds, t));
+    } catch (e) {
+      continue;
+    }
+    for (const place of response.results) {
+      if (seenIds.has(place.place_id!)) {
+        continue;
+      }
+      seenIds.add(place.place_id!);
+      for (const type of place.types!) {
+        if (LANDMARK_TYPES.has(type)) {
+          landmarks.push(place);
+          break;
+        }
+      }
+    }
+  }
+
+  yield put(Actions.getLandmarksResponse(landmarks));
+  return;
 }
 
 function* getPlaces() {

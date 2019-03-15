@@ -29,17 +29,74 @@ import {
   Marker,
   ProvidedProps,
 } from 'google-maps-react';
-import { List } from 'immutable';
+import { List, Map as ImmutableMap } from 'immutable';
 import React, { useCallback } from 'react';
 
 import { Place } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
 import CONFIG from '../../config';
 
-import lawsonSvg from './images/lawson.svg';
 import pinkMarkerSvg from './images/pink-marker.svg';
-import sevenElevenSvg from './images/seven-eleven.svg';
-import treeSvg from './images/tree.svg';
+
+import airportSvg from './images/airport.svg';
+import amusementParkSvg from './images/amusement_park.svg';
+import barSvg from './images/bar.svg';
+import beautySalonSvg from './images/beauty_salon.svg';
+import bookStoreSvg from './images/book_store.svg';
+import buildingSvg from './images/building.png';
+import busStationSvg from './images/bus_station.svg';
+import convenienceStoreSvg from './images/convenience_store.svg';
+import doctorSvg from './images/doctor.svg';
+import electroncisStoreSvg from './images/electronics_store.svg';
+import fireStationSvg from './images/fire_station.svg';
+import gasStationSvg from './images/gas_station.svg';
+import hairCareSvg from './images/hair_care.svg';
+import hospitalSvg from './images/hospital.svg';
+import parkSvg from './images/park.svg';
+import parkingSvg from './images/parking.svg';
+import petStoreSvg from './images/pet_store.svg';
+import policeSvg from './images/police.svg';
+import postOfficeSvg from './images/post_office.svg';
+import schoolSvg from './images/school.svg';
+import stadiumSvg from './images/stadium.svg';
+import taxiStandSvg from './images/taxi_stand.svg';
+import zooSvg from './images/zoo.svg';
+
+const LANDMARK_IMAGES = ImmutableMap({
+  airport: airportSvg,
+  amustment_park: amusementParkSvg,
+  bar: barSvg,
+  beauty_salon: beautySalonSvg,
+  book_store: bookStoreSvg,
+  building: buildingSvg,
+  bus_station: busStationSvg,
+  convenience_store: convenienceStoreSvg,
+  doctor: doctorSvg,
+  electronics_store: electroncisStoreSvg,
+  fire_station: fireStationSvg,
+  gas_station: gasStationSvg,
+  hair_care: hairCareSvg,
+  hospital: hospitalSvg,
+  park: parkSvg,
+  parking: parkingSvg,
+  pet_store: petStoreSvg,
+  police: policeSvg,
+  post_office: postOfficeSvg,
+  school: schoolSvg,
+  stadium: stadiumSvg,
+  taxi_stand: taxiStandSvg,
+  zoo: zooSvg,
+});
+
+function landmarkImage(place: google.maps.places.PlaceResult): string {
+  for (const type of place.types!) {
+    const image = LANDMARK_IMAGES.get(type);
+    if (image) {
+      return image;
+    }
+  }
+  return buildingSvg;
+}
 
 interface OwnProps {
   doGetLandmarks: () => void;
@@ -52,21 +109,6 @@ interface OwnProps {
 }
 
 type Props = ProvidedProps & OwnProps;
-
-const TEST_PLACES = [
-  {
-    title: 'セブンイレブン',
-    lat: 35.5517657,
-    lng: 139.6741667,
-    icon: sevenElevenSvg,
-  },
-  {
-    title: 'ローソン',
-    lat: 35.5511861,
-    lng: 139.6725258,
-    icon: lawsonSvg,
-  },
-];
 
 function initMap(map: google.maps.Map) {
   map.setOptions({
@@ -180,9 +222,10 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
             lat: place.getPosition().getLatitude(),
             lng: place.getPosition().getLongitude(),
           }}
-          onClick={useCallback(() => onOpenPlace(place.getInstagramId()), [
-            place.getInstagramId(),
-          ])}
+          onClick={
+            // tslint:disable-next-line
+            () => onOpenPlace(place.getInstagramId())
+          }
           icon={{
             url: pinkMarkerSvg,
             scaledSize: new google.maps.Size(45, 45),
@@ -194,20 +237,7 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
           title={place.name}
           position={place.geometry!.location}
           icon={{
-            url: treeSvg,
-            scaledSize: new google.maps.Size(45, 45),
-          }}
-        />
-      ))}
-      {TEST_PLACES.map((place) => (
-        <Marker
-          title={place.title}
-          position={{
-            lat: place.lat,
-            lng: place.lng,
-          }}
-          icon={{
-            url: place.icon,
+            url: landmarkImage(place),
             scaledSize: new google.maps.Size(45, 45),
           }}
         />
