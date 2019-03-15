@@ -49,7 +49,6 @@ const LANDMARK_TYPES = new Set([
   'airport',
   'amusement_park',
   'bar',
-  'beauty_salon',
   'book_store',
   'bus_station',
   'convenience_store',
