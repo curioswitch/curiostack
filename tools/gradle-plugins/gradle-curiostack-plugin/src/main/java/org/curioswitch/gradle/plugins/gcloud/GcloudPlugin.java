@@ -50,6 +50,7 @@ import org.curioswitch.gradle.plugins.ci.tasks.FetchCodeCovCacheTask;
 import org.curioswitch.gradle.plugins.ci.tasks.UploadCodeCovCacheTask;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
+import org.curioswitch.gradle.plugins.gcloud.keys.KmsKeyDecrypter;
 import org.curioswitch.gradle.plugins.gcloud.tasks.FetchToolCacheTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
@@ -81,6 +82,8 @@ public class GcloudPlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.getExtensions().create(ImmutableGcloudExtension.NAME, GcloudExtension.class, project);
+
+    project.getExtensions().getExtraProperties().set("keys", new KmsKeyDecrypter(project));
 
     project
         .getPlugins()
@@ -272,18 +275,6 @@ public class GcloudPlugin implements Plugin<Project> {
                             DeploymentExtension deployment =
                                 proj.getExtensions().getByType(DeploymentExtension.class);
                             deployment.setImagePrefix(
-                                config.containerRegistry() + "/" + config.clusterProject() + "/");
-                          }));
-
-          project.allprojects(
-              proj ->
-                  proj.getPlugins()
-                      .withType(
-                          CurioDatabasePlugin.class,
-                          unused -> {
-                            DatabaseExtension database =
-                                proj.getExtensions().getByType(DatabaseExtension.class);
-                            database.setDevDockerImagePrefix(
                                 config.containerRegistry() + "/" + config.clusterProject() + "/");
                           }));
 

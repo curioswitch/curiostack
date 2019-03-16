@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,56 +24,40 @@
 
 package org.curioswitch.gradle.plugins.gcloud;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import org.curioswitch.gradle.helpers.immutables.ExtensionStyle;
 import org.gradle.api.Project;
-import org.immutables.value.Value;
+import org.gradle.api.provider.Property;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
 import org.immutables.value.Value.Modifiable;
-import org.immutables.value.Value.Style;
 
 @Modifiable
-@Style(create = "new", typeModifiable = "*", defaultAsDefault = true, typeAbstract = "Immutable*")
-public interface ImmutableDatabaseExtension {
+@ExtensionStyle
+public interface DatabaseExtension extends HasPublicType {
 
   String NAME = "database";
 
-  @Value.Parameter
-  Project gradleProject();
+  static DatabaseExtension create(Project project) {
+    var objects = project.getObjects();
+    var extension =
+        project
+            .getExtensions()
+            .create(NAME, ModifiableDatabaseExtension.class)
+            .setDbName(objects.property(String.class))
+            .setDevAdminUser(objects.property(String.class).value("dbadmin"))
+            .setDevAdminPassword(objects.property(String.class));
 
-  default String dbName() {
-    throw new IllegalArgumentException("database.dbName must be set.");
+    return extension;
   }
 
-  default String devAdminUser() {
-    return "dbadmin";
-  }
+  Property<String> getDbName();
 
-  default String devAdminPassword() {
-    return (String)
-        gradleProject().getRootProject().getProperties().get("curiostack.dbAdminDevPassword");
-  }
+  Property<String> getDevAdminUser();
 
-  default String devDockerImagePrefix() {
-    throw new IllegalArgumentException("database.devDockerImagePrefix must be set");
-  }
+  Property<String> getDevAdminPassword();
 
-  default String devDockerImageTag() {
-    return devDockerImagePrefix() + "database-" + dbName() + "-dev";
-  }
-
-  default String devMysqlVersion() {
-    return "5.7";
-  }
-
-  default String devDbPodName() {
-    return dbName() + "-dev";
-  }
-
-  default String devDbPodNamespace() {
-    return "default";
-  }
-
-  default List<String> devDbIpRestrictions() {
-    return ImmutableList.of();
+  @Override
+  default TypeOf<?> getPublicType() {
+    return TypeOf.typeOf(DatabaseExtension.class);
   }
 }

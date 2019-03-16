@@ -22,13 +22,33 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-database-plugin'
+package org.curioswitch.gradle.plugins.gcloud.keys;
 
-database {
-    dbName = 'cafemapdb'
-    devAdminPassword = rootProject.findProperty('devPassword') ?: ''
-}
+import com.google.cloud.kms.v1.CryptoKeyName;
+import com.google.cloud.kms.v1.KeyManagementServiceClient;
+import com.google.protobuf.ByteString;
+import java.util.Base64;
+import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
+import org.gradle.api.Project;
 
-flyway {
-    url = "jdbc:mysql://google/cafemapdb?cloudSqlInstance=curioswitch-cluster:asia-northeast1:curioswitchdb-dev&socketFactory=com.google.cloud.sql.mysql.SocketFactory"
+public class KmsKeyDecrypter {
+
+  private final Project project;
+
+  public KmsKeyDecrypter(Project project) {
+    this.project = project;
+  }
+
+  public String decrypt(String cipherText) throws Exception {
+    var config = project.getRootProject().getExtensions().getByType(GcloudExtension.class);
+    String project = config.clusterProject();
+
+    var key = CryptoKeyName.of(project, "global", "gradle-key-ring", "gradle-vars-key");
+
+    try (var client = KeyManagementServiceClient.create()) {
+      var decryptResponse =
+          client.decrypt(key, ByteString.copyFrom(Base64.getDecoder().decode(cipherText)));
+      return decryptResponse.getPlaintext().toStringUtf8();
+    }
+  }
 }

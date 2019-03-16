@@ -256,7 +256,7 @@ val DEPENDENCY_SETS = listOf(
         "io.grpc",
         "1.19.0",
         listOf(
-            "grpc-all",
+            "gall",
             "grpc-auth",
             "grpc-context",
             "grpc-core",
