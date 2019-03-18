@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.time.Clock;
 import java.util.Optional;
 import org.curioswitch.curiostack.gcloud.core.GcloudModule;
+import org.curioswitch.curiostack.gcloud.core.ModifiableGcloudConfig;
 import org.curioswitch.curiostack.gcloud.core.auth.AccessTokenProvider;
 import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
 import org.curioswitch.curiostack.gcloud.core.auth.GoogleCredentialsDecoratingClient;
@@ -69,7 +70,8 @@ public class CloudStorageBuildCacheServiceFactory
       return new NoOpBuildCacheService();
     }
 
-    HttpClient googleApis = GcloudModule.googleApisClient(Optional.empty());
+    ModifiableGcloudConfig config = new ModifiableGcloudConfig()
+    HttpClient googleApis = GcloudModule.googleApisClient(Optional.empty(), config);
     AccessTokenProvider.Factory accessTokenProviderFactory =
         new AccessTokenProvider.Factory(googleApis, Clock.systemUTC());
     AccessTokenProvider accessTokenProvider = accessTokenProviderFactory.create(credentials);
