@@ -61,10 +61,19 @@ public abstract class GcloudModule {
   @Provides
   @Singleton
   @GoogleApis
-  public static HttpClient googleApisClient(Optional<MeterRegistry> meterRegistry) {
+  public static HttpClient googleApisClient(
+      Optional<MeterRegistry> meterRegistry, GcloudConfig config) {
     ClientFactory factory =
         meterRegistry
-            .map(registry -> new ClientFactoryBuilder().meterRegistry(registry).build())
+            .map(
+                registry -> {
+                  ClientFactoryBuilder builder = new ClientFactoryBuilder().meterRegistry(registry);
+                  if (config.getDisableEdns()) {
+                    builder.domainNameResolverCustomizer(
+                        dnsNameResolverBuilder -> dnsNameResolverBuilder.optResourceEnabled(false));
+                  }
+                  return builder.build();
+                })
             .orElse(ClientFactory.DEFAULT);
     return new ClientBuilder("none+https://www.googleapis.com/")
         .factory(factory)

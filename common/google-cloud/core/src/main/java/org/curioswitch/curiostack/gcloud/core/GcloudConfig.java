@@ -39,4 +39,10 @@ import org.immutables.value.Value.Style.BuilderVisibility;
     defaultAsDefault = true)
 public interface GcloudConfig {
   String getProject();
+
+  /**
+   * Whether EDNS should be disabled in clients. This is required when connecting to a server in an
+   * environment with a DNS server that doesn't support EDNS.
+   */
+  boolean getDisableEdns();
 }
