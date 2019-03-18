@@ -57,4 +57,16 @@ public interface DatabaseConfig {
    * DB itself.
    */
   Duration getConnectionMaxLifetime();
+
+  /**
+   * The timeout for socket connect. Defaults to 0, no timeout. Setting this to a relatively low
+   * value may be needed to support automatic database failover.
+   */
+  Duration getConnectTimeout();
+
+  /**
+   * The timeout for socket read. Defaults to 0, no timeout. Setting this to a relatively low value
+   * may be needed to support automatic database failover.
+   */
+  Duration getSocketTimeout();
 }

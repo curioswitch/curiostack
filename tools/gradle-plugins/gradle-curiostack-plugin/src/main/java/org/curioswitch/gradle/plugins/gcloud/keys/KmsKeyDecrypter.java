@@ -41,7 +41,7 @@ public class KmsKeyDecrypter {
 
   public String decrypt(String cipherText) throws Exception {
     var config = project.getRootProject().getExtensions().getByType(GcloudExtension.class);
-    String project = config.clusterProject();
+    String project = config.clusterProject() + "-sysadmin";
 
     var key = CryptoKeyName.of(project, "global", "gradle-key-ring", "gradle-vars-key");
 

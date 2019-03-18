@@ -44,17 +44,32 @@ public interface DatabaseExtension extends HasPublicType {
             .getExtensions()
             .create(NAME, ModifiableDatabaseExtension.class)
             .setDbName(objects.property(String.class))
-            .setDevAdminUser(objects.property(String.class).value("dbadmin"))
-            .setDevAdminPassword(objects.property(String.class));
+            .setAdminUser(objects.property(String.class).value("root"))
+            .setAdminPassword(objects.property(String.class));
 
     return extension;
   }
 
   Property<String> getDbName();
 
-  Property<String> getDevAdminUser();
+  default DatabaseExtension setDbName(String dbName) {
+    getDbName().set(dbName);
+    return this;
+  }
 
-  Property<String> getDevAdminPassword();
+  Property<String> getAdminUser();
+
+  default DatabaseExtension setAdminUser(String adminUser) {
+    getAdminUser().set(adminUser);
+    return this;
+  }
+
+  Property<String> getAdminPassword();
+
+  default DatabaseExtension setAdminPassword(String password) {
+    getAdminPassword().set(password);
+    return this;
+  }
 
   @Override
   default TypeOf<?> getPublicType() {

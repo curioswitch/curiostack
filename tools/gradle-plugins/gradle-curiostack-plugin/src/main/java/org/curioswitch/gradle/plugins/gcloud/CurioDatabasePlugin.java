@@ -49,16 +49,16 @@ public class CurioDatabasePlugin implements Plugin<Project> {
     DatabaseExtension config = project.getExtensions().getByType(DatabaseExtension.class);
 
     FlywayExtension flyway = project.getExtensions().getByType(FlywayExtension.class);
-    flyway.user = "dbadmin";
-    flyway.password = config.getDevAdminPassword().get();
+    flyway.user = config.getAdminUser().get();
+    flyway.password = config.getAdminPassword().get();
     flyway.schemas = new String[] {config.getDbName().get()};
 
     Dockerfile generateDevDbDockerfile =
         project.getTasks().create("generateDevDbDockerfile", Dockerfile.class);
     generateDevDbDockerfile.from("mysql:5.7");
     generateDevDbDockerfile.environmentVariable("MYSQL_DATABASE", config.getDbName().get());
-    generateDevDbDockerfile.environmentVariable("MYSQL_USER", config.getDevAdminUser().get());
-    String devAdminPassword = config.getDevAdminPassword().get();
+    generateDevDbDockerfile.environmentVariable("MYSQL_USER", config.getAdminUser().get());
+    String devAdminPassword = config.getAdminPassword().get();
     generateDevDbDockerfile.environmentVariable("MYSQL_PASSWORD", devAdminPassword);
     // Root privilege needs to be exposed to create users other than MYSQL_USER.
     generateDevDbDockerfile.environmentVariable("MYSQL_ROOT_PASSWORD", devAdminPassword);

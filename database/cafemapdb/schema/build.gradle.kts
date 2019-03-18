@@ -33,7 +33,7 @@ val devAdminPasswordEncrypted = "CiQAhAX+YPDiPB2yq0A5V5YZAKO0py1mbMW3Mun717Xs3CP
 
 database {
     dbName.set("cafemapdb")
-    devAdminPassword.set(keys.decrypt(devAdminPasswordEncrypted))
+    adminPassword.set(keys.decrypt(devAdminPasswordEncrypted))
 }
 
 flyway {

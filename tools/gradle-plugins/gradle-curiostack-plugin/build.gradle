@@ -87,6 +87,10 @@ dependencies {
     compile 'nu.studer:gradle-jooq-plugin'
     compile 'org.bouncycastle:bcpkix-jdk15on'
 
+    // Prevent dependency hell for plugin users by specifying bom'd versions of grpc here
+    compile 'io.grpc:grpc-core'
+    compile 'io.grpc:grpc-netty-shaded'
+
     // Flyway plugin uses the gradle classpath, so adding this allows flyway to access cloud sql.
     runtime 'com.google.cloud.sql:mysql-socket-factory'
     runtime 'mysql:mysql-connector-java'
