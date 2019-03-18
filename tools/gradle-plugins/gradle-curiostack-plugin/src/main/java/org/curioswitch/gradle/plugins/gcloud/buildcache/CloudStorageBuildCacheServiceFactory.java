@@ -70,7 +70,7 @@ public class CloudStorageBuildCacheServiceFactory
       return new NoOpBuildCacheService();
     }
 
-    ModifiableGcloudConfig config = new ModifiableGcloudConfig()
+    ModifiableGcloudConfig config = new ModifiableGcloudConfig();
     HttpClient googleApis = GcloudModule.googleApisClient(Optional.empty(), config);
     AccessTokenProvider.Factory accessTokenProviderFactory =
         new AccessTokenProvider.Factory(googleApis, Clock.systemUTC());
