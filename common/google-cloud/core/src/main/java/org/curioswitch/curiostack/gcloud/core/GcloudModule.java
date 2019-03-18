@@ -35,16 +35,12 @@ import com.linecorp.armeria.client.retry.RetryStrategy;
 import com.linecorp.armeria.client.retry.RetryingHttpClient;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
-import com.linecorp.armeria.internal.TransportType;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.netty.resolver.dns.DnsAddressResolverGroup;
-import io.netty.resolver.dns.DnsNameResolverBuilder;
-import io.netty.resolver.dns.DnsServerAddressStreamProviders;
 import java.util.Optional;
 import javax.inject.Singleton;
 import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
@@ -73,14 +69,8 @@ public abstract class GcloudModule {
                 registry -> {
                   ClientFactoryBuilder builder = new ClientFactoryBuilder().meterRegistry(registry);
                   if (config.getDisableEdns()) {
-                    builder.addressResolverGroupFactory(
-                        eventLoopGroup ->
-                            new DnsAddressResolverGroup(
-                                new DnsNameResolverBuilder()
-                                    .channelType(TransportType.datagramChannelType(eventLoopGroup))
-                                    .nameServerProvider(
-                                        DnsServerAddressStreamProviders.platformDefault())
-                                    .optResourceEnabled(false)));
+                    builder.domainNameResolverCustomizer(
+                        dnsNameResolverBuilder -> dnsNameResolverBuilder.optResourceEnabled(false));
                   }
                   return builder.build();
                 })
