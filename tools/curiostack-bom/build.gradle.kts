@@ -144,7 +144,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.cloud",
-                "0.53.0-beta",
+                "1.1.0",
+                listOf("google-cloud-kms")
+        ),
+        DependencySet(
+                "com.google.cloud",
+                "0.83.0-beta",
                 listOf("google-cloud-iot", "google-cloud-trace")
         ),
         DependencySet(
@@ -251,10 +256,12 @@ val DEPENDENCY_SETS = listOf(
                 "io.grpc",
                 "1.19.0",
                 listOf(
-                        "grpc-all",
+                        "gall",
+                        "grpc-alts",
                         "grpc-auth",
                         "grpc-context",
                         "grpc-core",
+                        "grpc-grpclb",
                         "grpc-netty",
                         "grpc-netty-shaded",
                         "grpc-okhttp",
@@ -378,7 +385,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.curioswitch.curiostack",
-                "0.0.34",
+                "0.0.35",
                 listOf(
                         "armeria-google-cloud-core",
                         "armeria-google-cloud-iam",
@@ -388,7 +395,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.curioswitch.curiostack",
-                "0.0.102",
+                "0.0.103",
                 listOf("curio-server-framework")
         ),
         DependencySet(
@@ -438,7 +445,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "2.25.0",
+                "2.25.1",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -461,8 +468,9 @@ val DEPENDENCY_SETS = listOf(
 
 val DEPENDENCIES = listOf(
         "com.bmuschko:gradle-docker-plugin:4.6.2",
-        "com.diffplug.spotless:spotless-plugin-gradle:3.19.0",
+        "com.diffplug.spotless:spotless-plugin-gradle:3.20.0",
         "com.github.ben-manes:gradle-versions-plugin:0.21.0",
+        "com.google.common.geometry:s2-geometry:1.0",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",
         "com.google.protobuf:protobuf-gradle-plugin:0.8.6",
         "com.hubspot.jinjava:jinjava:2.5.0",

@@ -442,7 +442,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                         configuration.getName(),
                         project
                             .getDependencies()
-                            .platform("org.curioswitch.curiostack:curiostack-bom:0.0.3")));
+                            .platform("org.curioswitch.curiostack:curiostack-bom:0.0.4")));
 
     project
         .getTasks()

@@ -71,6 +71,7 @@ dependencies {
     compile 'com.diffplug.spotless:spotless-plugin-gradle'
     compile 'com.github.ben-manes:gradle-versions-plugin'
     compile 'com.google.auth:google-auth-library-oauth2-http'
+    compile 'com.google.cloud:google-cloud-kms:1.0.0'
     compile 'com.google.guava:guava'
     compile 'com.hubspot.jinjava:jinjava'
     compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin'
@@ -85,6 +86,10 @@ dependencies {
     compile 'net.ltgt.gradle:gradle-errorprone-plugin'
     compile 'nu.studer:gradle-jooq-plugin'
     compile 'org.bouncycastle:bcpkix-jdk15on'
+
+    // Prevent dependency hell for plugin users by specifying bom'd versions of grpc here
+    compile 'io.grpc:grpc-core'
+    compile 'io.grpc:grpc-netty-shaded'
 
     // Flyway plugin uses the gradle classpath, so adding this allows flyway to access cloud sql.
     runtime 'com.google.cloud.sql:mysql-socket-factory'

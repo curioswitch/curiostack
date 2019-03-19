@@ -58,6 +58,11 @@ resource:
       service: cloudprofiler.googleapis.com
       lifecycle:
         prevent_destroy: true
+    primary-sqladmin:
+      project: "${google_project.primary_project.project_id}"
+      service: sqladmin.googleapis.com
+      lifecycle:
+        prevent_destroy: true
     primary-trace:
       project: "${google_project.primary_project.project_id}"
       service: cloudtrace.googleapis.com

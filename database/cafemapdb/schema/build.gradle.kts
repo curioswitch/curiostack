@@ -22,11 +22,18 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-database-plugin'
+import org.curioswitch.gradle.plugins.gcloud.keys.KmsKeyDecrypter
+
+plugins {
+    id("org.curioswitch.gradle-curio-database-plugin")
+}
+
+val keys: KmsKeyDecrypter by rootProject.extra
+val devAdminPasswordEncrypted = "CiQAhAX+YPDiPB2yq0A5V5YZAKO0py1mbMW3Mun717Xs3CPJZMsSSQCggp6mP3bGNpHURfeMZDevsPK6DFz7gWvmb/0v/I7/mR1WF6zEIxTOCLldA9Ewii5WxadAk00CrjAF6JnW4SdYQWdqjmBNKcM="
 
 database {
-    dbName = 'cafemapdb'
-    devAdminPassword = rootProject.findProperty('devPassword') ?: ''
+    dbName.set("cafemapdb")
+    adminPassword.set(keys.decrypt(devAdminPasswordEncrypted))
 }
 
 flyway {

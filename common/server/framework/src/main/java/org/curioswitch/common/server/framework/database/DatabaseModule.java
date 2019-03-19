@@ -102,6 +102,8 @@ public abstract class DatabaseModule {
       hikari.addDataSourceProperty(
           "leakDetectionThreshold", config.getLeakDetectionThreshold().getSeconds());
     }
+    hikari.addDataSourceProperty("connectTimeout", config.getConnectTimeout().getSeconds());
+    hikari.addDataSourceProperty("socketTimeout", config.getSocketTimeout().getSeconds());
     return new HikariDataSource(hikari);
   }
 

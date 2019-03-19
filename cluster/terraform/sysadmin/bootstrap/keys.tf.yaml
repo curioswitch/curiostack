@@ -28,10 +28,19 @@ resource:
       project: "${google_project.sysadmin_project.project_id}"
       depends_on:
       - google_project_service.sysadmin-kms
+    gradle_key_ring:
+      name: gradle-key-ring
+      location: global
+      project: "${google_project.sysadmin_project.project_id}"
+      depends_on:
+        - google_project_service.sysadmin-kms
   google_kms_crypto_key:
     terraform_state_key:
       name: terraform-state-key
       key_ring: "${google_kms_key_ring.terraform_key_ring.id}"
+    gradle_vars_key:
+      name: gradle-vars-key
+      key_ring: "${google_kms_key_ring.gradle_key_ring.id}"
   google_service_account:
     terraform_service_account:
       account_id: terraform

@@ -36,9 +36,7 @@ public class CurioDatabasePlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    project
-        .getExtensions()
-        .create(ImmutableDatabaseExtension.NAME, DatabaseExtension.class, project);
+    DatabaseExtension.create(project);
 
     project.getPlugins().apply(BasePlugin.class);
     project.getPlugins().apply(DockerRemoteApiPlugin.class);
@@ -48,23 +46,21 @@ public class CurioDatabasePlugin implements Plugin<Project> {
   }
 
   private static void addTasks(Project project) {
-    ImmutableDatabaseExtension config = project.getExtensions().getByType(DatabaseExtension.class);
+    DatabaseExtension config = project.getExtensions().getByType(DatabaseExtension.class);
 
     FlywayExtension flyway = project.getExtensions().getByType(FlywayExtension.class);
-    flyway.user = "dbadmin";
-    flyway.password = config.devAdminPassword();
-    flyway.schemas = new String[] {config.dbName()};
+    flyway.user = config.getAdminUser().get();
+    flyway.password = config.getAdminPassword().get();
+    flyway.schemas = new String[] {config.getDbName().get()};
 
     Dockerfile generateDevDbDockerfile =
         project.getTasks().create("generateDevDbDockerfile", Dockerfile.class);
     generateDevDbDockerfile.from("mysql:5.7");
-    generateDevDbDockerfile.environmentVariable("MYSQL_DATABASE", config.dbName());
-    generateDevDbDockerfile.environmentVariable("MYSQL_USER", config.devAdminUser());
-    String devAdminPassword = config.devAdminPassword();
-    if (devAdminPassword != null) {
-      generateDevDbDockerfile.environmentVariable("MYSQL_PASSWORD", devAdminPassword);
-      // Root privilege needs to be exposed to create users other than MYSQL_USER.
-      generateDevDbDockerfile.environmentVariable("MYSQL_ROOT_PASSWORD", devAdminPassword);
-    }
+    generateDevDbDockerfile.environmentVariable("MYSQL_DATABASE", config.getDbName().get());
+    generateDevDbDockerfile.environmentVariable("MYSQL_USER", config.getAdminUser().get());
+    String devAdminPassword = config.getAdminPassword().get();
+    generateDevDbDockerfile.environmentVariable("MYSQL_PASSWORD", devAdminPassword);
+    // Root privilege needs to be exposed to create users other than MYSQL_USER.
+    generateDevDbDockerfile.environmentVariable("MYSQL_ROOT_PASSWORD", devAdminPassword);
   }
 }
