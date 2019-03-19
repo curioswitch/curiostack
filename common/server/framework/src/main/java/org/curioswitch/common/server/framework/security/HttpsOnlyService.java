@@ -25,10 +25,8 @@ package org.curioswitch.common.server.framework.security;
 
 import com.google.common.base.Ascii;
 import com.google.common.base.Strings;
-import com.linecorp.armeria.common.FilteredHttpResponse;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpHeaders;
-import com.linecorp.armeria.common.HttpObject;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
@@ -80,7 +78,14 @@ public class HttpsOnlyService extends SimpleDecoratingService<HttpRequest, HttpR
     String xForwardedProto =
         Ascii.toLowerCase(Strings.nullToEmpty(req.headers().get(X_FORWARDED_PROTO)));
     if (xForwardedProto.isEmpty() || xForwardedProto.equals("https")) {
-      return new SecureHeaderSettingResponse(delegate().serve(ctx, req));
+      ctx.addAdditionalResponseHeader(STRICT_TRANSPORT_SECURITY, "max-age=31536000; preload");
+      ctx.addAdditionalResponseHeader(HttpHeaderNames.X_FRAME_OPTIONS, "DENY");
+      config
+          .getAdditionalResponseHeaders()
+          .forEach(
+              (key, value) ->
+                  ctx.addAdditionalResponseHeader(HttpHeaderNames.of(key), (String) value));
+      return delegate().serve(ctx, req);
     }
     StringBuilder redirectUrl =
         new StringBuilder("https://" + req.headers().authority() + ctx.path());
@@ -90,27 +95,5 @@ public class HttpsOnlyService extends SimpleDecoratingService<HttpRequest, HttpR
     return HttpResponse.of(
         HttpHeaders.of(HttpStatus.MOVED_PERMANENTLY)
             .add(HttpHeaderNames.LOCATION, redirectUrl.toString()));
-  }
-
-  private class SecureHeaderSettingResponse extends FilteredHttpResponse {
-
-    private SecureHeaderSettingResponse(HttpResponse delegate) {
-      super(delegate, true);
-    }
-
-    @Override
-    protected HttpObject filter(HttpObject obj) {
-      if (!(obj instanceof HttpHeaders)) {
-        return obj;
-      }
-      HttpHeaders headers = (HttpHeaders) obj;
-      headers
-          .add(STRICT_TRANSPORT_SECURITY, "max-age=31536000; preload")
-          .add(HttpHeaderNames.X_FRAME_OPTIONS, "DENY");
-      config
-          .getAdditionalResponseHeaders()
-          .forEach((key, value) -> headers.add(HttpHeaderNames.of(key), (String) value));
-      return headers;
-    }
   }
 }
