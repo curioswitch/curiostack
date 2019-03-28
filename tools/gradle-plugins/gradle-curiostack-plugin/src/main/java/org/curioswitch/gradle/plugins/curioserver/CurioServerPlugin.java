@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.gorylenko.GitPropertiesPlugin;
 import java.util.Set;
+import org.curioswitch.gradle.helpers.task.TaskUtil;
 import org.curioswitch.gradle.plugins.curioserver.tasks.NativeImageTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
@@ -59,9 +60,8 @@ public class CurioServerPlugin implements Plugin<Project> {
     project.getPlugins().apply(ApplicationPlugin.class);
     project.getPlugins().apply(GitPropertiesPlugin.class);
     project.getPlugins().apply(JibPlugin.class);
-    project
-        .getExtensions()
-        .create(ImmutableDeploymentExtension.NAME, DeploymentExtension.class, project);
+
+    var config = ServerExtension.createAndAdd(project);
 
     project.getNormalization().getRuntimeClasspath().ignore("git.properties");
 
@@ -73,10 +73,9 @@ public class CurioServerPlugin implements Plugin<Project> {
     var jib = project.getExtensions().getByType(JibExtension.class);
 
     var jibTask = project.getTasks().named("jib");
-    var patchAlpha = project.getTasks().register("patchAlpha", KubectlTask.class);
-    patchAlpha.configure(t -> t.mustRunAfter(jibTask));
+    var autoDeploy = project.getTasks().register("autoDeploy");
     if (System.getenv("CI_MASTER") != null) {
-      project.getTasks().named("build").configure(t -> t.dependsOn(jibTask, patchAlpha));
+      project.getTasks().named("build").configure(t -> t.dependsOn(jibTask, autoDeploy));
     }
 
     project
@@ -122,11 +121,12 @@ public class CurioServerPlugin implements Plugin<Project> {
 
     project.afterEvaluate(
         p -> {
-          ImmutableDeploymentExtension config =
-              project.getExtensions().getByType(DeploymentExtension.class);
-
           String archivesBaseName =
               project.getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
+
+          if (!config.getBaseName().isPresent()) {
+            config.getBaseName().set(archivesBaseName);
+          }
 
           var appPluginConvention =
               project.getConvention().getPlugin(ApplicationPluginConvention.class);
@@ -134,7 +134,7 @@ public class CurioServerPlugin implements Plugin<Project> {
 
           nativeImage.configure(t -> t.getOutputName().set(archivesBaseName));
 
-          jib.getTo().setImage(config.imagePrefix() + config.baseName());
+          jib.getTo().setImage(config.getImagePrefix().get() + config.getBaseName().get());
 
           String releaseBranch =
               (String)
@@ -151,30 +151,43 @@ public class CurioServerPlugin implements Plugin<Project> {
           if (releaseBranch != null) {
             tags = ImmutableSet.of(releaseBranch);
           } else if (revisionId != null) {
-            tags = ImmutableSet.of(config.imageTag(), revisionId);
+            tags = ImmutableSet.of(config.getImageTag().get(), revisionId);
           } else {
-            tags = ImmutableSet.of(config.imageTag());
+            tags = ImmutableSet.of(config.getImageTag().get());
           }
           jib.getTo().setTags(tags);
           jib.container(
               container -> container.setMainClass(appPluginConvention.getMainClassName()));
 
           if (revisionId != null) {
-            var alpha = config.getTypes().getByName("alpha");
-            patchAlpha.configure(
-                t -> {
-                  t.setArgs(
-                      ImmutableList.of(
-                          "--namespace=" + alpha.namespace(),
-                          "patch",
-                          "deployment/" + alpha.deploymentName(),
-                          "-p",
-                          "{\"spec\": "
-                              + "{\"template\": {\"metadata\": {\"labels\": {\"revision\": \""
-                              + revisionId
-                              + "\" }}}}}"));
-                  t.setIgnoreExitValue(true);
-                });
+            config
+                .getDeployments()
+                .all(
+                    deployment -> {
+                      if (deployment.getAutoDeploy().get()) {
+                        var deploy =
+                            project
+                                .getTasks()
+                                .register(
+                                    "deploy" + TaskUtil.toTaskSuffix(deployment.getName()),
+                                    KubectlTask.class,
+                                    t -> {
+                                      t.mustRunAfter(jib);
+                                      t.setArgs(
+                                          ImmutableList.of(
+                                              "--namespace=" + deployment.getNamespace().get(),
+                                              "patch",
+                                              "deployment/" + deployment.getDeployment().get(),
+                                              "-p",
+                                              "{\"spec\": "
+                                                  + "{\"template\": {\"metadata\": {\"labels\": {\"revision\": \""
+                                                  + revisionId
+                                                  + "\" }}}}}"));
+                                      t.setIgnoreExitValue(true);
+                                    });
+                        autoDeploy.configure(t -> t.dependsOn(deploy));
+                      }
+                    });
           }
         });
   }

@@ -22,36 +22,39 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
-
-archivesBaseName = 'eggworld-server'
-mainClassName = 'org.curioswitch.eggworld.server.EggworldMain'
-
-dependencies {
-    compile project(':common:server:framework')
-    compile project(':eggworld:api')
-    compile project(':eggworld:client:web')
-
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
-    compile 'com.linecorp.armeria:armeria-retrofit2'
-    compile 'com.squareup.retrofit2:adapter-guava'
-    compile 'com.squareup.retrofit2:converter-jackson'
-
-    annotationProcessor 'com.google.dagger:dagger-compiler'
-
-    annotationProcessor 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
+plugins {
+    id("org.curioswitch.gradle-curio-server-plugin")
 }
 
-deployment {
-    types {
-        alpha {
-            namespace = 'eggworld-dev'
-            externalHost = 'eggworld-alpha.curioswitch.org'
-            cpu = 0.1
-            memoryMb = 512
-            request = true
-            iap = true
+base {
+    archivesBaseName = "eggworld-server"
+}
+
+application {
+    mainClassName = "org.curioswitch.eggworld.server.EggworldMain"
+}
+
+dependencies {
+    compile(project(":common:server:framework"))
+    compile(project(":eggworld:api"))
+    compile(project(":eggworld:client:web"))
+
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-guava")
+    compile("com.linecorp.armeria:armeria-retrofit2")
+    compile("com.squareup.retrofit2:adapter-guava")
+    compile("com.squareup.retrofit2:converter-jackson")
+
+    annotationProcessor("com.google.dagger:dagger-compiler")
+
+    annotationProcessor("org.immutables:value")
+    compileOnly("org.immutables:value-annotations")
+}
+
+server {
+    deployments {
+        register("alpha") {
+            namespace.set("eggworld-dev")
         }
     }
 }
+
