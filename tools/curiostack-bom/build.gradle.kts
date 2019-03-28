@@ -44,12 +44,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.auth0",
-                "3.7.0",
+                "3.8.0",
                 listOf("java-jwt")
         ),
         DependencySet(
                 "com.google.auth",
-                "0.13.0",
+                "0.15.0",
                 listOf("google-auth-library-oauth2-http")
         ),
         DependencySet(
@@ -59,7 +59,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.auto.service",
-                "1.0-rc4",
+                "1.0-rc5",
                 listOf("auto-service")
         ),
         DependencySet(
@@ -104,17 +104,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.api.grpc",
-                "0.44.0",
-                listOf("grpc-google-cloud-trace-v1")
-        ),
-        DependencySet(
-                "com.google.api.grpc",
-                "0.44.0",
+                "0.49.0",
                 listOf("grpc-google-cloud-trace-v2")
         ),
         DependencySet(
                 "com.google.api.grpc",
-                "1.47.0",
+                "1.48.0",
                 listOf("grpc-google-cloud-pubsub-v1")
         ),
         DependencySet(
@@ -129,7 +124,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.cloud",
-                "1.65.0",
+                "1.66.0",
                 listOf(
                         "google-cloud-bigquery",
                         "google-cloud-core",
@@ -144,7 +139,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.cloud",
-                "1.1.0",
+                "1.2.0",
                 listOf("google-cloud-kms")
         ),
         DependencySet(
@@ -177,7 +172,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.firebase",
-                "6.7.0",
+                "6.8.0",
                 listOf("firebase-admin")
         ),
         DependencySet(
@@ -198,12 +193,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.linecorp.armeria",
-                "0.81.0",
+                "0.82.0",
                 listOf("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
         ),
         DependencySet(
                 "com.spotify",
-                "4.1.3",
+                "4.2.0",
                 listOf("futures-extra")
         ),
         DependencySet(
@@ -249,7 +244,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.lettuce",
-                "5.1.5.RELEASE",
+                "5.1.6.RELEASE",
                 listOf("lettuce-core")
         ),
         DependencySet(
@@ -327,7 +322,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "net.bytebuddy",
-                "1.9.10",
+                "1.9.12",
                 listOf("byte-buddy", "byte-buddy-agent")
         ),
         DependencySet(
@@ -355,7 +350,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.assertj",
-                "3.12.1",
+                "3.12.2",
                 listOf("assertj-core")
         ),
         DependencySet(
@@ -445,7 +440,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "2.25.1",
+                "2.25.6",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -455,7 +450,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.simpleflatmapper",
-                "6.4.0",
+                "6.6.0",
                 listOf(
                         "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
         ),
