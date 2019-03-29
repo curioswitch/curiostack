@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,36 +22,37 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
-
-archivesBaseName = 'eggworld-server'
-mainClassName = 'org.curioswitch.eggworld.server.EggworldMain'
-
-dependencies {
-    compile project(':common:server:framework')
-    compile project(':eggworld:api')
-    compile project(':eggworld:client:web')
-
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
-    compile 'com.linecorp.armeria:armeria-retrofit2'
-    compile 'com.squareup.retrofit2:adapter-guava'
-    compile 'com.squareup.retrofit2:converter-jackson'
-
-    annotationProcessor 'com.google.dagger:dagger-compiler'
-
-    annotationProcessor 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
+plugins {
+    `java-gradle-plugin`
+    `maven-publish`
 }
 
-deployment {
-    types {
-        alpha {
-            namespace = 'eggworld-dev'
-            externalHost = 'eggworld-alpha.curioswitch.org'
-            cpu = 0.1
-            memoryMb = 512
-            request = true
-            iap = true
+dependencies {
+    compile(project(":common:curio-helpers"))
+    compile(project(":tools:gradle-plugins:gradle-helpers"))
+
+    compile("com.google.guava:guava")
+    compile("org.eclipse.jgit:org.eclipse.jgit")
+}
+
+gradlePlugin {
+    plugins {
+        register("curioRelease") {
+            id = "org.curioswitch.gradle-release-plugin"
+            implementationClass = "org.curioswitch.gradle.release.ReleasePlugin"
+        }
+    }
+}
+
+publishing {
+    publications {
+        register("maven", MavenPublication::class) {
+            pom {
+                name.set("Gradle Release Plugin")
+                description.set("Gradle plugin to perform versioning of releases using curiostack conventions.")
+                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
+                        "gradle-plugins/gradle-release-plugin")
+            }
         }
     }
 }

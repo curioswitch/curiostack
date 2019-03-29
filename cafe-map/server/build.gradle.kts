@@ -50,6 +50,12 @@ dependencies {
     testCompileOnly("org.immutables:value")
 }
 
-deployment {
-    types.maybeCreate("alpha").setNamespace("cafemap-dev").setDeploymentName("cafemap-server-alpha")
+server {
+    deployments {
+        register("alpha") {
+            namespace.set("cafemap-dev")
+            deployment.set("cafemap-server-alpha")
+            autoDeploy.set(true)
+        }
+    }
 }

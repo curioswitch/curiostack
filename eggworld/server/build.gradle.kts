@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2017 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,22 +22,38 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.curioserver.tasks;
+plugins {
+    id("org.curioswitch.gradle-curio-server-plugin")
+}
 
-import javax.inject.Inject;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.TaskAction;
-import org.gradle.workers.WorkerExecutor;
+base {
+    archivesBaseName = "eggworld-server"
+}
 
-public class WriteDeploymentConfigTask extends DefaultTask {
+application {
+    mainClassName = "org.curioswitch.eggworld.server.EggworldMain"
+}
 
-  private final WorkerExecutor workerExecutor;
+dependencies {
+    compile(project(":common:server:framework"))
+    compile(project(":eggworld:api"))
+    compile(project(":eggworld:client:web"))
 
-  @Inject
-  public WriteDeploymentConfigTask(WorkerExecutor workerExecutor) {
-    this.workerExecutor = workerExecutor;
-  }
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-guava")
+    compile("com.linecorp.armeria:armeria-retrofit2")
+    compile("com.squareup.retrofit2:adapter-guava")
+    compile("com.squareup.retrofit2:converter-jackson")
 
-  @TaskAction
-  public void exec() {}
+    annotationProcessor("com.google.dagger:dagger-compiler")
+
+    annotationProcessor("org.immutables:value")
+    compileOnly("org.immutables:value-annotations")
+}
+
+server {
+    deployments {
+        register("alpha") {
+            namespace.set("eggworld-dev")
+        }
+    }
 }

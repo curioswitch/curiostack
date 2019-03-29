@@ -45,7 +45,7 @@ public class StandardDependencies {
     String version();
   }
 
-  public static final String GCLOUD_VERSION = "238.0.0";
+  public static final String GCLOUD_VERSION = "240.0.0";
   public static final String HELM_VERSION = "2.10.0";
   public static final String MINICONDA_VERSION = "4.5.12";
   public static final String TERRAFORM_VERSION = "0.11.11";
@@ -53,7 +53,7 @@ public class StandardDependencies {
   public static final String YARN_VERSION = "1.13.0";
 
   static final String GOOGLE_JAVA_FORMAT_VERSION = "1.7";
-  static final String GRADLE_VERSION = "5.3-rc-3";
+  static final String GRADLE_VERSION = "5.3.1";
 
   private StandardDependencies() {}
 }

@@ -61,6 +61,7 @@ dependencies {
     compile project(':tools:gradle-plugins:gradle-golang-plugin')
     compile project(':tools:gradle-plugins:gradle-protobuf-plugin')
     compile project(':tools:gradle-plugins:gradle-helpers')
+    compile project(':tools:gradle-plugins:gradle-release-plugin')
     compile project(':tools:gradle-plugins:gradle-tool-downloader-plugin')
     compile project(':tools:gradle-plugins:java-groovy-compat')
 

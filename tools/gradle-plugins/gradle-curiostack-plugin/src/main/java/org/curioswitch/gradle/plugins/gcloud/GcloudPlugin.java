@@ -49,7 +49,7 @@ import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.ci.tasks.FetchCodeCovCacheTask;
 import org.curioswitch.gradle.plugins.ci.tasks.UploadCodeCovCacheTask;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
-import org.curioswitch.gradle.plugins.curioserver.DeploymentExtension;
+import org.curioswitch.gradle.plugins.curioserver.ServerExtension;
 import org.curioswitch.gradle.plugins.gcloud.keys.KmsKeyDecrypter;
 import org.curioswitch.gradle.plugins.gcloud.tasks.FetchToolCacheTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
@@ -272,10 +272,15 @@ public class GcloudPlugin implements Plugin<Project> {
                       .withType(
                           CurioServerPlugin.class,
                           unused -> {
-                            DeploymentExtension deployment =
-                                proj.getExtensions().getByType(DeploymentExtension.class);
-                            deployment.setImagePrefix(
-                                config.containerRegistry() + "/" + config.clusterProject() + "/");
+                            ServerExtension server =
+                                proj.getExtensions().getByType(ServerExtension.class);
+                            server
+                                .getImagePrefix()
+                                .set(
+                                    config.containerRegistry()
+                                        + "/"
+                                        + config.clusterProject()
+                                        + "/");
                           }));
 
           gcloudLoginToCluster.configure(
