@@ -31,10 +31,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.loader.FileLocator;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.InputFiles;
@@ -44,6 +52,11 @@ import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
 public class ConvertConfigsToJsonTask extends DefaultTask {
+
+  // It is extremely hacky to use global state to propagate the Task to workers, but
+  // it works so let's enjoy the speed.
+  private static final ConcurrentHashMap<String, ConvertConfigsToJsonTask> TASKS =
+      new ConcurrentHashMap<>();
 
   public static final String NAME = "terraformConvertConfigs";
 
@@ -77,19 +90,38 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
 
   @TaskAction
   void exec() {
+    var jinJava = new Jinjava(JinjavaConfig.newBuilder().withTrimBlocks(true).build());
+    try {
+      jinJava.setResourceLocator(new FileLocator(getProject().getProjectDir()));
+    } catch (FileNotFoundException e) {
+      throw new IllegalStateException("Could not initialize Jinjava");
+    }
+
     var project = getProject();
     for (var file : getInputFiles()) {
       Path path = file.toPath();
 
       if (!path.toString().endsWith(".tf.yml") && !path.toString().endsWith(".tf.yaml")) {
-        // Copy non-config files (usually templates) as is.
-        project.copy(
-            copy -> {
-              copy.from(path);
-              copy.into(
-                  outputDir.resolve(
-                      project.getProjectDir().toPath().relativize(file.toPath()).getParent()));
-            });
+        var outDir =
+            outputDir.resolve(
+                project.getProjectDir().toPath().relativize(file.toPath()).getParent());
+
+        if (path.toString().contains(".jinja.")) {
+          var outPath = outDir.resolve(path.getFileName().toString().replace(".jinja.", "."));
+          try {
+            Files.createDirectories(outDir);
+            Files.writeString(outPath, jinJava.render(Files.readString(path), ImmutableMap.of()));
+          } catch (IOException e) {
+            throw new UncheckedIOException(e);
+          }
+        } else {
+          // Copy non-config files (usually templates) as is.
+          project.copy(
+              copy -> {
+                copy.from(path);
+                copy.into(outDir);
+              });
+        }
         continue;
       }
 
@@ -119,11 +151,13 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
       } catch (IOException e) {
         throw new UncheckedIOException("Could not create output directory.", e);
       }
+      String mapKey = UUID.randomUUID().toString();
+      TASKS.put(mapKey, this);
       workerExecutor.submit(
           ConvertToJson.class,
           config -> {
             config.setIsolationMode(IsolationMode.NONE);
-            config.params(file, outPath.toFile());
+            config.params(mapKey, file, outPath.toFile());
           });
     }
   }
@@ -138,25 +172,54 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
 
   public static class ConvertToJson implements Runnable {
 
+    private final String mapKey;
     private final File sourceFile;
     private final File outFile;
 
     @Inject
-    public ConvertToJson(File sourceFile, File outFile) {
+    public ConvertToJson(String mapKey, File sourceFile, File outFile) {
+      this.mapKey = mapKey;
       this.sourceFile = sourceFile;
       this.outFile = outFile;
     }
 
     @Override
     public void run() {
-      JsonNode contents;
+      var task = TASKS.remove(mapKey);
+
+      final String fileContents;
+      if (sourceFile.getName().contains(".jinja.")) {
+        var jinJava = new Jinjava();
+        try {
+          jinJava.setResourceLocator(new FileLocator(task.getProject().getProjectDir()));
+        } catch (FileNotFoundException e) {
+          throw new IllegalStateException("Could not initialize Jinjava");
+        }
+        try {
+          fileContents = jinJava.render(Files.readString(sourceFile.toPath()), ImmutableMap.of());
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        }
+      } else {
+        try {
+          fileContents = Files.readString(sourceFile.toPath());
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        }
+      }
+
+      final JsonNode contents;
       try {
-        contents = YAML_READER.readTree(sourceFile);
+        contents = YAML_READER.readTree(fileContents);
       } catch (IOException e) {
         throw new UncheckedIOException("Could not read config yaml.", e);
       }
       try {
-        JSON_WRITER.writeValue(outFile, contents);
+        File renamedOutFile = outFile;
+        if (outFile.getName().contains(".jinja.")) {
+          renamedOutFile = new File(outFile.getParent(), outFile.getName().replace(".jinja.", "."));
+        }
+        JSON_WRITER.writeValue(renamedOutFile, contents);
       } catch (IOException e) {
         throw new UncheckedIOException("Could not write config json.", e);
       }

@@ -193,7 +193,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.linecorp.armeria",
-                "0.82.0",
+                "0.83.0",
                 listOf("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
         ),
         DependencySet(
@@ -400,7 +400,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.eclipse.jgit",
-                "5.0.1.201806211838-r",
+                "5.3.0.201903130848-r",
                 listOf("org.eclipse.jgit")
         ),
         DependencySet(
@@ -440,7 +440,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "2.25.6",
+                "2.25.7",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -463,7 +463,7 @@ val DEPENDENCY_SETS = listOf(
 
 val DEPENDENCIES = listOf(
         "com.bmuschko:gradle-docker-plugin:4.6.2",
-        "com.diffplug.spotless:spotless-plugin-gradle:3.20.0",
+        "com.diffplug.spotless:spotless-plugin-gradle:3.21.0",
         "com.github.ben-manes:gradle-versions-plugin:0.21.0",
         "com.google.common.geometry:s2-geometry:1.0",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",

@@ -78,6 +78,7 @@ import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateProjectSettingsTask
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
 import org.curioswitch.gradle.plugins.nodejs.util.NodeUtil;
+import org.curioswitch.gradle.release.ReleasePlugin;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.gradle.api.JavaVersion;
@@ -137,6 +138,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
     plugins.apply(NodePlugin.class);
+    plugins.apply(ReleasePlugin.class);
     plugins.apply(ToolDownloaderPlugin.class);
 
     rootProject
