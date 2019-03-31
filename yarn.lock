@@ -830,18 +830,6 @@
     tslint-plugin-prettier "2.0.1"
     typescript "3.3.3333"
 
-"@curiostack/base-node-dev@0.0.12":
-  version "0.0.13"
-  dependencies:
-    "@types/node" "11.11.3"
-    prettier "1.16.4"
-    rimraf "2.6.3"
-    tslint "5.12.1"
-    tslint-config-airbnb-base "0.2.0"
-    tslint-config-prettier "1.18.0"
-    tslint-plugin-prettier "2.0.1"
-    typescript "3.3.3333"
-
 "@curiostack/cloudbuild-github@0.0.12":
   version "0.0.12"
   resolved "https://registry.yarnpkg.com/@curiostack/cloudbuild-github/-/cloudbuild-github-0.0.12.tgz#d1acd42dbab647c3952dd2181cfedaa2355d9b69"
@@ -2268,33 +2256,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/storybook__addon-actions@3.4.2":
-  version "3.4.2"
-  resolved "https://registry.yarnpkg.com/@types/storybook__addon-actions/-/storybook__addon-actions-3.4.2.tgz#1d08689cc3259269ddb3479a2307c9d16944309e"
-  integrity sha512-CWxGz2pXav9PHcwrtXmkuH+xJL7sAu2AmIGEbkdT3Xs5jzBPZUEDEN//ZF7o6IOPP/tdXU37K1hrVMt9TDO0Bw==
-
-"@types/storybook__addon-backgrounds@4.1.1":
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/@types/storybook__addon-backgrounds/-/storybook__addon-backgrounds-4.1.1.tgz#350287f4a4db5578a20251b8df9cec5df20595b9"
-  integrity sha512-4x151MmEgEgiXfAAQLh8KNzxBNT3SHflL8dlNRahtctraBuzuQCFcWid7sQsZ8lti4FxMCF7LglOLxza19XEIQ==
-  dependencies:
-    "@types/storybook__react" "*"
-
-"@types/storybook__addon-options@4.0.1":
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@types/storybook__addon-options/-/storybook__addon-options-4.0.1.tgz#1f5b52ae64b8223ad1c1da394da0e51e89951592"
-  integrity sha512-o7MCVMfof+7O6iMeTJIRWnxUXnMEwAgpmom04OXe9d7CucllfRmIXgVqo9lPBgaxEvzOF/7brc8Hd0RkCysM+A==
-  dependencies:
-    "@types/storybook__react" "*"
-
-"@types/storybook__react@*", "@types/storybook__react@4.0.1":
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@types/storybook__react/-/storybook__react-4.0.1.tgz#b6320c9d027b8ee7ef1445fef8b4cba196d48ace"
-  integrity sha512-knkZErqv8Iy2QbebqBa5tsy2itIMKdO6bcQ7C19nmgTc+j1pnQhXCGcVyARzAQ1/NAuSYudSWQAKG+plgK7hyQ==
-  dependencies:
-    "@types/react" "*"
-    "@types/webpack-env" "*"
-
 "@types/styled-components@4.1.12":
   version "4.1.12"
   resolved "https://registry.yarnpkg.com/@types/styled-components/-/styled-components-4.1.12.tgz#62c19bd1aa37b1a904d36c179a0fec66c24ac99c"
@@ -2360,7 +2321,7 @@
     "@types/serve-static" "*"
     "@types/webpack" "*"
 
-"@types/webpack-env@*", "@types/webpack-env@1.13.9":
+"@types/webpack-env@1.13.9":
   version "1.13.9"
   resolved "https://registry.yarnpkg.com/@types/webpack-env/-/webpack-env-1.13.9.tgz#a67287861c928ebf4159a908d1fb1a2a34d4097a"
   integrity sha512-p8zp5xqkly3g4cCmo2mKOHI9+Z/kObmDj0BmjbDDJQlgDTiEGTbm17MEwTAusV6XceCy+bNw9q/ZHXHyKo3zkg==

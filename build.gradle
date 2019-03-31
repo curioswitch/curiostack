@@ -129,3 +129,6 @@ buildScan {
     termsOfServiceAgree = 'yes'
 }
 
+tasks.named('yarn').configure {
+    finalizedBy ':common:web:base-node-dev:prepare', ':common:web:base-web:prepare'
+}
