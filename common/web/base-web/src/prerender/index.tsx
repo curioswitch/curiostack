@@ -50,9 +50,11 @@ import { routeInitialState } from '../state/reducers';
 
 import Template from './template';
 
-// tslint:disable:no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-var-requires,import/no-dynamic-require
 const LOADED_MODULES = require(process.env.LOADABLE_JSON_PATH!);
+// eslint-disable-next-line @typescript-eslint/no-var-requires,import/no-dynamic-require
 const ICON_STATS = require(process.env.ICONSTATS_JSON_PATH!);
+// eslint-disable-next-line @typescript-eslint/no-var-requires,import/no-dynamic-require
 const PRERENDER_CONFIG: PrerenderConfig = require(process.env
   .PRERENDER_CONFIG_PATH!).default;
 
@@ -110,10 +112,11 @@ async function run(locals: any) {
 
   const sheet = new ServerStyleSheet();
   const modules: string[] = [];
-  const component = PRERENDER_CONFIG.wrappingComponent ? (
-    <PRERENDER_CONFIG.wrappingComponent>
+  const WrappingComponent = PRERENDER_CONFIG.wrappingComponent;
+  const component = WrappingComponent ? (
+    <WrappingComponent>
       <appConfig.component />
-    </PRERENDER_CONFIG.wrappingComponent>
+    </WrappingComponent>
   ) : (
     <appConfig.component />
   );
@@ -137,7 +140,8 @@ async function run(locals: any) {
 
   // There is only one entry called main, so if we find a match we know it's filename.
   let mainScriptFilename;
-  for (const chunkList of Object.values(LOADED_MODULES)) {
+  const chunkLists: any[][] = Object.values(LOADED_MODULES);
+  for (const chunkList of chunkLists) {
     for (const chunk of chunkList) {
       if (chunk.file.startsWith('main.') && chunk.file.endsWith('.js')) {
         mainScriptFilename = chunk.file;

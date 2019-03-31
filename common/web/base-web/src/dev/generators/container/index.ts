@@ -50,7 +50,9 @@ let argName: string | undefined;
 program
   .version(packageJson.version)
   .arguments('[name]')
-  .action((name: string) => (argName = name))
+  .action((name: string) => {
+    argName = name;
+  })
   .option(
     '-t, --type <type>',
     'type of the component (normal|pure)',

@@ -22,9 +22,7 @@
  * SOFTWARE.
  */
 
-import { takeLatest } from '@curiostack/base-web';
-
-import { all, call, put, select } from 'redux-saga/effects';
+import { all, call, put, select, takeLatest } from 'redux-saga/effects';
 
 import { EggworldServicePromiseClient } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_grpc_web_pb';
 import {

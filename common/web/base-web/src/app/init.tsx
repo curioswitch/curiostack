@@ -67,6 +67,7 @@ function render(
 export default function init(config: WebappConfig) {
   const history = createBrowserHistory();
 
+  // eslint-disable-next-line no-underscore-dangle
   const preloadedState = (window as any).__PRELOADED_STATE__;
   const initialState = config.initialState;
   if (preloadedState) {
@@ -88,6 +89,7 @@ export default function init(config: WebappConfig) {
   }
 
   const store = initRedux(initialState, history);
+  // eslint-disable-next-line no-nested-ternary
   const mountNode = config.mountNode
     ? typeof config.mountNode === 'string'
       ? document.getElementById(config.mountNode)!

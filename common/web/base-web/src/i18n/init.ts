@@ -48,6 +48,7 @@ export default function init(
 ): LocaleMessages {
   // TODO(choko): Try code-splitting of non-default locale data.
   for (const locale of Object.keys(translations)) {
+    // eslint-disable-next-line global-require,import/no-dynamic-require
     addLocaleData(require(`react-intl/locale-data/${locale}`));
   }
   const defaultMessages = formatTranslationMessages(

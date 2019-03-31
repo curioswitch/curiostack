@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+/* eslint-disable @typescript-eslint/camelcase */
+
 import {
   GoogleApiWrapper,
   Map,
@@ -212,7 +214,7 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
       onReady={onMapReady}
       google={google}
       zoom={12}
-      centerAroundCurrentLocation={true}
+      centerAroundCurrentLocation
     >
       {places.map((place) => (
         <Marker

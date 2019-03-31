@@ -26,7 +26,7 @@ import '@babel/polyfill';
 
 import initApp from './init';
 
-// tslint:disable-next-line:no-var-requires
+// eslint-disable-next-line import/no-dynamic-require
 const appConfig = require(process.env.APP_CONFIG_PATH!).default;
 
 if (appConfig) {

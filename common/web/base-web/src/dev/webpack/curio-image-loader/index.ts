@@ -25,6 +25,7 @@
 import { getOptions, interpolateName, parseQuery } from 'loader-utils';
 import sharp, { JpegOptions, PngOptions, WebpOptions } from 'sharp';
 import { loader } from 'webpack';
+
 import LoaderContext = loader.LoaderContext;
 
 interface ResourceOptions {
@@ -90,6 +91,7 @@ async function createImage(
     content: converted,
   });
   ctx.emitFile(outputPath, converted, undefined);
+  // eslint-disable-next-line no-underscore-dangle
   const publicPathDir = ctx._compiler.options.output!.publicPath || '';
   const publicPath = `${publicPathDir}${outputPath}`;
   return { format, width, path: publicPath };

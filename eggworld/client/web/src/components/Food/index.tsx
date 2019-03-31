@@ -45,6 +45,7 @@ interface Props {
 
 export default class Food extends React.Component<Props> {
   private node?: GroupImpl;
+
   private removed = false;
 
   public componentWillReceiveProps(nextProps: Props) {

@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+/* eslint-disable import/first */
+
 process.env.NODE_ENV = 'development';
 
 import fs from 'fs';
