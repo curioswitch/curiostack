@@ -172,7 +172,7 @@ public class CurioServerPlugin implements Plugin<Project> {
                                     "deploy" + TaskUtil.toTaskSuffix(deployment.getName()),
                                     KubectlTask.class,
                                     t -> {
-                                      t.mustRunAfter(jib);
+                                      t.mustRunAfter(jibTask);
                                       t.setArgs(
                                           ImmutableList.of(
                                               "--namespace=" + deployment.getNamespace().get(),
