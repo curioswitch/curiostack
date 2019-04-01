@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "//": "Remove after https://github.com/yarnpkg/yarn/issues/3911. yarn does not run 'prepare' for workspaces, which we need to set up the base scripts during building.",
-    "// prepare": "yarn workspace @curiostack/base-node-dev run prepare && yarn workspace @curiostack/base-web run prepare && yarn workspace @curiostack/eggs-world install --force"
+    "prepare": "yarn workspace @curiostack/base-node-dev run prepare && yarn workspace @curiostack/base-web run prepare && yarn workspace @curiostack/eggs-world install --force"
   },
   "resolutions": {
     "@babel/core": "7.4.0",
@@ -19,7 +19,7 @@
     "@babel/preset-react": "7.0.0",
     "@babel/runtime": "7.4.2",
     "@babel/runtime-corejs2": "7.4.2",
-    "@curiostack/base-node-dev": "0.0.14",
+    "@curiostack/base-node-dev": "0.0.13",
     "@curiostack/base-web": "0.0.43",
     "@gfx/zopfli": "1.0.11",
     "@hugmanrique/react-markdown-loader": "0.0.2",
