@@ -25,10 +25,11 @@
 
 import path from 'path';
 
-import { Configuration, Linter } from 'tslint';
+import { CLIEngine } from 'eslint';
+import { Linter } from 'tslint';
 import typescript, { FormatDiagnosticsHost } from 'typescript';
 
-import { test } from './test';
+import test from './test';
 
 class FormatTypescriptHost implements FormatDiagnosticsHost {
   public getCurrentDirectory(): string {
@@ -50,13 +51,6 @@ export function lint(fix?: boolean) {
     process.cwd(),
   );
 
-  const linter = new Linter(
-    {
-      fix: !!fix,
-    },
-    program,
-  );
-
   const diagnostics = [
     ...program.getSemanticDiagnostics(),
     ...program.getSyntacticDiagnostics(),
@@ -71,16 +65,15 @@ export function lint(fix?: boolean) {
     process.exit(1);
   }
 
-  for (const file of Linter.getFileNames(program)) {
-    const sourceFile = program.getSourceFile(file);
-    const content = sourceFile!.text;
-    const configuration = Configuration.findConfiguration(null, file).results;
-    linter.lint(file, content, configuration);
-  }
+  const lintCli = new CLIEngine({
+    fix: !!fix,
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+    ignorePattern: ['*.d.ts'],
+  });
 
-  const results = linter.getResult();
-  console.log(results.output);
-  return results.errorCount === 0;
+  const report = lintCli.executeOnFiles(['src/']);
+  console.log(lintCli.getFormatter()(report.results));
+  return report.errorCount === 0;
 }
 
 export async function check() {

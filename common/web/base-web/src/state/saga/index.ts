@@ -21,19 +21,3 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-import {
-  ForkEffect,
-  takeLatest as reduxSagaTakeLatest,
-} from 'redux-saga/effects';
-
-import { Action } from '../actions';
-
-type HelperFunc0<A> = (action: A) => any;
-
-// TODO(choko): Revisit after redux-saga 1.0.0-beta.2+. The typing have improved significantly since
-// the current most recent release.
-export const takeLatest: <T extends string, A extends Action<T>>(
-  type: T,
-  func: HelperFunc0<A>,
-) => ForkEffect = reduxSagaTakeLatest;

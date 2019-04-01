@@ -34,7 +34,6 @@ export { default as LoadingIndicator } from './components/LoadingIndicator';
 
 export { GlobalStateBase } from './state';
 export * from './state/actions';
-export * from './state/saga';
 
 export interface WebappConfig {
   component: React.ComponentClass | React.StatelessComponent;

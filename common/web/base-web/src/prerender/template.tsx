@@ -47,6 +47,7 @@ export default function({
   extraStyles,
 }: Args) {
   return (
+    // eslint-disable-next-line jsx-a11y/html-has-lang
     <html {...helmet.htmlAttributes.toComponent()}>
       <head>
         {helmet.title.toComponent()}

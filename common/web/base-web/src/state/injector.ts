@@ -35,6 +35,7 @@ function injectReducerFactory<T>(store: InjectableStore<T>) {
     ) {
       return;
     }
+    // eslint-disable-next-line no-param-reassign
     store.injectedReducers[key] = reducer;
     store.replaceReducer(createReducer(store));
   };

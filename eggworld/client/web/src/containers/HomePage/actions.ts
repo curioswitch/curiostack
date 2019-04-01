@@ -20,6 +20,7 @@ export enum ActionTypes {
   SELECT_TAB = 'HomePage/SELECT_TAB',
 }
 
+// eslint-disable-next-line import/export
 export const Actions = {
   checkIngredients: (ingredients: Ingredient[]) =>
     createAction(ActionTypes.CHECK_INGREDIENTS, ingredients),
@@ -42,6 +43,7 @@ export const Actions = {
     createAction(ActionTypes.SELECT_TAB, tab),
 };
 
+// eslint-disable-next-line import/export
 export type Actions = ActionsUnion<typeof Actions>;
 
 export type DispatchProps = typeof Actions;

@@ -27,12 +27,10 @@ import { FormattedMessage } from 'react-intl';
 
 import messages from './messages';
 
-export default class NotFoundPage extends React.PureComponent {
-  public render() {
-    return (
-      <h1>
-        <FormattedMessage {...messages.header} />
-      </h1>
-    );
-  }
-}
+const NotFoundPage: React.FunctionComponent = React.memo(() => (
+  <h1>
+    <FormattedMessage {...messages.header} />
+  </h1>
+));
+
+export default NotFoundPage;

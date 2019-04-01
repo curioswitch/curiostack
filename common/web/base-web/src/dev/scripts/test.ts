@@ -24,9 +24,9 @@
  */
 
 // TODO(choko): Remove after fix for https://github.com/facebook/jest/issues/7704 is released.
-// tslint:disable-next-line: no-var-requires
 require('jest-cli/build/cli');
 
+// eslint-disable-next-line
 import { run } from 'jest-cli';
 
 const CONFIG = {
@@ -79,10 +79,10 @@ const CONFIG = {
   },
 };
 
-export async function test() {
-  const cli_params = process.argv.slice(2);
-  const jest_params = ['--config', JSON.stringify(CONFIG)].concat(cli_params);
-  return run(jest_params);
+export default async function test() {
+  const cliParams = process.argv.slice(2);
+  const jestParams = ['--config', JSON.stringify(CONFIG)].concat(cliParams);
+  return run(jestParams);
 }
 
 if (require.main === module) {

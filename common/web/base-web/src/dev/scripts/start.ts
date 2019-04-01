@@ -30,7 +30,7 @@ import WebpackDevServer, { ProxyConfigMap } from 'webpack-dev-server';
 
 import config from '../webpack/dev';
 
-// tslint:disable-next-line:no-var-requires
+// eslint-disable-next-line
 const pkg = require(path.resolve(process.cwd(), 'package.json'));
 
 let proxyConfig: ProxyConfigMap = {};

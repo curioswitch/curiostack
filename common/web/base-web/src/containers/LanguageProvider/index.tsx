@@ -42,7 +42,7 @@ interface Props {
   messages: LocaleMessages;
 }
 
-export class LanguageProvider extends React.PureComponent<Props> {
+class LanguageProvider extends React.PureComponent<Props> {
   public render() {
     return (
       <IntlProvider

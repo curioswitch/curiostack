@@ -94,12 +94,10 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
 
     useEffect(() => {
       getPlaces();
-      return;
     }, []);
 
     const openPlacePage = useCallback((id: string) => {
       doPush(`/place/${id}`);
-      return;
     }, []);
 
     const handleSearchSubmit = useCallback(handleSubmit(doSearch), [doSearch]);

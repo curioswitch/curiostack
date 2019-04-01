@@ -20,11 +20,11 @@
     }
   },
   "dependencies": {
-    "@curiostack/base-web": "0.0.42",
+    "@curiostack/base-web": "0.0.43",
     "@curiostack/eggworld-api": "1.0.0",
     "howler": "2.0.15",
     "konva": "2.5.1",
-    "react-konva": "16.8.0",
+    "react-konva": "16.8.6",
     "sanitize.css": "5.0.0"
   },
   "devDependencies": {
