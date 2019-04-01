@@ -14,6 +14,7 @@
     "lint": "eslint src/ --ext .js,.ts"
   },
   "dependencies": {
+    "@curiostack/eslint-config-base": "0.0.1",
     "@types/node": "11.12.2",
     "prettier": "1.16.4",
     "rimraf": "2.6.3",
