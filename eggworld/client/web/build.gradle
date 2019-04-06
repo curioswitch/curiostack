@@ -37,4 +37,8 @@ web {
 tasks.register('install', org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask.class) {
     dependsOn(":common:web:base-web:prepare")
     args("install", "--force")
+
+    onlyIf {
+        !file("node_modules/.bin/build").exists()
+    }
 }

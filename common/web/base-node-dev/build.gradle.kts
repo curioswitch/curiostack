@@ -30,6 +30,11 @@ plugins {
 
 tasks {
     val prepare by registering(NodeTask::class) {
+        inputs.dir("src")
+        inputs.file("package.json")
+        inputs.file(rootProject.file("yarn.lock"))
+        outputs.dir("build")
+
         args("prepare")
     }
 }
