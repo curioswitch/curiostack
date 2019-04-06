@@ -49,7 +49,6 @@ const PlacePage: React.FunctionComponent<Props> = React.memo(
 
     useEffect(() => {
       doGetPlace(id);
-      return;
     }, [id]);
 
     if (!place) {
@@ -62,6 +61,7 @@ const PlacePage: React.FunctionComponent<Props> = React.memo(
         <a
           href={`https://www.instagram.com/explore/locations/${place.getInstagramId()}/`}
           target="_blank"
+          rel="noopener noreferrer"
         >
           Instagram
         </a>

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-// tslint:disable:no-var-requires
+/* eslint-disable import/first */
 
 process.env.NODE_ENV = 'production';
 
@@ -54,7 +54,8 @@ const prerenderConfigPath = path.resolve(process.cwd(), 'src/prerender');
 const prerenderConfig = ['.ts', '.tsx', '.js', '.jsx']
   .map((ext) => `${prerenderConfigPath}${ext}`)
   .some((p) => fs.existsSync(p))
-  ? require(prerenderConfigPath).default
+  ? // eslint-disable-next-line import/no-dynamic-require
+    require(prerenderConfigPath).default
   : undefined;
 
 const loadableJsonPath = path.resolve(

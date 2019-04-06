@@ -24,6 +24,6 @@
 
 import { WebappConfig } from '../index';
 
-// tslint:disable-next-line:no-var-requires
+// eslint-disable-next-line global-require,import/no-dynamic-require,import/prefer-default-export
 export const appConfig: WebappConfig = require(process.env.APP_CONFIG_PATH!)
   .default;

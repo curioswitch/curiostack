@@ -47,6 +47,7 @@ export default class Picture extends React.PureComponent<Props> {
         {image.sources.map((source) => (
           <source key={source.type} {...source} />
         ))}
+        // eslint-disable-next-line jsx-a11y/alt-text
         <img src={image.fallback} {...others} />
       </picture>
     );

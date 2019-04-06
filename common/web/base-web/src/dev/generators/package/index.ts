@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+/* eslint-disable no-await-in-loop */
+
 import { mkdirs, readFile, writeFile } from 'fs-extra';
 import path from 'path';
 
@@ -38,7 +40,9 @@ let argDir: string | undefined;
 program
   .version(packageJson.version)
   .arguments('[dir]')
-  .action((dir: string) => (argDir = dir))
+  .action((dir: string) => {
+    argDir = dir;
+  })
   .option('-n, --name <name>', 'Name of the package')
   .parse(process.argv);
 

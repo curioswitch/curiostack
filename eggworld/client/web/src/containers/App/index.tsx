@@ -30,16 +30,14 @@ import NotFoundPage from '../NotFoundPage/loader';
 
 import GlobalStyles from '../../global-styles';
 
-export default class App extends React.Component {
-  public render() {
-    return (
-      <>
-        <GlobalStyles />
-        <Switch>
-          <Route exact path="/" component={HomePage} />
-          <Route path="" component={NotFoundPage} />
-        </Switch>
-      </>
-    );
-  }
-}
+const App: React.FunctionComponent = () => (
+  <>
+    <GlobalStyles />
+    <Switch>
+      <Route exact path="/" component={HomePage} />
+      <Route path="" component={NotFoundPage} />
+    </Switch>
+  </>
+);
+
+export default App;

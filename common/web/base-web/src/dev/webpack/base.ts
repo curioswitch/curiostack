@@ -27,7 +27,7 @@ import path from 'path';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import { Configuration } from 'webpack';
 
-// tslint:disable-next-line:no-var-requires
+// eslint-disable-next-line
 const packageJson = require(path.resolve(process.cwd(), 'package.json'));
 
 const browsers = (packageJson.curiostack &&

@@ -91,12 +91,13 @@ export default function reducer(state: State, action: Actions) {
       return state.set('recipeUrl', action.payload);
     case ActionTypes.DRAW_STAGE:
       return state.update('drawStageCount', (count) => count + 1);
-    case ActionTypes.EGG_BREAKING_DONE:
-      const recipeUrl = state.recipeUrl;
+    case ActionTypes.EGG_BREAKING_DONE: {
+      const { recipeUrl } = state;
       if (recipeUrl) {
         window.location.href = recipeUrl;
       }
       return state.set('eggBreakingDone', true);
+    }
     case ActionTypes.FOOD_DRAGGED:
       if (
         state.foodBeingEaten === undefined &&
@@ -105,7 +106,7 @@ export default function reducer(state: State, action: Actions) {
         return state.set('foodBeingEaten', action.payload.ingredient);
       }
       return state;
-    case ActionTypes.MOUTH_ANIMATION_FRAME:
+    case ActionTypes.MOUTH_ANIMATION_FRAME: {
       let newState = state;
       if (
         mouthAnimationFrameCount >= 12 &&
@@ -123,6 +124,7 @@ export default function reducer(state: State, action: Actions) {
         mouthAnimationFrameCount += 1;
       }
       return newState;
+    }
     case ActionTypes.ROTATE_HAMMER:
       return state.update(
         'hammerRotation',

@@ -23,6 +23,8 @@
  *
  */
 
+/* global google */
+
 import { formValueSelector } from 'redux-form/immutable';
 import {
   all,
@@ -111,10 +113,10 @@ function* getLandmarks() {
   const seenIds: Set<string> = new Set();
 
   for (let i = 0; i < 1; i += 1) {
-    /*if (landmarks.length >= 10) {
+    /* if (landmarks.length >= 10) {
       yield put(Actions.getLandmarksResponse(landmarks));
       return;
-    }*/
+    } */
 
     const response: PlaceSearchResponse = yield call(() =>
       nearbySearch(places, bounds),
@@ -163,7 +165,6 @@ function* getLandmarks() {
   }
 
   yield put(Actions.getLandmarksResponse(landmarks));
-  return;
 }
 
 function* getPlaces() {
