@@ -33,3 +33,8 @@ dependencies {
 web {
     javaPackage = 'org.curioswitch.eggworld.web'
 }
+
+tasks.register('install', org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask.class) {
+    dependsOn(":common:web:base-web:prepare")
+    args("prepare")
+}

@@ -130,5 +130,6 @@ buildScan {
 }
 
 tasks.named('yarn').configure {
-    finalizedBy ':common:web:base-node-dev:prepare', ':common:web:base-web:prepare'
+    // Hack to make sure yarn symlinks are set up after building the base packages.
+    finalizedBy ':eggworld:client:web:install'
 }
