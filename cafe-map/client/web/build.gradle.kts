@@ -37,3 +37,9 @@ dependencies {
 web {
     javaPackage.set("org.curioswitch.cafemap.web")
 }
+
+tasks {
+    named("buildWeb") {
+        dependsOn(":common:web:base-web:prepare")
+    }
+}

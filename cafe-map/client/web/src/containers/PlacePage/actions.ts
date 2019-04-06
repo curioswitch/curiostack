@@ -25,7 +25,7 @@
 import { ActionsUnion, createAction } from '@curiostack/base-web';
 import { bindActionCreators, Dispatch } from 'redux';
 
-import { GetPlaceResponse } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
+import { FullPlace } from './reducer';
 
 export enum ActionTypes {
   GET_PLACE = 'HomePage/GET_PLACE',
@@ -34,7 +34,7 @@ export enum ActionTypes {
 
 export const Actions = {
   doGetPlace: (id: string) => createAction(ActionTypes.GET_PLACE, id),
-  doGetPlaceResponse: (response: GetPlaceResponse) =>
+  doGetPlaceResponse: (response: FullPlace) =>
     createAction(ActionTypes.GET_PLACE_RESPONSE, response),
   // TODO(choko): Fix typing so a no-payload action isn't required.
   dummy: () => createAction('dummy'),

@@ -85,6 +85,7 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
       doSearch,
       getLandmarks,
       getPlaces,
+      google,
       handleSubmit,
       landmarks,
       places,
@@ -109,6 +110,7 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
           <SearchBoxContainer onSearch={handleSearchSubmit} />
         </form>
         <Map
+          google={google}
           doGetLandmarks={getLandmarks}
           doSetMap={setMap}
           onOpenPlace={openPlacePage}

@@ -28,8 +28,13 @@ import { Place } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-
 
 import { Actions, ActionTypes } from './actions';
 
+export interface FullPlace {
+  place: Place;
+  googlePlace: google.maps.places.PlaceResult;
+}
+
 export interface StateProps {
-  place?: Place;
+  place?: FullPlace;
 }
 
 export type State = Readonly<StateProps> & Record<StateProps>;
@@ -41,7 +46,7 @@ export const initialState = Record<StateProps>({
 export default function(state: State, action: Actions): State {
   switch (action.type) {
     case ActionTypes.GET_PLACE_RESPONSE:
-      return state.set('place', action.payload.getPlace());
+      return state.set('place', action.payload);
     default:
       return state;
   }

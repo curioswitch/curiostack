@@ -26,6 +26,7 @@
 import { injectReducer } from '@curiostack/base-web';
 
 import CssBaseline from '@material-ui/core/CssBaseline';
+import { GoogleApiWrapper } from 'google-maps-react';
 import React from 'react';
 import Helmet from 'react-helmet';
 import { hot } from 'react-hot-loader/root';
@@ -34,6 +35,8 @@ import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import { compose, Reducer } from 'redux';
 import { reducer as formReducer } from 'redux-form/immutable';
+
+import CONFIG from '../../config';
 
 import HomePage from '../HomePage/loader';
 import NotFoundPage from '../NotFoundPage/Loadable';
@@ -84,5 +87,10 @@ export default compose(
   withReducer,
   withFormReducer,
   withConnect,
+  GoogleApiWrapper({
+    apiKey: CONFIG.google.apiKey,
+    libraries: ['places'],
+    language: 'ja',
+  }),
   hot,
 )(App);
