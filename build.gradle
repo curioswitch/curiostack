@@ -129,3 +129,7 @@ buildScan {
     termsOfServiceAgree = 'yes'
 }
 
+tasks.named('yarn').configure {
+    // Hack to make sure yarn symlinks are set up after building the base packages.
+    finalizedBy ':eggworld:client:web:install'
+}
