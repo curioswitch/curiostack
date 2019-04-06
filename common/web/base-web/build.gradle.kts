@@ -31,6 +31,6 @@ plugins {
 tasks {
     val prepare by registering(NodeTask::class) {
         dependsOn(":common:web:base-node-dev:prepare")
-        args("install", "--force")
+        args("prepare")
     }
 }
