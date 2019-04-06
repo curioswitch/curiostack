@@ -251,4 +251,5 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
 export default GoogleApiWrapper({
   apiKey: CONFIG.google.apiKey,
   libraries: ['places'],
+  language: 'ja',
 })(MapContainer);

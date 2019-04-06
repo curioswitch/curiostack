@@ -854,9 +854,7 @@
     typescript "3.4.1"
 
 "@curiostack/base-web@0.0.43":
-  version "0.0.43"
-  resolved "https://registry.yarnpkg.com/@curiostack/base-web/-/base-web-0.0.43.tgz#0d3e8b0c56046332d46fcaa4f9a9ca7fdfc94c0e"
-  integrity sha512-UKbK4+SjeZ/Tk4NbV2rBO9pw8KmhjJiu8UGhzeMN872Qs4Z+43ADhl8Q/T23CtiPl886rpPIosRt/MlTR1D52g==
+  version "0.0.44"
   dependencies:
     "@babel/core" "7.4.0"
     "@babel/plugin-proposal-async-generator-functions" "7.2.0"
@@ -872,7 +870,8 @@
     "@babel/preset-react" "7.0.0"
     "@babel/runtime" "7.4.2"
     "@babel/runtime-corejs2" "7.4.2"
-    "@curiostack/base-node-dev" "0.0.13"
+    "@curiostack/base-node-dev" "0.0.14"
+    "@curiostack/eslint-config-web" "0.0.1"
     "@gfx/zopfli" "1.0.11"
     "@hugmanrique/react-markdown-loader" "0.0.2"
     "@storybook/addon-actions" "5.0.5"
@@ -904,7 +903,7 @@
     brotli-webpack-plugin "1.1.0"
     commander "2.19.0"
     compression-webpack-plugin "2.0.0"
-    connected-react-router "6.3.2"
+    connected-react-router "6.3.1"
     enzyme "3.9.0"
     enzyme-adapter-react-16 "1.11.2"
     enzyme-to-json "3.3.5"
@@ -1958,13 +1957,6 @@
   version "3.30.16"
   resolved "https://registry.yarnpkg.com/@types/googlemaps/-/googlemaps-3.30.16.tgz#3264d5ef7c3a92fab2a9f00e09e3247866ff3532"
   integrity sha512-6OZ64ahLzYfzuSr71y4jAHZXiwxjvvEM2bfF2tzjIc9KUZVbO30SkYa8WewTsR8aM5BFz/uBiNlZ14eRLXYS0g==
-
-"@types/handlebars@4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@types/handlebars/-/handlebars-4.1.0.tgz#3fcce9bf88f85fe73dc932240ab3fb682c624850"
-  integrity sha512-gq9YweFKNNB1uFK71eRqsd4niVkXrxHugqWFQkeLRJvGjnxsLr16bYtcsG4tOFwmYi0Bax+wCkbf1reUfdl4kA==
-  dependencies:
-    handlebars "*"
 
 "@types/history@*", "@types/history@4.7.2":
   version "4.7.2"
@@ -5684,10 +5676,10 @@ connect@^3.6.2:
     parseurl "~1.3.2"
     utils-merge "1.0.1"
 
-connected-react-router@6.3.2:
-  version "6.3.2"
-  resolved "https://registry.yarnpkg.com/connected-react-router/-/connected-react-router-6.3.2.tgz#8c90b77f1d7b783608cd50e4f69bf60e47265425"
-  integrity sha512-YxrAfMExl/OBsi+ojA4ywZeC7cmQ52MnZ4bhzqLhhjuOiXcQogC4kW0kodouXAXrXDovb2l3yEhDfpH99/wYcw==
+connected-react-router@6.3.1:
+  version "6.3.1"
+  resolved "https://registry.yarnpkg.com/connected-react-router/-/connected-react-router-6.3.1.tgz#b68e505cca553ce9b6a179d4166cf43b948c85bf"
+  integrity sha512-nhuQiLOAQlCgkCypGSUhycgaqqTh2IUwVFvzw2y13v8JqB92yTk3yeAKG6X1b0IcD7S4gQizYbjgejf7DJjbyw==
   dependencies:
     immutable "^3.8.1"
     seamless-immutable "^7.1.3"
@@ -9058,7 +9050,7 @@ handle-thing@^2.0.0:
   resolved "https://registry.yarnpkg.com/handle-thing/-/handle-thing-2.0.0.tgz#0e039695ff50c93fc288557d696f3c1dc6776754"
   integrity sha512-d4sze1JNC454Wdo2fkuyzCr6aHcbL6PGGuFAz0Li/NcOm1tCHGnWDRmJP85dh9IhQErTc2svWFEX5xHIOo//kQ==
 
-handlebars@*, handlebars@4.1.1, handlebars@^4.0.3:
+handlebars@4.1.1, handlebars@^4.0.3:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.1.1.tgz#6e4e41c18ebe7719ae4d38e5aca3d32fa3dd23d3"
   integrity sha512-3Zhi6C0euYZL5sM0Zcy7lInLXKQ+YLcF/olbN010mzGQ4XVm50JeyBnMqofHh696GrciGruC7kCcApPDJvVgwA==

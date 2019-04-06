@@ -22,16 +22,80 @@
  * SOFTWARE.
  */
 
+/* global google */
+
 import { all, AllEffect, call, put, takeLatest } from 'redux-saga/effects';
 
 import {
   GetPlaceRequest,
   GetPlaceResponse,
+  LatLng,
 } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
 import ApiClient from '../../utils/api-client';
 
 import { Actions, ActionTypes } from './actions';
+
+async function findPlace(
+  places: google.maps.places.PlacesService,
+  name: string,
+  location: LatLng,
+): Promise<google.maps.places.PlaceResult[]> {
+  return new Promise<google.maps.places.PlaceResult[]>((resolve, reject) => {
+    places.findPlaceFromQuery(
+      {
+        query: name,
+        locationBias: {
+          lat: location.getLatitude(),
+          lng: location.getLongitude(),
+        },
+        fields: [
+          'place_id',
+          'formatted_address',
+          'photos',
+          'name',
+          'opening_hours',
+          'price_level',
+        ],
+      },
+      (results, status) => {
+        if (status !== google.maps.places.PlacesServiceStatus.OK) {
+          reject(new Error(`Error searching for places: ${status}`));
+        } else {
+          resolve(results);
+        }
+      },
+    );
+  });
+}
+
+async function fetchPlace(
+  places: google.maps.places.PlacesService,
+  placeId: string,
+): Promise<google.maps.places.PlaceResult> {
+  return new Promise<google.maps.places.PlaceResult>((resolve, reject) => {
+    places.getDetails(
+      {
+        placeId,
+        fields: [
+          'formatted_address',
+          'formatted_phone_number',
+          'photos',
+          'name',
+          'opening_hours',
+          'price_level',
+        ],
+      },
+      (result, status) => {
+        if (status !== google.maps.places.PlacesServiceStatus.OK) {
+          reject(new Error(`Error searching for places: ${status}`));
+        } else {
+          resolve(result);
+        }
+      },
+    );
+  });
+}
 
 function* getPlace({ payload: id }: ReturnType<typeof Actions.doGetPlace>) {
   const client = new ApiClient();
@@ -40,7 +104,27 @@ function* getPlace({ payload: id }: ReturnType<typeof Actions.doGetPlace>) {
   request.setInstagramId(id);
   const response: GetPlaceResponse = yield call(() => client.getPlace(request));
 
-  yield put(Actions.doGetPlaceResponse(response));
+  const attribution = document.createElement('div');
+  const places = new google.maps.places.PlacesService(attribution);
+
+  const googlePlaces: google.maps.places.PlaceResult[] = yield call(() =>
+    findPlace(
+      places,
+      response.getPlace().getName(),
+      response.getPlace().getPosition(),
+    ),
+  );
+
+  const googlePlace: google.maps.places.PlaceResult = yield call(() =>
+    fetchPlace(places, googlePlaces[0].place_id!),
+  );
+
+  yield put(
+    Actions.doGetPlaceResponse({
+      place: response.getPlace(),
+      googlePlace,
+    }),
+  );
 }
 
 export default function* rootSaga(): IterableIterator<AllEffect<{}>> {
