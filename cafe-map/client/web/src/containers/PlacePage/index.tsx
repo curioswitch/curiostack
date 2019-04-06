@@ -81,7 +81,7 @@ const Header: React.FunctionComponent<{ place: FullPlace }> = React.memo(
 );
 
 const PlaceDetail: React.FunctionComponent<{
-  Icon: SvgIcon;
+  Icon: typeof SvgIcon;
   text: string;
 }> = React.memo(({ Icon, text }) => (
   <Grid container alignItems="center">
@@ -111,27 +111,28 @@ const PlacePage: React.FunctionComponent<Props> = React.memo(
           <Grid item xs={6}>
             <PlaceDetail
               Icon={TimerIcon}
-              text={`${googlePlace.opening_hours.periods[0].open.time}-
-            ${googlePlace.opening_hours.periods[0].close.time}`}
+              text={`${googlePlace.opening_hours!.periods[0]!.open!.time}-${
+                googlePlace.opening_hours!.periods[0]!.close!.time
+              }`}
             />
           </Grid>
           <Grid item xs={6}>
             <PlaceDetail
               Icon={AttachMoneyIcon}
-              text={googlePlace.price_level}
+              text={`${googlePlace.price_level!}`}
             />
           </Grid>
           <Grid item xs={6}>
             <PlaceDetail
               Icon={LocalPhoneIcon}
-              text={googlePlace.formatted_phone_number}
+              text={googlePlace.formatted_phone_number!}
             />
           </Grid>
           <Grid item xs={6} />
           <Grid item xs={12}>
             <PlaceDetail
               Icon={LocationOnIcon}
-              text={googlePlace.formatted_address}
+              text={googlePlace.formatted_address!}
             />
           </Grid>
         </Grid>

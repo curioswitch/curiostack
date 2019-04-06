@@ -116,7 +116,7 @@ function* getPlace({ payload: id }: ReturnType<typeof Actions.doGetPlace>) {
   );
 
   const googlePlace: google.maps.places.PlaceResult = yield call(() =>
-    fetchPlace(places, googlePlaces[0].place_id),
+    fetchPlace(places, googlePlaces[0].place_id!),
   );
 
   yield put(
