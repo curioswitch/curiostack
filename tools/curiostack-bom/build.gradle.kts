@@ -467,7 +467,7 @@ val DEPENDENCIES = listOf(
     "com.github.ben-manes:gradle-versions-plugin:0.21.0",
     "com.google.common.geometry:s2-geometry:1.0",
     "com.google.gradle:osdetector-gradle-plugin:1.6.2",
-    "com.google.maps:google-maps-service:0.9.3",
+    "com.google.maps:google-maps-services:0.9.3",
     "com.google.protobuf:protobuf-gradle-plugin:0.8.6",
     "com.hubspot.jinjava:jinjava:2.5.0",
     "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
@@ -492,7 +492,8 @@ val DEPENDENCIES = listOf(
     "net.ltgt.gradle:gradle-errorprone-plugin:0.7.1",
     "nu.studer:gradle-jooq-plugin:3.0.3",
     "org.jacoco:org.jacoco.agent:0.8.3",
-    "org.jacoco:org.jacoco.ant:0.8.3"
+    "org.jacoco:org.jacoco.ant:0.8.3",
+    "org.jsoup:jsoup:1.11.3"
 )
 
 dependencies {
