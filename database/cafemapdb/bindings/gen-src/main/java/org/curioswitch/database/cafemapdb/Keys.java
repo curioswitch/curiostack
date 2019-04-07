@@ -65,6 +65,7 @@ public class Keys {
 
     public static final UniqueKey<FlywaySchemaHistoryRecord> KEY_FLYWAY_SCHEMA_HISTORY_PRIMARY = UniqueKeys0.KEY_FLYWAY_SCHEMA_HISTORY_PRIMARY;
     public static final UniqueKey<PlaceRecord> KEY_PLACE_PRIMARY = UniqueKeys0.KEY_PLACE_PRIMARY;
+    public static final UniqueKey<PlaceRecord> KEY_PLACE_IDX_INSTAGRAM_ID = UniqueKeys0.KEY_PLACE_IDX_INSTAGRAM_ID;
 
     // -------------------------------------------------------------------------
     // FOREIGN KEY definitions
@@ -82,5 +83,6 @@ public class Keys {
     private static class UniqueKeys0 {
         public static final UniqueKey<FlywaySchemaHistoryRecord> KEY_FLYWAY_SCHEMA_HISTORY_PRIMARY = Internal.createUniqueKey(FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY, "KEY_flyway_schema_history_PRIMARY", FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY.INSTALLED_RANK);
         public static final UniqueKey<PlaceRecord> KEY_PLACE_PRIMARY = Internal.createUniqueKey(Place.PLACE, "KEY_place_PRIMARY", Place.PLACE.ID);
+        public static final UniqueKey<PlaceRecord> KEY_PLACE_IDX_INSTAGRAM_ID = Internal.createUniqueKey(Place.PLACE, "KEY_place_idx_instagram_id", Place.PLACE.INSTAGRAM_ID);
     }
 }

@@ -55,6 +55,7 @@ public class Indexes {
 
     public static final Index FLYWAY_SCHEMA_HISTORY_FLYWAY_SCHEMA_HISTORY_S_IDX = Indexes0.FLYWAY_SCHEMA_HISTORY_FLYWAY_SCHEMA_HISTORY_S_IDX;
     public static final Index FLYWAY_SCHEMA_HISTORY_PRIMARY = Indexes0.FLYWAY_SCHEMA_HISTORY_PRIMARY;
+    public static final Index PLACE_IDX_INSTAGRAM_ID = Indexes0.PLACE_IDX_INSTAGRAM_ID;
     public static final Index PLACE_PRIMARY = Indexes0.PLACE_PRIMARY;
 
     // -------------------------------------------------------------------------
@@ -64,6 +65,7 @@ public class Indexes {
     private static class Indexes0 {
         public static Index FLYWAY_SCHEMA_HISTORY_FLYWAY_SCHEMA_HISTORY_S_IDX = Internal.createIndex("flyway_schema_history_s_idx", FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY, new OrderField[] { FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY.SUCCESS }, false);
         public static Index FLYWAY_SCHEMA_HISTORY_PRIMARY = Internal.createIndex("PRIMARY", FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY, new OrderField[] { FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY.INSTALLED_RANK }, true);
+        public static Index PLACE_IDX_INSTAGRAM_ID = Internal.createIndex("idx_instagram_id", Place.PLACE, new OrderField[] { Place.PLACE.INSTAGRAM_ID }, true);
         public static Index PLACE_PRIMARY = Internal.createIndex("PRIMARY", Place.PLACE, new OrderField[] { Place.PLACE.ID }, true);
     }
 }

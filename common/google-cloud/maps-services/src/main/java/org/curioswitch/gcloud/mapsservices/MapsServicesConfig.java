@@ -22,24 +22,16 @@
  * SOFTWARE.
  */
 
-import org.curioswitch.gradle.plugins.gcloud.keys.KmsKeyDecrypter
+package org.curioswitch.gcloud.mapsservices;
 
-plugins {
-    id("org.curioswitch.gradle-curio-database-plugin")
-}
+import org.curioswitch.common.helpers.immutables.JavaBeanStyle;
+import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Modifiable;
 
-val keys: KmsKeyDecrypter by rootProject.extra
-val devAdminPasswordEncrypted = "CiQAhAX+YPDiPB2yq0A5V5YZAKO0py1mbMW3Mun717Xs3CPJZMsSSQCggp6mP3bGNpHURfeMZDevsPK6DFz7gWvmb/0v/I7/mR1WF6zEIxTOCLldA9Ewii5WxadAk00CrjAF6JnW4SdYQWdqjmBNKcM="
-
-database {
-    dbName.set("cafemapdb")
-    try {
-        adminPassword.set(keys.decrypt(devAdminPasswordEncrypted))
-    } catch (t: Throwable) {
-        adminPassword.set("")
-    }
-}
-
-flyway {
-    url = "jdbc:mysql://google/cafemapdb?cloudSqlInstance=curioswitch-cluster:asia-northeast1:curioswitchdb-dev&socketFactory=com.google.cloud.sql.mysql.SocketFactory"
+@Immutable
+@Modifiable
+@JavaBeanStyle
+public interface MapsServicesConfig {
+  /** Returns the server API key to use to connect to Maps. */
+  public String getApiKey();
 }

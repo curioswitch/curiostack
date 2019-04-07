@@ -47,6 +47,7 @@ import org.curioswitch.common.server.framework.ServerModule;
 import org.curioswitch.common.server.framework.armeria.ClientBuilderFactory;
 import org.curioswitch.common.server.framework.database.DatabaseModule;
 import org.curioswitch.database.cafemapdb.tables.records.PlaceRecord;
+import org.curioswitch.gcloud.mapsservices.MapsServicesModule;
 import org.curioswitch.scrapers.instagram.api.InstagramScraperServiceGrpc.InstagramScraperServiceBlockingStub;
 import org.curioswitch.scrapers.instagram.api.ScrapeLocationsRequest;
 import org.curioswitch.scrapers.instagram.api.ScrapeLocationsResponse.LocationPage;
@@ -58,7 +59,7 @@ public class InstagramScraperServiceMain {
   private static final Logger logger = LogManager.getLogger();
 
   @Module(
-      includes = {DatabaseModule.class, ServerModule.class},
+      includes = {DatabaseModule.class, ServerModule.class, MapsServicesModule.class},
       subcomponents = ScrapeLocationsGraph.Component.class)
   abstract static class InstagramScraperServiceModule {
     @Binds
@@ -103,6 +104,8 @@ public class InstagramScraperServiceMain {
   public static void main(String[] args) {
     var component = DaggerInstagramScraperServiceMain_ServerComponent.create();
 
+    var db = component.db();
+
     component.server();
     InstagramScraperServiceBlockingStub scraperClient = component.scraperClient();
 
@@ -122,8 +125,6 @@ public class InstagramScraperServiceMain {
     var deduped =
         response.getLocationList().stream()
             .collect(toImmutableMap(LocationPage::getId, Function.identity(), (a, b) -> a));
-
-    var db = component.db();
 
     for (var location : deduped.values()) {
       PlaceRecord record = db.newRecord(PLACE);

@@ -22,24 +22,40 @@
  * SOFTWARE.
  */
 
-import org.curioswitch.gradle.plugins.gcloud.keys.KmsKeyDecrypter
-
 plugins {
-    id("org.curioswitch.gradle-curio-database-plugin")
+    `java-library`
+    `maven-publish`
 }
 
-val keys: KmsKeyDecrypter by rootProject.extra
-val devAdminPasswordEncrypted = "CiQAhAX+YPDiPB2yq0A5V5YZAKO0py1mbMW3Mun717Xs3CPJZMsSSQCggp6mP3bGNpHURfeMZDevsPK6DFz7gWvmb/0v/I7/mR1WF6zEIxTOCLldA9Ewii5WxadAk00CrjAF6JnW4SdYQWdqjmBNKcM="
+base {
+    archivesBaseName = "armeria-google-map-services"
+}
 
-database {
-    dbName.set("cafemapdb")
-    try {
-        adminPassword.set(keys.decrypt(devAdminPasswordEncrypted))
-    } catch (t: Throwable) {
-        adminPassword.set("")
+dependencies {
+    compileOnly(project(":common:curio-helpers"))
+
+    api("com.google.maps:google-maps-services:0.9.3")
+    api("com.typesafe:config")
+
+    implementation("com.google.guava:guava")
+    implementation("com.linecorp.armeria:armeria")
+
+    annotationProcessor("com.google.dagger:dagger-compiler")
+    compileOnly("com.google.dagger:dagger")
+
+    annotationProcessor("org.immutables:value")
+    compileOnly("org.immutables:value-annotations")
+}
+
+publishing {
+    publications {
+        register("maven", MavenPublication::class) {
+            pom {
+                name.set("armeria-google-map-services")
+                description.set("A Google Maps API client, based on Armeria.")
+                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
+                    "common/google-cloud/maps-services")
+            }
+        }
     }
-}
-
-flyway {
-    url = "jdbc:mysql://google/cafemapdb?cloudSqlInstance=curioswitch-cluster:asia-northeast1:curioswitchdb-dev&socketFactory=com.google.cloud.sql.mysql.SocketFactory"
 }

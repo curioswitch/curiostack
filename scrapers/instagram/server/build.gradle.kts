@@ -36,6 +36,7 @@ application {
 }
 
 dependencies {
+    compile(project(":common:google-cloud:maps-services"))
     compile(project(":common:server:framework"))
     compile(project(":database:cafemapdb:bindings"))
     compile(project(":scrapers:instagram:api"))

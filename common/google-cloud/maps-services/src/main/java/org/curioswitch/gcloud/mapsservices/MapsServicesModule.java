@@ -22,24 +22,34 @@
  * SOFTWARE.
  */
 
-import org.curioswitch.gradle.plugins.gcloud.keys.KmsKeyDecrypter
+package org.curioswitch.gcloud.mapsservices;
 
-plugins {
-    id("org.curioswitch.gradle-curio-database-plugin")
-}
+import com.google.maps.GeoApiContext;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigBeanFactory;
+import dagger.Module;
+import dagger.Provides;
+import javax.inject.Singleton;
 
-val keys: KmsKeyDecrypter by rootProject.extra
-val devAdminPasswordEncrypted = "CiQAhAX+YPDiPB2yq0A5V5YZAKO0py1mbMW3Mun717Xs3CPJZMsSSQCggp6mP3bGNpHURfeMZDevsPK6DFz7gWvmb/0v/I7/mR1WF6zEIxTOCLldA9Ewii5WxadAk00CrjAF6JnW4SdYQWdqjmBNKcM="
+@Module
+public abstract class MapsServicesModule {
 
-database {
-    dbName.set("cafemapdb")
-    try {
-        adminPassword.set(keys.decrypt(devAdminPasswordEncrypted))
-    } catch (t: Throwable) {
-        adminPassword.set("")
-    }
-}
+  @Provides
+  @Singleton
+  static MapsServicesConfig config(Config config) {
+    return ConfigBeanFactory.create(
+            config.getConfig("googleMaps"), ModifiableMapsServicesConfig.class)
+        .toImmutable();
+  }
 
-flyway {
-    url = "jdbc:mysql://google/cafemapdb?cloudSqlInstance=curioswitch-cluster:asia-northeast1:curioswitchdb-dev&socketFactory=com.google.cloud.sql.mysql.SocketFactory"
+  @Provides
+  @Singleton
+  static GeoApiContext geoApiContext(MapsServicesConfig config) {
+    return new GeoApiContext.Builder()
+        .apiKey(config.getApiKey())
+        .requestHandlerBuilder(new ArmeriaRequestHandler.Builder())
+        .build();
+  }
+
+  private MapsServicesModule() {}
 }
