@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2019 Choko (choko@curioswitch.org)
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,32 +22,20 @@
  * SOFTWARE.
  */
 
+package org.curioswitch.gcloud.mapsservices;
 
-plugins {
-    id("org.curioswitch.gradle-curio-server-plugin")
-}
+import com.google.common.util.concurrent.AbstractFuture;
+import com.google.maps.PendingResult.Callback;
 
-base {
-    archivesBaseName = "instagram-scraper-server"
-}
+public class CallbackListenableFuture<T> extends AbstractFuture<T> implements Callback<T> {
 
-application {
-    mainClassName = "org.curioswitch.scrapers.instagram.server.InstagramScraperServiceMain"
-}
+  @Override
+  public void onResult(T result) {
+    set(result);
+  }
 
-dependencies {
-    compile(project(":common:google-cloud:maps-services"))
-    compile(project(":common:server:framework"))
-    compile(project(":database:cafemapdb:bindings"))
-    compile(project(":scrapers:instagram:api"))
-
-    compile("org.jsoup:jsoup:1.11.3")
-
-    annotationProcessor("com.google.dagger:dagger-compiler")
-    annotationProcessor("org.immutables:value")
-    compileOnly("org.immutables:value")
-
-    testAnnotationProcessor("com.google.dagger:dagger-compiler")
-    testAnnotationProcessor("org.immutables:value")
-    testCompileOnly("org.immutables:value")
+  @Override
+  public void onFailure(Throwable e) {
+    setException(e);
+  }
 }
