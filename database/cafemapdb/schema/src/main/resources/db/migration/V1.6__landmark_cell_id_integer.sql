@@ -1,0 +1,2 @@
+ALTER TABLE landmark
+    MODIFY COLUMN s2_cell BIGINT NOT NULL;
