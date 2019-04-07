@@ -170,6 +170,11 @@ public class DownloadToolTask extends DefaultTask {
       File archiveDir = task.getTemporaryDir();
       String url = task.baseUrl.get() + task.getUrlPath();
       String archiveName = Iterables.getLast(URL_SPLITTER.splitToList(url));
+
+      if (archiveName.contains("?")) {
+        archiveName = archiveName.substring(0, archiveName.indexOf('?'));
+      }
+
       File archive = new File(archiveDir, archiveName);
 
       var download = new DownloadAction(task.getProject());

@@ -110,8 +110,8 @@ function* getPlace({ payload: id }: ReturnType<typeof Actions.doGetPlace>) {
   const googlePlaces: google.maps.places.PlaceResult[] = yield call(() =>
     findPlace(
       places,
-      response.getPlace().getName(),
-      response.getPlace().getPosition(),
+      response.getPlace()!.getName(),
+      response.getPlace()!.getPosition()!,
     ),
   );
 
@@ -121,7 +121,7 @@ function* getPlace({ payload: id }: ReturnType<typeof Actions.doGetPlace>) {
 
   yield put(
     Actions.doGetPlaceResponse({
-      place: response.getPlace(),
+      place: response.getPlace()!,
       googlePlace,
     }),
   );

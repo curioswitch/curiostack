@@ -45,11 +45,11 @@ public class StandardDependencies {
     String version();
   }
 
-  public static final String GCLOUD_VERSION = "240.0.0";
+  public static final String GCLOUD_VERSION = "241.0.0";
   public static final String HELM_VERSION = "2.10.0";
   public static final String MINICONDA_VERSION = "4.5.12";
-  public static final String TERRAFORM_VERSION = "0.11.11";
-  public static final String NODE_VERSION = "10.15.3";
+  public static final String TERRAFORM_VERSION = "0.11.13";
+  public static final String NODE_VERSION = "11.13.0";
   public static final String YARN_VERSION = "1.13.0";
 
   static final String GOOGLE_JAVA_FORMAT_VERSION = "1.7";

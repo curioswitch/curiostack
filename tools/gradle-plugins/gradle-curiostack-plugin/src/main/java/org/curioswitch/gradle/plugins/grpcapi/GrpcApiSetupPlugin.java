@@ -37,7 +37,7 @@ import org.gradle.api.Project;
 
 public class GrpcApiSetupPlugin implements Plugin<Project> {
 
-  private static final String PROTOC_GEN_GRPC_WEB_VERSION = "1.0.4-alpha1";
+  private static final String PROTOC_GEN_GRPC_WEB_VERSION = "1.0.4";
 
   @Override
   public void apply(Project project) {
@@ -55,7 +55,7 @@ public class GrpcApiSetupPlugin implements Plugin<Project> {
                   tool -> {
                     tool.getVersion().set(PROTOC_GEN_GRPC_WEB_VERSION);
                     tool.getBaseUrl()
-                        .set("https://github.com/chokoswitch/grpc-web/releases/download/");
+                        .set("https://github.com/grpc/grpc-web/releases/download/");
                     tool.getArtifactPattern()
                         .set("[revision]/[artifact]-[revision]-[classifier][ext]");
                     var classifiers = tool.getOsClassifiers();

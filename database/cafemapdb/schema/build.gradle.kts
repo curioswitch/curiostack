@@ -33,7 +33,12 @@ val devAdminPasswordEncrypted = "CiQAhAX+YPDiPB2yq0A5V5YZAKO0py1mbMW3Mun717Xs3CP
 
 database {
     dbName.set("cafemapdb")
-    adminPassword.set(keys.decrypt(devAdminPasswordEncrypted))
+    try {
+        adminPassword.set(keys.decrypt(devAdminPasswordEncrypted))
+    } catch (t: Throwable) {
+        // Ignore error for now, it only happens on CI.
+        adminPassword.set("")
+    }
 }
 
 flyway {

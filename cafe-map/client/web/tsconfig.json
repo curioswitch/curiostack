@@ -4,6 +4,8 @@
     "src/**/*"
   ],
   "compilerOptions": {
+    "incremental": true,
+    "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo.json",
     "baseUrl": ".",
     "paths": {
       "@babel/runtime/helpers/builtin/*": [

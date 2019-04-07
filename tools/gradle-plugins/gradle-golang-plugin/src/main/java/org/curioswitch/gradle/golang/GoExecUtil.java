@@ -33,12 +33,17 @@ public final class GoExecUtil {
   public static void goExec(ExecSpec exec, Project project, String command, Iterable<String> args) {
     var toolManager = DownloadedToolManager.get(project);
 
-    exec.executable(toolManager.getBinDir("go").resolve(command));
+    if (command.equals("go")) {
+      exec.executable(toolManager.getBinDir("goc").resolve("goc"));
+    } else {
+      exec.executable(toolManager.getBinDir("go").resolve(command));
+    }
     exec.args(args);
     exec.environment("GOROOT", toolManager.getToolDir("go").resolve("go"));
     exec.environment(
         "GOPATH", project.getExtensions().getByType(ExtraPropertiesExtension.class).get("gopath"));
     exec.environment("GOFLAGS", "-mod=readonly");
+    exec.environment("GO111MODULE", "on");
 
     toolManager.addAllToPath(exec);
   }
