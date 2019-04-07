@@ -34,6 +34,7 @@ import java.util.List;
 import javax.annotation.Generated;
 
 import org.curioswitch.database.cafemapdb.tables.FlywaySchemaHistory;
+import org.curioswitch.database.cafemapdb.tables.Landmark;
 import org.curioswitch.database.cafemapdb.tables.Place;
 import org.jooq.Catalog;
 import org.jooq.Table;
@@ -53,7 +54,7 @@ import org.jooq.impl.SchemaImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Cafemapdb extends SchemaImpl {
 
-    private static final long serialVersionUID = 616863750;
+    private static final long serialVersionUID = -1217054536;
 
     /**
      * The reference instance of <code>cafemapdb</code>
@@ -64,6 +65,11 @@ public class Cafemapdb extends SchemaImpl {
      * The table <code>cafemapdb.flyway_schema_history</code>.
      */
     public final FlywaySchemaHistory FLYWAY_SCHEMA_HISTORY = org.curioswitch.database.cafemapdb.tables.FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY;
+
+    /**
+     * The table <code>cafemapdb.landmark</code>.
+     */
+    public final Landmark LANDMARK = org.curioswitch.database.cafemapdb.tables.Landmark.LANDMARK;
 
     /**
      * The table <code>cafemapdb.place</code>.
@@ -96,6 +102,7 @@ public class Cafemapdb extends SchemaImpl {
     private final List<Table<?>> getTables0() {
         return Arrays.<Table<?>>asList(
             FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY,
+            Landmark.LANDMARK,
             Place.PLACE);
     }
 }
