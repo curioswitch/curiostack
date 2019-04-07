@@ -34,7 +34,7 @@ base {
 dependencies {
     compileOnly(project(":common:curio-helpers"))
 
-    api("com.google.maps:google-maps-services")
+    api("com.google.maps:google-maps-services:0.9.3")
     api("com.typesafe:config")
 
     implementation("com.google.guava:guava")

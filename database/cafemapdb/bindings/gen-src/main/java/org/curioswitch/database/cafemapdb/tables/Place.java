@@ -65,7 +65,7 @@ import org.jooq.types.ULong;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Place extends TableImpl<PlaceRecord> {
 
-    private static final long serialVersionUID = -438248026;
+    private static final long serialVersionUID = 297583195;
 
     /**
      * The reference instance of <code>cafemapdb.place</code>
@@ -104,6 +104,11 @@ public class Place extends TableImpl<PlaceRecord> {
      * The column <code>cafemapdb.place.instagram_id</code>.
      */
     public final TableField<PlaceRecord, String> INSTAGRAM_ID = createField("instagram_id", org.jooq.impl.SQLDataType.VARCHAR(255), this, "");
+
+    /**
+     * The column <code>cafemapdb.place.google_place_id</code>.
+     */
+    public final TableField<PlaceRecord, String> GOOGLE_PLACE_ID = createField("google_place_id", org.jooq.impl.SQLDataType.VARCHAR(255).nullable(false).defaultValue(org.jooq.impl.DSL.inline("", org.jooq.impl.SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>cafemapdb.place.created_at</code>.
@@ -161,7 +166,7 @@ public class Place extends TableImpl<PlaceRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.PLACE_PRIMARY);
+        return Arrays.<Index>asList(Indexes.PLACE_IDX_INSTAGRAM_ID, Indexes.PLACE_PRIMARY);
     }
 
     /**
@@ -185,7 +190,7 @@ public class Place extends TableImpl<PlaceRecord> {
      */
     @Override
     public List<UniqueKey<PlaceRecord>> getKeys() {
-        return Arrays.<UniqueKey<PlaceRecord>>asList(Keys.KEY_PLACE_PRIMARY);
+        return Arrays.<UniqueKey<PlaceRecord>>asList(Keys.KEY_PLACE_PRIMARY, Keys.KEY_PLACE_IDX_INSTAGRAM_ID);
     }
 
     /**

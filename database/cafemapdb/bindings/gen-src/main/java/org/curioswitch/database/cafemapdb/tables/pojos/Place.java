@@ -48,13 +48,14 @@ import org.jooq.types.ULong;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Place implements IPlace {
 
-    private static final long serialVersionUID = 1666271495;
+    private static final long serialVersionUID = -1684772956;
 
     private final ULong         id;
     private final String        name;
     private final Double        latitude;
     private final Double        longitude;
     private final String        instagramId;
+    private final String        googlePlaceId;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
@@ -64,6 +65,7 @@ public class Place implements IPlace {
         this.latitude = value.getLatitude();
         this.longitude = value.getLongitude();
         this.instagramId = value.getInstagramId();
+        this.googlePlaceId = value.getGooglePlaceId();
         this.createdAt = value.getCreatedAt();
         this.updatedAt = value.getUpdatedAt();
     }
@@ -74,6 +76,7 @@ public class Place implements IPlace {
         Double        latitude,
         Double        longitude,
         String        instagramId,
+        String        googlePlaceId,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
     ) {
@@ -82,6 +85,7 @@ public class Place implements IPlace {
         this.latitude = latitude;
         this.longitude = longitude;
         this.instagramId = instagramId;
+        this.googlePlaceId = googlePlaceId;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -109,6 +113,11 @@ public class Place implements IPlace {
     @Override
     public String getInstagramId() {
         return this.instagramId;
+    }
+
+    @Override
+    public String getGooglePlaceId() {
+        return this.googlePlaceId;
     }
 
     @Override
@@ -160,6 +169,12 @@ public class Place implements IPlace {
         }
         else if (!instagramId.equals(other.instagramId))
             return false;
+        if (googlePlaceId == null) {
+            if (other.googlePlaceId != null)
+                return false;
+        }
+        else if (!googlePlaceId.equals(other.googlePlaceId))
+            return false;
         if (createdAt == null) {
             if (other.createdAt != null)
                 return false;
@@ -184,6 +199,7 @@ public class Place implements IPlace {
         result = prime * result + ((this.latitude == null) ? 0 : this.latitude.hashCode());
         result = prime * result + ((this.longitude == null) ? 0 : this.longitude.hashCode());
         result = prime * result + ((this.instagramId == null) ? 0 : this.instagramId.hashCode());
+        result = prime * result + ((this.googlePlaceId == null) ? 0 : this.googlePlaceId.hashCode());
         result = prime * result + ((this.createdAt == null) ? 0 : this.createdAt.hashCode());
         result = prime * result + ((this.updatedAt == null) ? 0 : this.updatedAt.hashCode());
         return result;
@@ -198,6 +214,7 @@ public class Place implements IPlace {
         sb.append(", ").append(latitude);
         sb.append(", ").append(longitude);
         sb.append(", ").append(instagramId);
+        sb.append(", ").append(googlePlaceId);
         sb.append(", ").append(createdAt);
         sb.append(", ").append(updatedAt);
 

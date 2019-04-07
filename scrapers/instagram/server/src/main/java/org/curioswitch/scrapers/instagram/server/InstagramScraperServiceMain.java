@@ -25,17 +25,12 @@
 package org.curioswitch.scrapers.instagram.server;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static com.google.common.util.concurrent.Futures.getUnchecked;
 import static org.curioswitch.database.cafemapdb.tables.Place.PLACE;
 
 import com.fasterxml.jackson.core.JsonGenerator.Feature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.maps.FindPlaceFromTextRequest.FieldMask;
-import com.google.maps.FindPlaceFromTextRequest.InputType;
 import com.google.maps.GeoApiContext;
-import com.google.maps.PlacesApi;
-import com.google.maps.model.FindPlaceFromText;
 import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.server.Server;
@@ -53,7 +48,6 @@ import org.curioswitch.common.server.framework.ServerModule;
 import org.curioswitch.common.server.framework.armeria.ClientBuilderFactory;
 import org.curioswitch.common.server.framework.database.DatabaseModule;
 import org.curioswitch.database.cafemapdb.tables.records.PlaceRecord;
-import org.curioswitch.gcloud.mapsservices.CallbackListenableFuture;
 import org.curioswitch.gcloud.mapsservices.MapsServicesModule;
 import org.curioswitch.scrapers.instagram.api.InstagramScraperServiceGrpc.InstagramScraperServiceBlockingStub;
 import org.curioswitch.scrapers.instagram.api.ScrapeLocationsRequest;
@@ -106,23 +100,12 @@ public class InstagramScraperServiceMain {
     DSLContext db();
 
     InstagramScraperServiceBlockingStub scraperClient();
-
-    GeoApiContext geoApiContext();
   }
 
   public static void main(String[] args) {
     var component = DaggerInstagramScraperServiceMain_ServerComponent.create();
 
-    var geoApiContext = component.geoApiContext();
-
-    var callback = new CallbackListenableFuture<FindPlaceFromText>();
-    PlacesApi.findPlaceFromText(geoApiContext, "kashimada days", InputType.TEXT_QUERY).fields(
-        FieldMask.PLACE_ID, FieldMask.NAME)
-        .setCallback(callback);
-
-    var results = getUnchecked(callback);
-
-    System.out.println(results);
+    var db = component.db();
 
     component.server();
     InstagramScraperServiceBlockingStub scraperClient = component.scraperClient();
@@ -143,8 +126,6 @@ public class InstagramScraperServiceMain {
     var deduped =
         response.getLocationList().stream()
             .collect(toImmutableMap(LocationPage::getId, Function.identity(), (a, b) -> a));
-
-    var db = component.db();
 
     for (var location : deduped.values()) {
       PlaceRecord record = db.newRecord(PLACE);

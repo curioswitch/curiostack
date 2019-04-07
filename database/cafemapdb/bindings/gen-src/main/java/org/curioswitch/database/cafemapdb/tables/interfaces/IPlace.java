@@ -74,6 +74,11 @@ public interface IPlace extends Serializable {
     public String getInstagramId();
 
     /**
+     * Getter for <code>cafemapdb.place.google_place_id</code>.
+     */
+    public String getGooglePlaceId();
+
+    /**
      * Getter for <code>cafemapdb.place.created_at</code>.
      */
     public LocalDateTime getCreatedAt();
