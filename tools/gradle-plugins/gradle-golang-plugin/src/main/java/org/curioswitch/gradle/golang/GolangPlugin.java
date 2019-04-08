@@ -27,10 +27,7 @@ import static org.curioswitch.gradle.helpers.task.TaskUtil.toTaskSuffix;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Paths;
 import java.util.List;
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
@@ -93,12 +90,6 @@ public class GolangPlugin implements Plugin<Project> {
     project.getTasks().withType(GoTask.class).configureEach(t -> t.dependsOn(setupGo));
 
     project.getRootProject().mkdir("build");
-    var lock = project.getRootProject().file("build/godeps.lock");
-    try {
-      lock.createNewFile();
-    } catch (IOException e) {
-      throw new UncheckedIOException("Could not create lock file.", e);
-    }
 
     project
         .getExtensions()
@@ -121,7 +112,6 @@ public class GolangPlugin implements Plugin<Project> {
                 t -> {
                   t.args("mod", "download");
                   project.getRootProject().mkdir("build");
-                  t.setLockFile(lock);
                 });
 
     project
@@ -193,17 +183,6 @@ public class GolangPlugin implements Plugin<Project> {
 
     project.afterEvaluate(
         unused -> {
-          project
-              .getTasks()
-              .withType(GoTask.class)
-              .configureEach(
-                  t -> {
-                    // get has a chance of hitting Github.
-                    if (Iterables.getFirst(t.getArgs().get(), "").equals("get")) {
-                      t.setLockFile(lock);
-                    }
-                  });
-
           TaskProvider<Task> test;
           try {
             test = project.getTasks().named("test");

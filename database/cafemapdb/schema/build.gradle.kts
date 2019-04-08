@@ -36,6 +36,7 @@ database {
     try {
         adminPassword.set(keys.decrypt(devAdminPasswordEncrypted))
     } catch (t: Throwable) {
+        // Ignore error for now, it only happens on CI.
         adminPassword.set("")
     }
 }

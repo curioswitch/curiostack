@@ -26,13 +26,7 @@ package org.curioswitch.gradle.golang.tasks;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -77,57 +71,21 @@ public class GoTestTask extends GoTask {
 
   @TaskAction
   @Override
-  public void exec() throws Exception {
+  public void exec() {
     boolean coverage = this.coverage.get();
     Path coverageFile = getProject().file("coverage.txt").toPath();
-    if (coverage) {
-      Files.writeString(coverageFile, "");
-    }
 
-    ByteArrayOutputStream listOutputStream = new ByteArrayOutputStream();
+    var args = new ImmutableList.Builder<String>();
+    args.add("test", "./...");
+    if (coverage) {
+      args.add("-coverprofile=" + coverageFile.toString(), "-covermode=atomic", "-coverpkg=all");
+    }
 
     getProject()
         .exec(
             exec -> {
-              GoExecUtil.goExec(exec, getProject(), "go", ImmutableList.of("list", "./..."));
-
-              exec.setStandardOutput(listOutputStream);
-
+              GoExecUtil.goExec(exec, getProject(), "go", args.build());
               execCustomizers.forEach(c -> c.execute(exec));
-            });
-
-    String packageList = listOutputStream.toString(StandardCharsets.UTF_8);
-
-    packageList
-        .lines()
-        .filter(s -> !s.contains("vendor"))
-        .forEach(
-            pkg -> {
-              var args = new ImmutableList.Builder<String>();
-              args.add("test");
-              if (coverage) {
-                args.add("-coverprofile=profile.out", "-covermode=atomic");
-              }
-              args.add(pkg);
-              getProject()
-                  .exec(
-                      exec -> {
-                        GoExecUtil.goExec(exec, getProject(), "go", args.build());
-                        execCustomizers.forEach(c -> c.execute(exec));
-                      });
-
-              if (coverage) {
-                Path profile = getProject().file("profile.out").toPath();
-                if (Files.exists(profile)) {
-                  try {
-                    Files.write(
-                        coverageFile, Files.readAllBytes(profile), StandardOpenOption.APPEND);
-                    Files.delete(profile);
-                  } catch (IOException e) {
-                    throw new UncheckedIOException("Could not read or delete profile.", e);
-                  }
-                }
-              }
             });
   }
 }

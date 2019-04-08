@@ -221,8 +221,8 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
           key={place.getInstagramId()}
           title={place.getName()}
           position={{
-            lat: place.getPosition().getLatitude(),
-            lng: place.getPosition().getLongitude(),
+            lat: place.getPosition()!.getLatitude(),
+            lng: place.getPosition()!.getLongitude(),
           }}
           onClick={
             // tslint:disable-next-line
