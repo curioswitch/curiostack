@@ -117,6 +117,20 @@ public class PlaceDao extends DAOImpl<PlaceRecord, org.curioswitch.database.cafe
     }
 
     /**
+     * Fetch a unique record that has <code>instagram_id = value</code>
+     */
+    public org.curioswitch.database.cafemapdb.tables.pojos.Place fetchOneByInstagramId(String value) {
+        return fetchOne(Place.PLACE.INSTAGRAM_ID, value);
+    }
+
+    /**
+     * Fetch records that have <code>google_place_id IN (values)</code>
+     */
+    public List<org.curioswitch.database.cafemapdb.tables.pojos.Place> fetchByGooglePlaceId(String... values) {
+        return fetch(Place.PLACE.GOOGLE_PLACE_ID, values);
+    }
+
+    /**
      * Fetch records that have <code>created_at IN (values)</code>
      */
     public List<org.curioswitch.database.cafemapdb.tables.pojos.Place> fetchByCreatedAt(LocalDateTime... values) {

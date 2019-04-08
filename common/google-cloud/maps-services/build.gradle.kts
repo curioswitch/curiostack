@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2019 Choko (choko@curioswitch.org)
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,32 +22,40 @@
  * SOFTWARE.
  */
 
-
 plugins {
-    id("org.curioswitch.gradle-curio-server-plugin")
+    `java-library`
+    `maven-publish`
 }
 
 base {
-    archivesBaseName = "instagram-scraper-server"
-}
-
-application {
-    mainClassName = "org.curioswitch.scrapers.instagram.server.InstagramScraperServiceMain"
+    archivesBaseName = "armeria-google-map-services"
 }
 
 dependencies {
-    compile(project(":common:google-cloud:maps-services"))
-    compile(project(":common:server:framework"))
-    compile(project(":database:cafemapdb:bindings"))
-    compile(project(":scrapers:instagram:api"))
+    compileOnly(project(":common:curio-helpers"))
 
-    compile("org.jsoup:jsoup:1.11.3")
+    api("com.google.maps:google-maps-services:0.9.3")
+    api("com.typesafe:config")
+
+    implementation("com.google.guava:guava")
+    implementation("com.linecorp.armeria:armeria")
 
     annotationProcessor("com.google.dagger:dagger-compiler")
-    annotationProcessor("org.immutables:value")
-    compileOnly("org.immutables:value")
+    compileOnly("com.google.dagger:dagger")
 
-    testAnnotationProcessor("com.google.dagger:dagger-compiler")
-    testAnnotationProcessor("org.immutables:value")
-    testCompileOnly("org.immutables:value")
+    annotationProcessor("org.immutables:value")
+    compileOnly("org.immutables:value-annotations")
+}
+
+publishing {
+    publications {
+        register("maven", MavenPublication::class) {
+            pom {
+                name.set("armeria-google-map-services")
+                description.set("A Google Maps API client, based on Armeria.")
+                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
+                    "common/google-cloud/maps-services")
+            }
+        }
+    }
 }

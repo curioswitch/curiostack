@@ -30,6 +30,7 @@ package org.curioswitch.database.cafemapdb;
 import javax.annotation.Generated;
 
 import org.curioswitch.database.cafemapdb.tables.FlywaySchemaHistory;
+import org.curioswitch.database.cafemapdb.tables.Landmark;
 import org.curioswitch.database.cafemapdb.tables.Place;
 
 
@@ -50,6 +51,11 @@ public class Tables {
      * The table <code>cafemapdb.flyway_schema_history</code>.
      */
     public static final FlywaySchemaHistory FLYWAY_SCHEMA_HISTORY = org.curioswitch.database.cafemapdb.tables.FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY;
+
+    /**
+     * The table <code>cafemapdb.landmark</code>.
+     */
+    public static final Landmark LANDMARK = org.curioswitch.database.cafemapdb.tables.Landmark.LANDMARK;
 
     /**
      * The table <code>cafemapdb.place</code>.
