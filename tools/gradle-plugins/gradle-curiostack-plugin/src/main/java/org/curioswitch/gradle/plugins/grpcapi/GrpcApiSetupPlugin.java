@@ -54,8 +54,7 @@ public class GrpcApiSetupPlugin implements Plugin<Project> {
                   "protoc-gen-grpc-web",
                   tool -> {
                     tool.getVersion().set(PROTOC_GEN_GRPC_WEB_VERSION);
-                    tool.getBaseUrl()
-                        .set("https://github.com/grpc/grpc-web/releases/download/");
+                    tool.getBaseUrl().set("https://github.com/grpc/grpc-web/releases/download/");
                     tool.getArtifactPattern()
                         .set("[revision]/[artifact]-[revision]-[classifier][ext]");
                     var classifiers = tool.getOsClassifiers();
