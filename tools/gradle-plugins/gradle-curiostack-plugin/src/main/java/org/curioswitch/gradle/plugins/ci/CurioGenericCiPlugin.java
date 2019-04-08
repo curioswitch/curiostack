@@ -97,7 +97,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
 
     var config = CiExtension.createAndAdd(project);
 
-    if (!"true".equals(System.getenv("CI")) && !project.hasProperty("org.curioswitch.ci")) {
+    if (!"true".equals(System.getenv("CI")) && !project.hasProperty("ci")) {
       return;
     }
 
@@ -168,49 +168,49 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
 
     if (System.getenv("CI") != null) {
       continuousBuild.dependsOn(uploadCoverage);
-    }
 
-    project.allprojects(
-        proj -> {
-          proj.getPlugins()
-              .withType(JavaPlugin.class, unused -> proj.getPlugins().apply(JacocoPlugin.class));
+      project.allprojects(
+          proj -> {
+            proj.getPlugins()
+                .withType(JavaPlugin.class, unused -> proj.getPlugins().apply(JacocoPlugin.class));
 
-          proj.getPlugins()
-              .withType(
-                  GolangPlugin.class,
-                  unused ->
-                      proj.getTasks()
-                          .withType(GoTestTask.class)
-                          .configureEach(
-                              t -> {
-                                t.coverage(true);
-                                uploadCoverage.mustRunAfter(t);
-                              }));
-        });
-
-    project.subprojects(
-        proj ->
             proj.getPlugins()
                 .withType(
-                    JacocoPlugin.class,
-                    unused -> {
-                      var testReport =
-                          proj.getTasks().named("jacocoTestReport", JacocoReport.class);
-                      uploadCoverage.mustRunAfter(testReport);
-                      testReport.configure(
-                          t ->
-                              t.reports(
-                                  reports -> {
-                                    reports.getXml().setEnabled(true);
-                                    reports.getHtml().setEnabled(true);
-                                    reports.getCsv().setEnabled(false);
-                                  }));
-                      try {
-                        proj.getTasks().named("build").configure(t -> t.dependsOn(testReport));
-                      } catch (UnknownTaskException e) {
-                        // Ignore.
-                      }
-                    }));
+                    GolangPlugin.class,
+                    unused ->
+                        proj.getTasks()
+                            .withType(GoTestTask.class)
+                            .configureEach(
+                                t -> {
+                                  t.coverage(true);
+                                  uploadCoverage.mustRunAfter(t);
+                                }));
+          });
+
+      project.subprojects(
+          proj ->
+              proj.getPlugins()
+                  .withType(
+                      JacocoPlugin.class,
+                      unused -> {
+                        var testReport =
+                            proj.getTasks().named("jacocoTestReport", JacocoReport.class);
+                        uploadCoverage.mustRunAfter(testReport);
+                        testReport.configure(
+                            t ->
+                                t.reports(
+                                    reports -> {
+                                      reports.getXml().setEnabled(true);
+                                      reports.getHtml().setEnabled(true);
+                                      reports.getCsv().setEnabled(false);
+                                    }));
+                        try {
+                          proj.getTasks().named("build").configure(t -> t.dependsOn(testReport));
+                        } catch (UnknownTaskException e) {
+                          // Ignore.
+                        }
+                      }));
+    }
 
     final Set<Project> affectedProjects;
     try {
