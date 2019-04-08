@@ -97,7 +97,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
 
     var config = CiExtension.createAndAdd(project);
 
-    if (!"true".equals(System.getenv("CI")) && !project.hasProperty("ci")) {
+    if (!"true".equals(System.getenv("CI")) && !project.hasProperty("org.curioswitch.ci")) {
       return;
     }
 

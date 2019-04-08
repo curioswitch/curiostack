@@ -162,7 +162,7 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "com.google.dagger",
-        "2.22.1",
+        "2.21",
         listOf("dagger", "dagger-compiler", "dagger-producers")
     ),
     DependencySet(
