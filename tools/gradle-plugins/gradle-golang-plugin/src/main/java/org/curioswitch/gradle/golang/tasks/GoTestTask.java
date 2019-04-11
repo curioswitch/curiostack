@@ -24,11 +24,15 @@
 package org.curioswitch.gradle.golang.tasks;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.common.collect.ImmutableList;
+import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javax.inject.Inject;
 import org.curioswitch.gradle.golang.GoExecUtil;
 import org.gradle.api.Action;
@@ -75,8 +79,18 @@ public class GoTestTask extends GoTask {
     boolean coverage = this.coverage.get();
     Path coverageFile = getProject().file("coverage.txt").toPath();
 
+    var files = getProject().fileTree(".");
+    files.include("**/*.go");
+
+    Set<String> goDirectories =
+        files.getFiles().stream()
+            .map(File::getParent)
+            .distinct()
+            .map(path -> "./" + getProject().getProjectDir().toPath().relativize(Paths.get(path)))
+            .collect(toImmutableSet());
+
     var args = new ImmutableList.Builder<String>();
-    args.add("test", "./...");
+    args.add("test", String.join(" ", goDirectories));
     if (coverage) {
       args.add("-coverprofile=" + coverageFile.toString(), "-covermode=atomic", "-coverpkg=all");
     }
