@@ -24,23 +24,29 @@
 package org.curioswitch.common.server.framework.redis;
 
 import io.lettuce.core.SetArgs;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ConcurrentHashMap;
 
 class NoopRemoteCache<K, V> implements RemoteCache<K, V> {
 
+  private final Map<K, V> cache = new ConcurrentHashMap<>();
+
   @Override
   public CompletionStage<V> get(K key) {
-    return CompletableFuture.completedFuture(null);
+    return CompletableFuture.completedFuture(cache.get(key));
   }
 
   @Override
   public CompletionStage<String> set(K key, V value, SetArgs setArgs) {
+    cache.put(key, value);
     return CompletableFuture.completedFuture("OK");
   }
 
   @Override
   public CompletionStage<Long> del(K key) {
+    cache.remove(key);
     return CompletableFuture.completedFuture(1L);
   }
 }
