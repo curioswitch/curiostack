@@ -37,7 +37,7 @@ public class TargetableTerraformPlanTask extends TargetableTerraformTask {
             exec.args("-target=" + target);
           }
           if (out != null) {
-            exec.args("-out="+out);
+            exec.args("-out=" + out);
           }
         });
   }
