@@ -130,7 +130,14 @@ public class FileWatcher implements AutoCloseable {
                 final Path resolved = watchedDirs.get(key).resolve(path);
                 Optional<Consumer<Path>> callback =
                     registeredPaths.entrySet().stream()
-                        .filter(e -> e.getKey().equals(resolved))
+                        .filter(
+                            e -> {
+                              try {
+                                return e.getKey().toRealPath().equals(resolved);
+                              } catch (IOException ex) {
+                                throw new UncheckedIOException("Could not resolve real path.", ex);
+                              }
+                            })
                         .map(Entry::getValue)
                         .findFirst();
                 if (callback.isPresent()) {

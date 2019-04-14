@@ -23,10 +23,14 @@
  */
 package org.curioswitch.common.server.framework;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 import brave.Tracing;
 import brave.propagation.TraceContext;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.Futures;
 import com.linecorp.armeria.common.Flags;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpRequest;
@@ -45,7 +49,9 @@ import com.linecorp.armeria.server.auth.HttpAuthServiceBuilder;
 import com.linecorp.armeria.server.auth.OAuth2Token;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
+import com.linecorp.armeria.server.healthcheck.HealthChecker;
 import com.linecorp.armeria.server.healthcheck.HttpHealthCheckService;
+import com.linecorp.armeria.server.healthcheck.SettableHealthChecker;
 import com.linecorp.armeria.server.logging.LoggingService;
 import com.linecorp.armeria.server.metric.MetricCollectingService;
 import com.linecorp.armeria.server.metric.PrometheusExpositionService;
@@ -87,6 +93,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -130,6 +137,7 @@ import org.curioswitch.common.server.framework.security.HttpsOnlyService;
 import org.curioswitch.common.server.framework.security.SecurityModule;
 import org.curioswitch.common.server.framework.server.HttpServiceDefinition;
 import org.curioswitch.common.server.framework.server.PostServerCustomizer;
+import org.curioswitch.common.server.framework.server.ServerShutDownDelayer;
 import org.curioswitch.common.server.framework.staticsite.JavascriptStaticService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteService;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
@@ -211,6 +219,9 @@ public abstract class ServerModule {
   @Multibinds
   @CloseOnStop
   abstract Set<Closeable> closeOnStopDependencies();
+
+  @Multibinds
+  abstract Set<ServerShutDownDelayer> serverShutDownDelayers();
 
   @BindsOptionalOf
   abstract SslCommonNamesProvider sslCommonNamesProvider();
@@ -319,6 +330,7 @@ public abstract class ServerModule {
       JavascriptStaticConfig javascriptStaticConfig,
       MonitoringConfig monitoringConfig,
       SecurityConfig securityConfig,
+      Set<ServerShutDownDelayer> serverShutDownDelayers,
       @CloseOnStop Set<Closeable> closeOnStopDependencies,
       // Eagerly trigger bindings that are present, not actually used here.
       @EagerInit Set<Object> eagerInitializedDependencies) {
@@ -397,8 +409,17 @@ public abstract class ServerModule {
       sb.serviceUnder(
           "/internal/docs", internalService(docService.build(), ipFilter, serverConfig));
     }
+
+    SettableHealthChecker settableHealthChecker = new SettableHealthChecker();
+    settableHealthChecker.setHealthy(true);
+    List<HealthChecker> healthCheckers =
+        serverShutDownDelayers.isEmpty()
+            ? ImmutableList.of()
+            : ImmutableList.of(settableHealthChecker);
+
     sb.service(
-        "/internal/health", internalService(new HttpHealthCheckService(), ipFilter, serverConfig));
+        "/internal/health",
+        internalService(new HttpHealthCheckService(healthCheckers), ipFilter, serverConfig));
     sb.service("/internal/dropwizard", internalService(metricsHttpService, ipFilter, serverConfig));
     sb.service(
         "/internal/metrics",
@@ -551,7 +572,19 @@ public abstract class ServerModule {
         .addShutdownHook(
             new Thread(
                 () -> {
-                  logger.info("Shutting down server.");
+                  logger.info("Received shutdown signal.");
+
+                  settableHealthChecker.setHealthy(false);
+
+                  if (!serverShutDownDelayers.isEmpty()) {
+                    Futures.getUnchecked(
+                        Futures.successfulAsList(
+                            serverShutDownDelayers.stream()
+                                .map(ServerShutDownDelayer::readyForShutdown)
+                                .collect(toImmutableList())));
+                  }
+
+                  logger.info("Server shutting down.");
                   server.stop().join();
                 }));
 

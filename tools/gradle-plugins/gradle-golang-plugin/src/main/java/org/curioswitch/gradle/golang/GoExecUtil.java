@@ -39,7 +39,6 @@ public final class GoExecUtil {
     exec.environment(
         "GOPATH", project.getExtensions().getByType(ExtraPropertiesExtension.class).get("gopath"));
     exec.environment("GOFLAGS", "-mod=readonly");
-    exec.environment("GO111MODULE", "on");
 
     toolManager.addAllToPath(exec);
   }
