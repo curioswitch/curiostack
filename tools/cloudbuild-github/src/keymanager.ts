@@ -22,21 +22,23 @@
  * SOFTWARE.
  */
 
-import { googleApis } from './gcloud';
+import { GoogleApis } from 'googleapis';
 
 import config from './config';
+
+const google = new GoogleApis();
 
 export class KeyManager {
   private decryptedKeys: Map<string, string> = new Map();
 
-  public async getGithubToken(repo: string) {
+  public async getGithubToken(repo: string): Promise<string> {
     return this.getDecrypted(
       config.repos[repo].encryptedGithubToken,
       `GITHUB_TOKEN-${repo}`,
     );
   }
 
-  public async getWebhookSecret() {
+  public async getWebhookSecret(): Promise<string> {
     return this.getDecrypted(config.encryptedWebhookSecret, 'WEBHOOK_SECRET');
   }
 
@@ -45,16 +47,23 @@ export class KeyManager {
     if (cached) {
       return cached;
     }
+    const projectId = await google.auth.getProjectId();
     console.log('Decrypting ', cacheKey);
-    const decrypted = Buffer.from(
-      await googleApis.decryptKey(
-        config.kms.location,
-        config.kms.keyring,
-        config.kms.key,
-        encryptedBase64,
-      ),
-      'base64',
-    ).toString('ascii');
+
+    const response = await google
+      .cloudkms({ version: 'v1' })
+      .projects.locations.keyRings.cryptoKeys.decrypt({
+        name: `projects/${projectId}/locations/${
+          config.kms.location
+        }/keyRings/${config.kms.keyring}/cryptoKeys/${config.kms.key}`,
+        requestBody: {
+          ciphertext: encryptedBase64,
+        },
+      });
+
+    const decrypted = Buffer.from(response.data!.plaintext!, 'base64').toString(
+      'ascii',
+    );
     this.decryptedKeys.set(cacheKey, decrypted);
     return decrypted;
   }

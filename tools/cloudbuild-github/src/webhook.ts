@@ -22,18 +22,26 @@
  * SOFTWARE.
  */
 
-/* tslint:disable-next-line: no-submodule-imports */
-import * as verify from '@octokit/webhooks/verify';
+import WebhooksApi from '@octokit/webhooks';
+// eslint-disable-next-line @typescript-eslint/camelcase
+import { cloudbuild_v1, GoogleApis } from 'googleapis';
 import { Response } from 'express-serve-static-core';
 import { PullRequest } from 'github-webhook-event-types';
-import * as HttpStatus from 'http-status-codes';
+import HttpStatus from 'http-status-codes';
+import parseDuration from 'parse-duration';
 
-import { googleApis } from './gcloud';
 import { keyManager } from './keymanager';
 
 import config from './config';
 import { COMMENTS_URL_KEY, STATUSES_URL_KEY } from './constants';
-import { ICloudFunctionsRequest } from './index';
+import { CloudFunctionsRequest } from './index';
+
+// eslint-disable-next-line @typescript-eslint/camelcase
+import Build = cloudbuild_v1.Schema$Build;
+
+const google = new GoogleApis();
+
+const MILLIS_IN_SECOND = 1000;
 
 async function handlePullRequest(event: PullRequest) {
   if (event.action !== 'opened' && event.action !== 'synchronize') {
@@ -65,32 +73,52 @@ async function handlePullRequest(event: PullRequest) {
     prTag,
   ];
 
-  const existingBuilds = await googleApis.listCloudbuilds(`tags="${prTag}"`);
+  const cloudbuild = google.cloudbuild({ version: 'v1' });
+  const existingBuilds = await cloudbuild.projects.builds.list();
+
   existingBuilds
-    .filter((build) => build.status === 'QUEUED' || build.status === 'WORKING')
+    .data!.builds!.filter(
+      (build) => build.status === 'QUEUED' || build.status === 'WORKING',
+    )
     .forEach((build) => {
       console.log(`Found existing build ${build.id}. Cancelling.`);
-      googleApis.cancelCloudbuild(build.id);
+      cloudbuild.projects.builds.cancel({ id: build.id });
     });
   console.log(`Starting cloud build for pull request ${pull.number}.`);
-  await googleApis.startCloudbuild(
-    config.repos[repo].cloudbuild,
-    substitutions,
-    tags,
-  );
+
+  const cloudbuildConfig: Build = config.repos[repo].cloudbuild;
+  const sanitizedConfig: Build = cloudbuildConfig.timeout
+    ? {
+        ...cloudbuildConfig,
+        timeout: `${parseDuration(cloudbuildConfig.timeout) /
+          MILLIS_IN_SECOND}s`,
+      }
+    : cloudbuildConfig;
+
+  await cloudbuild.projects.builds.create({
+    requestBody: {
+      ...sanitizedConfig,
+      options: {
+        ...sanitizedConfig.options,
+        substitutionOption: 'ALLOW_LOOSE',
+      },
+      substitutions,
+      tags,
+    },
+  });
 }
 
-export async function handleWebhook(
-  req: ICloudFunctionsRequest,
+export default async function handleWebhook(
+  req: CloudFunctionsRequest,
   res: Response,
 ) {
-  if (
-    !verify(
-      await keyManager.getWebhookSecret(),
-      req.rawBody.toString(),
-      req.get('X-Hub-Signature'),
-    )
-  ) {
+  const secret = await keyManager.getWebhookSecret();
+
+  const webhooks = new WebhooksApi({
+    secret,
+  });
+
+  if (!webhooks.verify(req.rawBody.toString(), req.get('X-Hub-Signature'))) {
     console.error('Invalid signature.');
     res.status(HttpStatus.BAD_REQUEST).end();
     return;
