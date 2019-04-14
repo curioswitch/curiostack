@@ -23,6 +23,7 @@
  */
 
 import { GoogleApis } from 'googleapis';
+import { auth } from 'google-auth-library';
 
 import config from './config';
 
@@ -47,7 +48,12 @@ export class KeyManager {
     if (cached) {
       return cached;
     }
-    const projectId = await google.auth.getProjectId();
+
+    google.options({
+      auth: await auth.getClient(),
+    });
+
+    const projectId = await auth.getProjectId();
     console.log('Decrypting ', cacheKey);
 
     const response = await google

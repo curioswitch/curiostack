@@ -71,9 +71,9 @@ async function makeGithubRequest(
 async function deploy() {
   const ui = new inquirer.ui.BottomBar();
 
-  const projectId = await google.auth.getProjectId();
-
   const webhookSecret = await keyManager.getWebhookSecret();
+
+  const projectId = await google.auth.getProjectId();
 
   ui.log.write('Deploying cloud functions.');
   if (program.delete) {
