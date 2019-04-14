@@ -27,9 +27,9 @@ package org.curioswitch.common.server.framework.server;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
- * An interface which can be implemented and provided to delay shutdown of the server. Health
- * check will become unhealthy when the server receives a termination signal but the server will
- * not begin shutdown until all {@link ServerShutDownDelayer}s have indicated they are ready.
+ * An interface which can be implemented and provided to delay shutdown of the server. Health check
+ * will become unhealthy when the server receives a termination signal but the server will not begin
+ * shutdown until all {@link ServerShutDownDelayer}s have indicated they are ready.
  */
 public interface ServerShutDownDelayer {
 

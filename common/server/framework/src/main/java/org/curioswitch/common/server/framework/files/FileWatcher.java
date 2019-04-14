@@ -133,7 +133,11 @@ public class FileWatcher implements AutoCloseable {
                         .filter(
                             e -> {
                               try {
-                                return e.getKey().toRealPath().equals(resolved);
+                                // File updates may be implemented by switching the directory of a
+                                // symlink, in which case the key is the directory. startsWith can
+                                // handle both a file being directly updated or its parent having
+                                // been updated.
+                                return e.getKey().toRealPath().startsWith(resolved);
                               } catch (IOException ex) {
                                 throw new UncheckedIOException("Could not resolve real path.", ex);
                               }

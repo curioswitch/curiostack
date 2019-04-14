@@ -54,6 +54,7 @@ server {
     deployments {
         register("alpha") {
             namespace.set("eggworld-dev")
+            autoDeploy.set(true)
         }
     }
 }

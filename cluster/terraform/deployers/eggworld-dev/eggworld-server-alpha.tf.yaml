@@ -12,7 +12,5 @@ module:
     external_host: eggworld-alpha.curioswitch.org
     http2: true
     iap: true
-    acls:
-      - 3.test.com
     environment_secrets:
       - yummly-api-key

@@ -342,7 +342,7 @@ public abstract class ServerModule {
         && !serverConfig.getRpcAclsPath().isEmpty()
         && !serverConfig.isDisableSslAuthorization()) {
       Path path = Paths.get(serverConfig.getRpcAclsPath()).toAbsolutePath();
-      RpcAclsCommonNamesProvider commonNamesProvider = new RpcAclsCommonNamesProvider();
+      RpcAclsCommonNamesProvider commonNamesProvider = new RpcAclsCommonNamesProvider(path);
       fileWatcherBuilder.registerPath(path, commonNamesProvider::processFile);
       if (path.toFile().exists()) {
         commonNamesProvider.processFile(path);
