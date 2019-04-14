@@ -139,7 +139,8 @@ public class FileWatcher implements AutoCloseable {
                                 // been updated.
                                 return e.getKey().toRealPath().startsWith(resolved);
                               } catch (IOException ex) {
-                                throw new UncheckedIOException("Could not resolve real path.", ex);
+                                logger.info("Could not resolve real path.", ex);
+                                return false;
                               }
                             })
                         .map(Entry::getValue)
@@ -158,6 +159,7 @@ public class FileWatcher implements AutoCloseable {
 
       boolean valid = key.reset();
       if (!valid) {
+        logger.info("Key not valid, breaking.");
         break;
       }
     }
