@@ -37,11 +37,12 @@ import org.curioswitch.cafemap.server.places.GetPlacesGraph;
 import org.curioswitch.common.server.framework.ServerModule;
 import org.curioswitch.common.server.framework.database.DatabaseModule;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
+import org.curioswitch.gcloud.mapsservices.MapsServicesModule;
 
 public class CafeMapServiceMain {
 
   @Module(
-      includes = {DatabaseModule.class, ServerModule.class},
+      includes = {DatabaseModule.class, ServerModule.class, MapsServicesModule.class},
       subcomponents = {GetPlacesGraph.Component.class, GetPlaceGraph.Component.class})
   abstract static class CafeMapServiceModule {
     @Binds

@@ -1,0 +1,145 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+package org.curioswitch.cafemap.server.places;
+
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.util.concurrent.Futures.immediateFuture;
+import static org.curioswitch.database.cafemapdb.tables.Landmark.LANDMARK;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
+import com.google.common.geometry.S2CellId;
+import com.google.common.geometry.S2CellUnion;
+import com.google.common.geometry.S2LatLng;
+import com.google.common.geometry.S2LatLngRect;
+import com.google.common.geometry.S2RegionCoverer;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.maps.GeoApiContext;
+import com.google.maps.NearbySearchRequest;
+import com.google.maps.model.LatLng;
+import com.google.maps.model.PlaceType;
+import com.google.maps.model.PlacesSearchResponse;
+import com.google.maps.model.PlacesSearchResult;
+import dagger.producers.ProducerModule;
+import dagger.producers.Produces;
+import java.util.List;
+import org.curioswitch.cafemap.api.ListLandmarksRequest;
+import org.curioswitch.cafemap.server.util.S2Util;
+import org.curioswitch.common.server.framework.database.ForDatabase;
+import org.curioswitch.database.cafemapdb.tables.pojos.Landmark;
+import org.curioswitch.gcloud.mapsservices.CallbackListenableFuture;
+import org.jooq.DSLContext;
+import org.jooq.types.ULong;
+
+@ProducerModule
+public class ListLandmarksGraph {
+
+  private static final PlacesSearchResult[] EMPTY = new PlacesSearchResult[0];
+
+  private final ListLandmarksRequest request;
+
+  ListLandmarksGraph(ListLandmarksRequest request) {
+    this.request = request;
+  }
+
+  @Produces
+  ListLandmarksRequest request() {
+    return request;
+  }
+
+  @Produces
+  static S2LatLngRect viewport(ListLandmarksRequest request) {
+    return S2Util.convertFromLatLngBounds(request.getViewport());
+  }
+
+  @Produces
+  static S2CellUnion coveredCells(S2LatLngRect viewport) {
+    var coverer = new S2RegionCoverer();
+    return coverer.getCovering(viewport);
+  }
+
+  @Produces
+  static ListenableFuture<List<List<Landmark>>> fetchDbLandmarks(
+      S2CellUnion coveredCells, DSLContext db, @ForDatabase ListeningExecutorService dbExecutor) {
+    return Futures.successfulAsList(
+        Streams.stream(coveredCells)
+            .map(
+                cell ->
+                    dbExecutor.submit(
+                        () ->
+                            db.selectFrom(LANDMARK)
+                                .where(
+                                    LANDMARK
+                                        .S2_CELL
+                                        .ge(ULong.valueOf(cell.rangeMin().id()))
+                                        .and(
+                                            LANDMARK.S2_CELL.le(
+                                                ULong.valueOf(cell.rangeMax().id()))))
+                                .fetchInto(Landmark.class)))
+            .collect(toImmutableList()));
+  }
+
+  @Produces
+  static ListenableFuture<PlacesSearchResponse> maybeSearchForLandmarks(
+      S2LatLngRect viewport,
+      GeoApiContext geoApiContext,
+      S2CellUnion coveredCells,
+      List<List<Landmark>> dbLandmarks) {
+    // We find the first cell that is missing landmarks in the viewport to use as the center when
+    // making the search request if needed.
+    S2CellId firstCellMissingLandmarks =
+        Streams.zip(
+                Streams.stream(coveredCells),
+                dbLandmarks.stream(),
+                (cell, cellLandmarks) -> {
+                  if (cellLandmarks != null && !cellLandmarks.isEmpty()) {
+                    return S2CellId.none();
+                  }
+                  return cell;
+                })
+            .filter(cell -> !cell.isValid())
+            .findFirst()
+            .orElse(S2CellId.none());
+
+    if (!firstCellMissingLandmarks.isValid()) {
+      var response = new PlacesSearchResponse();
+      response.results = EMPTY;
+      return immediateFuture(response);
+    }
+
+    S2LatLng location = viewport.getCenter();
+    int radius = (int) location.getEarthDistance(viewport.lo());
+
+    CallbackListenableFuture<PlacesSearchResponse> callback = new CallbackListenableFuture<>();
+    new NearbySearchRequest(geoApiContext)
+        .location(new LatLng(location.latDegrees(), location.lngDegrees()))
+        .radius(radius)
+        .type(PlaceType.PARK)
+        .setCallback(callback);
+    return callback;
+  }
+}

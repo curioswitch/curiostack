@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2019 Choko (choko@curioswitch.org)
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,43 +22,24 @@
  * SOFTWARE.
  */
 
+package org.curioswitch.cafemap.server.util;
 
-plugins {
-    id("org.curioswitch.gradle-curio-server-plugin")
-}
+import com.google.common.geometry.S2LatLng;
+import com.google.common.geometry.S2LatLngRect;
+import org.curioswitch.cafemap.api.LatLng;
+import org.curioswitch.cafemap.api.LatLngBounds;
 
-base {
-    archivesBaseName = "cafe-map-server"
-}
+public final class S2Util {
 
-application {
-    mainClassName = "org.curioswitch.cafemap.server.CafeMapServiceMain"
-}
+  public static S2LatLng convertFromLatLng(LatLng latLng) {
+    return S2LatLng.fromDegrees(latLng.getLatitude(), latLng.getLongitude());
+  }
 
-dependencies {
-    compile(project(":cafe-map:api"))
-    compile(project(":cafe-map:client:web"))
-    compile(project(":common:google-cloud:maps-services"))
-    compile(project(":common:server:framework"))
-    compile(project(":database:cafemapdb:bindings"))
+  public static S2LatLngRect convertFromLatLngBounds(LatLngBounds latLngBounds) {
+    return new S2LatLngRect(
+        convertFromLatLng(latLngBounds.getSouthWest()),
+        convertFromLatLng(latLngBounds.getNorthEast()));
+  }
 
-    compile("io.sgr:s2-geometry-library-java:1.0.0")
-
-    annotationProcessor("com.google.dagger:dagger-compiler")
-    annotationProcessor("org.immutables:value-annotations")
-    compileOnly("org.immutables:value")
-
-    testAnnotationProcessor("com.google.dagger:dagger-compiler")
-    testAnnotationProcessor("org.immutables:value-annotations")
-    testCompileOnly("org.immutables:value")
-}
-
-server {
-    deployments {
-        register("alpha") {
-            namespace.set("cafemap-dev")
-            deployment.set("cafemap-server-alpha")
-            autoDeploy.set(true)
-        }
-    }
+  private S2Util() {}
 }
