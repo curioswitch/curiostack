@@ -76,7 +76,7 @@ async function deploy() {
   const google = await getGoogleApis();
   const projectId = await google.auth.getProjectId();
 
-  const memory = program.memory || '256MB';
+  const memory = program.memory!;
 
   ui.log.write(`Deploying cloud functions for project ${projectId}.`);
   if (program.delete) {
@@ -168,7 +168,7 @@ async function deploy() {
 program
   .version(packageJson.version)
   .option('--delete', 'Delete existing functions first')
-  .option('--memory', 'Memory usage for function')
+  .option('--memory [size]', 'Memory usage for function', '256MB')
   .parse(process.argv);
 
 deploy().then(

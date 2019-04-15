@@ -127,8 +127,10 @@ export default async function handleBuildEvent(data: string): Promise<void> {
   };
 
   const statusResponse: any = await makeRequest(statusesUrl, status);
-  if (!statusResponse.state) {
-    throw new Error(`Failed to set status: ${JSON.stringify(statusResponse)}`);
+  if (!statusResponse.data.state) {
+    throw new Error(
+      `Failed to set status: ${JSON.stringify(statusResponse.data)}`,
+    );
   }
 
   const commentsUrl =
@@ -172,9 +174,9 @@ export default async function handleBuildEvent(data: string): Promise<void> {
   const commentResponse: any = await makeRequest(commentsUrl, {
     body: comment,
   });
-  if (!commentResponse.id) {
+  if (!commentResponse.data.id) {
     throw new Error(
-      `Failed to set comment: ${JSON.stringify(commentResponse)}`,
+      `Failed to set comment: ${JSON.stringify(commentResponse.data)}`,
     );
   }
 }

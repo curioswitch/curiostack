@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/cloudbuild-github",
-  "version": "0.0.18",
+  "version": "0.0.20",
   "description": "Integration between Google Container Builder and GitHub.",
   "keywords": [
     "github",
