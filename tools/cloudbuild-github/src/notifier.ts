@@ -89,10 +89,8 @@ async function makeRequest(uri: string, body: any) {
   });
 }
 
-export default async function handleBuildEvent(event: any): Promise<void> {
-  const build: Build = JSON.parse(
-    Buffer.from(event.data.data, 'base64').toString('utf8'),
-  );
+export default async function handleBuildEvent(data: string): Promise<void> {
+  const build: Build = JSON.parse(Buffer.from(data, 'base64').toString('utf8'));
 
   let repoName: string | null = null;
   let revisionId: string | null = null;

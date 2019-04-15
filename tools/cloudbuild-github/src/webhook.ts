@@ -76,8 +76,6 @@ async function handlePullRequest(event: PullRequest) {
 
   const projectId = await google.auth.getProjectId();
 
-  console.log(await google.auth.getRequestHeaders());
-
   const cloudbuild = google.cloudbuild({ version: 'v1' });
   const existingBuilds = await cloudbuild.projects.builds.list({
     projectId,

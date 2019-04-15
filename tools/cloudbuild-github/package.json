@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/cloudbuild-github",
-  "version": "0.0.17-alpha.4",
+  "version": "0.0.17-alpha.5",
   "description": "Integration between Google Container Builder and GitHub.",
   "keywords": [
     "github",
@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "@curiostack/base-node-dev": "0.0.14",
+    "@google-cloud/pubsub": "0.28.1",
     "@types/child-process-promise": "2.2.1",
     "@types/es6-promisify": "6.0.0",
     "@types/http-status": "0.2.30",

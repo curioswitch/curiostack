@@ -24,7 +24,7 @@
 
 /* eslint-disable import/first */
 
-import * as sourceMapSupport from 'source-map-support';
+import sourceMapSupport from 'source-map-support';
 
 sourceMapSupport.install();
 
@@ -33,6 +33,10 @@ import * as HttpStatus from 'http-status-codes';
 
 import handleBuildEvent from './notifier';
 import handleWebhook from './webhook';
+
+interface Message {
+  data: string;
+}
 
 export interface CloudFunctionsRequest extends Request {
   rawBody: Buffer;
@@ -48,6 +52,6 @@ export function cloudbuildGithubWebhook(
   });
 }
 
-export function cloudbuildGithubNotifier(event: any): Promise<void> {
-  return handleBuildEvent(event);
+export function cloudbuildGithubNotifier(data: Message): Promise<void> {
+  return handleBuildEvent(data.data);
 }
