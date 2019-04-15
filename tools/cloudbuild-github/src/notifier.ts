@@ -22,12 +22,16 @@
  * SOFTWARE.
  */
 
-import * as request from 'request-promise-native';
+import axios from 'axios';
+// eslint-disable-next-line @typescript-eslint/camelcase
+import { cloudbuild_v1 } from 'googleapis';
 
-import { IBuild } from './gcloud';
 import { keyManager } from './keymanager';
 
 import { COMMENTS_URL_KEY, STATUSES_URL_KEY } from './constants';
+
+// eslint-disable-next-line @typescript-eslint/camelcase
+import Build = cloudbuild_v1.Schema$Build;
 
 const GITHUB_API_BASE = 'https://api.github.com';
 
@@ -74,58 +78,55 @@ async function makeRequest(uri: string, body: any) {
     throw new Error('Could not parse github url.');
   }
   const githubToken = await keyManager.getGithubToken(repoMatch[1]);
-  return request({
-    method: 'POST',
-    uri,
+  return axios.post(uri, body, {
     headers: {
       'User-Agent': 'cloudbuild-github',
     },
-    body,
-    json: true,
     auth: {
-      pass: githubToken,
-      user: 'token',
+      username: 'token',
+      password: githubToken,
     },
   });
 }
 
-export async function handleBuildEvent(event: any) {
-  const build: IBuild = JSON.parse(
-    Buffer.from(event.data.data, 'base64').toString('utf8'),
-  );
+export default async function handleBuildEvent(data: string): Promise<void> {
+  const build: Build = JSON.parse(Buffer.from(data, 'base64').toString('utf8'));
 
   let repoName: string | null = null;
   let revisionId: string | null = null;
   if (!build.substitutions) {
     // No substitutions for triggered builds, we'll post to the commit instead.
-    const repoSource = build.sourceProvenance.resolvedRepoSource;
+    const repoSource = build.sourceProvenance!.resolvedRepoSource;
     // eslint-disable-next-line prefer-destructuring
-    const cloudbuildRepoName = repoSource.repoName;
-    if (!cloudbuildRepoName.startsWith('github-')) {
+    const cloudbuildRepoName = repoSource!.repoName;
+    if (!cloudbuildRepoName!.startsWith('github-')) {
       // Not a github repo.
       return;
     }
-    repoName = cloudbuildRepoName.substring('github-'.length).replace('-', '/');
-    revisionId = repoSource.commitSha;
+    repoName = cloudbuildRepoName!
+      .substring('github-'.length)
+      .replace('-', '/');
+    revisionId = repoSource!.commitSha!;
   }
 
   const statusesUrl =
     repoName && revisionId
       ? `${GITHUB_API_BASE}/repos/${repoName}/statuses/${revisionId}`
-      : build.substitutions[STATUSES_URL_KEY];
+      : build.substitutions![STATUSES_URL_KEY];
   if (!statusesUrl) {
     // A non-triggered build not from the webhook, nothing to do.
     return;
   }
 
   const status = {
-    state: statusToState(build.status),
+    state: statusToState(build.status!),
+    // eslint-disable-next-line @typescript-eslint/camelcase
     target_url: build.logUrl,
-    description: statusToDescription(build.status),
+    description: statusToDescription(build.status!),
     context: 'ci/cloudbuild',
   };
 
-  const statusResponse = await makeRequest(statusesUrl, status);
+  const statusResponse: any = await makeRequest(statusesUrl, status);
   if (!statusResponse.state) {
     throw new Error(`Failed to set status: ${JSON.stringify(statusResponse)}`);
   }
@@ -133,7 +134,7 @@ export async function handleBuildEvent(event: any) {
   const commentsUrl =
     repoName && revisionId
       ? `${GITHUB_API_BASE}/repos/${repoName}/commits/${revisionId}/comments`
-      : build.substitutions[COMMENTS_URL_KEY];
+      : build.substitutions![COMMENTS_URL_KEY];
   if (!commentsUrl) {
     // A non-triggered build not from the webhook, nothing to do (we shouldn't
     // actually get here since we have a similar check for statuses).
@@ -168,7 +169,9 @@ export async function handleBuildEvent(event: any) {
       }`;
       break;
   }
-  const commentResponse = await makeRequest(commentsUrl, { body: comment });
+  const commentResponse: any = await makeRequest(commentsUrl, {
+    body: comment,
+  });
   if (!commentResponse.id) {
     throw new Error(
       `Failed to set comment: ${JSON.stringify(commentResponse)}`,
