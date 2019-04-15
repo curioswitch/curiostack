@@ -75,7 +75,9 @@ async function deploy() {
 
   const projectId = await google.auth.getProjectId();
 
-  ui.log.write('Deploying cloud functions.');
+  const memory = program.memory || '256MB';
+
+  ui.log.write(`Deploying cloud functions for project ${projectId}.`);
   if (program.delete) {
     try {
       await spawn(
@@ -105,7 +107,7 @@ async function deploy() {
       'cloudbuildGithubWebhook',
       '--trigger-http',
       '--runtime=nodejs10',
-      '--retry',
+      `--memory=${memory}`,
     ],
     { stdio: 'inherit' },
   );
@@ -119,7 +121,7 @@ async function deploy() {
       '--trigger-topic',
       'cloud-builds',
       '--runtime=nodejs10',
-      '--retry',
+      `--memory=${memory}`,
     ],
     { stdio: 'inherit' },
   );
@@ -165,6 +167,7 @@ async function deploy() {
 program
   .version(packageJson.version)
   .option('--delete', 'Delete existing functions first')
+  .option('--memory', 'Memory usage for function')
   .parse(process.argv);
 
 deploy().then(
