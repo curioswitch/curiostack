@@ -73,8 +73,12 @@ async function handlePullRequest(event: PullRequest) {
     prTag,
   ];
 
+  const projectId = await google.auth.getProjectId();
+
   const cloudbuild = google.cloudbuild({ version: 'v1' });
-  const existingBuilds = await cloudbuild.projects.builds.list();
+  const existingBuilds = await cloudbuild.projects.builds.list({
+    projectId,
+  });
 
   existingBuilds
     .data!.builds!.filter(
@@ -82,7 +86,7 @@ async function handlePullRequest(event: PullRequest) {
     )
     .forEach((build) => {
       console.log(`Found existing build ${build.id}. Cancelling.`);
-      cloudbuild.projects.builds.cancel({ id: build.id });
+      cloudbuild.projects.builds.cancel({ projectId, id: build.id });
     });
   console.log(`Starting cloud build for pull request ${pull.number}.`);
 
@@ -96,6 +100,7 @@ async function handlePullRequest(event: PullRequest) {
     : cloudbuildConfig;
 
   await cloudbuild.projects.builds.create({
+    projectId,
     requestBody: {
       ...sanitizedConfig,
       options: {
