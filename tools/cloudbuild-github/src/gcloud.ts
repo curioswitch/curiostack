@@ -23,5 +23,18 @@
  */
 
 import { GoogleApis } from 'googleapis';
+import { auth } from 'google-auth-library';
 
-export default new GoogleApis();
+let googleApis: GoogleApis | undefined;
+
+export default async function getGoogleApis(): Promise<GoogleApis> {
+  if (googleApis) {
+    return googleApis;
+  }
+
+  googleApis = new GoogleApis({
+    auth: await auth.getClient(),
+  });
+
+  return googleApis;
+}

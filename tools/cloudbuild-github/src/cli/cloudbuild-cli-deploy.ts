@@ -32,7 +32,7 @@ import inquirer from 'inquirer';
 import packageJson from '../../package.json';
 
 import config from '../config';
-import google from '../gcloud';
+import getGoogleApis from '../gcloud';
 import { keyManager } from '../keymanager';
 
 const GITHUB_API_BASE = 'https://api.github.com';
@@ -73,6 +73,7 @@ async function deploy() {
 
   const webhookSecret = await keyManager.getWebhookSecret();
 
+  const google = await getGoogleApis();
   const projectId = await google.auth.getProjectId();
 
   const memory = program.memory || '256MB';

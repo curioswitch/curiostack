@@ -24,12 +24,13 @@
 
 import WebhooksApi from '@octokit/webhooks';
 // eslint-disable-next-line @typescript-eslint/camelcase
-import { cloudbuild_v1, GoogleApis } from 'googleapis';
+import { cloudbuild_v1 } from 'googleapis';
 import { Response } from 'express-serve-static-core';
 import { PullRequest } from 'github-webhook-event-types';
 import HttpStatus from 'http-status-codes';
 import parseDuration from 'parse-duration';
 
+import getGoogleApis from './gcloud';
 import { keyManager } from './keymanager';
 
 import config from './config';
@@ -38,8 +39,6 @@ import { CloudFunctionsRequest } from './index';
 
 // eslint-disable-next-line @typescript-eslint/camelcase
 import Build = cloudbuild_v1.Schema$Build;
-
-const google = new GoogleApis();
 
 const MILLIS_IN_SECOND = 1000;
 
@@ -73,7 +72,11 @@ async function handlePullRequest(event: PullRequest) {
     prTag,
   ];
 
+  const google = await getGoogleApis();
+
   const projectId = await google.auth.getProjectId();
+
+  console.log(await google.auth.getRequestHeaders());
 
   const cloudbuild = google.cloudbuild({ version: 'v1' });
   const existingBuilds = await cloudbuild.projects.builds.list({

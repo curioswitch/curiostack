@@ -22,12 +22,8 @@
  * SOFTWARE.
  */
 
-import { GoogleApis } from 'googleapis';
-import { auth } from 'google-auth-library';
-
 import config from './config';
-
-const google = new GoogleApis();
+import getGoogleApis from './gcloud';
 
 export class KeyManager {
   private decryptedKeys: Map<string, string> = new Map();
@@ -49,11 +45,8 @@ export class KeyManager {
       return cached;
     }
 
-    google.options({
-      auth: await auth.getClient(),
-    });
-
-    const projectId = await auth.getProjectId();
+    const google = await getGoogleApis();
+    const projectId = await google.auth.getProjectId();
     console.log('Decrypting ', cacheKey);
 
     const response = await google
