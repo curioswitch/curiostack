@@ -32,10 +32,6 @@ public class TargetableTerraformTask extends TerraformTask {
 
   private List<String> targets = ImmutableList.of();
 
-  public List<String> GetTargets() {
-    return targets;
-  }
-
   public TargetableTerraformTask() {
     setExecCustomizer(
         exec -> {
@@ -43,6 +39,10 @@ public class TargetableTerraformTask extends TerraformTask {
             exec.args("-target=" + target);
           }
         });
+  }
+
+  public List<String> getTargets() {
+    return targets;
   }
 
   @Option(option = "target", description = "A resource to target.")

@@ -33,7 +33,7 @@ public class TargetableTerraformPlanTask extends TargetableTerraformTask {
   public TargetableTerraformPlanTask() {
     setExecCustomizer(
         exec -> {
-          for (String target : GetTargets()) {
+          for (String target : getTargets()) {
             exec.args("-target=" + target);
           }
           if (out != null) {
