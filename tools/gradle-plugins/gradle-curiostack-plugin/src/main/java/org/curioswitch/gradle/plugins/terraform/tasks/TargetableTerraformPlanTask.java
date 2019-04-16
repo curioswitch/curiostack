@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,30 +24,27 @@
 
 package org.curioswitch.gradle.plugins.terraform.tasks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 import org.gradle.api.tasks.options.Option;
 
-public class TargetableTerraformTask extends TerraformTask {
+public class TargetableTerraformPlanTask extends TargetableTerraformTask {
 
-  private List<String> targets = ImmutableList.of();
+  private String out;
 
-  public TargetableTerraformTask() {
+  public TargetableTerraformPlanTask() {
     setExecCustomizer(
         exec -> {
-          for (String target : targets) {
+          for (String target : getTargets()) {
             exec.args("-target=" + target);
+          }
+          if (out != null) {
+            exec.args("-out=" + out);
           }
         });
   }
 
-  public List<String> getTargets() {
-    return targets;
-  }
-
-  @Option(option = "target", description = "A resource to target.")
-  public TargetableTerraformTask setTargets(List<String> targets) {
-    this.targets = targets;
+  @Option(option = "out", description = "The path to save the generated execution plan.")
+  public TargetableTerraformPlanTask setOut(String out) {
+    this.out = out;
     return this;
   }
 }
