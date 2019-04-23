@@ -79,6 +79,7 @@ async function handlePullRequest(event: PullRequest) {
   const cloudbuild = google.cloudbuild({ version: 'v1' });
   const existingBuilds = await cloudbuild.projects.builds.list({
     projectId,
+    filter: `tags="${prTag}"`,
   });
 
   existingBuilds
