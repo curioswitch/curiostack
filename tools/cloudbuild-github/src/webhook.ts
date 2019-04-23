@@ -79,16 +79,19 @@ async function handlePullRequest(event: PullRequest) {
   const cloudbuild = google.cloudbuild({ version: 'v1' });
   const existingBuilds = await cloudbuild.projects.builds.list({
     projectId,
+    filter: `tags="${prTag}"`,
   });
 
-  existingBuilds
-    .data!.builds!.filter(
-      (build) => build.status === 'QUEUED' || build.status === 'WORKING',
-    )
-    .forEach((build) => {
-      console.log(`Found existing build ${build.id}. Cancelling.`);
-      cloudbuild.projects.builds.cancel({ projectId, id: build.id });
-    });
+  if (existingBuilds.data && existingBuilds.data.builds) {
+    existingBuilds.data.builds
+      .filter(
+        (build) => build.status === 'QUEUED' || build.status === 'WORKING',
+      )
+      .forEach((build) => {
+        console.log(`Found existing build ${build.id}. Cancelling.`);
+        cloudbuild.projects.builds.cancel({ projectId, id: build.id });
+      });
+  }
   console.log(`Starting cloud build for pull request ${pull.number}.`);
 
   const cloudbuildConfig: Build = config.repos[repo].cloudbuild;
