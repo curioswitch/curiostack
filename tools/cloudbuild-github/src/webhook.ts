@@ -77,20 +77,26 @@ async function handlePullRequest(event: PullRequest) {
   const projectId = await google.auth.getProjectId();
 
   const cloudbuild = google.cloudbuild({ version: 'v1' });
-  const existingBuilds = await cloudbuild.projects.builds.list({
-    projectId,
-    filter: `tags="${prTag}"`,
-  });
+  try {
+    const existingBuilds = await cloudbuild.projects.builds.list({
+      projectId,
+      filter: `tags="${prTag}"`,
+    });
 
-  if (existingBuilds.data && existingBuilds.data.builds) {
-    existingBuilds.data.builds
-      .filter(
-        (build) => build.status === 'QUEUED' || build.status === 'WORKING',
-      )
-      .forEach((build) => {
-        console.log(`Found existing build ${build.id}. Cancelling.`);
-        cloudbuild.projects.builds.cancel({ projectId, id: build.id });
-      });
+    if (existingBuilds.data && existingBuilds.data.builds) {
+      existingBuilds.data.builds
+        .filter(
+          (build) => build.status === 'QUEUED' || build.status === 'WORKING',
+        )
+        .forEach((build) => {
+          console.log(`Found existing build ${build.id}. Cancelling.`);
+          cloudbuild.projects.builds.cancel({ projectId, id: build.id });
+        });
+    }
+  } catch (e) {
+    console.log(
+      'Error fetching existing builds, not cancelling existing builds.',
+    );
   }
   console.log(`Starting cloud build for pull request ${pull.number}.`);
 
