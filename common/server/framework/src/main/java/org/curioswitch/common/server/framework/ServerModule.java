@@ -410,8 +410,7 @@ public abstract class ServerModule {
           "/internal/docs", internalService(docService.build(), ipFilter, serverConfig));
     }
 
-    SettableHealthChecker settableHealthChecker = new SettableHealthChecker();
-    settableHealthChecker.setHealthy(true);
+    SettableHealthChecker settableHealthChecker = new SettableHealthChecker(true);
     List<HealthChecker> healthCheckers =
         serverShutDownDelayers.isEmpty()
             ? ImmutableList.of()

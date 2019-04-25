@@ -464,9 +464,9 @@ public class CuriostackPlugin implements Plugin<Project> {
                       .getExtensions()
                       .findByType(ErrorProneOptions.class);
               if (errorProne != null) {
-                errorProne.setDisableWarningsInGeneratedCode(true);
-                errorProne.setExcludedPaths("(.*/build/.*|.*/gen-src/.*)");
-                errorProne.setChecks(errorProneChecks);
+                errorProne.getDisableWarningsInGeneratedCode().set(true);
+                errorProne.getExcludedPaths().set("(.*/build/.*|.*/gen-src/.*)");
+                errorProne.getChecks().set(errorProneChecks);
               }
             });
 
