@@ -22,22 +22,22 @@
  * SOFTWARE.
  */
 
-import * as process from 'process';
+import process from 'process';
 
+import axios from 'axios';
 import { spawn } from 'child-process-promise';
-import * as program from 'commander';
-import * as inquirer from 'inquirer';
-import * as request from 'request-promise-native';
+import program from 'commander';
+import inquirer from 'inquirer';
 
-import * as packageJson from '../../package.json';
+import packageJson from '../../package.json';
 
 import config from '../config';
-import { googleApis } from '../gcloud';
+import getGoogleApis from '../gcloud';
 import { keyManager } from '../keymanager';
 
 const GITHUB_API_BASE = 'https://api.github.com';
 
-interface IHook {
+interface Hook {
   id?: string;
   name: string;
   config: {
@@ -54,17 +54,16 @@ async function makeGithubRequest(
   token: string,
   method: string = 'POST',
 ) {
-  return request({
+  return axios({
     method,
-    uri,
-    body,
-    json: true,
+    url: uri,
+    data: body,
     headers: {
       'User-Agent': 'cloudbuild-github',
     },
     auth: {
-      user: 'token',
-      pass: token,
+      username: 'token',
+      password: token,
     },
   });
 }
@@ -72,11 +71,14 @@ async function makeGithubRequest(
 async function deploy() {
   const ui = new inquirer.ui.BottomBar();
 
-  const projectId = await googleApis.getProjectId();
-
   const webhookSecret = await keyManager.getWebhookSecret();
 
-  ui.log.write('Deploying cloud functions.');
+  const google = await getGoogleApis();
+  const projectId = await google.auth.getProjectId();
+
+  const memory = program.memory!;
+
+  ui.log.write(`Deploying cloud functions for project ${projectId}.`);
   if (program.delete) {
     try {
       await spawn(
@@ -105,6 +107,8 @@ async function deploy() {
       'deploy',
       'cloudbuildGithubWebhook',
       '--trigger-http',
+      '--runtime=nodejs10',
+      `--memory=${memory}`,
     ],
     { stdio: 'inherit' },
   );
@@ -117,6 +121,8 @@ async function deploy() {
       'cloudbuildGithubNotifier',
       '--trigger-topic',
       'cloud-builds',
+      '--runtime=nodejs10',
+      `--memory=${memory}`,
     ],
     { stdio: 'inherit' },
   );
@@ -125,7 +131,7 @@ async function deploy() {
 
   await Promise.all(
     Object.keys(config.repos).map(async (repoName) => {
-      const repoToken = await keyManager.getGithubToken(repoName);
+      const repoToken: string = await keyManager.getGithubToken(repoName);
       ui.log.write(`Setting up repository webhook for ${repoName}`);
       const hooksUri = `${GITHUB_API_BASE}/repos/${repoName}/hooks`;
       const existingHooks = await makeGithubRequest(
@@ -135,17 +141,18 @@ async function deploy() {
         'GET',
       );
       await Promise.all(
-        existingHooks
-          .filter((h: IHook) => h.config.url === webhookUrl)
-          .map(async (h: IHook) =>
+        existingHooks.data
+          .filter((h: Hook) => h.config.url === webhookUrl)
+          .map(async (h: Hook) =>
             makeGithubRequest(`${hooksUri}/${h.id}`, null, repoToken, 'DELETE'),
           ),
       );
 
-      const hook: IHook = {
+      const hook: Hook = {
         name: 'web',
         config: {
           url: webhookUrl,
+          // eslint-disable-next-line @typescript-eslint/camelcase
           content_type: 'json',
           secret: webhookSecret,
         },
@@ -161,6 +168,7 @@ async function deploy() {
 program
   .version(packageJson.version)
   .option('--delete', 'Delete existing functions first')
+  .option('--memory [size]', 'Memory usage for function', '256MB')
   .parse(process.argv);
 
 deploy().then(

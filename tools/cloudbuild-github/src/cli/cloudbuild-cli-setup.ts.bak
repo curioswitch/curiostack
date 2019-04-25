@@ -22,17 +22,17 @@
  * SOFTWARE.
  */
 
-import * as crypto from 'crypto';
-import * as fs from 'fs';
-import * as process from 'process';
+import crypto from 'crypto';
+import fs from 'fs';
+import process from 'process';
 
-import * as program from 'commander';
-import * as inquirer from 'inquirer';
-import * as yaml from 'js-yaml';
+import program from 'commander';
+import inquirer from 'inquirer';
+import yaml from 'js-yaml';
 
-import * as packageJson from '../../package.json';
+import packageJson from '../../package.json';
 
-import { googleApis } from '../gcloud';
+import google from '../gcloud';
 
 const KMS_LOCATIONS = [
   'global',
@@ -96,7 +96,7 @@ const SECRET_NUM_BYTES = 10;
 async function setup() {
   const ui = new inquirer.ui.BottomBar();
 
-  const answers = await inquirer.prompt([
+  const answers: any = await inquirer.prompt([
     {
       name: 'kms.location',
       message: 'Enter the location for the keyring used to encrypt secrets.',
@@ -138,11 +138,10 @@ async function setup() {
     location = DEFAULT_KMS_LOCATION,
     keyring = DEFAULT_KMS_KEYRING,
     key = DEFAULT_KMS_KEY,
-  } =
-    answers.kms || {};
+  } = answers.kms || {};
 
   const webhookSecret = crypto.randomBytes(SECRET_NUM_BYTES).toString('hex');
-  const projectId = await googleApis.getProjectId();
+  const projectId = await google.auth.getProjectId();
   if (!projectId) {
     ui.log.write(
       'Could not determine project id, try setting the GCLOUD_PROJECT environment variable',
@@ -151,15 +150,23 @@ async function setup() {
   }
 
   ui.log.write('Setting up keys.');
+
+  const cloudkms = google.cloudkms({ version: 'v1' });
+
   try {
-    await googleApis.createKeyring(location, keyring);
+    await cloudkms.projects.locations.keyRings.create({
+      parent: `projects/${projectId}/locations/${location}`,
+      keyRingId: keyring,
+    });
   } catch (err) {
     if (err.errors[0].reason !== 'alreadyExists') {
       throw err;
     }
   }
   try {
-    await googleApis.createKey(location, keyring, key);
+    await cloudkms.projects.locations.keyRings.cryptoKeys.create({
+      parent: `$projects/${projectId}/locations/${location}/keyRings/${keyring}`,
+    });
   } catch (err) {
     if (err.errors[0].reason !== 'alreadyExists') {
       throw err;
