@@ -52,15 +52,16 @@ public class ReleasePlugin implements Plugin<Project> {
       String version = determineVersion(project);
       project.setProperty("version", version);
 
+      project.subprojects(
+          proj -> {
+            if (!proj.hasProperty("version")
+                || "unspecified".equals(proj.findProperty("version"))) {
+              proj.setProperty("version", version);
+            }
+          });
+
       project.getLogger().quiet("Automatically determined version: " + version);
     }
-
-    project.subprojects(
-        proj -> {
-          if (!proj.hasProperty("version") || "unspecified".equals(proj.findProperty("version"))) {
-            proj.setProperty("version", proj.property("version"));
-          }
-        });
   }
 
   private static String determineVersion(Project project) {
