@@ -22,7 +22,7 @@
   "repository": "curioswitch/curiostack",
   "scripts": {
     "prebuild": "yarn run build:clean && yarn run lint",
-    "build": "tsc --outDir ./build --noEmit false --lib es2016 --target es2016",
+    "build": "tsc --noEmit false --lib es2016 --target es2016",
     "build:clean": "rimraf ./build",
     "lint": "eslint src/ --ext .js,.ts",
     "prepublishf": "yarn run build"
