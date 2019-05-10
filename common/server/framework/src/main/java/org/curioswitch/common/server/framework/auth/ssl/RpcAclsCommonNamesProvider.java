@@ -39,9 +39,15 @@ public class RpcAclsCommonNamesProvider implements SslCommonNamesProvider {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+  private final Path path;
+
   private volatile Set<String> names = ImmutableSet.of();
 
-  public void processFile(Path path) {
+  public RpcAclsCommonNamesProvider(Path path) {
+    this.path = path;
+  }
+
+  public void processFile(Path unused) {
     final Map<String, ?> rpcAcls;
     try {
       @SuppressWarnings("unchecked")

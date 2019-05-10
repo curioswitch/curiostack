@@ -130,7 +130,19 @@ public class FileWatcher implements AutoCloseable {
                 final Path resolved = watchedDirs.get(key).resolve(path);
                 Optional<Consumer<Path>> callback =
                     registeredPaths.entrySet().stream()
-                        .filter(e -> e.getKey().equals(resolved))
+                        .filter(
+                            e -> {
+                              try {
+                                // File updates may be implemented by switching the directory of a
+                                // symlink, in which case the key is the directory. startsWith can
+                                // handle both a file being directly updated or its parent having
+                                // been updated.
+                                return e.getKey().toRealPath().startsWith(resolved);
+                              } catch (IOException ex) {
+                                logger.info("Could not resolve real path.", ex);
+                                return false;
+                              }
+                            })
                         .map(Entry::getValue)
                         .findFirst();
                 if (callback.isPresent()) {
@@ -147,6 +159,7 @@ public class FileWatcher implements AutoCloseable {
 
       boolean valid = key.reset();
       if (!valid) {
+        logger.info("Key not valid, breaking.");
         break;
       }
     }

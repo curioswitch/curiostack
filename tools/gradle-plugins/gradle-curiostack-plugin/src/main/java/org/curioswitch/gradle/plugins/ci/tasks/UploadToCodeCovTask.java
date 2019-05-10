@@ -65,6 +65,8 @@ public class UploadToCodeCovTask extends DefaultTask {
                   "-d > ",
                   getCodeCovReportFile().getAbsolutePath());
 
+              exec.setIgnoreExitValue(true);
+
               CondaExecUtil.condaExec(exec, getProject());
             });
 
@@ -87,6 +89,8 @@ public class UploadToCodeCovTask extends DefaultTask {
               if (buildId != null) {
                 exec.environment("CI_BUILD_ID", buildId);
               }
+
+              exec.setIgnoreExitValue(true);
 
               CondaExecUtil.condaExec(exec, getProject());
             });

@@ -29,11 +29,12 @@ import { spawn } from 'child-process-promise';
 import program from 'commander';
 import inquirer from 'inquirer';
 
-import packageJson from '../../package.json';
-
 import config from '../config';
 import getGoogleApis from '../gcloud';
 import { keyManager } from '../keymanager';
+
+// eslint-disable-next-line
+const packageJson = require('../../package.json');
 
 const GITHUB_API_BASE = 'https://api.github.com';
 

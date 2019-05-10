@@ -37,7 +37,8 @@ import {
   Type,
 } from '../utils';
 
-import packageJson from '../../../../package.json';
+// eslint-disable-next-line
+const packageJson = require('../../../../package.json');
 
 const readFile = promisify(fs.readFile);
 

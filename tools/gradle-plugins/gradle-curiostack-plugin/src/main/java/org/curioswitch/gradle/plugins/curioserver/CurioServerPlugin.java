@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.gorylenko.GitPropertiesPlugin;
 import java.util.Set;
+import org.curioswitch.gradle.helpers.platform.PathUtil;
 import org.curioswitch.gradle.helpers.task.TaskUtil;
 import org.curioswitch.gradle.plugins.curioserver.tasks.NativeImageTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
@@ -98,7 +99,7 @@ public class CurioServerPlugin implements Plugin<Project> {
         .setCredHelper(
             DownloadedToolManager.get(project)
                 .getBinDir("gcloud")
-                .resolve("docker-credential-gcr")
+                .resolve(PathUtil.getExeName("docker-credential-gcr"))
                 .toString());
 
     var jar = project.getTasks().withType(Jar.class).named("jar");

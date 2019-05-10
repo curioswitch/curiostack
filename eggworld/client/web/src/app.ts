@@ -35,7 +35,7 @@ const config: WebappConfig = {
   initialState,
   component: App,
   messages: {
-    en: enMessages,
+    en: enMessages as any,
   },
   defaultLocale: 'en',
 };
