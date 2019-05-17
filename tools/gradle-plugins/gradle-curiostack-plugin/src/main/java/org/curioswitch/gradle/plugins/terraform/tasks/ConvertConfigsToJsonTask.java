@@ -149,7 +149,7 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
       try {
         createDirectories(outPath.getParent());
       } catch (IOException e) {
-        throw new UncheckedIOException("Could not create output directory.", e);
+        throw new UncheckedIOException("Could not createAndAdd output directory.", e);
       }
       String mapKey = UUID.randomUUID().toString();
       TASKS.put(mapKey, this);

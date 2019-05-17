@@ -56,6 +56,7 @@ task generateBaselineManifest {
 }
 
 dependencies {
+    compile project(':common:curio-helpers')
     compile project(':common:google-cloud:cloud-storage')
     compile project(':tools:gradle-plugins:gradle-conda-plugin')
     compile project(':tools:gradle-plugins:gradle-golang-plugin')

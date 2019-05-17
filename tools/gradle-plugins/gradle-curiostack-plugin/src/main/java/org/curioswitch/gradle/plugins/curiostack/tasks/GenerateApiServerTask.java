@@ -190,7 +190,7 @@ public class GenerateApiServerTask extends DefaultTask {
       try {
         Files.createDirectories(outputPath.getParent());
       } catch (IOException e) {
-        throw new UncheckedIOException("Could not create directory.", e);
+        throw new UncheckedIOException("Could not createAndAdd directory.", e);
       }
     }
 
