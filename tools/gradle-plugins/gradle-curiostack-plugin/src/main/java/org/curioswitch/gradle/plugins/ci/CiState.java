@@ -65,6 +65,7 @@ public interface CiState {
             .isCi("true".equals(System.getenv("CI")) || project.hasProperty("ci"))
             .isMasterBuild(isMasterBuild)
             .isReleaseBuild(isReleaseBuild)
+            .isLocalBuild(System.getenv("CI") == null)
             .revisionId(revisionId)
             .branch(branch)
             .revisionTags(revisionTags.build())
@@ -75,7 +76,7 @@ public interface CiState {
     return state;
   }
 
-  /** Returns whether this build is happening on CI. */
+  /** Returns whether this build is happening on CI or mimics the behavior of CI. */
   boolean isCi();
 
   /** Returns whether this is a master build on CI. */
@@ -83,6 +84,12 @@ public interface CiState {
 
   /** Returns whether this is a release build on CI. */
   boolean isReleaseBuild();
+
+  /**
+   * Returns whether this is a local build on a developer's machine. This is true even if it is
+   * mimicing the behavior of CI locally.
+   */
+  boolean isLocalBuild();
 
   /**
    * Returns the revision ID for this build (e.g., git commit) if it is on CI, or empty otherwise.
