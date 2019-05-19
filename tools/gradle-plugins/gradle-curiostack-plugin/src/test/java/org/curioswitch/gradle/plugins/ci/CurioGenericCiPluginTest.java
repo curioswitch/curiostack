@@ -26,6 +26,7 @@ package org.curioswitch.gradle.plugins.ci;
 
 import static org.curioswitch.common.testing.assertj.CurioAssertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -48,6 +49,7 @@ class CurioGenericCiPluginTest {
         GradleRunner.create()
             .withProjectDir(projectDir.toFile())
             .withArguments("continuousBuild")
+            .withEnvironment(ImmutableMap.of())
             .withPluginClasspath()
             .buildAndFail();
 
