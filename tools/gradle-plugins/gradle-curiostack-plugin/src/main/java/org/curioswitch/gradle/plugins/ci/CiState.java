@@ -62,7 +62,7 @@ public interface CiState {
 
     CiState state =
         ImmutableCiState.builder()
-            .isCi("true".equals(System.getenv("CI")))
+            .isCi("true".equals(System.getenv("CI")) || project.hasProperty("ci"))
             .isMasterBuild(isMasterBuild)
             .isReleaseBuild(isReleaseBuild)
             .isLocalBuild(System.getenv("CI") == null)
