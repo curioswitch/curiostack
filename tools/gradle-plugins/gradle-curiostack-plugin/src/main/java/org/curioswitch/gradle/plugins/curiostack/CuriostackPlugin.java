@@ -571,7 +571,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             Jar.class,
             javadocJar -> {
               javadocJar.dependsOn(javadoc);
-              javadocJar.setClassifier("javadoc");
+              javadocJar.getArchiveClassifier().set("javadoc");
               javadocJar.from(javadoc.get().getDestinationDir());
             });
 
@@ -583,7 +583,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             "sourceJar",
             Jar.class,
             sourceJar -> {
-              sourceJar.setClassifier("sources");
+              sourceJar.getArchiveClassifier().set("sources");
               sourceJar.from(mainSourceSet.getAllSource());
             });
 

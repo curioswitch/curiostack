@@ -34,6 +34,8 @@ import com.gorylenko.GitPropertiesPlugin;
 import java.util.Set;
 import org.curioswitch.gradle.helpers.platform.PathUtil;
 import org.curioswitch.gradle.helpers.task.TaskUtil;
+import org.curioswitch.gradle.plugins.ci.CiState;
+import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curioserver.tasks.NativeImageTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.KubectlTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
@@ -44,7 +46,6 @@ import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.ApplicationPluginConvention;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.BasePluginConvention;
-import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.jvm.tasks.Jar;
 
@@ -137,22 +138,12 @@ public class CurioServerPlugin implements Plugin<Project> {
 
           jib.getTo().setImage(config.getImagePrefix().get() + config.getBaseName().get());
 
-          String releaseBranch =
-              (String)
-                  project
-                      .getRootProject()
-                      .getExtensions()
-                      .getByType(ExtraPropertiesExtension.class)
-                      .getProperties()
-                      .get("curiostack.releaseBranch");
-          String revisionId =
-              (String) project.getRootProject().findProperty("curiostack.revisionId");
+          CiState ciState = CurioGenericCiPlugin.getCiState(project);
 
           final Set<String> tags;
-          if (releaseBranch != null) {
-            tags = ImmutableSet.of(releaseBranch);
-          } else if (revisionId != null) {
-            tags = ImmutableSet.of(config.getImageTag().get(), revisionId);
+          if (ciState.isCi()) {
+            // We trust the CI plugin to set up tags following standard conventions when on the CI.
+            tags = ImmutableSet.copyOf(ciState.getRevisionTags());
           } else {
             tags = ImmutableSet.of(config.getImageTag().get());
           }
@@ -160,7 +151,7 @@ public class CurioServerPlugin implements Plugin<Project> {
           jib.container(
               container -> container.setMainClass(appPluginConvention.getMainClassName()));
 
-          if (revisionId != null) {
+          if (ciState.isMasterBuild()) {
             config
                 .getDeployments()
                 .all(
@@ -182,7 +173,7 @@ public class CurioServerPlugin implements Plugin<Project> {
                                               "-p",
                                               "{\"spec\": "
                                                   + "{\"template\": {\"metadata\": {\"labels\": {\"revision\": \""
-                                                  + revisionId
+                                                  + ciState.getRevisionId()
                                                   + "\" }}}}}"));
                                       t.setIgnoreExitValue(true);
                                     });
