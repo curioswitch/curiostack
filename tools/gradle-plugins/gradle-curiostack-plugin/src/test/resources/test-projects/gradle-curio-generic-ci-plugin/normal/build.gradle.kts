@@ -30,3 +30,10 @@ gcloud {
     setCloudRegion("any-region")
     setClusterBaseName("any-cluster")
 }
+
+// We only want to verify what tasks would run in our tests, but don't want to run them.
+gradle.taskGraph.beforeTask {
+    onlyIf {
+        false
+    }
+}
