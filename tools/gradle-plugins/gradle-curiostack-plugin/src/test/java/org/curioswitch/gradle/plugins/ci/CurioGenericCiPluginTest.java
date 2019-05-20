@@ -24,39 +24,68 @@
 
 package org.curioswitch.gradle.plugins.ci;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.curioswitch.common.testing.assertj.CurioAssertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.gradle.testkit.runner.GradleRunner;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class CurioGenericCiPluginTest {
 
-  @TempDir Path projectDir;
+  @SuppressWarnings("ClassCanBeStatic")
+  @Nested
+  class MasterBranchNoDiffs {
 
-  @Test
-  void noCi() throws Exception {
-    copyProject("test-projects/gradle-curio-generic-ci-plugin/normal");
+    private Path projectDir;
 
-    var result =
-        GradleRunner.create()
-            .withProjectDir(projectDir.toFile())
-            .withArguments("continuousBuild")
-            .withEnvironment(ImmutableMap.of())
-            .withPluginClasspath()
-            .buildAndFail();
+    @BeforeAll
+    void copyProject(@TempDir Path projectDir) throws Exception {
+      this.projectDir = projectDir;
 
-    assertThat(result.getOutput()).contains("Task 'continuousBuild' not found in root project");
+      copyProjectFromResources("test-projects/gradle-curio-generic-ci-plugin/normal", projectDir);
+    }
+
+    @Test
+    void noCi() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir.toFile())
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of())
+              .withPluginClasspath()
+              .buildAndFail();
+
+      assertThat(result.getOutput()).contains("Task 'continuousBuild' not found in root project");
+    }
+
+    @Test
+    void ciNotMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir.toFile())
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":server1:build")).isNull();
+    }
   }
 
-  private void copyProject(String resourcePath) throws Exception {
+  private static void copyProjectFromResources(String resourcePath, Path projectDir)
+      throws Exception {
     var resourceDir = Paths.get(Resources.getResource(resourcePath).toURI());
     try (var stream = Files.walk(resourceDir)) {
       stream
@@ -74,6 +103,17 @@ class CurioGenericCiPluginTest {
                   throw new UncheckedIOException("Could not copy test project file.", e);
                 }
               });
+    }
+
+    var projectFiles = projectDir.toFile().listFiles();
+    checkNotNull(projectFiles);
+    for (var file : projectFiles) {
+      if (file.getName().equals("dot-git")) {
+        if (!file.renameTo(new File(file.getParent(), ".git"))) {
+          throw new IllegalStateException("Could not rename dot-git to .git.");
+        }
+        break;
+      }
     }
   }
 }
