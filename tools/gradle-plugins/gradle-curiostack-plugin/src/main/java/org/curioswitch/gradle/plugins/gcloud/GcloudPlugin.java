@@ -62,6 +62,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Rule;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
+import org.gradle.api.provider.Provider;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Style;
 import org.immutables.value.Value.Style.BuilderVisibility;
@@ -81,7 +82,7 @@ public class GcloudPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    project.getExtensions().create(ImmutableGcloudExtension.NAME, GcloudExtension.class, project);
+    var config = GcloudExtension.create(project);
 
     project.getExtensions().getExtraProperties().set("keys", new KmsKeyDecrypter(project));
 
@@ -152,9 +153,40 @@ public class GcloudPlugin implements Plugin<Project> {
 
     var gcloudSetup = project.getTasks().register("gcloudSetup");
     var gcloudInstallComponents =
-        project.getTasks().register("gcloudInstallComponents", GcloudTask.class);
+        project
+            .getTasks()
+            .register(
+                "gcloudInstallComponents",
+                GcloudTask.class,
+                t ->
+                    t.setArgs(
+                        ImmutableList.of(
+                            "components",
+                            "install",
+                            "app-engine-python",
+                            "beta",
+                            "kubectl",
+                            "docker-credential-gcr")));
     var gcloudLoginToCluster =
-        project.getTasks().register("gcloudLoginToCluster", GcloudTask.class);
+        project
+            .getTasks()
+            .register(
+                "gcloudLoginToCluster",
+                GcloudTask.class,
+                t ->
+                    t.setArgs(
+                        ImmutableList.of(
+                            "container",
+                            "clusters",
+                            "get-credentials",
+                            config.getClusterName(),
+                            config
+                                .getClusterRegion()
+                                .map(
+                                    value ->
+                                        System.getenv("CLOUDSDK_COMPUTE_ZONE") != null
+                                            ? "--zone=" + System.getenv("CLOUDSDK_COMPUTE_ZONE")
+                                            : "--region=" + value))));
 
     project.allprojects(
         subproj ->
@@ -166,30 +198,45 @@ public class GcloudPlugin implements Plugin<Project> {
                       t.dependsOn(gcloudInstallComponents, gcloudLoginToCluster);
                     }));
 
+    project
+        .getTasks()
+        .withType(UploadCodeCovCacheTask.class)
+        .configureEach(
+            t ->
+                t.setDest(
+                    config
+                        .getBuildCacheStorageBucket()
+                        .map(value -> "gs://" + value + "/cloudbuild-cache-codecov.tar.gz")));
+    project
+        .getTasks()
+        .withType(FetchCodeCovCacheTask.class)
+        .configureEach(
+            t ->
+                t.setSrc(
+                    config
+                        .getBuildCacheStorageBucket()
+                        .map(value -> "gs://" + value + "/cloudbuild-cache-codecov.tar.gz")));
+
+    project.allprojects(
+        proj ->
+            proj.getPlugins()
+                .withType(
+                    CurioServerPlugin.class,
+                    unused -> {
+                      ServerExtension server =
+                          proj.getExtensions().getByType(ServerExtension.class);
+                      server
+                          .getImagePrefix()
+                          .set(
+                              config
+                                  .getContainerRegistry()
+                                  .map(
+                                      value ->
+                                          value + "/" + config.getClusterProject().get() + "/"));
+                    }));
+
     project.afterEvaluate(
         p -> {
-          ImmutableGcloudExtension config =
-              project.getExtensions().getByType(GcloudExtension.class);
-
-          project
-              .getTasks()
-              .withType(UploadCodeCovCacheTask.class)
-              .configureEach(
-                  t ->
-                      t.setDest(
-                          "gs://"
-                              + config.buildCacheStorageBucket()
-                              + "/cloudbuild-cache-codecov.tar.gz"));
-          project
-              .getTasks()
-              .withType(FetchCodeCovCacheTask.class)
-              .configureEach(
-                  t ->
-                      t.setSrc(
-                          "gs://"
-                              + config.buildCacheStorageBucket()
-                              + "/cloudbuild-cache-codecov.tar.gz"));
-
           if (System.getenv("CI") != null) {
             project
                 .getPlugins()
@@ -200,12 +247,16 @@ public class GcloudPlugin implements Plugin<Project> {
                             .tools()
                             .all(
                                 tool -> {
-                                  String toolCachePath =
-                                      "gs://"
-                                          + config.buildCacheStorageBucket()
-                                          + "/cloudbuild-cache-tool-"
-                                          + tool.getName()
-                                          + ".tar.lz4";
+                                  Provider<String> toolCachePath =
+                                      config
+                                          .getBuildCacheStorageBucket()
+                                          .map(
+                                              value ->
+                                                  "gs://"
+                                                      + value
+                                                      + "/cloudbuild-cache-tool-"
+                                                      + tool.getName()
+                                                      + ".tar.lz4");
 
                                   var downloadCache =
                                       project
@@ -266,52 +317,13 @@ public class GcloudPlugin implements Plugin<Project> {
                                 }));
           }
 
-          project.allprojects(
-              proj ->
-                  proj.getPlugins()
-                      .withType(
-                          CurioServerPlugin.class,
-                          unused -> {
-                            ServerExtension server =
-                                proj.getExtensions().getByType(ServerExtension.class);
-                            server
-                                .getImagePrefix()
-                                .set(
-                                    config.containerRegistry()
-                                        + "/"
-                                        + config.clusterProject()
-                                        + "/");
-                          }));
-
-          gcloudLoginToCluster.configure(
-              t ->
-                  t.setArgs(
-                      ImmutableList.of(
-                          "container",
-                          "clusters",
-                          "get-credentials",
-                          config.clusterName(),
-                          System.getenv("CLOUDSDK_COMPUTE_ZONE") != null
-                              ? "--zone=" + System.getenv("CLOUDSDK_COMPUTE_ZONE")
-                              : "--region=" + config.clusterRegion())));
-
-          gcloudInstallComponents.configure(
-              t ->
-                  t.setArgs(
-                      ImmutableList.of(
-                          "components",
-                          "install",
-                          "app-engine-python",
-                          "beta",
-                          "kubectl",
-                          "docker-credential-gcr")));
           gcloudSetup.configure(t -> t.dependsOn(gcloudInstallComponents));
         });
 
-    addGenerateCloudBuildTask(project);
+    addGenerateCloudBuildTask(project, config);
   }
 
-  private static void addGenerateCloudBuildTask(Project rootProject) {
+  private static void addGenerateCloudBuildTask(Project rootProject, GcloudExtension config) {
     rootProject
         .getTasks()
         .register(
@@ -319,9 +331,6 @@ public class GcloudPlugin implements Plugin<Project> {
             task ->
                 task.doLast(
                     t -> {
-                      ImmutableGcloudExtension config =
-                          rootProject.getExtensions().getByType(GcloudExtension.class);
-
                       File existingCloudbuildFile = rootProject.file("cloudbuild.yaml");
                       final CloudBuild existingCloudBuild;
                       try {
@@ -351,7 +360,7 @@ public class GcloudPlugin implements Plugin<Project> {
                               .addArgs(
                                   "-c",
                                   "gsutil cp gs://"
-                                      + config.buildCacheStorageBucket()
+                                      + config.getBuildCacheStorageBucket().get()
                                       + "/cloudbuild-cache-uncompressed.tar .gradle/cloudbuild-cache-uncompressed.tar || echo Could not fetch uncompressed build cache...")
                               .build();
                       var fetchCompressedCacheStep =
@@ -363,7 +372,7 @@ public class GcloudPlugin implements Plugin<Project> {
                               .addArgs(
                                   "-c",
                                   "gsutil cp gs://"
-                                      + config.buildCacheStorageBucket()
+                                      + config.getBuildCacheStorageBucket().get()
                                       + "/cloudbuild-cache-compressed.tar.gz .gradle/cloudbuild-cache-compressed.tar.gz || echo Could not fetch compressed build cache...")
                               .build();
 
@@ -391,7 +400,7 @@ public class GcloudPlugin implements Plugin<Project> {
                                   ImmutableList.of(
                                       "CI=true",
                                       "CI_MASTER=true",
-                                      "CLOUDSDK_COMPUTE_ZONE=" + config.clusterRegion()))
+                                      "CLOUDSDK_COMPUTE_ZONE=" + config.getClusterRegion().get()))
                               .build());
                       steps.add(
                           ImmutableCloudBuildStep.builder()
@@ -404,7 +413,7 @@ public class GcloudPlugin implements Plugin<Project> {
                                   "cp",
                                   ".gradle/cloudbuild-cache-uncompressed.tar",
                                   "gs://"
-                                      + config.buildCacheStorageBucket()
+                                      + config.getBuildCacheStorageBucket().get()
                                       + "/cloudbuild-cache-uncompressed.tar")
                               .build());
                       steps.add(
@@ -418,7 +427,7 @@ public class GcloudPlugin implements Plugin<Project> {
                                   "cp",
                                   ".gradle/cloudbuild-cache-compressed.tar.gz",
                                   "gs://"
-                                      + config.buildCacheStorageBucket()
+                                      + config.getBuildCacheStorageBucket().get()
                                       + "/cloudbuild-cache-compressed.tar.gz")
                               .build());
 
