@@ -31,6 +31,7 @@ import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.workers.WorkerExecutor;
 
@@ -53,6 +54,11 @@ public class FetchToolCacheTask extends DefaultTask {
   }
 
   public FetchToolCacheTask setSrc(String src) {
+    this.src.set(src);
+    return this;
+  }
+
+  public FetchToolCacheTask setSrc(Provider<String> src) {
     this.src.set(src);
     return this;
   }

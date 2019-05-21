@@ -130,6 +130,10 @@ public class CurioServerPlugin implements Plugin<Project> {
             config.getBaseName().set(archivesBaseName);
           }
 
+          if (!config.getImagePrefix().isPresent()) {
+            config.getImagePrefix().set("gcr.io");
+          }
+
           var appPluginConvention =
               project.getConvention().getPlugin(ApplicationPluginConvention.class);
           appPluginConvention.setApplicationName(archivesBaseName);

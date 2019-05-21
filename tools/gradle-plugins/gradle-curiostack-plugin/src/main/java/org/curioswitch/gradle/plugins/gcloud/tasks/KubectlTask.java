@@ -25,8 +25,6 @@
 package org.curioswitch.gradle.plugins.gcloud.tasks;
 
 import org.apache.tools.ant.taskdefs.condition.Os;
-import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
-import org.curioswitch.gradle.plugins.gcloud.ImmutableGcloudExtension;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.provider.ListProperty;
@@ -64,9 +62,6 @@ public class KubectlTask extends DefaultTask {
 
   @TaskAction
   public void exec() {
-    ImmutableGcloudExtension config =
-        getProject().getRootProject().getExtensions().getByType(GcloudExtension.class);
-
     String command = Os.isFamily(Os.FAMILY_WINDOWS) ? COMMAND + ".exe" : COMMAND;
     var toolManager = DownloadedToolManager.get(getProject());
     String executable = toolManager.getBinDir("gcloud").resolve(command).toString();

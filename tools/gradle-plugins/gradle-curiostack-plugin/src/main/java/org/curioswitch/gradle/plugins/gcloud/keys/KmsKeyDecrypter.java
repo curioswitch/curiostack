@@ -41,7 +41,9 @@ public class KmsKeyDecrypter {
 
   public String decrypt(String cipherText) throws Exception {
     var config = project.getRootProject().getExtensions().getByType(GcloudExtension.class);
-    String project = config.clusterProject() + "-sysadmin";
+    // TODO(choko): This works because the root project is always evaluated first. It's unclear
+    // whether we should rely on this behavior, though, or change this to return a Provider
+    String project = config.getClusterProject().get() + "-sysadmin";
 
     var key = CryptoKeyName.of(project, "global", "gradle-key-ring", "gradle-vars-key");
 

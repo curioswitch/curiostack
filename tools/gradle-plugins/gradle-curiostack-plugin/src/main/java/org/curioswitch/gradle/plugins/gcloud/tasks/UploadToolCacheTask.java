@@ -32,6 +32,7 @@ import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.workers.WorkerExecutor;
 
@@ -58,6 +59,11 @@ public class UploadToolCacheTask extends DefaultTask {
   }
 
   public UploadToolCacheTask setDest(String dest) {
+    this.dest.set(dest);
+    return this;
+  }
+
+  public UploadToolCacheTask setDest(Provider<String> dest) {
     this.dest.set(dest);
     return this;
   }
