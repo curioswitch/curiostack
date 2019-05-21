@@ -47,20 +47,20 @@ class CurioGenericCiPluginTest {
   @Nested
   class MasterBranchNoDiffs {
 
-    private Path projectDir;
+    private File projectDir;
 
     @BeforeAll
     void copyProject(@TempDir Path projectDir) throws Exception {
-      this.projectDir = projectDir;
-
       copyProjectFromResources("test-projects/gradle-curio-generic-ci-plugin/normal", projectDir);
+
+      this.projectDir = projectDir.toFile();
     }
 
     @Test
     void noCi() {
       var result =
           GradleRunner.create()
-              .withProjectDir(projectDir.toFile())
+              .withProjectDir(projectDir)
               .withArguments("continuousBuild", "--stacktrace")
               .withEnvironment(ImmutableMap.of())
               .withPluginClasspath()
@@ -73,7 +73,7 @@ class CurioGenericCiPluginTest {
     void ciNotMaster() {
       var result =
           GradleRunner.create()
-              .withProjectDir(projectDir.toFile())
+              .withProjectDir(projectDir)
               .withArguments("continuousBuild")
               .withEnvironment(ImmutableMap.of("CI", "true"))
               .withPluginClasspath()
@@ -81,6 +81,52 @@ class CurioGenericCiPluginTest {
 
       assertThat(result.task(":library1:build")).isNull();
       assertThat(result.task(":server1:build")).isNull();
+    }
+
+    @Test
+    void ciIsMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":server1:build")).isNull();
+    }
+
+    @SuppressWarnings("ClassCanBeStatic")
+    @Nested
+    class ReleaseBuild {
+      @Test
+      void implicitTag() {
+        var result =
+            GradleRunner.create()
+                .withProjectDir(projectDir)
+                .withArguments("releaseBuild")
+                .withEnvironment(ImmutableMap.of("CI", "true", "TAG_NAME", "RELEASE_SERVER1"))
+                .withPluginClasspath()
+                .build();
+
+        assertThat(result.task(":library1:build")).isNull();
+        assertThat(result.task(":server1:build")).isNotNull();
+        assertThat(result.task(":server1:jib")).isNotNull();
+      }
+
+      @Test
+      void unknownTag() {
+        var result =
+            GradleRunner.create()
+                .withProjectDir(projectDir)
+                .withArguments("releaseBuild")
+                .withEnvironment(ImmutableMap.of("CI", "true", "TAG_NAME", "RELEASE_UNKNOWN1"))
+                .withPluginClasspath()
+                .buildAndFail();
+
+        assertThat(result.getOutput()).contains("Task 'releaseBuild' not found in root project");
+      }
     }
   }
 
