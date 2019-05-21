@@ -61,7 +61,7 @@ class CurioGenericCiPluginTest {
       var result =
           GradleRunner.create()
               .withProjectDir(projectDir.toFile())
-              .withArguments("continuousBuild")
+              .withArguments("continuousBuild", "--stacktrace")
               .withEnvironment(ImmutableMap.of())
               .withPluginClasspath()
               .buildAndFail();

@@ -27,7 +27,6 @@ package org.curioswitch.gradle.plugins.cloudbuild;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
-import org.curioswitch.gradle.plugins.gcloud.ImmutableGcloudExtension;
 import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
@@ -61,11 +60,8 @@ public class CloudbuildGithubPlugin implements Plugin<Project> {
                   t.onlyIf(unused -> !project.file("package.json").exists());
                 });
 
-    ImmutableGcloudExtension gcloudConfig =
+    GcloudExtension gcloudConfig =
         project.getRootProject().getExtensions().getByType(GcloudExtension.class);
-    Map<String, String> defaultEnvironment =
-        ImmutableMap.of("GCLOUD_PROJECT", gcloudConfig.clusterProject());
-
     var setupTask =
         project
             .getTasks()
@@ -79,6 +75,9 @@ public class CloudbuildGithubPlugin implements Plugin<Project> {
                   t.execOverride(
                       exec -> {
                         exec.setStandardInput(System.in).setStandardOutput(System.out);
+                        Map<String, String> defaultEnvironment =
+                            ImmutableMap.of(
+                                "GCLOUD_PROJECT", gcloudConfig.getClusterRegion().get());
                         exec.environment(defaultEnvironment);
                       });
                 });

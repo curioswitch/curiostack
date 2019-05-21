@@ -29,7 +29,6 @@ import java.nio.file.Path;
 import java.util.List;
 import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
-import org.curioswitch.gradle.plugins.gcloud.ImmutableGcloudExtension;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
@@ -47,7 +46,7 @@ public class GcloudTask extends DefaultTask {
 
   @TaskAction
   public void exec() {
-    ImmutableGcloudExtension config =
+    GcloudExtension config =
         getProject().getRootProject().getExtensions().getByType(GcloudExtension.class);
 
     var toolManager = DownloadedToolManager.get(getProject());
@@ -56,7 +55,7 @@ public class GcloudTask extends DefaultTask {
     Path executable = toolManager.getBinDir("gcloud").resolve(command);
     List<Object> fullArgs =
         ImmutableList.builder()
-            .add("--project=" + config.clusterProject())
+            .add("--project=" + config.getClusterProject().get())
             .add("--quiet")
             .addAll(args)
             .build();
