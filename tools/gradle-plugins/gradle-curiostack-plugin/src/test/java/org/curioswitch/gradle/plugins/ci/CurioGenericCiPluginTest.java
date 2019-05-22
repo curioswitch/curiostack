@@ -238,7 +238,7 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server1:build")).isNull();
       assertThat(result.task(":server1:jib")).isNull();
       assertThat(result.task(":server2:build")).isNotNull();
-      assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:jib")).isNotNull();
     }
   }
 
