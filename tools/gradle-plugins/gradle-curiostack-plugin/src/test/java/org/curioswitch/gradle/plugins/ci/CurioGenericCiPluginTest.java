@@ -51,7 +51,8 @@ class CurioGenericCiPluginTest {
 
     @BeforeAll
     void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources("test-projects/gradle-curio-generic-ci-plugin/normal", projectDir);
+      copyProjectFromResources(
+          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
 
       this.projectDir = projectDir.toFile();
     }
@@ -79,8 +80,14 @@ class CurioGenericCiPluginTest {
               .withPluginClasspath()
               .build();
 
+      assertThat(result.task(":library1:jar")).isNull();
       assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":library2:jar")).isNull();
+      assertThat(result.task(":library2:build")).isNull();
       assertThat(result.task(":server1:build")).isNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server2:build")).isNull();
+      assertThat(result.task(":server2:jib")).isNull();
     }
 
     @Test
@@ -93,8 +100,14 @@ class CurioGenericCiPluginTest {
               .withPluginClasspath()
               .build();
 
+      assertThat(result.task(":library1:jar")).isNull();
       assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":library2:jar")).isNull();
+      assertThat(result.task(":library2:build")).isNull();
       assertThat(result.task(":server1:build")).isNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server2:build")).isNull();
+      assertThat(result.task(":server2:jib")).isNull();
     }
 
     @SuppressWarnings("ClassCanBeStatic")
@@ -106,13 +119,40 @@ class CurioGenericCiPluginTest {
             GradleRunner.create()
                 .withProjectDir(projectDir)
                 .withArguments("releaseBuild")
-                .withEnvironment(ImmutableMap.of("CI", "true", "TAG_NAME", "RELEASE_SERVER1"))
+                .withEnvironment(
+                    ImmutableMap.of("CI", "true", "TAG_NAME", "RELEASE_SERVER1_20190522"))
                 .withPluginClasspath()
                 .build();
 
+        assertThat(result.task(":library1:jar")).isNull();
         assertThat(result.task(":library1:build")).isNull();
+        assertThat(result.task(":library2:jar")).isNull();
+        assertThat(result.task(":library2:build")).isNull();
         assertThat(result.task(":server1:build")).isNotNull();
         assertThat(result.task(":server1:jib")).isNotNull();
+        assertThat(result.task(":server2:build")).isNull();
+        assertThat(result.task(":server2:jib")).isNull();
+      }
+
+      @Test
+      void explicitTag() {
+        var result =
+            GradleRunner.create()
+                .withProjectDir(projectDir)
+                .withArguments("releaseBuild")
+                .withEnvironment(
+                    ImmutableMap.of("CI", "true", "TAG_NAME", "RELEASE_CUSTOM_TAG_20190522"))
+                .withPluginClasspath()
+                .build();
+
+        assertThat(result.task(":library1:jar")).isNotNull();
+        assertThat(result.task(":library1:build")).isNull();
+        assertThat(result.task(":library2:jar")).isNull();
+        assertThat(result.task(":library2:build")).isNull();
+        assertThat(result.task(":server1:build")).isNull();
+        assertThat(result.task(":server1:jib")).isNull();
+        assertThat(result.task(":server2:build")).isNotNull();
+        assertThat(result.task(":server2:jib")).isNotNull();
       }
 
       @Test
@@ -121,7 +161,8 @@ class CurioGenericCiPluginTest {
             GradleRunner.create()
                 .withProjectDir(projectDir)
                 .withArguments("releaseBuild")
-                .withEnvironment(ImmutableMap.of("CI", "true", "TAG_NAME", "RELEASE_UNKNOWN1"))
+                .withEnvironment(
+                    ImmutableMap.of("CI", "true", "TAG_NAME", "RELEASE_UNKNOWN1_20190522"))
                 .withPluginClasspath()
                 .buildAndFail();
 
