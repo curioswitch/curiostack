@@ -35,6 +35,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.eclipse.jgit.api.Git;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
@@ -171,6 +172,76 @@ class CurioGenericCiPluginTest {
     }
   }
 
+  @SuppressWarnings("ClassCanBeStatic")
+  @Nested
+  class MasterBranchLibrary1Diff {
+
+    private File projectDir;
+
+    @BeforeAll
+    void copyProject(@TempDir Path projectDir) throws Exception {
+      copyProjectFromResources(
+          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+
+      addDiffs(projectDir, "library1/src/main/java/Library1.java");
+
+      this.projectDir = projectDir.toFile();
+    }
+
+    @Test
+    void noCi() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild", "--stacktrace")
+              .withEnvironment(ImmutableMap.of())
+              .withPluginClasspath()
+              .buildAndFail();
+
+      assertThat(result.getOutput()).contains("Task 'continuousBuild' not found in root project");
+    }
+
+    @Test
+    void ciNotMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNotNull();
+      assertThat(result.task(":library1:build")).isNotNull();
+      assertThat(result.task(":library2:jar")).isNull();
+      assertThat(result.task(":library2:build")).isNull();
+      assertThat(result.task(":server1:build")).isNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server2:build")).isNotNull();
+      assertThat(result.task(":server2:jib")).isNull();
+    }
+
+    @Test
+    void ciIsMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNotNull();
+      assertThat(result.task(":library1:build")).isNotNull();
+      assertThat(result.task(":library2:jar")).isNull();
+      assertThat(result.task(":library2:build")).isNull();
+      assertThat(result.task(":server1:build")).isNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server2:build")).isNotNull();
+      assertThat(result.task(":server2:jib")).isNotNull();
+    }
+  }
+
   private static void copyProjectFromResources(String resourcePath, Path projectDir)
       throws Exception {
     var resourceDir = Paths.get(Resources.getResource(resourcePath).toURI());
@@ -201,6 +272,27 @@ class CurioGenericCiPluginTest {
         }
         break;
       }
+    }
+  }
+
+  private static void addDiffs(Path projectDir, String... paths) {
+    for (String path : paths) {
+      var filePath = projectDir.resolve(path);
+      try {
+        Files.writeString(filePath, Files.readString(filePath).replace("|DIFF-ME|", "-DIFFED-"));
+      } catch (IOException e) {
+        throw new UncheckedIOException("Could not add diff to file.", e);
+      }
+    }
+
+    try (Git git = Git.open(projectDir.toFile())) {
+      git.commit()
+          .setAll(true)
+          .setMessage("Automated commit in test")
+          .setAuthor("Unit Test", "test@curioswitch.org")
+          .call();
+    } catch (Exception e) {
+      throw new IllegalStateException("Error manipulating git repo.", e);
     }
   }
 }
