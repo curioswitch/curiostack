@@ -404,17 +404,18 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
     List<Project> affectedProjects = new ArrayList<>();
 
     config
-        .releaseTagPrefixes()
-        .forEach(
-            (prefix, projectPaths) -> {
-              if (state.getBranch().startsWith(prefix)) {
-                for (String projectPath : projectPaths) {
+        .getReleaseTagPrefixes()
+        .all(
+            tag -> {
+              if (state.getBranch().startsWith(tag.getName())) {
+                for (String projectPath : tag.getProjects().get()) {
                   Project affectedProject = project.findProject(projectPath);
                   checkNotNull(affectedProject, "could not find project " + projectPath);
                   affectedProjects.add(affectedProject);
                 }
               }
             });
+
     if (affectedProjects.isEmpty()) {
       // Not a statically defined tag, try to guess.
       var parts =
@@ -431,6 +432,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
         }
       }
     }
+
     if (affectedProjects.isEmpty()) {
       return;
     }
