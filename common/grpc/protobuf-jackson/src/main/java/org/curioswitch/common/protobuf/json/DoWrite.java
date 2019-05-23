@@ -35,6 +35,7 @@ import com.google.protobuf.Descriptors.EnumDescriptor;
 import com.google.protobuf.Descriptors.EnumValueDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
+import com.google.protobuf.Descriptors.FieldDescriptor.Type;
 import com.google.protobuf.Internal.EnumLite;
 import com.google.protobuf.Message;
 import com.google.protobuf.NullValue;
@@ -44,7 +45,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import net.bytebuddy.description.field.FieldDescription;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.type.TypeDescription.ForLoadedType;
@@ -114,8 +114,6 @@ final class DoWrite implements ByteCodeAppender, Implementation {
 
   private static final StackManipulation EnumLite_getNumber;
 
-  private static final StackManipulation Map_entrySet;
-  private static final StackManipulation Set_iterator;
   private static final StackManipulation Iterator_hasNext;
   private static final StackManipulation Iterator_next;
   private static final StackManipulation Map_Entry_getKey;
@@ -124,6 +122,8 @@ final class DoWrite implements ByteCodeAppender, Implementation {
   private static final StackManipulation Integer_toString;
   private static final StackManipulation Long_toString;
   private static final StackManipulation Boolean_toString;
+
+  private static final StackManipulation SerializeSupport_mapIterator;
 
   private static final StackManipulation SerializeSupport_printRepeatedSignedInt32;
   private static final StackManipulation SerializeSupport_printSignedInt32;
@@ -172,12 +172,15 @@ final class DoWrite implements ByteCodeAppender, Implementation {
       Long_toString = invoke(Long.class.getDeclaredMethod("toString", long.class));
       Boolean_toString = invoke(Boolean.class.getDeclaredMethod("toString", boolean.class));
 
-      Map_entrySet = invoke(Map.class.getDeclaredMethod("entrySet"));
-      Set_iterator = invoke(Set.class.getDeclaredMethod("iterator"));
       Iterator_hasNext = invoke(Iterator.class.getDeclaredMethod("hasNext"));
       Iterator_next = invoke(Iterator.class.getDeclaredMethod("next"));
       Map_Entry_getKey = invoke(Entry.class.getDeclaredMethod("getKey"));
       Map_Entry_getValue = invoke(Entry.class.getDeclaredMethod("getValue"));
+
+      SerializeSupport_mapIterator =
+          invoke(
+              SerializeSupport.class.getDeclaredMethod(
+                  "mapIterator", Map.class, boolean.class, boolean.class));
 
       SerializeSupport_printRepeatedSignedInt32 =
           invoke(
@@ -295,12 +298,20 @@ final class DoWrite implements ByteCodeAppender, Implementation {
   private final Class<? extends Message> messageClass;
   private final Descriptor descriptor;
   private final boolean includeDefaults;
+  private final boolean printingEnumsAsInts;
+  private final boolean sortingMapKeys;
 
-  DoWrite(Message prototype, boolean includeDefaults) {
+  DoWrite(
+      Message prototype,
+      boolean includeDefaults,
+      boolean printingEnumsAsInts,
+      boolean sortingMapKeys) {
     this.prototype = prototype;
     this.messageClass = prototype.getClass();
     this.descriptor = prototype.getDescriptorForType();
     this.includeDefaults = includeDefaults;
+    this.printingEnumsAsInts = printingEnumsAsInts;
+    this.sortingMapKeys = sortingMapKeys;
   }
 
   @Override
@@ -419,8 +430,9 @@ final class DoWrite implements ByteCodeAppender, Implementation {
                 locals.load(LocalVariable.gen),
                 JsonGenerator_writeStartObject,
                 getValue,
-                Map_entrySet,
-                Set_iterator,
+                IntegerConstant.forValue(sortingMapKeys),
+                IntegerConstant.forValue(field.mapKeyField().valueType() == Type.STRING),
+                SerializeSupport_mapIterator,
                 locals.store(LocalVariable.iterator),
                 new SetJumpTargetLabel(loopStart),
                 locals.load(LocalVariable.iterator),
@@ -592,7 +604,7 @@ final class DoWrite implements ByteCodeAppender, Implementation {
     }
   }
 
-  private static StackManipulation printValue(
+  private StackManipulation printValue(
       Map<String, FieldDescription> fieldsByName, ProtoFieldInfo info) {
     boolean repeated = !info.isMapField() && info.isRepeated();
     switch (info.valueType()) {
@@ -633,9 +645,15 @@ final class DoWrite implements ByteCodeAppender, Implementation {
         if (info.valueField().descriptor().getEnumType().equals(NullValue.getDescriptor())) {
           return repeated ? SerializeSupport_printRepeatedNull : SerializeSupport_printNull;
         } else {
-          return new StackManipulation.Compound(
-              CodeGenUtil.getEnumDescriptor(info),
-              repeated ? SerializeSupport_printRepeatedEnum : SerializeSupport_printEnum);
+          if (printingEnumsAsInts) {
+            return repeated
+                ? SerializeSupport_printRepeatedUnsignedInt32
+                : SerializeSupport_printUnsignedInt32;
+          } else {
+            return new StackManipulation.Compound(
+                CodeGenUtil.getEnumDescriptor(info),
+                repeated ? SerializeSupport_printRepeatedEnum : SerializeSupport_printEnum);
+          }
         }
       case MESSAGE:
       case GROUP:

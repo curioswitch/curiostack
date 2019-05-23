@@ -25,6 +25,7 @@ package org.curioswitch.common.protobuf.json;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.base.Strings;
@@ -52,6 +53,8 @@ import com.google.protobuf.util.JsonFormat;
 import com.google.protobuf.util.JsonFormat.Printer;
 import com.google.protobuf.util.JsonFormat.TypeRegistry;
 import com.google.protobuf.util.JsonTestProto.TestAllTypes;
+import com.google.protobuf.util.JsonTestProto.TestAllTypes.AliasedEnum;
+import com.google.protobuf.util.JsonTestProto.TestAllTypes.NestedEnum;
 import com.google.protobuf.util.JsonTestProto.TestAny;
 import com.google.protobuf.util.JsonTestProto.TestCustomJsonName;
 import com.google.protobuf.util.JsonTestProto.TestDuration;
@@ -68,12 +71,12 @@ import com.google.protobuf.util.Timestamps;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class MessageMarshallerTest {
@@ -300,6 +303,22 @@ public class MessageMarshallerTest {
   }
 
   @Test
+  public void testNullFirstInDuplicateOneof() throws Exception {
+    TestOneof.Builder builder = TestOneof.newBuilder();
+    mergeFromJson("{\"oneofNestedMessage\": null, \"oneofInt32\": 1}", builder);
+    TestOneof message = builder.build();
+    assertEquals(1, message.getOneofInt32());
+  }
+
+  @Test
+  public void testNullLastInDuplicateOneof() throws Exception {
+    TestOneof.Builder builder = TestOneof.newBuilder();
+    mergeFromJson("{\"oneofInt32\": 1, \"oneofNestedMessage\": null}", builder);
+    TestOneof message = builder.build();
+    assertEquals(1, message.getOneofInt32());
+  }
+
+  @Test
   public void parserRejectDuplicatedFields() throws Exception {
     // NOTE: Upstream parser does not correctly reject duplicates with the same field variableName,
     // only when json variableName and proto variableName are both specified. We handle both cases.
@@ -410,6 +429,14 @@ public class MessageMarshallerTest {
                         + "}",
                     builder2))
         .isInstanceOf(InvalidProtocolBufferException.class);
+  }
+
+  @Test
+  public void mapEnumNullValueIsIgnored() throws Exception {
+    TestMap.Builder builder = TestMap.newBuilder();
+    mergeFromJson(true, "{\n" + "  \"int32ToEnumMap\": {\"1\": null}\n" + "}", builder);
+    TestMap map = builder.build();
+    assertThat(map.getInt32ToEnumMapMap()).isEmpty();
   }
 
   @Test
@@ -672,51 +699,111 @@ public class MessageMarshallerTest {
   }
 
   @Test
+  public void parserIgnoringUnknownEnums() throws Exception {
+    TestAllTypes.Builder builder = TestAllTypes.newBuilder();
+    String json = "{\n" + "  \"optionalNestedEnum\": \"XXX\"\n" + "}";
+    mergeFromJson(true, json, builder);
+    assertThat(builder.getOptionalNestedEnumValue()).isZero();
+  }
+
+  @Test
+  public void parserSupportAliasEnums() throws Exception {
+    TestAllTypes.Builder builder = TestAllTypes.newBuilder();
+    String json = "{\n" + "  \"optionalAliasedEnum\": \"QUX\"\n" + "}";
+    mergeFromJson(json, builder);
+    assertThat(builder.getOptionalAliasedEnum()).isEqualTo(AliasedEnum.ALIAS_BAZ);
+
+    builder = TestAllTypes.newBuilder();
+    json = "{\n" + "  \"optionalAliasedEnum\": \"qux\"\n" + "}";
+    mergeFromJson(json, builder);
+    assertThat(builder.getOptionalAliasedEnum()).isEqualTo(AliasedEnum.ALIAS_BAZ);
+
+    builder = TestAllTypes.newBuilder();
+    json = "{\n" + "  \"optionalAliasedEnum\": \"bAz\"\n" + "}";
+    mergeFromJson(json, builder);
+    assertThat(builder.getOptionalAliasedEnum()).isEqualTo(AliasedEnum.ALIAS_BAZ);
+  }
+
+  @Test
+  public void unknownEnumMap() throws Exception {
+    TestMap.Builder builder = TestMap.newBuilder();
+    mergeFromJson(true, "{\n" + "  \"int32ToEnumMap\": {1: \"XXX\", 2: \"FOO\"}" + "}", builder);
+
+    assertThat(builder.getInt32ToEnumMapMap()).containsExactly(entry(2, NestedEnum.FOO));
+  }
+
+  @Test
+  public void repeatedUnknownEnum() throws Exception {
+    TestAllTypes.Builder builder = TestAllTypes.newBuilder();
+    mergeFromJson(
+        true,
+        "{\n" + "  \"repeatedNestedEnum\": [\"XXX\", \"FOO\", \"BAR\", \"BAZ\"]" + "}",
+        builder);
+
+    assertThat(builder.getRepeatedNestedEnumList())
+        .containsExactly(NestedEnum.FOO, NestedEnum.BAR, NestedEnum.BAZ);
+  }
+
+  @Test
+  public void parserIntegerEnumValue() throws Exception {
+    TestAllTypes.Builder actualBuilder = TestAllTypes.newBuilder();
+    mergeFromJson("{\n" + "  \"optionalNestedEnum\": 2\n" + "}", actualBuilder);
+
+    TestAllTypes expected = TestAllTypes.newBuilder().setOptionalNestedEnum(NestedEnum.BAZ).build();
+    assertEquals(expected, actualBuilder.build());
+  }
+
+  @Test
   public void customJsonName() throws Exception {
     TestCustomJsonName message = TestCustomJsonName.newBuilder().setValue(12345).build();
     assertMatchesUpstream(message);
   }
 
   @Test
-  @Ignore
-  public void defaultDoesNotHtmlExcape() throws Exception {
-    TestAllTypes message = TestAllTypes.newBuilder().setOptionalString("=").build();
+  public void htmlEscape() throws Exception {
+    TestAllTypes message = TestAllTypes.newBuilder().setOptionalString("</script>").build();
     assertMatchesUpstream(message);
+
+    MessageMarshaller marshaller = MessageMarshaller.builder().register(TestAllTypes.class).build();
+
+    TestAllTypes.Builder builder = TestAllTypes.newBuilder();
+    marshaller.mergeValue(marshaller.writeValueAsString(message), builder);
+    assertEquals(message.getOptionalString(), builder.getOptionalString());
   }
 
   @Test
   public void includingDefaultValueFields() throws Exception {
     TestAllTypes message = TestAllTypes.getDefaultInstance();
     assertMatchesUpstream(message);
-    assertMatchesUpstream(message, true, false, false);
+    assertMatchesUpstream(message, true, false, false, false, false);
 
     TestMap mapMessage = TestMap.getDefaultInstance();
     assertMatchesUpstream(mapMessage);
-    assertMatchesUpstream(mapMessage, true, false, false);
+    assertMatchesUpstream(mapMessage, true, false, false, false, false);
 
     TestOneof oneofMessage = TestOneof.getDefaultInstance();
     assertMatchesUpstream(oneofMessage);
-    assertMatchesUpstream(oneofMessage, true, false, false);
+    assertMatchesUpstream(oneofMessage, true, false, false, false, false);
 
     oneofMessage = TestOneof.newBuilder().setOneofInt32(42).build();
     assertMatchesUpstream(oneofMessage);
-    assertMatchesUpstream(oneofMessage, true, false, false);
+    assertMatchesUpstream(oneofMessage, true, false, false, false, false);
 
     oneofMessage = TestOneof.newBuilder().setOneofNullValue(NullValue.NULL_VALUE).build();
     assertMatchesUpstream(oneofMessage);
-    assertMatchesUpstream(oneofMessage, true, false, false);
+    assertMatchesUpstream(oneofMessage, true, false, false, false, false);
   }
 
   @Test
   public void preservingProtoFieldNames() throws Exception {
     TestAllTypes message = TestAllTypes.newBuilder().setOptionalInt32(12345).build();
     assertMatchesUpstream(message);
-    assertMatchesUpstream(message, false, true, false);
+    assertMatchesUpstream(message, false, true, false, false, false);
 
     // The json_name field option is ignored when configured to use original proto field names.
     TestCustomJsonName messageWithCustomJsonName =
         TestCustomJsonName.newBuilder().setValue(12345).build();
-    assertMatchesUpstream(message, false, true, false);
+    assertMatchesUpstream(message, false, true, false, false, false);
 
     // Parsers accept both original proto field names and lowerCamelCase names.
     TestAllTypes.Builder builder = TestAllTypes.newBuilder();
@@ -728,13 +815,19 @@ public class MessageMarshallerTest {
   }
 
   @Test
+  public void printingEnumsAsInts() throws Exception {
+    TestAllTypes message = TestAllTypes.newBuilder().setOptionalNestedEnum(NestedEnum.BAR).build();
+    assertMatchesUpstream(message, false, false, false, true, false);
+  }
+
+  @Test
   public void omittingInsignificantWhitespace() throws Exception {
     TestAllTypes message = TestAllTypes.newBuilder().setOptionalInt32(12345).build();
-    assertMatchesUpstream(message, false, false, true);
+    assertMatchesUpstream(message, false, false, true, false, false);
     TestAllTypes message1 = TestAllTypes.getDefaultInstance();
-    assertMatchesUpstream(message1, false, false, true);
+    assertMatchesUpstream(message1, false, false, true, false, false);
     TestAllTypes message2 = JsonTestUtil.testAllTypesAllFields();
-    assertMatchesUpstream(message2, false, false, true);
+    assertMatchesUpstream(message2, false, false, true, false, false);
   }
 
   // Regression test for b/29892357
@@ -767,6 +860,68 @@ public class MessageMarshallerTest {
         .isInstanceOf(InvalidProtocolBufferException.class);
   }
 
+  // Test that we are not leaking out JSON exceptions.
+  @SuppressWarnings("InputStreamSlowMultibyteRead")
+  @Test
+  public void jsonException() throws Exception {
+    InputStream throwingInputStream =
+        new InputStream() {
+          @Override
+          public int read() throws IOException {
+            throw new IOException("12345");
+          }
+        };
+    // When the underlying reader throws IOException, MessageMarshaller should forward
+    // through this IOException.
+    assertThatThrownBy(
+            () -> {
+              TestAllTypes.Builder builder = TestAllTypes.newBuilder();
+              MessageMarshaller marshaller =
+                  MessageMarshaller.builder().register(builder.getDefaultInstanceForType()).build();
+              marshaller.mergeValue(throwingInputStream, builder);
+            })
+        .isInstanceOf(IOException.class)
+        .hasMessage("12345");
+
+    ByteArrayInputStream invalidJsonStream =
+        new ByteArrayInputStream("{ xxx - yyy }".getBytes(StandardCharsets.UTF_8));
+    // When the JSON parser throws parser exceptions, MessageMarshaller should turn
+    // that into InvalidProtocolBufferException.
+    assertThatThrownBy(
+            () -> {
+              TestAllTypes.Builder builder = TestAllTypes.newBuilder();
+              MessageMarshaller marshaller =
+                  MessageMarshaller.builder().register(builder.getDefaultInstanceForType()).build();
+              marshaller.mergeValue(invalidJsonStream, builder);
+            })
+        .isInstanceOf(InvalidProtocolBufferException.class);
+  }
+
+  @Test
+  public void sortedMapKeys() throws Exception {
+    TestMap.Builder mapBuilder = TestMap.newBuilder();
+    mapBuilder.putStringToInt32Map("\ud834\udd20", 3); // utf-8 F0 9D 84 A0
+    mapBuilder.putStringToInt32Map("foo", 99);
+    mapBuilder.putStringToInt32Map("xxx", 123);
+    mapBuilder.putStringToInt32Map("\u20ac", 1); // utf-8 E2 82 AC
+    mapBuilder.putStringToInt32Map("abc", 20);
+    mapBuilder.putStringToInt32Map("19", 19);
+    mapBuilder.putStringToInt32Map("8", 8);
+    mapBuilder.putStringToInt32Map("\ufb00", 2); // utf-8 EF AC 80
+    mapBuilder.putInt32ToInt32Map(3, 3);
+    mapBuilder.putInt32ToInt32Map(10, 10);
+    mapBuilder.putInt32ToInt32Map(5, 5);
+    mapBuilder.putInt32ToInt32Map(4, 4);
+    mapBuilder.putInt32ToInt32Map(1, 1);
+    mapBuilder.putInt32ToInt32Map(2, 2);
+    mapBuilder.putInt32ToInt32Map(-3, -3);
+    TestMap mapMessage = mapBuilder.build();
+    assertMatchesUpstream(mapMessage, false, false, false, false, true);
+
+    TestMap emptyMap = TestMap.getDefaultInstance();
+    assertMatchesUpstream(emptyMap, false, false, false, false, true);
+  }
+
   // https://github.com/curioswitch/curiostack/issues/7
   @Test
   public void protoFieldAlreadyCamelCase() throws Exception {
@@ -796,7 +951,7 @@ public class MessageMarshallerTest {
 
   private static void assertMatchesUpstream(Message message, Message... additionalTypes)
       throws IOException {
-    assertMatchesUpstream(message, false, false, false, additionalTypes);
+    assertMatchesUpstream(message, false, false, false, false, false, additionalTypes);
   }
 
   private static void assertMatchesUpstream(
@@ -804,6 +959,8 @@ public class MessageMarshallerTest {
       boolean includingDefaultValueFields,
       boolean preservingProtoFieldNames,
       boolean omittingInsignificantWhitespace,
+      boolean printingEnumsAsInts,
+      boolean sortingMapKeys,
       Message... additionalTypes)
       throws IOException {
     MessageMarshaller.Builder marshallerBuilder =
@@ -811,7 +968,9 @@ public class MessageMarshallerTest {
             .register(message.getClass())
             .includingDefaultValueFields(includingDefaultValueFields)
             .preservingProtoFieldNames(preservingProtoFieldNames)
-            .omittingInsignificantWhitespace(omittingInsignificantWhitespace);
+            .omittingInsignificantWhitespace(omittingInsignificantWhitespace)
+            .printingEnumsAsInts(printingEnumsAsInts)
+            .sortingMapKeys(sortingMapKeys);
     for (Message m : additionalTypes) {
       marshallerBuilder.register(m.getDefaultInstanceForType());
     }
@@ -830,18 +989,29 @@ public class MessageMarshallerTest {
     if (omittingInsignificantWhitespace) {
       printer = printer.omittingInsignificantWhitespace();
     }
+    if (printingEnumsAsInts) {
+      printer = printer.printingEnumsAsInts();
+    }
+    if (sortingMapKeys) {
+      printer = printer.sortingMapKeys();
+    }
 
     String json = marshaller.writeValueAsString(message);
     String upstreamJson = printer.print(message);
     assertThat(json).isEqualTo(upstreamJson);
 
-    String jsonFromBytes =
-        new String(marshaller.writeValueAsBytes(message), StandardCharsets.UTF_8);
-    assertThat(jsonFromBytes).isEqualTo(upstreamJson);
+    // TODO(choko): Jackson seems to always escape unicode characters when writing bytes. We only
+    // have unicode characters in our sorted map test so for now just flag on that and investigate
+    // whether this can be fixed.
+    if (!sortingMapKeys) {
+      String jsonFromBytes =
+          new String(marshaller.writeValueAsBytes(message), StandardCharsets.UTF_8);
+      assertThat(jsonFromBytes).isEqualTo(upstreamJson);
 
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    marshaller.writeValue(message, bos);
-    assertThat(bos.toString(StandardCharsets.UTF_8.toString())).isEqualTo(upstreamJson);
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      marshaller.writeValue(message, bos);
+      assertThat(bos.toString(StandardCharsets.UTF_8.toString())).isEqualTo(upstreamJson);
+    }
 
     Message.Builder builder = message.newBuilderForType();
     mergeFromJson(json, builder, additionalTypes);

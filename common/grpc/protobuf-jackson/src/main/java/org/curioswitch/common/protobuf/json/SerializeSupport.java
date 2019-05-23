@@ -31,7 +31,12 @@ import com.google.protobuf.Descriptors.EnumValueDescriptor;
 import com.google.protobuf.Message;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public final class SerializeSupport {
 
@@ -239,6 +244,25 @@ public final class SerializeSupport {
     s.asQuotedUTF8();
     s.asUnquotedUTF8();
     return s;
+  }
+
+  private static final Comparator<Entry<String, ?>> STRING_KEY_COMPARATOR =
+      (o1, o2) -> {
+        ByteString s1 = ByteString.copyFromUtf8(o1.getKey());
+        ByteString s2 = ByteString.copyFromUtf8(o2.getKey());
+        return ByteString.unsignedLexicographicalComparator().compare(s1, s2);
+      };
+
+  public static Iterator<? extends Entry> mapIterator(
+      Map<?, ?> map, boolean sortingMapKeys, boolean stringKey) {
+    if (!sortingMapKeys) {
+      return map.entrySet().iterator();
+    }
+
+    Comparator cmp = stringKey ? STRING_KEY_COMPARATOR : Map.Entry.comparingByKey();
+    List<Entry<?, ?>> sorted = new ArrayList<>(map.entrySet());
+    sorted.sort(cmp);
+    return sorted.iterator();
   }
 
   private SerializeSupport() {}

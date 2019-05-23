@@ -30,7 +30,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
+import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
@@ -96,8 +99,44 @@ public class MessageMarshaller {
     return new Builder();
   }
 
+  // We special case these mainly to have unit test parity with upstream, which serializes unicode
+  // codepoints with lowercase letters via gson whereas Jackson escapes with uppercase. They are
+  // equivalent, so we won't worry about matching in the general case.
+  private static final SerializedString HTML_ESCAPED_LESS_THAN = new SerializedString("\\u003c");
+  private static final SerializedString HTML_ESCAPED_GREATER_THAN = new SerializedString("\\u003e");
+
   private final JsonFactory jsonFactory =
-      new JsonFactory().enable(Feature.ALLOW_UNQUOTED_FIELD_NAMES).enable(Feature.ALLOW_COMMENTS);
+      new JsonFactory()
+          .enable(Feature.ALLOW_UNQUOTED_FIELD_NAMES)
+          .enable(Feature.ALLOW_COMMENTS)
+          .setCharacterEscapes(
+              new CharacterEscapes() {
+                @Override
+                public int[] getEscapeCodesForAscii() {
+                  int[] escapes = CharacterEscapes.standardAsciiEscapesForJSON();
+                  // From
+                  // https://github.com/google/gson/blob/bac26b8e429150d4cbf807e8692f207b7ce7d40d/gson/src/main/java/com/google/gson/stream/JsonWriter.java#L158
+                  escapes['<'] = CharacterEscapes.ESCAPE_CUSTOM;
+                  escapes['>'] = CharacterEscapes.ESCAPE_CUSTOM;
+                  escapes['&'] = CharacterEscapes.ESCAPE_STANDARD;
+                  escapes['='] = CharacterEscapes.ESCAPE_STANDARD;
+                  escapes['\''] = CharacterEscapes.ESCAPE_STANDARD;
+                  return escapes;
+                }
+
+                @Override
+                @Nullable
+                public SerializableString getEscapeSequence(int ch) {
+                  switch (ch) {
+                    case '<':
+                      return HTML_ESCAPED_LESS_THAN;
+                    case '>':
+                      return HTML_ESCAPED_GREATER_THAN;
+                    default:
+                      return null;
+                  }
+                }
+              });
 
   @Nullable private final PrettyPrinter prettyPrinter;
 
@@ -243,6 +282,8 @@ public class MessageMarshaller {
     private boolean preservingProtoFieldNames;
     private boolean omittingInsignificantWhitespace;
     private boolean ignoringUnknownFields;
+    private boolean printingEnumsAsInts;
+    private boolean sortingMapKeys;
 
     private final List<Message> prototypes = new ArrayList<>();
 
@@ -332,6 +373,26 @@ public class MessageMarshaller {
       return this;
     }
 
+    /** Sets whether enum values should be printed as their integer value rather than their name. */
+    public Builder printingEnumsAsInts(boolean printingEnumsAsInts) {
+      this.printingEnumsAsInts = printingEnumsAsInts;
+      return this;
+    }
+
+    /**
+     * Sets whether map keys will be sorted in the JSON output.
+     *
+     * <p>Use of this modifier is discouraged, the generated JSON messages are equivalent with and
+     * without this option set, but there are some corner caseuse cases that demand a stable output,
+     * while order of map keys is otherwise arbitrary.
+     *
+     * <p>The generated order is not well-defined and should not be depended on, but it's stable.
+     */
+    public Builder sortingMapKeys(boolean sortingMapKeys) {
+      this.sortingMapKeys = sortingMapKeys;
+      return this;
+    }
+
     /**
      * Returns the built {@link MessageMarshaller}, generating {@link TypeSpecificMarshaller} for
      * all registered {@link Message} types. Any {@link Message} types that have not been registered
@@ -364,6 +425,8 @@ public class MessageMarshaller {
             includingDefaultValueFields,
             preservingProtoFieldNames,
             ignoringUnknownFields,
+            printingEnumsAsInts,
+            sortingMapKeys,
             builtParsers);
       }
 

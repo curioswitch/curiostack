@@ -33,6 +33,7 @@ import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.EnumDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
+import com.google.protobuf.Descriptors.FieldDescriptor.Type;
 import com.google.protobuf.Message;
 import com.google.protobuf.NullValue;
 import com.google.protobuf.Value;
@@ -57,6 +58,7 @@ import net.bytebuddy.jar.asm.Label;
 import net.bytebuddy.jar.asm.MethodVisitor;
 import org.curioswitch.common.protobuf.json.LocalVariables.VariableHandle;
 import org.curioswitch.common.protobuf.json.bytebuddy.Goto;
+import org.curioswitch.common.protobuf.json.bytebuddy.IfEqual;
 import org.curioswitch.common.protobuf.json.bytebuddy.IfRefsEqual;
 import org.curioswitch.common.protobuf.json.bytebuddy.IfRefsNotEqual;
 import org.curioswitch.common.protobuf.json.bytebuddy.IfTrue;
@@ -108,6 +110,11 @@ final class DoParse implements ByteCodeAppender, Implementation {
     private static final LocalVariable messageBuilder = new LocalVariable("messageBuilder");
     private static final LocalVariable builder = new LocalVariable("builder");
     private static final LocalVariable fieldName = new LocalVariable("fieldName");
+    private static final LocalVariable intvalue = new LocalVariable("intValue");
+    private static final LocalVariable intMapKey = new LocalVariable("intMapKey");
+    private static final LocalVariable longMapKey = new LocalVariable("longMapKey");
+    private static final LocalVariable boolMapKey = new LocalVariable("boolMapKey");
+    private static final LocalVariable stringMapKey = new LocalVariable("stringMapKey");
 
     private final String name;
 
@@ -121,7 +128,18 @@ final class DoParse implements ByteCodeAppender, Implementation {
     }
 
     static LocalVariable[] values() {
-      return new LocalVariable[] {parser, currentDepth, messageBuilder, builder, fieldName};
+      return new LocalVariable[] {
+        parser,
+        currentDepth,
+        messageBuilder,
+        builder,
+        fieldName,
+        intvalue,
+        intMapKey,
+        longMapKey,
+        boolMapKey,
+        stringMapKey
+      };
     }
   }
 
@@ -150,6 +168,7 @@ final class DoParse implements ByteCodeAppender, Implementation {
   private static final StackManipulation ParseSupport_parseString;
   private static final StackManipulation ParseSupport_parseBytes;
   private static final StackManipulation ParseSupport_parseEnum;
+  private static final StackManipulation ParseSupport_mapUnknownEnumValue;
   private static final StackManipulation ParseSupport_parseMessage;
 
   static {
@@ -179,7 +198,11 @@ final class DoParse implements ByteCodeAppender, Implementation {
       ParseSupport_throwIfOneofAlreadyWritten =
           invoke(
               ParseSupport.class.getDeclaredMethod(
-                  "throwIfOneofAlreadyWritten", Object.class, String.class));
+                  "throwIfOneofAlreadyWritten",
+                  JsonParser.class,
+                  Object.class,
+                  String.class,
+                  boolean.class));
       ParseSupport_throwIfUnknownField =
           invoke(
               ParseSupport.class.getDeclaredMethod(
@@ -206,7 +229,9 @@ final class DoParse implements ByteCodeAppender, Implementation {
       ParseSupport_parseEnum =
           invoke(
               ParseSupport.class.getDeclaredMethod(
-                  "parseEnum", JsonParser.class, EnumDescriptor.class));
+                  "parseEnum", JsonParser.class, EnumDescriptor.class, boolean.class));
+      ParseSupport_mapUnknownEnumValue =
+          invoke(ParseSupport.class.getDeclaredMethod("mapUnknownEnumValue", int.class));
       ParseSupport_parseMessage =
           invoke(
               ParseSupport.class.getDeclaredMethod(
@@ -262,7 +287,12 @@ final class DoParse implements ByteCodeAppender, Implementation {
                     Iterables.toArray(fieldPresenceVars, LocalVariable.class),
                     LocalVariable.class))
             .add(builderClass, LocalVariable.builder)
-            .add(String.class, LocalVariable.fieldName);
+            .add(String.class, LocalVariable.fieldName)
+            .add(int.class, LocalVariable.intvalue)
+            .add(int.class, LocalVariable.intMapKey)
+            .add(long.class, LocalVariable.longMapKey)
+            .add(boolean.class, LocalVariable.boolMapKey)
+            .add(String.class, LocalVariable.stringMapKey);
     for (LocalVariable fieldPresenceVar : fieldPresenceVars) {
       localsBuilder.add(int.class, fieldPresenceVar);
     }
@@ -353,9 +383,11 @@ final class DoParse implements ByteCodeAppender, Implementation {
         try {
           stackManipulations.addAll(
               Arrays.asList(
+                  locals.load(LocalVariable.parser),
                   locals.load(LocalVariable.builder),
                   invoke(builderClass.getDeclaredMethod(field.getOneOfCaseMethodName())),
                   new TextConstant(field.descriptor().getFullName()),
+                  IntegerConstant.forValue(mustSkipNull(field.descriptor())),
                   ParseSupport_throwIfOneofAlreadyWritten));
         } catch (NoSuchMethodException e) {
           throw new IllegalStateException("Could not find oneof case method.", e);
@@ -409,7 +441,7 @@ final class DoParse implements ByteCodeAppender, Implementation {
    * @param locals the method local variables
    * @param fieldsByName the instance fields
    */
-  private static StackManipulation setFieldValue(
+  private StackManipulation setFieldValue(
       ProtoFieldInfo info,
       Label beforeReadField,
       LocalVariables<LocalVariable> locals,
@@ -423,6 +455,10 @@ final class DoParse implements ByteCodeAppender, Implementation {
         setSingleValue =
             new StackManipulation.Compound(
                 TypeCasting.to(new ForLoadedType(info.javaClass())), setConcreteValue);
+      } else if (info.valueType() == Type.ENUM && !info.isRepeated()) {
+        // For non-repeated enums, we treat unknown as the default value.
+        setSingleValue =
+            new StackManipulation.Compound(ParseSupport_mapUnknownEnumValue, setConcreteValue);
       } else {
         setSingleValue = setConcreteValue;
       }
@@ -454,31 +490,58 @@ final class DoParse implements ByteCodeAppender, Implementation {
    * }
    * }</pre>
    */
-  private static StackManipulation setRepeatedFieldValue(
+  private StackManipulation setRepeatedFieldValue(
       ProtoFieldInfo info,
       Label beforeReadField,
       LocalVariables<LocalVariable> locals,
       Map<String, FieldDescription> fieldsByName,
       StackManipulation setSingleValue) {
     Label arrayStart = new Label();
-    return new StackManipulation.Compound(
-        locals.load(LocalVariable.parser),
-        ParseSupport_parseArrayStart,
-        new SetJumpTargetLabel(arrayStart),
-        locals.load(LocalVariable.parser),
-        ParseSupport_throwIfRepeatedNull,
-        locals.load(LocalVariable.parser),
-        ParseSupport_checkArrayEnd,
-        new IfTrue(beforeReadField),
-        locals.load(LocalVariable.builder),
-        locals.load(LocalVariable.parser),
-        readValue(info, fieldsByName, locals),
-        setSingleValue,
-        Removal.SINGLE,
-        locals.load(LocalVariable.parser),
-        Parser_nextValue,
-        Removal.SINGLE,
-        new Goto(arrayStart));
+
+    StackManipulation.Compound beforeRead =
+        new StackManipulation.Compound(
+            locals.load(LocalVariable.parser),
+            ParseSupport_parseArrayStart,
+            new SetJumpTargetLabel(arrayStart),
+            locals.load(LocalVariable.parser),
+            ParseSupport_throwIfRepeatedNull,
+            locals.load(LocalVariable.parser),
+            ParseSupport_checkArrayEnd,
+            new IfTrue(beforeReadField));
+
+    Label afterSet = new Label();
+
+    StackManipulation.Compound setValueAndPrepareForNext =
+        new StackManipulation.Compound(
+            setSingleValue,
+            Removal.SINGLE,
+            new SetJumpTargetLabel(afterSet),
+            locals.load(LocalVariable.parser),
+            Parser_nextValue,
+            Removal.SINGLE,
+            new Goto(arrayStart));
+
+    if (info.valueType() == Type.ENUM) {
+      // We special-case enum since we may need to skip unknown values.
+      return new StackManipulation.Compound(
+          beforeRead,
+          locals.load(LocalVariable.parser),
+          readValue(info, fieldsByName, locals),
+          locals.store(LocalVariable.intvalue),
+          locals.load(LocalVariable.intvalue),
+          IntegerConstant.forValue(-1),
+          new IfEqual(int.class, afterSet),
+          locals.load(LocalVariable.builder),
+          locals.load(LocalVariable.intvalue),
+          setValueAndPrepareForNext);
+    } else {
+      return new StackManipulation.Compound(
+          beforeRead,
+          locals.load(LocalVariable.builder),
+          locals.load(LocalVariable.parser),
+          readValue(info, fieldsByName, locals),
+          setValueAndPrepareForNext);
+    }
   }
 
   /**
@@ -493,7 +556,7 @@ final class DoParse implements ByteCodeAppender, Implementation {
    * }
    * }</pre>
    */
-  private static StackManipulation setMapFieldValue(
+  private StackManipulation setMapFieldValue(
       ProtoFieldInfo info,
       Label beforeReadField,
       LocalVariables<LocalVariable> locals,
@@ -508,28 +571,79 @@ final class DoParse implements ByteCodeAppender, Implementation {
       setMapEntry = setConcreteValue;
     }
     Label mapStart = new Label();
-    return new StackManipulation.Compound(
-        locals.load(LocalVariable.parser),
-        ParseSupport_parseObjectStart,
-        new SetJumpTargetLabel(mapStart),
-        locals.load(LocalVariable.parser),
-        Parser_currentToken,
-        ParseSupport_checkObjectEnd,
-        new IfTrue(beforeReadField),
-        locals.load(LocalVariable.builder),
-        locals.load(LocalVariable.parser),
-        readValue(info.mapKeyField(), fieldsByName, locals),
-        locals.load(LocalVariable.parser),
-        Parser_nextToken,
-        Removal.SINGLE,
-        locals.load(LocalVariable.parser),
-        readValue(info, fieldsByName, locals),
-        setMapEntry,
-        Removal.SINGLE,
-        locals.load(LocalVariable.parser),
-        Parser_nextToken,
-        Removal.SINGLE,
-        new Goto(mapStart));
+    Label afterSet = new Label();
+
+    StackManipulation.Compound beforeReadKey =
+        new StackManipulation.Compound(
+            locals.load(LocalVariable.parser),
+            ParseSupport_parseObjectStart,
+            new SetJumpTargetLabel(mapStart),
+            locals.load(LocalVariable.parser),
+            Parser_currentToken,
+            ParseSupport_checkObjectEnd,
+            new IfTrue(beforeReadField));
+
+    StackManipulation.Compound setValueAndPrepareForNext =
+        new StackManipulation.Compound(
+            setMapEntry,
+            Removal.SINGLE,
+            new SetJumpTargetLabel(afterSet),
+            locals.load(LocalVariable.parser),
+            Parser_nextToken,
+            Removal.SINGLE,
+            new Goto(mapStart));
+
+    if (info.valueType() == Type.ENUM) {
+      // We special-case enum since we may need to skip unknown values.
+      final LocalVariable keyVar;
+      switch (info.mapKeyField().valueJavaType()) {
+        case INT:
+          keyVar = LocalVariable.intMapKey;
+          break;
+        case LONG:
+          keyVar = LocalVariable.longMapKey;
+          break;
+        case BOOLEAN:
+          keyVar = LocalVariable.boolMapKey;
+          break;
+        case STRING:
+          keyVar = LocalVariable.stringMapKey;
+          break;
+        default:
+          throw new IllegalArgumentException("Invalid map key type");
+      }
+
+      return new StackManipulation.Compound(
+          beforeReadKey,
+          locals.load(LocalVariable.parser),
+          readValue(info.mapKeyField(), fieldsByName, locals),
+          locals.store(keyVar),
+          locals.load(LocalVariable.parser),
+          Parser_nextToken,
+          Removal.SINGLE,
+          locals.load(LocalVariable.parser),
+          readValue(info, fieldsByName, locals),
+          locals.store(LocalVariable.intvalue),
+          locals.load(LocalVariable.intvalue),
+          IntegerConstant.forValue(-1),
+          new IfEqual(int.class, afterSet),
+          locals.load(LocalVariable.builder),
+          locals.load(keyVar),
+          locals.load(LocalVariable.intvalue),
+          setValueAndPrepareForNext);
+    } else {
+      return new StackManipulation.Compound(
+          beforeReadKey,
+          locals.load(LocalVariable.builder),
+          locals.load(LocalVariable.parser),
+          readValue(info.mapKeyField(), fieldsByName, locals),
+          locals.load(LocalVariable.parser),
+          Parser_nextToken,
+          Removal.SINGLE,
+          locals.load(LocalVariable.parser),
+          readValue(info, fieldsByName, locals),
+          setValueAndPrepareForNext);
+    }
   }
 
   @Override
@@ -546,7 +660,7 @@ final class DoParse implements ByteCodeAppender, Implementation {
    * Returns the {@link StackManipulation} for reading the JSON encoded value for the field. Just
    * dispatches to {@link ParseSupport} based on the field type.
    */
-  private static StackManipulation readValue(
+  private StackManipulation readValue(
       ProtoFieldInfo field,
       Map<String, FieldDescription> fieldsByName,
       LocalVariables<LocalVariable> locals) {
@@ -577,7 +691,9 @@ final class DoParse implements ByteCodeAppender, Implementation {
         return ParseSupport_parseBytes;
       case ENUM:
         return new StackManipulation.Compound(
-            CodeGenUtil.getEnumDescriptor(field), ParseSupport_parseEnum);
+            CodeGenUtil.getEnumDescriptor(field),
+            IntegerConstant.forValue(ignoringUnknownFields),
+            ParseSupport_parseEnum);
       case MESSAGE:
       case GROUP:
         return new StackManipulation.Compound(
