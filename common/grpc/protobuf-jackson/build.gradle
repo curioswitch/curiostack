@@ -26,7 +26,7 @@ apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 
 apply plugin: 'me.champeau.gradle.jmh'
-apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
+apply plugin: 'org.curioswitch.gradle-protobuf-plugin'
 
 archivesBaseName = 'protobuf-jackson'
 
@@ -42,6 +42,15 @@ jmh {
     iterations = 10
     fork = 5
     profilers = []
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.7.1'
+    }
+
+    descriptorSetOptions.enabled = false
+    descriptorSetOptions.path = file('build/unused-descriptor-set')
 }
 
 dependencies {
