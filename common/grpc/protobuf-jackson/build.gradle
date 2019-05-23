@@ -30,13 +30,8 @@ apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
 
 archivesBaseName = 'protobuf-jackson'
 
-sourceCompatibility = '1.7'
-targetCompatibility = '1.7'
-
-[tasks.compileTestJava, tasks.compileJmhJava].each {
-    it.sourceCompatibility = '1.8'
-    it.targetCompatibility = '1.8'
-}
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
 
 // Not clear why this doesn't happen automatically with the configuration extension.
 tasks.compileJmhJava.dependsOn tasks.compileTestJava

@@ -23,8 +23,6 @@
  */
 package org.curioswitch.common.protobuf.json;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -343,13 +341,17 @@ public final class ParseSupport {
   }
 
   /** Parsers an enum value out of the input. Supports both numeric and string representations. */
-  public static int parseEnum(JsonParser parser, EnumDescriptor descriptor) throws IOException {
+  public static int parseEnum(
+      JsonParser parser, EnumDescriptor descriptor, boolean ignoringUnknownFields)
+      throws IOException {
     JsonToken json = parser.currentToken();
     if (json == JsonToken.VALUE_NULL) {
-      // This should only be possible if this is a NullValue enum, parseEnum will not be called
-      // otherwise when the value is null.
-      checkArgument(descriptor == NullValue.getDescriptor());
-      return NullValue.NULL_VALUE_VALUE;
+      if (descriptor == NullValue.getDescriptor()) {
+        return NullValue.NULL_VALUE_VALUE;
+      } else {
+        // A null value in a map with enum value type, we always ignore such nulls.
+        return -1;
+      }
     }
     if (json.isNumeric()) {
       try {
@@ -368,8 +370,16 @@ public final class ParseSupport {
         // Fall through.
       }
     }
-    throw new InvalidProtocolBufferException(
-        "Invalid enum value: " + json + " for enum type: " + descriptor.getFullName());
+    if (!ignoringUnknownFields) {
+      throw new InvalidProtocolBufferException(
+          "Invalid enum value: " + json + " for enum type: " + descriptor.getFullName());
+    }
+    return -1;
+  }
+
+  /** Returns the default value for an enum if it was read as an unknown, for singular fields. */
+  public static int mapUnknownEnumValue(int value) {
+    return value == -1 ? 0 : value;
   }
 
   /** Parsers a {@link Message} value out of the input. */
@@ -396,8 +406,13 @@ public final class ParseSupport {
    * Checks whether the oneof whose {@code oneofCase} has already been set. If so, an {@link
    * InvalidProtocolBufferException} is thrown.
    */
-  public static void throwIfOneofAlreadyWritten(Object oneofCase, String fieldName)
+  public static void throwIfOneofAlreadyWritten(
+      JsonParser parser, Object oneofCase, String fieldName, boolean ignoreNull)
       throws InvalidProtocolBufferException {
+    if (ignoreNull && parser.currentToken() == JsonToken.VALUE_NULL) {
+      // If the value is null, we skip it and don't need to throw any error..
+      return;
+    }
     if (((EnumLite) oneofCase).getNumber() != 0) {
       // TODO: Add the actual variableName of the offending field to the error message like
       // upstream, not

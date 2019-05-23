@@ -151,6 +151,8 @@ public abstract class TypeSpecificMarshaller<T extends Message> {
       boolean includingDefaultValueFields,
       boolean preservingProtoFieldNames,
       boolean ignoringUnknownFields,
+      boolean printingEnumsAsInts,
+      boolean sortingMapKeys,
       Map<Descriptor, TypeSpecificMarshaller<?>> builtMarshallers) {
     if (builtMarshallers.containsKey(prototype.getDescriptorForType())) {
       return;
@@ -160,6 +162,8 @@ public abstract class TypeSpecificMarshaller<T extends Message> {
         includingDefaultValueFields,
         preservingProtoFieldNames,
         ignoringUnknownFields,
+        printingEnumsAsInts,
+        sortingMapKeys,
         builtMarshallers);
     Map<String, TypeSpecificMarshaller<?>> builtMarshallersByFieldName = new HashMap<>();
     for (Map.Entry<Descriptor, TypeSpecificMarshaller<?>> entry : builtMarshallers.entrySet()) {
@@ -189,6 +193,8 @@ public abstract class TypeSpecificMarshaller<T extends Message> {
       boolean includingDefaultValueFields,
       boolean preservingProtoFieldNames,
       boolean ignoringUnknownFields,
+      boolean printingEnumsAsInts,
+      boolean sortingMapKeys,
       Map<Descriptor, TypeSpecificMarshaller<?>> alreadyBuiltMarshallers) {
     Descriptor descriptor = prototype.getDescriptorForType();
     if (alreadyBuiltMarshallers.containsKey(descriptor)) {
@@ -260,7 +266,9 @@ public abstract class TypeSpecificMarshaller<T extends Message> {
             .withParameter(prototype.getClass(), "message")
             .withParameter(JsonGenerator.class, "gen")
             .throwing(IOException.class)
-            .intercept(new DoWrite(prototype, includingDefaultValueFields));
+            .intercept(
+                new DoWrite(
+                    prototype, includingDefaultValueFields, printingEnumsAsInts, sortingMapKeys));
     try {
       marshaller =
           buddy
@@ -286,6 +294,8 @@ public abstract class TypeSpecificMarshaller<T extends Message> {
           includingDefaultValueFields,
           preservingProtoFieldNames,
           ignoringUnknownFields,
+          printingEnumsAsInts,
+          sortingMapKeys,
           alreadyBuiltMarshallers);
     }
   }
