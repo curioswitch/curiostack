@@ -37,7 +37,7 @@ steps:
   waitFor:
   - curio-generated-deepen-git-repo
   - curio-generated-fetch-compressed-build-cache
-  name: curiostack/java-cloud-builder:non-root
+  name: curiostack/java-cloud-builder
   volumes:
   - name: gradle-wrapper
     path: /root/.gradle/wrapper
