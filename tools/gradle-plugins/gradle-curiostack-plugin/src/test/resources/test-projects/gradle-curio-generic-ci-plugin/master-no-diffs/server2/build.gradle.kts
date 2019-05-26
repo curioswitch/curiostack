@@ -29,3 +29,11 @@ plugins {
 dependencies {
     compile(project(":library1"))
 }
+
+server {
+    deployments {
+        register("alpha") {
+            autoDeploy.set(true)
+        }
+    }
+}
