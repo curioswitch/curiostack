@@ -87,8 +87,10 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":library2:build")).isNull();
       assertThat(result.task(":server1:build")).isNull();
       assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
       assertThat(result.task(":server2:build")).isNull();
       assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
     }
 
     @Test
@@ -107,8 +109,10 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":library2:build")).isNull();
       assertThat(result.task(":server1:build")).isNull();
       assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
       assertThat(result.task(":server2:build")).isNull();
       assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:deployAlpha")).isNull();
     }
 
     @SuppressWarnings("ClassCanBeStatic")
@@ -131,8 +135,10 @@ class CurioGenericCiPluginTest {
         assertThat(result.task(":library2:build")).isNull();
         assertThat(result.task(":server1:build")).isNotNull();
         assertThat(result.task(":server1:jib")).isNotNull();
+        assertThat(result.task(":server1:deployAlpha")).isNull();
         assertThat(result.task(":server2:build")).isNull();
         assertThat(result.task(":server2:jib")).isNull();
+        assertThat(result.task(":server1:deployAlpha")).isNull();
       }
 
       @Test
@@ -152,8 +158,10 @@ class CurioGenericCiPluginTest {
         assertThat(result.task(":library2:build")).isNull();
         assertThat(result.task(":server1:build")).isNull();
         assertThat(result.task(":server1:jib")).isNull();
+        assertThat(result.task(":server1:deployAlpha")).isNull();
         assertThat(result.task(":server2:build")).isNotNull();
         assertThat(result.task(":server2:jib")).isNotNull();
+        assertThat(result.task(":server2:deployAlpha")).isNull();
       }
 
       @Test
@@ -217,8 +225,10 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":library2:build")).isNull();
       assertThat(result.task(":server1:build")).isNull();
       assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
       assertThat(result.task(":server2:build")).isNotNull();
       assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:deployAlpha")).isNull();
     }
 
     @Test
@@ -237,8 +247,254 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":library2:build")).isNull();
       assertThat(result.task(":server1:build")).isNull();
       assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
       assertThat(result.task(":server2:build")).isNotNull();
       assertThat(result.task(":server2:jib")).isNotNull();
+      assertThat(result.task(":server2:deployAlpha")).isNotNull();
+    }
+  }
+
+  @SuppressWarnings("ClassCanBeStatic")
+  @Nested
+  class MasterBranchLibrary2Diff {
+
+    private File projectDir;
+
+    @BeforeAll
+    void copyProject(@TempDir Path projectDir) throws Exception {
+      copyProjectFromResources(
+          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+
+      addDiffs(projectDir, "library2/src/main/java/Library2.java");
+
+      this.projectDir = projectDir.toFile();
+    }
+
+    @Test
+    void ciNotMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNull();
+      assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":library2:jar")).isNotNull();
+      assertThat(result.task(":library2:build")).isNotNull();
+      assertThat(result.task(":server1:build")).isNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
+      assertThat(result.task(":server2:build")).isNull();
+      assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:deployAlpha")).isNull();
+    }
+
+    @Test
+    void ciIsMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNull();
+      assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":library2:jar")).isNotNull();
+      assertThat(result.task(":library2:build")).isNotNull();
+      assertThat(result.task(":server1:build")).isNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
+      assertThat(result.task(":server2:build")).isNull();
+      assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:deployAlpha")).isNull();
+    }
+  }
+
+  @SuppressWarnings("ClassCanBeStatic")
+  @Nested
+  class MasterBranchServer1Diff {
+
+    private File projectDir;
+
+    @BeforeAll
+    void copyProject(@TempDir Path projectDir) throws Exception {
+      copyProjectFromResources(
+          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+
+      addDiffs(projectDir, "server1/src/main/java/Server1.java");
+
+      this.projectDir = projectDir.toFile();
+    }
+
+    @Test
+    void ciNotMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNull();
+      assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":library2:jar")).isNull();
+      assertThat(result.task(":library2:build")).isNull();
+      assertThat(result.task(":server1:build")).isNotNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
+      assertThat(result.task(":server2:build")).isNull();
+      assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:deployAlpha")).isNull();
+    }
+
+    @Test
+    void ciIsMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNull();
+      assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":library2:jar")).isNull();
+      assertThat(result.task(":library2:build")).isNull();
+      assertThat(result.task(":server1:build")).isNotNull();
+      assertThat(result.task(":server1:jib")).isNotNull();
+      assertThat(result.task(":server1:deployAlpha")).isNotNull();
+      assertThat(result.task(":server2:build")).isNull();
+      assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:deployAlpha")).isNull();
+    }
+  }
+
+  @SuppressWarnings("ClassCanBeStatic")
+  @Nested
+  class MasterBranchServer2Diff {
+
+    private File projectDir;
+
+    @BeforeAll
+    void copyProject(@TempDir Path projectDir) throws Exception {
+      copyProjectFromResources(
+          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+
+      addDiffs(projectDir, "server2/src/main/java/Server2.java");
+
+      this.projectDir = projectDir.toFile();
+    }
+
+    @Test
+    void ciNotMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNull();
+      assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":library2:jar")).isNull();
+      assertThat(result.task(":library2:build")).isNull();
+      assertThat(result.task(":server1:build")).isNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
+      assertThat(result.task(":server2:build")).isNotNull();
+      assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:deployAlpha")).isNull();
+    }
+
+    @Test
+    void ciIsMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNull();
+      assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":library2:jar")).isNull();
+      assertThat(result.task(":library2:build")).isNull();
+      assertThat(result.task(":server1:build")).isNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
+      assertThat(result.task(":server2:build")).isNotNull();
+      assertThat(result.task(":server2:jib")).isNotNull();
+      assertThat(result.task(":server2:deployAlpha")).isNotNull();
+    }
+  }
+
+  @SuppressWarnings("ClassCanBeStatic")
+  @Nested
+  class MasterBranchTopLevelDiff {
+
+    private File projectDir;
+
+    @BeforeAll
+    void copyProject(@TempDir Path projectDir) throws Exception {
+      copyProjectFromResources(
+          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+
+      addDiffs(projectDir, "build.gradle.kts");
+
+      this.projectDir = projectDir.toFile();
+    }
+
+    @Test
+    void ciNotMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNotNull();
+      assertThat(result.task(":library1:build")).isNotNull();
+      assertThat(result.task(":library2:jar")).isNotNull();
+      assertThat(result.task(":library2:build")).isNotNull();
+      assertThat(result.task(":server1:build")).isNotNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
+      assertThat(result.task(":server2:build")).isNotNull();
+      assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:deployAlpha")).isNull();
+    }
+
+    @Test
+    void ciIsMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNotNull();
+      assertThat(result.task(":library1:build")).isNotNull();
+      assertThat(result.task(":library2:jar")).isNotNull();
+      assertThat(result.task(":library2:build")).isNotNull();
+      assertThat(result.task(":server1:build")).isNotNull();
+      assertThat(result.task(":server1:jib")).isNotNull();
+      assertThat(result.task(":server1:deployAlpha")).isNotNull();
+      assertThat(result.task(":server2:build")).isNotNull();
+      assertThat(result.task(":server2:jib")).isNotNull();
+      assertThat(result.task(":server2:deployAlpha")).isNotNull();
     }
   }
 

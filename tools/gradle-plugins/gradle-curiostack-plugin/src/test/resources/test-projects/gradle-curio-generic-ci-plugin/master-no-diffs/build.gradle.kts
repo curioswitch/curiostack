@@ -24,6 +24,8 @@ import jnr.ffi.provider.jffi.CodegenUtils.ci
  * SOFTWARE.
  */
 
+// |DIFF-ME|
+
 plugins {
     id("org.curioswitch.gradle-curiostack-plugin")
 }

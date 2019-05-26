@@ -25,3 +25,11 @@
 plugins {
     id("org.curioswitch.gradle-curio-server-plugin")
 }
+
+server {
+    deployments {
+        register("alpha") {
+            autoDeploy.set(true)
+        }
+    }
+}
