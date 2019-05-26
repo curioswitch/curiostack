@@ -402,7 +402,7 @@ class CurioGenericCiPluginTest {
               .withPluginClasspath()
               .build();
 
-      assertThat(result.task(":library1:jar")).isNull();
+      assertThat(result.task(":library1:jar")).isNotNull();
       assertThat(result.task(":library1:build")).isNull();
       assertThat(result.task(":library2:jar")).isNull();
       assertThat(result.task(":library2:build")).isNull();
@@ -424,7 +424,7 @@ class CurioGenericCiPluginTest {
               .withPluginClasspath()
               .build();
 
-      assertThat(result.task(":library1:jar")).isNull();
+      assertThat(result.task(":library1:jar")).isNotNull();
       assertThat(result.task(":library1:build")).isNull();
       assertThat(result.task(":library2:jar")).isNull();
       assertThat(result.task(":library2:build")).isNull();
