@@ -137,12 +137,13 @@ public class ListLandmarksGraph {
                   }
                   return cell;
                 })
-            .filter(cell -> !cell.isValid())
+            .filter(S2CellId::isValid)
             .findFirst()
             .orElse(S2CellId.none());
 
-    if (!firstCellMissingLandmarks.isValid()) {
-      // All cells were covered, no need to search for new landmarks.
+    if (firstCellMissingLandmarks.isValid()) {
+      // At least one cell was covered - for now don't search again if any cells are covered.
+      // For better logic, we will need to keep track of searched viewports some way..
       var response = new PlacesSearchResponse();
       response.results = EMPTY;
       return immediateFuture(response);
