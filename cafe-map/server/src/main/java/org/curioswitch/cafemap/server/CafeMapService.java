@@ -33,8 +33,11 @@ import org.curioswitch.cafemap.api.GetPlaceRequest;
 import org.curioswitch.cafemap.api.GetPlaceResponse;
 import org.curioswitch.cafemap.api.GetPlacesRequest;
 import org.curioswitch.cafemap.api.GetPlacesResponse;
+import org.curioswitch.cafemap.api.ListLandmarksRequest;
+import org.curioswitch.cafemap.api.ListLandmarksResponse;
 import org.curioswitch.cafemap.server.places.GetPlaceGraph;
 import org.curioswitch.cafemap.server.places.GetPlacesGraph;
+import org.curioswitch.cafemap.server.places.ListLandmarksGraph;
 import org.curioswitch.common.server.framework.grpc.GrpcGraphUtil;
 
 @Singleton
@@ -42,13 +45,16 @@ public class CafeMapService extends CafeMapServiceImplBase {
 
   private final Provider<GetPlacesGraph.Component.Builder> getPlacesGraph;
   private final Provider<GetPlaceGraph.Component.Builder> getPlaceGraph;
+  private final Provider<ListLandmarksGraph.Component.Builder> listLandmarksGraph;
 
   @Inject
   CafeMapService(
       Provider<GetPlacesGraph.Component.Builder> getPlacesGraph,
-      Provider<GetPlaceGraph.Component.Builder> getPlaceGraph) {
+      Provider<GetPlaceGraph.Component.Builder> getPlaceGraph,
+      Provider<ListLandmarksGraph.Component.Builder> listLandmarksGraph) {
     this.getPlacesGraph = getPlacesGraph;
     this.getPlaceGraph = getPlaceGraph;
+    this.listLandmarksGraph = listLandmarksGraph;
   }
 
   @Override
@@ -60,5 +66,11 @@ public class CafeMapService extends CafeMapServiceImplBase {
   @Override
   public void getPlace(GetPlaceRequest request, StreamObserver<GetPlaceResponse> responseObserver) {
     GrpcGraphUtil.unary(new GetPlaceGraph(request), responseObserver, getPlaceGraph);
+  }
+
+  @Override
+  public void listLandmarks(
+      ListLandmarksRequest request, StreamObserver<ListLandmarksResponse> responseObserver) {
+    GrpcGraphUtil.unary(new ListLandmarksGraph(request), responseObserver, listLandmarksGraph);
   }
 }

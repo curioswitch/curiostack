@@ -29,6 +29,7 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
 import static org.curioswitch.database.cafemapdb.tables.Landmark.LANDMARK;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import com.google.common.geometry.S2CellId;
 import com.google.common.geometry.S2CellUnion;
@@ -46,6 +47,7 @@ import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.PlacesSearchResult;
 import dagger.producers.ProducerModule;
 import dagger.producers.Produces;
+import dagger.producers.ProductionSubcomponent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -55,6 +57,7 @@ import org.curioswitch.cafemap.api.ListLandmarksRequest;
 import org.curioswitch.cafemap.api.ListLandmarksResponse;
 import org.curioswitch.cafemap.server.util.S2Util;
 import org.curioswitch.common.server.framework.database.ForDatabase;
+import org.curioswitch.common.server.framework.grpc.GrpcProductionComponent;
 import org.curioswitch.database.cafemapdb.tables.pojos.Landmark;
 import org.curioswitch.database.cafemapdb.tables.records.LandmarkRecord;
 import org.curioswitch.gcloud.mapsservices.CallbackListenableFuture;
@@ -64,11 +67,18 @@ import org.jooq.types.ULong;
 @ProducerModule
 public class ListLandmarksGraph {
 
+  @ProductionSubcomponent(modules = ListLandmarksGraph.class)
+  public interface Component extends GrpcProductionComponent<ListLandmarksResponse> {
+    @ProductionSubcomponent.Builder
+    interface Builder
+        extends GrpcProductionComponentBuilder<ListLandmarksGraph, Component, Builder> {}
+  }
+
   private static final PlacesSearchResult[] EMPTY = new PlacesSearchResult[0];
 
   private final ListLandmarksRequest request;
 
-  ListLandmarksGraph(ListLandmarksRequest request) {
+  public ListLandmarksGraph(ListLandmarksRequest request) {
     this.request = request;
   }
 
@@ -156,6 +166,10 @@ public class ListLandmarksGraph {
       List<List<Landmark>> dbLandmarks,
       DSLContext cafemapdb,
       @ForDatabase ListeningExecutorService dbExecutor) {
+    if (searchResponse.results.length == 0) {
+      return immediateFuture(ImmutableList.of());
+    }
+
     Set<String> dbPlaceIds =
         dbLandmarks.stream()
             .flatMap(List::stream)

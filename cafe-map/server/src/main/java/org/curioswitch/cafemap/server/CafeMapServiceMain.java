@@ -34,6 +34,7 @@ import io.grpc.BindableService;
 import javax.inject.Singleton;
 import org.curioswitch.cafemap.server.places.GetPlaceGraph;
 import org.curioswitch.cafemap.server.places.GetPlacesGraph;
+import org.curioswitch.cafemap.server.places.ListLandmarksGraph;
 import org.curioswitch.common.server.framework.ServerModule;
 import org.curioswitch.common.server.framework.database.DatabaseModule;
 import org.curioswitch.common.server.framework.staticsite.StaticSiteServiceDefinition;
@@ -43,7 +44,11 @@ public class CafeMapServiceMain {
 
   @Module(
       includes = {DatabaseModule.class, ServerModule.class, MapsServicesModule.class},
-      subcomponents = {GetPlacesGraph.Component.class, GetPlaceGraph.Component.class})
+      subcomponents = {
+        GetPlacesGraph.Component.class,
+        GetPlaceGraph.Component.class,
+        ListLandmarksGraph.Component.class
+      })
   abstract static class CafeMapServiceModule {
     @Binds
     @IntoSet
