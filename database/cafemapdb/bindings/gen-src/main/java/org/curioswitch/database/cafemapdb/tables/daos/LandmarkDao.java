@@ -105,7 +105,7 @@ public class LandmarkDao extends DAOImpl<LandmarkRecord, org.curioswitch.databas
     /**
      * Fetch records that have <code>s2_cell IN (values)</code>
      */
-    public List<org.curioswitch.database.cafemapdb.tables.pojos.Landmark> fetchByS2Cell(String... values) {
+    public List<org.curioswitch.database.cafemapdb.tables.pojos.Landmark> fetchByS2Cell(ULong... values) {
         return fetch(Landmark.LANDMARK.S2_CELL, values);
     }
 

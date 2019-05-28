@@ -65,7 +65,7 @@ import org.jooq.types.ULong;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Landmark extends TableImpl<LandmarkRecord> {
 
-    private static final long serialVersionUID = -1590760405;
+    private static final long serialVersionUID = -1490067463;
 
     /**
      * The reference instance of <code>cafemapdb.landmark</code>
@@ -93,7 +93,7 @@ public class Landmark extends TableImpl<LandmarkRecord> {
     /**
      * The column <code>cafemapdb.landmark.s2_cell</code>.
      */
-    public final TableField<LandmarkRecord, String> S2_CELL = createField("s2_cell", org.jooq.impl.SQLDataType.VARCHAR(255).nullable(false), this, "");
+    public final TableField<LandmarkRecord, ULong> S2_CELL = createField("s2_cell", org.jooq.impl.SQLDataType.BIGINTUNSIGNED.nullable(false), this, "");
 
     /**
      * The column <code>cafemapdb.landmark.type</code>.

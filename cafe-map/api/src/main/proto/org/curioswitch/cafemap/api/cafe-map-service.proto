@@ -87,10 +87,62 @@ message GetPlaceResponse {
   Place place = 1;
 }
 
+// A landmark, which is only shown on the map for reference but is not actually the target of
+// discovery, as a `Place` would be.
+message Landmark {
+  // The ID of the landmark.
+  string id = 1;
+
+  // The Google Places API ID of the landmark. Not necessarily constant.
+  string google_place_id = 2;
+
+  // The location of this landmark, as a S2 cell ID.
+  uint64 s2_cell_id = 3;
+
+  // A landmark type, for determining the icon to display for it.
+  enum Type {
+    // Unknown type, will be ignored.
+    UNKNOWN = 0;
+
+    // A beauty salon (e.g., hair salon).
+    BEAUTY_SALON = 1;
+
+    // A gas station.
+    GAS_STATION = 2;
+
+    // A park
+    PARK = 3;
+
+    // A post office.
+    POST_OFFICE = 4;
+
+    // A school.
+    SCHOOL = 5;
+  }
+
+  // The type of this landmark.
+  Type type = 4;
+}
+
+// A request for the `ListLandmarks` method.
+message ListLandmarksRequest {
+  // The viewport to return landmarks for.
+  LatLngBounds viewport = 1;
+}
+
+// A response for the `ListLandmarks` method.
+message ListLandmarksResponse {
+  // The landmarks found in the requested viewport.
+  repeated Landmark landmark = 1;
+}
+
 service CafeMapService {
   // Returns a list of places.
   rpc GetPlaces (GetPlacesRequest) returns (GetPlacesResponse);
 
   // Returns the single, specified place.
-  rpc GetPlace(GetPlaceRequest) returns (GetPlaceResponse);
+  rpc GetPlace (GetPlaceRequest) returns (GetPlaceResponse);
+
+  // Returns the landmarks for a given viewport.
+  rpc ListLandmarks (ListLandmarksRequest) returns (ListLandmarksResponse);
 }

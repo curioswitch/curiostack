@@ -61,7 +61,7 @@ public interface ILandmark extends Serializable {
     /**
      * Getter for <code>cafemapdb.landmark.s2_cell</code>.
      */
-    public String getS2Cell();
+    public ULong getS2Cell();
 
     /**
      * Getter for <code>cafemapdb.landmark.type</code>.

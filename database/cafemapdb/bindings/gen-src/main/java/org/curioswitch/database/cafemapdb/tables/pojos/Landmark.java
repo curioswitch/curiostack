@@ -48,11 +48,11 @@ import org.jooq.types.ULong;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Landmark implements ILandmark {
 
-    private static final long serialVersionUID = -717149911;
+    private static final long serialVersionUID = 1047517885;
 
     private final ULong         id;
     private final String        googlePlaceId;
-    private final String        s2Cell;
+    private final ULong         s2Cell;
     private final String        type;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
@@ -69,7 +69,7 @@ public class Landmark implements ILandmark {
     public Landmark(
         ULong         id,
         String        googlePlaceId,
-        String        s2Cell,
+        ULong         s2Cell,
         String        type,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
@@ -93,7 +93,7 @@ public class Landmark implements ILandmark {
     }
 
     @Override
-    public String getS2Cell() {
+    public ULong getS2Cell() {
         return this.s2Cell;
     }
 
