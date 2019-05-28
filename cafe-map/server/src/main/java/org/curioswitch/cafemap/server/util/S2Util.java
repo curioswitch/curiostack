@@ -35,6 +35,10 @@ public final class S2Util {
     return S2LatLng.fromDegrees(latLng.getLatitude(), latLng.getLongitude());
   }
 
+  public static S2LatLng convertFromLatLng(com.google.maps.model.LatLng latLng) {
+    return S2LatLng.fromDegrees(latLng.lat, latLng.lng);
+  }
+
   public static S2LatLngRect convertFromLatLngBounds(LatLngBounds latLngBounds) {
     return new S2LatLngRect(
         convertFromLatLng(latLngBounds.getSouthWest()),

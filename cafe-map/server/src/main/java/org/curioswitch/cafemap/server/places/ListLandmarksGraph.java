@@ -25,10 +25,10 @@
 package org.curioswitch.cafemap.server.places;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
 import static org.curioswitch.database.cafemapdb.tables.Landmark.LANDMARK;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import com.google.common.geometry.S2CellId;
 import com.google.common.geometry.S2CellUnion;
@@ -46,11 +46,17 @@ import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.PlacesSearchResult;
 import dagger.producers.ProducerModule;
 import dagger.producers.Produces;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
+import org.curioswitch.cafemap.api.Landmark.Type;
 import org.curioswitch.cafemap.api.ListLandmarksRequest;
+import org.curioswitch.cafemap.api.ListLandmarksResponse;
 import org.curioswitch.cafemap.server.util.S2Util;
 import org.curioswitch.common.server.framework.database.ForDatabase;
 import org.curioswitch.database.cafemapdb.tables.pojos.Landmark;
+import org.curioswitch.database.cafemapdb.tables.records.LandmarkRecord;
 import org.curioswitch.gcloud.mapsservices.CallbackListenableFuture;
 import org.jooq.DSLContext;
 import org.jooq.types.ULong;
@@ -126,6 +132,7 @@ public class ListLandmarksGraph {
             .orElse(S2CellId.none());
 
     if (!firstCellMissingLandmarks.isValid()) {
+      // All cells were covered, no need to search for new landmarks.
       var response = new PlacesSearchResponse();
       response.results = EMPTY;
       return immediateFuture(response);
@@ -141,5 +148,60 @@ public class ListLandmarksGraph {
         .type(PlaceType.PARK)
         .setCallback(callback);
     return callback;
+  }
+
+  @Produces
+  static ListenableFuture<List<Landmark>> writeNewLandmarksToDb(
+      PlacesSearchResponse searchResponse,
+      List<List<Landmark>> dbLandmarks,
+      DSLContext cafemapdb,
+      @ForDatabase ListeningExecutorService dbExecutor) {
+    Set<String> dbPlaceIds =
+        dbLandmarks.stream()
+            .flatMap(List::stream)
+            .map(Landmark::getGooglePlaceId)
+            .collect(toImmutableSet());
+
+    List<LandmarkRecord> newLandmarks =
+        Arrays.stream(searchResponse.results)
+            .filter(result -> !dbPlaceIds.contains(result.placeId))
+            .map(
+                result ->
+                    new LandmarkRecord()
+                        .setGooglePlaceId(result.placeId)
+                        .setType("park")
+                        .setS2Cell(
+                            ULong.valueOf(
+                                S2CellId.fromLatLng(
+                                        S2Util.convertFromLatLng(result.geometry.location))
+                                    .id())))
+            .collect(toImmutableList());
+
+    return dbExecutor.submit(
+        () -> {
+          int[] numInserted = cafemapdb.batchStore(newLandmarks).execute();
+          return newLandmarks.stream().map(Landmark::new).collect(toImmutableList());
+        });
+  }
+
+  @Produces
+  static ListLandmarksResponse createResponse(
+      List<List<Landmark>> oldLandmarks, List<Landmark> newLandmarks) {
+    ListLandmarksResponse.Builder response = ListLandmarksResponse.newBuilder();
+
+    response.addAllLandmark(
+        Stream.concat(oldLandmarks.stream().flatMap(List::stream), newLandmarks.stream())
+                .map(ListLandmarksGraph::convertLandmark)
+            ::iterator);
+
+    return response.build();
+  }
+
+  private static org.curioswitch.cafemap.api.Landmark convertLandmark(Landmark landmark) {
+    return org.curioswitch.cafemap.api.Landmark.newBuilder()
+        .setId(landmark.getId().toString())
+        .setGooglePlaceId(landmark.getGooglePlaceId())
+        .setType(Type.PARK)
+        .build();
   }
 }
