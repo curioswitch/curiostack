@@ -23,11 +23,12 @@
  * SOFTWARE.
  */
 
-import * as process from 'process';
+import process from 'process';
 
-import * as program from 'commander';
+import program from 'commander';
 
-import * as packageJson from '../../package.json';
+// eslint-disable-next-line
+const packageJson = require('../../package.json');
 
 program
   .version(packageJson.version)

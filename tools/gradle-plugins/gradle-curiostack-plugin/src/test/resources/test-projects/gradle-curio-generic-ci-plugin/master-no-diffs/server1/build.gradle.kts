@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,10 +22,14 @@
  * SOFTWARE.
  */
 
-declare module 'child-process-promise' {
-  export function spawn(
-    command: string,
-    args: string[],
-    options: { stdio?: string },
-  );
+plugins {
+    id("org.curioswitch.gradle-curio-server-plugin")
+}
+
+server {
+    deployments {
+        register("alpha") {
+            autoDeploy.set(true)
+        }
+    }
 }

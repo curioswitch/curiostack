@@ -33,7 +33,8 @@ import klawSync from 'klaw-sync';
 
 import { licenseHeader, renderTemplate } from '../utils';
 
-import packageJson from '../../../../package.json';
+// eslint-disable-next-line
+const packageJson = require('../../../../package.json');
 
 let argDir: string | undefined;
 

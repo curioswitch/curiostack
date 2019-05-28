@@ -32,6 +32,7 @@ import java.io.UncheckedIOException;
 import java.util.List;
 import org.curioswitch.gradle.plugins.terraform.tasks.ConvertConfigsToJsonTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.HelmTask;
+import org.curioswitch.gradle.plugins.terraform.tasks.TargetableTerraformPlanTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TargetableTerraformTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformImportTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformOutputTask;
@@ -103,7 +104,7 @@ public class TerraformPlugin implements Plugin<Project> {
         .getTasks()
         .register(
             "terraformPlan",
-            TargetableTerraformTask.class,
+            TargetableTerraformPlanTask.class,
             t -> {
               t.setArgs(ImmutableList.of("plan", "-input=false"));
               t.dependsOn(terraformInit);

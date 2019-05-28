@@ -41,6 +41,10 @@ public class TargetableTerraformTask extends TerraformTask {
         });
   }
 
+  public List<String> getTargets() {
+    return targets;
+  }
+
   @Option(option = "target", description = "A resource to target.")
   public TargetableTerraformTask setTargets(List<String> targets) {
     this.targets = targets;

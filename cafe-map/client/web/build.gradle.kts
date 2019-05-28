@@ -40,6 +40,6 @@ web {
 
 tasks {
     named("buildWeb") {
-        dependsOn(":common:web:base-web:prepare")
+        dependsOn(":eggworld:client:web:install")
     }
 }

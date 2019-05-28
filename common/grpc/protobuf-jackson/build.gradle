@@ -26,17 +26,12 @@ apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 
 apply plugin: 'me.champeau.gradle.jmh'
-apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
+apply plugin: 'org.curioswitch.gradle-protobuf-plugin'
 
 archivesBaseName = 'protobuf-jackson'
 
-sourceCompatibility = '1.7'
-targetCompatibility = '1.7'
-
-[tasks.compileTestJava, tasks.compileJmhJava].each {
-    it.sourceCompatibility = '1.8'
-    it.targetCompatibility = '1.8'
-}
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
 
 // Not clear why this doesn't happen automatically with the configuration extension.
 tasks.compileJmhJava.dependsOn tasks.compileTestJava
@@ -47,6 +42,15 @@ jmh {
     iterations = 10
     fork = 5
     profilers = []
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.7.1'
+    }
+
+    descriptorSetOptions.enabled = false
+    descriptorSetOptions.path = file('build/unused-descriptor-set')
 }
 
 dependencies {

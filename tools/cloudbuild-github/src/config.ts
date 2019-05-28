@@ -27,7 +27,7 @@ import * as path from 'path';
 
 import * as yaml from 'js-yaml';
 
-export interface IRepos {
+export interface Repos {
   [repo: string]: {
     encryptedGithubToken: string;
     cloudbuild: any & {
@@ -36,17 +36,17 @@ export interface IRepos {
   };
 }
 
-export interface IConfig {
+export interface Config {
   kms: {
     location: string;
     keyring: string;
     key: string;
   };
   encryptedWebhookSecret: string;
-  repos: IRepos;
+  repos: Repos;
 }
 
-const config: IConfig = yaml.safeLoad(
+const config: Config = yaml.safeLoad(
   fs.readFileSync(path.resolve('config.yml'), 'utf8'),
 );
 

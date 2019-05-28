@@ -68,87 +68,84 @@ variable:
     type: list
     default: []
     description: Up to 5 secret names to populate into the containers environment variables.
-data:
-  template_file:
-    rpcacls:
-      template: "${file(\"${path.module}/rpcacls.yaml\")}"
-      vars:
-        name: "rpcacls-${var.name}"
-        namespace: "${var.namespace}"
-        rpcacls_json: "${jsonencode(zipmap(
-                   var.acls,
-                   slice(
-                     list(
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\"),
-                        map(\"rate\", \"*\")
-                     ),
-                  0,
-                  length(var.acls)
-                )
-                ))}"
 resource:
-  k8s_manifest:
+  kubernetes_config_map:
     rpcacls:
-      content: "${data.template_file.rpcacls.rendered}"
+      depends_on: []
+      metadata:
+        name: 'rpcacls-${var.name}'
+        namespace: '${var.namespace}'
+      data:
+        rpcacls.json: "${jsonencode(zipmap(
+                           var.acls,
+                           slice(
+                             list(
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\"),
+                                map(\"rate\", \"*\")
+                             ),
+                          0,
+                          length(var.acls)
+                        )
+                        ))}"
   kubernetes_service:
     service:
       metadata:

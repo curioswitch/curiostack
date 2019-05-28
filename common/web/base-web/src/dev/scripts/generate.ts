@@ -25,7 +25,8 @@
 
 import program from 'commander';
 
-import packageJson from '../../../package.json';
+// eslint-disable-next-line
+const packageJson = require('../../../package.json');
 
 program
   .version(packageJson.version)

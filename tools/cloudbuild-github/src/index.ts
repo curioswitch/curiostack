@@ -22,29 +22,36 @@
  * SOFTWARE.
  */
 
-import * as sourceMapSupport from 'source-map-support';
+/* eslint-disable import/first */
+
+import sourceMapSupport from 'source-map-support';
+
 sourceMapSupport.install();
 
 import { Request, Response } from 'express-serve-static-core';
 import * as HttpStatus from 'http-status-codes';
 
-import { handleBuildEvent } from './notifier';
-import { handleWebhook } from './webhook';
+import handleBuildEvent from './notifier';
+import handleWebhook from './webhook';
 
-export interface ICloudFunctionsRequest extends Request {
+interface Message {
+  data: string;
+}
+
+export interface CloudFunctionsRequest extends Request {
   rawBody: Buffer;
 }
 
 export function cloudbuildGithubWebhook(
-  req: ICloudFunctionsRequest,
+  req: CloudFunctionsRequest,
   res: Response,
-) {
+): void {
   handleWebhook(req, res).catch((err) => {
     console.error('Error handling webhook: ', err);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).end();
   });
 }
 
-export function cloudbuildGithubNotifier(event: any) {
-  return handleBuildEvent(event);
+export function cloudbuildGithubNotifier(data: Message): Promise<void> {
+  return handleBuildEvent(data.data);
 }

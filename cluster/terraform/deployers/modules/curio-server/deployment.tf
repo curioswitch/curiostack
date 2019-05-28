@@ -2,7 +2,7 @@
 # a JSON for a deployment that will parse, so we go ahead and use HCL...
 
 resource kubernetes_deployment deployment {
-  depends_on = ["k8s_manifest.rpcacls"]
+  depends_on = ["kubernetes_config_map.rpcacls"]
   lifecycle {
     ignore_changes = ["metadata.0.labels.revision", "metadata.0.labels.%", "spec.0.template.0.metadata.0.labels.%", "spec.0.template.0.metadata.0.labels.revision"]
   }

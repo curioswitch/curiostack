@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,10 +22,18 @@
  * SOFTWARE.
  */
 
-// TODO(choko): Remove after https://github.com/google/google-api-nodejs-client/issues/503 is released.
-declare module 'googleapis' {
-  export const auth: any;
-  export const cloudkms: any;
-  export const cloudbuild: any;
-  export const cloudresourcemanager: any;
+plugins {
+    id("org.curioswitch.gradle-curio-server-plugin")
+}
+
+dependencies {
+    compile(project(":library1"))
+}
+
+server {
+    deployments {
+        register("alpha") {
+            autoDeploy.set(true)
+        }
+    }
 }

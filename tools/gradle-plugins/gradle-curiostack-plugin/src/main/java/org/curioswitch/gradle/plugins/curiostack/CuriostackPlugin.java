@@ -444,7 +444,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                         configuration.getName(),
                         project
                             .getDependencies()
-                            .platform("org.curioswitch.curiostack:curiostack-bom:0.0.8")));
+                            .platform("org.curioswitch.curiostack:curiostack-bom:0.0.9")));
 
     project
         .getTasks()
@@ -464,9 +464,9 @@ public class CuriostackPlugin implements Plugin<Project> {
                       .getExtensions()
                       .findByType(ErrorProneOptions.class);
               if (errorProne != null) {
-                errorProne.setDisableWarningsInGeneratedCode(true);
-                errorProne.setExcludedPaths("(.*/build/.*|.*/gen-src/.*)");
-                errorProne.setChecks(errorProneChecks);
+                errorProne.getDisableWarningsInGeneratedCode().set(true);
+                errorProne.getExcludedPaths().set("(.*/build/.*|.*/gen-src/.*)");
+                errorProne.getChecks().set(errorProneChecks);
               }
             });
 
@@ -571,7 +571,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             Jar.class,
             javadocJar -> {
               javadocJar.dependsOn(javadoc);
-              javadocJar.setClassifier("javadoc");
+              javadocJar.getArchiveClassifier().set("javadoc");
               javadocJar.from(javadoc.get().getDestinationDir());
             });
 
@@ -583,7 +583,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             "sourceJar",
             Jar.class,
             sourceJar -> {
-              sourceJar.setClassifier("sources");
+              sourceJar.getArchiveClassifier().set("sources");
               sourceJar.from(mainSourceSet.getAllSource());
             });
 

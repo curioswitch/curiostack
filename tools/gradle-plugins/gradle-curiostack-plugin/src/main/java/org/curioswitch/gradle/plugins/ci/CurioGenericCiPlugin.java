@@ -30,7 +30,6 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.common.base.Ascii;
 import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.io.File;
@@ -46,7 +45,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.curioswitch.gradle.golang.GolangExtension;
 import org.curioswitch.gradle.golang.GolangPlugin;
 import org.curioswitch.gradle.golang.tasks.GoTestTask;
@@ -82,22 +80,41 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
   private static final ImmutableSet<String> IGNORED_ROOT_FILES =
       ImmutableSet.of("settings.gradle", "yarn.lock", ".gitignore");
 
-  private static final ImmutableList<String> COMMON_RELEASE_BRANCH_ENV_VARS =
+  private static final Splitter RELEASE_TAG_SPLITTER = Splitter.on('_');
+
+  static final ImmutableList<String> COMMON_RELEASE_BRANCH_ENV_VARS =
       ImmutableList.of(
           "TAG_NAME", "CIRCLE_TAG", "TRAVIS_TAG", "BRANCH_NAME", "CIRCLE_BRANCH", "TRAVIS_BRANCH");
 
-  private static final Splitter RELEASE_TAG_SPLITTER = Splitter.on('_');
+  static final String CI_STATE_PROPERTY = "org.curioswitch.curiostack.generic-ci-plugin.ciState";
+
+  /** Returns the {@link CiState} for this build. */
+  public static CiState getCiState(Project project) {
+    Object state =
+        project
+            .getRootProject()
+            .getExtensions()
+            .getByType(ExtraPropertiesExtension.class)
+            .get(CI_STATE_PROPERTY);
+    checkNotNull(
+        state,
+        "Could not find CiState. Has gradle-curiostack-plugin or curio-generic-ci-plugin been "
+            + "applied to the root project?");
+    return (CiState) state;
+  }
 
   @Override
   public void apply(Project project) {
     if (project.getParent() != null) {
       throw new IllegalStateException(
-          "curio-generic-ci-plugin can only be " + "applied to the root project.");
+          "curio-generic-ci-plugin can only be applied to the root project.");
     }
 
     var config = CiExtension.createAndAdd(project);
 
-    if (!"true".equals(System.getenv("CI")) && !project.hasProperty("ci")) {
+    var state = CiState.createAndAdd(project);
+
+    if (!state.isCi()) {
       return;
     }
 
@@ -122,8 +139,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
 
     Task continuousBuild = project.task("continuousBuild");
 
-    boolean isMaster = System.getenv("CI_MASTER") != null;
-    if (isMaster) {
+    if (state.isMasterBuild()) {
       continuousBuild.dependsOn(cleanWrapper);
     }
 
@@ -135,15 +151,10 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                     unused ->
                         proj.getExtensions()
                             .getByType(GolangExtension.class)
-                            .jib(jib -> jib.getAdditionalTags().addAll(getRevisionTags(proj)))));
+                            .jib(jib -> jib.getAdditionalTags().addAll(state.getRevisionTags()))));
 
-    String releaseBranch = getCiBranchOrTag();
-    if (releaseBranch != null && releaseBranch.startsWith("RELEASE_")) {
-      project
-          .getExtensions()
-          .getByType(ExtraPropertiesExtension.class)
-          .set("curiostack.releaseBranch", releaseBranch);
-      project.afterEvaluate(CurioGenericCiPlugin::configureReleaseBuild);
+    if (state.isReleaseBuild()) {
+      project.afterEvaluate(unused -> configureReleaseBuild(project, config, state));
       return;
     }
 
@@ -161,12 +172,13 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                 UploadToCodeCovTask.class,
                 t -> {
                   t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build"));
-                  if (isMaster) {
+                  if (state.isMasterBuild()) {
                     t.finalizedBy(uploadCodeCovCache);
                   }
                 });
 
-    if (System.getenv("CI") != null) {
+    // Don't need to slow down local builds with coverage.
+    if (!state.isLocalBuild()) {
       continuousBuild.dependsOn(uploadCoverage);
 
       project.allprojects(
@@ -231,7 +243,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                     if (task != null) {
                       continuousBuild.dependsOn(task);
                     }
-                    if (isMaster) {
+                    if (state.isMasterBuild()) {
                       continuousBuild.dependsOn(p.getTasks().withType(JibTask.class));
                     }
                   }));
@@ -249,7 +261,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
             if (task != null) {
               continuousBuild.dependsOn(task);
             }
-            if (isMaster) {
+            if (state.isMasterBuild()) {
               continuousBuild.dependsOn(p.getTasks().withType(JibTask.class));
             }
             Task dependentsTask = p.getTasks().findByName("buildDependents");
@@ -388,28 +400,27 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
     return parser;
   }
 
-  private static void configureReleaseBuild(Project project) {
-    var ci = project.getExtensions().getByType(CiExtension.class);
-    String branch = getCiBranchOrTag();
-    checkNotNull(branch);
-
+  private static void configureReleaseBuild(Project project, CiExtension config, CiState state) {
     List<Project> affectedProjects = new ArrayList<>();
 
-    ci.releaseTagPrefixes()
-        .forEach(
-            (prefix, projectPaths) -> {
-              if (branch.startsWith(prefix)) {
-                for (String projectPath : projectPaths) {
+    config
+        .getReleaseTagPrefixes()
+        .all(
+            tag -> {
+              if (state.getBranch().startsWith(tag.getName())) {
+                for (String projectPath : tag.getProjects().get()) {
                   Project affectedProject = project.findProject(projectPath);
                   checkNotNull(affectedProject, "could not find project " + projectPath);
                   affectedProjects.add(affectedProject);
                 }
               }
             });
+
     if (affectedProjects.isEmpty()) {
       // Not a statically defined tag, try to guess.
       var parts =
-          RELEASE_TAG_SPLITTER.splitToList(branch.substring("RELEASE_".length())).stream()
+          RELEASE_TAG_SPLITTER.splitToList(state.getBranch().substring("RELEASE_".length()))
+              .stream()
               .map(Ascii::toLowerCase)
               .collect(toImmutableList());
       for (int i = parts.size(); i >= 1; i--) {
@@ -421,6 +432,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
         }
       }
     }
+
     if (affectedProjects.isEmpty()) {
       return;
     }
@@ -444,36 +456,5 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                 releaseBuild.dependsOn(affectedProject.getTasks().withType(JibTask.class));
               });
     }
-  }
-
-  public static List<String> getRevisionTags(Project project) {
-    var tags = new ImmutableList.Builder<String>();
-    String revisionId = (String) project.getRootProject().findProperty("curiostack.revisionId");
-    if (revisionId != null) {
-      tags.add(revisionId);
-    }
-    String branch = getCiBranchOrTag();
-    if (branch != null && branch.startsWith("RELEASE_")) {
-      tags.add(branch);
-    }
-    return tags.build();
-  }
-
-  @Nullable
-  private static String getCiBranchOrTag() {
-    // Not quite "generic" but should satisfy 99% of cases.
-    for (String key : COMMON_RELEASE_BRANCH_ENV_VARS) {
-      String branch = System.getenv(key);
-      if (!Strings.isNullOrEmpty(branch)) {
-        return branch;
-      }
-    }
-    String jenkinsBranch = System.getenv("GIT_BRANCH");
-    if (!Strings.isNullOrEmpty(jenkinsBranch)) {
-      // Usually has remote too
-      int slashIndex = jenkinsBranch.indexOf('/');
-      return slashIndex >= 0 ? jenkinsBranch.substring(slashIndex + 1) : jenkinsBranch;
-    }
-    return null;
   }
 }

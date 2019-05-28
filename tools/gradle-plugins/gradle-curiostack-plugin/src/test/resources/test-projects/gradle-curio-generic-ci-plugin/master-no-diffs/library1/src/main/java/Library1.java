@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,9 +22,5 @@
  * SOFTWARE.
  */
 
-declare module '*/package.json' {
-  const value: {
-    version: string;
-  };
-  export = value;
-}
+// |DIFF-ME|
+class Library1 {}

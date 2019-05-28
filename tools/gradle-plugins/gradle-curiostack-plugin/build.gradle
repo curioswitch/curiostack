@@ -56,6 +56,7 @@ task generateBaselineManifest {
 }
 
 dependencies {
+    compile project(':common:curio-helpers')
     compile project(':common:google-cloud:cloud-storage')
     compile project(':tools:gradle-plugins:gradle-conda-plugin')
     compile project(':tools:gradle-plugins:gradle-golang-plugin')
@@ -72,7 +73,7 @@ dependencies {
     compile 'com.diffplug.spotless:spotless-plugin-gradle'
     compile 'com.github.ben-manes:gradle-versions-plugin'
     compile 'com.google.auth:google-auth-library-oauth2-http'
-    compile 'com.google.cloud:google-cloud-kms:1.0.0'
+    compile 'com.google.cloud:google-cloud-kms'
     compile 'com.google.guava:guava'
     compile 'com.hubspot.jinjava:jinjava'
     compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin'
