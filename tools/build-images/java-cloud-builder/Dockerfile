@@ -31,7 +31,8 @@ FROM google/cloud-sdk:slim AS gcloud
 FROM openjdk:11-jdk-slim
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends python2.7-minimal libpython2.7-stdlib liblz4-tool libatomic1 bzip2 && \
+    apt-get install -y --no-install-recommends python2.7-minimal libpython2.7-stdlib liblz4-tool \
+    libatomic1 bzip2 ca-certificates && \
     update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1 && \
     rm -rf /var/lib/apt/lists/*
 
