@@ -24,6 +24,7 @@
 
 package org.curioswitch.gradle.plugins.staticsite;
 
+import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
 import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
 import org.curioswitch.gradle.plugins.staticsite.StaticSiteExtension.SiteProject;
@@ -59,15 +60,17 @@ public class StaticSitePlugin implements Plugin<Project> {
     assemble.configure(t -> t.dependsOn(mergeSite));
 
     var yarn = project.getRootProject().getTasks().named("yarn");
-    project
+    var deployProd = project
         .getTasks()
         .register(
-            "deploy",
+            "deployProd",
             NodeTask.class,
             t -> {
               t.dependsOn(yarn, assemble);
               t.args("run", "firebase", "deploy");
             });
+
+    CurioGenericCiPlugin.addToReleaseBuild(project, deployProd);
 
     project
         .getTasks()
