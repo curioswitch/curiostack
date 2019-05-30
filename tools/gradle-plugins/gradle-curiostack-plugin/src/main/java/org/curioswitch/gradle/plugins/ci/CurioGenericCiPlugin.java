@@ -52,7 +52,6 @@ import org.curioswitch.gradle.golang.tasks.JibTask;
 import org.curioswitch.gradle.plugins.ci.tasks.FetchCodeCovCacheTask;
 import org.curioswitch.gradle.plugins.ci.tasks.UploadCodeCovCacheTask;
 import org.curioswitch.gradle.plugins.ci.tasks.UploadToCodeCovTask;
-import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -69,9 +68,13 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.UnknownTaskException;
+import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
+import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.tasks.Delete;
+import org.gradle.api.tasks.TaskProvider;
+import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.testing.jacoco.plugins.JacocoPlugin;
 import org.gradle.testing.jacoco.tasks.JacocoReport;
 
@@ -87,6 +90,91 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
           "TAG_NAME", "CIRCLE_TAG", "TRAVIS_TAG", "BRANCH_NAME", "CIRCLE_BRANCH", "TRAVIS_BRANCH");
 
   static final String CI_STATE_PROPERTY = "org.curioswitch.curiostack.generic-ci-plugin.ciState";
+
+  /** Registers the given {@code task} to run during a master CI build. */
+  public static void addToMasterBuild(Project project, TaskProvider<?> task) {
+    doAddToMasterBuild(project, task);
+  }
+
+  /** Registers the given {@code task} to run during a master CI build. */
+  public static void addToMasterBuild(Project project, Task task) {
+    doAddToMasterBuild(project, task);
+  }
+
+  private static void doAddToMasterBuild(Project project, Object task) {
+    project
+        .getRootProject()
+        .getPlugins()
+        .withType(
+            CurioGenericCiPlugin.class,
+            unused -> {
+              if (getCiState(project).isMasterBuild()) {
+                project
+                    .getPlugins()
+                    .withType(
+                        BasePlugin.class,
+                        unused2 ->
+                            project.getTasks().named("build").configure(t -> t.dependsOn(task)));
+              }
+            });
+  }
+
+  /** Registers the given {@code task} to run during a release CI build. */
+  public static void addToReleaseBuild(Project project, TaskProvider<?> task) {
+    doAddToReleaseBuild(project, task);
+  }
+
+  /** Registers the given {@code task} to run during a release CI build. */
+  public static void addToReleaseBuild(Project project, Task task) {
+    doAddToReleaseBuild(project, task);
+  }
+
+  private static void doAddToReleaseBuild(Project project, Object task) {
+    project
+        .getRootProject()
+        .getPlugins()
+        .withType(
+            CurioGenericCiPlugin.class,
+            unused -> {
+              if (getCiState(project).isReleaseBuild()) {
+                project
+                    .getPlugins()
+                    .withType(
+                        BasePlugin.class,
+                        unused2 ->
+                            project.getTasks().named("build").configure(t -> t.dependsOn(task)));
+              }
+            });
+  }
+
+  /** Registers the given {@code task} to run during a branch CI build. */
+  public static void addToBranchBuild(Project project, TaskProvider<?> task) {
+    doAddToBranchBuild(project, task);
+  }
+
+  /** Registers the given {@code task} to run during a branch CI build. */
+  public static void addToBranchBuild(Project project, Task task) {
+    doAddToBranchBuild(project, task);
+  }
+
+  private static void doAddToBranchBuild(Project project, Object task) {
+    project
+        .getRootProject()
+        .getPlugins()
+        .withType(
+            CurioGenericCiPlugin.class,
+            unused -> {
+              var state = getCiState(project);
+              if (!state.isReleaseBuild() && !state.isMasterBuild()) {
+                project
+                    .getPlugins()
+                    .withType(
+                        BasePlugin.class,
+                        unused2 ->
+                            project.getTasks().named("build").configure(t -> t.dependsOn(task)));
+              }
+            });
+  }
 
   /** Returns the {@link CiState} for this build. */
   public static CiState getCiState(Project project) {
@@ -233,42 +321,40 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       return;
     }
 
+    final Set<Project> projectsToBuild;
     if (affectedProjects.contains(project.getRootProject())) {
       // Rebuild everything when the root project is changed.
-      project.allprojects(
-          proj ->
-              proj.afterEvaluate(
-                  p -> {
-                    Task task = p.getTasks().findByName("build");
-                    if (task != null) {
-                      continuousBuild.dependsOn(task);
-                    }
-                    if (state.isMasterBuild()) {
-                      continuousBuild.dependsOn(p.getTasks().withType(JibTask.class));
-                    }
-                  }));
-      return;
+      projectsToBuild = ImmutableSet.copyOf(project.getAllprojects());
+    } else {
+      projectsToBuild = affectedProjects;
+      // We only fetch the code cov cache on non-full builds since we don't need to propagate for
+      // full ones.
+      uploadCoverage.dependsOn(fetchCodeCovCache);
     }
 
-    // We only fetch the code cov cache on non-full builds since we don't need to propagate for
-    // full ones.
-    uploadCoverage.dependsOn(fetchCodeCovCache);
+    for (var proj : projectsToBuild) {
+      proj.getPlugins()
+          .withType(
+              GolangPlugin.class,
+              unused -> {
+                // TODO(choko): Figure out whether it's better to register plugins outside this
+                // artifact here or in each plugin somehow.
+                proj.getTasks().withType(JibTask.class, t -> addToMasterBuild(proj, t));
+              });
 
-    for (Project proj : affectedProjects) {
-      proj.afterEvaluate(
-          p -> {
-            Task task = p.getTasks().findByName("build");
-            if (task != null) {
-              continuousBuild.dependsOn(task);
-            }
-            if (state.isMasterBuild()) {
-              continuousBuild.dependsOn(p.getTasks().withType(JibTask.class));
-            }
-            Task dependentsTask = p.getTasks().findByName("buildDependents");
-            if (dependentsTask != null) {
-              continuousBuild.dependsOn(dependentsTask);
-            }
-          });
+      proj.getPlugins()
+          .withType(
+              LifecycleBasePlugin.class,
+              unused ->
+                  continuousBuild.dependsOn(
+                      proj.getTasks().named(LifecycleBasePlugin.BUILD_TASK_NAME)));
+
+      proj.getPlugins()
+          .withType(
+              JavaBasePlugin.class,
+              unused ->
+                  continuousBuild.dependsOn(
+                      proj.getTasks().named(JavaBasePlugin.BUILD_DEPENDENTS_TASK_NAME)));
     }
   }
 
@@ -442,19 +528,16 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       affectedProject
           .getPlugins()
           .withType(
-              CurioServerPlugin.class,
-              unused -> {
-                releaseBuild.dependsOn(affectedProject.getTasks().getByName("build"));
-                releaseBuild.dependsOn(affectedProject.getTasks().getByName("jib"));
-              });
+              LifecycleBasePlugin.class,
+              unused ->
+                  releaseBuild.dependsOn(
+                      affectedProject.getTasks().named(LifecycleBasePlugin.BUILD_TASK_NAME)));
+
       affectedProject
           .getPlugins()
           .withType(
               GolangPlugin.class,
-              unused -> {
-                releaseBuild.dependsOn(affectedProject.getTasks().getByName("build"));
-                releaseBuild.dependsOn(affectedProject.getTasks().withType(JibTask.class));
-              });
+              unused -> releaseBuild.dependsOn(affectedProject.getTasks().withType(JibTask.class)));
     }
   }
 }
