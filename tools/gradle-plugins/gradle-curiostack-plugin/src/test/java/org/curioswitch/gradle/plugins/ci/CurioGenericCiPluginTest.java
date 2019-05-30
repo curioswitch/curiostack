@@ -35,6 +35,10 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.curioswitch.gradle.helpers.platform.OperatingSystem;
+import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.eclipse.jgit.api.Git;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.BeforeAll;
@@ -43,6 +47,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class CurioGenericCiPluginTest {
+
+  private static final Logger logger = LogManager.getLogger();
+
+  @BeforeAll
+  void warnOnWindows() {
+    if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
+      logger.warn(
+          "jgit does not clean up properly on Windows, so tests will fail with "
+              + "executionError. It's ok to ignore this.");
+    }
+  }
 
   @SuppressWarnings("ClassCanBeStatic")
   @Nested
@@ -498,6 +513,288 @@ class CurioGenericCiPluginTest {
     }
   }
 
+  // We go ahead and verify a master branch with the same state as the pr branch has different build
+  // behavior.
+  @SuppressWarnings("ClassCanBeStatic")
+  @Nested
+  class MasterBranchTopLevelDiffFollowedByTwoEmptyCommits {
+
+    private File projectDir;
+
+    @BeforeAll
+    void copyProject(@TempDir Path projectDir) throws Exception {
+      copyProjectFromResources(
+          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+
+      addDiffs(projectDir, "build.gradle.kts");
+      addTwoEmptyCommits(projectDir);
+
+      this.projectDir = projectDir.toFile();
+    }
+
+    @Test
+    void ciNotMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNull();
+      assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":library2:jar")).isNull();
+      assertThat(result.task(":library2:build")).isNull();
+      assertThat(result.task(":server1:build")).isNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
+      assertThat(result.task(":server2:build")).isNull();
+      assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
+    }
+
+    @Test
+    void ciIsMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNull();
+      assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":library2:jar")).isNull();
+      assertThat(result.task(":library2:build")).isNull();
+      assertThat(result.task(":server1:build")).isNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
+      assertThat(result.task(":server2:build")).isNull();
+      assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:deployAlpha")).isNull();
+    }
+  }
+
+  @SuppressWarnings("ClassCanBeStatic")
+  @Nested
+  class PRBranchLibrary1Diff {
+
+    private File projectDir;
+
+    @BeforeAll
+    void copyProject(@TempDir Path projectDir) throws Exception {
+      copyProjectFromResources(
+          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+
+      changeBranch(projectDir, "prbuild");
+      addDiffs(projectDir, "library1/src/main/java/Library1.java");
+      addTwoEmptyCommits(projectDir);
+
+      this.projectDir = projectDir.toFile();
+    }
+
+    @Test
+    void noCi() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild", "--stacktrace")
+              .withEnvironment(ImmutableMap.of())
+              .withPluginClasspath()
+              .buildAndFail();
+
+      assertThat(result.getOutput()).contains("Task 'continuousBuild' not found in root project");
+    }
+
+    @Test
+    void ciNotMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNotNull();
+      assertThat(result.task(":library1:build")).isNotNull();
+      assertThat(result.task(":library2:jar")).isNull();
+      assertThat(result.task(":library2:build")).isNull();
+      assertThat(result.task(":server1:build")).isNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
+      assertThat(result.task(":server2:build")).isNotNull();
+      assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:deployAlpha")).isNull();
+    }
+  }
+
+  @SuppressWarnings("ClassCanBeStatic")
+  @Nested
+  class PRBranchLibrary2Diff {
+
+    private File projectDir;
+
+    @BeforeAll
+    void copyProject(@TempDir Path projectDir) throws Exception {
+      copyProjectFromResources(
+          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+
+      changeBranch(projectDir, "prbuild");
+      addDiffs(projectDir, "library2/src/main/java/Library2.java");
+      addTwoEmptyCommits(projectDir);
+
+      this.projectDir = projectDir.toFile();
+    }
+
+    @Test
+    void ciNotMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNull();
+      assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":library2:jar")).isNotNull();
+      assertThat(result.task(":library2:build")).isNotNull();
+      assertThat(result.task(":server1:build")).isNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
+      assertThat(result.task(":server2:build")).isNull();
+      assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:deployAlpha")).isNull();
+    }
+  }
+
+  @SuppressWarnings("ClassCanBeStatic")
+  @Nested
+  class PRBranchServer1Diff {
+
+    private File projectDir;
+
+    @BeforeAll
+    void copyProject(@TempDir Path projectDir) throws Exception {
+      copyProjectFromResources(
+          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+
+      changeBranch(projectDir, "prbuild");
+      addDiffs(projectDir, "server1/src/main/java/Server1.java");
+      addTwoEmptyCommits(projectDir);
+
+      this.projectDir = projectDir.toFile();
+    }
+
+    @Test
+    void ciNotMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNull();
+      assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":library2:jar")).isNull();
+      assertThat(result.task(":library2:build")).isNull();
+      assertThat(result.task(":server1:build")).isNotNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
+      assertThat(result.task(":server2:build")).isNull();
+      assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:deployAlpha")).isNull();
+    }
+  }
+
+  @SuppressWarnings("ClassCanBeStatic")
+  @Nested
+  class PRBranchServer2Diff {
+
+    private File projectDir;
+
+    @BeforeAll
+    void copyProject(@TempDir Path projectDir) throws Exception {
+      copyProjectFromResources(
+          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+
+      changeBranch(projectDir, "prbuild");
+      addDiffs(projectDir, "server2/src/main/java/Server2.java");
+      addTwoEmptyCommits(projectDir);
+
+      this.projectDir = projectDir.toFile();
+    }
+
+    @Test
+    void ciNotMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNotNull();
+      assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":library2:jar")).isNull();
+      assertThat(result.task(":library2:build")).isNull();
+      assertThat(result.task(":server1:build")).isNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
+      assertThat(result.task(":server2:build")).isNotNull();
+      assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:deployAlpha")).isNull();
+    }
+  }
+
+  @SuppressWarnings("ClassCanBeStatic")
+  @Nested
+  class PRBranchTopLevelDiff {
+
+    private File projectDir;
+
+    @BeforeAll
+    void copyProject(@TempDir Path projectDir) throws Exception {
+      copyProjectFromResources(
+          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+
+      changeBranch(projectDir, "prbuild");
+      addDiffs(projectDir, "build.gradle.kts");
+      addTwoEmptyCommits(projectDir);
+
+      this.projectDir = projectDir.toFile();
+    }
+
+    @Test
+    void ciNotMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNotNull();
+      assertThat(result.task(":library1:build")).isNotNull();
+      assertThat(result.task(":library2:jar")).isNotNull();
+      assertThat(result.task(":library2:build")).isNotNull();
+      assertThat(result.task(":server1:build")).isNotNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
+      assertThat(result.task(":server2:build")).isNotNull();
+      assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:deployAlpha")).isNull();
+    }
+  }
+
   private static void copyProjectFromResources(String resourcePath, Path projectDir)
       throws Exception {
     var resourceDir = Paths.get(Resources.getResource(resourcePath).toURI());
@@ -545,6 +842,33 @@ class CurioGenericCiPluginTest {
       git.commit()
           .setAll(true)
           .setMessage("Automated commit in test")
+          .setAuthor("Unit Test", "test@curioswitch.org")
+          .call();
+    } catch (Exception e) {
+      throw new IllegalStateException("Error manipulating git repo.", e);
+    }
+  }
+
+  private static void changeBranch(Path projectDir, String branch) {
+    try (Git git = Git.open(projectDir.toFile())) {
+      git.checkout().setName(branch).call();
+    } catch (Exception e) {
+      throw new IllegalStateException("Error manipulating git repo.", e);
+    }
+  }
+
+  // We add two empty commits to the branch builds to make sure the diff isn't being computed from
+  // the latest commits but the actual branch diff.
+  private static void addTwoEmptyCommits(Path projectDir) {
+    try (Git git = Git.open(projectDir.toFile())) {
+      git.commit()
+          .setAllowEmpty(true)
+          .setMessage("Empty commit 1")
+          .setAuthor("Unit Test", "test@curioswitch.org")
+          .call();
+      git.commit()
+          .setAllowEmpty(true)
+          .setMessage("Empty commit 2")
           .setAuthor("Unit Test", "test@curioswitch.org")
           .call();
     } catch (Exception e) {
