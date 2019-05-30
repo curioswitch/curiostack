@@ -76,9 +76,6 @@ public class CurioServerPlugin implements Plugin<Project> {
 
     var jibTask = project.getTasks().named("jib");
     var autoDeploy = project.getTasks().register("autoDeploy");
-    if (System.getenv("CI_MASTER") != null) {
-      project.getTasks().named("build").configure(t -> t.dependsOn(jibTask, autoDeploy));
-    }
 
     project
         .getTasks()
@@ -121,6 +118,10 @@ public class CurioServerPlugin implements Plugin<Project> {
                   t.dependsOn(jar, DownloadToolUtil.getSetupTask(project, "graalvm"));
                 });
 
+    CurioGenericCiPlugin.addToMasterBuild(project, jibTask);
+    CurioGenericCiPlugin.addToReleaseBuild(project, jibTask);
+    CurioGenericCiPlugin.addToMasterBuild(project, autoDeploy);
+
     project.afterEvaluate(
         p -> {
           String archivesBaseName =
@@ -155,36 +156,34 @@ public class CurioServerPlugin implements Plugin<Project> {
           jib.container(
               container -> container.setMainClass(appPluginConvention.getMainClassName()));
 
-          if (ciState.isMasterBuild()) {
-            config
-                .getDeployments()
-                .all(
-                    deployment -> {
-                      if (deployment.getAutoDeploy().get()) {
-                        var deploy =
-                            project
-                                .getTasks()
-                                .register(
-                                    "deploy" + TaskUtil.toTaskSuffix(deployment.getName()),
-                                    KubectlTask.class,
-                                    t -> {
-                                      t.mustRunAfter(jibTask);
-                                      t.setArgs(
-                                          ImmutableList.of(
-                                              "--namespace=" + deployment.getNamespace().get(),
-                                              "patch",
-                                              "deployment/" + deployment.getDeployment().get(),
-                                              "-p",
-                                              "{\"spec\": "
-                                                  + "{\"template\": {\"metadata\": {\"labels\": {\"revision\": \""
-                                                  + ciState.getRevisionId()
-                                                  + "\" }}}}}"));
-                                      t.setIgnoreExitValue(true);
-                                    });
-                        autoDeploy.configure(t -> t.dependsOn(deploy));
-                      }
-                    });
-          }
+          config
+              .getDeployments()
+              .all(
+                  deployment -> {
+                    var deploy =
+                        project
+                            .getTasks()
+                            .register(
+                                "deploy" + TaskUtil.toTaskSuffix(deployment.getName()),
+                                KubectlTask.class,
+                                t -> {
+                                  t.mustRunAfter(jibTask);
+                                  t.setArgs(
+                                      ImmutableList.of(
+                                          "--namespace=" + deployment.getNamespace().get(),
+                                          "patch",
+                                          "deployment/" + deployment.getDeployment().get(),
+                                          "-p",
+                                          "{\"spec\": "
+                                              + "{\"template\": {\"metadata\": {\"labels\": {\"revision\": \""
+                                              + ciState.getRevisionId()
+                                              + "\" }}}}}"));
+                                  t.setIgnoreExitValue(true);
+                                });
+                    if (deployment.getAutoDeploy().get()) {
+                      autoDeploy.configure(t -> t.dependsOn(deploy));
+                    }
+                  });
         });
   }
 }
