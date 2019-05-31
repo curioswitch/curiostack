@@ -29,6 +29,7 @@ import org.curioswitch.common.helpers.immutables.CurioStyle;
 import org.curioswitch.gradle.helpers.immutables.ExtensionStyle;
 import org.gradle.api.Project;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.immutables.value.Value.Immutable;
@@ -47,10 +48,17 @@ public interface StaticSiteExtension extends HasPublicType {
         project
             .getExtensions()
             .create(NAME, ModifiableStaticSiteExtension.class)
+            .setFirebaseProject(objects.property(String.class))
             .setSites(objects.listProperty(SiteProject.class).empty());
+    extension.setAppEngineProject(
+        objects.property(String.class).convention(extension.getFirebaseProject()));
 
     return extension;
   }
+
+  Property<String> getFirebaseProject();
+
+  Property<String> getAppEngineProject();
 
   @Immutable
   @CurioStyle

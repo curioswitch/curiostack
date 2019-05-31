@@ -1,0 +1,21 @@
+runtime: python27
+api_version: 1
+threadsafe: true
+
+default_expiration: "1m"
+
+handlers:
+  - url: /(.*)/
+    static_files: build/site/\1/index.html
+    upload: build/site/(.*)
+  - url: /
+    static_files: build/site/index.html
+    upload: build/site/(.*)
+  - url: /(.*)
+    static_files: build/site/\1
+    upload: build/site/(.*)
+
+skip_files:
+  - .git/
+  - node_modules/
+  - src/
