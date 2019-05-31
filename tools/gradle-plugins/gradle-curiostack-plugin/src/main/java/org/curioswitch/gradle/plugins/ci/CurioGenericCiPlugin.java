@@ -442,6 +442,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
     } catch (GitAPIException e) {
       throw new IllegalStateException(e);
     }
+
     Set<String> affectedRelativePaths = new HashSet<>();
     for (DiffEntry diff : diffs) {
       switch (diff.getChangeType()) {

@@ -148,8 +148,12 @@ gradlePlugin {
             id = 'org.curioswitch.gradle-curio-server-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin'
         }
-        staticSite {
+        curioStaticSite {
             id = 'org.curioswitch.gradle-curio-static-site-plugin'
+            implementationClass = 'org.curioswitch.gradle.plugins.staticsite.StaticSitePlugin'
+        }
+        staticSite {
+            id = 'org.curioswitch.gradle-static-site-plugin'
             implementationClass = 'org.curioswitch.gradle.plugins.staticsite.StaticSitePlugin'
         }
         terraform {

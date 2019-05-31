@@ -38,6 +38,7 @@ import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
@@ -78,6 +79,11 @@ public class NodeTask extends DefaultTask {
   }
 
   public NodeTask args(Iterable<String> args) {
+    this.args.addAll(args);
+    return this;
+  }
+
+  public NodeTask args(Provider<Iterable<String>> args) {
     this.args.addAll(args);
     return this;
   }

@@ -24,7 +24,9 @@
 
 package org.curioswitch.gradle.plugins.staticsite;
 
+import com.google.common.collect.ImmutableList;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
+import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
 import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
 import org.curioswitch.gradle.plugins.staticsite.StaticSiteExtension.SiteProject;
@@ -48,6 +50,7 @@ public class StaticSitePlugin implements Plugin<Project> {
                 Copy.class,
                 t -> {
                   t.from("src");
+                  t.from("index.html");
                   t.into("build/site");
 
                   for (SiteProject site : config.getSites().get()) {
@@ -60,16 +63,40 @@ public class StaticSitePlugin implements Plugin<Project> {
     assemble.configure(t -> t.dependsOn(mergeSite));
 
     var yarn = project.getRootProject().getTasks().named("yarn");
-    var deployProd = project
-        .getTasks()
-        .register(
-            "deployProd",
-            NodeTask.class,
-            t -> {
-              t.dependsOn(yarn, assemble);
-              t.args("run", "firebase", "deploy");
-            });
 
+    var deployAlpha =
+        project
+            .getTasks()
+            .register(
+                "deployAlpha",
+                GcloudTask.class,
+                t -> {
+                  t.dependsOn(assemble);
+                  // TODO(choko): Remove this major hack - the command line has two --project flags
+                  // and we're just lucky the later is used.
+                  t.setArgs(
+                      ImmutableList.of(
+                          "app", "deploy", "--project=" + config.getAppEngineProject()));
+                });
+
+    var deployProd =
+        project
+            .getTasks()
+            .register(
+                "deployProd",
+                NodeTask.class,
+                t -> {
+                  t.dependsOn(yarn, assemble);
+                  t.args(
+                      config
+                          .getFirebaseProject()
+                          .map(
+                              firebaseProject ->
+                                  ImmutableList.of(
+                                      "run", "firebase", "--project", firebaseProject, "deploy")));
+                });
+
+    CurioGenericCiPlugin.addToMasterBuild(project, deployAlpha);
     CurioGenericCiPlugin.addToReleaseBuild(project, deployProd);
 
     project

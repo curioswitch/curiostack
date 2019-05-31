@@ -1,5 +1,3 @@
-import jnr.ffi.provider.jffi.CodegenUtils.ci
-
 /*
  * MIT License
  *
