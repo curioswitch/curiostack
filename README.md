@@ -14,6 +14,12 @@ maybe even some of the code to understand what's available.
 Looking for guidelines and documents outlining best practices for designing a company, not just the
 engineering codebase? Check out our resources [here](./docs/company) which can hopefully help.
 
+## Have a question?
+
+Feel free to open an [issue](https://github.com/curioswitch/curiostack/issues/new) if you have any questions. 
+You are also welcome to join our [Slack workspace](https://join.slack.com/t/curiostack/shared_invite/enQtNjM5OTAyMzYzNDU4LTA2YjJjODkwMGVkZjkyMzZiMjM2ZTc0NDM4YWZlMGY1MDJkNzc1ZWEzOTU2ZTZjZjI3ZWY1M2YwZDc5ZjBmNmI) 
+and ask there.
+
 ## Set up
 
 See gradle-curiostack-plugin [README](tools/gradle-plugins/gradle-curiostack-plugin/README.md) for setting up the gradle plugins.
