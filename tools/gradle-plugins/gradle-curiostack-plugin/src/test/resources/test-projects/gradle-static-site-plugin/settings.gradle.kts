@@ -22,9 +22,6 @@
  * SOFTWARE.
  */
 
-include(":library1")
-include(":library2")
-include(":server1")
-include(":server2")
-include(":staticsite1")
-include(":staticsite2")
+include(":portal")
+include(":site1")
+include(":site2")

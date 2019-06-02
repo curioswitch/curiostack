@@ -22,9 +22,11 @@
  * SOFTWARE.
  */
 
-include(":library1")
-include(":library2")
-include(":server1")
-include(":server2")
-include(":staticsite1")
-include(":staticsite2")
+plugins {
+    id("org.curioswitch.gradle-curio-static-site-plugin")
+}
+
+staticSite {
+    site(project(":site1"), "site1")
+    site(project(":site2"), "site2", "build/customout")
+}

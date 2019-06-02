@@ -108,6 +108,8 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server1:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
     }
 
     @Test
@@ -132,6 +134,8 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server2:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
     }
 
     @SuppressWarnings("ClassCanBeStatic")
@@ -160,6 +164,8 @@ class CurioGenericCiPluginTest {
         assertThat(result.task(":server1:deployAlpha")).isNull();
         assertThat(result.task(":staticsite1:deployAlpha")).isNull();
         assertThat(result.task(":staticsite1:deployProd")).isNull();
+        assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+        assertThat(result.task(":staticsite2:deployProd")).isNull();
       }
 
       @Test
@@ -185,6 +191,8 @@ class CurioGenericCiPluginTest {
         assertThat(result.task(":server2:deployAlpha")).isNull();
         assertThat(result.task(":staticsite1:deployAlpha")).isNull();
         assertThat(result.task(":staticsite1:deployProd")).isNull();
+        assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+        assertThat(result.task(":staticsite2:deployProd")).isNull();
       }
 
       @Test
@@ -224,6 +232,8 @@ class CurioGenericCiPluginTest {
         assertThat(result.task(":server1:deployAlpha")).isNull();
         assertThat(result.task(":staticsite1:deployAlpha")).isNull();
         assertThat(result.task(":staticsite1:deployProd")).isNotNull();
+        assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+        assertThat(result.task(":staticsite2:deployProd")).isNull();
       }
     }
   }
@@ -267,6 +277,8 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server2:deployAlpha")).isNotNull();
       assertThat(result.task(":staticsite1:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
     }
   }
 
@@ -308,6 +320,8 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server2:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
     }
   }
 
@@ -349,6 +363,8 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server2:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
     }
   }
 
@@ -390,6 +406,8 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server2:deployAlpha")).isNotNull();
       assertThat(result.task(":staticsite1:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
     }
   }
 
@@ -431,6 +449,51 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server2:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployAlpha")).isNotNull();
       assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
+    }
+  }
+
+  @SuppressWarnings("ClassCanBeStatic")
+  @Nested
+  class MasterBranchStaticSite2Diff {
+
+    private File projectDir;
+
+    @BeforeAll
+    void copyProject(@TempDir Path projectDir) throws Exception {
+      copyProjectFromResources(
+          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+
+      addDiffs(projectDir, "staticsite2/build.gradle.kts");
+
+      this.projectDir = projectDir.toFile();
+    }
+
+    @Test
+    void ciIsMaster() {
+      var result =
+          GradleRunner.create()
+              .withProjectDir(projectDir)
+              .withArguments("continuousBuild")
+              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+              .withPluginClasspath()
+              .build();
+
+      assertThat(result.task(":library1:jar")).isNull();
+      assertThat(result.task(":library1:build")).isNull();
+      assertThat(result.task(":library2:jar")).isNull();
+      assertThat(result.task(":library2:build")).isNull();
+      assertThat(result.task(":server1:build")).isNull();
+      assertThat(result.task(":server1:jib")).isNull();
+      assertThat(result.task(":server1:deployAlpha")).isNull();
+      assertThat(result.task(":server2:build")).isNull();
+      assertThat(result.task(":server2:jib")).isNull();
+      assertThat(result.task(":server2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite1:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
     }
   }
 
@@ -472,6 +535,8 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server2:deployAlpha")).isNotNull();
       assertThat(result.task(":staticsite1:deployAlpha")).isNotNull();
       assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
     }
   }
 
@@ -516,6 +581,8 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server2:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
     }
   }
 
@@ -559,6 +626,8 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server2:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
     }
   }
 
@@ -602,6 +671,8 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server2:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
     }
   }
 
@@ -645,6 +716,8 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server2:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
     }
   }
 
@@ -689,6 +762,8 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server2:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
     }
   }
 
@@ -733,6 +808,8 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server2:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
     }
   }
 
@@ -776,6 +853,8 @@ class CurioGenericCiPluginTest {
       assertThat(result.task(":server2:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployAlpha")).isNull();
       assertThat(result.task(":staticsite1:deployProd")).isNull();
+      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
+      assertThat(result.task(":staticsite2:deployProd")).isNull();
     }
   }
 

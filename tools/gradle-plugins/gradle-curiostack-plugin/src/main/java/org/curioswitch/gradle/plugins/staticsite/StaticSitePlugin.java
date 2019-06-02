@@ -50,7 +50,6 @@ public class StaticSitePlugin implements Plugin<Project> {
                 Copy.class,
                 t -> {
                   t.from("src");
-                  t.from("index.html");
                   t.into("build/site");
 
                   for (SiteProject site : config.getSites().get()) {
@@ -96,9 +95,6 @@ public class StaticSitePlugin implements Plugin<Project> {
                                       "run", "firebase", "--project", firebaseProject, "deploy")));
                 });
 
-    CurioGenericCiPlugin.addToMasterBuild(project, deployAlpha);
-    CurioGenericCiPlugin.addToReleaseBuild(project, deployProd);
-
     project
         .getTasks()
         .register(
@@ -108,5 +104,14 @@ public class StaticSitePlugin implements Plugin<Project> {
               t.dependsOn(yarn, assemble);
               t.args("run", "superstatic", "--port=8080");
             });
+
+    CurioGenericCiPlugin.addToReleaseBuild(project, deployProd);
+
+    project.afterEvaluate(
+        unused -> {
+          if (config.getAutoDeployAlpha().get()) {
+            CurioGenericCiPlugin.addToMasterBuild(project, deployAlpha);
+          }
+        });
   }
 }

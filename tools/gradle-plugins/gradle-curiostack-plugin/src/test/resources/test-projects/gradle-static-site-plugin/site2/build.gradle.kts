@@ -22,9 +22,20 @@
  * SOFTWARE.
  */
 
-include(":library1")
-include(":library2")
-include(":server1")
-include(":server2")
-include(":staticsite1")
-include(":staticsite2")
+plugins {
+    base
+}
+
+tasks {
+    val buildSite by registering() {
+        outputs.dir("${buildDir}/customout")
+
+        doFirst {
+            file("${buildDir}/customout/index.html").writeText("<html>site2</html>")
+        }
+    }
+
+    named("assemble") {
+        dependsOn(buildSite)
+    }
+}

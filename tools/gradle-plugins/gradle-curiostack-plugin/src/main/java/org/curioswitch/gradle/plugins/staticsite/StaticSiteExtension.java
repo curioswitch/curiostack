@@ -49,6 +49,7 @@ public interface StaticSiteExtension extends HasPublicType {
             .getExtensions()
             .create(NAME, ModifiableStaticSiteExtension.class)
             .setFirebaseProject(objects.property(String.class))
+            .setAutoDeployAlpha(objects.property(Boolean.class).convention(true))
             .setSites(objects.listProperty(SiteProject.class).empty());
     extension.setAppEngineProject(
         objects.property(String.class).convention(extension.getFirebaseProject()));
@@ -59,6 +60,8 @@ public interface StaticSiteExtension extends HasPublicType {
   Property<String> getFirebaseProject();
 
   Property<String> getAppEngineProject();
+
+  Property<Boolean> getAutoDeployAlpha();
 
   @Immutable
   @CurioStyle
