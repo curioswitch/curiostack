@@ -36,7 +36,7 @@ public class ToolDependencies {
           .put("claat", "1.1.0")
           .put("gcloud", "241.0.0")
           .put("golang", "1.12.2")
-          .put("googleJavaFormat", "1.7")
+          .put("google-java-format", "1.7")
           .put("gradle", "5.4")
           .put("helm", "2.10.0")
           .put("miniconda", "4.5.12")
@@ -54,7 +54,7 @@ public class ToolDependencies {
   }
 
   public static String getGoogleJavaFormatVersion(Project project) {
-    return getVersion("googleJavaFormat", project);
+    return getVersion("google-java-format", project);
   }
 
   public static String getGradleVersion(Project project) {
