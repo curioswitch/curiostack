@@ -107,10 +107,11 @@ public class StaticSitePlugin implements Plugin<Project> {
 
     CurioGenericCiPlugin.addToReleaseBuild(project, deployProd);
 
-    project.afterEvaluate(unused -> {
-      if (config.getAutoDeployAlpha().get()){
-        CurioGenericCiPlugin.addToMasterBuild(project, deployAlpha);
-      }
-    });
+    project.afterEvaluate(
+        unused -> {
+          if (config.getAutoDeployAlpha().get()) {
+            CurioGenericCiPlugin.addToMasterBuild(project, deployAlpha);
+          }
+        });
   }
 }
