@@ -25,7 +25,7 @@
 package org.curioswitch.gradle.plugins.terraform.tasks;
 
 import java.io.File;
-import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
+import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -59,7 +59,7 @@ public class TerraformTask extends DefaultTask {
           exec.executable(
               CommandUtil.getCuriostackDir(project)
                   .resolve("terraform")
-                  .resolve(StandardDependencies.TERRAFORM_VERSION)
+                  .resolve(ToolDependencies.getTerraformVersion(project))
                   .resolve("terraform"));
           exec.args(args);
           exec.workingDir(new File(project.getBuildDir(), "terraform"));

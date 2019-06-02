@@ -24,8 +24,6 @@
 
 package org.curioswitch.gradle.plugins.gcloud;
 
-import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.GCLOUD_VERSION;
-
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -50,6 +48,7 @@ import org.curioswitch.gradle.plugins.ci.tasks.FetchCodeCovCacheTask;
 import org.curioswitch.gradle.plugins.ci.tasks.UploadCodeCovCacheTask;
 import org.curioswitch.gradle.plugins.curioserver.CurioServerPlugin;
 import org.curioswitch.gradle.plugins.curioserver.ServerExtension;
+import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.curioswitch.gradle.plugins.gcloud.keys.KmsKeyDecrypter;
 import org.curioswitch.gradle.plugins.gcloud.tasks.FetchToolCacheTask;
 import org.curioswitch.gradle.plugins.gcloud.tasks.GcloudTask;
@@ -95,7 +94,7 @@ public class GcloudPlugin implements Plugin<Project> {
                     "gcloud",
                     tool -> {
                       tool.getArtifact().set("google-cloud-sdk");
-                      tool.getVersion().set(GCLOUD_VERSION);
+                      tool.getVersion().set(ToolDependencies.getGcloudVersion(project));
                       tool.getBaseUrl()
                           .set("https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/");
                       tool.getArtifactPattern().set("[artifact]-[revision]-[classifier].[ext]");

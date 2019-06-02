@@ -37,7 +37,7 @@ import org.immutables.value.Value.Modifiable;
 @ExtensionStyle
 public interface ToolDownloaderExtension extends Named, HasPublicType {
 
-  static ModifiableToolDownloaderExtension create(String name, Project project) {
+  static ToolDownloaderExtension create(String name, Project project) {
     var objects = project.getObjects();
 
     var extension =

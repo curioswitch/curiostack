@@ -1,0 +1,95 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+package org.curioswitch.gradle.plugins.curiostack;
+
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
+import java.util.Objects;
+import org.gradle.api.Project;
+
+public class ToolDependencies {
+
+  private static Map<String, String> DEFAULT_VERSIONS =
+      ImmutableMap.<String, String>builder()
+          .put("claat", "1.1.0")
+          .put("gcloud", "241.0.0")
+          .put("golang", "1.12.2")
+          .put("googleJavaFormat", "1.7")
+          .put("gradle", "5.4")
+          .put("helm", "2.10.0")
+          .put("miniconda", "4.5.12")
+          .put("node", "11.13.0")
+          .put("terraform", "0.11.13")
+          .put("yarn", "1.13.0")
+          .build();
+
+  public static String getClaatVersion(Project project) {
+    return getVersion("claat", project);
+  }
+
+  public static String getGcloudVersion(Project project) {
+    return getVersion("gcloud", project);
+  }
+
+  public static String getGoogleJavaFormatVersion(Project project) {
+    return getVersion("googleJavaFormat", project);
+  }
+
+  public static String getGradleVersion(Project project) {
+    return getVersion("gradle", project);
+  }
+
+  public static String getGolangVersion(Project project) {
+    return getVersion("golang", project);
+  }
+
+  public static String getHelmVersion(Project project) {
+    return getVersion("helm", project);
+  }
+
+  public static String getMinicondaVersion(Project project) {
+    return getVersion("miniconda", project);
+  }
+
+  public static String getNodeVersion(Project project) {
+    return getVersion("node", project);
+  }
+
+  public static String getTerraformVersion(Project project) {
+    return getVersion("terraform", project);
+  }
+
+  public static String getYarnVersion(Project project) {
+    return getVersion("yarn", project);
+  }
+
+  private static String getVersion(String tool, Project project) {
+    return Objects.requireNonNullElse(
+        (String) project.getRootProject().findProperty("org.curioswitch.curiostack.tools." + tool),
+        DEFAULT_VERSIONS.get(tool));
+  }
+
+  private ToolDependencies() {}
+}

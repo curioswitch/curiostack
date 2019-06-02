@@ -25,13 +25,9 @@
 package org.curioswitch.gradle.plugins.staticsite;
 
 import static org.curioswitch.common.testing.assertj.CurioAssertions.assertThat;
+import static org.curioswitch.gradle.plugins.testutil.ResourceProjects.copyProjectFromResources;
 
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.BeforeAll;
@@ -70,27 +66,5 @@ class StaticSitePluginTest {
         .hasSameContentAs(projectDir.resolve("site1/build/site/index.html"));
     assertThat(projectDir.resolve("portal/build/site/site2/index.html"))
         .hasSameContentAs(projectDir.resolve("site2/build/customout/index.html"));
-  }
-
-  private static void copyProjectFromResources(String resourcePath, Path projectDir)
-      throws Exception {
-    var resourceDir = Paths.get(Resources.getResource(resourcePath).toURI());
-    try (var stream = Files.walk(resourceDir)) {
-      stream
-          .filter(path -> !path.equals(resourceDir))
-          .forEach(
-              path -> {
-                var destPath = projectDir.resolve(resourceDir.relativize(path));
-                try {
-                  if (Files.isDirectory(path)) {
-                    Files.createDirectory(destPath);
-                  } else {
-                    Files.copy(path, destPath);
-                  }
-                } catch (IOException e) {
-                  throw new UncheckedIOException("Could not copy test project file.", e);
-                }
-              });
-    }
   }
 }

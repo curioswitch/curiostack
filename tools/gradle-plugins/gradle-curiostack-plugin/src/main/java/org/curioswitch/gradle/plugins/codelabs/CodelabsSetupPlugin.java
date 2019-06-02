@@ -29,6 +29,7 @@ import static com.google.common.base.Preconditions.checkState;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
@@ -50,7 +51,7 @@ public class CodelabsSetupPlugin implements Plugin<Project> {
               plugin.registerToolIfAbsent(
                   "claat",
                   tool -> {
-                    tool.getVersion().set("1.1.0");
+                    tool.getVersion().set(ToolDependencies.getClaatVersion(project));
                     tool.getBaseUrl()
                         .set("https://github.com/googlecodelabs/tools/releases/download/");
                     tool.getArtifactPattern().set("v[revision]/[artifact]-[classifier][ext]");

@@ -54,11 +54,11 @@ public class DownloadedToolManager {
 
   private final Path curiostackDir;
 
-  private final NamedDomainObjectContainer<ModifiableToolDownloaderExtension> tools;
+  private final NamedDomainObjectContainer<ToolDownloaderExtension> tools;
 
   @Inject
   public DownloadedToolManager(
-      Project project, NamedDomainObjectContainer<ModifiableToolDownloaderExtension> tools) {
+      Project project, NamedDomainObjectContainer<ToolDownloaderExtension> tools) {
     this.tools = tools;
 
     curiostackDir = project.getGradle().getGradleUserHomeDir().toPath().resolve("curiostack");

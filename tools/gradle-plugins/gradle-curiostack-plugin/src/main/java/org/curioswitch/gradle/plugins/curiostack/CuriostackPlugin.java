@@ -26,8 +26,6 @@ package org.curioswitch.gradle.plugins.curiostack;
 
 import static net.ltgt.gradle.errorprone.CheckSeverity.ERROR;
 import static net.ltgt.gradle.errorprone.CheckSeverity.OFF;
-import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.GOOGLE_JAVA_FORMAT_VERSION;
-import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.GRADLE_VERSION;
 
 import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
@@ -67,8 +65,11 @@ import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
 import nu.studer.gradle.jooq.JooqTask;
 import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
+import org.curioswitch.gradle.conda.CondaExtension;
+import org.curioswitch.gradle.conda.CondaPlugin;
 import org.curioswitch.gradle.golang.GolangExtension;
 import org.curioswitch.gradle.golang.GolangPlugin;
+import org.curioswitch.gradle.golang.GolangSetupPlugin;
 import org.curioswitch.gradle.golang.tasks.JibTask;
 import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
@@ -121,7 +122,10 @@ public class CuriostackPlugin implements Plugin<Project> {
         .getTaskGraph()
         .whenReady(
             tasks -> {
-              if (!rootProject.getGradle().getGradleVersion().equals(GRADLE_VERSION)
+              if (!rootProject
+                      .getGradle()
+                      .getGradleVersion()
+                      .equals(ToolDependencies.getGradleVersion(rootProject))
                   && !tasks.hasTask(":wrapper")) {
                 throw new IllegalStateException(
                     "Gradle wrapper out-of-date, run ./gradlew :wrapper");
@@ -146,7 +150,7 @@ public class CuriostackPlugin implements Plugin<Project> {
         .withType(Wrapper.class)
         .configureEach(
             wrapper -> {
-              wrapper.setGradleVersion(GRADLE_VERSION);
+              wrapper.setGradleVersion(ToolDependencies.getGradleVersion(rootProject));
               wrapper.setDistributionType(DistributionType.ALL);
             });
 
@@ -394,6 +398,41 @@ public class CuriostackPlugin implements Plugin<Project> {
         });
 
     setupDataSources(rootProject);
+
+    rootProject
+        .getPlugins()
+        .withType(
+            GolangSetupPlugin.class,
+            unused ->
+                rootProject
+                    .getPlugins()
+                    .withType(
+                        ToolDownloaderPlugin.class,
+                        plugin ->
+                            plugin
+                                .tools()
+                                .named("go")
+                                .configure(
+                                    tool ->
+                                        tool.getVersion()
+                                            .set(ToolDependencies.getGolangVersion(rootProject)))));
+
+    rootProject
+        .getPlugins()
+        .withType(
+            CondaPlugin.class,
+            plugin ->
+                plugin
+                    .getCondas()
+                    .withType(CondaExtension.class)
+                    .named("miniconda2-build")
+                    .configure(
+                        conda ->
+                            conda
+                                .getVersion()
+                                .set(
+                                    "Miniconda2-"
+                                        + ToolDependencies.getMinicondaVersion(rootProject))));
   }
 
   private static void setupRepositories(Project project) {
@@ -591,7 +630,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     spotless.java(
         (java) -> {
           java.target("src/**/*.java");
-          java.googleJavaFormat(GOOGLE_JAVA_FORMAT_VERSION);
+          java.googleJavaFormat(ToolDependencies.getGoogleJavaFormatVersion(project));
         });
 
     project

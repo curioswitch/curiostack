@@ -26,13 +26,10 @@ package org.curioswitch.gradle.plugins.shared;
 
 import java.nio.file.Path;
 import org.apache.tools.ant.taskdefs.condition.Os;
-import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
+import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.gradle.api.Project;
 
 public final class CommandUtil {
-
-  public static final String DEFAULT_ENV_NAME =
-      "miniconda2-" + StandardDependencies.MINICONDA_VERSION;
 
   public static Path getPythonDir(Project project) {
     return getCuriostackDir(project).resolve("python");
@@ -48,7 +45,8 @@ public final class CommandUtil {
   }
 
   public static Path getCondaBaseDir(Project project) {
-    return getPythonDir(project).resolve("bootstrap/" + DEFAULT_ENV_NAME);
+    return getPythonDir(project)
+        .resolve("bootstrap/miniconda2-" + ToolDependencies.getMinicondaVersion(project));
   }
 
   public static Path getGcloudDir(Project project) {

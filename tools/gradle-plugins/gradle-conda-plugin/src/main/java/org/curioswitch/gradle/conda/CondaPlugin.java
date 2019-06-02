@@ -42,7 +42,7 @@ public class CondaPlugin implements Plugin<Project> {
 
   private static final Splitter CONDA_VERSION_SPLITTER = Splitter.on('-');
 
-  private NamedDomainObjectContainer<ModifiableCondaExtension> condas;
+  private NamedDomainObjectContainer<CondaExtension> condas;
 
   @Override
   public void apply(Project project) {
@@ -54,14 +54,14 @@ public class CondaPlugin implements Plugin<Project> {
 
     condas =
         project.container(
-            ModifiableCondaExtension.class,
+            CondaExtension.class,
             name -> CondaExtension.create(name, project.getObjects()));
     project.getExtensions().add("conda", condas);
 
     condas.configureEach(conda -> addCondaTasks(project, conda));
   }
 
-  public NamedDomainObjectContainer<ModifiableCondaExtension> getCondas() {
+  public NamedDomainObjectContainer<CondaExtension> getCondas() {
     return condas;
   }
 

@@ -31,7 +31,7 @@ import java.nio.file.Path;
 import org.curioswitch.gradle.golang.GolangSetupPlugin;
 import org.curioswitch.gradle.golang.tasks.GoTask;
 import org.curioswitch.gradle.helpers.platform.PathUtil;
-import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
+import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
@@ -58,7 +58,7 @@ public class TerraformSetupPlugin implements Plugin<Project> {
               plugin.registerToolIfAbsent(
                   "terraform",
                   tool -> {
-                    tool.getVersion().set(StandardDependencies.TERRAFORM_VERSION);
+                    tool.getVersion().set(ToolDependencies.getTerraformVersion(project));
                     tool.getBaseUrl().set("https://releases.hashicorp.com/");
                     tool.getArtifactPattern()
                         .set("[artifact]/[revision]/[artifact]_[revision]_[classifier].[ext]");
@@ -77,7 +77,7 @@ public class TerraformSetupPlugin implements Plugin<Project> {
               plugin.registerToolIfAbsent(
                   "helm",
                   tool -> {
-                    tool.getVersion().set(StandardDependencies.HELM_VERSION);
+                    tool.getVersion().set(ToolDependencies.getHelmVersion(project));
                     tool.getBaseUrl().set("https://storage.googleapis.com/kubernetes-helm/");
                     tool.getArtifactPattern().set("[artifact]-v[revision]-[classifier].[ext]");
                   });
