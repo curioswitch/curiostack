@@ -37,9 +37,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 
+// This test is slow since it downloads a file, just run locally for now.
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class CuriostackPluginToolsTest {
 
   // A default mock will always return null for findProperty which makes our tests independent of
