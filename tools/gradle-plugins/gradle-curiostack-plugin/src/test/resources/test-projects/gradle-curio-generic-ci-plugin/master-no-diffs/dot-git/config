@@ -5,6 +5,7 @@
 	logallrefupdates = true
 	symlinks = false
 	ignorecase = true
+	autocrlf = input
 [remote "origin"]
 	url = https://github.com/curioswitch/ci-plugin-test.git
 	fetch = +refs/heads/*:refs/remotes/origin/*

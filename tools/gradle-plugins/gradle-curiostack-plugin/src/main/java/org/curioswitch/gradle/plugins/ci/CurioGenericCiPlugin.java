@@ -445,6 +445,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
 
     Set<String> affectedRelativePaths = new HashSet<>();
     for (DiffEntry diff : diffs) {
+      System.out.println(diff);
       switch (diff.getChangeType()) {
         case ADD:
         case MODIFY:

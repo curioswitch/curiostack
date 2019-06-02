@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-plugins {
+plugins {c
     id("org.curioswitch.gradle-curio-static-site-plugin")
 }
 
