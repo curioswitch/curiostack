@@ -24,21 +24,20 @@
 
 package org.curioswitch.gradle.plugins.curiostack;
 
-import static org.curioswitch.common.testing.assertj.CurioAssertions.assertThat;
-import static org.curioswitch.gradle.plugins.testutil.ResourceProjects.copyProjectFromResources;
+import static org.curioswitch.gradle.testing.assertj.CurioGradleAssertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.nio.file.Path;
+import org.curioswitch.gradle.testing.GradleTempDirectories;
+import org.curioswitch.gradle.testing.ResourceProjects;
 import org.gradle.api.Project;
 import org.gradle.testkit.runner.GradleRunner;
-import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 
 // This test is slow since it downloads a file, just run locally for now.
@@ -61,24 +60,23 @@ class CuriostackPluginToolsTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources("test-projects/gradle-curiostack-plugin/tools/claat", projectDir);
-
-      this.projectDir = projectDir.toFile();
+    void copyProject() {
+      projectDir =
+          ResourceProjects.fromResources("test-projects/gradle-curiostack-plugin/tools/claat")
+              .toFile();
     }
 
     @Test
-    void normal(@TempDir Path gradleUserHome) {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("toolsSetupClaat")
-              .withPluginClasspath()
-              .withTestKitDir(gradleUserHome.toFile())
-              .build();
-
-      assertThat(result.task(":toolsDownloadClaat").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
-      assertThat(result.task(":toolsSetupClaat").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+    void normal() {
+      Path gradleUserHome = GradleTempDirectories.create("tools-home");
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("toolsSetupClaat")
+                  .withPluginClasspath()
+                  .withTestKitDir(gradleUserHome.toFile()))
+          .builds()
+          .tasksDidSucceed(":toolsDownloadClaat", ":toolsSetupClaat");
 
       assertToolDirExists(gradleUserHome, "claat", ToolDependencies.getClaatVersion(project));
     }
@@ -91,25 +89,24 @@ class CuriostackPluginToolsTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curiostack-plugin/tools/claat-override-version", projectDir);
-
-      this.projectDir = projectDir.toFile();
+    void copyProject() {
+      projectDir =
+          ResourceProjects.fromResources(
+                  "test-projects/gradle-curiostack-plugin/tools/claat-override-version")
+              .toFile();
     }
 
     @Test
-    void normal(@TempDir Path gradleUserHome) {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("toolsSetupClaat")
-              .withPluginClasspath()
-              .withTestKitDir(gradleUserHome.toFile())
-              .build();
-
-      assertThat(result.task(":toolsDownloadClaat").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
-      assertThat(result.task(":toolsSetupClaat").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+    void normal() {
+      Path gradleUserHome = GradleTempDirectories.create("tools-home");
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("toolsSetupClaat")
+                  .withPluginClasspath()
+                  .withTestKitDir(gradleUserHome.toFile()))
+          .builds()
+          .tasksDidSucceed(":toolsDownloadClaat", ":toolsSetupClaat");
 
       assertThat(ToolDependencies.getClaatVersion(project)).isNotEqualTo("1.0.4");
       assertToolDirExists(gradleUserHome, "claat", "1.0.4");

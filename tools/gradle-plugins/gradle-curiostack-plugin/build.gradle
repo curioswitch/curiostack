@@ -104,6 +104,8 @@ dependencies {
 
     annotationProcessor 'org.immutables:value'
     compileOnly 'org.immutables:value-annotations'
+
+    testCompile project(':tools:gradle-plugins:gradle-test-helpers')
 }
 
 gradlePlugin {
@@ -186,4 +188,15 @@ publishing {
 // TODO(choko): Figure out how to disable license check of baseline config and reenable.
 tasks.withType(License) {
     enabled = false
+}
+
+tasks.withType(Test) {
+    jvmArgs "-Dorg.curioswitch.curiostack.testing.buildDir=${buildDir}"
+}
+
+// TODO(choko): Have curiostack plugin do this.
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
 }

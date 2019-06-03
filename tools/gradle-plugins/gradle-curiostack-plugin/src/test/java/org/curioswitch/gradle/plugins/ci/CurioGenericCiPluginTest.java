@@ -25,39 +25,46 @@
 package org.curioswitch.gradle.plugins.ci;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.curioswitch.common.testing.assertj.CurioAssertions.assertThat;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static org.curioswitch.gradle.testing.assertj.CurioGradleAssertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Resources;
+import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.curioswitch.gradle.helpers.platform.OperatingSystem;
-import org.curioswitch.gradle.helpers.platform.PlatformHelper;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+import org.curioswitch.gradle.testing.ResourceProjects;
 import org.eclipse.jgit.api.Git;
+import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 class CurioGenericCiPluginTest {
 
-  private static final Logger logger = LogManager.getLogger();
-
-  @BeforeAll
-  void warnOnWindows() {
-    if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
-      logger.warn(
-          "jgit does not clean up properly on Windows, so tests will fail with "
-              + "executionError. It's ok to ignore this.");
-    }
-  }
+  private static final List<String> ALL_TASKS =
+      ImmutableList.of(
+          ":library1:jar",
+          ":library1:build",
+          ":library2:jar",
+          ":library2:build",
+          ":server1:build",
+          ":server1:jib",
+          ":server1:deployAlpha",
+          ":server2:build",
+          ":server2:jib",
+          ":server2:deployAlpha",
+          ":staticsite1:deployAlpha",
+          ":staticsite1:deployProd",
+          ":staticsite2:deployAlpha",
+          ":staticsite2:deployProd");
 
   @SuppressWarnings("ClassCanBeStatic")
   @Nested
@@ -66,76 +73,47 @@ class CurioGenericCiPluginTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+    void copyProject() throws Exception {
+      Path projectDir =
+          copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
       this.projectDir = projectDir.toFile();
     }
 
     @Test
     void noCi() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild", "--stacktrace")
-              .withEnvironment(ImmutableMap.of())
-              .withPluginClasspath()
-              .buildAndFail();
-
-      assertThat(result.getOutput()).contains("Task 'continuousBuild' not found in root project");
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild", "--stacktrace")
+                  .withEnvironment(ImmutableMap.of())
+                  .withPluginClasspath())
+          .fails()
+          .outputContains("Task 'continuousBuild' not found in root project");
     }
 
     @Test
     void ciNotMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true"))
-              .withPluginClasspath()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNull();
-      assertThat(result.task(":library1:build")).isNull();
-      assertThat(result.task(":library2:jar")).isNull();
-      assertThat(result.task(":library2:build")).isNull();
-      assertThat(result.task(":server1:build")).isNull();
-      assertThat(result.task(":server1:jib")).isNull();
-      assertThat(result.task(":server1:deployAlpha")).isNull();
-      assertThat(result.task(":server2:build")).isNull();
-      assertThat(result.task(":server2:jib")).isNull();
-      assertThat(result.task(":server1:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true"))
+                  .withPluginClasspath())
+          .builds()
+          .tasksDidNotRun(ALL_TASKS);
     }
 
     @Test
     void ciIsMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
-              .withPluginClasspath()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNull();
-      assertThat(result.task(":library1:build")).isNull();
-      assertThat(result.task(":library2:jar")).isNull();
-      assertThat(result.task(":library2:build")).isNull();
-      assertThat(result.task(":server1:build")).isNull();
-      assertThat(result.task(":server1:jib")).isNull();
-      assertThat(result.task(":server1:deployAlpha")).isNull();
-      assertThat(result.task(":server2:build")).isNull();
-      assertThat(result.task(":server2:jib")).isNull();
-      assertThat(result.task(":server2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+                  .withPluginClasspath())
+          .builds()
+          .tasksDidNotRun(ALL_TASKS);
     }
 
     @SuppressWarnings("ClassCanBeStatic")
@@ -143,97 +121,54 @@ class CurioGenericCiPluginTest {
     class ReleaseBuild {
       @Test
       void implicitTag() {
-        var result =
-            GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments("releaseBuild")
-                .withEnvironment(
-                    ImmutableMap.of("CI", "true", "TAG_NAME", "RELEASE_SERVER1_20190522"))
-                .withPluginClasspath()
-                .build();
-
-        assertThat(result.task(":library1:jar")).isNull();
-        assertThat(result.task(":library1:build")).isNull();
-        assertThat(result.task(":library2:jar")).isNull();
-        assertThat(result.task(":library2:build")).isNull();
-        assertThat(result.task(":server1:build")).isNotNull();
-        assertThat(result.task(":server1:jib")).isNotNull();
-        assertThat(result.task(":server1:deployAlpha")).isNull();
-        assertThat(result.task(":server2:build")).isNull();
-        assertThat(result.task(":server2:jib")).isNull();
-        assertThat(result.task(":server1:deployAlpha")).isNull();
-        assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-        assertThat(result.task(":staticsite1:deployProd")).isNull();
-        assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-        assertThat(result.task(":staticsite2:deployProd")).isNull();
+        assertThat(
+                GradleRunner.create()
+                    .withProjectDir(projectDir)
+                    .withArguments("releaseBuild")
+                    .withEnvironment(
+                        ImmutableMap.of("CI", "true", "TAG_NAME", "RELEASE_SERVER1_20190522"))
+                    .withPluginClasspath())
+            .builds()
+            .satisfies(onlyDidRun(":server1:build", ":server1:jib"));
       }
 
       @Test
       void explicitTag() {
-        var result =
-            GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments("releaseBuild")
-                .withEnvironment(
-                    ImmutableMap.of("CI", "true", "TAG_NAME", "RELEASE_CUSTOM_TAG_20190522"))
-                .withPluginClasspath()
-                .build();
-
-        assertThat(result.task(":library1:jar")).isNotNull();
-        assertThat(result.task(":library1:build")).isNull();
-        assertThat(result.task(":library2:jar")).isNull();
-        assertThat(result.task(":library2:build")).isNull();
-        assertThat(result.task(":server1:build")).isNull();
-        assertThat(result.task(":server1:jib")).isNull();
-        assertThat(result.task(":server1:deployAlpha")).isNull();
-        assertThat(result.task(":server2:build")).isNotNull();
-        assertThat(result.task(":server2:jib")).isNotNull();
-        assertThat(result.task(":server2:deployAlpha")).isNull();
-        assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-        assertThat(result.task(":staticsite1:deployProd")).isNull();
-        assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-        assertThat(result.task(":staticsite2:deployProd")).isNull();
+        assertThat(
+                GradleRunner.create()
+                    .withProjectDir(projectDir)
+                    .withArguments("releaseBuild")
+                    .withEnvironment(
+                        ImmutableMap.of("CI", "true", "TAG_NAME", "RELEASE_CUSTOM_TAG_20190522"))
+                    .withPluginClasspath())
+            .builds()
+            .satisfies(onlyDidRun(":library1:jar", ":server2:build", ":server2:jib"));
       }
 
       @Test
       void unknownTag() {
-        var result =
-            GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments("releaseBuild")
-                .withEnvironment(
-                    ImmutableMap.of("CI", "true", "TAG_NAME", "RELEASE_UNKNOWN1_20190522"))
-                .withPluginClasspath()
-                .buildAndFail();
-
-        assertThat(result.getOutput()).contains("Task 'releaseBuild' not found in root project");
+        assertThat(
+                GradleRunner.create()
+                    .withProjectDir(projectDir)
+                    .withArguments("releaseBuild")
+                    .withEnvironment(
+                        ImmutableMap.of("CI", "true", "TAG_NAME", "RELEASE_UNKNOWN1_20190522"))
+                    .withPluginClasspath())
+            .fails()
+            .outputContains("Task 'releaseBuild' not found in root project");
       }
 
       @Test
       void staticSite() {
-        var result =
-            GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments("releaseBuild")
-                .withEnvironment(
-                    ImmutableMap.of("CI", "true", "TAG_NAME", "RELEASE_STATICSITE1_20190522"))
-                .withPluginClasspath()
-                .build();
-
-        assertThat(result.task(":library1:jar")).isNull();
-        assertThat(result.task(":library1:build")).isNull();
-        assertThat(result.task(":library2:jar")).isNull();
-        assertThat(result.task(":library2:build")).isNull();
-        assertThat(result.task(":server1:build")).isNull();
-        assertThat(result.task(":server1:jib")).isNull();
-        assertThat(result.task(":server1:deployAlpha")).isNull();
-        assertThat(result.task(":server2:build")).isNull();
-        assertThat(result.task(":server2:jib")).isNull();
-        assertThat(result.task(":server1:deployAlpha")).isNull();
-        assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-        assertThat(result.task(":staticsite1:deployProd")).isNotNull();
-        assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-        assertThat(result.task(":staticsite2:deployProd")).isNull();
+        assertThat(
+                GradleRunner.create()
+                    .withProjectDir(projectDir)
+                    .withArguments("releaseBuild")
+                    .withEnvironment(
+                        ImmutableMap.of("CI", "true", "TAG_NAME", "RELEASE_STATICSITE1_20190522"))
+                    .withPluginClasspath())
+            .builds()
+            .satisfies(onlyDidRun(":staticsite1:deployProd"));
       }
     }
   }
@@ -245,9 +180,9 @@ class CurioGenericCiPluginTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+    void copyProject() throws Exception {
+      Path projectDir =
+          copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
       addDiffs(projectDir, "library1/src/main/java/Library1.java");
 
@@ -256,29 +191,20 @@ class CurioGenericCiPluginTest {
 
     @Test
     void ciIsMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
-              .withPluginClasspath()
-              .forwardOutput()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNotNull();
-      assertThat(result.task(":library1:build")).isNotNull();
-      assertThat(result.task(":library2:jar")).isNull();
-      assertThat(result.task(":library2:build")).isNull();
-      assertThat(result.task(":server1:build")).isNull();
-      assertThat(result.task(":server1:jib")).isNull();
-      assertThat(result.task(":server1:deployAlpha")).isNull();
-      assertThat(result.task(":server2:build")).isNotNull();
-      assertThat(result.task(":server2:jib")).isNotNull();
-      assertThat(result.task(":server2:deployAlpha")).isNotNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+                  .withPluginClasspath())
+          .builds()
+          .satisfies(
+              onlyDidRun(
+                  ":library1:jar",
+                  ":library1:build",
+                  ":server2:build",
+                  ":server2:jib",
+                  ":server2:deployAlpha"));
     }
   }
 
@@ -289,9 +215,9 @@ class CurioGenericCiPluginTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+    void copyProject() throws Exception {
+      Path projectDir =
+          copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
       addDiffs(projectDir, "library2/src/main/java/Library2.java");
 
@@ -300,28 +226,14 @@ class CurioGenericCiPluginTest {
 
     @Test
     void ciIsMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
-              .withPluginClasspath()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNull();
-      assertThat(result.task(":library1:build")).isNull();
-      assertThat(result.task(":library2:jar")).isNotNull();
-      assertThat(result.task(":library2:build")).isNotNull();
-      assertThat(result.task(":server1:build")).isNull();
-      assertThat(result.task(":server1:jib")).isNull();
-      assertThat(result.task(":server1:deployAlpha")).isNull();
-      assertThat(result.task(":server2:build")).isNull();
-      assertThat(result.task(":server2:jib")).isNull();
-      assertThat(result.task(":server2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+                  .withPluginClasspath())
+          .builds()
+          .satisfies(onlyDidRun(":library2:jar", ":library2:build"));
     }
   }
 
@@ -332,9 +244,9 @@ class CurioGenericCiPluginTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+    void copyProject() throws Exception {
+      Path projectDir =
+          copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
       addDiffs(projectDir, "server1/src/main/java/Server1.java");
 
@@ -343,28 +255,14 @@ class CurioGenericCiPluginTest {
 
     @Test
     void ciIsMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
-              .withPluginClasspath()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNull();
-      assertThat(result.task(":library1:build")).isNull();
-      assertThat(result.task(":library2:jar")).isNull();
-      assertThat(result.task(":library2:build")).isNull();
-      assertThat(result.task(":server1:build")).isNotNull();
-      assertThat(result.task(":server1:jib")).isNotNull();
-      assertThat(result.task(":server1:deployAlpha")).isNotNull();
-      assertThat(result.task(":server2:build")).isNull();
-      assertThat(result.task(":server2:jib")).isNull();
-      assertThat(result.task(":server2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+                  .withPluginClasspath())
+          .builds()
+          .satisfies(onlyDidRun(":server1:build", ":server1:jib", ":server1:deployAlpha"));
     }
   }
 
@@ -375,9 +273,9 @@ class CurioGenericCiPluginTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+    void copyProject() throws Exception {
+      Path projectDir =
+          copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
       addDiffs(projectDir, "server2/src/main/java/Server2.java");
 
@@ -386,28 +284,16 @@ class CurioGenericCiPluginTest {
 
     @Test
     void ciIsMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
-              .withPluginClasspath()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNotNull();
-      assertThat(result.task(":library1:build")).isNull();
-      assertThat(result.task(":library2:jar")).isNull();
-      assertThat(result.task(":library2:build")).isNull();
-      assertThat(result.task(":server1:build")).isNull();
-      assertThat(result.task(":server1:jib")).isNull();
-      assertThat(result.task(":server1:deployAlpha")).isNull();
-      assertThat(result.task(":server2:build")).isNotNull();
-      assertThat(result.task(":server2:jib")).isNotNull();
-      assertThat(result.task(":server2:deployAlpha")).isNotNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+                  .withPluginClasspath())
+          .builds()
+          .satisfies(
+              onlyDidRun(
+                  ":library1:jar", ":server2:build", ":server2:jib", ":server2:deployAlpha"));
     }
   }
 
@@ -418,9 +304,9 @@ class CurioGenericCiPluginTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+    void copyProject() throws Exception {
+      Path projectDir =
+          copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
       addDiffs(projectDir, "staticsite1/build.gradle.kts");
 
@@ -429,28 +315,14 @@ class CurioGenericCiPluginTest {
 
     @Test
     void ciIsMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
-              .withPluginClasspath()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNull();
-      assertThat(result.task(":library1:build")).isNull();
-      assertThat(result.task(":library2:jar")).isNull();
-      assertThat(result.task(":library2:build")).isNull();
-      assertThat(result.task(":server1:build")).isNull();
-      assertThat(result.task(":server1:jib")).isNull();
-      assertThat(result.task(":server1:deployAlpha")).isNull();
-      assertThat(result.task(":server2:build")).isNull();
-      assertThat(result.task(":server2:jib")).isNull();
-      assertThat(result.task(":server2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNotNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+                  .withPluginClasspath())
+          .builds()
+          .satisfies(onlyDidRun(":staticsite1:deployAlpha"));
     }
   }
 
@@ -461,9 +333,9 @@ class CurioGenericCiPluginTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+    void copyProject() throws Exception {
+      Path projectDir =
+          copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
       addDiffs(projectDir, "staticsite2/build.gradle.kts");
 
@@ -472,28 +344,14 @@ class CurioGenericCiPluginTest {
 
     @Test
     void ciIsMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
-              .withPluginClasspath()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNull();
-      assertThat(result.task(":library1:build")).isNull();
-      assertThat(result.task(":library2:jar")).isNull();
-      assertThat(result.task(":library2:build")).isNull();
-      assertThat(result.task(":server1:build")).isNull();
-      assertThat(result.task(":server1:jib")).isNull();
-      assertThat(result.task(":server1:deployAlpha")).isNull();
-      assertThat(result.task(":server2:build")).isNull();
-      assertThat(result.task(":server2:jib")).isNull();
-      assertThat(result.task(":server2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+                  .withPluginClasspath())
+          .builds()
+          .tasksDidNotRun(ALL_TASKS);
     }
   }
 
@@ -504,9 +362,9 @@ class CurioGenericCiPluginTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+    void copyProject() throws Exception {
+      Path projectDir =
+          copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
       addDiffs(projectDir, "build.gradle.kts");
 
@@ -515,28 +373,26 @@ class CurioGenericCiPluginTest {
 
     @Test
     void ciIsMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
-              .withPluginClasspath()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNotNull();
-      assertThat(result.task(":library1:build")).isNotNull();
-      assertThat(result.task(":library2:jar")).isNotNull();
-      assertThat(result.task(":library2:build")).isNotNull();
-      assertThat(result.task(":server1:build")).isNotNull();
-      assertThat(result.task(":server1:jib")).isNotNull();
-      assertThat(result.task(":server1:deployAlpha")).isNotNull();
-      assertThat(result.task(":server2:build")).isNotNull();
-      assertThat(result.task(":server2:jib")).isNotNull();
-      assertThat(result.task(":server2:deployAlpha")).isNotNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNotNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+                  .withPluginClasspath())
+          .builds()
+          .satisfies(
+              onlyDidRun(
+                  ":library1:jar",
+                  ":library1:build",
+                  ":library2:jar",
+                  ":library2:build",
+                  ":server1:build",
+                  ":server1:jib",
+                  ":server1:deployAlpha",
+                  ":server2:build",
+                  ":server2:jib",
+                  ":server2:deployAlpha",
+                  ":staticsite1:deployAlpha"));
     }
   }
 
@@ -549,9 +405,9 @@ class CurioGenericCiPluginTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+    void copyProject() throws Exception {
+      Path projectDir =
+          copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
       addDiffs(projectDir, "build.gradle.kts");
       addTwoEmptyCommits(projectDir);
@@ -561,28 +417,14 @@ class CurioGenericCiPluginTest {
 
     @Test
     void ciIsMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
-              .withPluginClasspath()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNull();
-      assertThat(result.task(":library1:build")).isNull();
-      assertThat(result.task(":library2:jar")).isNull();
-      assertThat(result.task(":library2:build")).isNull();
-      assertThat(result.task(":server1:build")).isNull();
-      assertThat(result.task(":server1:jib")).isNull();
-      assertThat(result.task(":server1:deployAlpha")).isNull();
-      assertThat(result.task(":server2:build")).isNull();
-      assertThat(result.task(":server2:jib")).isNull();
-      assertThat(result.task(":server2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true", "CI_MASTER", "true"))
+                  .withPluginClasspath())
+          .builds()
+          .tasksDidNotRun(ALL_TASKS);
     }
   }
 
@@ -593,9 +435,9 @@ class CurioGenericCiPluginTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+    void copyProject() throws Exception {
+      Path projectDir =
+          copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
       changeBranch(projectDir, "prbuild");
       addDiffs(projectDir, "library1/src/main/java/Library1.java");
@@ -606,28 +448,14 @@ class CurioGenericCiPluginTest {
 
     @Test
     void ciNotMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true"))
-              .withPluginClasspath()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNotNull();
-      assertThat(result.task(":library1:build")).isNotNull();
-      assertThat(result.task(":library2:jar")).isNull();
-      assertThat(result.task(":library2:build")).isNull();
-      assertThat(result.task(":server1:build")).isNull();
-      assertThat(result.task(":server1:jib")).isNull();
-      assertThat(result.task(":server1:deployAlpha")).isNull();
-      assertThat(result.task(":server2:build")).isNotNull();
-      assertThat(result.task(":server2:jib")).isNull();
-      assertThat(result.task(":server2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true"))
+                  .withPluginClasspath())
+          .builds()
+          .satisfies(onlyDidRun(":library1:jar", ":library1:build", ":server2:build"));
     }
   }
 
@@ -638,9 +466,9 @@ class CurioGenericCiPluginTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+    void copyProject() throws Exception {
+      Path projectDir =
+          copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
       changeBranch(projectDir, "prbuild");
       addDiffs(projectDir, "library2/src/main/java/Library2.java");
@@ -651,28 +479,14 @@ class CurioGenericCiPluginTest {
 
     @Test
     void ciNotMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true"))
-              .withPluginClasspath()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNull();
-      assertThat(result.task(":library1:build")).isNull();
-      assertThat(result.task(":library2:jar")).isNotNull();
-      assertThat(result.task(":library2:build")).isNotNull();
-      assertThat(result.task(":server1:build")).isNull();
-      assertThat(result.task(":server1:jib")).isNull();
-      assertThat(result.task(":server1:deployAlpha")).isNull();
-      assertThat(result.task(":server2:build")).isNull();
-      assertThat(result.task(":server2:jib")).isNull();
-      assertThat(result.task(":server2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true"))
+                  .withPluginClasspath())
+          .builds()
+          .satisfies(onlyDidRun(":library2:jar", ":library2:build"));
     }
   }
 
@@ -683,9 +497,9 @@ class CurioGenericCiPluginTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+    void copyProject() throws Exception {
+      Path projectDir =
+          copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
       changeBranch(projectDir, "prbuild");
       addDiffs(projectDir, "server1/src/main/java/Server1.java");
@@ -696,28 +510,14 @@ class CurioGenericCiPluginTest {
 
     @Test
     void ciNotMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true"))
-              .withPluginClasspath()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNull();
-      assertThat(result.task(":library1:build")).isNull();
-      assertThat(result.task(":library2:jar")).isNull();
-      assertThat(result.task(":library2:build")).isNull();
-      assertThat(result.task(":server1:build")).isNotNull();
-      assertThat(result.task(":server1:jib")).isNull();
-      assertThat(result.task(":server1:deployAlpha")).isNull();
-      assertThat(result.task(":server2:build")).isNull();
-      assertThat(result.task(":server2:jib")).isNull();
-      assertThat(result.task(":server2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true"))
+                  .withPluginClasspath())
+          .builds()
+          .satisfies(onlyDidRun(":server1:build"));
     }
   }
 
@@ -728,9 +528,9 @@ class CurioGenericCiPluginTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+    void copyProject() throws Exception {
+      Path projectDir =
+          copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
       changeBranch(projectDir, "prbuild");
       addDiffs(projectDir, "server2/src/main/java/Server2.java");
@@ -741,29 +541,15 @@ class CurioGenericCiPluginTest {
 
     @Test
     void ciNotMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true"))
-              .withPluginClasspath()
-              .forwardOutput()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNotNull();
-      assertThat(result.task(":library1:build")).isNull();
-      assertThat(result.task(":library2:jar")).isNull();
-      assertThat(result.task(":library2:build")).isNull();
-      assertThat(result.task(":server1:build")).isNull();
-      assertThat(result.task(":server1:jib")).isNull();
-      assertThat(result.task(":server1:deployAlpha")).isNull();
-      assertThat(result.task(":server2:build")).isNotNull();
-      assertThat(result.task(":server2:jib")).isNull();
-      assertThat(result.task(":server2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true"))
+                  .withPluginClasspath()
+                  .forwardOutput())
+          .builds()
+          .satisfies(onlyDidRun(":library1:jar", ":server2:build"));
     }
   }
 
@@ -774,9 +560,9 @@ class CurioGenericCiPluginTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+    void copyProject() throws Exception {
+      Path projectDir =
+          copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
       changeBranch(projectDir, "prbuild");
       addDiffs(projectDir, "staticsite1/build.gradle.kts");
@@ -787,29 +573,15 @@ class CurioGenericCiPluginTest {
 
     @Test
     void ciNotMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true"))
-              .withPluginClasspath()
-              .forwardOutput()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNull();
-      assertThat(result.task(":library1:build")).isNull();
-      assertThat(result.task(":library2:jar")).isNull();
-      assertThat(result.task(":library2:build")).isNull();
-      assertThat(result.task(":server1:build")).isNull();
-      assertThat(result.task(":server1:jib")).isNull();
-      assertThat(result.task(":server1:deployAlpha")).isNull();
-      assertThat(result.task(":server2:build")).isNull();
-      assertThat(result.task(":server2:jib")).isNull();
-      assertThat(result.task(":server2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true"))
+                  .withPluginClasspath()
+                  .forwardOutput())
+          .builds()
+          .tasksDidNotRun(ALL_TASKS);
     }
   }
 
@@ -820,9 +592,9 @@ class CurioGenericCiPluginTest {
     private File projectDir;
 
     @BeforeAll
-    void copyProject(@TempDir Path projectDir) throws Exception {
-      copyProjectFromResources(
-          "test-projects/gradle-curio-generic-ci-plugin/master-no-diffs", projectDir);
+    void copyProject() throws Exception {
+      Path projectDir =
+          copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
       changeBranch(projectDir, "prbuild");
       addDiffs(projectDir, "build.gradle.kts");
@@ -833,51 +605,26 @@ class CurioGenericCiPluginTest {
 
     @Test
     void ciNotMaster() {
-      var result =
-          GradleRunner.create()
-              .withProjectDir(projectDir)
-              .withArguments("continuousBuild")
-              .withEnvironment(ImmutableMap.of("CI", "true"))
-              .withPluginClasspath()
-              .build();
-
-      assertThat(result.task(":library1:jar")).isNotNull();
-      assertThat(result.task(":library1:build")).isNotNull();
-      assertThat(result.task(":library2:jar")).isNotNull();
-      assertThat(result.task(":library2:build")).isNotNull();
-      assertThat(result.task(":server1:build")).isNotNull();
-      assertThat(result.task(":server1:jib")).isNull();
-      assertThat(result.task(":server1:deployAlpha")).isNull();
-      assertThat(result.task(":server2:build")).isNotNull();
-      assertThat(result.task(":server2:jib")).isNull();
-      assertThat(result.task(":server2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite1:deployProd")).isNull();
-      assertThat(result.task(":staticsite2:deployAlpha")).isNull();
-      assertThat(result.task(":staticsite2:deployProd")).isNull();
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir)
+                  .withArguments("continuousBuild")
+                  .withEnvironment(ImmutableMap.of("CI", "true"))
+                  .withPluginClasspath())
+          .builds()
+          .satisfies(
+              onlyDidRun(
+                  ":library1:jar",
+                  ":library1:build",
+                  ":library2:jar",
+                  ":library2:build",
+                  ":server1:build",
+                  ":server2:build"));
     }
   }
 
-  private static void copyProjectFromResources(String resourcePath, Path projectDir)
-      throws Exception {
-    var resourceDir = Paths.get(Resources.getResource(resourcePath).toURI());
-    try (var stream = Files.walk(resourceDir)) {
-      stream
-          .filter(path -> !path.equals(resourceDir))
-          .forEach(
-              path -> {
-                var destPath = projectDir.resolve(resourceDir.relativize(path));
-                try {
-                  if (Files.isDirectory(path)) {
-                    Files.createDirectory(destPath);
-                  } else {
-                    Files.copy(path, destPath);
-                  }
-                } catch (IOException e) {
-                  throw new UncheckedIOException("Could not copy test project file.", e);
-                }
-              });
-    }
+  private static Path copyGitRepoFromResources(String resourcePath) {
+    Path projectDir = ResourceProjects.fromResources(resourcePath);
 
     var projectFiles = projectDir.toFile().listFiles();
     checkNotNull(projectFiles);
@@ -889,6 +636,8 @@ class CurioGenericCiPluginTest {
         break;
       }
     }
+
+    return projectDir;
   }
 
   private static void addDiffs(Path projectDir, String... paths) {
@@ -937,5 +686,16 @@ class CurioGenericCiPluginTest {
     } catch (Exception e) {
       throw new IllegalStateException("Error manipulating git repo.", e);
     }
+  }
+
+  private static Consumer<BuildResult> onlyDidRun(String... tasks) {
+    return result -> assertThat(result).tasksDidRun(tasks).tasksDidNotRun(allTasksExcept(tasks));
+  }
+
+  private static List<String> allTasksExcept(String... exceptions) {
+    Set<String> exceptionsSet = ImmutableSet.copyOf(exceptions);
+    return ALL_TASKS.stream()
+        .filter(task -> !exceptionsSet.contains(task))
+        .collect(toImmutableList());
   }
 }
