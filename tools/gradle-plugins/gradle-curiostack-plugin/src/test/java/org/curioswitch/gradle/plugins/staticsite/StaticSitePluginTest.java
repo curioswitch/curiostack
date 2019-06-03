@@ -24,40 +24,32 @@
 
 package org.curioswitch.gradle.plugins.staticsite;
 
-import static org.curioswitch.common.testing.assertj.CurioAssertions.assertThat;
-import static org.curioswitch.gradle.plugins.testutil.ResourceProjects.copyProjectFromResources;
+import static org.curioswitch.gradle.testing.assertj.CurioGradleAssertions.assertThat;
 
 import java.nio.file.Path;
+import org.curioswitch.gradle.testing.ResourceProjects;
 import org.gradle.testkit.runner.GradleRunner;
-import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 class StaticSitePluginTest {
 
   private Path projectDir;
 
   @BeforeAll
-  void copyProject(@TempDir Path projectDir) throws Exception {
-    copyProjectFromResources("test-projects/gradle-static-site-plugin", projectDir);
-
-    this.projectDir = projectDir;
+  void copyProject() {
+    projectDir = ResourceProjects.fromResources("test-projects/gradle-static-site-plugin");
   }
 
   @Test
   void normal() {
-    var result =
-        GradleRunner.create()
-            .withProjectDir(projectDir.toFile())
-            .withArguments("build", "--stacktrace")
-            .withPluginClasspath()
-            .forwardOutput()
-            .build();
-
-    assertThat(result.task(":site1:buildSite").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
-    assertThat(result.task(":site2:buildSite").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
-    assertThat(result.task(":portal:mergeSite").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+    assertThat(
+            GradleRunner.create()
+                .withProjectDir(projectDir.toFile())
+                .withArguments("build", "--stacktrace")
+                .withPluginClasspath())
+        .builds()
+        .tasksDidSucceed(":site1:buildSite", ":site2:buildSite", ":portal:mergeSite");
 
     assertThat(projectDir.resolve("portal/build/site/index.html"))
         .hasSameContentAs(projectDir.resolve("portal/src/index.html"));
