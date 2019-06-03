@@ -26,6 +26,7 @@ package org.curioswitch.gradle.plugins.staticsite;
 
 import static org.curioswitch.gradle.testing.assertj.CurioGradleAssertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
 import java.nio.file.Path;
 import org.curioswitch.gradle.testing.ResourceProjects;
 import org.gradle.testkit.runner.GradleRunner;
@@ -47,6 +48,7 @@ class StaticSitePluginTest {
             GradleRunner.create()
                 .withProjectDir(projectDir.toFile())
                 .withArguments("build", "--stacktrace")
+                .withEnvironment(ImmutableMap.of())
                 .withPluginClasspath())
         .builds()
         .tasksDidSucceed(":site1:buildSite", ":site2:buildSite", ":portal:mergeSite");

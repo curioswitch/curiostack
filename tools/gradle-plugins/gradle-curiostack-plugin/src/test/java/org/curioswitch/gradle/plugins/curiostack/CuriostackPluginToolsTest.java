@@ -27,6 +27,7 @@ package org.curioswitch.gradle.plugins.curiostack;
 import static org.curioswitch.gradle.testing.assertj.CurioGradleAssertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.nio.file.Path;
 import org.curioswitch.gradle.testing.GradleTempDirectories;
@@ -74,6 +75,7 @@ class CuriostackPluginToolsTest {
                   .withProjectDir(projectDir)
                   .withArguments("toolsSetupClaat")
                   .withPluginClasspath()
+                  .withEnvironment(ImmutableMap.of())
                   .withTestKitDir(gradleUserHome.toFile()))
           .builds()
           .tasksDidSucceed(":toolsDownloadClaat", ":toolsSetupClaat");
@@ -104,6 +106,7 @@ class CuriostackPluginToolsTest {
                   .withProjectDir(projectDir)
                   .withArguments("toolsSetupClaat")
                   .withPluginClasspath()
+                  .withEnvironment(ImmutableMap.of())
                   .withTestKitDir(gradleUserHome.toFile()))
           .builds()
           .tasksDidSucceed(":toolsDownloadClaat", ":toolsSetupClaat");
