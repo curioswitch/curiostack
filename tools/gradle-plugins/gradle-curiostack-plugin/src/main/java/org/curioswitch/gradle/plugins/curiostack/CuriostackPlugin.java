@@ -103,6 +103,7 @@ import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.api.tasks.testing.Test;
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat;
 import org.gradle.api.tasks.wrapper.Wrapper;
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType;
 import org.gradle.external.javadoc.CoreJavadocOptions;
@@ -542,6 +543,7 @@ public class CuriostackPlugin implements Plugin<Project> {
               }
               test.useJUnitPlatform(
                   platform -> platform.includeEngines("junit-jupiter", "junit-vintage"));
+              test.testLogging(logging -> logging.setExceptionFormat(TestExceptionFormat.FULL));
             });
 
     // While Gradle attempts to generate a unique module name automatically,
