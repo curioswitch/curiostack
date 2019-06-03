@@ -45,8 +45,7 @@ public class GradleRunnerAssert extends AbstractAssert<GradleRunnerAssert, Gradl
       return new BuildResultAssert(actual.build());
     } catch (UnexpectedBuildFailure e) {
       failWithMessage(
-          "Build expected to succeed, but failed with output:%s",
-          e.getBuildResult().getOutput());
+          "Build expected to succeed, but failed with output:%s", e.getBuildResult().getOutput());
       // Can't reach here.
       throw new Error();
     }
@@ -58,8 +57,7 @@ public class GradleRunnerAssert extends AbstractAssert<GradleRunnerAssert, Gradl
       return new BuildResultAssert(actual.buildAndFail());
     } catch (UnexpectedBuildSuccess e) {
       failWithMessage(
-          "Build expected to fail, but succeeded with output:%s",
-          e.getBuildResult().getOutput());
+          "Build expected to fail, but succeeded with output:%s", e.getBuildResult().getOutput());
       // Can't reach here.
       throw new Error();
     }

@@ -28,21 +28,15 @@ import org.curioswitch.common.testing.assertj.CurioAssertions;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 
-/**
- * Standard {@link CurioAssertions} along with assertions for working with Gradle tests.
- */
+/** Standard {@link CurioAssertions} along with assertions for working with Gradle tests. */
 public class CurioGradleAssertions extends CurioAssertions {
 
-  /**
-   * Returns a {@link GradleRunnerAssert} to assert the result of the executed build.
-   */
+  /** Returns a {@link GradleRunnerAssert} to assert the result of the executed build. */
   public static GradleRunnerAssert assertThat(GradleRunner runner) {
     return new GradleRunnerAssert(runner);
   }
 
-  /**
-   * Returns a {@link BuildResultAssert} to assert the provided {@code result}.
-   */
+  /** Returns a {@link BuildResultAssert} to assert the provided {@code result}. */
   public static BuildResultAssert assertThat(BuildResult result) {
     return new BuildResultAssert(result);
   }
