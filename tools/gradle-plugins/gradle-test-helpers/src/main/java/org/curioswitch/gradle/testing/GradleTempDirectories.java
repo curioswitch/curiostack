@@ -31,7 +31,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.UUID;
+import java.time.Instant;
 
 /**
  * Utilities for creating temporary folders under the build directory of a Gradle project. Gradle
@@ -62,7 +62,10 @@ public final class GradleTempDirectories {
         !buildDir.isBlank(),
         "org.curioswitch.curiostack.testing.buildDir must be specified "
             + "to create a Gradle temp directory. Did you add the directive to your build script?");
-    var tempDir = Paths.get(buildDir).resolve("tempdirs").resolve(prefix + "-" + UUID.randomUUID());
+    var tempDir =
+        Paths.get(buildDir)
+            .resolve("tempdirs")
+            .resolve(prefix + "-" + Instant.now().toEpochMilli());
     try {
       return Files.createDirectories(tempDir);
     } catch (IOException e) {

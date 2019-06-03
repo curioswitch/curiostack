@@ -42,6 +42,7 @@ public class ToolDependencies {
           .put("miniconda", "4.5.12")
           .put("node", "11.13.0")
           .put("terraform", "0.11.13")
+          .put("terraform-gsuite-provider", "0.1.19")
           .put("yarn", "1.13.0")
           .build();
 
@@ -79,6 +80,10 @@ public class ToolDependencies {
 
   public static String getTerraformVersion(Project project) {
     return getVersion("terraform", project);
+  }
+
+  public static String getTerraformGsuiteProviderVersion(Project project) {
+    return getVersion("terraform-gsuite-provider", project);
   }
 
   public static String getYarnVersion(Project project) {

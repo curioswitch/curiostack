@@ -118,14 +118,14 @@ public class CondaPlugin implements Plugin<Project> {
                             if (operatingSystem == OperatingSystem.WINDOWS) {
                               project.exec(
                                   exec -> {
-                                    exec.executable(archive);
+                                    exec.executable("cmd");
                                     exec.args(
-                                        "/S",
-                                        "/InstallationType=JustMe",
-                                        "/AddToPath=0",
-                                        "/RegisterPython=0",
-                                        "/NoRegistry=1",
-                                        "/D=" + toolDir.toAbsolutePath().toString());
+                                        "/k",
+                                        "start /wait "
+                                            + archive.getAbsolutePath()
+                                            + " /S /InstallationType=JustMe /AddToPath=0 "
+                                            + "/RegisterPython=0 /NoRegistry=1 /D="
+                                            + toolDir.toAbsolutePath().toString());
                                   });
                             } else {
                               project.exec(
