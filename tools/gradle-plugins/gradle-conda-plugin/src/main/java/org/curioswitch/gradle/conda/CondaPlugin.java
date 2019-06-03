@@ -54,8 +54,7 @@ public class CondaPlugin implements Plugin<Project> {
 
     condas =
         project.container(
-            CondaExtension.class,
-            name -> CondaExtension.create(name, project.getObjects()));
+            CondaExtension.class, name -> CondaExtension.create(name, project.getObjects()));
     project.getExtensions().add("conda", condas);
 
     condas.configureEach(conda -> addCondaTasks(project, conda));

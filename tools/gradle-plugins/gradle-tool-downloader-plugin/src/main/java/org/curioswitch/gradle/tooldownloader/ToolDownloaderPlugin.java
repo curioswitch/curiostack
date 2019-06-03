@@ -50,8 +50,7 @@ public class ToolDownloaderPlugin implements Plugin<Project> {
 
     tools =
         project.container(
-            ToolDownloaderExtension.class,
-            name -> ToolDownloaderExtension.create(name, project));
+            ToolDownloaderExtension.class, name -> ToolDownloaderExtension.create(name, project));
     project.getExtensions().add("tools", tools);
 
     toolManager = new DownloadedToolManager(project, tools);
