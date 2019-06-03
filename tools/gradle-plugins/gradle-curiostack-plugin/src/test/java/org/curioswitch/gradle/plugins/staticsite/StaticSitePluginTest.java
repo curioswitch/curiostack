@@ -50,8 +50,9 @@ class StaticSitePluginTest {
     var result =
         GradleRunner.create()
             .withProjectDir(projectDir.toFile())
-            .withArguments("build")
+            .withArguments("build", "--stacktrace")
             .withPluginClasspath()
+            .forwardOutput()
             .build();
 
     assertThat(result.task(":site1:buildSite").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
