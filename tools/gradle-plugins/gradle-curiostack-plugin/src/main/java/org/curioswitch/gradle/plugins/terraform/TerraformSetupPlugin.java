@@ -39,6 +39,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.api.tasks.Copy;
+import org.gradle.api.tasks.Delete;
 
 public class TerraformSetupPlugin implements Plugin<Project> {
 
@@ -81,6 +82,29 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                     tool.getBaseUrl().set("https://storage.googleapis.com/kubernetes-helm/");
                     tool.getArtifactPattern().set("[artifact]-v[revision]-[classifier].[ext]");
                   });
+
+              plugin.registerToolIfAbsent(
+                  "terraform-provider-gsuite",
+                  tool -> {
+                    tool.getVersion()
+                        .set(ToolDependencies.getTerraformGsuiteProviderVersion(project));
+                    tool.getBaseUrl()
+                        .set(
+                            "https://github.com/DeviaVir/terraform-provider-gsuite"
+                                + "/releases/download/");
+                    tool.getArtifactPattern()
+                        .set("v[revision]/[artifact]_[revision]_[classifier].[ext]");
+
+                    tool.getOsClassifiers().getLinux().set("linux_amd64");
+                    tool.getOsClassifiers().getMac().set("darwin_amd64");
+                    tool.getOsClassifiers().getWindows().set("windows_amd64");
+
+                    tool.getOsExtensions().getLinux().set("zip");
+                    tool.getOsExtensions().getMac().set("zip");
+                    tool.getOsExtensions().getWindows().set("zip");
+
+                    tool.getPathSubDirs().add("");
+                  });
             });
 
     var goBinDir =
@@ -105,33 +129,20 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                               goBinDir.resolve(PathUtil.getExeName("terraform-provider-k8s"))));
                 });
 
-    var terraformDownloadKubernetesFork =
-        project
-            .getTasks()
-            .register(
-                "terraformDownloadKubernetesForkProvider",
-                GoTask.class,
-                t -> {
-                  t.args("get", "github.com/sl1pm4t/terraform-provider-kubernetes");
-                  t.onlyIf(
-                      unused ->
-                          !Files.exists(
-                              goBinDir.resolve(
-                                  PathUtil.getExeName("terraform-provider-kubernetes"))));
-                });
+    var setupTerraformGsuiteProvider =
+        DownloadToolUtil.getSetupTask(project, "terraform-provider-gsuite");
 
-    var terraformDownloadGsuite =
+    var terraformDeleteOldPlugins =
         project
             .getTasks()
             .register(
-                "terraformDownloadGsuiteProvider",
-                GoTask.class,
+                "terraformDeleteOldPlugins",
+                Delete.class,
                 t -> {
-                  t.args("get", "github.com/DeviaVir/terraform-provider-gsuite");
-                  t.onlyIf(
-                      unused ->
-                          !Files.exists(
-                              goBinDir.resolve(PathUtil.getExeName("terraform-provider-gsuite"))));
+                  var terraformDir = DownloadedToolManager.get(project).getBinDir("terraform");
+                  t.delete(
+                      terraformDir.resolve(PathUtil.getExeName("terraform-provider-kubernetes")));
+                  t.delete(terraformDir.resolve(PathUtil.getExeName("terraform-provider-gsuite")));
                 });
 
     var terraformCopyPlugins =
@@ -143,10 +154,11 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                 t -> {
                   t.dependsOn(
                       terraformDownloadK8s,
-                      terraformDownloadKubernetesFork,
-                      terraformDownloadGsuite);
+                      setupTerraformGsuiteProvider,
+                      terraformDeleteOldPlugins);
                   t.into(DownloadedToolManager.get(project).getBinDir("terraform"));
                   t.from(goBinDir);
+                  t.from(DownloadedToolManager.get(project).getBinDir("terraform-provider-gsuite"));
                   t.include("terraform-provider-*");
                 });
 
@@ -154,8 +166,6 @@ public class TerraformSetupPlugin implements Plugin<Project> {
         .configure(setupTerraform -> setupTerraform.dependsOn(terraformCopyPlugins));
 
     var setupGo = DownloadToolUtil.getSetupTask(project, "go");
-    setupGo.configure(t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build")));
-
     project.getTasks().withType(GoTask.class).configureEach(t -> t.dependsOn(setupGo));
   }
 }

@@ -21,39 +21,3 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-package org.curioswitch.gradle.plugins.testutil;
-
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-public final class ResourceProjects {
-
-  public static void copyProjectFromResources(String resourcePath, Path projectDir)
-      throws Exception {
-    var resourceDir = Paths.get(Resources.getResource(resourcePath).toURI());
-    try (var stream = Files.walk(resourceDir)) {
-      stream
-          .filter(path -> !path.equals(resourceDir))
-          .forEach(
-              path -> {
-                var destPath = projectDir.resolve(resourceDir.relativize(path));
-                try {
-                  if (Files.isDirectory(path)) {
-                    Files.createDirectory(destPath);
-                  } else {
-                    Files.copy(path, destPath);
-                  }
-                } catch (IOException e) {
-                  throw new UncheckedIOException("Could not copy test project file.", e);
-                }
-              });
-    }
-  }
-
-  private ResourceProjects() {}
-}
