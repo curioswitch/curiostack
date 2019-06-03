@@ -25,8 +25,6 @@
 package org.curioswitch.gradle.plugins.nodejs;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.NODE_VERSION;
-import static org.curioswitch.gradle.plugins.curiostack.StandardDependencies.YARN_VERSION;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,6 +35,7 @@ import java.nio.file.Paths;
 import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
+import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
 import org.curioswitch.gradle.plugins.nodejs.tasks.UpdateNodeResolutions;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
@@ -73,7 +72,9 @@ public class NodeSetupPlugin implements Plugin<Project> {
                 plugin.registerToolIfAbsent(
                     "node",
                     tool -> {
-                      tool.getVersion().set(NODE_VERSION);
+                      var version = ToolDependencies.getNodeVersion(project);
+
+                      tool.getVersion().set(version);
                       tool.getBaseUrl().set("https://nodejs.org/dist/");
                       tool.getArtifactPattern()
                           .set("v[revision]/[artifact]-v[revision]-[classifier].[ext]");
@@ -85,7 +86,7 @@ public class NodeSetupPlugin implements Plugin<Project> {
                       var operatingSystem = new PlatformHelper().getOs();
 
                       String nodePathSubDir =
-                          "node-v" + NODE_VERSION + "-" + classifiers.getValue(operatingSystem);
+                          "node-v" + version + "-" + classifiers.getValue(operatingSystem);
                       if (operatingSystem != OperatingSystem.WINDOWS) {
                         nodePathSubDir += "/bin";
                       }
@@ -100,9 +101,11 @@ public class NodeSetupPlugin implements Plugin<Project> {
                                   "toolsDownloadYarn",
                                   NodeTask.class,
                                   t -> {
+                                    var yarnVersion = ToolDependencies.getYarnVersion(project);
+
                                     t.setCommand("npm");
                                     t.args(
-                                        "install", "--global", "--no-save", "yarn@" + YARN_VERSION);
+                                        "install", "--global", "--no-save", "yarn@" + yarnVersion);
                                     t.dependsOn(
                                         DownloadToolUtil.getDownloadTask(project, "node"),
                                         DownloadToolUtil.getSetupTask(project, "miniconda2-build"));
@@ -128,7 +131,7 @@ public class NodeSetupPlugin implements Plugin<Project> {
                                                 .readTree(packageJson)
                                                 .get("version")
                                                 .asText()
-                                                .equals(YARN_VERSION)) {
+                                                .equals(yarnVersion)) {
                                               return true;
                                             }
                                           } catch (IOException e) {

@@ -37,7 +37,7 @@ import org.gradle.api.plugins.ExtraPropertiesExtension;
 
 public class ToolDownloaderPlugin implements Plugin<Project> {
 
-  private NamedDomainObjectContainer<ModifiableToolDownloaderExtension> tools;
+  private NamedDomainObjectContainer<ToolDownloaderExtension> tools;
   private DownloadedToolManager toolManager;
 
   @Override
@@ -50,8 +50,7 @@ public class ToolDownloaderPlugin implements Plugin<Project> {
 
     tools =
         project.container(
-            ModifiableToolDownloaderExtension.class,
-            name -> ToolDownloaderExtension.create(name, project));
+            ToolDownloaderExtension.class, name -> ToolDownloaderExtension.create(name, project));
     project.getExtensions().add("tools", tools);
 
     toolManager = new DownloadedToolManager(project, tools);
@@ -87,7 +86,7 @@ public class ToolDownloaderPlugin implements Plugin<Project> {
   }
 
   public ToolDownloaderPlugin registerToolIfAbsent(
-      String name, Action<ModifiableToolDownloaderExtension> configurer) {
+      String name, Action<ToolDownloaderExtension> configurer) {
     var tool = tools.maybeCreate(name);
     if (tool.getVersion().getOrNull() == null) {
       configurer.execute(tool);
@@ -99,7 +98,7 @@ public class ToolDownloaderPlugin implements Plugin<Project> {
     return toolManager;
   }
 
-  public NamedDomainObjectContainer<ModifiableToolDownloaderExtension> tools() {
+  public NamedDomainObjectContainer<ToolDownloaderExtension> tools() {
     return tools;
   }
 }

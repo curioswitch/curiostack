@@ -24,7 +24,7 @@
 
 package org.curioswitch.gradle.plugins.terraform.tasks;
 
-import org.curioswitch.gradle.plugins.curiostack.StandardDependencies;
+import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.curioswitch.gradle.plugins.gcloud.util.PlatformHelper;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.DefaultTask;
@@ -62,7 +62,7 @@ public class HelmTask extends DefaultTask {
           exec.executable(
               CommandUtil.getCuriostackDir(project)
                   .resolve("helm")
-                  .resolve(StandardDependencies.HELM_VERSION)
+                  .resolve(ToolDependencies.getHelmVersion(project))
                   .resolve(new PlatformHelper().getOsName() + "-amd64")
                   .resolve("helm"));
           exec.args(args.get());
