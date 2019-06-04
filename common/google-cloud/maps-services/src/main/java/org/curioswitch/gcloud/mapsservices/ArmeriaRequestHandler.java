@@ -67,10 +67,10 @@ import com.linecorp.armeria.client.retry.RetryStrategy;
 import com.linecorp.armeria.client.retry.RetryingHttpClient;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
-import com.linecorp.armeria.common.HttpHeaders;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpStatus;
+import com.linecorp.armeria.common.RequestHeaders;
 import java.net.Proxy;
 import java.time.Instant;
 import java.time.LocalTime;
@@ -196,7 +196,7 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
 
     var request =
         HttpRequest.of(
-            HttpHeaders.of(method, url).set(HttpHeaderNames.USER_AGENT, userAgent), payload);
+            RequestHeaders.of(method, url, HttpHeaderNames.USER_AGENT, userAgent), payload);
 
     return new ArmeriaPendingResult<>(client, request, clazz, gson);
   }

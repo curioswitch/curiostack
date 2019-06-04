@@ -27,7 +27,7 @@ import com.google.common.collect.ImmutableSet;
 import com.linecorp.armeria.client.Client;
 import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.logging.LoggingClientBuilder;
-import com.linecorp.armeria.common.HttpHeaders;
+import com.linecorp.armeria.common.HttpHeadersBuilder;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.logging.LogLevel;
@@ -55,10 +55,10 @@ import org.curioswitch.common.server.framework.config.ModifiableLoggingConfig;
 public abstract class LoggingModule {
 
   @Multibinds
-  abstract @RequestHeaderSanitizer Set<Consumer<HttpHeaders>> requestHeaderSanitizers();
+  abstract @RequestHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> requestHeaderSanitizers();
 
   @Multibinds
-  abstract @ResponseHeaderSanitizer Set<Consumer<HttpHeaders>> responseHeaderSanitizers();
+  abstract @ResponseHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> responseHeaderSanitizers();
 
   @Provides
   @Singleton
@@ -72,8 +72,8 @@ public abstract class LoggingModule {
   static Function<Service<HttpRequest, HttpResponse>, LoggingService<HttpRequest, HttpResponse>>
       loggingService(
           LoggingConfig config,
-          @RequestHeaderSanitizer Set<Consumer<HttpHeaders>> requestHeaderSanitizers,
-          @ResponseHeaderSanitizer Set<Consumer<HttpHeaders>> responseHeaderSanitizers) {
+          @RequestHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> requestHeaderSanitizers,
+          @ResponseHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> responseHeaderSanitizers) {
     LoggingServiceBuilder builder = new LoggingServiceBuilder();
     configureLoggingDecorator(builder, config, requestHeaderSanitizers, responseHeaderSanitizers);
     if (config.getLogAllServerRequests()) {
@@ -88,8 +88,8 @@ public abstract class LoggingModule {
   static Function<Client<HttpRequest, HttpResponse>, LoggingClient<HttpRequest, HttpResponse>>
       loggingClient(
           LoggingConfig config,
-          @RequestHeaderSanitizer Set<Consumer<HttpHeaders>> requestHeaderSanitizers,
-          @ResponseHeaderSanitizer Set<Consumer<HttpHeaders>> responseHeaderSanitizers) {
+          @RequestHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> requestHeaderSanitizers,
+          @ResponseHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> responseHeaderSanitizers) {
     LoggingClientBuilder builder = new LoggingClientBuilder();
     configureLoggingDecorator(builder, config, requestHeaderSanitizers, responseHeaderSanitizers);
     if (config.getLogAllClientRequests()) {
@@ -102,8 +102,8 @@ public abstract class LoggingModule {
   private static void configureLoggingDecorator(
       LoggingDecoratorBuilder<?> builder,
       LoggingConfig config,
-      @RequestHeaderSanitizer Set<Consumer<HttpHeaders>> requestHeaderSanitizers,
-      @ResponseHeaderSanitizer Set<Consumer<HttpHeaders>> responseHeaderSanitizers) {
+      @RequestHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> requestHeaderSanitizers,
+      @ResponseHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> responseHeaderSanitizers) {
     if (!config.getBlacklistedRequestHeaders().isEmpty() || !requestHeaderSanitizers.isEmpty()) {
       builder.requestHeadersSanitizer(
           new HeaderSanitizer(requestHeaderSanitizers, config.getBlacklistedRequestHeaders()));

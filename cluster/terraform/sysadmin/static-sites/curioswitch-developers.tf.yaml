@@ -22,7 +22,7 @@
 #
 
 module:
-  curioswitch_deveopers_site:
+  curioswitch_developers_site:
     source: './modules/static-site'
     project_id: curioswitch-developers
     org_id: "${data.google_organization.org.id}"

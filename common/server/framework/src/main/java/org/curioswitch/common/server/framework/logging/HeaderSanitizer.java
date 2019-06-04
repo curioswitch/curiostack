@@ -25,8 +25,8 @@ package org.curioswitch.common.server.framework.logging;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
-import com.linecorp.armeria.common.DefaultHttpHeaders;
 import com.linecorp.armeria.common.HttpHeaders;
+import com.linecorp.armeria.common.HttpHeadersBuilder;
 import io.netty.util.AsciiString;
 import java.util.List;
 import java.util.Set;
@@ -35,10 +35,11 @@ import java.util.function.Function;
 
 final class HeaderSanitizer implements Function<HttpHeaders, HttpHeaders> {
 
-  private final Set<Consumer<HttpHeaders>> customSanitizers;
+  private final Set<Consumer<HttpHeadersBuilder>> customSanitizers;
   private final Set<AsciiString> blacklistedHeaders;
 
-  HeaderSanitizer(Set<Consumer<HttpHeaders>> customSanitizers, List<String> blacklistedHeaders) {
+  HeaderSanitizer(
+      Set<Consumer<HttpHeadersBuilder>> customSanitizers, List<String> blacklistedHeaders) {
     this.customSanitizers = customSanitizers;
     this.blacklistedHeaders =
         blacklistedHeaders.stream().map(AsciiString::of).collect(toImmutableSet());
@@ -46,12 +47,9 @@ final class HeaderSanitizer implements Function<HttpHeaders, HttpHeaders> {
 
   @Override
   public HttpHeaders apply(HttpHeaders entries) {
-    HttpHeaders copied = new DefaultHttpHeaders(false, entries.size(), entries.isEndOfStream());
-    copied.set(entries);
-
-    blacklistedHeaders.forEach(copied::remove);
-    customSanitizers.forEach(c -> c.accept(copied));
-
-    return copied;
+    HttpHeadersBuilder builder = entries.toBuilder();
+    blacklistedHeaders.forEach(builder::remove);
+    customSanitizers.forEach(c -> c.accept(builder));
+    return builder.build();
   }
 }

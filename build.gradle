@@ -116,12 +116,12 @@ gcloud {
 }
 
 ci {
-    releaseTagPrefixes = [
-            'RELEASE_SERVERS_': [
-                    ':auth:server',
-                    ':eggworld:server',
-            ]
-    ]
+    releaseTagPrefixes {
+        register('RELEASE_SERVERS_') {
+            project(':auth:server')
+            project(':eggworld:server')
+        }
+    }
 }
 
 buildScan {

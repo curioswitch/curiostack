@@ -473,18 +473,22 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(SpotlessPlugin.class);
     plugins.apply(VersionsPlugin.class);
 
-    // Manage all dependencies by adding the bom as a platform.
-    project
-        .getConfigurations()
-        .configureEach(
-            configuration ->
-                project
-                    .getDependencies()
-                    .add(
-                        configuration.getName(),
-                        project
-                            .getDependencies()
-                            .platform("org.curioswitch.curiostack:curiostack-bom:0.0.9")));
+    if (!"true".equals(project.findProperty("org.curioswitch.curiostack.java.disableBom"))) {
+      // Manage all dependencies by adding the bom as a platform.
+      project
+          .getConfigurations()
+          .configureEach(
+              configuration ->
+                  project
+                      .getDependencies()
+                      .add(
+                          configuration.getName(),
+                          project
+                              .getDependencies()
+                              .platform(
+                                  "org.curioswitch.curiostack:curiostack-bom:"
+                                      + ToolDependencies.getBomVersion(project))));
+    }
 
     project
         .getTasks()

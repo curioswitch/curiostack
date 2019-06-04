@@ -35,12 +35,13 @@ import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
-import com.linecorp.armeria.common.HttpHeaders;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.common.RequestContext;
+import com.linecorp.armeria.common.RequestHeaders;
+import com.linecorp.armeria.common.ResponseHeaders;
 import com.linecorp.armeria.unsafe.ByteBufHttpData;
 import com.spotify.futures.CompletableFuturesExtra;
 import io.netty.buffer.ByteBuf;
@@ -112,8 +113,10 @@ public class StorageClient {
       FileRequest request, EventLoop eventLoop, ByteBufAllocator alloc) {
     HttpData data = serializeRequest(request, alloc);
 
-    HttpHeaders headers =
-        HttpHeaders.of(HttpMethod.POST, uploadUrl).contentType(MediaType.JSON_UTF_8);
+    RequestHeaders headers =
+        RequestHeaders.builder(HttpMethod.POST, uploadUrl)
+            .contentType(MediaType.JSON_UTF_8)
+            .build();
     HttpResponse res = httpClient.execute(headers, data);
     return res.aggregate(eventLoop)
         .handle(
@@ -122,7 +125,7 @@ public class StorageClient {
                 throw new RuntimeException("Unexpected error creating new file.", t);
               }
 
-              HttpHeaders responseHeaders = msg.headers();
+              ResponseHeaders responseHeaders = (ResponseHeaders) msg.headers();
               if (!responseHeaders.status().equals(HttpStatus.OK)) {
                 throw new RuntimeException(
                     "Non-successful response when creating new file: "
@@ -207,7 +210,8 @@ public class StorageClient {
 
   public CompletableFuture<Void> delete(String filename) {
     String url = objectUrlPrefix + urlPathSegmentEscaper().escape(filename);
-    HttpHeaders headers = HttpHeaders.of(HttpMethod.DELETE, url).contentType(MediaType.JSON_UTF_8);
+    RequestHeaders headers =
+        RequestHeaders.builder(HttpMethod.DELETE, url).contentType(MediaType.JSON_UTF_8).build();
     return httpClient
         .execute(headers)
         .aggregate()
@@ -229,7 +233,8 @@ public class StorageClient {
       HttpMethod method, Object request, String url, EventLoop eventLoop, ByteBufAllocator alloc) {
     HttpData data = serializeRequest(request, alloc);
 
-    HttpHeaders headers = HttpHeaders.of(HttpMethod.POST, url).contentType(MediaType.JSON_UTF_8);
+    RequestHeaders headers =
+        RequestHeaders.builder(HttpMethod.POST, url).contentType(MediaType.JSON_UTF_8).build();
     HttpResponse res = httpClient.execute(headers, data);
     return res.aggregateWithPooledObjects(eventLoop, alloc)
         .handle(

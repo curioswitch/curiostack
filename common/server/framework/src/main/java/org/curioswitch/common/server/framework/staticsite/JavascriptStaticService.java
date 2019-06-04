@@ -41,11 +41,10 @@ public class JavascriptStaticService extends AbstractHttpService {
 
   private final HttpHeaders INFINITE_CACHE_HEADERS =
       HttpHeaders.of(
-              HttpHeaderNames.CACHE_CONTROL,
-              ServerCacheControl.IMMUTABLE.asHeaderValue(),
-              HttpHeaderNames.VARY,
-              "Accept-Encoding")
-          .asImmutable();
+          HttpHeaderNames.CACHE_CONTROL,
+          ServerCacheControl.IMMUTABLE.asHeaderValue(),
+          HttpHeaderNames.VARY,
+          "Accept-Encoding");
 
   private final HttpData response;
 
