@@ -168,7 +168,7 @@ public class GcloudPlugin implements Plugin<Project> {
                 "gcloudLoginToCluster",
                 GcloudTask.class,
                 t ->
-                    t.setArgs(
+                    t.args(
                         ImmutableList.of(
                             "container",
                             "clusters",

@@ -32,6 +32,8 @@ import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskAction;
 
 /** A {@link org.gradle.api.Task} that executes a gcloud sdk command. */
@@ -39,15 +41,25 @@ public class GcloudTask extends DefaultTask {
 
   private static final String COMMAND = "gcloud";
 
+  private final ListProperty<Object> args;
+
   @SuppressWarnings("ConstructorLeaksThis")
   public GcloudTask() {
+    args = getProject().getObjects().listProperty(Object.class).empty();
+
     dependsOn(DownloadToolUtil.getSetupTask(getProject(), "gcloud"));
   }
 
-  private Iterable<?> args;
-
   public void setArgs(Iterable<?> args) {
-    this.args = args;
+    this.args.set(args);
+  }
+
+  public void args(Iterable<?> args) {
+    this.args.addAll(args);
+  }
+
+  public void args(Provider<Iterable<?>> args) {
+    this.args.addAll(args);
   }
 
   @TaskAction
@@ -63,7 +75,9 @@ public class GcloudTask extends DefaultTask {
         ImmutableList.builder()
             .add("--project=" + config.getClusterProject().get())
             .add("--quiet")
-            .addAll(args)
+            .addAll(
+                args.get().stream().map(o -> o instanceof Provider ? ((Provider) o).get() : o)
+                    ::iterator)
             .build();
     getProject()
         .exec(
