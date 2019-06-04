@@ -43,6 +43,11 @@ resource:
       service: admin.googleapis.com
       lifecycle:
         prevent_destroy: true
+    primary-appengine:
+      project: "${google_project.primary_project.project_id}"
+      service: appengine.googleapis.com
+      lifecycle:
+        prevent_destroy: true
     primary-compute:
       project: "${google_project.primary_project.project_id}"
       service: compute.googleapis.com
