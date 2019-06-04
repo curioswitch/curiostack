@@ -28,7 +28,7 @@ steps:
     path: /root/.gradle/wrapper
   - name: gradle-caches
     path: /root/.gradle/caches
-  - name: gradle-caches
+  - name: curiostack
     path: /root/.gradle/curiostack
   dir: /root/.gradle
   entrypoint: ash
@@ -45,7 +45,7 @@ steps:
     path: /root/.gradle/wrapper
   - name: gradle-caches
     path: /root/.gradle/caches
-  - name: gradle-caches
+  - name: curiostack
     path: /root/.gradle/curiostack
   entrypoint: ./gradlew
   args:
@@ -69,7 +69,7 @@ steps:
     path: /root/.gradle/wrapper
   - name: gradle-caches
     path: /root/.gradle/caches
-  - name: gradle-caches
+  - name: curiostack
     path: /root/.gradle/curiostack
   dir: /root/.gradle
   entrypoint: ash
