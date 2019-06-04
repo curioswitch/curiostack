@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+// Kick build 1
+
 plugins {
     id("org.curioswitch.gradle-curio-static-site-plugin")
 }
