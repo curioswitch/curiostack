@@ -53,7 +53,9 @@ public interface GcloudExtension extends HasPublicType {
             .property(String.class)
             .convention(clusterResourceName(extension.getClusterBaseName(), "cluster")));
     extension.setClusterProject(
-        objects.property(String.class).convention(extension.getClusterName()));
+        objects
+            .property(String.class)
+            .convention(clusterResourceName(extension.getClusterBaseName(), "cluster")));
     extension.setContainerRegistry(
         objects
             .property(String.class)

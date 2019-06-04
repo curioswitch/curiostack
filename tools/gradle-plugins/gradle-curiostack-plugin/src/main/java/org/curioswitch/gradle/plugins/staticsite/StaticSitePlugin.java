@@ -73,9 +73,13 @@ public class StaticSitePlugin implements Plugin<Project> {
                   t.dependsOn(assemble);
                   // TODO(choko): Remove this major hack - the command line has two --project flags
                   // and we're just lucky the later is used.
-                  t.setArgs(
-                      ImmutableList.of(
-                          "app", "deploy", "--project=" + config.getAppEngineProject()));
+                  t.args(
+                      config
+                          .getAppEngineProject()
+                          .map(
+                              appEngineProject ->
+                                  ImmutableList.of(
+                                      "app", "deploy", "--project=" + appEngineProject)));
                 });
 
     var deployProd =

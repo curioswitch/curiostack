@@ -27,5 +27,7 @@ plugins {
 }
 
 staticSite {
+    firebaseProject.set("curioswitch-developers")
+
     site(project(":docs:codelabs"), "codelabs")
 }
