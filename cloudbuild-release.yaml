@@ -1,34 +1,45 @@
 ---
 steps:
-- id: curio-generated-fetch-uncompressed-build-cache
+- id: curio-generated-fetch-builder-image
   waitFor:
-  - '-'
-  name: gcr.io/cloud-builders/gsutil
+    - '-'
+  name: curiostack/java-cloud-builder
   entrypoint: bash
   args:
-  - -c
-  - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-uncompressed.tar .gradle/cloudbuild-cache-uncompressed.tar || echo Could not fetch uncompressed build cache...
-  env:
-  - CI=true
+    - -c
+    - echo Fetched builder image.
 - id: curio-generated-fetch-compressed-build-cache
   waitFor:
-  - '-'
-  name: gcr.io/cloud-builders/gsutil
-  entrypoint: bash
+    - '-'
+  name: curiostack/gsutil-lz4
+  volumes:
+  - name: gradle-wrapper
+    path: /root/.gradle/wrapper
+  - name: gradle-caches
+    path: /root/.gradle/caches
+  - name: gradle-caches
+    path: /root/.gradle/curiostack
+  dir: /root/.gradle
+  entrypoint: ash
   args:
-  - -c
-  - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.gz .gradle/cloudbuild-cache-compressed.tar.gz || echo Could not fetch compressed build cache...
-  env:
-  - CI=true
+    - -c
+    - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4 - | lz4 -dc - | tar -xp || echo Could not fetch compressed build cache...
 - id: curio-generated-build-releases
   waitFor:
-  - curio-generated-fetch-uncompressed-build-cache
   - curio-generated-fetch-compressed-build-cache
-  name: openjdk:11-jdk-slim
-  entrypoint: bash
+  name: curiostack/java-cloud-builder
+  volumes:
+  - name: gradle-wrapper
+    path: /root/.gradle/wrapper
+  - name: gradle-caches
+    path: /root/.gradle/caches
+  - name: gradle-caches
+    path: /root/.gradle/curiostack
+  entrypoint: ./gradlew
   args:
-  - -c
-  - (test -e .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-uncompressed.tar && tar -xpPf .gradle/cloudbuild-cache-compressed.tar.gz || echo No build cache yet.) && ./gradlew releaseBuild --stacktrace --no-daemon
+  - releaseBuild
+  - --stacktrace
+  - --no-daemon
   env:
   - CI=true
   - TAG_NAME=$TAG_NAME
