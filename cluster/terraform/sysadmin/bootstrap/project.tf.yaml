@@ -63,6 +63,11 @@ resource:
       service: cloudprofiler.googleapis.com
       lifecycle:
         prevent_destroy: true
+    primary-resourcemanager:
+      project: "${google_project.primary_project.project_id}"
+      service: cloudresourcemanager.googleapis.com
+      lifecycle:
+        prevent_destroy: true
     primary-sqladmin:
       project: "${google_project.primary_project.project_id}"
       service: sqladmin.googleapis.com
