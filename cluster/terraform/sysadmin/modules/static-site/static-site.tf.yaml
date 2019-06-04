@@ -37,6 +37,22 @@ resource:
       project_id: '${var.project_id}'
       org_id: '${var.org_id}'
       billing_account: '${var.billing_account}'
+  google_project_service:
+    appengine:
+      project: '${var.project_id}'
+      service: appengine.googleapis.com
+      lifecycle:
+        prevent_destroy: true
+    firebase:
+      project: '${var.project_id}'
+      service: firebase.googleapis.com
+      lifecycle:
+        prevent_destroy: true
+    firebasehosting:
+      project: '${var.project_id}'
+      service: firebasehosting.googleapis.com
+      lifecycle:
+        prevent_destroy: true
   google_project_iam_member:
     app_engine_deployer:
       project: '${var.project_id}'
