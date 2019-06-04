@@ -145,11 +145,6 @@ public class GcloudPlugin implements Plugin<Project> {
               }
             });
 
-    project
-        .getTasks()
-        .withType(GcloudTask.class)
-        .configureEach(t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "gcloud")));
-
     var gcloudSetup = project.getTasks().register("gcloudSetup");
     var gcloudInstallComponents =
         project
