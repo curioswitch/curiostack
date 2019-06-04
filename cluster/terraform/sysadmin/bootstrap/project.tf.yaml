@@ -63,6 +63,11 @@ resource:
       service: firebase.googleapis.com
       lifecycle:
         prevent_destroy: true
+    primary-firebasehosting:
+      project: "${google_project.primary_project.project_id}"
+      service: firebasehosting.googleapis.com
+      lifecycle:
+        prevent_destroy: true
     primary-profiler:
       project: "${google_project.primary_project.project_id}"
       service: cloudprofiler.googleapis.com
