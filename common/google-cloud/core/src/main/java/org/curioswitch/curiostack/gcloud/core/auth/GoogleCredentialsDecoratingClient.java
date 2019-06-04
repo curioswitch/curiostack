@@ -105,7 +105,7 @@ public class GoogleCredentialsDecoratingClient
                 : accessTokenProvider.getGoogleIdToken())
             .thenApplyAsync(
                 (token) -> {
-                  req.headers().add(header, "Bearer " + token);
+                  ctx.addAdditionalRequestHeader(header, "Bearer " + token);
                   try {
                     return delegate().execute(ctx, req);
                   } catch (Exception e) {

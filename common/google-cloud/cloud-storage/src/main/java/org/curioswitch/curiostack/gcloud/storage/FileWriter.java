@@ -33,10 +33,11 @@ import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
-import com.linecorp.armeria.common.HttpHeaders;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpStatusClass;
 import com.linecorp.armeria.common.RequestContext;
+import com.linecorp.armeria.common.RequestHeaders;
+import com.linecorp.armeria.common.ResponseHeaders;
 import com.linecorp.armeria.unsafe.ByteBufHttpData;
 import com.spotify.futures.CompletableFuturesExtra;
 import io.netty.buffer.ByteBuf;
@@ -255,9 +256,9 @@ public class FileWriter {
       range.append('*');
     }
 
-    HttpHeaders headers =
-        HttpHeaders.of(HttpMethod.PUT, uploadUrl)
-            .set(HttpHeaderNames.CONTENT_RANGE, range.toString());
+    RequestHeaders headers =
+        RequestHeaders.of(
+            HttpMethod.PUT, uploadUrl, HttpHeaderNames.CONTENT_RANGE, range.toString());
 
     HttpData data = new ByteBufHttpData(chunk, true);
     chunk.retain();
@@ -267,7 +268,7 @@ public class FileWriter {
         .aggregate(eventLoop)
         .thenComposeAsync(
             msg -> {
-              HttpHeaders responseHeaders = msg.headers();
+              ResponseHeaders responseHeaders = (ResponseHeaders) msg.headers();
               if (!responseHeaders.status().codeClass().equals(HttpStatusClass.SUCCESS)
                   && responseHeaders.status().code() != 308) {
                 chunk.release();

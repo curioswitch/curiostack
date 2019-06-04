@@ -23,6 +23,7 @@
  */
 package com.google.firebase.auth;
 
+import com.google.api.client.auth.openidconnect.IdToken;
 import com.google.api.client.json.JsonFactory;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -36,7 +37,7 @@ public class FirebaseTestTrampoline {
 
   public static FirebaseToken parseToken(JsonFactory jsonFactory, String tokenString) {
     try {
-      return FirebaseToken.parse(jsonFactory, tokenString);
+      return new FirebaseToken(IdToken.parse(jsonFactory, tokenString).getPayload());
     } catch (IOException e) {
       throw new UncheckedIOException("Could not parse firebase token.", e);
     }

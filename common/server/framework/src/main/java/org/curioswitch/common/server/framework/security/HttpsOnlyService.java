@@ -26,10 +26,10 @@ package org.curioswitch.common.server.framework.security;
 import com.google.common.base.Ascii;
 import com.google.common.base.Strings;
 import com.linecorp.armeria.common.HttpHeaderNames;
-import com.linecorp.armeria.common.HttpHeaders;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
+import com.linecorp.armeria.common.ResponseHeaders;
 import com.linecorp.armeria.server.Service;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.SimpleDecoratingService;
@@ -93,7 +93,8 @@ public class HttpsOnlyService extends SimpleDecoratingService<HttpRequest, HttpR
       redirectUrl.append('?').append(ctx.query());
     }
     return HttpResponse.of(
-        HttpHeaders.of(HttpStatus.MOVED_PERMANENTLY)
-            .add(HttpHeaderNames.LOCATION, redirectUrl.toString()));
+        HttpResponse.of(
+            ResponseHeaders.of(
+                HttpStatus.MOVED_PERMANENTLY, HttpHeaderNames.LOCATION, redirectUrl.toString())));
   }
 }

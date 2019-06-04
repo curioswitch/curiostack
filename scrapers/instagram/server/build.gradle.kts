@@ -41,7 +41,7 @@ dependencies {
     compile(project(":database:cafemapdb:bindings"))
     compile(project(":scrapers:instagram:api"))
 
-    compile("org.jsoup:jsoup:1.11.3")
+    compile("org.jsoup:jsoup")
 
     annotationProcessor("com.google.dagger:dagger-compiler")
     annotationProcessor("org.immutables:value")

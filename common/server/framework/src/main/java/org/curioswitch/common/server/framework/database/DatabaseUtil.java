@@ -23,42 +23,15 @@
  */
 package org.curioswitch.common.server.framework.database;
 
-import java.lang.reflect.Type;
-import org.jooq.Record;
-import org.simpleflatmapper.jooq.JooqFieldKey;
 import org.simpleflatmapper.jooq.SfmRecordMapperProvider;
-import org.simpleflatmapper.map.FieldKey;
-import org.simpleflatmapper.map.MapperBuilderErrorHandler;
-import org.simpleflatmapper.map.MapperBuildingException;
-import org.simpleflatmapper.map.MapperConfig;
-import org.simpleflatmapper.reflect.ReflectionService;
+import org.simpleflatmapper.jooq.SfmRecordMapperProviderFactory;
 
 /** Utilities for working with databases. */
 public final class DatabaseUtil {
 
-  private static final MapperConfig<JooqFieldKey, Record> MAPPER_CONFIG =
-      MapperConfig.<JooqFieldKey, Record>fieldMapperConfig()
-          .mapperBuilderErrorHandler(
-              new MapperBuilderErrorHandler() {
-                @Override
-                public void accessorNotFound(String msg) {
-                  throw new MapperBuildingException(msg);
-                }
-
-                @Override
-                public void propertyNotFound(Type target, String property) {
-                  // Ignore, it is common to map from DB to less-complete types.
-                }
-
-                @Override
-                public void customFieldError(FieldKey<?> key, String message) {
-                  throw new MapperBuildingException(message);
-                }
-              });
-
   // Make singleton to allow better code generation.
   private static final SfmRecordMapperProvider MAPPER_PROVIDER =
-      new SfmRecordMapperProvider(MAPPER_CONFIG, ReflectionService.newInstance());
+      SfmRecordMapperProviderFactory.newInstance().ignorePropertyNotFound().newProvider();
 
   /**
    * Returns a {@link SfmRecordMapperProvider} configured to allow missing properties, which are

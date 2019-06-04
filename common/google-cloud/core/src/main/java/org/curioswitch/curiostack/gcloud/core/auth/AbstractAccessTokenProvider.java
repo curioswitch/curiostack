@@ -31,8 +31,8 @@ import com.linecorp.armeria.common.AggregatedHttpMessage;
 import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
-import com.linecorp.armeria.common.HttpHeaders;
 import com.linecorp.armeria.common.HttpMethod;
+import com.linecorp.armeria.common.RequestHeaders;
 import com.linecorp.armeria.unsafe.ByteBufHttpData;
 import io.netty.buffer.ByteBuf;
 import java.io.IOException;
@@ -104,8 +104,11 @@ abstract class AbstractAccessTokenProvider implements AccessTokenProvider {
     HttpData data = new ByteBufHttpData(refreshRequestContent(type), true);
     return googleApisClient
         .execute(
-            HttpHeaders.of(HttpMethod.POST, TOKEN_PATH)
-                .set(HttpHeaderNames.CONTENT_TYPE, "application/x-www-form-urlencoded"),
+            RequestHeaders.of(
+                HttpMethod.POST,
+                TOKEN_PATH,
+                HttpHeaderNames.CONTENT_TYPE,
+                "application/x-www-form-urlencoded"),
             data)
         .aggregate();
   }

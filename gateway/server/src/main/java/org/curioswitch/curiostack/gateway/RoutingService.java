@@ -27,21 +27,15 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.common.Flags;
-import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
-import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.server.HttpService;
 import com.linecorp.armeria.server.PathMapping;
 import com.linecorp.armeria.server.PathMappingContext;
 import com.linecorp.armeria.server.ServiceRequestContext;
-import com.linecorp.armeria.server.VirtualHost;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,7 +44,7 @@ class RoutingService implements HttpService {
 
   private static final Logger logger = LogManager.getLogger();
 
-  @Nullable private final LoadingCache<PathOnlyMappingContext, HttpClient> pathClients;
+  @Nullable private final LoadingCache<PathMappingContext, HttpClient> pathClients;
   private final boolean cachePaths;
 
   private volatile Map<PathMapping, HttpClient> clients;
@@ -66,7 +60,7 @@ class RoutingService implements HttpService {
 
   @Override
   public HttpResponse serve(ServiceRequestContext ctx, HttpRequest req) {
-    PathOnlyMappingContext mappingContext = new PathOnlyMappingContext(ctx);
+    PathMappingContext mappingContext = ctx.pathMappingContext();
     final HttpClient client;
     if (pathClients != null && mappingContext.query() == null) {
       client = pathClients.get(mappingContext);
@@ -79,7 +73,7 @@ class RoutingService implements HttpService {
     // We don't want to pass the external domain name through to the backend server since this
     // causes problems with the TLS handshake between this server and the backend (the external
     // hostname does not match the names we use in our certs for server to server communication).
-    req.authority("");
+    req = HttpRequest.of(req, req.headers().toBuilder().authority("").build());
     return client.execute(req);
   }
 
@@ -89,7 +83,7 @@ class RoutingService implements HttpService {
   }
 
   @Nullable
-  private HttpClient find(PathOnlyMappingContext mappingContext) {
+  private HttpClient find(PathMappingContext mappingContext) {
     return clients.entrySet().stream()
         .filter(entry -> entry.getKey().apply(mappingContext).isPresent())
         .map(Entry::getValue)
@@ -101,95 +95,5 @@ class RoutingService implements HttpService {
     logger.info("Updating router targets.");
     this.clients = clients;
     pathClients.invalidateAll();
-  }
-
-  private static class PathOnlyMappingContext implements PathMappingContext {
-
-    private final String path;
-    @Nullable private final String query;
-
-    private PathOnlyMappingContext(ServiceRequestContext ctx) {
-      this.path = ctx.path();
-      this.query = ctx.query();
-    }
-
-    @Override
-    public VirtualHost virtualHost() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String hostname() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HttpMethod method() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String path() {
-      return path;
-    }
-
-    @Nullable
-    @Override
-    public String query() {
-      return query;
-    }
-
-    @Nullable
-    @Override
-    public MediaType consumeType() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Nullable
-    @Override
-    public List<MediaType> produceTypes() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<Object> summary() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void delayThrowable(Throwable cause) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Optional<Throwable> delayedThrowable() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isCorsPreflight() {
-      return false;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (!(o instanceof PathOnlyMappingContext)) {
-        return false;
-      }
-
-      PathOnlyMappingContext that = (PathOnlyMappingContext) o;
-
-      return path.equals(that.path) && Objects.equals(query, that.query);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = path.hashCode();
-      result = 31 * result + (query != null ? query.hashCode() : 0);
-      return result;
-    }
   }
 }
