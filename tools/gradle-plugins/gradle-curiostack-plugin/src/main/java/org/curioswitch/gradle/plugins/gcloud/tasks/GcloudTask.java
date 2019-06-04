@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.plugins.gcloud.GcloudExtension;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
@@ -37,6 +38,11 @@ import org.gradle.api.tasks.TaskAction;
 public class GcloudTask extends DefaultTask {
 
   private static final String COMMAND = "gcloud";
+
+  @SuppressWarnings("ConstructorLeaksThis")
+  public GcloudTask() {
+    dependsOn(DownloadToolUtil.getSetupTask(getProject(), "gcloud"));
+  }
 
   private Iterable<?> args;
 
