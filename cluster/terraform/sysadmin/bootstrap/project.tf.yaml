@@ -58,6 +58,11 @@ resource:
       service: clouddebugger.googleapis.com
       lifecycle:
         prevent_destroy: true
+    primary-firebase:
+      project: "${google_project.primary_project.project_id}"
+      service: firebase.googleapis.com
+      lifecycle:
+        prevent_destroy: true
     primary-profiler:
       project: "${google_project.primary_project.project_id}"
       service: cloudprofiler.googleapis.com
