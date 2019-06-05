@@ -34,35 +34,33 @@ if [ -z "$CI" ]; then
 
   OPENJDK_DIR="$GRADLE_HOME/curiostack/openjdk"
 
-  export JAVA_HOME="$OPENJDK_DIR/jdk-11.0.2"
+  export JAVA_HOME="$OPENJDK_DIR/jdk-12.0.1+12"
 
   if "$linux" = "true"; then
-    SRC="https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz"
-    DEST="$OPENJDK_DIR/openjdk-11.0.2_linux-x64_bin.tar.gz"
+    SRC="https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.1%2B12/OpenJDK12U-jdk_x64_linux_hotspot_12.0.1_12.tar.gz"
+    DEST="$OPENJDK_DIR/OpenJDK12U-jdk_x64_linux_hotspot_12.0.1_12.tar.gz"
   fi
 
   if "$darwin" = "true"; then
-    SRC="https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_osx-x64_bin.tar.gz"
-    DEST="$OPENJDK_DIR/openjdk-11.0.2_osx-x64_bin.tar.gz"
+    SRC="https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.1%2B12/OpenJDK12U-jdk_x64_mac_hotspot_12.0.1_12.tar.gz"
+    DEST="$OPENJDK_DIR/OpenJDK12U-jdk_x64_mac_hotspot_12.0.1_12.tar.gz"
   fi
 
   if "$windows" = "true"; then
-    SRC="https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_windows-x64_bin.zip"
-    DEST="$OPENJDK_DIR/openjdk-11.0.2_windows-x64_bin.zip"
+    SRC="https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.1%2B12/OpenJDK12U-jdk_x64_windows_hotspot_12.0.1_12.zip"
+    DEST="$OPENJDK_DIR/OpenJDK12U-jdk_x64_windows_hotspot_12.0.1_12.zip"
   fi
 
   if [ ! -d "$JAVA_HOME" ]; then
     mkdir -p "$OPENJDK_DIR"
 
     echo "Downloading OpenJDK"
-    curl "$SRC" -o "$DEST"
-
-    cd "$OPENJDK_DIR"
+    curl -L "$SRC" -o "$DEST"
 
     if "$windows" = "true"; then
-      unzip "$DEST"
+      unzip "$DEST" -d "$OPENJDK_DIR"
     else
-      tar -xf "$DEST"
+      tar -xf "$DEST" -C "$OPENJDK_DIR"
     fi
   fi
 
