@@ -44,3 +44,4 @@ steps:
   - CI=true
   - TAG_NAME=$TAG_NAME
   - BRANCH_NAME=$BRANCH_NAME
+timeout: 60m
