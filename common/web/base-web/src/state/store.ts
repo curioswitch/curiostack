@@ -29,6 +29,7 @@
 import {
   connectRouter,
   routerMiddleware,
+  RouterState,
 } from 'connected-react-router/immutable';
 import { History } from 'history';
 import { Record } from 'immutable';
@@ -50,7 +51,6 @@ import { GlobalStateBase } from './index';
 import createReducer, {
   createInitalReducer,
   routeInitialState,
-  RouterStateRecord,
 } from './reducers';
 
 const sagaMiddleware = createSagaMiddleware();
@@ -74,7 +74,7 @@ export default function configureStore<S extends object>(
 ): InjectableStore<any> {
   const nonInjectedReducers = {
     language: languageProviderReducer as Reducer<LanguageStateRecord>,
-    router: connectRouter(history) as Reducer<RouterStateRecord>,
+    router: connectRouter(history) as Reducer<RouterState>,
   };
 
   // Create the store with two middlewares
