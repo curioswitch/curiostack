@@ -138,9 +138,9 @@ public class NodeTask extends DefaultTask {
 
                 toolManager.addAllToPath(
                     exec, task.getProject().getRootProject().file("node_modules/.bin").toPath());
-                CondaExecUtil.condaExec(exec, task.getProject());
 
                 task.execOverrides.forEach(o -> o.execute(exec));
+                CondaExecUtil.condaExec(exec, task.getProject());
               });
     }
   }
