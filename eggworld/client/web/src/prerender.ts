@@ -41,6 +41,9 @@ const config: PrerenderConfig = {
     HowlerGlobal,
     Howl,
     Sound,
+    document: {
+      getElementById: () => {},
+    },
   },
 };
 

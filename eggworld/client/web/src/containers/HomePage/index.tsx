@@ -26,7 +26,7 @@ import { Howl } from 'howler';
 import Konva from 'konva';
 import React, { useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
-import { hot } from 'react-hot-loader';
+import { hot } from 'react-hot-loader/root';
 import { Stage } from 'react-konva';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
@@ -116,13 +116,19 @@ const HomePage: React.FunctionComponent<Props> = (props) => {
     }
   }, [foodBeingEaten]);
 
-  const app = document.getElementById('app')!;
-  const scaleWidth = app.offsetWidth / 1080;
-  const scaleHeight = app.offsetHeight / 1920;
+  let width = 1080;
+  let height = 1920;
+  let scale = 1.0;
 
-  const scale = Math.min(scaleWidth, scaleHeight);
-  const width = scale * 1080;
-  const height = scale * 1920;
+  const app = document.getElementById('app');
+  if (app) {
+    const scaleWidth = app.offsetWidth / 1080;
+    const scaleHeight = app.offsetHeight / 1920;
+
+    scale = Math.min(scaleWidth, scaleHeight);
+    width = scale * 1080;
+    height = scale * 1920;
+  }
 
   return (
     <>
@@ -181,7 +187,7 @@ const withReducer = injectReducer({ reducer, key: 'homePage' });
 const withSaga = injectSaga({ saga, key: 'homePage' });
 
 export default compose(
-  hot(module),
+  hot,
   withReducer,
   withSaga,
   withConnect,
