@@ -92,7 +92,7 @@ async function run() {
     questions.push({
       name: 'name',
       message: 'What should it be called?',
-      validate: (value) => {
+      validate: (value: any) => {
         if (/.+/.test(value)) {
           return componentExists(value)
             ? 'A component or container with this name already exists'

@@ -30,9 +30,19 @@ import { Configuration } from 'webpack';
 // eslint-disable-next-line
 const packageJson = require(path.resolve(process.cwd(), 'package.json'));
 
-const browsers = (packageJson.curiostack &&
+const browsers: string[] = (packageJson.curiostack &&
   // tslint:disable-next-line:strict-boolean-expressions
-  packageJson.curiostack.browsers) || ['last 2 versions'];
+  packageJson.curiostack.browsers) || ['>1%', 'not ie 11', 'not op_mini all'];
+
+if (browsers.includes('last 2 versions')) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    `${'Your value for curiostack.browsers contains "last 2 versions". This should be avoided as ' +
+      'it includes a whole range of ancient browsers, including IE10. Please check out ' +
+      'https://github.com/browserslist/browserslist for better possible values and when in ' +
+      'doubt, "defaults" is still fine. Current value: '}${browsers}`,
+  );
+}
 
 function configure(options: any): Configuration {
   const typescriptLoader = [
@@ -47,7 +57,8 @@ function configure(options: any): Configuration {
             '@babel/env',
             {
               modules: false,
-              useBuiltIns: 'entry',
+              useBuiltIns: 'usage',
+              corejs: 3,
               targets: options.babelTargets || {
                 browsers,
               },
@@ -56,7 +67,12 @@ function configure(options: any): Configuration {
           '@babel/react',
         ],
         plugins: [
-          '@babel/plugin-transform-runtime',
+          [
+            '@babel/plugin-transform-runtime',
+            {
+              corejs: 3,
+            },
+          ],
           '@babel/proposal-class-properties',
           '@babel/proposal-async-generator-functions',
           '@babel/proposal-optional-catch-binding',
