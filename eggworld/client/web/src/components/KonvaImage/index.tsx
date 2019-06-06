@@ -22,11 +22,16 @@
  * SOFTWARE.
  */
 
-import { NodeConfig, ShapeConfig } from 'konva';
+import Konva from 'konva';
 import React from 'react';
 import { Image as ReactKonvaImage, KonvaNodeEvents } from 'react-konva';
 
-interface Props extends ShapeConfig, NodeConfig, KonvaNodeEvents {
+type ImageConfig = Pick<
+  Konva.ImageConfig,
+  Exclude<keyof Konva.ImageConfig, State>
+>;
+
+interface Props extends KonvaNodeEvents {
   src: string;
 }
 
@@ -34,7 +39,7 @@ interface State {
   image?: HTMLImageElement;
 }
 
-class KonvaImage extends React.PureComponent<Props, State> {
+class KonvaImage extends React.PureComponent<Props | ImageConfig, State> {
   public state: State = {
     image: undefined,
   };

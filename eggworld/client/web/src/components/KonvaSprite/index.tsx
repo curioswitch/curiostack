@@ -22,17 +22,20 @@
  * SOFTWARE.
  */
 
-import { ShapeConfig, Sprite as SpriteImpl } from 'konva';
+import Konva from 'konva';
 import React from 'react';
 import { Sprite } from 'react-konva';
 
-interface Props extends ShapeConfig {
+interface Props {
   animation: string;
   animations: any;
   frameRate: number;
   onFrameIndexChange: (e: any) => void;
   src: string;
   started: boolean;
+  visible?: boolean;
+  x?: number;
+  y?: number;
 }
 
 interface State {
@@ -44,7 +47,7 @@ class KonvaSprite extends React.PureComponent<Props, State> {
     image: undefined,
   };
 
-  private node: React.RefObject<SpriteImpl> = React.createRef();
+  private node: React.RefObject<Konva.Sprite> = React.createRef();
 
   public componentDidMount() {
     const image = new Image();

@@ -23,7 +23,7 @@
  */
 
 import { Record, Set } from 'immutable';
-import { Node } from 'konva';
+import Konva from 'konva';
 
 import { Ingredient } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb';
 
@@ -51,6 +51,7 @@ export const initialState = Record<StateProps>({
   foodBeingEaten: undefined,
   hammerRotation: 0,
   selectedTab: 'fruit',
+  recipeUrl: undefined,
   usableFood: Set(Object.values(Ingredient)),
 })();
 
@@ -61,7 +62,7 @@ const MOUTH_RECTANGLE = {
   y2: 510,
 };
 
-function isInsideMouth(node: Node) {
+function isInsideMouth(node: Konva.Node) {
   const centerX = node.x() + node.width() / 2;
   const centerY = node.y() + node.height() / 2;
   return (

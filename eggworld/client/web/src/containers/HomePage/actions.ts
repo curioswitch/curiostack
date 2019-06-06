@@ -1,5 +1,5 @@
 import { ActionsUnion, createAction } from '@curiostack/base-web';
-import { Node } from 'konva';
+import Konva from 'konva';
 import { bindActionCreators, Dispatch } from 'redux';
 
 import {
@@ -31,7 +31,7 @@ export const Actions = {
     createAction(ActionTypes.COOK_RESPONSE, recipeUrl),
   drawStage: () => createAction(ActionTypes.DRAW_STAGE),
   eggBreakingDone: () => createAction(ActionTypes.EGG_BREAKING_DONE),
-  foodDragged: (ingredient: Ingredient, node: Node) =>
+  foodDragged: (ingredient: Ingredient, node: Konva.Node) =>
     createAction(ActionTypes.FOOD_DRAGGED, {
       ingredient,
       node,
