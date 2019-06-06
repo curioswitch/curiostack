@@ -23,7 +23,6 @@
  */
 
 import { WebappConfig } from '@curiostack/base-web';
-import 'sanitize.css/sanitize.css';
 
 import enMessages from './translations/en.json';
 

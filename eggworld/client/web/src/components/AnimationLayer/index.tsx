@@ -92,6 +92,7 @@ export default class AnimationLayer extends React.PureComponent<Props> {
           rotation={this.props.hammerRotation}
           visible={this.props.showHammer}
           onClick={this.props.onHammerClick}
+          onTap={this.props.onHammerClick}
         />
       </Layer>
     );

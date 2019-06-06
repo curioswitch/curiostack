@@ -20,9 +20,8 @@
     "@curiostack/base-web": "0.0.44",
     "@curiostack/eggworld-api": "1.0.0",
     "howler": "2.0.15",
-    "konva": "2.5.1",
-    "react-konva": "16.8.6",
-    "sanitize.css": "5.0.0"
+    "konva": "3.3.2",
+    "react-konva": "16.8.7-2"
   },
   "devDependencies": {
     "@types/howler": "2.0.5"

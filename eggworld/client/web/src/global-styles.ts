@@ -25,10 +25,15 @@
 import { createGlobalStyle } from 'styled-components';
 
 export default createGlobalStyle`
+  * {
+    box-sizing: border-box;
+  }
+
   html,
   body {
     height: 100%;
     width: 100%;
+    margin: 0;
   }
 
   body {
@@ -41,8 +46,8 @@ export default createGlobalStyle`
 
   #app {
     background-color: #fafafa;
-    min-height: 100%;
-    min-width: 100%;
+    height: 100%;
+    width: 100%;
   }
 
   p,

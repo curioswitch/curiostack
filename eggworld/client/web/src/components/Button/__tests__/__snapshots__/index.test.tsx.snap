@@ -4,6 +4,7 @@ exports[`<Button /> renders normally 1`] = `
 <Group
   height={200}
   onClick={[Function]}
+  onTap={[Function]}
   width={362}
   x={100}
   y={3000}

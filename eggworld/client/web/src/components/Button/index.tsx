@@ -47,6 +47,7 @@ export default class Button extends React.PureComponent<Props> {
         width={362}
         height={200}
         onClick={this.props.onClick}
+        onTap={this.props.onClick}
       >
         <KonvaImage
           src={this.props.selected ? buttonPressedSrc : buttonUnpressedSrc}

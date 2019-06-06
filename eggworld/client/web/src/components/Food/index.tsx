@@ -24,13 +24,16 @@
 
 import { Ingredient } from '@curiostack/eggworld-api/curioswitch/eggworld/eggworld-service_pb';
 
-import { Filters, Group as GroupImpl, Node } from 'konva';
+import Konva from 'konva';
 import React from 'react';
 import { Group, Text } from 'react-konva';
 
 import KonvaImage from '../KonvaImage';
 
-export type FoodDraggedHandler = (ingredient: Ingredient, node: Node) => void;
+export type FoodDraggedHandler = (
+  ingredient: Ingredient,
+  node: Konva.Node,
+) => void;
 
 interface Props {
   onFoodDragged: FoodDraggedHandler;
@@ -44,7 +47,7 @@ interface Props {
 }
 
 export default class Food extends React.Component<Props> {
-  private node?: GroupImpl;
+  private node?: Konva.Group;
 
   private removed = false;
 
@@ -65,7 +68,7 @@ export default class Food extends React.Component<Props> {
       node.draggable(false);
       const image = node.getChildren()[0];
       image.cache();
-      image.filters([Filters.Grayscale]);
+      image.filters([Konva.Filters.Grayscale]);
     }
   }
 
