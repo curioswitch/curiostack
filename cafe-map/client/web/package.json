@@ -18,12 +18,12 @@
     "@material-ui/icons": "4.0.1",
     "google-maps-react": "2.0.2",
     "lodash.throttle": "4.1.1",
-    "redux-form": "8.1.0"
+    "redux-form": "8.2.3"
   },
   "devDependencies": {
     "@types/google-maps-react": "2.0.1",
-    "@types/googlemaps": "3.30.16",
+    "@types/googlemaps": "3.36.3",
     "@types/lodash.throttle": "4.1.6",
-    "@types/redux-form": "8.1.0"
+    "@types/redux-form": "8.1.3"
   }
 }

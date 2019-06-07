@@ -35,6 +35,7 @@ module.exports = {
     jest: true,
   },
   rules: {
+    '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
     'class-methods-use-this': 'off',

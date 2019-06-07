@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "@curiostack/eslint-config-base": "0.0.1",
-    "@types/node": "12.0.4",
-    "prettier": "1.17.1",
+    "@types/node": "12.0.7",
+    "prettier": "1.18.0",
     "rimraf": "2.6.3",
     "tslint": "5.17.0",
     "tslint-config-airbnb-base": "0.3.0",
