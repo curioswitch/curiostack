@@ -57,7 +57,7 @@ public class TerraformPlugin implements Plugin<Project> {
     convertConfigs.dependsOn(BasePlugin.CLEAN_TASK_NAME);
 
     List<TaskProvider<?>> sysadminOutputTasks =
-        project.getName().equals("sysadmin")
+        project.getPath().contains(":sysadmin")
             ? ImmutableList.of(
                 createTerraformOutputTask(
                     project,
