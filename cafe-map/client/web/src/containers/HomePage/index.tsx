@@ -100,7 +100,12 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
       doPush(`/place/${id}`);
     }, []);
 
-    const handleSearchSubmit = useCallback(handleSubmit(doSearch), [doSearch]);
+    const handleSearchSubmit = useCallback(
+      handleSubmit(() => {
+        doSearch();
+      }),
+      [doSearch],
+    );
 
     return (
       <>
