@@ -20,21 +20,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-resource:
-  tls_private_key:
-    cluster-ca-key:
-      algorithm: ECDSA
-      ecdsa_curve: P256
-  tls_self_signed_cert:
-    cluster-ca-cert:
-      key_algorithm: "${tls_private_key.cluster-ca-key.algorithm}"
-      private_key_pem: "${tls_private_key.cluster-ca-key.private_key_pem}"
-      subject:
-        common_name: CurioSwitch CA
-        organization: CurioSwitch
-      # 10 years
-      validity_period_hours: 87600
-      # 1 year
-      early_renewal_hours: 8760
-      allowed_uses: []
-      is_ca_certificate: true
+provider:
+  google:
+    project: "${var.project_id}"
+    region: asia-northeast1
+    version: "1.19"
+  gsuite:
+    credentials: "${base64decode(google_service_account_key.terraform_service_account.private_key)}"
+    impersonated_user_email: choko@curioswitch.org
+    oauth_scopes:
+      - https://www.googleapis.com/auth/admin.directory.group
+  helm:
+    namespace: tiller-prod
+    enable_tls: true
+    home: "../helm"
+    client_key: '${data.terraform_remote_state.tls.tiller-client-key}'
+    client_certificate: '${data.terraform_remote_state.tls.tiller-client-cert}'
+    ca_certificate: '${data.terraform_remote_state.tls.tiller-ca-cert}'
