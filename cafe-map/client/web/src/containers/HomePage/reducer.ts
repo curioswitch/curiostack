@@ -28,6 +28,8 @@ import { List, Record } from 'immutable';
 
 import { Place } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
+import { SheetVisibility } from '../../components/BottomSheet';
+
 import { Actions, ActionTypes } from './actions';
 
 export interface StateProps {
@@ -35,6 +37,7 @@ export interface StateProps {
   landmarks: List<google.maps.places.PlaceResult>;
   places: List<Place>;
   selectedMarker?: Marker;
+  bottomSheetVisibility: SheetVisibility;
 }
 
 export type State = Readonly<StateProps> & Record<StateProps>;
@@ -44,6 +47,7 @@ export const initialState = Record<StateProps>({
   landmarks: List(),
   places: List(),
   selectedMarker: undefined,
+  bottomSheetVisibility: SheetVisibility.HIDDEN,
 })();
 
 export default function(state: State, action: Actions): State {
@@ -51,7 +55,18 @@ export default function(state: State, action: Actions): State {
     case ActionTypes.GET_LANDMARKS_RESPONSE:
       return state.set('landmarks', List(action.payload));
     case ActionTypes.GET_PLACES_RESPONSE:
-      return state.set('places', List(action.payload.getPlaceList()));
+      return state.merge({
+        places: List(action.payload.getPlaceList()),
+        bottomSheetVisibility:
+          action.payload.getPlaceList().length > 0
+            ? SheetVisibility.CLOSED
+            : SheetVisibility.HIDDEN,
+      });
+    case ActionTypes.SET_BOTTOM_SHEET_OPEN:
+      return state.set(
+        'bottomSheetVisibility',
+        action.payload ? SheetVisibility.OPEN : SheetVisibility.CLOSED,
+      );
     case ActionTypes.SET_MAP:
       return state.set('map', action.payload);
     default:

@@ -164,7 +164,7 @@ function* getLandmarks() {
     }
   }
 
-  yield put(Actions.getLandmarksResponse(landmarks));
+  yield put(Actions.getLandmarksResponse(landmarks.slice(0, 90)));
 }
 
 function* getPlaces() {
