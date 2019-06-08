@@ -35,6 +35,7 @@ export enum ActionTypes {
   GET_PLACES_RESPONSE = 'HomePage/GET_PLACES_RESPONSE',
   SEARCH = 'HomePage/SEARCH',
   SELECT_MARKER = 'HomePage/SELECT_MARKER',
+  SET_BOTTOM_SHEET_OPEN = 'HomePage/SET_BOTTOM_SHEET_OPEN',
   SET_MAP = 'HomePage/SET_MAP',
 }
 
@@ -48,6 +49,8 @@ export const Actions = {
   getPlacesResponse: (response: GetPlacesResponse) =>
     createAction(ActionTypes.GET_PLACES_RESPONSE, response),
   selectMarker: () => createAction(ActionTypes.SELECT_MARKER),
+  setBottomSheetOpen: (open: boolean) =>
+    createAction(ActionTypes.SET_BOTTOM_SHEET_OPEN, open),
   setMap: (map: google.maps.Map) => createAction(ActionTypes.SET_MAP, map),
 };
 

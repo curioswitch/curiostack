@@ -24,7 +24,7 @@
  */
 
 import { injectReducer, injectSaga } from '@curiostack/base-web';
-import Grid from '@material-ui/core/Grid';
+import { Grid } from '@material-ui/core';
 import { push } from 'connected-react-router';
 import { LocationDescriptorObject } from 'history';
 import React, { useCallback, useEffect } from 'react';
@@ -37,6 +37,7 @@ import { InjectedFormProps } from 'redux-form';
 import { Field, reduxForm } from 'redux-form/immutable';
 import styled from 'styled-components';
 
+import BottomSheet from '../../components/BottomSheet';
 import Map from '../../components/Map';
 import SearchBox, { SearchBoxProps } from '../../components/SearchBox';
 
@@ -81,6 +82,7 @@ const SearchBoxContainer: React.FunctionComponent<SearchBoxProps> = React.memo(
 const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
   (props) => {
     const {
+      bottomSheetVisibility,
       doPush,
       doSearch,
       getLandmarks,
@@ -89,6 +91,7 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
       landmarks,
       places,
       intl: { formatMessage: _ },
+      setBottomSheetOpen,
       setMap,
     } = props;
 
@@ -120,6 +123,18 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
           landmarks={landmarks}
           places={places}
         />
+        <BottomSheet
+          visibility={bottomSheetVisibility}
+          setOpen={setBottomSheetOpen}
+        >
+          <h1>Foo</h1>
+          <h2>Bar</h2>
+          <h2>Bar</h2>
+          <h2>Bar</h2>
+          <h2>Bar</h2>
+          <h2>Bar</h2>
+          <h2>Bar</h2>
+        </BottomSheet>
       </>
     );
   },
