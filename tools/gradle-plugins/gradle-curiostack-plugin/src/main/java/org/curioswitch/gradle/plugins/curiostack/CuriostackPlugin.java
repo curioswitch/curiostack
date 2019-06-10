@@ -76,6 +76,7 @@ import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.GenerateApiServerTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateGradleWrapperTask;
+import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateIntelliJJdksTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateProjectSettingsTask;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
@@ -164,11 +165,15 @@ public class CuriostackPlugin implements Plugin<Project> {
     rootProject.getTasks().register("setupGitHooks", SetupGitHooks.class);
     rootProject.getTasks().register("updateShellConfig", CreateShellConfigTask.class);
 
+    var updateIntelliJJdks =
+        rootProject.getTasks().register("curioUpdateIntelliJJdks", UpdateIntelliJJdksTask.class);
+
     rootProject
         .getTasks()
         .register(
             "setup",
             t -> {
+              t.dependsOn(updateIntelliJJdks);
               t.dependsOn(rootProject.getTasks().named("toolsSetupAll"));
               t.dependsOn("updateShellConfig");
             });

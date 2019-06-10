@@ -1,0 +1,31 @@
+    <jdk version="2">
+      <name value="11" />
+      <type value="JavaSDK" />
+      <version value="java version &quot;{{ javaVersion }}&quot;" />
+      <homePath value="{{ jdkFolder }}" />
+      <roots>
+        <annotationsPath>
+          <root type="composite">
+            <root url="jar://$APPLICATION_HOME_DIR$/lib/jdkAnnotations.jar!/" type="simple" />
+          </root>
+        </annotationsPath>
+        <classPath>
+          <root type="composite">
+            {%- for module in javaModules %}
+            <root url="jrt://{{ jdkFolder }}!/{{ module }}" type="simple" />
+            {%- endfor %}
+          </root>
+        </classPath>
+        <javadocPath>
+          <root type="composite" />
+        </javadocPath>
+        <sourcePath>
+          <root type="composite">
+            {%- for module in javaModules %}
+            <root url="jar://{{ jdkFolder }}/lib/src.zip!}!/{{ module }}" type="simple" />
+            {%- endfor %}
+          </root>
+        </sourcePath>
+      </roots>
+      <additional />
+    </jdk>

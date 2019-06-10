@@ -1,0 +1,171 @@
+<application>
+  <component name="ProjectJdkTable">
+    <jdk version="2">
+      <name value="11" />
+      <type value="JavaSDK" />
+      <version value="java version &quot;{{ javaVersion }}&quot;" />
+      <homePath value="{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}" />
+      <roots>
+        <annotationsPath>
+          <root type="composite">
+            <root url="jar://$APPLICATION_HOME_DIR$/lib/jdkAnnotations.jar!/" type="simple" />
+          </root>
+        </annotationsPath>
+        <classPath>
+          <root type="composite">
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.base" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.compiler" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.datatransfer" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.desktop" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.instrument" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.logging" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.management" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.management.rmi" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.naming" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.net.http" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.prefs" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.rmi" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.scripting" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.se" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.security.jgss" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.security.sasl" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.smartcardio" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.sql" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.sql.rowset" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.transaction.xa" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.xml" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/java.xml.crypto" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.accessibility" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.aot" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.attach" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.charsets" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.compiler" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.crypto.cryptoki" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.crypto.ec" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.crypto.mscapi" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.dynalink" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.editpad" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.hotspot.agent" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.httpserver" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.internal.ed" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.internal.jvmstat" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.internal.le" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.internal.opt" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.internal.vm.ci" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.internal.vm.compiler" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.internal.vm.compiler.management" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.jartool" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.javadoc" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.jcmd" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.jconsole" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.jdeps" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.jdi" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.jdwp.agent" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.jfr" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.jlink" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.jshell" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.jsobject" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.jstatd" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.localedata" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.management" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.management.agent" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.management.jfr" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.naming.dns" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.naming.rmi" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.net" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.pack" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.rmic" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.scripting.nashorn" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.scripting.nashorn.shell" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.sctp" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.security.auth" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.security.jgss" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.unsupported" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.unsupported.desktop" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.xml.dom" type="simple" />
+            <root url="jrt://{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}!/jdk.zipfs" type="simple" />
+          </root>
+        </classPath>
+        <javadocPath>
+          <root type="composite" />
+        </javadocPath>
+        <sourcePath>
+          <root type="composite">
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.base" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.compiler" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.datatransfer" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.desktop" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.instrument" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.logging" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.management" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.management.rmi" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.naming" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.net.http" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.prefs" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.rmi" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.scripting" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.se" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.security.jgss" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.security.sasl" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.smartcardio" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.sql" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.sql.rowset" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.transaction.xa" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.xml" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.xml.crypto" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.accessibility" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.aot" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.attach" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.charsets" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.compiler" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.crypto.cryptoki" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.crypto.ec" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.crypto.mscapi" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.dynalink" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.editpad" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.hotspot.agent" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.httpserver" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.internal.ed" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.internal.jvmstat" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.internal.le" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.internal.opt" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.internal.vm.ci" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.internal.vm.compiler" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.internal.vm.compiler.management" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jartool" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.javadoc" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jcmd" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jconsole" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jdeps" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jdi" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jdwp.agent" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jfr" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jlink" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jshell" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jsobject" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jstatd" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.localedata" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.management" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.management.agent" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.management.jfr" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.naming.dns" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.naming.rmi" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.net" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.pack" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.rmic" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.scripting.nashorn" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.scripting.nashorn.shell" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.sctp" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.security.auth" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.security.jgss" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.unsupported" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.unsupported.desktop" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.xml.dom" type="simple" />
+            <root url="jar://{{ gradleHome }}/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.zipfs" type="simple" />
+          </root>
+        </sourcePath>
+      </roots>
+      <additional />
+    </jdk>
+  </component>
+</application>
