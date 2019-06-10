@@ -60,6 +60,7 @@ public class Indexes {
     public static final Index LANDMARK_PRIMARY = Indexes0.LANDMARK_PRIMARY;
     public static final Index PLACE_IDX_INSTAGRAM_ID = Indexes0.PLACE_IDX_INSTAGRAM_ID;
     public static final Index PLACE_PRIMARY = Indexes0.PLACE_PRIMARY;
+    public static final Index PLACE_S2_CELL = Indexes0.PLACE_S2_CELL;
 
     // -------------------------------------------------------------------------
     // [#1459] distribute members to avoid static initialisers > 64kb
@@ -72,5 +73,6 @@ public class Indexes {
         public static Index LANDMARK_PRIMARY = Internal.createIndex("PRIMARY", Landmark.LANDMARK, new OrderField[] { Landmark.LANDMARK.ID }, true);
         public static Index PLACE_IDX_INSTAGRAM_ID = Internal.createIndex("idx_instagram_id", Place.PLACE, new OrderField[] { Place.PLACE.INSTAGRAM_ID }, true);
         public static Index PLACE_PRIMARY = Internal.createIndex("PRIMARY", Place.PLACE, new OrderField[] { Place.PLACE.ID }, true);
+        public static Index PLACE_S2_CELL = Internal.createIndex("s2_cell", Place.PLACE, new OrderField[] { Place.PLACE.S2_CELL }, false);
     }
 }
