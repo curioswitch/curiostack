@@ -1,0 +1,198 @@
+<application>
+  <component name="ProjectJdkTable">
+    <foo>
+      <bar>
+        This isn't actually IntelliJ format but our intent is to just add lines as needed rather
+        than parsing, potentially unrecognized XML.
+      </bar>
+    </foo>
+    <jdk version="2">
+      <name value="Kotlin SDK" />
+      <type value="KotlinSDK" />
+      <version value="1.3.31" />
+      <homePath value="some home" />
+      <roots>
+        <annotationsPath>
+          <root type="composite" />
+        </annotationsPath>
+        <classPath>
+          <root type="composite" />
+        </classPath>
+        <javadocPath>
+          <root type="composite" />
+        </javadocPath>
+        <sourcePath>
+          <root type="composite" />
+        </sourcePath>
+      </roots>
+      <additional />
+    </jdk>
+    <jdk version="2">
+      <name value="11" />
+      <type value="JavaSDK" />
+      <version value="java version &quot;11.0.old&quot;" />
+      <homePath value="a/folder/we/ignore/curiostack/openjdk/openjdk-old" />
+      <roots>
+        <annotationsPath>
+          <root type="composite">
+            <root url="jar://$APPLICATION_HOME_DIR$/lib/jdkAnnotations.jar!/" type="simple" />
+          </root>
+        </annotationsPath>
+        <classPath>
+          <root type="composite">
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.base" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.compiler" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.datatransfer" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.desktop" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.instrument" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.logging" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.management" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.management.rmi" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.naming" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.net.http" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.prefs" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.rmi" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.scripting" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.se" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.security.jgss" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.security.sasl" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.smartcardio" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.sql" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.sql.rowset" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.transaction.xa" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.xml" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/java.xml.crypto" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.accessibility" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.aot" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.attach" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.charsets" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.compiler" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.crypto.cryptoki" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.crypto.ec" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.crypto.mscapi" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.dynalink" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.editpad" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.hotspot.agent" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.httpserver" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.internal.ed" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.internal.jvmstat" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.internal.le" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.internal.opt" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.internal.vm.ci" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.internal.vm.compiler" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.internal.vm.compiler.management" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.jartool" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.javadoc" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.jcmd" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.jconsole" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.jdeps" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.jdi" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.jdwp.agent" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.jfr" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.jlink" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.jshell" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.jsobject" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.jstatd" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.localedata" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.management" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.management.agent" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.management.jfr" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.naming.dns" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.naming.rmi" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.net" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.pack" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.rmic" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.scripting.nashorn" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.scripting.nashorn.shell" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.sctp" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.security.auth" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.security.jgss" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.unsupported" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.unsupported.desktop" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.xml.dom" type="simple" />
+            <root url="jrt://a/folder/we/ignore/curiostack/openjdk/openjdk-old!/jdk.zipfs" type="simple" />
+          </root>
+        </classPath>
+        <javadocPath>
+          <root type="composite" />
+        </javadocPath>
+        <sourcePath>
+          <root type="composite">
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.base" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.compiler" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.datatransfer" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.desktop" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.instrument" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.logging" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.management" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.management.rmi" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.naming" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.net.http" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.prefs" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.rmi" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.scripting" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.se" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.security.jgss" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.security.sasl" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.smartcardio" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.sql" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.sql.rowset" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.transaction.xa" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.xml" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/java.xml.crypto" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.accessibility" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.aot" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.attach" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.charsets" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.compiler" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.crypto.cryptoki" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.crypto.ec" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.crypto.mscapi" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.dynalink" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.editpad" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.hotspot.agent" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.httpserver" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.internal.ed" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.internal.jvmstat" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.internal.le" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.internal.opt" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.internal.vm.ci" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.internal.vm.compiler" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.internal.vm.compiler.management" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jartool" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.javadoc" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jcmd" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jconsole" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jdeps" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jdi" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jdwp.agent" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jfr" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jlink" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jshell" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jsobject" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.jstatd" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.localedata" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.management" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.management.agent" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.management.jfr" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.naming.dns" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.naming.rmi" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.net" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.pack" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.rmic" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.scripting.nashorn" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.scripting.nashorn.shell" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.sctp" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.security.auth" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.security.jgss" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.unsupported" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.unsupported.desktop" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.xml.dom" type="simple" />
+            <root url="jar://a/folder/we/ignore/curiostack/openjdk/jdk-11.0.3+7/lib/src.zip!}!/jdk.zipfs" type="simple" />
+          </root>
+        </sourcePath>
+      </roots>
+      <additional />
+    </jdk>
+  </component>
+</application>

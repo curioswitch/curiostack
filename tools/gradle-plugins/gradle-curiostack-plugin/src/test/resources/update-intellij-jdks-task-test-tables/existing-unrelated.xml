@@ -1,0 +1,31 @@
+<application>
+  <component name="ProjectJdkTable">
+    <foo>
+      <bar>
+        This isn't actually IntelliJ format but our intent is to just add lines as needed rather
+        than parsing, potentially unrecognized XML.
+      </bar>
+    </foo>
+    <jdk version="2">
+      <name value="Kotlin SDK" />
+      <type value="KotlinSDK" />
+      <version value="1.3.31" />
+      <homePath value="some home" />
+      <roots>
+        <annotationsPath>
+          <root type="composite" />
+        </annotationsPath>
+        <classPath>
+          <root type="composite" />
+        </classPath>
+        <javadocPath>
+          <root type="composite" />
+        </javadocPath>
+        <sourcePath>
+          <root type="composite" />
+        </sourcePath>
+      </roots>
+      <additional />
+    </jdk>
+  </component>
+</application>
