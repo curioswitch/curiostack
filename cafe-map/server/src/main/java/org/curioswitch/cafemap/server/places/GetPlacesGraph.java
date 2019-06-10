@@ -25,8 +25,13 @@
 package org.curioswitch.cafemap.server.places;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static org.curioswitch.database.cafemapdb.tables.Place.PLACE;
 
+import com.google.common.collect.Streams;
+import com.google.common.geometry.S2LatLng;
+import com.google.common.geometry.S2LatLngRect;
+import com.google.common.geometry.S2RegionCoverer;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import dagger.BindsInstance;
@@ -36,10 +41,15 @@ import dagger.producers.ProductionSubcomponent;
 import java.util.List;
 import org.curioswitch.cafemap.api.GetPlacesRequest;
 import org.curioswitch.cafemap.api.GetPlacesResponse;
+import org.curioswitch.cafemap.api.ListLandmarksRequest;
+import org.curioswitch.cafemap.server.util.S2Util;
 import org.curioswitch.common.server.framework.database.ForDatabase;
 import org.curioswitch.common.server.framework.grpc.Unvalidated;
 import org.curioswitch.database.cafemapdb.tables.pojos.Place;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
+import org.jooq.types.ULong;
 
 @ProducerModule
 public abstract class GetPlacesGraph {
@@ -64,15 +74,42 @@ public abstract class GetPlacesGraph {
   }
 
   @Produces
-  static ListenableFuture<List<Place>> fetchPlaces(
-      DSLContext cafemapdb, @ForDatabase ListeningExecutorService dbExecutor) {
-    return dbExecutor.submit(() -> cafemapdb.selectFrom(PLACE).fetchInto(Place.class));
+  static S2LatLngRect viewport(ListLandmarksRequest request) {
+    return S2Util.convertFromLatLngBounds(request.getViewport());
   }
 
   @Produces
-  static GetPlacesResponse response(List<Place> places) {
+  static ListenableFuture<List<Place>> fetchPlaces(
+      S2LatLngRect viewport, DSLContext db, @ForDatabase ListeningExecutorService dbExecutor) {
+    var coverer = new S2RegionCoverer();
+    var coveredCells = coverer.getCovering(viewport);
+
+    Condition locationCondition =
+        DSL.or(
+            Streams.stream(coveredCells)
+                .map(
+                    cell ->
+                        PLACE
+                            .S2_CELL
+                            .ge(ULong.valueOf(cell.rangeMin().id()))
+                            .and(PLACE.S2_CELL.le(ULong.valueOf(cell.rangeMax().id()))))
+                .collect(toImmutableList()));
+
+    return dbExecutor.submit(
+        () -> db.selectFrom(PLACE).where(DSL.or(locationCondition)).fetchInto(Place.class));
+  }
+
+  @Produces
+  static GetPlacesResponse response(List<Place> places, S2LatLngRect viewport) {
     return GetPlacesResponse.newBuilder()
-        .addAllPlace(places.stream().map(PlaceUtil::convertPlace)::iterator)
+        .addAllPlace(
+            places.stream()
+                    .filter(
+                        place ->
+                            viewport.contains(
+                                S2LatLng.fromDegrees(place.getLatitude(), place.getLongitude())))
+                    .map(PlaceUtil::convertPlace)
+                ::iterator)
         .build();
   }
 
