@@ -67,6 +67,9 @@ message Place {
   // The location ID of this place on Instagram. Not set if this location was not found on
   // Instagram.
   string instagram_id = 3;
+
+  // The place ID on Google Maps. Always set.
+  string google_place_id = 4;
 }
 
 // A response for the `GetPlaces` method.
