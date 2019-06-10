@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static org.curioswitch.database.cafemapdb.tables.Place.PLACE;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Streams;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2LatLngRect;
@@ -105,8 +106,10 @@ public abstract class GetPlacesGraph {
             places.stream()
                     .filter(
                         place ->
-                            viewport.contains(
-                                S2LatLng.fromDegrees(place.getLatitude(), place.getLongitude())))
+                            !Strings.isNullOrEmpty(place.getGooglePlaceId())
+                                && viewport.contains(
+                                    S2LatLng.fromDegrees(
+                                        place.getLatitude(), place.getLongitude())))
                     .map(PlaceUtil::convertPlace)
                 ::iterator)
         .build();

@@ -39,6 +39,7 @@ final class PlaceUtil {
                 .setLongitude(place.getLongitude())
                 .build())
         .setInstagramId(Strings.nullToEmpty(place.getInstagramId()))
+        .setGooglePlaceId(place.getGooglePlaceId())
         .build();
   }
 
