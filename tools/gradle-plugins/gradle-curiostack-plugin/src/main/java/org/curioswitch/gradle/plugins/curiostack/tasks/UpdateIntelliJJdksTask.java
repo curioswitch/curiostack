@@ -32,7 +32,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -227,8 +226,7 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
 
   private static void addJdkSnippet(
       String jdkFolder, ImmutableList.Builder<String> lines, boolean skipStart) throws IOException {
-    Jinjava jinjava =
-        new Jinjava(JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build());
+    Jinjava jinjava = new Jinjava();
 
     String template =
         Resources.toString(
