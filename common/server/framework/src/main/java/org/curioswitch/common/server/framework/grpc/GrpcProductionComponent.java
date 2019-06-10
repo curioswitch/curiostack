@@ -30,7 +30,11 @@ import com.google.common.util.concurrent.ListenableFuture;
  * These components always only have a single request and single asynchronous response.
  *
  * @param <Resp> The response type of the service.
+ * @deprecated Define the {@code ListenableFuture<Resp> execute()} in your components. When using
+ *     {@link dagger.BindsInstance}, the boilerplate savings of this interface are too low to
+ *     warrant it.
  */
+@Deprecated
 public interface GrpcProductionComponent<Resp> {
 
   /** Execute the graph to compute the response. */
@@ -43,7 +47,10 @@ public interface GrpcProductionComponent<Resp> {
    *
    * @param <G> The graph type.
    * @param <C> The component type.
+   * @deprecated Use {@link dagger.BindsInstance} instead of passing the {@link
+   *     dagger.producers.ProducerModule} into the component. All modules should be abstract.
    */
+  @Deprecated
   interface GrpcProductionComponentBuilder<
       G, C extends GrpcProductionComponent, Self extends GrpcProductionComponentBuilder> {
 

@@ -24,37 +24,40 @@
 
 package org.curioswitch.cafemap.server.places;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.curioswitch.database.cafemapdb.tables.Place.PLACE;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
+import dagger.BindsInstance;
 import dagger.producers.ProducerModule;
 import dagger.producers.Produces;
 import dagger.producers.ProductionSubcomponent;
 import org.curioswitch.cafemap.api.GetPlaceRequest;
 import org.curioswitch.cafemap.api.GetPlaceResponse;
 import org.curioswitch.common.server.framework.database.ForDatabase;
-import org.curioswitch.common.server.framework.grpc.GrpcProductionComponent;
+import org.curioswitch.common.server.framework.grpc.Unvalidated;
 import org.curioswitch.database.cafemapdb.tables.pojos.Place;
 import org.jooq.DSLContext;
 
 @ProducerModule
-public class GetPlaceGraph {
+public abstract class GetPlaceGraph {
 
   @ProductionSubcomponent(modules = GetPlaceGraph.class)
-  public interface Component extends GrpcProductionComponent<GetPlaceResponse> {
+  public interface Component {
+    ListenableFuture<GetPlaceResponse> execute();
+
     @ProductionSubcomponent.Builder
-    interface Builder extends GrpcProductionComponentBuilder<GetPlaceGraph, Component, Builder> {}
-  }
+    interface Builder {
+      Builder setRequest(@BindsInstance @Unvalidated GetPlaceRequest request);
 
-  private final GetPlaceRequest request;
-
-  public GetPlaceGraph(GetPlaceRequest request) {
-    this.request = request;
+      Component build();
+    }
   }
 
   @Produces
-  GetPlaceRequest request() {
+  static GetPlaceRequest validateRequest(@Unvalidated GetPlaceRequest request) {
+    checkArgument(!request.getInstagramId().isEmpty(), "instagram_id is required");
     return request;
   }
 
@@ -75,4 +78,6 @@ public class GetPlaceGraph {
   static GetPlaceResponse response(Place place) {
     return GetPlaceResponse.newBuilder().setPlace(PlaceUtil.convertPlace(place)).build();
   }
+
+  private GetPlaceGraph() {}
 }

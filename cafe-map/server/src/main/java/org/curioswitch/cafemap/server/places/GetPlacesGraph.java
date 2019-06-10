@@ -24,10 +24,12 @@
 
 package org.curioswitch.cafemap.server.places;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.curioswitch.database.cafemapdb.tables.Place.PLACE;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
+import dagger.BindsInstance;
 import dagger.producers.ProducerModule;
 import dagger.producers.Produces;
 import dagger.producers.ProductionSubcomponent;
@@ -35,27 +37,29 @@ import java.util.List;
 import org.curioswitch.cafemap.api.GetPlacesRequest;
 import org.curioswitch.cafemap.api.GetPlacesResponse;
 import org.curioswitch.common.server.framework.database.ForDatabase;
-import org.curioswitch.common.server.framework.grpc.GrpcProductionComponent;
+import org.curioswitch.common.server.framework.grpc.Unvalidated;
 import org.curioswitch.database.cafemapdb.tables.pojos.Place;
 import org.jooq.DSLContext;
 
 @ProducerModule
-public class GetPlacesGraph {
+public abstract class GetPlacesGraph {
 
   @ProductionSubcomponent(modules = GetPlacesGraph.class)
-  public interface Component extends GrpcProductionComponent<GetPlacesResponse> {
+  public interface Component {
+    ListenableFuture<GetPlacesResponse> execute();
+
     @ProductionSubcomponent.Builder
-    interface Builder extends GrpcProductionComponentBuilder<GetPlacesGraph, Component, Builder> {}
-  }
+    interface Builder {
+      Builder setRequest(@BindsInstance @Unvalidated GetPlacesRequest request);
 
-  private final GetPlacesRequest request;
-
-  public GetPlacesGraph(GetPlacesRequest request) {
-    this.request = request;
+      Component build();
+    }
   }
 
   @Produces
-  GetPlacesRequest request() {
+  static GetPlacesRequest validateRequest(@Unvalidated GetPlacesRequest request) {
+    checkArgument(request.getViewport().hasNorthEast(), "viewport.north_east is required");
+    checkArgument(request.getViewport().hasSouthWest(), "viewport.south_west is required");
     return request;
   }
 
@@ -71,4 +75,6 @@ public class GetPlacesGraph {
         .addAllPlace(places.stream().map(PlaceUtil::convertPlace)::iterator)
         .build();
   }
+
+  private GetPlacesGraph() {}
 }

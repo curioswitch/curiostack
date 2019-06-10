@@ -34,21 +34,21 @@ if [ -z "$CI" ]; then
 
   OPENJDK_DIR="$GRADLE_HOME/curiostack/openjdk"
 
-  export JAVA_HOME="$OPENJDK_DIR/jdk-12.0.1+12"
+  export JAVA_HOME="$OPENJDK_DIR/jdk-11.0.3+7"
 
   if "$linux" = "true"; then
-    SRC="https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.1%2B12/OpenJDK12U-jdk_x64_linux_hotspot_12.0.1_12.tar.gz"
-    DEST="$OPENJDK_DIR/OpenJDK12U-jdk_x64_linux_hotspot_12.0.1_12.tar.gz"
+    SRC="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.3_7.tar.gz"
+    DEST="$OPENJDK_DIR/OpenJDK11U-jdk_x64_linux_hotspot_11.0.3_7.tar.gz"
   fi
 
   if "$darwin" = "true"; then
-    SRC="https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.1%2B12/OpenJDK12U-jdk_x64_mac_hotspot_12.0.1_12.tar.gz"
-    DEST="$OPENJDK_DIR/OpenJDK12U-jdk_x64_mac_hotspot_12.0.1_12.tar.gz"
+    SRC="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jdk_x64_mac_hotspot_11.0.3_7.tar.gz"
+    DEST="$OPENJDK_DIR/OpenJDK11U-jdk_x64_mac_hotspot_11.0.3_7.tar.gz"
   fi
 
   if "$windows" = "true"; then
-    SRC="https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.1%2B12/OpenJDK12U-jdk_x64_windows_hotspot_12.0.1_12.zip"
-    DEST="$OPENJDK_DIR/OpenJDK12U-jdk_x64_windows_hotspot_12.0.1_12.zip"
+    SRC="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jdk_x64_windows_hotspot_11.0.3_7.zip"
+    DEST="$OPENJDK_DIR/OpenJDK11U-jdk_x64_windows_hotspot_11.0.3_7.zip"
   fi
 
   if [ ! -d "$JAVA_HOME" ]; then

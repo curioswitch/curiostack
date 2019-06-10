@@ -38,9 +38,25 @@ public final class GrpcGraphUtil {
 
   /**
    * Wires the result of a {@link ListenableFuture} to the response handling methods of a {@link
+   * StreamObserver} for a unary RPC.
+   */
+  public static <Resp extends Message> void unary(
+      ListenableFuture<Resp> responseFuture, StreamObserver<Resp> observer) {
+    Futures.addCallback(
+        responseFuture,
+        new UnaryStreamObserverCallback<>(observer),
+        MoreExecutors.directExecutor());
+  }
+
+  /**
+   * Wires the result of a {@link ListenableFuture} to the response handling methods of a {@link
    * StreamObserver} for a {@link
    * org.curioswitch.common.server.framework.grpc.GrpcProductionComponent} which takes no arguments.
+   *
+   * @deprecated Use {@link #unary(ListenableFuture, StreamObserver)}. The boilerplate removal of
+   *     {@code .get().execute()} is not worth having to implement interfaces.
    */
+  @Deprecated
   public static <Resp extends Message, C extends GrpcProductionComponent<Resp>> void unary(
       StreamObserver<Resp> observer, Provider<C> component) {
     Futures.addCallback(
@@ -52,8 +68,12 @@ public final class GrpcGraphUtil {
   /**
    * Invokes a unary {@link org.curioswitch.common.server.framework.grpc.GrpcProductionComponent}
    * with the provided request and graph factory.
+   *
+   * @deprecated Use {@link dagger.BindsInstance} instead of passing the {@link
+   *     dagger.producers.ProducerModule} into the component. All modules should be abstract.
    */
   @SuppressWarnings("InconsistentOverloads")
+  @Deprecated
   public static <
           G,
           Resp extends Message,

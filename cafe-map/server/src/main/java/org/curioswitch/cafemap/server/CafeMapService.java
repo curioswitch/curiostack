@@ -60,17 +60,20 @@ public class CafeMapService extends CafeMapServiceImplBase {
   @Override
   public void getPlaces(
       GetPlacesRequest request, StreamObserver<GetPlacesResponse> responseObserver) {
-    GrpcGraphUtil.unary(new GetPlacesGraph(request), responseObserver, getPlacesGraph);
+    GrpcGraphUtil.unary(
+        getPlacesGraph.get().setRequest(request).build().execute(), responseObserver);
   }
 
   @Override
   public void getPlace(GetPlaceRequest request, StreamObserver<GetPlaceResponse> responseObserver) {
-    GrpcGraphUtil.unary(new GetPlaceGraph(request), responseObserver, getPlaceGraph);
+    GrpcGraphUtil.unary(
+        getPlaceGraph.get().setRequest(request).build().execute(), responseObserver);
   }
 
   @Override
   public void listLandmarks(
       ListLandmarksRequest request, StreamObserver<ListLandmarksResponse> responseObserver) {
-    GrpcGraphUtil.unary(new ListLandmarksGraph(request), responseObserver, listLandmarksGraph);
+    GrpcGraphUtil.unary(
+        listLandmarksGraph.get().setRequest(request).build().execute(), responseObserver);
   }
 }
