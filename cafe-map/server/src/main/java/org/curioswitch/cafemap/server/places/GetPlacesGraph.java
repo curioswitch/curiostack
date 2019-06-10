@@ -41,7 +41,6 @@ import dagger.producers.ProductionSubcomponent;
 import java.util.List;
 import org.curioswitch.cafemap.api.GetPlacesRequest;
 import org.curioswitch.cafemap.api.GetPlacesResponse;
-import org.curioswitch.cafemap.api.ListLandmarksRequest;
 import org.curioswitch.cafemap.server.util.S2Util;
 import org.curioswitch.common.server.framework.database.ForDatabase;
 import org.curioswitch.common.server.framework.grpc.Unvalidated;
