@@ -24,6 +24,7 @@
 
 package org.curioswitch.cafemap.server.places;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
@@ -45,6 +46,7 @@ import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceType;
 import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.PlacesSearchResult;
+import dagger.BindsInstance;
 import dagger.producers.ProducerModule;
 import dagger.producers.Produces;
 import dagger.producers.ProductionSubcomponent;
@@ -57,7 +59,7 @@ import org.curioswitch.cafemap.api.ListLandmarksRequest;
 import org.curioswitch.cafemap.api.ListLandmarksResponse;
 import org.curioswitch.cafemap.server.util.S2Util;
 import org.curioswitch.common.server.framework.database.ForDatabase;
-import org.curioswitch.common.server.framework.grpc.GrpcProductionComponent;
+import org.curioswitch.common.server.framework.grpc.Unvalidated;
 import org.curioswitch.database.cafemapdb.tables.pojos.Landmark;
 import org.curioswitch.database.cafemapdb.tables.records.LandmarkRecord;
 import org.curioswitch.gcloud.mapsservices.CallbackListenableFuture;
@@ -65,25 +67,26 @@ import org.jooq.DSLContext;
 import org.jooq.types.ULong;
 
 @ProducerModule
-public class ListLandmarksGraph {
+public abstract class ListLandmarksGraph {
 
   @ProductionSubcomponent(modules = ListLandmarksGraph.class)
-  public interface Component extends GrpcProductionComponent<ListLandmarksResponse> {
+  public interface Component {
+    ListenableFuture<ListLandmarksResponse> execute();
+
     @ProductionSubcomponent.Builder
-    interface Builder
-        extends GrpcProductionComponentBuilder<ListLandmarksGraph, Component, Builder> {}
+    interface Builder {
+      Builder setRequest(@BindsInstance @Unvalidated ListLandmarksRequest request);
+
+      Component build();
+    }
   }
 
   private static final PlacesSearchResult[] EMPTY = new PlacesSearchResult[0];
 
-  private final ListLandmarksRequest request;
-
-  public ListLandmarksGraph(ListLandmarksRequest request) {
-    this.request = request;
-  }
-
   @Produces
-  ListLandmarksRequest request() {
+  static ListLandmarksRequest validateRequest(@Unvalidated ListLandmarksRequest request) {
+    checkArgument(request.getViewport().hasNorthEast(), "viewport.north_east is required");
+    checkArgument(request.getViewport().hasSouthWest(), "viewport.south_west is required");
     return request;
   }
 
@@ -219,4 +222,6 @@ public class ListLandmarksGraph {
         .setType(Type.PARK)
         .build();
   }
+
+  private ListLandmarksGraph() {}
 }
