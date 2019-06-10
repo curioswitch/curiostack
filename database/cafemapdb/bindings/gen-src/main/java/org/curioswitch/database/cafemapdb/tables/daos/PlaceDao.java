@@ -110,6 +110,13 @@ public class PlaceDao extends DAOImpl<PlaceRecord, org.curioswitch.database.cafe
     }
 
     /**
+     * Fetch records that have <code>s2_cell IN (values)</code>
+     */
+    public List<org.curioswitch.database.cafemapdb.tables.pojos.Place> fetchByS2Cell(ULong... values) {
+        return fetch(Place.PLACE.S2_CELL, values);
+    }
+
+    /**
      * Fetch records that have <code>instagram_id IN (values)</code>
      */
     public List<org.curioswitch.database.cafemapdb.tables.pojos.Place> fetchByInstagramId(String... values) {

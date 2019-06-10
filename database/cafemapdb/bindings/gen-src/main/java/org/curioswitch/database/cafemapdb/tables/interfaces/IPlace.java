@@ -69,6 +69,11 @@ public interface IPlace extends Serializable {
     public Double getLongitude();
 
     /**
+     * Getter for <code>cafemapdb.place.s2_cell</code>.
+     */
+    public ULong getS2Cell();
+
+    /**
      * Getter for <code>cafemapdb.place.instagram_id</code>.
      */
     public String getInstagramId();

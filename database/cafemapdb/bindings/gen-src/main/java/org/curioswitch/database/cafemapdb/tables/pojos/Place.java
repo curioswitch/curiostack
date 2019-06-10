@@ -48,12 +48,13 @@ import org.jooq.types.ULong;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Place implements IPlace {
 
-    private static final long serialVersionUID = -1684772956;
+    private static final long serialVersionUID = -1737917573;
 
     private final ULong         id;
     private final String        name;
     private final Double        latitude;
     private final Double        longitude;
+    private final ULong         s2Cell;
     private final String        instagramId;
     private final String        googlePlaceId;
     private final LocalDateTime createdAt;
@@ -64,6 +65,7 @@ public class Place implements IPlace {
         this.name = value.getName();
         this.latitude = value.getLatitude();
         this.longitude = value.getLongitude();
+        this.s2Cell = value.getS2Cell();
         this.instagramId = value.getInstagramId();
         this.googlePlaceId = value.getGooglePlaceId();
         this.createdAt = value.getCreatedAt();
@@ -75,6 +77,7 @@ public class Place implements IPlace {
         String        name,
         Double        latitude,
         Double        longitude,
+        ULong         s2Cell,
         String        instagramId,
         String        googlePlaceId,
         LocalDateTime createdAt,
@@ -84,6 +87,7 @@ public class Place implements IPlace {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.s2Cell = s2Cell;
         this.instagramId = instagramId;
         this.googlePlaceId = googlePlaceId;
         this.createdAt = createdAt;
@@ -108,6 +112,11 @@ public class Place implements IPlace {
     @Override
     public Double getLongitude() {
         return this.longitude;
+    }
+
+    @Override
+    public ULong getS2Cell() {
+        return this.s2Cell;
     }
 
     @Override
@@ -163,6 +172,12 @@ public class Place implements IPlace {
         }
         else if (!longitude.equals(other.longitude))
             return false;
+        if (s2Cell == null) {
+            if (other.s2Cell != null)
+                return false;
+        }
+        else if (!s2Cell.equals(other.s2Cell))
+            return false;
         if (instagramId == null) {
             if (other.instagramId != null)
                 return false;
@@ -198,6 +213,7 @@ public class Place implements IPlace {
         result = prime * result + ((this.name == null) ? 0 : this.name.hashCode());
         result = prime * result + ((this.latitude == null) ? 0 : this.latitude.hashCode());
         result = prime * result + ((this.longitude == null) ? 0 : this.longitude.hashCode());
+        result = prime * result + ((this.s2Cell == null) ? 0 : this.s2Cell.hashCode());
         result = prime * result + ((this.instagramId == null) ? 0 : this.instagramId.hashCode());
         result = prime * result + ((this.googlePlaceId == null) ? 0 : this.googlePlaceId.hashCode());
         result = prime * result + ((this.createdAt == null) ? 0 : this.createdAt.hashCode());
@@ -213,6 +229,7 @@ public class Place implements IPlace {
         sb.append(", ").append(name);
         sb.append(", ").append(latitude);
         sb.append(", ").append(longitude);
+        sb.append(", ").append(s2Cell);
         sb.append(", ").append(instagramId);
         sb.append(", ").append(googlePlaceId);
         sb.append(", ").append(createdAt);

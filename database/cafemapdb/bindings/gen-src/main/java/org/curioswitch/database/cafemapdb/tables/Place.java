@@ -65,7 +65,7 @@ import org.jooq.types.ULong;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Place extends TableImpl<PlaceRecord> {
 
-    private static final long serialVersionUID = 297583195;
+    private static final long serialVersionUID = 73355532;
 
     /**
      * The reference instance of <code>cafemapdb.place</code>
@@ -99,6 +99,11 @@ public class Place extends TableImpl<PlaceRecord> {
      * The column <code>cafemapdb.place.longitude</code>.
      */
     public final TableField<PlaceRecord, Double> LONGITUDE = createField("longitude", org.jooq.impl.SQLDataType.DOUBLE.nullable(false), this, "");
+
+    /**
+     * The column <code>cafemapdb.place.s2_cell</code>.
+     */
+    public final TableField<PlaceRecord, ULong> S2_CELL = createField("s2_cell", org.jooq.impl.SQLDataType.BIGINTUNSIGNED.nullable(false), this, "");
 
     /**
      * The column <code>cafemapdb.place.instagram_id</code>.
@@ -166,7 +171,7 @@ public class Place extends TableImpl<PlaceRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.PLACE_IDX_INSTAGRAM_ID, Indexes.PLACE_PRIMARY);
+        return Arrays.<Index>asList(Indexes.PLACE_IDX_INSTAGRAM_ID, Indexes.PLACE_PRIMARY, Indexes.PLACE_S2_CELL);
     }
 
     /**
