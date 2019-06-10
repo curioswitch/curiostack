@@ -42,7 +42,7 @@ dependencies {
     compile(project(":common:server:framework"))
     compile(project(":database:cafemapdb:bindings"))
 
-    compile("io.sgr:s2-geometry-library-java:1.0.0")
+    compile("io.sgr:s2-geometry-library-java")
 
     annotationProcessor("com.google.dagger:dagger-compiler")
     annotationProcessor("org.immutables:value-annotations")

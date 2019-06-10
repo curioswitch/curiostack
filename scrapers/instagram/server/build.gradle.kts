@@ -41,6 +41,7 @@ dependencies {
     compile(project(":database:cafemapdb:bindings"))
     compile(project(":scrapers:instagram:api"))
 
+    compile("io.sgr:s2-geometry-library-java")
     compile("org.jsoup:jsoup")
 
     annotationProcessor("com.google.dagger:dagger-compiler")

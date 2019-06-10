@@ -30,6 +30,8 @@ import static org.curioswitch.database.cafemapdb.tables.Place.PLACE;
 import com.fasterxml.jackson.core.JsonGenerator.Feature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.geometry.S2CellId;
+import com.google.common.geometry.S2LatLng;
 import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.server.Server;
@@ -53,6 +55,7 @@ import org.curioswitch.scrapers.instagram.api.ScrapeLocationsRequest;
 import org.curioswitch.scrapers.instagram.api.ScrapeLocationsResponse.LocationPage;
 import org.curioswitch.scrapers.instagram.server.locations.ScrapeLocationsGraph;
 import org.jooq.DSLContext;
+import org.jooq.types.ULong;
 
 public class InstagramScraperServiceMain {
 
@@ -132,7 +135,12 @@ public class InstagramScraperServiceMain {
           .setName(location.getName())
           .setInstagramId(location.getId())
           .setLatitude(location.getLatitude())
-          .setLongitude(location.getLongitude());
+          .setLongitude(location.getLongitude())
+          .setS2Cell(
+              ULong.valueOf(
+                  S2CellId.fromLatLng(
+                          S2LatLng.fromDegrees(location.getLatitude(), location.getLongitude()))
+                      .id()));
       db.insertInto(PLACE).set(record).onDuplicateKeyUpdate().set(record).execute();
     }
 
