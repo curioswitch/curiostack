@@ -69,10 +69,10 @@ public class UpdateGradleWrapperTask extends DefaultTask {
     var linesWithGetJdk =
         ImmutableList.<String>builderWithExpectedSize(gradleWrapperLines.size() + 2);
     linesWithGetJdk.addAll(gradleWrapperLines.subList(0, lineIndexAfterCopyright));
-    linesWithGetJdk.add("\n").add(". ./gradlew/get-jdk.sh\n");
+    linesWithGetJdk.add("").add(". ./gradle/get-jdk.sh");
     linesWithGetJdk.addAll(
         gradleWrapperLines.subList(lineIndexAfterCopyright, gradleWrapperLines.size()));
 
-    Files.writeString(gradlew, String.join("", linesWithGetJdk.build()));
+    Files.writeString(gradlew, String.join("\n", linesWithGetJdk.build()));
   }
 }

@@ -75,6 +75,7 @@ import org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin;
 import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.GenerateApiServerTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
+import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateGradleWrapperTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateProjectSettingsTask;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
@@ -146,6 +147,9 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(ReleasePlugin.class);
     plugins.apply(ToolDownloaderPlugin.class);
 
+    var updateGradleWrapper =
+        rootProject.getTasks().register("curioUpdateWrapper", UpdateGradleWrapperTask.class);
+
     rootProject
         .getTasks()
         .withType(Wrapper.class)
@@ -153,6 +157,8 @@ public class CuriostackPlugin implements Plugin<Project> {
             wrapper -> {
               wrapper.setGradleVersion(ToolDependencies.getGradleVersion(rootProject));
               wrapper.setDistributionType(DistributionType.ALL);
+
+              wrapper.finalizedBy(updateGradleWrapper);
             });
 
     rootProject.getTasks().register("setupGitHooks", SetupGitHooks.class);
