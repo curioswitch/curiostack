@@ -74,7 +74,7 @@ public abstract class GetPlacesGraph {
   }
 
   @Produces
-  static S2LatLngRect viewport(ListLandmarksRequest request) {
+  static S2LatLngRect viewport(GetPlacesRequest request) {
     return S2Util.convertFromLatLngBounds(request.getViewport());
   }
 
