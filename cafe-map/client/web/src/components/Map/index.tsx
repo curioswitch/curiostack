@@ -101,7 +101,7 @@ function landmarkImage(place: google.maps.places.PlaceResult): string {
 }
 
 interface OwnProps {
-  doGetLandmarks: () => void;
+  doUpdateMap: () => void;
   doSetMap: (map: google.maps.Map) => void;
 
   onOpenPlace: (id: string) => void;
@@ -193,8 +193,8 @@ function initMap(map: google.maps.Map) {
 
 const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
   const {
-    doGetLandmarks,
     doSetMap,
+    doUpdateMap,
     google,
     landmarks,
     onOpenPlace,
@@ -210,7 +210,7 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
 
   return (
     <Map
-      onIdle={doGetLandmarks}
+      onIdle={doUpdateMap}
       onReady={onMapReady}
       google={google}
       zoom={12}
