@@ -39,6 +39,8 @@ import {
 import {
   GetPlacesRequest,
   GetPlacesResponse,
+  LatLngBounds,
+  LatLng,
 } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
 import ApiClient from '../../utils/api-client';
@@ -168,10 +170,32 @@ function* getLandmarks() {
 }
 
 function* getPlaces() {
+  const map: google.maps.Map | undefined = yield select(selectMap);
+  if (!map) {
+    return;
+  }
+
   const client = new ApiClient();
 
+  const bounds = map.getBounds()!;
+
+  const requestViewport = new LatLngBounds();
+
+  const northEast = new LatLng();
+  northEast.setLatitude(bounds.getNorthEast().lat());
+  northEast.setLongitude(bounds.getNorthEast().lng());
+  requestViewport.setNorthEast(northEast);
+
+  const southWest = new LatLng();
+  southWest.setLatitude(bounds.getSouthWest().lat());
+  southWest.setLongitude(bounds.getSouthWest().lng());
+  requestViewport.setSouthWest(southWest);
+
+  const request = new GetPlacesRequest();
+  request.setViewport(requestViewport);
+
   const response: GetPlacesResponse = yield call(() =>
-    client.getPlaces(new GetPlacesRequest()),
+    client.getPlaces(request),
   );
   yield put(Actions.getPlacesResponse(response));
 }
