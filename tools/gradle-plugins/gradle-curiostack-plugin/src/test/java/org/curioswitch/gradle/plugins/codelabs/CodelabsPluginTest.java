@@ -24,36 +24,37 @@
 
 package org.curioswitch.gradle.plugins.codelabs;
 
-import org.curioswitch.gradle.plugins.codelabs.tasks.ExportDocsTask;
-import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.plugins.BasePlugin;
+import static org.curioswitch.gradle.testing.assertj.CurioGradleAssertions.assertThat;
 
-public class CodelabsPlugin implements Plugin<Project> {
+import java.nio.file.Path;
+import org.curioswitch.gradle.testing.ResourceProjects;
+import org.gradle.testkit.runner.GradleRunner;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
-  @Override
-  public void apply(Project project) {
-    project.getRootProject().getPlugins().apply(CodelabsSetupPlugin.class);
-    project.getPlugins().apply(BasePlugin.class);
+// This test is slow since it downloads a file, just run locally for now.
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+class CodelabsPluginTest {
 
-    var setupClaat = DownloadToolUtil.getSetupTask(project, "claat");
-    var exportDocs =
-        project
-            .getTasks()
-            .register(
-                "exportDocs",
-                ExportDocsTask.class,
-                t -> {
-                  t.dependsOn(setupClaat);
+  private Path projectDir;
 
-                  var mdFileTree = project.fileTree("src");
-                  mdFileTree.exclude("build").include("**/*.md");
+  @BeforeAll
+  void copyProject() {
+    projectDir = ResourceProjects.fromResources("test-projects/gradle-codelabs-plugin");
+  }
 
-                  t.getMdFiles().set(mdFileTree);
-                  t.getOutputDir().set(project.file("build/site"));
-                });
+  @Test
+  void normal() {
+    assertThat(
+            GradleRunner.create()
+                .withProjectDir(projectDir.toFile())
+                .withArguments("build", "--stacktrace")
+                .withPluginClasspath())
+        .builds()
+        .tasksDidSucceed(":exportDocs", ":assemble");
 
-    project.getTasks().named("assemble").configure(t -> t.dependsOn(exportDocs));
+    assertThat(projectDir.resolve("build/site/codelab1/index.html")).exists();
+    assertThat(projectDir.resolve("build/site/codelab2/index.html")).exists();
   }
 }

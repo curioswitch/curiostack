@@ -42,7 +42,6 @@ import org.gradle.api.tasks.TaskAction;
 public class ExportDocsTask extends DefaultTask {
 
   private final Property<ConfigurableFileTree> mdFiles;
-  private final Property<String> urlPrefix;
   private final Property<String> gaTrackingId;
   private final DirectoryProperty outputDir;
 
@@ -50,19 +49,13 @@ public class ExportDocsTask extends DefaultTask {
     var objects = getProject().getObjects();
 
     mdFiles = objects.property(ConfigurableFileTree.class);
-    urlPrefix = objects.property(String.class).value("../../");
-    gaTrackingId = objects.property(String.class);
+    gaTrackingId = objects.property(String.class).convention("");
     outputDir = objects.directoryProperty();
   }
 
   @InputFiles
   public Property<ConfigurableFileTree> getMdFiles() {
     return mdFiles;
-  }
-
-  @Input
-  public Property<String> getUrlPrefix() {
-    return urlPrefix;
   }
 
   @Input
@@ -86,9 +79,10 @@ public class ExportDocsTask extends DefaultTask {
         .exec(
             exec -> {
               exec.executable(ClaatTaskUtil.getClaatPath(getProject()));
-              exec.args("export", "-prefix", urlPrefix.get());
-              if (gaTrackingId.isPresent()) {
-                exec.args("-ga", gaTrackingId.get());
+              exec.args("export");
+              String gaTrackingId = this.gaTrackingId.get();
+              if (!gaTrackingId.isEmpty()) {
+                exec.args("-ga", gaTrackingId);
               }
               exec.args(mdFiles);
 
