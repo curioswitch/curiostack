@@ -25,7 +25,10 @@
 package org.curioswitch.gradle.plugins.ci.tasks;
 
 import com.google.common.base.Splitter;
-import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.HttpClientBuilder;
+import com.linecorp.armeria.client.retry.RetryStrategy;
+import com.linecorp.armeria.client.retry.RetryingHttpClientBuilder;
+import com.linecorp.armeria.common.HttpData;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,14 +49,29 @@ public class UploadToCodeCovTask extends DefaultTask {
 
   @TaskAction
   public void exec() throws Exception {
-    var codeCovUploader =
-        HttpClient.of("https://codecov.io").get("/bash").aggregate().join().content();
+    final HttpData codeCovUploadScript;
+    try {
+      codeCovUploadScript =
+          new HttpClientBuilder("https://codecov.io")
+              .decorator(
+                  new RetryingHttpClientBuilder(RetryStrategy.onServerErrorStatus())
+                      .maxTotalAttempts(3)
+                      .newDecorator())
+              .build()
+              .get("/bash")
+              .aggregate()
+              .join()
+              .content();
+    } catch (Throwable t) {
+      getProject().getLogger().warn("Error uploading to codecov, ignoring.", t);
+      return;
+    }
     File tempDir = getTemporaryDir();
     tempDir.createNewFile();
 
     Path codeCovScript = Paths.get(tempDir.getAbsolutePath(), "codecov.sh");
 
-    Files.write(codeCovScript, codeCovUploader.array());
+    Files.write(codeCovScript, codeCovUploadScript.array());
 
     codeCovScript.toFile().setExecutable(true);
 

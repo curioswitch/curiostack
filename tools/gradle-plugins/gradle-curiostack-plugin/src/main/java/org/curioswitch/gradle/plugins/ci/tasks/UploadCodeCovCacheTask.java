@@ -86,6 +86,11 @@ public class UploadCodeCovCacheTask extends DefaultTask {
 
   @TaskAction
   public void exec() {
+    if (!getCodeCovReportFile().exists()) {
+      // UploadToCodeCovTask failed, skip uploading the cache.
+      return;
+    }
+
     String mapKey = UUID.randomUUID().toString();
     TASKS.put(mapKey, this);
 
