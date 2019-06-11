@@ -47,10 +47,10 @@ class CodelabsPluginTest {
   @Test
   void normal() {
     assertThat(
-        GradleRunner.create()
-            .withProjectDir(projectDir.toFile())
-            .withArguments("build", "--stacktrace")
-            .withPluginClasspath())
+            GradleRunner.create()
+                .withProjectDir(projectDir.toFile())
+                .withArguments("build", "--stacktrace")
+                .withPluginClasspath())
         .builds()
         .tasksDidSucceed(":exportDocs", ":assemble");
 
