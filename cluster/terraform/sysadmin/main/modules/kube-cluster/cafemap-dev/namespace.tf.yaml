@@ -22,9 +22,12 @@
 #
 data:
   google_kms_secret:
-    google_maps_api_key_dev:
+    google_maps_api_client_key_dev:
       crypto_key: "${var.tf_crypto_key}"
       ciphertext: "CiQAnaPXy+yuWQhDApHL3C8f9kAXKHtlui6MvDJ0qj7fNg6/wAgSUAA4+XivKGMqyBHgM+mnap6IcHnhU52Xt0JNopisFJLeyy6C1wWUaNLuugV2X9iNEJcl7fA7HePB/roGrfR2GZgEYJpSmTlo4L/RBWCmVt3s"
+    google_maps_api_server_key_dev:
+      crypto_key: "${var.tf_crypto_key}"
+      ciphertext: "CiQAnaPXyzM0vwubBCCkmq/2g4/q7Q6tIG/2YEIn7QHpXAZ38e0SUAA4+Xiv1TJBiUhns4AAbshKojIocol40sSquLlUWK4Ur+heWBwTu0hdPf0DV2dhNBWg1K5RT0HjCX8AGER+jSoEVHHFvQLQxKC4P/bibEDL"
     cafemap_server_password_dev:
       crypto_key: "${var.tf_crypto_key}"
       ciphertext: "CiQAnaPXyw6eStyxwlWSEN2gevZQdylwc2+SR+VrlgywJ0dTqfoSSQA4+XivRrjPd+erp2xG9mViBwqF1Nw818qYpCPK2zkN7ktylst2VuDV3LnQxUwjGeKciylyFqG83cPymBTLewQtrJl+PWnStLQ="
@@ -50,4 +53,5 @@ resource:
         - module.cluster-cafemap-dev
       data:
         CAFEMAPDB_PASSWORD: '${data.google_kms_secret.cafemap_server_password_dev.plaintext}'
-        GOOGLE_MAPS_API_KEY: "${data.google_kms_secret.google_maps_api_key_dev.plaintext}"
+        GOOGLE_MAPS_API_CLIENT_KEY: "${data.google_kms_secret.google_maps_api_client_key_dev.plaintext}"
+        GOOGLE_MAPS_API_SERVER_KEY: "${data.google_kms_secret.google_maps_api_server_key_dev.plaintext}"
