@@ -27,7 +27,7 @@ import { injectReducer, injectSaga } from '@curiostack/base-web';
 import { Grid } from '@material-ui/core';
 import { push } from 'connected-react-router';
 import { LocationDescriptorObject } from 'history';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import Helmet from 'react-helmet';
 import { hot } from 'react-hot-loader/root';
 import { InjectedIntlProps, injectIntl } from 'react-intl';
@@ -95,10 +95,6 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
       setMap,
     } = props;
 
-    useEffect(() => {
-      getPlaces();
-    }, []);
-
     const openPlacePage = useCallback((id: string) => {
       doPush(`/place/${id}`);
     }, []);
@@ -110,6 +106,11 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
       [doSearch],
     );
 
+    const updateMap = useCallback(() => {
+      getPlaces();
+      getLandmarks();
+    }, [getPlaces, getLandmarks]);
+
     return (
       <>
         <Helmet title={_(messages.title)} />
@@ -117,7 +118,7 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
           <SearchBoxContainer onSearch={handleSearchSubmit} />
         </form>
         <Map
-          doGetLandmarks={getLandmarks}
+          doUpdateMap={updateMap}
           doSetMap={setMap}
           onOpenPlace={openPlacePage}
           landmarks={landmarks}
