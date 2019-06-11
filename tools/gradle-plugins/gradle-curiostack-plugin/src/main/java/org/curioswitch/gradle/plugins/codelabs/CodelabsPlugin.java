@@ -24,14 +24,11 @@
 
 package org.curioswitch.gradle.plugins.codelabs;
 
-import org.curioswitch.gradle.plugins.codelabs.tasks.DownloadDepsTask;
 import org.curioswitch.gradle.plugins.codelabs.tasks.ExportDocsTask;
-import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePlugin;
-import org.gradle.api.tasks.Copy;
 
 public class CodelabsPlugin implements Plugin<Project> {
 
@@ -39,7 +36,6 @@ public class CodelabsPlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getRootProject().getPlugins().apply(CodelabsSetupPlugin.class);
     project.getPlugins().apply(BasePlugin.class);
-    project.getPlugins().apply(NodePlugin.class);
 
     var setupClaat = DownloadToolUtil.getSetupTask(project, "claat");
     var exportDocs =
@@ -55,35 +51,9 @@ public class CodelabsPlugin implements Plugin<Project> {
                   mdFileTree.exclude("build").include("**/*.md");
 
                   t.getMdFiles().set(mdFileTree);
-                  t.getOutputDir().set(project.file("build/exported"));
+                  t.getOutputDir().set(project.file("build/site"));
                 });
 
-    var downloadDeps =
-        project
-            .getTasks()
-            .register(
-                "downloadDeps",
-                DownloadDepsTask.class,
-                t -> {
-                  t.dependsOn(setupClaat);
-
-                  t.getDepsVersion().set(1);
-                  t.getOutputDir().set(project.file("build/deps"));
-                });
-
-    var assembleSite =
-        project
-            .getTasks()
-            .register(
-                "assembleSite",
-                Copy.class,
-                t -> {
-                  t.dependsOn(exportDocs, downloadDeps);
-
-                  t.from("build/deps", "build/exported");
-                  t.into("build/site");
-                });
-
-    project.getTasks().named("assemble").configure(t -> t.dependsOn(assembleSite));
+    project.getTasks().named("assemble").configure(t -> t.dependsOn(exportDocs));
   }
 }

@@ -22,47 +22,39 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.gradle.plugins.codelabs.tasks;
+package org.curioswitch.gradle.plugins.codelabs;
 
-import org.gradle.api.DefaultTask;
-import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.CacheableTask;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.TaskAction;
+import static org.curioswitch.gradle.testing.assertj.CurioGradleAssertions.assertThat;
 
-@CacheableTask
-public class DownloadDepsTask extends DefaultTask {
+import java.nio.file.Path;
+import org.curioswitch.gradle.testing.ResourceProjects;
+import org.gradle.testkit.runner.GradleRunner;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
-  private final Property<Integer> depsVersion;
-  private final DirectoryProperty outputDir;
+// This test is slow since it downloads a file, just run locally for now.
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+class CodelabsPluginTest {
 
-  public DownloadDepsTask() {
-    var objects = getProject().getObjects();
-    depsVersion = objects.property(Integer.class);
-    outputDir = objects.directoryProperty();
+  private Path projectDir;
+
+  @BeforeAll
+  void copyProject() {
+    projectDir = ResourceProjects.fromResources("test-projects/gradle-codelabs-plugin");
   }
 
-  @Input
-  public Property<Integer> getDepsVersion() {
-    return depsVersion;
-  }
+  @Test
+  void normal() {
+    assertThat(
+        GradleRunner.create()
+            .withProjectDir(projectDir.toFile())
+            .withArguments("build", "--stacktrace")
+            .withPluginClasspath())
+        .builds()
+        .tasksDidSucceed(":exportDocs", ":assemble");
 
-  @OutputDirectory
-  public DirectoryProperty getOutputDir() {
-    return outputDir;
-  }
-
-  @TaskAction
-  public void exec() {
-    getProject()
-        .exec(
-            exec -> {
-              exec.executable(ClaatTaskUtil.getClaatPath(getProject()));
-              exec.args("build");
-
-              exec.workingDir(outputDir);
-            });
+    assertThat(projectDir.resolve("build/site/codelab1/index.html")).exists();
+    assertThat(projectDir.resolve("build/site/codelab2/index.html")).exists();
   }
 }
