@@ -49,6 +49,8 @@ import { GlobalState } from '../../state';
 import { Actions, ActionTypes } from './actions';
 import { selectMap } from './selectors';
 
+import PlaceResult = google.maps.places.PlaceResult;
+
 const LANDMARK_TYPES = new Set([
   'airport',
   'amusement_park',
@@ -97,6 +99,27 @@ async function nearbySearch(
             results,
             pagination,
           });
+        }
+      },
+    );
+  });
+}
+
+async function placeDetails(
+  places: google.maps.places.PlacesService,
+  placeId: string,
+): Promise<PlaceResult> {
+  return new Promise<PlaceResult>((resolve, reject) => {
+    places.getDetails(
+      {
+        placeId,
+        fields: ['geometry', 'photo', 'place_id'],
+      },
+      (result, status) => {
+        if (status !== google.maps.places.PlacesServiceStatus.OK) {
+          reject(new Error(`Error fetching place details: ${status}`));
+        } else {
+          resolve(result);
         }
       },
     );
@@ -175,6 +198,8 @@ function* getPlaces() {
     return;
   }
 
+  const placesService = new google.maps.places.PlacesService(map);
+
   const client = new ApiClient();
 
   const bounds = map.getBounds()!;
@@ -197,7 +222,17 @@ function* getPlaces() {
   const response: GetPlacesResponse = yield call(() =>
     client.getPlaces(request),
   );
-  yield put(Actions.getPlacesResponse(response));
+
+  const placeResults = yield call(() =>
+    Promise.all(
+      response
+        .getPlaceList()
+        .slice(0, 5)
+        .map((place) => placeDetails(placesService, place.getGooglePlaceId())),
+    ),
+  );
+
+  yield put(Actions.getPlacesResponse(placeResults));
 }
 
 const selectSearchForm = (state: GlobalState) =>

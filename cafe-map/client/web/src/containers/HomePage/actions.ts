@@ -26,8 +26,6 @@
 import { ActionsUnion, createAction } from '@curiostack/base-web';
 import { bindActionCreators, Dispatch } from 'redux';
 
-import { GetPlacesResponse } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
-
 export enum ActionTypes {
   GET_LANDMARKS = 'HomePage/GET_LANDMARKS',
   GET_LANDMARKS_RESPONSE = 'HomePage/GET_LANDMARKS_RESPONSE',
@@ -46,8 +44,8 @@ export const Actions = {
     createAction(ActionTypes.GET_LANDMARKS_RESPONSE, places),
 
   getPlaces: () => createAction(ActionTypes.GET_PLACES),
-  getPlacesResponse: (response: GetPlacesResponse) =>
-    createAction(ActionTypes.GET_PLACES_RESPONSE, response),
+  getPlacesResponse: (places: google.maps.places.PlaceResult[]) =>
+    createAction(ActionTypes.GET_PLACES_RESPONSE, places),
   selectMarker: () => createAction(ActionTypes.SELECT_MARKER),
   setBottomSheetOpen: (open: boolean) =>
     createAction(ActionTypes.SET_BOTTOM_SHEET_OPEN, open),
