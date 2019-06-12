@@ -131,7 +131,7 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
           <GridList>
             {places.map((place) => (
               <GridListTile>
-                <img src={place.photos![0]!.getUrl({})} />
+                <img alt={place.name} src={place.photos![0]!.getUrl({})} />
               </GridListTile>
             ))}
           </GridList>
