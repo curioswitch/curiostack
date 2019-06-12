@@ -30,17 +30,19 @@ import com.google.common.io.Resources;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.curioswitch.gradle.testing.GradleTempDirectories;
 import org.curioswitch.gradle.testing.ResourceProjects;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 class CuriostackPluginTest {
 
   @SuppressWarnings("ClassCanBeStatic")
   @Nested
-  class KitchenSink {
+  class WrapperUpdate {
 
     private Path projectDir;
 
@@ -66,6 +68,35 @@ class CuriostackPluginTest {
           .hasContent(
               Resources.toString(
                   Resources.getResource("curiostack/get-jdk.sh"), StandardCharsets.UTF_8));
+    }
+  }
+
+  @SuppressWarnings("ClassCanBeStatic")
+  @Nested
+  // This test is slow since it downloads a file, just run locally for now.
+  @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+  class SetupOpenJdk8 {
+
+    private Path projectDir;
+
+    @BeforeAll
+    void copyProject() {
+      projectDir =
+          ResourceProjects.fromResources("test-projects/gradle-curiostack-plugin/kitchen-sink");
+    }
+
+    @Test
+    void downloadsTools() throws Exception {
+      Path gradleUserHome = GradleTempDirectories.create("tools-home");
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir.toFile())
+                  .withArguments("toolsSetupOpenjdk8")
+                  .withPluginClasspath()
+                  .withTestKitDir(gradleUserHome.toFile()))
+          .builds()
+          .tasksDidSucceed(":toolsSetupOpenjdk8");
+      assertThat(gradleUserHome.resolve("curiostack/openjdk8")).exists();
     }
   }
 }

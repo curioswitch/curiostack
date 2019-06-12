@@ -42,6 +42,7 @@ public class ToolDependencies {
           .put("helm", "2.10.0")
           .put("miniconda", "4.5.12")
           .put("node", "11.13.0")
+          .put("openjdk8", "jdk8u212-b04")
           .put("terraform", "0.11.14")
           .put("terraform-gsuite-provider", "0.1.19")
           .put("yarn", "1.16.0")
@@ -81,6 +82,10 @@ public class ToolDependencies {
 
   public static String getNodeVersion(Project project) {
     return getVersion("node", project);
+  }
+
+  public static String getOpenJdk8Version(Project project) {
+    return getVersion("openjdk8", project);
   }
 
   public static String getTerraformVersion(Project project) {
