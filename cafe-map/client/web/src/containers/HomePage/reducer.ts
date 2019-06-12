@@ -26,8 +26,6 @@
 import { Marker } from 'google-maps-react';
 import { List, Record } from 'immutable';
 
-import { Place } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
-
 import { SheetVisibility } from '../../components/BottomSheet';
 
 import { Actions, ActionTypes } from './actions';
@@ -35,7 +33,7 @@ import { Actions, ActionTypes } from './actions';
 export interface StateProps {
   map?: google.maps.Map;
   landmarks: List<google.maps.places.PlaceResult>;
-  places: List<Place>;
+  places: List<google.maps.places.PlaceResult>;
   selectedMarker?: Marker;
   bottomSheetVisibility: SheetVisibility;
 }
@@ -56,9 +54,9 @@ export default function(state: State, action: Actions): State {
       return state.set('landmarks', List(action.payload));
     case ActionTypes.GET_PLACES_RESPONSE:
       return state.merge({
-        places: List(action.payload.getPlaceList()),
+        places: List(action.payload),
         bottomSheetVisibility:
-          action.payload.getPlaceList().length > 0
+          action.payload.length > 0
             ? SheetVisibility.CLOSED
             : SheetVisibility.HIDDEN,
       });

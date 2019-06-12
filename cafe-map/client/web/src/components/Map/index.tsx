@@ -34,8 +34,6 @@ import {
 import { List, Map as ImmutableMap } from 'immutable';
 import React, { useCallback } from 'react';
 
-import { Place } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
-
 import CONFIG from '../../config';
 
 import pinkMarkerSvg from './images/pink-marker.svg';
@@ -107,7 +105,7 @@ interface OwnProps {
   onOpenPlace: (id: string) => void;
 
   landmarks: List<google.maps.places.PlaceResult>;
-  places: List<Place>;
+  places: List<google.maps.places.PlaceResult>;
 }
 
 type Props = ProvidedProps & OwnProps;
@@ -218,15 +216,15 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
     >
       {places.map((place) => (
         <Marker
-          key={place.getInstagramId()}
-          title={place.getName()}
+          key={place.place_id}
+          title={place.name}
           position={{
-            lat: place.getPosition()!.getLatitude(),
-            lng: place.getPosition()!.getLongitude(),
+            lat: place.geometry!.location!.lat(),
+            lng: place.geometry!.location!.lng(),
           }}
           onClick={
             // tslint:disable-next-line
-            () => onOpenPlace(place.getInstagramId())
+            () => onOpenPlace(place.place_id!)
           }
           icon={{
             url: pinkMarkerSvg,

@@ -24,7 +24,7 @@
  */
 
 import { injectReducer, injectSaga } from '@curiostack/base-web';
-import { Grid } from '@material-ui/core';
+import { Grid, GridList, GridListTile } from '@material-ui/core';
 import { push } from 'connected-react-router';
 import { LocationDescriptorObject } from 'history';
 import React, { useCallback } from 'react';
@@ -128,13 +128,13 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
           visibility={bottomSheetVisibility}
           setOpen={setBottomSheetOpen}
         >
-          <h1>Foo</h1>
-          <h2>Bar</h2>
-          <h2>Bar</h2>
-          <h2>Bar</h2>
-          <h2>Bar</h2>
-          <h2>Bar</h2>
-          <h2>Bar</h2>
+          <GridList>
+            {places.map((place) => (
+              <GridListTile>
+                <img alt={place.name} src={place.photos![0]!.getUrl({})} />
+              </GridListTile>
+            ))}
+          </GridList>
         </BottomSheet>
       </>
     );
