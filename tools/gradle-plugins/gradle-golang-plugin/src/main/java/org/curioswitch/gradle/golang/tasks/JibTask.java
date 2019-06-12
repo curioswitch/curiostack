@@ -32,6 +32,7 @@ import com.google.cloud.tools.jib.configuration.LayerConfiguration;
 import com.google.cloud.tools.jib.configuration.Port;
 import com.google.cloud.tools.jib.filesystem.AbsoluteUnixPath;
 import com.google.cloud.tools.jib.frontend.CredentialRetrieverFactory;
+import com.google.cloud.tools.jib.image.ImageReference;
 import java.nio.file.Path;
 import org.curioswitch.gradle.golang.GolangExtension;
 import org.gradle.api.DefaultTask;
@@ -114,10 +115,10 @@ public class JibTask extends DefaultTask {
     var targetImage = RegistryImage.named(this.targetImage.get());
     if (credentialHelper.isPresent()) {
       baseImage.addCredentialRetriever(
-          CredentialRetrieverFactory.forImage(baseImage.toImageConfiguration().getImage())
+          CredentialRetrieverFactory.forImage(ImageReference.parse(this.baseImage.get()))
               .dockerCredentialHelper(credentialHelper.get()));
       targetImage.addCredentialRetriever(
-          CredentialRetrieverFactory.forImage(targetImage.toImageConfiguration().getImage())
+          CredentialRetrieverFactory.forImage(ImageReference.parse(this.targetImage.get()))
               .dockerCredentialHelper(credentialHelper.get()));
     }
 
