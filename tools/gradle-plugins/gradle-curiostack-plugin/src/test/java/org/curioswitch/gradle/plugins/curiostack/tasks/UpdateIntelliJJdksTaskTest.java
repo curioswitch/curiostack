@@ -100,6 +100,17 @@ class UpdateIntelliJJdksTaskTest {
   }
 
   @Test
+  void noExistingFile_community() throws Exception {
+    Path intelliJFolder = Files.createDirectories(testUserHome.resolve(".IdeaIC2019.1"));
+
+    task.exec();
+
+    assertThat(intelliJFolder.resolve("config/options/jdk.table.xml"))
+        .hasContent(
+            testTemplate("update-intellij-jdks-task-test-tables/only-curio-openjdk.template.xml"));
+  }
+
+  @Test
   void existingUnrelated() throws Exception {
     Path optionsFolder =
         Files.createDirectories(testUserHome.resolve(".IntelliJIdea2019.1/config/options"));

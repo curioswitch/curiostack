@@ -144,7 +144,8 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
               .filter(
                   path ->
                       Files.isDirectory(path)
-                          && path.getFileName().toString().startsWith(".IntelliJIdea"))
+                          && (path.getFileName().toString().startsWith(".IntelliJIdea")
+                              || path.getFileName().toString().startsWith(".IdeaIC")))
               .sorted()
               .collect(toImmutableList());
     }
