@@ -38,33 +38,31 @@ interface Props {
   onClick: () => void;
 }
 
-export default class Button extends React.PureComponent<Props> {
-  public render() {
-    return (
-      <Group
-        x={this.props.x}
-        y={this.props.y}
-        width={362}
-        height={200}
-        onClick={this.props.onClick}
-        onTap={this.props.onClick}
-      >
-        <KonvaImage
-          src={this.props.selected ? buttonPressedSrc : buttonUnpressedSrc}
-          width={362}
-          height={100}
-        />
-        <Text
-          y={30}
-          width={362}
-          height={100}
-          align="center"
-          text={this.props.label}
-          fontSize={40}
-          fontFamily="Arial"
-          fill="black"
-        />
-      </Group>
-    );
-  }
-}
+const Button: React.FunctionComponent<Props> = (props) => (
+  <Group
+    x={props.x}
+    y={props.y}
+    width={362}
+    height={200}
+    onClick={props.onClick}
+    onTap={props.onClick}
+  >
+    <KonvaImage
+      src={props.selected ? buttonPressedSrc : buttonUnpressedSrc}
+      width={362}
+      height={100}
+    />
+    <Text
+      y={30}
+      width={362}
+      height={100}
+      align="center"
+      text={props.label}
+      fontSize={40}
+      fontFamily="Arial"
+      fill="black"
+    />
+  </Group>
+);
+
+export default React.memo(Button);

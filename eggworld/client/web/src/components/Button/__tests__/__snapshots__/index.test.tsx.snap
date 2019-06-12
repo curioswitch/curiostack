@@ -9,7 +9,7 @@ exports[`<Button /> renders normally 1`] = `
   x={100}
   y={3000}
 >
-  <KonvaImage
+  <Memo(KonvaImage)
     height={100}
     src="IMAGE_MOCK"
     width={362}

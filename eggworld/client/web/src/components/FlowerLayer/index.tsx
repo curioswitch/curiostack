@@ -66,27 +66,25 @@ interface Props {
   visible: boolean;
 }
 
-export default class FlowerLayer extends React.PureComponent<Props> {
-  public render() {
-    return (
-      <Layer visible={this.props.visible}>
-        {this.props.eatenFood.toIndexedSeq().map((ingredient, i) => (
-          <Group
-            key={ingredient}
-            x={FLOWER_LOCATIONS[i].x}
-            y={FLOWER_LOCATIONS[i].y}
-          >
-            <KonvaImage src={flowerImageSrc} width={200} height={200} />
-            <KonvaImage
-              src={INGREDIENTS_MAP[ingredient].imageSrc}
-              x={30}
-              y={30}
-              width={146}
-              height={146}
-            />
-          </Group>
-        ))}
-      </Layer>
-    );
-  }
-}
+const FlowerLayer: React.FunctionComponent<Props> = (props) => (
+  <Layer visible={props.visible}>
+    {props.eatenFood.toIndexedSeq().map((ingredient, i) => (
+      <Group
+        key={ingredient}
+        x={FLOWER_LOCATIONS[i].x}
+        y={FLOWER_LOCATIONS[i].y}
+      >
+        <KonvaImage src={flowerImageSrc} width={200} height={200} />
+        <KonvaImage
+          src={INGREDIENTS_MAP[ingredient].imageSrc}
+          x={30}
+          y={30}
+          width={146}
+          height={146}
+        />
+      </Group>
+    ))}
+  </Layer>
+);
+
+export default React.memo(FlowerLayer);

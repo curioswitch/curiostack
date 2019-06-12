@@ -23,7 +23,7 @@
  */
 
 import Konva from 'konva';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Sprite } from 'react-konva';
 
 interface Props {
@@ -38,50 +38,42 @@ interface Props {
   y?: number;
 }
 
-interface State {
-  image?: HTMLImageElement;
-}
+const KonvaSprite: React.FunctionComponent<Props> = (props) => {
+  const { onFrameIndexChange, src, started, ...others } = props;
 
-class KonvaSprite extends React.PureComponent<Props, State> {
-  public state: State = {
-    image: undefined,
-  };
+  const [image, setImage] = useState<HTMLImageElement>();
 
-  private node: React.RefObject<Konva.Sprite> = React.createRef();
+  const node = useRef<Konva.Sprite>(null);
 
-  public componentDidMount() {
-    const image = new Image();
-    image.onload = () => {
-      this.setState({
-        image,
-      });
+  useEffect(() => {
+    const domImage = new Image();
+    domImage.onload = () => {
+      if (!image) {
+        setImage(domImage);
+      }
     };
-    image.src = this.props.src;
-  }
+    domImage.src = src;
+  }, []);
 
-  public componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.started === this.props.started || !this.node.current) {
+  useEffect(() => {
+    if (!node.current) {
       return;
     }
-    if (nextProps.started) {
-      this.node.current.on('frameIndexChange', this.props.onFrameIndexChange);
-      this.node.current.start();
+
+    if (started) {
+      node.current.on('frameIndexChange', onFrameIndexChange);
+      node.current.start();
     } else {
-      this.node.current.off('frameIndexChange');
-      this.node.current.stop();
+      node.current.off('frameIndexChange');
+      node.current.stop();
     }
+  }, [started, node.current]);
+
+  if (!image) {
+    return null;
   }
 
-  public render() {
-    const { onFrameIndexChange, src, ...others } = this.props;
-    return (
-      <>
-        {this.state.image ? (
-          <Sprite ref={this.node} image={this.state.image} {...others} />
-        ) : null}
-      </>
-    );
-  }
-}
+  return <Sprite ref={node} image={image} {...others} />;
+};
 
-export default KonvaSprite;
+export default React.memo(KonvaSprite);
