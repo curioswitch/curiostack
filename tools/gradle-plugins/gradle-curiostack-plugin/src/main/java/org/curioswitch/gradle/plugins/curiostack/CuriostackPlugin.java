@@ -84,6 +84,7 @@ import org.curioswitch.gradle.plugins.nodejs.util.NodeUtil;
 import org.curioswitch.gradle.release.ReleasePlugin;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -165,8 +166,36 @@ public class CuriostackPlugin implements Plugin<Project> {
     rootProject.getTasks().register("setupGitHooks", SetupGitHooks.class);
     rootProject.getTasks().register("updateShellConfig", CreateShellConfigTask.class);
 
+    plugins.withType(
+        ToolDownloaderPlugin.class,
+        plugin ->
+            plugin.registerToolIfAbsent(
+                "openjdk8",
+                tool -> {
+                  var version = ToolDependencies.getOpenJdk8Version(rootProject);
+                  var binaryVersion = version.replace("-", "").substring("jdk".length());
+
+                  tool.getVersion().set(version);
+                  tool.getBaseUrl()
+                      .set("https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/");
+                  tool.getArtifactPattern()
+                      .set(
+                          "[revision]/OpenJDK8U-jdk_[classifier]_hotspot_"
+                              + binaryVersion
+                              + ".[ext]");
+                  var classifiers = tool.getOsClassifiers();
+                  classifiers.getLinux().set("x64_linux");
+                  classifiers.getMac().set("x64_mac");
+                  classifiers.getWindows().set("x64_windows");
+                }));
+
     var updateIntelliJJdks =
-        rootProject.getTasks().register("curioUpdateIntelliJJdks", UpdateIntelliJJdksTask.class);
+        rootProject
+            .getTasks()
+            .register(
+                "curioUpdateIntelliJJdks",
+                UpdateIntelliJJdksTask.class,
+                t -> t.dependsOn(DownloadToolUtil.getSetupTask(rootProject, "openjdk8")));
 
     rootProject
         .getTasks()
