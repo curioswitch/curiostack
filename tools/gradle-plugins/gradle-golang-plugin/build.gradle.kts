@@ -33,8 +33,8 @@ dependencies {
     compile(project(":tools:gradle-plugins:gradle-tool-downloader-plugin"))
     compile(project(":tools:gradle-plugins:gradle-helpers"))
 
-    compile("com.google.cloud.tools:jib-gradle-plugin:0.10.2-RAG1")
     compile("com.google.guava:guava")
+    compile("gradle.plugin.com.google.cloud.tools:jib-gradle-plugin")
 
     annotationProcessor("org.immutables:value")
     compileOnly("org.immutables:value-annotations")
