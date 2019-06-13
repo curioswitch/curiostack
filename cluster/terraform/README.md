@@ -139,6 +139,11 @@ Then run
 
 This will install Terraform 0.12 and set it up on your `PATH`.
 
+Update the provider versions referenced in your configuration to use patched versions
+
+- `kubernetes` -> `1.7.1-choko`
+- `k8s` -> `1.0.1-choko`
+
 For each terraform project, run `terraformPlan` and correct errors until you get output you expect.
 Except for your Kubernetes deployments, you should have no changes to apply.
 
@@ -186,3 +191,8 @@ Jinja templates, which are known to provide lots of expressiveness. We feel this
 power of templates, while also still the ability to issue raw commands without trouble since it is
 always possible to run `:terraformInit` and `cd build/terraform` to run terraform commands in the
 converted directory.
+
+#### Side-note
+
+Hope you enjoy not having to tell team members to install a new version of Terraform to continue to
+use it :)
