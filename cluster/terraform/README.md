@@ -87,6 +87,26 @@ After removing all the migrated resources, run `terraformPlan` again - there sho
 made. You're done! Clean out all the `default.tfstate` files left on your computer and merge and
 others can finally get back to using terraform.
 
+### Upgrade providers
+
+#### Upgrading to google 2.x
+
+`terraform-provider-google` 2.x splits out a separate provider named `google-beta` with access to
+GCP beta APIs. If you happen to be using beta APIs, see if it's safe to remove them, or otherwise
+just add `provider: google-beta` to the resource.
+
+#### Upgrading to kubernetes 1.7+
+
+`terraform-provider-kubernetes` 1.7+ have some backwards incompatible changes for deployments and
+ingresses.
+
+Deployments must specify `spec.selector.match_labels.*` instead of `spec.selector.*`.
+Deployments have a bad default for `spec.template.metadata.namespace` which will force all your
+deployments to be recreating, causing downtime. Stick to the correct behavior by setting it to `""`
+explicitly.
+
+Ingresses use `path` instead of `path_regex`.
+
 ### Upgrading to Terraform 0.12
 
 Terraform 0.12 is a major release with significant changes to the Terraform syntax language. It is
@@ -110,4 +130,3 @@ Convert the configs from YAML to JSON with e.g.,
 ```bash
 ./gradlew :cluster:terraform:sysadmin:main:terraformConvertConfigs
 ```
-

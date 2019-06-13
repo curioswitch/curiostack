@@ -49,6 +49,10 @@ variable:
     type: string
   tiller_server_cert:
     type: string
+  tiller_client_key:
+    type: string
+  tiller_client_cert:
+    type: string
   tiller_ca_cert:
     type: string
   depends_on:
@@ -84,7 +88,6 @@ resource:
       region: '${google_container_cluster.cluster.zone}'
       cluster: '${google_container_cluster.cluster.name}'
       initial_node_count: '${var.min_nodes_per_zone}'
-      max_pods_per_node: 110
       node_config:
         machine_type: '${var.machine_type}'
         image_type: COS_CONTAINERD

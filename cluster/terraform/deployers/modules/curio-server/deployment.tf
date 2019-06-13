@@ -16,7 +16,9 @@ resource kubernetes_deployment deployment {
   spec {
     replicas = "${var.replicas}"
     selector {
-      name = "${var.name}"
+      match_labels {
+        name = "${var.name}"
+      }
     }
     strategy {
       rolling_update {
@@ -35,6 +37,7 @@ resource kubernetes_deployment deployment {
         labels {
           name = "${var.name}"
         }
+        namespace = ""
       }
       spec {
         container {
