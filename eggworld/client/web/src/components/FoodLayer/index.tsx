@@ -37,28 +37,28 @@ interface Props {
   visible: boolean;
 }
 
-export default class FoodLayer extends React.PureComponent<Props> {
-  public render() {
-    const startingX = 20;
-    const deltaX = 380;
-    const topRowY = 800;
-    const bottomRowY = 1150;
-    return (
-      <Layer visible={this.props.visible}>
-        {this.props.ingredients.map(({ key, name, imageSrc }, i) => (
-          <Food
-            key={key}
-            ingredient={key}
-            x={startingX + (i % 3) * deltaX}
-            y={i < 3 ? topRowY : bottomRowY}
-            imageSrc={imageSrc}
-            name={name}
-            removed={this.props.eatenFood.includes(key)}
-            unusable={!this.props.usableFood.includes(key)}
-            onFoodDragged={this.props.onFoodDragged}
-          />
-        ))}
-      </Layer>
-    );
-  }
-}
+const FoodLayer: React.FunctionComponent<Props> = (props) => {
+  const startingX = 20;
+  const deltaX = 380;
+  const topRowY = 800;
+  const bottomRowY = 1150;
+  return (
+    <Layer visible={props.visible}>
+      {props.ingredients.map(({ key, name, imageSrc }, i) => (
+        <Food
+          key={key}
+          ingredient={key}
+          x={startingX + (i % 3) * deltaX}
+          y={i < 3 ? topRowY : bottomRowY}
+          imageSrc={imageSrc}
+          name={name}
+          removed={props.eatenFood.includes(key)}
+          unusable={!props.usableFood.includes(key)}
+          onFoodDragged={props.onFoodDragged}
+        />
+      ))}
+    </Layer>
+  );
+};
+
+export default React.memo(FoodLayer);

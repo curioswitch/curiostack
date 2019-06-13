@@ -23,55 +23,46 @@
  */
 
 import Konva from 'konva';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image as ReactKonvaImage, KonvaNodeEvents } from 'react-konva';
 
 type ImageConfig = Pick<
   Konva.ImageConfig,
-  Exclude<keyof Konva.ImageConfig, State>
+  Exclude<keyof Konva.ImageConfig, { image: any }>
 >;
 
 interface Props extends KonvaNodeEvents {
   src: string;
 }
 
-interface State {
-  image?: HTMLImageElement;
-}
+const KonvaImage: React.FunctionComponent<Props | ImageConfig> = (props) => {
+  const { src } = props;
 
-class KonvaImage extends React.PureComponent<Props | ImageConfig, State> {
-  public state: State = {
-    image: undefined,
-  };
+  const [image, setImage] = useState<HTMLImageElement>();
 
-  public componentDidMount() {
-    const image = new Image();
-    image.onload = () => {
-      if (!this.state.image) {
-        this.setState({
-          image,
-        });
+  useEffect(() => {
+    const domImage = new Image();
+    domImage.onload = () => {
+      if (!image) {
+        setImage(domImage);
       }
     };
-    image.src = this.props.src;
-  }
+    domImage.src = src;
+  }, []);
 
-  public componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.src === this.props.src || !this.state.image) {
+  useEffect(() => {
+    if (!image) {
       return;
     }
-    this.state.image.src = nextProps.src;
+
+    image.src = src;
+  }, [src, image]);
+
+  if (!image) {
+    return null;
   }
 
-  public render() {
-    return (
-      <>
-        {this.state.image ? (
-          <ReactKonvaImage image={this.state.image} {...this.props} />
-        ) : null}
-      </>
-    );
-  }
-}
+  return <ReactKonvaImage image={image} {...props} />;
+};
 
-export default KonvaImage;
+export default React.memo(KonvaImage);

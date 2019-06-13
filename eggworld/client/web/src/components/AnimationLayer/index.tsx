@@ -40,61 +40,59 @@ interface Props {
   visible: boolean;
 }
 
-export default class AnimationLayer extends React.PureComponent<Props> {
-  public render() {
-    return (
-      <Layer visible={this.props.visible}>
-        <KonvaSprite
-          src={mouthSpriteSrc}
-          x={450}
-          y={390}
-          animation={this.props.started ? 'eat' : 'idle'}
-          animations={{
-            idle: [0, 0, 170, 170],
-            eat: [
-              0,
-              0,
-              170,
-              170,
-              0,
-              220,
-              170,
-              170,
-              0,
-              440,
-              170,
-              170,
-              0,
-              660,
-              170,
-              170,
-              0,
-              440,
-              170,
-              170,
-              0,
-              220,
-              170,
-              170,
-            ],
-          }}
-          frameRate={10}
-          onFrameIndexChange={this.props.onMouthAnimationFrame}
-          started={this.props.started && this.props.visible}
-        />
-        <KonvaImage
-          src={hammerImageSrc}
-          x={300}
-          y={250}
-          width={300}
-          height={200}
-          offsetY={200}
-          rotation={this.props.hammerRotation}
-          visible={this.props.showHammer}
-          onClick={this.props.onHammerClick}
-          onTap={this.props.onHammerClick}
-        />
-      </Layer>
-    );
-  }
-}
+const AnimationLayer: React.FunctionComponent<Props> = (props) => (
+  <Layer visible={props.visible}>
+    <KonvaSprite
+      src={mouthSpriteSrc}
+      x={450}
+      y={390}
+      animation={props.started ? 'eat' : 'idle'}
+      animations={{
+        idle: [0, 0, 170, 170],
+        eat: [
+          0,
+          0,
+          170,
+          170,
+          0,
+          220,
+          170,
+          170,
+          0,
+          440,
+          170,
+          170,
+          0,
+          660,
+          170,
+          170,
+          0,
+          440,
+          170,
+          170,
+          0,
+          220,
+          170,
+          170,
+        ],
+      }}
+      frameRate={10}
+      onFrameIndexChange={props.onMouthAnimationFrame}
+      started={props.started && props.visible}
+    />
+    <KonvaImage
+      src={hammerImageSrc}
+      x={300}
+      y={250}
+      width={300}
+      height={200}
+      offsetY={200}
+      rotation={props.hammerRotation}
+      visible={props.showHammer}
+      onClick={props.onHammerClick}
+      onTap={props.onHammerClick}
+    />
+  </Layer>
+);
+
+export default React.memo(AnimationLayer);

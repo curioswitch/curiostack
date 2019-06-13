@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Layer } from 'react-konva';
 
 import Button from '../Button';
@@ -39,87 +39,97 @@ interface Props {
   selected: 'fruit' | 'meat' | 'other';
 }
 
-export default class MainLayer extends React.PureComponent<Props> {
-  public render() {
-    const { cooking, selected } = this.props;
-    return (
-      <Layer>
-        <KonvaImage
-          src={eggImageSrc}
-          width={1080}
-          height={760}
-          visible={!cooking}
-        />
-        <KonvaSprite
-          src={eggBreakingSpriteSrc}
-          animation="break"
-          animations={{
-            break: [
-              0,
-              0,
-              1080,
-              769,
-              0,
-              881,
-              1080,
-              769,
-              0,
-              1762,
-              1080,
-              769,
-              0,
-              2643,
-              1080,
-              769,
-            ],
-          }}
-          frameRate={3}
-          onFrameIndexChange={this.onEggBreakingFrameChange}
-          started={cooking}
-          visible={cooking}
-        />
-        <KonvaImage
-          src="http://static.yummly.com/api-logo.png"
-          x={884}
-          y={1880}
-          width={196}
-          height={40}
-        />
-        <Button
-          selected={selected === 'fruit'}
-          x={0}
-          y={720}
-          label="果物・野菜"
-          onClick={this.onSelectFruit}
-        />
-        <Button
-          selected={selected === 'meat'}
-          x={360}
-          y={720}
-          label="肉・乳製品"
-          onClick={this.onSelectMeat}
-        />
-        <Button
-          selected={selected === 'other'}
-          x={720}
-          y={720}
-          label="その他"
-          onClick={this.onSelectOther}
-        />
-      </Layer>
-    );
-  }
+const MainLayer: React.FunctionComponent<Props> = (props) => {
+  const { cooking, onEggBreakingDone, onSelectTab, selected } = props;
 
-  private onSelectFruit = () => this.props.onSelectTab('fruit');
+  const onSelectFruit = useCallback(() => {
+    onSelectTab('fruit');
+  }, [onSelectTab]);
 
-  private onSelectMeat = () => this.props.onSelectTab('meat');
+  const onSelectMeat = useCallback(() => {
+    onSelectTab('meat');
+  }, [onSelectTab]);
 
-  private onSelectOther = () => this.props.onSelectTab('other');
+  const onSelectOther = useCallback(() => {
+    onSelectTab('other');
+  }, [onSelectTab]);
 
-  private onEggBreakingFrameChange = (e: any) => {
-    if (e.newVal === 3) {
-      e.currentTarget.stop();
-      this.props.onEggBreakingDone();
-    }
-  };
-}
+  const onEggBreakingFrameChange = useCallback(
+    (e: any) => {
+      if (e.newVal === 3) {
+        e.currentTarget.stop();
+        onEggBreakingDone();
+      }
+    },
+    [onEggBreakingDone],
+  );
+
+  return (
+    <Layer>
+      <KonvaImage
+        src={eggImageSrc}
+        width={1080}
+        height={760}
+        visible={!cooking}
+      />
+      <KonvaSprite
+        src={eggBreakingSpriteSrc}
+        animation="break"
+        animations={{
+          break: [
+            0,
+            0,
+            1080,
+            769,
+            0,
+            881,
+            1080,
+            769,
+            0,
+            1762,
+            1080,
+            769,
+            0,
+            2643,
+            1080,
+            769,
+          ],
+        }}
+        frameRate={3}
+        onFrameIndexChange={onEggBreakingFrameChange}
+        started={cooking}
+        visible={cooking}
+      />
+      <KonvaImage
+        src="http://static.yummly.com/api-logo.png"
+        x={884}
+        y={1880}
+        width={196}
+        height={40}
+      />
+      <Button
+        selected={selected === 'fruit'}
+        x={0}
+        y={720}
+        label="果物・野菜"
+        onClick={onSelectFruit}
+      />
+      <Button
+        selected={selected === 'meat'}
+        x={360}
+        y={720}
+        label="肉・乳製品"
+        onClick={onSelectMeat}
+      />
+      <Button
+        selected={selected === 'other'}
+        x={720}
+        y={720}
+        label="その他"
+        onClick={onSelectOther}
+      />
+    </Layer>
+  );
+};
+
+export default React.memo(MainLayer);
