@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2018 Choko (choko@curioswitch.org)
+# Copyright (c) 2019 Choko (choko@curioswitch.org)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,26 +21,6 @@
 # SOFTWARE.
 #
 provider:
-  google:
-    version: "2.8.0"
-    project: "${var.project_id}"
-    region: asia-northeast1
-  google-beta:
-    version: "2.8.0"
-    project: "${var.project_id}"
-    region: asia-northeast1
-  gsuite:
-    credentials: "${base64decode(google_service_account_key.terraform_service_account.private_key)}"
-    impersonated_user_email: choko@curioswitch.org
-    oauth_scopes:
-      - https://www.googleapis.com/auth/admin.directory.group
-  helm:
-    version: "0.9.1"
-    namespace: tiller-prod
-    enable_tls: true
-    client_key: '${data.terraform_remote_state.tls.tiller-client-key}'
-    client_certificate: '${data.terraform_remote_state.tls.tiller-client-cert}'
-    ca_certificate: '${data.terraform_remote_state.tls.tiller-ca-cert}'
   kubernetes:
     version: "1.7.0"
     # Work around Terraform 0.11 limitation that multiple fields must be specified.

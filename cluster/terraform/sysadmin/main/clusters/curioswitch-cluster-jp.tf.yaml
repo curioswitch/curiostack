@@ -37,6 +37,8 @@ module:
     tf_crypto_key: '${google_kms_crypto_key.terraform_state_key.id}'
     tiller_server_key: '${data.terraform_remote_state.tls.tiller-server-key}'
     tiller_server_cert: '${data.terraform_remote_state.tls.tiller-server-cert}'
+    tiller_client_key: '${data.terraform_remote_state.tls.tiller-client-key}'
+    tiller_client_cert: '${data.terraform_remote_state.tls.tiller-client-cert}'
     tiller_ca_cert: '${data.terraform_remote_state.tls.tiller-ca-cert}'
     depends_on:
       - module.cluster-*
