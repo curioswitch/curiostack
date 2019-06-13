@@ -104,6 +104,8 @@ resource:
       name: "${google_project.sysadmin_project.project_id}-terraform"
       location: asia-northeast1
       project: "${google_project.sysadmin_project.project_id}"
+      versioning:
+        enabled: true
       depends_on:
       - google_project_service.sysadmin-compute
       lifecycle:
@@ -112,6 +114,8 @@ resource:
       name: "${google_project.primary_project.project_id}-deployers-terraform"
       location: asia-northeast1
       project: "${google_project.primary_project.project_id}"
+      versioning:
+        enabled: true
       depends_on:
       - google_project_service.primary-compute
       lifecycle:
