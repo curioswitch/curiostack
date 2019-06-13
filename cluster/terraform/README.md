@@ -147,7 +147,7 @@ Update the provider versions referenced in your configuration to use patched ver
 For each terraform project, run `terraformPlan` and correct errors until you get output you expect.
 Except for your Kubernetes deployments, you should have no changes to apply.
 
-Take a look at https://github.com/curioswitch/curiostack/pull/376 to see the migration for CurioStack.
+Take a look at https://github.com/curioswitch/curiostack/pull/377 to see the migration for CurioStack.
 You'll probably just need to do the same things.
 
 Some common migrations
