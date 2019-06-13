@@ -225,7 +225,7 @@ resource:
             - backend:
                 service_name: '${var.name}'
                 service_port: 8080
-              path_regex: /*
+              path: /*
         tls:
           secret_name: '${var.name}-tls'
           hosts:
@@ -245,19 +245,19 @@ resource:
             - backend:
                 service_name: '${var.name}-internal'
                 service_port: 8080
-              path_regex: /internal/*
+              path: /internal/*
             - backend:
                 service_name: '${var.name}-internal'
                 service_port: 8080
-              path_regex: /_gcp_gatekeeper/*
+              path: /_gcp_gatekeeper/*
             - backend:
                 service_name: '${var.name}-static'
                 service_port: 8080
-              path_regex: /static/*
+              path: /static/*
             - backend:
                 service_name: '${var.name}'
                 service_port: 8080
-              path_regex: /*
+              path: /*
         tls:
           secret_name: '${var.name}-tls'
           hosts:
