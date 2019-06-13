@@ -38,10 +38,10 @@ provider:
     version: "0.9.1"
     namespace: tiller-prod
     enable_tls: true
-    client_key: '${data.terraform_remote_state.tls.tiller-client-key}'
-    client_certificate: '${data.terraform_remote_state.tls.tiller-client-cert}'
-    ca_certificate: '${data.terraform_remote_state.tls.tiller-ca-cert}'
+    client_key: '${data.terraform_remote_state.tls.outputs.tiller-client-key}'
+    client_certificate: '${data.terraform_remote_state.tls.outputs.tiller-client-cert}'
+    ca_certificate: '${data.terraform_remote_state.tls.outputs.tiller-ca-cert}'
   kubernetes:
     version: "1.7.1-choko"
-    # Work around Terraform 0.11 limitation that multiple fields must be specified.
-    host: ""
+  k8s:
+    version: "1.0.1-choko"
