@@ -107,9 +107,20 @@ explicitly.
 
 Ingresses use `path` instead of `path_regex`.
 
+#### Note on terraform-provider-k8s
+
+`terraform-provider-k8s` is deprecated. It was a very useful provider for allowing managing any
+Kubernetes resource with Terraform, but has some tricky design issues due to spawning out to 
+`kubectl`. There is a new provider that similarly supports any Kubernetes resource but without using
+the CLI [here](https://github.com/mingfang/terraform-provider-k8s). It is very promising, but
+unfortunately currently requires using a forked version of Terraform 0.12, which we won't be doing
+here. Until then, it's recommended to use the normal `kubernetes` provider for as many resources as
+you can as we wait for this new provider to work with vanilla Terraform.
+
 ### Upgrading to Terraform 0.12
 
-Using Terraform 0.12 requires CurioStack 185.
+Using Terraform 0.12 requires CurioStack 185 and the latest versions of providers as documented
+above.
 
 Terraform 0.12 is a major release with significant changes to the Terraform syntax language. It is
 very unlikely that a 0.11 configuration will work with 0.12. As such, it will be several versions
