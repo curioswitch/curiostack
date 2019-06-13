@@ -40,5 +40,5 @@ module:
     tiller_client_key: '${data.terraform_remote_state.tls.tiller-client-key}'
     tiller_client_cert: '${data.terraform_remote_state.tls.tiller-client-cert}'
     tiller_ca_cert: '${data.terraform_remote_state.tls.tiller-ca-cert}'
-    depends_on:
+    depends_on_resources:
       - module.cluster-*

@@ -29,7 +29,7 @@ module:
     ca_private_key: "${var.ca_private_key}"
     ca_cert: "${var.ca_cert}"
     tf_crypto_key: "${var.tf_crypto_key}"
-    depends_on:
+    depends_on_resources:
       - google_container_cluster.cluster.endpoint
 resource:
   helm_release:

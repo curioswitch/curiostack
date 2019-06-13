@@ -4,10 +4,10 @@
 resource kubernetes_deployment deployment {
   depends_on = ["kubernetes_config_map.rpcacls"]
   lifecycle {
-    ignore_changes = ["metadata.0.labels.revision", "metadata.0.labels.%", "spec.0.template.0.metadata.0.labels.%", "spec.0.template.0.metadata.0.labels.revision"]
+    ignore_changes = ["metadata[0].labels.revision", "spec[0].template[0].metadata[0].labels.revision"]
   }
   metadata {
-    labels {
+    labels = {
       name = "${var.name}"
     }
     name = "${var.name}"
@@ -16,7 +16,7 @@ resource kubernetes_deployment deployment {
   spec {
     replicas = "${var.replicas}"
     selector {
-      match_labels {
+      match_labels = {
         name = "${var.name}"
       }
     }
@@ -28,13 +28,13 @@ resource kubernetes_deployment deployment {
     }
     template {
       metadata {
-        annotations {
+        annotations = {
           "prometheus.io/path" = "/internal/metrics"
           "prometheus.io/port" = "8080"
           "prometheus.io/scheme" = "https"
           "prometheus.io/scrape" = "true"
         }
-        labels {
+        labels = {
           name = "${var.name}"
         }
         namespace = ""
@@ -69,18 +69,16 @@ resource kubernetes_deployment deployment {
               ${var.extra_jvm_args}
             ARGS
           }
-          # Until HCL2 in next version of terraform, this hackery seems to be the only way to convert
-          # a list into some other form. Multiple hacks are combined to work around HCL1's many
-          # limitations. Don't even ask...
-          env_from = "${
-              slice(list(
-                map("secret_ref", list(map("name", element(concat(list(""), var.environment_secrets), 1)))),
-                map("secret_ref", list(map("name", element(concat(list(""), var.environment_secrets), 2)))),
-                map("secret_ref", list(map("name", element(concat(list(""), var.environment_secrets), 3)))),
-                map("secret_ref", list(map("name", element(concat(list(""), var.environment_secrets), 4)))),
-                map("secret_ref", list(map("name", element(concat(list(""), var.environment_secrets), 5)))),
-              ), 0, length(var.environment_secrets))
-          }"
+
+          dynamic "env_from" {
+            for_each = var.environment_secrets
+            content {
+              secret_ref {
+                name = env_from.value
+              }
+            }
+          }
+
           port {
             container_port = 8080
             name = "http"

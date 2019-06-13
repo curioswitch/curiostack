@@ -42,6 +42,6 @@ provider:
     client_certificate: '${data.terraform_remote_state.tls.tiller-client-cert}'
     ca_certificate: '${data.terraform_remote_state.tls.tiller-ca-cert}'
   kubernetes:
-    version: "1.7.0"
+    version: "1.7.1-choko"
     # Work around Terraform 0.11 limitation that multiple fields must be specified.
     host: ""

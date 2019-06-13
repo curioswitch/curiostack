@@ -123,10 +123,45 @@ Then run
 
 This will install Terraform 0.12 and set it up on your `PATH`.
 
-For each terraform project, do the following:
+For each terraform project, run `terraformPlan` and correct errors until you get output you expect.
 
-Convert the configs from YAML to JSON with e.g., 
+Some common migrations
 
-```bash
-./gradlew :cluster:terraform:sysadmin:main:terraformConvertConfigs
-```
+- Referencing a field as `x.0.y.0` is now `x[0].y[0]`
+- It was possible to assign maps without a `=`. Now, you will need to add `=`
+- `depends_on` is reserved, so cannot be used for the module dependencies [workaround](https://medium.com/@bonya/terraform-adding-depends-on-to-your-custom-modules-453754a8043e).
+Rename it to anything else.
+
+For projects that use the `kubernetes` provider, set the version to `1.7.1-choko`. The current `1.7.0`
+has a longstanding critical bug https://github.com/terraform-providers/terraform-provider-kubernetes/issues/201.
+`1.7.1-choko` is the same as `1.7.0` with this PR merged in. If you do not make this change, you will
+have downtime as deployments are recreated instead of updated.
+
+If you are using HCL for a `curio-server` deployment like this repository, you will find many whitespace
+and similar no-op changes applied to the deployment causing it to be updated. It should be safe to
+update resources for these changes. Do make sure the plan output shows the resource is _changed_, not
+_add_ and _destroy_ which would incur downtime.
+
+#### Note on YAML vs HCL
+
+CurioStack has up to now encouraged writing Terraform configuration in YAML instead of the official
+HCL. This is because it prevents having to learn yet-another-configuration-language and there was
+little advantage to using HCL. With Terraform 0.12, that has changed as first-class expression
+support make configurations in HCL far less noisy (e.g., you can use `field = var.foo` instead of
+having to interpolate with `field = '${var.foo}'`).
+
+On the flip side, many whitespace and default value changes when parsing the latest HCL cause differences
+in the state and no-op updates to resources. It would always be better to not have such no-op updates
+just when updating Terraform - it seems that JSON, which is the backend for our YAML support, has
+a more stable syntax and therefore less chance of no-op updates.
+
+Given these, CurioStack is switching to giving a slight recommendation towards using HCL, for its
+cleaner syntax, but YAML is also a great choice for stability and the ability to automatically
+generate them trivially. YAML support won't be dropped.
+
+It is also unclear whether the new dynamic resource definitions in 0.12 provide enough power to model
+all use cases. CurioStack will continue to use a conversion step to convert YAML to JSON and render
+Jinja templates, which are known to provide lots of expressiveness. We feel this provides both the
+power of templates, while also still the ability to issue raw commands without trouble since it is
+always possible to run `:terraformInit` and `cd build/terraform` to run terraform commands in the
+converted directory.

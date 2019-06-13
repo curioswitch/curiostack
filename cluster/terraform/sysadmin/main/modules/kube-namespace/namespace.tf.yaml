@@ -36,7 +36,7 @@ variable:
     type: string
   tf_crypto_key:
     type: string
-  depends_on:
+  depends_on_resources:
     type: list
     default: []
 data:

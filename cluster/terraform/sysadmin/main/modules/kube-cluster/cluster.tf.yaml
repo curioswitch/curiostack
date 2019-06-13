@@ -55,7 +55,7 @@ variable:
     type: string
   tiller_ca_cert:
     type: string
-  depends_on:
+  depends_on_resources:
     type: list
     default: []
 output:
