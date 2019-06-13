@@ -109,10 +109,15 @@ Ingresses use `path` instead of `path_regex`.
 
 ### Upgrading to Terraform 0.12
 
+Using Terraform 0.12 requires CurioStack 185.
+
 Terraform 0.12 is a major release with significant changes to the Terraform syntax language. It is
 very unlikely that a 0.11 configuration will work with 0.12. As such, it will be several versions
 before CurioStack defaults to using Terraform 0.12 to allow time for migration. Please go through
 the below steps to migrate your configuration to 0.12.
+
+First, BACKUP your Terraform state, most simply by downloading the state bucket(s). Once you apply
+with 0.12, you will not be able to go back without restoring a backup.
 
 Add `org.curioswitch.curiostack.tools.terraform = 0.12.2` to the top level `gradle.properties` file.
 Then run 
@@ -124,6 +129,10 @@ Then run
 This will install Terraform 0.12 and set it up on your `PATH`.
 
 For each terraform project, run `terraformPlan` and correct errors until you get output you expect.
+Except for your Kubernetes deployments, you should have no changes to apply.
+
+Take a look at https://github.com/curioswitch/curiostack/pull/376 to see the migration for CurioStack.
+You'll probably just need to do the same things.
 
 Some common migrations
 
@@ -131,6 +140,7 @@ Some common migrations
 - It was possible to assign maps without a `=`. Now, you will need to add `=`
 - `depends_on` is reserved, so cannot be used for the module dependencies [workaround](https://medium.com/@bonya/terraform-adding-depends-on-to-your-custom-modules-453754a8043e).
 Rename it to anything else.
+- `google_container_cluster.ip_allocation_policy` needs to be fully specified with `null` for some reason
 
 For projects that use the `kubernetes` provider, set the version to `1.7.1-choko`. The current `1.7.0`
 has a longstanding critical bug https://github.com/terraform-providers/terraform-provider-kubernetes/issues/201.
