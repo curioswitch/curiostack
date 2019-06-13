@@ -55,7 +55,7 @@ variable:
     type: string
   tiller_ca_cert:
     type: string
-  depends_on:
+  depends_on_resources:
     type: list
     default: []
 output:
@@ -66,6 +66,7 @@ output:
 resource:
   google_container_cluster:
     cluster:
+      provider: google-beta
       name: '${var.name}'
       region: '${var.region}'
       # For a regional cluster, this is not "additional" zones but the actual zones used.
@@ -81,7 +82,14 @@ resource:
         client_certificate_config:
           issue_client_certificate: false
       ip_allocation_policy:
-        create_subnetwork: false
+        - use_ip_aliases: true
+          create_subnetwork: false
+          cluster_ipv4_cidr_block: null
+          cluster_secondary_range_name: null
+          node_ipv4_cidr_block: null
+          services_ipv4_cidr_block: null
+          services_secondary_range_name: null
+          subnetwork_name: null
   google_container_node_pool:
     pool:
       name: 'pool-${var.machine_type}'

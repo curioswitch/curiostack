@@ -31,14 +31,14 @@ module:
     max_nodes_per_zone: 1
     zones:
       - asia-northeast1-a
-    ca_algorithm: '${data.terraform_remote_state.tls.cluster-ca-algorithm}'
-    ca_private_key: '${data.terraform_remote_state.tls.cluster-ca-key}'
-    ca_cert: '${data.terraform_remote_state.tls.cluster-ca-cert}'
+    ca_algorithm: '${data.terraform_remote_state.tls.outputs.cluster-ca-algorithm}'
+    ca_private_key: '${data.terraform_remote_state.tls.outputs.cluster-ca-key}'
+    ca_cert: '${data.terraform_remote_state.tls.outputs.cluster-ca-cert}'
     tf_crypto_key: '${google_kms_crypto_key.terraform_state_key.id}'
-    tiller_server_key: '${data.terraform_remote_state.tls.tiller-server-key}'
-    tiller_server_cert: '${data.terraform_remote_state.tls.tiller-server-cert}'
-    tiller_client_key: '${data.terraform_remote_state.tls.tiller-client-key}'
-    tiller_client_cert: '${data.terraform_remote_state.tls.tiller-client-cert}'
-    tiller_ca_cert: '${data.terraform_remote_state.tls.tiller-ca-cert}'
-    depends_on:
+    tiller_server_key: '${data.terraform_remote_state.tls.outputs.tiller-server-key}'
+    tiller_server_cert: '${data.terraform_remote_state.tls.outputs.tiller-server-cert}'
+    tiller_client_key: '${data.terraform_remote_state.tls.outputs.tiller-client-key}'
+    tiller_client_cert: '${data.terraform_remote_state.tls.outputs.tiller-client-cert}'
+    tiller_ca_cert: '${data.terraform_remote_state.tls.outputs.tiller-ca-cert}'
+    depends_on_resources:
       - module.cluster-*

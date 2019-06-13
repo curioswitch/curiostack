@@ -27,7 +27,6 @@ package org.curioswitch.gradle.plugins.terraform;
 import static com.google.common.base.Preconditions.checkState;
 
 import java.nio.file.Files;
-import java.nio.file.Path;
 import org.curioswitch.gradle.golang.GolangSetupPlugin;
 import org.curioswitch.gradle.golang.tasks.GoTask;
 import org.curioswitch.gradle.helpers.platform.PathUtil;
@@ -37,7 +36,6 @@ import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.Delete;
 
@@ -105,28 +103,83 @@ public class TerraformSetupPlugin implements Plugin<Project> {
 
                     tool.getPathSubDirs().add("");
                   });
+
+              plugin.registerToolIfAbsent(
+                  "terraform-provider-kubernetes-choko",
+                  tool -> {
+                    tool.getVersion().set("1.7.1-choko");
+                    tool.getBaseUrl()
+                        .set(
+                            "https://github.com/chokoswitch/terraform-provider-kubernetes/archive/v1.7.1-choko.zip");
+                    tool.getArtifactPattern().set("");
+                  });
+
+              plugin.registerToolIfAbsent(
+                  "terraform-provider-k8s-choko",
+                  tool -> {
+                    tool.getVersion().set("1.0.1-choko");
+                    tool.getBaseUrl()
+                        .set(
+                            "https://github.com/chokoswitch/terraform-provider-k8s/archive/v1.0.1-choko.zip");
+                    tool.getArtifactPattern().set("");
+                  });
             });
 
-    var goBinDir =
-        ((Path)
-                project
-                    .getRootProject()
-                    .getExtensions()
-                    .getByType(ExtraPropertiesExtension.class)
-                    .get("gopath"))
-            .resolve("bin");
-    var terraformDownloadK8s =
+    var terraformBuildK8s =
         project
             .getTasks()
             .register(
-                "terraformDownloadK8sProvider",
+                "terraformBuildK8sProvider",
                 GoTask.class,
                 t -> {
-                  t.args("get", "github.com/ericchiang/terraform-provider-k8s");
+                  t.dependsOn(
+                      DownloadToolUtil.getSetupTask(project, "terraform-provider-k8s-choko"));
+                  t.args("build", "-o", PathUtil.getExeName("terraform-provider-k8s_v1.0.1-choko"));
+                  t.execCustomizer(
+                      exec ->
+                          exec.workingDir(
+                              DownloadedToolManager.get(project)
+                                  .getToolDir("terraform-provider-k8s-choko")
+                                  .resolve("terraform-provider-k8s-1.0.1-choko")));
                   t.onlyIf(
                       unused ->
                           !Files.exists(
-                              goBinDir.resolve(PathUtil.getExeName("terraform-provider-k8s"))));
+                              DownloadedToolManager.get(project)
+                                  .getToolDir("terraform-provider-k8s-choko")
+                                  .resolve("terraform-provider-k8s-1.0.1-choko")
+                                  .resolve(
+                                      PathUtil.getExeName("terraform-provider-k8s_v1.0.1-choko"))));
+                });
+
+    var terraformBuildKubernetesFork =
+        project
+            .getTasks()
+            .register(
+                "terraformBuildKubernetesForkProvider",
+                GoTask.class,
+                t -> {
+                  t.dependsOn(
+                      DownloadToolUtil.getSetupTask(
+                          project, "terraform-provider-kubernetes-choko"));
+                  t.args(
+                      "build",
+                      "-o",
+                      PathUtil.getExeName("terraform-provider-kubernetes_v1.7.1-choko"));
+                  t.execCustomizer(
+                      exec ->
+                          exec.workingDir(
+                              DownloadedToolManager.get(project)
+                                  .getToolDir("terraform-provider-kubernetes-choko")
+                                  .resolve("terraform-provider-kubernetes-1.7.1-choko")));
+                  t.onlyIf(
+                      unused ->
+                          !Files.exists(
+                              DownloadedToolManager.get(project)
+                                  .getToolDir("terraform-provider-kubernetes-choko")
+                                  .resolve("terraform-provider-kubernetes-1.7.1-choko")
+                                  .resolve(
+                                      PathUtil.getExeName(
+                                          "terraform-provider-kubernetes_v1.7.1-choko"))));
                 });
 
     var setupTerraformGsuiteProvider =
@@ -142,6 +195,7 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                   var terraformDir = DownloadedToolManager.get(project).getBinDir("terraform");
                   t.delete(
                       terraformDir.resolve(PathUtil.getExeName("terraform-provider-kubernetes")));
+                  t.delete(terraformDir.resolve(PathUtil.getExeName("terraform-provider-k8s")));
                   t.delete(terraformDir.resolve(PathUtil.getExeName("terraform-provider-gsuite")));
                 });
 
@@ -153,12 +207,20 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                 Copy.class,
                 t -> {
                   t.dependsOn(
-                      terraformDownloadK8s,
+                      terraformBuildK8s,
                       setupTerraformGsuiteProvider,
+                      terraformBuildKubernetesFork,
                       terraformDeleteOldPlugins);
                   t.into(DownloadedToolManager.get(project).getBinDir("terraform"));
-                  t.from(goBinDir);
                   t.from(DownloadedToolManager.get(project).getBinDir("terraform-provider-gsuite"));
+                  t.from(
+                      DownloadedToolManager.get(project)
+                          .getToolDir("terraform-provider-kubernetes-choko")
+                          .resolve("terraform-provider-kubernetes-1.7.1-choko"));
+                  t.from(
+                      DownloadedToolManager.get(project)
+                          .getToolDir("terraform-provider-k8s-choko")
+                          .resolve("terraform-provider-k8s-1.0.1-choko"));
                   t.include("terraform-provider-*");
                 });
 

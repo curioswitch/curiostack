@@ -5,21 +5,3 @@ data:
       config:
         bucket: curioswitch-cluster-sysadmin-terraform
         prefix: tls
-
-# For Gradle's outputing of certs for helm's use.
-output:
-  tiller-ca-cert:
-    value: '${data.terraform_remote_state.tls.tiller-ca-cert}'
-    sensitive: true
-  tiller-server-key:
-    value: '${data.terraform_remote_state.tls.tiller-server-key}'
-    sensitive: true
-  tiller-server-cert:
-    value: '${data.terraform_remote_state.tls.tiller-server-cert}'
-    sensitive: true
-  tiller-client-key:
-    value: '${data.terraform_remote_state.tls.tiller-client-key}'
-    sensitive: true
-  tiller-client-cert:
-    value: '${data.terraform_remote_state.tls.tiller-client-cert}'
-    sensitive: true
