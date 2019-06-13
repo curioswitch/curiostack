@@ -2,7 +2,7 @@
 
 ## Common and uncommon operations
 
-# Slitting up a configuration
+### Splitting up a configuration
 
 It is possible to split up a large terraform configuration into multiple ones backed by 
 individual states. This is useful to speed up terraform operations for teams that only
@@ -86,3 +86,28 @@ $ terraform rm resource.name
 After removing all the migrated resources, run `terraformPlan` again - there should be no changes to
 made. You're done! Clean out all the `default.tfstate` files left on your computer and merge and
 others can finally get back to using terraform.
+
+### Upgrading to Terraform 0.12
+
+Terraform 0.12 is a major release with significant changes to the Terraform syntax language. It is
+very unlikely that a 0.11 configuration will work with 0.12. As such, it will be several versions
+before CurioStack defaults to using Terraform 0.12 to allow time for migration. Please go through
+the below steps to migrate your configuration to 0.12.
+
+Add `org.curioswitch.curiostack.tools.terraform = 0.12.2` to the top level `gradle.properties` file.
+Then run 
+
+```bash
+./gradlew :toolsSetupTerraform
+``` 
+
+This will install Terraform 0.12 and set it up on your `PATH`.
+
+For each terraform project, do the following:
+
+Convert the configs from YAML to JSON with e.g., 
+
+```bash
+./gradlew :cluster:terraform:sysadmin:main:terraformConvertConfigs
+```
+
