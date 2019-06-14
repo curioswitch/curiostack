@@ -230,12 +230,17 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
   }
 
   /**
-   * Deletes the given {@code key} from the remoteCache cache. This can be used to invalidate remote
-   * caches. It is not practical to invalidate local caches remotely, so this is only useful if the
-   * local cache is disabled everywhere (i.e., {@code localCacheSpec} is null on construction).
+   * Deletes the given {@code key} from the remote cache. This can be used to invalidate remote
+   * caches. It is not practical to invalidate local caches across servers, so this is only useful
+   * if the local cache is disabled everywhere (i.e., {@code localCacheSpec} is null on
+   * construction).
+   *
+   * @return a {@link ListenableFuture} which completes with {@code true} if the key was present and
+   *     deleted or {@code false} if the key was not present at all.
    */
-  public void deleteFromRedis(K key) {
-    remoteCache.del(key);
+  public ListenableFuture<Boolean> deleteFromRedis(K key) {
+    return CompletableFuturesExtra.toListenableFuture(
+        remoteCache.del(key).thenApply(num -> num == 1));
   }
 
   @SuppressWarnings("FutureReturnValueIgnored") // Intentional
