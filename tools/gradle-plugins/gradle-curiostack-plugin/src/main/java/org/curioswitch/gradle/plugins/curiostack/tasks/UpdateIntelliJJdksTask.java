@@ -38,9 +38,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
+import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
 
 /**
@@ -53,6 +56,10 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
   @VisibleForTesting static final String JDK_FOLDER_NAME = "jdk-11.0.3+7";
 
   @VisibleForTesting static final String JAVA_VERSION = "11.0.3";
+
+  @VisibleForTesting static final String JAVA_8_VERSION = "1.8.0_212";
+
+  @VisibleForTesting static final String JDK_8_FOLDER_NAME = "jdk8u212-b04/jdk8u212-b04";
 
   private static final List<String> JAVA_MODULES =
       ImmutableList.of(
@@ -128,6 +135,32 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
           "jdk.xml.dom",
           "jdk.zipfs");
 
+  private static final List<String> JAVA_8_JARS =
+      ImmutableList.of(
+          "charsets.jar",
+          "deploy.jar",
+          "ext/access-bridge-64.jar",
+          "ext/cldrdata.jar",
+          "ext/dnsns.jar",
+          "ext/jaccess.jar",
+          "ext/jfxrt.jar",
+          "ext/localedata.jar",
+          "ext/nashorn.jar",
+          "ext/sunec.jar",
+          "ext/sunjce_provider.jar",
+          "ext/sunmscapi.jar",
+          "ext/sunpkcs11.jar",
+          "ext/zipfs.jar",
+          "javaws.jar",
+          "jce.jar",
+          "jfr.jar",
+          "jfxswt.jar",
+          "jsse.jar",
+          "management-agent.jar",
+          "plugin.jar",
+          "resources.jar",
+          "rt.jar");
+
   private static final String EMPTY_JDK_TABLE =
       "<application>\n"
           + "  <component name=\"ProjectJdkTable\">\n"
@@ -160,13 +193,29 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
         .getLogger()
         .info("Updating IntelliJ folder {}, found folders {}", intelliJFolder, intelliJFolders);
 
+    var jdkTable =
+        Files.createDirectories(intelliJFolder.resolve("config/options")).resolve("jdk.table.xml");
+    updateConfig(
+        jdkTable,
+        JDK_FOLDER_NAME,
+        "11",
+        "curiostack/openjdk-intellij-table-snippet.template.xml",
+        ImmutableMap.of("javaVersion", JAVA_VERSION, "javaModules", JAVA_MODULES),
+        getProject());
+  }
+
+  private static void updateConfig(
+      Path jdkTable,
+      String jdkSubFolder,
+      String jdkName,
+      String templatePath,
+      Map<String, Object> templateVars,
+      Project project)
+      throws IOException {
     String jdkFolder =
-        getProject()
-            .getGradle()
-            .getGradleUserHomeDir()
-            .toPath()
-            .resolve("curiostack/openjdk")
-            .resolve(JDK_FOLDER_NAME)
+        CommandUtil.getCuriostackDir(project)
+            .resolve("openjdk")
+            .resolve(jdkSubFolder)
             .toAbsolutePath()
             .toString();
     if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
@@ -175,15 +224,19 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
       jdkFolder = jdkFolder.replace('\\', '/');
     }
 
-    var jdkTable =
-        Files.createDirectories(intelliJFolder.resolve("config/options")).resolve("jdk.table.xml");
+    templateVars =
+        ImmutableMap.<String, Object>builder()
+            .putAll(templateVars)
+            .put("jdkFolder", jdkFolder)
+            .build();
+
     final String existingJdks;
     if (Files.exists(jdkTable)) {
       existingJdks = Files.readString(jdkTable);
       // Do a quick simple check for our openjdk path, if it exists as a string at all we should
       // already be good.
       if (existingJdks.contains(jdkFolder)) {
-        getProject()
+        project
             .getLogger()
             .info("OpenJDK already configured in IntelliJ config, not doing anything.");
         return;
@@ -193,7 +246,6 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
     }
 
     List<String> existingJdksLines = existingJdks.lines().collect(toImmutableList());
-
     // To minimize dependence on the IntelliJ JDK XML format, we print out existing content as is.
     var updatedTables =
         ImmutableList.<String>builderWithExpectedSize(existingJdksLines.size() + 100);
@@ -205,8 +257,8 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
         break;
       }
       updatedTables.add(line);
-      if (line.contains("<name value=\"11\"")) {
-        addJdkSnippet(jdkFolder, updatedTables, true);
+      if (line.contains("<name value=\"" + jdkName + "\"")) {
+        addJdkSnippet(templatePath, templateVars, updatedTables, true);
         updatedExistingJdk = true;
         for (; lineIndex < existingJdksLines.size(); lineIndex++) {
           if (line.contains("</jdk>")) {
@@ -217,7 +269,7 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
     }
 
     if (!updatedExistingJdk) {
-      addJdkSnippet(jdkFolder, updatedTables, false);
+      addJdkSnippet(templatePath, templateVars, updatedTables, false);
     }
 
     updatedTables.add("  </component>").add("</application>");
@@ -226,19 +278,17 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
   }
 
   private static void addJdkSnippet(
-      String jdkFolder, ImmutableList.Builder<String> lines, boolean skipStart) throws IOException {
+      String templatePath,
+      Map<String, Object> templateVars,
+      ImmutableList.Builder<String> lines,
+      boolean skipStart)
+      throws IOException {
     Jinjava jinjava = new Jinjava();
 
     String template =
-        Resources.toString(
-            Resources.getResource("curiostack/openjdk-intellij-table-snippet.template.xml"),
-            StandardCharsets.UTF_8);
+        Resources.toString(Resources.getResource(templatePath), StandardCharsets.UTF_8);
 
-    String rendered =
-        jinjava.render(
-            template,
-            ImmutableMap.of(
-                "jdkFolder", jdkFolder, "javaVersion", JAVA_VERSION, "javaModules", JAVA_MODULES));
+    String rendered = jinjava.render(template, templateVars);
 
     rendered.lines().skip(skipStart ? 2 : 0).forEach(lines::add);
   }
