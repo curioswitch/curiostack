@@ -813,6 +813,11 @@ public class CuriostackPlugin implements Plugin<Project> {
         .orElseGet(() -> parent.appendNode(type, attributes));
   }
 
+  private static Node findOrCreateChild(Node parent, String type) {
+    return findChild(parent, node -> node.name().equals(type))
+        .orElseGet(() -> parent.appendNode(type));
+  }
+
   private static void setOption(Node component, String name, String value) {
     findOrCreateChild(component, "option", name).attributes().put("value", value);
   }
@@ -824,15 +829,12 @@ public class CuriostackPlugin implements Plugin<Project> {
   private static void setupProjectXml(Project project, XmlProvider xml) {
     Node typescriptCompiler = findOrCreateChild(xml.asNode(), "component", "TypeScriptCompiler");
     setOption(
-        typescriptCompiler,
-        "typeScriptServiceDirectory",
-        project.file("node_modules/typescript").getAbsolutePath());
-    setOption(
         typescriptCompiler, "nodeInterpreterTextField", NodeUtil.getNodeExe(project).toString());
-    setOption(typescriptCompiler, "versionType", "SERVICE_DIRECTORY");
 
-    Node angularComponent = findOrCreateChild(xml.asNode(), "component", "AngularJSSettings");
-    setOption(angularComponent, "useService", "false");
+    Node eslintConfiguration = findOrCreateChild(xml.asNode(), "component", "EslintConfiguration");
+    findOrCreateChild(eslintConfiguration, "extra-options")
+        .attributes()
+        .put("value", "--ext .js,.ts,.jsx,.tsx");
 
     Node inspectionManager =
         findOrCreateChild(xml.asNode(), "component", "InspectionProjectProfileManager");
@@ -843,31 +845,30 @@ public class CuriostackPlugin implements Plugin<Project> {
     setOption(profile, "myName", "Project Default");
     findChild(
             profile,
-            n -> n.name().equals("inspection_tool") && "TsLint".equals(n.attribute("class")))
+            n -> n.name().equals("inspection_tool") && "EsLint".equals(n.attribute("class")))
         .orElseGet(
             () ->
                 profile.appendNode(
                     "inspection_tool",
                     ImmutableMap.of(
                         "class",
-                        "TsLint",
+                        "EsLint",
                         "enabled",
                         "true",
                         "level",
-                        "ERROR",
+                        "WARNING",
                         "enabled_by_default",
                         "true")));
   }
 
   private static void setupWorkspaceXml(Project project, XmlProvider xml) {
     Node properties = findOrCreateChild(xml.asNode(), "component", "PropertiesComponent");
+    setProperty(properties, "js.linters.configure.manually.selectedeslint", "true");
     setProperty(
-        properties, "node.js.path.for.package.tslint", NodeUtil.getNodeExe(project).toString());
-    setProperty(properties, "node.js.detected.package.tslint", "true");
+        properties, "node.js.path.for.package.eslint", NodeUtil.getNodeExe(project).toString());
+    setProperty(properties, "node.js.detected.package.eslint", "true");
+    setProperty(properties, "node.js.selected.package.eslint", "$PROJECT_DIR$/node_modules/eslint");
     setProperty(
-        properties,
-        "node.js.selected.package.tslint",
-        project.file("node_modules/tslint").getAbsolutePath());
-    setProperty(properties, "typescript-compiler-editor-notification", "false");
+        properties, "settings.editor.selected.configurable", "settings.javascript.linters.eslint");
   }
 }
