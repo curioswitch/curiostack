@@ -52,6 +52,8 @@ import org.gradle.api.tasks.TaskAction;
  */
 public class UpdateIntelliJJdksTask extends DefaultTask {
 
+  @VisibleForTesting static final String LATEST_INTELLIJ_CONFIG_FOLDER = ".IntelliJIdea2019.1";
+
   // TODO(choko): Use the same variable when generating get-jdk.sh and here.
   @VisibleForTesting static final String JDK_FOLDER_NAME = "jdk-11.0.3+7";
 
@@ -183,12 +185,16 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
               .collect(toImmutableList());
     }
 
-    if (intelliJFolders.isEmpty()) {
-      getProject().getLogger().info("No IntelliJ config folder found, not setting up JDKs.");
-      return;
+    final Path intelliJFolder;
+    if (!intelliJFolders.isEmpty()) {
+      intelliJFolder = Iterables.getLast(intelliJFolders);
+    } else {
+      getProject()
+          .getLogger()
+          .info("No IntelliJ config folder found, writing to default location.");
+      intelliJFolder = userHome.resolve(LATEST_INTELLIJ_CONFIG_FOLDER);
     }
 
-    Path intelliJFolder = Iterables.getLast(intelliJFolders);
     getProject()
         .getLogger()
         .info("Updating IntelliJ folder {}, found folders {}", intelliJFolder, intelliJFolders);
@@ -201,6 +207,13 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
         "11",
         "curiostack/openjdk-intellij-table-snippet.template.xml",
         ImmutableMap.of("javaVersion", JAVA_VERSION, "javaModules", JAVA_MODULES),
+        getProject());
+    updateConfig(
+        jdkTable,
+        JDK_8_FOLDER_NAME,
+        "1.8",
+        "curiostack/openjdk-8-intellij-table-snippet.template.xml",
+        ImmutableMap.of("javaVersion", JAVA_8_VERSION, "javaModules", JAVA_8_JARS),
         getProject());
   }
 

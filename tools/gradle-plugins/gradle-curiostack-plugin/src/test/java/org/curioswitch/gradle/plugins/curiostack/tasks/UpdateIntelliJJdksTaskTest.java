@@ -24,7 +24,6 @@
 
 package org.curioswitch.gradle.plugins.curiostack.tasks;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static org.curioswitch.common.testing.assertj.CurioAssertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
@@ -35,7 +34,6 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import org.curioswitch.gradle.testing.GradleTempDirectories;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.AfterEach;
@@ -79,13 +77,9 @@ class UpdateIntelliJJdksTaskTest {
   void noIntelliJFolders() throws Exception {
     task.exec();
 
-    final List<Path> homeFiles;
-    try (var s = Files.list(testUserHome)) {
-      homeFiles = s.collect(toImmutableList());
-    }
-
-    // Didn't do anything, should just have the original state.
-    assertThat(homeFiles).extracting(p -> p.getFileName().toString()).containsExactly("curiotest");
+    assertThat(testUserHome.resolve(".IntelliJIdea2019.1").resolve("config/options/jdk.table.xml"))
+        .hasContent(
+            testTemplate("update-intellij-jdks-task-test-tables/only-curio-openjdk.template.xml"));
   }
 
   @Test
@@ -159,6 +153,8 @@ class UpdateIntelliJJdksTaskTest {
         ImmutableMap.of(
             "gradleHome", testGradleHome.toAbsolutePath().toString().replace('\\', '/'),
             "jdkFolder", UpdateIntelliJJdksTask.JDK_FOLDER_NAME,
-            "javaVersion", UpdateIntelliJJdksTask.JAVA_VERSION));
+            "javaVersion", UpdateIntelliJJdksTask.JAVA_VERSION,
+            "jdk8Folder", UpdateIntelliJJdksTask.JDK_8_FOLDER_NAME,
+            "java8Version", UpdateIntelliJJdksTask.JAVA_8_VERSION));
   }
 }
