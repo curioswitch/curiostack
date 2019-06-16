@@ -12,7 +12,7 @@
         <classPath>
           <root type="composite">
             {%- for module in javaModules %}
-            <root url="jrt://{{ jdkFolder }}/jre/lib/{{ module }}!/" type="simple" />
+            <root url="jar://{{ jdkFolder }}/jre/lib/{{ module }}!/" type="simple" />
             {%- endfor %}
           </root>
         </classPath>
@@ -21,8 +21,8 @@
         </javadocPath>
         <sourcePath>
           <root type="composite">
-            <root url="jar://{{ jdkFolder }}/src.zip!" type="simple" />
-            <root url="jar://{{ jdkFolder }}/javafx-src.zip!" type="simple" />
+            <root url="jar://{{ jdkFolder }}/src.zip!/" type="simple" />
+            <root url="jar://{{ jdkFolder }}/javafx-src.zip!/" type="simple" />
           </root>
         </sourcePath>
       </roots>
