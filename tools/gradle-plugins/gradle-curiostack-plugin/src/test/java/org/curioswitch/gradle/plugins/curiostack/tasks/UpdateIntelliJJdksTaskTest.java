@@ -77,7 +77,10 @@ class UpdateIntelliJJdksTaskTest {
   void noIntelliJFolders() throws Exception {
     task.exec();
 
-    assertThat(testUserHome.resolve(".IntelliJIdea2019.1").resolve("config/options/jdk.table.xml"))
+    assertThat(
+            testUserHome
+                .resolve(UpdateIntelliJJdksTask.LATEST_INTELLIJ_CONFIG_FOLDER)
+                .resolve("config/options/jdk.table.xml"))
         .hasContent(
             testTemplate("update-intellij-jdks-task-test-tables/only-curio-openjdk.template.xml"));
   }
