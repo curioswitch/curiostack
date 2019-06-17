@@ -266,16 +266,14 @@ public class CuriostackPlugin implements Plugin<Project> {
                 .withType(
                     IdeaPlugin.class,
                     plugin -> {
-                      plugin
-                          .getModel()
-                          .getProject()
-                          .getIpr()
-                          .withXml(provider -> setupProjectXml(rootProject, provider));
-                      plugin
-                          .getModel()
-                          .getWorkspace()
-                          .getIws()
-                          .withXml(provider -> setupWorkspaceXml(rootProject, provider));
+                      var ipr = plugin.getModel().getProject().getIpr();
+                      ipr.whenMerged(
+                          unused ->
+                              ipr.withXml(provider -> setupProjectXml(rootProject, provider)));
+                      var iws = plugin.getModel().getWorkspace().getIws();
+                      iws.whenMerged(
+                          unused ->
+                              iws.withXml(provider -> setupWorkspaceXml(rootProject, provider)));
                     }));
 
     Map<String, CheckSeverity> errorProneChecks =
