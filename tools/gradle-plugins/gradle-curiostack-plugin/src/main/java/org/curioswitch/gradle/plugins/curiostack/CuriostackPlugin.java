@@ -197,12 +197,15 @@ public class CuriostackPlugin implements Plugin<Project> {
                 UpdateIntelliJJdksTask.class,
                 t -> t.dependsOn(DownloadToolUtil.getSetupTask(rootProject, "openjdk8")));
 
+    var idea = rootProject.getTasks().named("idea");
+    idea.configure(t -> t.dependsOn(updateIntelliJJdks));
+
     rootProject
         .getTasks()
         .register(
             "setup",
             t -> {
-              t.dependsOn(updateIntelliJJdks);
+              t.dependsOn(idea);
               t.dependsOn(rootProject.getTasks().named("toolsSetupAll"));
               t.dependsOn("updateShellConfig");
             });
