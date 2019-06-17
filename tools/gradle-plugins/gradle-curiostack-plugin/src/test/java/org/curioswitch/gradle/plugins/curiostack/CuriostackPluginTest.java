@@ -91,12 +91,12 @@ class CuriostackPluginTest {
       assertThat(
               GradleRunner.create()
                   .withProjectDir(projectDir.toFile())
-                  .withArguments("toolsSetupOpenjdk8")
+                  .withArguments("toolsSetupOpenjdk")
                   .withPluginClasspath()
                   .withTestKitDir(gradleUserHome.toFile()))
           .builds()
-          .tasksDidSucceed(":toolsSetupOpenjdk8");
-      assertThat(gradleUserHome.resolve("curiostack/openjdk8")).exists();
+          .tasksDidSucceed(":toolsSetupOpenjdk");
+      assertThat(gradleUserHome.resolve("curiostack/openjdk")).exists();
     }
   }
 }

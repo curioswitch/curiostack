@@ -170,7 +170,7 @@ public class CuriostackPlugin implements Plugin<Project> {
         ToolDownloaderPlugin.class,
         plugin ->
             plugin.registerToolIfAbsent(
-                "openjdk8",
+                "openjdk",
                 tool -> {
                   var version = ToolDependencies.getOpenJdk8Version(rootProject);
                   var binaryVersion = version.replace("-", "").substring("jdk".length());
@@ -195,7 +195,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             .register(
                 "curioUpdateIntelliJJdks",
                 UpdateIntelliJJdksTask.class,
-                t -> t.dependsOn(DownloadToolUtil.getSetupTask(rootProject, "openjdk8")));
+                t -> t.dependsOn(DownloadToolUtil.getSetupTask(rootProject, "openjdk")));
 
     var idea = rootProject.getTasks().named("idea");
     idea.configure(t -> t.dependsOn(updateIntelliJJdks));
@@ -855,7 +855,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                     "inspection_tool",
                     ImmutableMap.of(
                         "class",
-                        "EsLint",
+                        "Eslint",
                         "enabled",
                         "true",
                         "level",

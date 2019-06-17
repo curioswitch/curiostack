@@ -55,7 +55,7 @@ if [ -z "$CI" ]; then
     mkdir -p "$OPENJDK_DIR"
 
     echo "Downloading OpenJDK"
-    curl -L "$SRC" -o "$DEST"
+    wget -O "$DEST" "$SRC" || curl -L "$SRC" -o "$DEST"
 
     if "$windows" = "true"; then
       unzip "$DEST" -d "$OPENJDK_DIR"
