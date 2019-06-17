@@ -77,7 +77,6 @@ dependencies {
     compile 'com.google.guava:guava'
     compile 'com.hubspot.jinjava:jinjava'
     compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin'
-    compile 'com.palantir:gradle-baseline-java'
     compile 'gradle.plugin.com.boxfuse.client:gradle-plugin-publishing'
     compile 'gradle.plugin.com.google.cloud.tools:jib-gradle-plugin'
     compile 'gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties'

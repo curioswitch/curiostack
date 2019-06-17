@@ -99,4 +99,28 @@ class CuriostackPluginTest {
       assertThat(gradleUserHome.resolve("curiostack/openjdk")).exists();
     }
   }
+
+  @SuppressWarnings("ClassCanBeStatic")
+  @Nested
+  class ConfiguresIntelliJProject {
+
+    private Path projectDir;
+
+    @BeforeAll
+    void copyProject() {
+      projectDir =
+          ResourceProjects.fromResources("test-projects/gradle-curiostack-plugin/kitchen-sink");
+    }
+
+    @Test
+    void normal() throws Exception {
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir.toFile())
+                  .withArguments("idea", "-xtoolsDownloadOpenjdk", "-xcurioUpdateIntelliJJdks")
+                  .withPluginClasspath())
+          .builds()
+          .tasksDidSucceed(":idea");
+    }
+  }
 }

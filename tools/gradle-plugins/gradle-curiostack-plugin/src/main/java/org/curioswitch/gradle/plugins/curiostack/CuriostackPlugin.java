@@ -36,14 +36,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
-import com.palantir.baseline.plugins.BaselineIdea;
 import groovy.util.Node;
+import groovy.xml.XmlUtil;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -140,11 +141,10 @@ public class CuriostackPlugin implements Plugin<Project> {
     // Provides useful tasks like 'clean', 'assemble' to the root project.
     plugins.apply(BasePlugin.class);
 
-    plugins.apply(BaselineIdea.class);
-
     plugins.apply(CondaBuildEnvPlugin.class);
     plugins.apply(CurioGenericCiPlugin.class);
     plugins.apply(GcloudPlugin.class);
+    plugins.apply(IdeaPlugin.class);
     plugins.apply(NodePlugin.class);
     plugins.apply(ReleasePlugin.class);
     plugins.apply(ToolDownloaderPlugin.class);
@@ -508,8 +508,8 @@ public class CuriostackPlugin implements Plugin<Project> {
     PluginContainer plugins = project.getPlugins();
     plugins.apply(AptPlugin.class);
     plugins.apply(AptIdeaPlugin.class);
-    plugins.apply(BaselineIdea.class);
     plugins.apply(ErrorPronePlugin.class);
+    plugins.apply(IdeaPlugin.class);
     plugins.apply(LicensePlugin.class);
     plugins.apply(SpotlessPlugin.class);
     plugins.apply(VersionsPlugin.class);
@@ -828,6 +828,54 @@ public class CuriostackPlugin implements Plugin<Project> {
   }
 
   private static void setupProjectXml(Project project, XmlProvider xml) {
+    var copyrightManager = findOrCreateChild(xml.asNode(), "component", "CopyrightManager");
+    var copyrightDir = project.file(".baseline").toPath().resolve("copyright");
+    try (var files = Files.list(copyrightDir)) {
+      files.forEach(
+          file -> {
+            String filename = copyrightDir.relativize(file).toString();
+            if (findChild(
+                    copyrightManager,
+                    copyright ->
+                        copyright.name().equals("copyright")
+                            && findChild(
+                                    copyright,
+                                    option ->
+                                        option.name().equals("myName")
+                                            && option.attribute("value").equals(filename))
+                                .isPresent())
+                .isPresent()) {
+              return;
+            }
+            final String copyrightText;
+            try {
+              copyrightText =
+                  XmlUtil.escapeControlCharacters(XmlUtil.escapeXml(Files.readString(file)));
+            } catch (IOException e) {
+              throw new UncheckedIOException(e);
+            }
+            var copyrightNode = copyrightManager.appendNode("copyright");
+            setOption(copyrightNode, "notice", copyrightText);
+            setOption(copyrightNode, "keyword", "Copyright");
+            setOption(copyrightNode, "allowReplaceKeyword", "");
+            setOption(copyrightNode, "myName", filename);
+            setOption(copyrightNode, "myLocal", "true");
+
+            copyrightManager.attributes().put("default", filename);
+          });
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+
+    var vcsDirectoryMappings = findOrCreateChild(xml.asNode(), "component", "VcsDirectoryMappings");
+    if (findChild(
+            vcsDirectoryMappings,
+            node -> node.name().equals("mapping") && node.attribute("vcs").equals("Git"))
+        .isEmpty()) {
+      vcsDirectoryMappings.appendNode(
+          "mapping", ImmutableMap.of("directory", "$PROJECT_DIR$", "vcs", "Git"));
+    }
+
     Node typescriptCompiler = findOrCreateChild(xml.asNode(), "component", "TypeScriptCompiler");
     setOption(
         typescriptCompiler, "nodeInterpreterTextField", NodeUtil.getNodeExe(project).toString());
