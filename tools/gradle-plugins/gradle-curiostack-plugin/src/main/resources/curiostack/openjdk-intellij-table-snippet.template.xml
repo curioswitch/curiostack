@@ -22,7 +22,7 @@
         <sourcePath>
           <root type="composite">
             {%- for module in javaModules %}
-            <root url="jar://{{ jdkFolder }}/lib/src.zip!}!/{{ module }}" type="simple" />
+            <root url="jar://{{ jdkFolder }}/lib/src.zip!/{{ module }}" type="simple" />
             {%- endfor %}
           </root>
         </sourcePath>
