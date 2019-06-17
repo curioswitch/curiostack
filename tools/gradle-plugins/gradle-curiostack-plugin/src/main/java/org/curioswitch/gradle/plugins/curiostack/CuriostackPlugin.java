@@ -848,7 +848,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     setOption(profile, "myName", "Project Default");
     findChild(
             profile,
-            n -> n.name().equals("inspection_tool") && "EsLint".equals(n.attribute("class")))
+            n -> n.name().equals("inspection_tool") && "Eslint".equals(n.attribute("class")))
         .orElseGet(
             () ->
                 profile.appendNode(
