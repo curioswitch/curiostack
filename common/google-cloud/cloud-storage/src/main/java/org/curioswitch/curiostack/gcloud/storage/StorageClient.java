@@ -125,7 +125,7 @@ public class StorageClient {
                 throw new RuntimeException("Unexpected error creating new file.", t);
               }
 
-              ResponseHeaders responseHeaders = (ResponseHeaders) msg.headers();
+              ResponseHeaders responseHeaders = msg.headers();
               if (!responseHeaders.status().equals(HttpStatus.OK)) {
                 throw new RuntimeException(
                     "Non-successful response when creating new file: "
