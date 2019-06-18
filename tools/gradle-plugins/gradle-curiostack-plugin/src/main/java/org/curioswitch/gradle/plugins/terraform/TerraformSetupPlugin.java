@@ -123,6 +123,16 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                             "https://github.com/chokoswitch/terraform-provider-k8s/archive/v1.0.1-choko.zip");
                     tool.getArtifactPattern().set("");
                   });
+
+              plugin.registerToolIfAbsent(
+                  "terraform-provider-k8s-next-choko",
+                  tool -> {
+                    tool.getVersion().set("0.0.1-choko");
+                    tool.getBaseUrl()
+                        .set(
+                            "https://github.com/chokoswitch/terraform-provider-k8s-1/archive/v0.0.1-choko.zip");
+                    tool.getArtifactPattern().set("");
+                  });
             });
 
     var terraformBuildK8s =
@@ -182,6 +192,36 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                                           "terraform-provider-kubernetes_v1.7.1-choko"))));
                 });
 
+    var terraformBuildK8sNext =
+        project
+            .getTasks()
+            .register(
+                "terraformBuildK8sNextProvider",
+                GoTask.class,
+                t -> {
+                  t.dependsOn(
+                      DownloadToolUtil.getSetupTask(project, "terraform-provider-k8s-next-choko"));
+                  t.args(
+                      "build",
+                      "-o",
+                      PathUtil.getExeName("terraform-provider-k8s-next_v0.0.1-choko"));
+                  t.execCustomizer(
+                      exec ->
+                          exec.workingDir(
+                              DownloadedToolManager.get(project)
+                                  .getToolDir("terraform-provider-k8s-next-choko")
+                                  .resolve("terraform-provider-k8s-1-0.0.1-choko")));
+                  t.onlyIf(
+                      unused ->
+                          !Files.exists(
+                              DownloadedToolManager.get(project)
+                                  .getToolDir("terraform-provider-k8s-next-choko")
+                                  .resolve("terraform-provider-k8s-1-0.0.1-choko")
+                                  .resolve(
+                                      PathUtil.getExeName(
+                                          "terraform-provider-k8s-next_v0.0.1-choko"))));
+                });
+
     var setupTerraformGsuiteProvider =
         DownloadToolUtil.getSetupTask(project, "terraform-provider-gsuite");
 
@@ -208,6 +248,7 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                 t -> {
                   t.dependsOn(
                       terraformBuildK8s,
+                      terraformBuildK8sNext,
                       setupTerraformGsuiteProvider,
                       terraformBuildKubernetesFork,
                       terraformDeleteOldPlugins);
@@ -221,6 +262,10 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                       DownloadedToolManager.get(project)
                           .getToolDir("terraform-provider-k8s-choko")
                           .resolve("terraform-provider-k8s-1.0.1-choko"));
+                  t.from(
+                      DownloadedToolManager.get(project)
+                          .getToolDir("terraform-provider-k8s-next-choko")
+                          .resolve("terraform-provider-k8s-1-0.0.1-choko"));
                   t.include("terraform-provider-*");
                 });
 

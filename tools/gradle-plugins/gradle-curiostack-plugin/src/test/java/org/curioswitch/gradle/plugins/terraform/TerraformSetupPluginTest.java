@@ -76,7 +76,9 @@ class TerraformSetupPluginTest {
             ":toolsSetupTerraform",
             ":toolsDownloadTerraformProviderGsuite",
             ":toolsSetupTerraformProviderGsuite",
-            ":terraformDownloadK8sProvider",
+            ":terraformBuildK8sProvider",
+            ":terraformBuildKubernetesForkProvider",
+            ":terraformBuildK8sNextProvider",
             ":terraformCopyPlugins");
 
     assertThat(
@@ -86,21 +88,27 @@ class TerraformSetupPluginTest {
                 .resolve(PathUtil.getExeName("terraform")))
         .exists();
 
+    var terraformDir =
+        gradleUserHome
+            .resolve("curiostack/terraform")
+            .resolve(ToolDependencies.getTerraformVersion(project));
+
     assertThat(
-            gradleUserHome
-                .resolve("curiostack/terraform")
-                .resolve(ToolDependencies.getTerraformVersion(project))
-                .resolve(
-                    PathUtil.getExeName(
-                        "terraform-provider-gsuite_v"
-                            + ToolDependencies.getTerraformGsuiteProviderVersion(project))))
+            terraformDir.resolve(
+                PathUtil.getExeName(
+                    "terraform-provider-gsuite_v"
+                        + ToolDependencies.getTerraformGsuiteProviderVersion(project))))
+        .exists();
+
+    assertThat(terraformDir.resolve(PathUtil.getExeName("terraform-provider-k8s_v1.0.1-choko")))
         .exists();
 
     assertThat(
-            gradleUserHome
-                .resolve("curiostack/terraform")
-                .resolve(ToolDependencies.getTerraformVersion(project))
-                .resolve(PathUtil.getExeName("terraform-provider-k8s")))
+            terraformDir.resolve(PathUtil.getExeName("terraform-provider-k8s-next_v0.0.1-choko")))
+        .exists();
+
+    assertThat(
+            terraformDir.resolve(PathUtil.getExeName("terraform-provider-kubernetes_v1.7.1-choko")))
         .exists();
   }
 }
