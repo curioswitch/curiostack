@@ -200,8 +200,7 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                 GoTask.class,
                 t -> {
                   t.dependsOn(
-                      DownloadToolUtil.getSetupTask(
-                          project, "terraform-provider-k8s-next-choko"));
+                      DownloadToolUtil.getSetupTask(project, "terraform-provider-k8s-next-choko"));
                   t.args(
                       "build",
                       "-o",
