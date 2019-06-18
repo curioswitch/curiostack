@@ -42,15 +42,18 @@ import java.util.Map;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
 
 /**
  * A {@link org.gradle.api.Task} to update IntelliJ's jdk.table.xml configuration to include the JDK
- * downloaded by CurioStack.
+ * downloaded by CurioStack as well as other SDKs.
  */
-public class UpdateIntelliJJdksTask extends DefaultTask {
+public class UpdateIntelliJSdksTask extends DefaultTask {
+
+  public static final String NAME = "curioUpdateIntelliJSdks";
 
   @VisibleForTesting static final String LATEST_INTELLIJ_CONFIG_FOLDER = ".IntelliJIdea2019.1";
 
@@ -169,6 +172,26 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
           + "  </component>\n"
           + "</application>";
 
+  private static final String EMPTY_GO_SDK_TABLE =
+      "<application>\n"
+          + "  <component name=\"GoSdkList\">\n"
+          + "    <sdk-path>\n"
+          + "      <set>\n"
+          + "      </set>\n"
+          + "    </sdk-path>\n"
+          + "  </component>\n"
+          + "</application>";
+
+  private static final String EMPTY_GO_LIBRARIES =
+      "<application>\n"
+          + "  <component name=\"GoLibraries\">\n"
+          + "    <option name=\"urls\">\n"
+          + "      <list>\n"
+          + "      </list>\n"
+          + "    </option>\n"
+          + "  </component>\n"
+          + "</application>";
+
   @TaskAction
   public void exec() throws IOException {
     Path userHome = Paths.get(System.getProperty("user.home"));
@@ -215,6 +238,72 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
         "curiostack/openjdk-8-intellij-table-snippet.template.xml",
         ImmutableMap.of("javaVersion", JAVA_8_VERSION, "javaModules", JAVA_8_JARS),
         getProject());
+
+    updateGoSdk(intelliJFolder, getProject());
+    updateGoPath(intelliJFolder, getProject());
+  }
+
+  private static void updateGoSdk(Path intelliJFolder, Project project) throws IOException {
+    var goSdkXmlFile = intelliJFolder.resolve("config/options/go.sdk.xml");
+    final List<String> goSdkXmlLines;
+    if (Files.exists(goSdkXmlFile)) {
+      goSdkXmlLines = Files.readAllLines(goSdkXmlFile);
+    } else {
+      goSdkXmlLines = EMPTY_GO_SDK_TABLE.lines().collect(toImmutableList());
+    }
+
+    String goSdk =
+        intellijPath(
+            DownloadedToolManager.get(project)
+                .getToolDir("go")
+                .resolve("go")
+                .toAbsolutePath()
+                .toString());
+
+    if (goSdkXmlLines.stream().anyMatch(line -> line.contains("<option value=\"" + goSdk + "\""))) {
+      return;
+    }
+
+    var updatedGoSdkXmlLines = ImmutableList.<String>builder();
+    for (int lineIndex = 0; lineIndex < goSdkXmlLines.size(); lineIndex++) {
+      String line = goSdkXmlLines.get(lineIndex);
+      updatedGoSdkXmlLines.add(line);
+      if (line.contains("<set>")) {
+        updatedGoSdkXmlLines.add("        <option value=\"" + goSdk + "\" />");
+      }
+    }
+
+    Files.writeString(goSdkXmlFile, String.join("\n", updatedGoSdkXmlLines.build()));
+  }
+
+  private static void updateGoPath(Path intelliJFolder, Project project) throws IOException {
+    var goLibrariesFile = intelliJFolder.resolve("config/options/goLibraries.xml");
+    final List<String> goLibrariesLines;
+    if (Files.exists(goLibrariesFile)) {
+      goLibrariesLines = Files.readAllLines(goLibrariesFile);
+    } else {
+      goLibrariesLines = EMPTY_GO_LIBRARIES.lines().collect(toImmutableList());
+    }
+
+    String gopath =
+        intellijPath(
+            CommandUtil.getCuriostackDir(project).resolve("gopath").toAbsolutePath().toString());
+
+    if (goLibrariesLines.stream()
+        .anyMatch(line -> line.contains("<option value=\"file://" + gopath + "\""))) {
+      return;
+    }
+
+    var updatedGoLibrariesLines = ImmutableList.<String>builder();
+    for (int lineIndex = 0; lineIndex < goLibrariesLines.size(); lineIndex++) {
+      String line = goLibrariesLines.get(lineIndex);
+      updatedGoLibrariesLines.add(line);
+      if (line.contains("<list>")) {
+        updatedGoLibrariesLines.add("        <option value=\"file://" + gopath + "\" />");
+      }
+    }
+
+    Files.writeString(goLibrariesFile, String.join("\n", updatedGoLibrariesLines.build()));
   }
 
   private static void updateConfig(
@@ -288,6 +377,10 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
     updatedTables.add("  </component>").add("</application>");
 
     Files.writeString(jdkTable, String.join("\n", updatedTables.build()));
+
+    // We optimistically update Go SDKs as well even if the build doesn't use Go. The worst that
+    // could happen is a couple of red SDKs in the IntelliJ lists.
+
   }
 
   private static void addJdkSnippet(
@@ -304,5 +397,14 @@ public class UpdateIntelliJJdksTask extends DefaultTask {
     String rendered = jinjava.render(template, templateVars);
 
     rendered.lines().skip(skipStart ? 2 : 0).forEach(lines::add);
+  }
+
+  private static String intellijPath(String rawPath) {
+    if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
+      // IntelliJ config users a normal Windows path with backslashes turned to slashes, e.g.
+      // C:/Users/Choko/.gradle/openjdk/jdk-12.0.2
+      return rawPath.replace('\\', '/');
+    }
+    return rawPath;
   }
 }

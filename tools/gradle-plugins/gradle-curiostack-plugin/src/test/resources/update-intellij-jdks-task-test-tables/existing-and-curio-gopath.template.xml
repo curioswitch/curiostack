@@ -1,0 +1,10 @@
+<application>
+  <component name="GoLibraries">
+    <option name="urls">
+      <list>
+        <option value="file://{{ gradleHome }}/curiostack/gopath" />
+        <option value="file:///path/we/ignore/curiostack/gopath" />
+      </list>
+    </option>
+  </component>
+</application>

@@ -34,19 +34,22 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.curioswitch.gradle.golang.GolangSetupPlugin;
+import org.curioswitch.gradle.plugins.curiostack.CuriostackPlugin;
+import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.curioswitch.gradle.testing.GradleTempDirectories;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class UpdateIntelliJJdksTaskTest {
+class UpdateIntelliJSdksTaskTest {
 
   private Path testUserHome;
   private String oldUserHome;
   private Path testGradleHome;
 
-  private UpdateIntelliJJdksTask task;
+  private UpdateIntelliJSdksTask task;
 
   @BeforeEach
   void setUserHome() throws Exception {
@@ -59,12 +62,16 @@ class UpdateIntelliJJdksTaskTest {
     Files.writeString(
         Files.createDirectories(testUserHome.resolve("curiotest")).resolve("foo.txt"), "bar");
 
+    var project = ProjectBuilder.builder().withGradleUserHomeDir(testGradleHome.toFile()).build();
+
+    project.getPlugins().apply(CuriostackPlugin.class);
+    project.getPlugins().apply(GolangSetupPlugin.class);
+
     task =
-        ProjectBuilder.builder()
-            .withGradleUserHomeDir(testGradleHome.toFile())
-            .build()
+        project
             .getTasks()
-            .create("curioUpdateIntelliJJdks", UpdateIntelliJJdksTask.class);
+            .withType(UpdateIntelliJSdksTask.class)
+            .getByName(UpdateIntelliJSdksTask.NAME);
   }
 
   @AfterEach
@@ -77,12 +84,8 @@ class UpdateIntelliJJdksTaskTest {
   void noIntelliJFolders() throws Exception {
     task.exec();
 
-    assertThat(
-            testUserHome
-                .resolve(UpdateIntelliJJdksTask.LATEST_INTELLIJ_CONFIG_FOLDER)
-                .resolve("config/options/jdk.table.xml"))
-        .hasContent(
-            testTemplate("update-intellij-jdks-task-test-tables/only-curio-openjdk.template.xml"));
+    assertNoExistingConfig(
+        testUserHome.resolve(UpdateIntelliJSdksTask.LATEST_INTELLIJ_CONFIG_FOLDER));
   }
 
   @Test
@@ -91,9 +94,7 @@ class UpdateIntelliJJdksTaskTest {
 
     task.exec();
 
-    assertThat(intelliJFolder.resolve("config/options/jdk.table.xml"))
-        .hasContent(
-            testTemplate("update-intellij-jdks-task-test-tables/only-curio-openjdk.template.xml"));
+    assertNoExistingConfig(intelliJFolder);
   }
 
   @Test
@@ -102,9 +103,22 @@ class UpdateIntelliJJdksTaskTest {
 
     task.exec();
 
-    assertThat(intelliJFolder.resolve("config/options/jdk.table.xml"))
+    assertNoExistingConfig(intelliJFolder);
+    testTemplate("update-intellij-jdks-task-test-tables/only-curio-openjdk.template.xml");
+  }
+
+  private void assertNoExistingConfig(Path intellijFolder) {
+    assertThat(intellijFolder.resolve("config/options/jdk.table.xml"))
         .hasContent(
             testTemplate("update-intellij-jdks-task-test-tables/only-curio-openjdk.template.xml"));
+
+    assertThat(intellijFolder.resolve("config/options/go.sdk.xml"))
+        .hasContent(
+            testTemplate("update-intellij-jdks-task-test-tables/only-curio-gosdk.template.xml"));
+
+    assertThat(intellijFolder.resolve("config/options/goLibraries.xml"))
+        .hasContent(
+            testTemplate("update-intellij-jdks-task-test-tables/only-curio-gopath.template.xml"));
   }
 
   @Test
@@ -114,6 +128,12 @@ class UpdateIntelliJJdksTaskTest {
     Files.writeString(
         optionsFolder.resolve("jdk.table.xml"),
         resource("update-intellij-jdks-task-test-tables/existing-unrelated.xml"));
+    Files.writeString(
+        optionsFolder.resolve("go.sdk.xml"),
+        resource("update-intellij-jdks-task-test-tables/existing-gosdk.xml"));
+    Files.writeString(
+        optionsFolder.resolve("goLibraries.xml"),
+        resource("update-intellij-jdks-task-test-tables/existing-gopath.xml"));
 
     task.exec();
 
@@ -121,6 +141,16 @@ class UpdateIntelliJJdksTaskTest {
         .hasContent(
             testTemplate(
                 "update-intellij-jdks-task-test-tables/existing-and-curio-openjdk.template.xml"));
+
+    assertThat(optionsFolder.resolve("go.sdk.xml"))
+        .hasContent(
+            testTemplate(
+                "update-intellij-jdks-task-test-tables/existing-and-curio-gosdk.template.xml"));
+
+    assertThat(optionsFolder.resolve("goLibraries.xml"))
+        .hasContent(
+            testTemplate(
+                "update-intellij-jdks-task-test-tables/existing-and-curio-gopath.template.xml"));
   }
 
   @Test
@@ -130,6 +160,12 @@ class UpdateIntelliJJdksTaskTest {
     Files.writeString(
         optionsFolder.resolve("jdk.table.xml"),
         resource("update-intellij-jdks-task-test-tables/existing-related.xml"));
+    Files.writeString(
+        optionsFolder.resolve("go.sdk.xml"),
+        testTemplate("update-intellij-jdks-task-test-tables/only-curio-gosdk.template.xml"));
+    Files.writeString(
+        optionsFolder.resolve("goLibraries.xml"),
+        testTemplate("update-intellij-jdks-task-test-tables/only-curio-gopath.template.xml"));
 
     task.exec();
 
@@ -137,6 +173,14 @@ class UpdateIntelliJJdksTaskTest {
         .hasContent(
             testTemplate(
                 "update-intellij-jdks-task-test-tables/existing-and-curio-openjdk.template.xml"));
+
+    assertThat(optionsFolder.resolve("go.sdk.xml"))
+        .hasContent(
+            testTemplate("update-intellij-jdks-task-test-tables/only-curio-gosdk.template.xml"));
+
+    assertThat(optionsFolder.resolve("goLibraries.xml"))
+        .hasContent(
+            testTemplate("update-intellij-jdks-task-test-tables/only-curio-gopath.template.xml"));
   }
 
   private static String resource(String path) {
@@ -153,11 +197,13 @@ class UpdateIntelliJJdksTaskTest {
     Jinjava jinjava = new Jinjava();
     return jinjava.render(
         template,
-        ImmutableMap.of(
-            "gradleHome", testGradleHome.toAbsolutePath().toString().replace('\\', '/'),
-            "jdkFolder", UpdateIntelliJJdksTask.JDK_FOLDER_NAME,
-            "javaVersion", UpdateIntelliJJdksTask.JAVA_VERSION,
-            "jdk8Folder", UpdateIntelliJJdksTask.JDK_8_FOLDER_NAME,
-            "java8Version", UpdateIntelliJJdksTask.JAVA_8_VERSION));
+        ImmutableMap.<String, Object>builder()
+            .put("gradleHome", testGradleHome.toAbsolutePath().toString().replace('\\', '/'))
+            .put("jdkFolder", UpdateIntelliJSdksTask.JDK_FOLDER_NAME)
+            .put("javaVersion", UpdateIntelliJSdksTask.JAVA_VERSION)
+            .put("jdk8Folder", UpdateIntelliJSdksTask.JDK_8_FOLDER_NAME)
+            .put("java8Version", UpdateIntelliJSdksTask.JAVA_8_VERSION)
+            .put("goVersion", ToolDependencies.getDefaultVersion("golang"))
+            .build());
   }
 }

@@ -30,6 +30,7 @@ import com.google.common.io.Resources;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateIntelliJSdksTask;
 import org.curioswitch.gradle.testing.GradleTempDirectories;
 import org.curioswitch.gradle.testing.ResourceProjects;
 import org.gradle.testkit.runner.GradleRunner;
@@ -117,7 +118,8 @@ class CuriostackPluginTest {
       assertThat(
               GradleRunner.create()
                   .withProjectDir(projectDir.toFile())
-                  .withArguments("idea", "-xtoolsDownloadOpenjdk", "-xcurioUpdateIntelliJJdks")
+                  .withArguments(
+                      "idea", "-xtoolsDownloadOpenjdk", "-x" + UpdateIntelliJSdksTask.NAME)
                   .withPluginClasspath())
           .builds()
           .tasksDidSucceed(":idea");
