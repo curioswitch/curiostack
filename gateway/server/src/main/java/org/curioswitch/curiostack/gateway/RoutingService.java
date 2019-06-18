@@ -31,8 +31,8 @@ import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.HttpService;
-import com.linecorp.armeria.server.PathMapping;
-import com.linecorp.armeria.server.PathMappingContext;
+import com.linecorp.armeria.server.Route;
+import com.linecorp.armeria.server.RoutingContext;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -44,13 +44,13 @@ class RoutingService implements HttpService {
 
   private static final Logger logger = LogManager.getLogger();
 
-  @Nullable private final LoadingCache<PathMappingContext, HttpClient> pathClients;
+  @Nullable private final LoadingCache<RoutingContext, HttpClient> pathClients;
   private final boolean cachePaths;
 
-  private volatile Map<PathMapping, HttpClient> clients;
+  private volatile Map<Route, HttpClient> clients;
 
   @SuppressWarnings("ConstructorLeaksThis")
-  RoutingService(Map<PathMapping, HttpClient> clients) {
+  RoutingService(Map<Route, HttpClient> clients) {
     this.clients = clients;
 
     cachePaths = Flags.parsedPathCacheSpec().isPresent();
@@ -60,7 +60,7 @@ class RoutingService implements HttpService {
 
   @Override
   public HttpResponse serve(ServiceRequestContext ctx, HttpRequest req) {
-    PathMappingContext mappingContext = ctx.pathMappingContext();
+    RoutingContext mappingContext = ctx.routingContext();
     final HttpClient client;
     if (pathClients != null && mappingContext.query() == null) {
       client = pathClients.get(mappingContext);
@@ -78,12 +78,12 @@ class RoutingService implements HttpService {
   }
 
   @Override
-  public boolean shouldCachePath(String path, @Nullable String query, PathMapping pathMapping) {
+  public boolean shouldCachePath(String path, @Nullable String query, Route pathMapping) {
     return this.cachePaths;
   }
 
   @Nullable
-  private HttpClient find(PathMappingContext mappingContext) {
+  private HttpClient find(RoutingContext mappingContext) {
     return clients.entrySet().stream()
         .filter(entry -> entry.getKey().apply(mappingContext).isPresent())
         .map(Entry::getValue)
@@ -91,7 +91,7 @@ class RoutingService implements HttpService {
         .orElse(null);
   }
 
-  void updateClients(Map<PathMapping, HttpClient> clients) {
+  void updateClients(Map<Route, HttpClient> clients) {
     logger.info("Updating router targets.");
     this.clients = clients;
     pathClients.invalidateAll();

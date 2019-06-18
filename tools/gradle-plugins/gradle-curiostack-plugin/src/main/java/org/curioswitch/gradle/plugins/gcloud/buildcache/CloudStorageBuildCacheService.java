@@ -53,7 +53,13 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
 
   @Override
   public boolean load(BuildCacheKey buildCacheKey, BuildCacheEntryReader buildCacheEntryReader) {
-    ByteBuf data = cloudStorage.readFile(buildCacheKey.getHashCode()).join();
+    final ByteBuf data;
+    try {
+      data = cloudStorage.readFile(buildCacheKey.getHashCode()).join();
+    } catch (Throwable t) {
+      logger.warn("Exception reading from build cache.", t);
+      return false;
+    }
     if (data == null) {
       return false;
     }

@@ -268,7 +268,7 @@ public class FileWriter {
         .aggregate(eventLoop)
         .thenComposeAsync(
             msg -> {
-              ResponseHeaders responseHeaders = (ResponseHeaders) msg.headers();
+              ResponseHeaders responseHeaders = msg.headers();
               if (!responseHeaders.status().codeClass().equals(HttpStatusClass.SUCCESS)
                   && responseHeaders.status().code() != 308) {
                 chunk.release();

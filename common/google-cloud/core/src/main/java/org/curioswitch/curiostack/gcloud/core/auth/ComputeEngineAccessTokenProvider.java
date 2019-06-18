@@ -27,7 +27,7 @@ import com.google.auth.oauth2.ComputeEngineCredentials;
 import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.client.HttpClientBuilder;
 import com.linecorp.armeria.client.logging.LoggingClientBuilder;
-import com.linecorp.armeria.common.AggregatedHttpMessage;
+import com.linecorp.armeria.common.AggregatedHttpResponse;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.RequestHeaders;
@@ -53,7 +53,7 @@ class ComputeEngineAccessTokenProvider extends AbstractAccessTokenProvider {
   }
 
   @Override
-  protected CompletableFuture<AggregatedHttpMessage> fetchToken(Type type) {
+  protected CompletableFuture<AggregatedHttpResponse> fetchToken(Type type) {
     URI uri = URI.create(ComputeEngineCredentials.getTokenServerEncodedUrl());
 
     // In practice, this URL shouldn't change at runtime but it's not infeasible, and since this

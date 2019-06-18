@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.AccessToken;
 import com.linecorp.armeria.client.HttpClient;
-import com.linecorp.armeria.common.AggregatedHttpMessage;
+import com.linecorp.armeria.common.AggregatedHttpResponse;
 import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
@@ -100,7 +100,7 @@ abstract class AbstractAccessTokenProvider implements AccessTokenProvider {
     return cachedIdToken.get().thenApply(AccessToken::getTokenValue);
   }
 
-  protected CompletableFuture<AggregatedHttpMessage> fetchToken(Type type) {
+  protected CompletableFuture<AggregatedHttpResponse> fetchToken(Type type) {
     HttpData data = new ByteBufHttpData(refreshRequestContent(type), true);
     return googleApisClient
         .execute(

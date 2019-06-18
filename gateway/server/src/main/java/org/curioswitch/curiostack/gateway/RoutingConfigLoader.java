@@ -28,7 +28,7 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.linecorp.armeria.client.HttpClient;
-import com.linecorp.armeria.server.PathMapping;
+import com.linecorp.armeria.server.Route;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
@@ -51,7 +51,7 @@ class RoutingConfigLoader {
     this.clientBuilderFactory = clientBuilderFactory;
   }
 
-  Map<PathMapping, HttpClient> load(Path configPath) {
+  Map<Route, HttpClient> load(Path configPath) {
     final RoutingConfig config;
     try {
       config = OBJECT_MAPPER.readValue(configPath.toFile(), RoutingConfig.class);
@@ -72,7 +72,8 @@ class RoutingConfigLoader {
     return config.getRules().stream()
         .collect(
             toImmutableMap(
-                r -> PathMapping.of(r.getPathPattern()), r -> clients.get(r.getTarget())));
+                r -> Route.builder().path(r.getPathPattern()).build(),
+                r -> clients.get(r.getTarget())));
   }
 
   private static String addSerializationFormat(String url) {

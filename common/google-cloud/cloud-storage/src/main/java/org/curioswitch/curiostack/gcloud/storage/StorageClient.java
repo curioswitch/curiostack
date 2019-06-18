@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.InvalidResponseException;
 import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
@@ -125,7 +126,7 @@ public class StorageClient {
                 throw new RuntimeException("Unexpected error creating new file.", t);
               }
 
-              ResponseHeaders responseHeaders = (ResponseHeaders) msg.headers();
+              ResponseHeaders responseHeaders = msg.headers();
               if (!responseHeaders.status().equals(HttpStatus.OK)) {
                 throw new RuntimeException(
                     "Non-successful response when creating new file: "
@@ -166,6 +167,11 @@ public class StorageClient {
               if (msg.status().equals(HttpStatus.NOT_FOUND)) {
                 ReferenceCountUtil.safeRelease(msg.content());
                 return null;
+              }
+              if (!msg.status().equals(HttpStatus.OK)) {
+                String response = msg.contentUtf8();
+                ReferenceCountUtil.safeRelease(msg.content());
+                throw new InvalidResponseException("Could not fetch file: " + response);
               }
               HttpData data = msg.content();
               if (data instanceof ByteBufHolder) {

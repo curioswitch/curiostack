@@ -23,20 +23,21 @@
  */
 package org.curioswitch.gradle.golang.tasks;
 
+import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
 import com.google.cloud.tools.jib.api.Containerizer;
+import com.google.cloud.tools.jib.api.FilePermissions;
+import com.google.cloud.tools.jib.api.ImageReference;
 import com.google.cloud.tools.jib.api.Jib;
 import com.google.cloud.tools.jib.api.JibContainerBuilder;
+import com.google.cloud.tools.jib.api.LayerConfiguration;
+import com.google.cloud.tools.jib.api.Port;
 import com.google.cloud.tools.jib.api.RegistryImage;
-import com.google.cloud.tools.jib.configuration.FilePermissions;
-import com.google.cloud.tools.jib.configuration.LayerConfiguration;
-import com.google.cloud.tools.jib.configuration.Port;
-import com.google.cloud.tools.jib.filesystem.AbsoluteUnixPath;
 import com.google.cloud.tools.jib.frontend.CredentialRetrieverFactory;
-import com.google.cloud.tools.jib.image.ImageReference;
 import java.nio.file.Path;
 import org.curioswitch.gradle.golang.GolangExtension;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
@@ -55,6 +56,7 @@ public class JibTask extends DefaultTask {
   private final ListProperty<String> args;
   private final Property<String> workingDir;
   private final Property<Path> credentialHelper;
+  private final MapProperty<String, String> environmentVariables;
 
   public JibTask() {
     var objects = getProject().getObjects();
@@ -69,6 +71,7 @@ public class JibTask extends DefaultTask {
     args = objects.listProperty(String.class);
     workingDir = objects.property(String.class);
     credentialHelper = objects.property(Path.class);
+    environmentVariables = objects.mapProperty(String.class, String.class);
 
     var jib = getProject().getExtensions().getByType(GolangExtension.class).getJib();
     baseImage.set(jib.getBaseImage());
@@ -80,6 +83,7 @@ public class JibTask extends DefaultTask {
     args.set(jib.getArgs());
     workingDir.set(jib.getWorkingDir());
     credentialHelper.set(jib.getCredentialHelper());
+    environmentVariables.set(jib.getEnvironmentVariables());
 
     onlyIf(unused -> getTargetImage().isPresent());
   }
@@ -148,6 +152,9 @@ public class JibTask extends DefaultTask {
     if (workingDir.isPresent()) {
       jib.setWorkingDirectory(AbsoluteUnixPath.get(workingDir.get()));
     }
+
+    environmentVariables.get().forEach(jib::addEnvironmentVariable);
+
     jib.containerize(containerize);
   }
 }

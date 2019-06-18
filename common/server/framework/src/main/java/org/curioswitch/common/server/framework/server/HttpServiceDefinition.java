@@ -25,7 +25,7 @@ package org.curioswitch.common.server.framework.server;
 
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
-import com.linecorp.armeria.server.PathMapping;
+import com.linecorp.armeria.server.Route;
 import com.linecorp.armeria.server.Service;
 import org.curioswitch.common.server.framework.immutables.CurioStyle;
 import org.immutables.value.Value.Immutable;
@@ -40,7 +40,7 @@ public interface HttpServiceDefinition {
 
   class Builder extends ImmutableHttpServiceDefinition.Builder {}
 
-  PathMapping pathMapping();
+  Route route();
 
   Service<HttpRequest, HttpResponse> service();
 }

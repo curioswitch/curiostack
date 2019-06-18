@@ -44,7 +44,7 @@ import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.ServerListener;
 import com.linecorp.armeria.server.Service;
 import com.linecorp.armeria.server.ServiceRequestContext;
-import com.linecorp.armeria.server.ServiceWithPathMappings;
+import com.linecorp.armeria.server.ServiceWithRoutes;
 import com.linecorp.armeria.server.auth.HttpAuthServiceBuilder;
 import com.linecorp.armeria.server.auth.OAuth2Token;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
@@ -462,7 +462,7 @@ public abstract class ServerModule {
         serviceBuilder.addService(ProtoReflectionService.newInstance());
       }
       definition.customizer().accept(serviceBuilder);
-      ServiceWithPathMappings<HttpRequest, HttpResponse> service = serviceBuilder.build();
+      ServiceWithRoutes<HttpRequest, HttpResponse> service = serviceBuilder.build();
       if (definition.path().equals("/")) {
         Optional<SslCommonNamesProvider> sslCommonNamesProvider0 = sslCommonNamesProvider;
         sb.service(
@@ -492,7 +492,7 @@ public abstract class ServerModule {
 
     for (HttpServiceDefinition definition : httpServiceDefinitions) {
       sb.service(
-          definition.pathMapping(),
+          definition.route(),
           decorateService(
               definition.service(),
               tracing,
