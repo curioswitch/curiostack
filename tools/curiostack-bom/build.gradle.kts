@@ -244,7 +244,7 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "io.lettuce",
-        "5.1.7.RELEASE",
+        "5.1.6.RELEASE",
         listOf("lettuce-core")
     ),
     DependencySet(

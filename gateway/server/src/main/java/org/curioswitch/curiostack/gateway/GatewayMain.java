@@ -23,7 +23,7 @@
  */
 package org.curioswitch.curiostack.gateway;
 
-import com.linecorp.armeria.server.PathMapping;
+import com.linecorp.armeria.server.Route;
 import com.linecorp.armeria.server.Server;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
@@ -65,7 +65,7 @@ public class GatewayMain {
     @IntoSet
     static HttpServiceDefinition routingService(RoutingService routingService) {
       return new HttpServiceDefinition.Builder()
-          .pathMapping(PathMapping.ofCatchAll())
+          .route(Route.builder().catchAll().build())
           .service(routingService)
           .build();
     }

@@ -828,6 +828,23 @@ public class CuriostackPlugin implements Plugin<Project> {
   }
 
   private static void setupProjectXml(Project project, XmlProvider xml) {
+    var gradleSettings = findOrCreateChild(xml.asNode(), "component", "GradleSettings");
+    if (gradleSettings.children().isEmpty()) {
+      var linkedExternalProjectsSettings =
+          findOrCreateChild(gradleSettings, "option", "linkedExternalProjectsSettings");
+      var gradleProjectSettings =
+          linkedExternalProjectsSettings.appendNode("GradleProjectSettings");
+      setOption(gradleProjectSettings, "distributionType", "DEFAULT_WRAPPED");
+      setOption(gradleProjectSettings, "externalProjectPath", "$PROJECT_DIR$");
+      setOption(gradleProjectSettings, "useAutoImport", "true");
+      setOption(gradleProjectSettings, "useQualifiedModuleNames", "true");
+    }
+
+    var googleJavaFormat = findOrCreateChild(xml.asNode(), "component", "GoogleJavaFormatSettings");
+    if (googleJavaFormat.children().isEmpty()) {
+      setOption(googleJavaFormat, "enabled", "true");
+    }
+
     var copyrightManager = findOrCreateChild(xml.asNode(), "component", "CopyrightManager");
     var copyrightDir = project.file(".baseline").toPath().resolve("copyright");
     try (var files = Files.list(copyrightDir)) {

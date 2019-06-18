@@ -31,7 +31,7 @@ import com.google.maps.PendingResult;
 import com.google.maps.errors.ApiException;
 import com.google.maps.internal.ApiResponse;
 import com.linecorp.armeria.client.HttpClient;
-import com.linecorp.armeria.common.AggregatedHttpMessage;
+import com.linecorp.armeria.common.AggregatedHttpResponse;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpStatus;
@@ -91,9 +91,8 @@ class ArmeriaPendingResult<T, R extends ApiResponse<T>> implements PendingResult
   @Override
   public void cancel() {}
 
-  private T parseResponse(AggregatedHttpMessage message) throws ApiException, IOException {
+  private T parseResponse(AggregatedHttpResponse message) throws ApiException, IOException {
     HttpStatus status = message.status();
-    assert status != null;
 
     String contentType = message.headers().get(HttpHeaderNames.CONTENT_TYPE);
     if (contentType != null

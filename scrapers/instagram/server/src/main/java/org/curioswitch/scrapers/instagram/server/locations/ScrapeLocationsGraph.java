@@ -30,7 +30,7 @@ import static com.spotify.futures.CompletableFuturesExtra.toListenableFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.linecorp.armeria.client.HttpClient;
-import com.linecorp.armeria.common.AggregatedHttpMessage;
+import com.linecorp.armeria.common.AggregatedHttpResponse;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import dagger.producers.ProducerModule;
 import dagger.producers.Produces;
@@ -86,7 +86,7 @@ public class ScrapeLocationsGraph {
 
   @Produces
   @HashtagPage
-  static ListenableFuture<List<@Nullable AggregatedHttpMessage>> fetchHashtags(
+  static ListenableFuture<List<@Nullable AggregatedHttpResponse>> fetchHashtags(
       ScrapeLocationsRequest request, HttpClient instagramClient, ServiceRequestContext ctx) {
     return Futures.successfulAsList(
         request.getHashtagList().stream()
@@ -101,8 +101,8 @@ public class ScrapeLocationsGraph {
 
   @Produces
   @FetchedPostPage
-  static ListenableFuture<List<@Nullable AggregatedHttpMessage>> fetchPosts(
-      @HashtagPage List<@Nullable AggregatedHttpMessage> hashtagPages,
+  static ListenableFuture<List<@Nullable AggregatedHttpResponse>> fetchPosts(
+      @HashtagPage List<@Nullable AggregatedHttpResponse> hashtagPages,
       SharedDataExtractor sharedDataExtractor,
       HttpClient instagramClient,
       ServiceRequestContext ctx) {
@@ -125,7 +125,7 @@ public class ScrapeLocationsGraph {
 
   @Produces
   @UserPage
-  static ListenableFuture<List<@Nullable AggregatedHttpMessage>> fetchUserPages(
+  static ListenableFuture<List<@Nullable AggregatedHttpResponse>> fetchUserPages(
       ScrapeLocationsRequest request, HttpClient instagramClient, ServiceRequestContext ctx) {
     return Futures.successfulAsList(
         request.getUsernameList().stream()
@@ -140,9 +140,9 @@ public class ScrapeLocationsGraph {
 
   @Produces
   @LocationPage
-  static ListenableFuture<List<@Nullable AggregatedHttpMessage>> fetchLocations(
-      @FetchedPostPage List<@Nullable AggregatedHttpMessage> postPages,
-      @UserPage List<@Nullable AggregatedHttpMessage> userPages,
+  static ListenableFuture<List<@Nullable AggregatedHttpResponse>> fetchLocations(
+      @FetchedPostPage List<@Nullable AggregatedHttpResponse> postPages,
+      @UserPage List<@Nullable AggregatedHttpResponse> userPages,
       HttpClient instagramClient,
       SharedDataExtractor sharedDataExtractor,
       ServiceRequestContext ctx) {
@@ -169,7 +169,7 @@ public class ScrapeLocationsGraph {
 
   @Produces
   static ScrapeLocationsResponse buildResponse(
-      @LocationPage List<@Nullable AggregatedHttpMessage> locationPages,
+      @LocationPage List<@Nullable AggregatedHttpResponse> locationPages,
       SharedDataExtractor sharedDataExtractor) {
     return ScrapeLocationsResponse.newBuilder()
         .addAllLocation(

@@ -24,10 +24,10 @@
 
 package org.curioswitch.gradle.plugins.curioserver;
 
+import com.google.cloud.tools.jib.api.ImageFormat;
 import com.google.cloud.tools.jib.gradle.BuildImageTask;
 import com.google.cloud.tools.jib.gradle.JibExtension;
 import com.google.cloud.tools.jib.gradle.JibPlugin;
-import com.google.cloud.tools.jib.image.ImageFormat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.gorylenko.GitPropertiesPlugin;

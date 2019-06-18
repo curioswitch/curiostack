@@ -29,6 +29,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
@@ -76,7 +77,8 @@ public interface GolangExtension extends HasPublicType {
           .setPorts(objects.listProperty(Integer.class).empty())
           .setArgs(objects.listProperty(String.class).empty())
           .setWorkingDir(objects.property(String.class))
-          .setCredentialHelper(objects.property(Path.class));
+          .setCredentialHelper(objects.property(Path.class))
+          .setEnvironmentVariables(objects.mapProperty(String.class, String.class).empty());
     }
 
     Property<String> getBaseImage();
@@ -96,6 +98,8 @@ public interface GolangExtension extends HasPublicType {
     Property<String> getWorkingDir();
 
     Property<Path> getCredentialHelper();
+
+    MapProperty<String, String> getEnvironmentVariables();
   }
 
   Jib getJib();

@@ -31,9 +31,11 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.linecorp.armeria.client.ClientOption;
 import com.linecorp.armeria.client.Clients;
 import com.linecorp.armeria.client.HttpClient;
+import io.netty.buffer.ByteBuf;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.Optional;
+import java.util.UUID;
 import org.curioswitch.curiostack.gcloud.core.GcloudModule;
 import org.curioswitch.curiostack.gcloud.core.ModifiableGcloudConfig;
 import org.curioswitch.curiostack.gcloud.core.auth.AccessTokenProvider;
@@ -86,6 +88,22 @@ public class CloudStorageBuildCacheServiceFactory
         new StorageClient(
             authenticatedGoogleApis,
             new StorageConfig.Builder().bucket(buildCache.getBucket()).build());
+
+    // Try to read a file from the cache, if there's an exception we disable the build cache
+    // assuming there is something wrong with the credentials or network.
+    try {
+      ByteBuf ping = storageClient.readFile("__curiostack__ping__" + UUID.randomUUID()).join();
+      if (ping != null) {
+        ping.release();
+      }
+    } catch (Throwable t) {
+      logger.warn(
+          "Could not access build cache, are you logged in with the correct account? "
+              + "Try ./gradlew :gcloud_auth_application-default_login again. "
+              + "Disabling build cache.");
+      return new NoOpBuildCacheService();
+    }
+
     return new CloudStorageBuildCacheService(storageClient);
   }
 }

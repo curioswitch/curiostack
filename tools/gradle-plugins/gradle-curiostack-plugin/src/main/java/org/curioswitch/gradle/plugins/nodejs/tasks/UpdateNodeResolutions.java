@@ -35,7 +35,7 @@ import com.linecorp.armeria.client.ClientOption;
 import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.client.retry.RetryStrategy;
 import com.linecorp.armeria.client.retry.RetryingHttpClient;
-import com.linecorp.armeria.common.AggregatedHttpMessage;
+import com.linecorp.armeria.common.AggregatedHttpResponse;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
@@ -123,7 +123,7 @@ public class UpdateNodeResolutions extends DefaultTask {
                       HttpRequest.class,
                       HttpResponse.class,
                       RetryingHttpClient.newDecorator(RetryStrategy.onServerErrorStatus()))));
-      AggregatedHttpMessage msg = client.get(urlPath).aggregate().join();
+      AggregatedHttpResponse msg = client.get(urlPath).aggregate().join();
       if (!msg.status().equals(HttpStatus.OK)) {
         throw new IllegalStateException("Could not fetch base-web package.json.");
       }
