@@ -100,6 +100,10 @@ public class ToolDependencies {
     return getVersion("yarn", project);
   }
 
+  public static String getDefaultVersion(String tool) {
+    return DEFAULT_VERSIONS.get(tool);
+  }
+
   private static String getVersion(String tool, Project project) {
     return Objects.requireNonNullElse(
         (String) project.getRootProject().findProperty("org.curioswitch.curiostack.tools." + tool),

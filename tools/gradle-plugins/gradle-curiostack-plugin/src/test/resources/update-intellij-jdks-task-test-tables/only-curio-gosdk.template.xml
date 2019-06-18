@@ -1,0 +1,9 @@
+<application>
+  <component name="GoSdkList">
+    <sdk-path>
+      <set>
+        <option value="{{ gradleHome }}/curiostack/go/{{ goVersion }}/go" />
+      </set>
+    </sdk-path>
+  </component>
+</application>

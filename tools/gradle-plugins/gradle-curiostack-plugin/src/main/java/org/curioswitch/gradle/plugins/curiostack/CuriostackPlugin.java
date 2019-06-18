@@ -77,7 +77,7 @@ import org.curioswitch.gradle.plugins.curiostack.tasks.CreateShellConfigTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.GenerateApiServerTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.SetupGitHooks;
 import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateGradleWrapperTask;
-import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateIntelliJJdksTask;
+import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateIntelliJSdksTask;
 import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateProjectSettingsTask;
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
@@ -193,8 +193,8 @@ public class CuriostackPlugin implements Plugin<Project> {
         rootProject
             .getTasks()
             .register(
-                "curioUpdateIntelliJJdks",
-                UpdateIntelliJJdksTask.class,
+                UpdateIntelliJSdksTask.NAME,
+                UpdateIntelliJSdksTask.class,
                 t -> t.dependsOn(DownloadToolUtil.getSetupTask(rootProject, "openjdk")));
 
     var idea = rootProject.getTasks().named("idea");
