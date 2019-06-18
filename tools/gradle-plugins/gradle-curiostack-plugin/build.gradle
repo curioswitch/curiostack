@@ -190,7 +190,7 @@ tasks.withType(License) {
 }
 
 tasks.withType(Test) {
-    jvmArgs "-Dorg.curioswitch.curiostack.testing.buildDir=${buildDir}"
+    jvmArgs "-Dorg.curioswitch.curiostack.testing.buildDir=${rootProject.buildDir}"
 }
 
 // TODO(choko): Have curiostack plugin do this.

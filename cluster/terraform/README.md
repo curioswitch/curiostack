@@ -113,9 +113,9 @@ Ingresses use `path` instead of `path_regex`.
 Kubernetes resource with Terraform, but has some tricky design issues due to spawning out to 
 `kubectl`. There is a new provider that similarly supports any Kubernetes resource but without using
 the CLI [here](https://github.com/mingfang/terraform-provider-k8s). It is very promising, but
-unfortunately currently requires using a forked version of Terraform 0.12, which we won't be doing
-here. Until then, it's recommended to use the normal `kubernetes` provider for as many resources as
-you can as we wait for this new provider to work with vanilla Terraform.
+requires Kubernetes 1.14 for full support of custom resources, which is not supported by GKE quite
+yet. Until then, it's recommended to use the normal `kubernetes` provider for as many resources as
+you can and `k8s_manifest` for the rest.
 
 ### Upgrading to Terraform 0.12
 
