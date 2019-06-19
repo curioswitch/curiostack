@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+/* global google */
+
 import { Place as CafeMapPlace } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
 export class Place {
