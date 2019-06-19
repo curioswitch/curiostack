@@ -58,18 +58,21 @@ message GetPlacesRequest {
 
 // A place, typically rendered on a map.
 message Place {
+  // The cafemap ID of this place.
+  string id = 1;
+
   // The position of the place.
-  LatLng position = 1;
+  LatLng position = 2;
 
   // The name of the place.
-  string name = 2;
+  string name = 3;
 
   // The location ID of this place on Instagram. Not set if this location was not found on
   // Instagram.
-  string instagram_id = 3;
+  string instagram_id = 4;
 
   // The place ID on Google Maps. Always set.
-  string google_place_id = 4;
+  string google_place_id = 5;
 }
 
 // A response for the `GetPlaces` method.
@@ -80,8 +83,8 @@ message GetPlacesResponse {
 
 // A request for the `GetPlace` method.
 message GetPlaceRequest {
-  // The Instagram ID of the place.
-  string instagram_id = 1;
+  // The cafemap ID of the place.
+  string id = 1;
 }
 
 // A response for the `GetPlace` method.

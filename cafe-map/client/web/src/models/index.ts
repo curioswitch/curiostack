@@ -22,27 +22,35 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.cafemap.server.places;
+import { Place as CafeMapPlace } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
-import com.google.common.base.Strings;
-import org.curioswitch.cafemap.api.LatLng;
-import org.curioswitch.database.cafemapdb.tables.pojos.Place;
+export class Place {
+  private readonly cafeMapPlace: CafeMapPlace;
 
-final class PlaceUtil {
+  private readonly googleMapsPlace: google.maps.places.PlaceResult;
 
-  static org.curioswitch.cafemap.api.Place convertPlace(Place place) {
-    return org.curioswitch.cafemap.api.Place.newBuilder()
-        .setId(place.getId().toString())
-        .setName(place.getName())
-        .setPosition(
-            LatLng.newBuilder()
-                .setLatitude(place.getLatitude())
-                .setLongitude(place.getLongitude())
-                .build())
-        .setInstagramId(Strings.nullToEmpty(place.getInstagramId()))
-        .setGooglePlaceId(place.getGooglePlaceId())
-        .build();
+  public constructor(
+    cafeMapPlace: CafeMapPlace,
+    googleMapsPlace: google.maps.places.PlaceResult,
+  ) {
+    this.cafeMapPlace = cafeMapPlace;
+    this.googleMapsPlace = googleMapsPlace;
   }
 
-  private PlaceUtil() {}
+  public getId(): string {
+    return this.cafeMapPlace.getId();
+  }
+
+  public getName(): string {
+    return this.googleMapsPlace.name;
+  }
+
+  public getPrimaryPhotoUrl(): string {
+    return this.googleMapsPlace.photos![0]!.getUrl({});
+  }
+
+  public getPosition(): google.maps.LatLng {
+    const location = this.googleMapsPlace.geometry!.location!;
+    return new google.maps.LatLng(location.lat(), location.lng());
+  }
 }

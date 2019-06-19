@@ -27,13 +27,14 @@ import { Marker } from 'google-maps-react';
 import { List, Record } from 'immutable';
 
 import { SheetVisibility } from '../../components/BottomSheet';
+import { Place } from '../../models';
 
 import { Actions, ActionTypes } from './actions';
 
 export interface StateProps {
   map?: google.maps.Map;
   landmarks: List<google.maps.places.PlaceResult>;
-  places: List<google.maps.places.PlaceResult>;
+  places: List<Place>;
   selectedMarker?: Marker;
   bottomSheetVisibility: SheetVisibility;
 }

@@ -101,7 +101,7 @@ function* getPlace({ payload: id }: ReturnType<typeof Actions.doGetPlace>) {
   const client = new ApiClient();
 
   const request = new GetPlaceRequest();
-  request.setInstagramId(id);
+  request.setId(id);
   const response: GetPlaceResponse = yield call(() => client.getPlace(request));
 
   const attribution = document.createElement('div');
