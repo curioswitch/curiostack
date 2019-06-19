@@ -35,6 +35,7 @@ import { List, Map as ImmutableMap } from 'immutable';
 import React, { useCallback } from 'react';
 
 import CONFIG from '../../config';
+import { Place } from '../../models';
 
 import pinkMarkerSvg from './images/pink-marker.svg';
 
@@ -105,7 +106,7 @@ interface OwnProps {
   onOpenPlace: (id: string) => void;
 
   landmarks: List<google.maps.places.PlaceResult>;
-  places: List<google.maps.places.PlaceResult>;
+  places: List<Place>;
 }
 
 type Props = ProvidedProps & OwnProps;
@@ -216,15 +217,12 @@ const MapContainer: React.FunctionComponent<Props> = React.memo((props) => {
     >
       {places.map((place) => (
         <Marker
-          key={place.place_id}
-          title={place.name}
-          position={{
-            lat: place.geometry!.location!.lat(),
-            lng: place.geometry!.location!.lng(),
-          }}
+          key={place.getId()}
+          title={place.getName()}
+          position={place.getPosition()}
           onClick={
             // tslint:disable-next-line
-            () => onOpenPlace(place.place_id!)
+            () => onOpenPlace(place.getId())
           }
           icon={{
             url: pinkMarkerSvg,

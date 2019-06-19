@@ -32,6 +32,7 @@ import Helmet from 'react-helmet';
 import { hot } from 'react-hot-loader/root';
 import { InjectedIntlProps, injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { compose } from 'redux';
 import { InjectedFormProps } from 'redux-form';
 import { Field, reduxForm } from 'redux-form/immutable';
@@ -131,7 +132,9 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
           <GridList>
             {places.map((place) => (
               <GridListTile>
-                <img alt={place.name} src={place.photos![0]!.getUrl({})} />
+                <Link to={`/place/${place.getId()}`}>
+                  <img alt={place.getName()} src={place.getPrimaryPhotoUrl()} />
+                </Link>
               </GridListTile>
             ))}
           </GridList>

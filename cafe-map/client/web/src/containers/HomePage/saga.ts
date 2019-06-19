@@ -48,6 +48,7 @@ import ApiClient from '../../utils/api-client';
 import { GlobalState } from '../../state';
 import { Actions, ActionTypes } from './actions';
 import { selectMap } from './selectors';
+import { Place } from '../../models';
 
 import PlaceResult = google.maps.places.PlaceResult;
 
@@ -223,7 +224,7 @@ function* getPlaces() {
     client.getPlaces(request),
   );
 
-  const placeResults = yield call(() =>
+  const placeResults: google.maps.places.PlaceResult[] = yield call(() =>
     Promise.all(
       response
         .getPlaceList()
@@ -232,7 +233,11 @@ function* getPlaces() {
     ),
   );
 
-  yield put(Actions.getPlacesResponse(placeResults));
+  const places = placeResults.map(
+    (result, i) => new Place(response.getPlaceList()[i], result),
+  );
+
+  yield put(Actions.getPlacesResponse(places));
 }
 
 const selectSearchForm = (state: GlobalState) =>

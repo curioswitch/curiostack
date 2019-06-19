@@ -39,6 +39,7 @@ import org.curioswitch.common.server.framework.database.ForDatabase;
 import org.curioswitch.common.server.framework.grpc.Unvalidated;
 import org.curioswitch.database.cafemapdb.tables.pojos.Place;
 import org.jooq.DSLContext;
+import org.jooq.types.ULong;
 
 @ProducerModule
 public abstract class GetPlaceGraph {
@@ -57,7 +58,7 @@ public abstract class GetPlaceGraph {
 
   @Produces
   static GetPlaceRequest validateRequest(@Unvalidated GetPlaceRequest request) {
-    checkArgument(!request.getInstagramId().isEmpty(), "instagram_id is required");
+    checkArgument(!request.getId().isEmpty(), "id is required");
     return request;
   }
 
@@ -70,7 +71,7 @@ public abstract class GetPlaceGraph {
         () ->
             cafemapDb
                 .selectFrom(PLACE)
-                .where(PLACE.INSTAGRAM_ID.eq(request.getInstagramId()))
+                .where(PLACE.ID.eq(ULong.valueOf(request.getId())))
                 .fetchOneInto(Place.class));
   }
 
