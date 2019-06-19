@@ -24,6 +24,9 @@
 
 package org.curioswitch.cafemap.server.places;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.curioswitch.database.cafemapdb.tables.Place.PLACE;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import dagger.BindsInstance;
@@ -37,9 +40,6 @@ import org.curioswitch.common.server.framework.grpc.Unvalidated;
 import org.curioswitch.database.cafemapdb.tables.pojos.Place;
 import org.jooq.DSLContext;
 import org.jooq.types.ULong;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.curioswitch.database.cafemapdb.tables.Place.PLACE;
 
 @ProducerModule
 public abstract class GetPlaceGraph {
