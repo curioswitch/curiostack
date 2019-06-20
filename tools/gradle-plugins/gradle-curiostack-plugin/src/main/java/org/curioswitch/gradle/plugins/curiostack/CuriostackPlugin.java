@@ -568,11 +568,11 @@ public class CuriostackPlugin implements Plugin<Project> {
                                             .ifPresent(dependency::remove);
 
                                         var groupId = findChild(dependency, "groupId");
-                                        if (!groupId.isPresent()) {
+                                        if (groupId.isEmpty()) {
                                           continue;
                                         }
                                         var artifactId = findChild(dependency, "artifactId");
-                                        if (!artifactId.isPresent()) {
+                                        if (artifactId.isEmpty()) {
                                           continue;
                                         }
 
