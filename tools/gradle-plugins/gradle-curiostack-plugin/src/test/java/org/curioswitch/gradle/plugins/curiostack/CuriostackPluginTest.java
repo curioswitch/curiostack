@@ -34,6 +34,7 @@ import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateIntelliJSdksTask;
 import org.curioswitch.gradle.testing.GradleTempDirectories;
 import org.curioswitch.gradle.testing.ResourceProjects;
 import org.gradle.testkit.runner.GradleRunner;
+import org.jsoup.Jsoup;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ class CuriostackPluginTest {
 
   @SuppressWarnings("ClassCanBeStatic")
   @Nested
-  class WrapperUpdate {
+  class KitchenSink {
 
     private Path projectDir;
 
@@ -69,6 +70,32 @@ class CuriostackPluginTest {
           .hasContent(
               Resources.toString(
                   Resources.getResource("curiostack/get-jdk.sh"), StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void pomNotManaged() throws Exception {
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir.toFile())
+                  .withArguments(":java-library1:generatePomFileForMavenPublication")
+                  .withPluginClasspath()
+                  .withDebug(true))
+          .builds()
+          .tasksDidSucceed(":java-library1:generatePomFileForMavenPublication");
+
+      var soup =
+          Jsoup.parse(
+              Files.readString(
+                  projectDir.resolve("java-library1/build/publications/maven/pom-default.xml")));
+      assertThat(soup.select("dependencyManagement")).isEmpty();
+      assertThat(soup.select("dependency"))
+          .hasSize(3)
+          .allSatisfy(
+              dependency -> {
+                assertThat(dependency.selectFirst("groupId").text()).isNotEmpty();
+                assertThat(dependency.selectFirst("artifactId").text()).isNotEmpty();
+                assertThat(dependency.selectFirst("version").text()).isNotEmpty();
+              });
     }
   }
 

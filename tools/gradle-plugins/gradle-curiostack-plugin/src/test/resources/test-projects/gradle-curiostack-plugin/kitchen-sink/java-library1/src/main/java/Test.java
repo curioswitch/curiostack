@@ -22,4 +22,4 @@
  * SOFTWARE.
  */
 
-include(":java-library1")
+public class Test {}
