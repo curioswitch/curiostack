@@ -33,6 +33,7 @@ import org.curioswitch.gradle.plugins.staticsite.StaticSiteExtension.SiteProject
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Copy;
+import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 public class StaticSitePlugin implements Plugin<Project> {
 
@@ -53,7 +54,15 @@ public class StaticSitePlugin implements Plugin<Project> {
                   t.into("build/site");
 
                   for (SiteProject site : config.getSites().get()) {
-                    t.dependsOn(site.getProject().getTasks().named("assemble"));
+                    site.getProject()
+                        .getPlugins()
+                        .withType(
+                            LifecycleBasePlugin.class,
+                            unused ->
+                                t.dependsOn(
+                                    site.getProject()
+                                        .getTasks()
+                                        .named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME)));
                     t.from(site.getBuildDir(), copy -> copy.into(site.getOutputSubDir()));
                   }
                 });
