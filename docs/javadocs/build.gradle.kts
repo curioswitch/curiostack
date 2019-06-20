@@ -23,13 +23,31 @@
  */
 
 plugins {
-    id("org.curioswitch.gradle-curio-static-site-plugin")
+  java
 }
 
+dependencies {
+  compile(project(":common:grpc:protobuf-jackson"))
+  compile(project(":common:server:framework"))
+}
 
-staticSite {
-    firebaseProject.set("curioswitch-developers")
+tasks {
+  named<Javadoc>("javadoc") {
+    listOf(
+        ":common:grpc:protobuf-jackson",
+        ":common:server:framework",
+        ":common:testing:framework"
+    ).forEach {
+      val proj = project(it)
+      proj.plugins.withType(JavaPlugin::class) {
+        val task = proj.tasks.named<Javadoc>("javadoc").get()
 
-    site(project(":docs:codelabs"), "codelabs")
-    site(project(":docs:javadocs"), "apidocs/java", "build/docs/javadoc")
+        // A bit repetitive, but we go ahead and depend on subproject javadoc to ensure any
+        // of its dependencies (e.g., code generation) run.
+        dependsOn(task)
+        source(task.source)
+        classpath = classpath.plus(task.classpath)
+      }
+    }
+  }
 }
