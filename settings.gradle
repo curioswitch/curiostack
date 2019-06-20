@@ -39,9 +39,6 @@ pluginManagement {
         maven {
             url 'http://dl.bintray.com/curioswitch/curiostack'
         }
-        maven {
-            url 'http://palantir.bintray.com/releases'
-        }
         mavenLocal()
     }
 }
@@ -52,9 +49,6 @@ buildscript {
         gradlePluginPortal()
         maven {
             url 'http://dl.bintray.com/curioswitch/curiostack'
-        }
-        maven {
-            url 'http://palantir.bintray.com/releases'
         }
         mavenLocal()
     }
