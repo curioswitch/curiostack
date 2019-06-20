@@ -32,7 +32,7 @@ dependencies {
 }
 
 tasks {
-  named<Javadoc>("javadoc") {
+  val javadoc = named<Javadoc>("javadoc") {
     listOf(
         ":common:grpc:protobuf-jackson",
         ":common:server:framework",
@@ -49,5 +49,9 @@ tasks {
         classpath = classpath.plus(task.classpath)
       }
     }
+  }
+
+  named("assemble") {
+    dependsOn(javadoc)
   }
 }
