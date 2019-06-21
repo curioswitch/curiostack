@@ -3,7 +3,7 @@ steps:
 - id: curio-generated-fetch-builder-image
   waitFor:
     - '-'
-  name: curiostack/java-cloud-builder
+  name: curiostack/cloud-builder
   entrypoint: bash
   args:
     - -c
@@ -27,7 +27,7 @@ steps:
 - id: curio-generated-build-releases
   waitFor:
   - curio-generated-fetch-compressed-build-cache
-  name: curiostack/java-cloud-builder
+  name: curiostack/cloud-builder
   volumes:
   - name: gradle-wrapper
     path: /root/.gradle/wrapper

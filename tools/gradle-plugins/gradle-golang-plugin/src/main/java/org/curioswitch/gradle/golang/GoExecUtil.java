@@ -38,7 +38,10 @@ public final class GoExecUtil {
     exec.environment("GOROOT", toolManager.getToolDir("go").resolve("go"));
     exec.environment(
         "GOPATH", project.getExtensions().getByType(ExtraPropertiesExtension.class).get("gopath"));
-    exec.environment("GOFLAGS", "-mod=readonly");
+    if (!"true"
+        .equals(project.getRootProject().findProperty("org.curioswitch.curiostack.goModUpdate"))) {
+      exec.environment("GOFLAGS", "-mod=readonly");
+    }
 
     toolManager.addAllToPath(exec);
   }
