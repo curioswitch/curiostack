@@ -19,3 +19,5 @@ already highly inconsistent and difficult to manage.
 
 - [Guidelines](./guidelines) - General guidelines that can be applied to the entire company or
 specific teams.
+
+- [Processes](./processes) - Processes to apply to specific situations or teams.
