@@ -44,6 +44,7 @@ if [ -z "$CI" ]; then
   if "$darwin" = "true"; then
     SRC="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jdk_x64_mac_hotspot_11.0.3_7.tar.gz"
     DEST="$OPENJDK_DIR/OpenJDK11U-jdk_x64_mac_hotspot_11.0.3_7.tar.gz"
+    export JAVA_HOME="$JAVA_HOME/Contents/Home"
   fi
 
   if "$windows" = "true"; then
@@ -55,7 +56,11 @@ if [ -z "$CI" ]; then
     mkdir -p "$OPENJDK_DIR"
 
     echo "Downloading OpenJDK"
-    wget -O "$DEST" "$SRC" || curl -L "$SRC" -o "$DEST"
+    if command -v wget >/dev/null 2>&1; then
+      wget -O "$DEST" "$SRC"
+    else
+      curl -L "$SRC" -o "$DEST"
+    fi
 
     if "$windows" = "true"; then
       unzip "$DEST" -d "$OPENJDK_DIR"
