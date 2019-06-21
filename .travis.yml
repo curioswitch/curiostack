@@ -21,7 +21,7 @@
 # SOFTWARE.
 #
 
-language: minimal
+language: bash
 
 os:
   - osx
