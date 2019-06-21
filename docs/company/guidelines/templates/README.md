@@ -20,4 +20,4 @@ is an incident that significantly impacts users or the development process. Post
 opportunity to reflect, understand why an issue occurred, and create and execute on action items to
 ensure the issue doesn't reoccur. Development teams will always have issues and make mistakes, so it
 is important to reflect on them to not repeat mistakes. Action items always affect an entire
-organization - post mortems are not for finding a single target to blame for an incident.
+organization - post-mortems are not for finding a single target to blame for an incident.
