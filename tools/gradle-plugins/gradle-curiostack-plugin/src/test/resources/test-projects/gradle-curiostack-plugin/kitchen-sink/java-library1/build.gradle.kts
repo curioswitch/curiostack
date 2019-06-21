@@ -22,4 +22,24 @@
  * SOFTWARE.
  */
 
-include(":java-library1")
+plugins {
+  `java-library`
+  `maven-publish`
+}
+
+dependencies {
+  api("com.google.guava:guava")
+  implementation("org.curioswitch.curiostack:curio-server-framework")
+}
+
+publishing {
+  publications {
+    register("maven", MavenPublication::class) {
+      from(components["java"])
+      pom {
+        name.set("java-library1")
+        description.set("A test library.")
+      }
+    }
+  }
+}

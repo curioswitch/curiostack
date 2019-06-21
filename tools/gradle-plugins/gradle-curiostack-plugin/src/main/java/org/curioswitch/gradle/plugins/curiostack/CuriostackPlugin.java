@@ -37,6 +37,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import groovy.util.Node;
+import groovy.xml.QName;
 import groovy.xml.XmlUtil;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -100,6 +101,9 @@ import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.PluginContainer;
+import org.gradle.api.publish.PublishingExtension;
+import org.gradle.api.publish.maven.MavenPublication;
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.SourceSet;
@@ -514,22 +518,87 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(SpotlessPlugin.class);
     plugins.apply(VersionsPlugin.class);
 
-    if (!"true".equals(project.findProperty("org.curioswitch.curiostack.java.disableBom"))) {
-      // Manage all dependencies by adding the bom as a platform.
-      project
-          .getConfigurations()
-          .configureEach(
-              configuration ->
-                  project
-                      .getDependencies()
-                      .add(
-                          configuration.getName(),
-                          project
-                              .getDependencies()
-                              .platform(
-                                  "org.curioswitch.curiostack:curiostack-bom:"
-                                      + ToolDependencies.getBomVersion(project))));
-    }
+    // Manage all dependencies by adding the bom as a platform.
+    project
+        .getConfigurations()
+        .configureEach(
+            configuration ->
+                project
+                    .getDependencies()
+                    .add(
+                        configuration.getName(),
+                        project
+                            .getDependencies()
+                            .platform(
+                                "org.curioswitch.curiostack:curiostack-bom:"
+                                    + ToolDependencies.getBomVersion(project))));
+
+    project.afterEvaluate(
+        unused ->
+            plugins.withType(
+                MavenPublishPlugin.class,
+                unused2 -> {
+                  var publishing = project.getExtensions().getByType(PublishingExtension.class);
+                  publishing
+                      .getPublications()
+                      .configureEach(
+                          publication -> {
+                            if (!(publication instanceof MavenPublication)) {
+                              return;
+                            }
+                            var mavenPublication = (MavenPublication) publication;
+                            mavenPublication
+                                .getPom()
+                                .withXml(
+                                    xml -> {
+                                      var root = xml.asNode();
+                                      findChild(root, "dependencyManagement")
+                                          .ifPresent(root::remove);
+
+                                      var dependencies = findChild(root, "dependencies");
+                                      if (!dependencies.isPresent()) {
+                                        return;
+                                      }
+
+                                      @SuppressWarnings("unchecked")
+                                      List<Node> dependencyList =
+                                          (List<Node>) dependencies.get().get("dependency");
+                                      for (var dependency : dependencyList) {
+                                        findChild(dependency, "exclusions")
+                                            .ifPresent(dependency::remove);
+
+                                        var groupId = findChild(dependency, "groupId");
+                                        if (groupId.isEmpty()) {
+                                          continue;
+                                        }
+                                        var artifactId = findChild(dependency, "artifactId");
+                                        if (artifactId.isEmpty()) {
+                                          continue;
+                                        }
+
+                                        project.getConfigurations()
+                                            .getByName(
+                                                JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME)
+                                            .getResolvedConfiguration()
+                                            .getFirstLevelModuleDependencies().stream()
+                                            .filter(
+                                                module ->
+                                                    module
+                                                            .getModuleGroup()
+                                                            .equals(groupId.get().text())
+                                                        && module
+                                                            .getModuleName()
+                                                            .equals(artifactId.get().text()))
+                                            .findFirst()
+                                            .ifPresent(
+                                                resolvedDependency ->
+                                                    dependency.appendNode(
+                                                        "version",
+                                                        resolvedDependency.getModuleVersion()));
+                                      }
+                                    });
+                          });
+                }));
 
     project
         .getTasks()
@@ -797,6 +866,19 @@ public class CuriostackPlugin implements Plugin<Project> {
               t.from(configuration);
               t.into(".ideaDataSources/drivers");
             });
+  }
+
+  private static Optional<Node> findChild(Node node, String name) {
+    // Should work.
+    @SuppressWarnings("unchecked")
+    List<Node> children = (List<Node>) node.children();
+    return children.stream()
+        .filter(
+            n ->
+                n.name().equals(name)
+                    || (n.name() instanceof QName
+                        && ((QName) n.name()).getLocalPart().equals(name)))
+        .findFirst();
   }
 
   private static Optional<Node> findChild(Node node, Predicate<Node> predicate) {
