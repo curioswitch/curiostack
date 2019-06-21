@@ -1,1 +1,0 @@
-While the filename says palantir, this is the official Google java style guide.
