@@ -570,6 +570,10 @@ public class CuriostackPlugin implements Plugin<Project> {
                                         findChild(dependency, "exclusions")
                                             .ifPresent(dependency::remove);
 
+                                        if (findChild(dependency, "version").isPresent()) {
+                                          continue;
+                                        }
+
                                         var groupId = findChild(dependency, "groupId");
                                         if (groupId.isEmpty()) {
                                           continue;
