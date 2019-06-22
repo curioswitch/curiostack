@@ -146,7 +146,11 @@ class CuriostackPluginTest {
               GradleRunner.create()
                   .withProjectDir(projectDir.toFile())
                   .withArguments(
-                      "idea", "-xtoolsDownloadOpenjdk", "-x" + UpdateIntelliJSdksTask.NAME)
+                      "idea",
+                      "-xtoolsDownloadOpenjdk",
+                      "-x" + UpdateIntelliJSdksTask.NAME,
+                      "--stacktrace")
+                  .withDebug(true)
                   .withPluginClasspath())
           .builds()
           .tasksDidSucceed(":idea");
