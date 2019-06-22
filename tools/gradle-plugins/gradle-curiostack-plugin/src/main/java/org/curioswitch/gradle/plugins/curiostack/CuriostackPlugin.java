@@ -37,6 +37,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import groovy.util.Node;
+import groovy.util.XmlParser;
 import groovy.xml.QName;
 import groovy.xml.XmlUtil;
 import java.io.File;
@@ -53,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import javax.xml.parsers.ParserConfigurationException;
 import me.champeau.gradle.JMHPlugin;
 import me.champeau.gradle.JMHPluginExtension;
 import net.ltgt.gradle.apt.AptIdeaPlugin;
@@ -119,6 +121,7 @@ import org.gradle.jvm.tasks.Jar;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
 import org.gradle.testing.jacoco.plugins.JacocoPlugin;
+import org.xml.sax.SAXException;
 
 public class CuriostackPlugin implements Plugin<Project> {
 
@@ -567,6 +570,10 @@ public class CuriostackPlugin implements Plugin<Project> {
                                         findChild(dependency, "exclusions")
                                             .ifPresent(dependency::remove);
 
+                                        if (findChild(dependency, "version").isPresent()) {
+                                          continue;
+                                        }
+
                                         var groupId = findChild(dependency, "groupId");
                                         if (groupId.isEmpty()) {
                                           continue;
@@ -1007,6 +1014,32 @@ public class CuriostackPlugin implements Plugin<Project> {
                         "WARNING",
                         "enabled_by_default",
                         "true")));
+
+    var projectCodeStyleConfiguration =
+        findOrCreateChild(xml.asNode(), "component", "ProjectCodeStyleConfiguration");
+    setOption(projectCodeStyleConfiguration, "USE_PER_PROJECT_SETTINGS", "true");
+    projectCodeStyleConfiguration.remove(
+        findOrCreateChild(projectCodeStyleConfiguration, "code_scheme", "Project"));
+
+    final String googleStyle;
+    try {
+      googleStyle =
+          Resources.toString(
+              Resources.getResource(
+                  CuriostackPlugin.class, "/curiostack/intellij-java-google-style.xml"),
+              StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    final Node googleStyleNode;
+    try {
+      googleStyleNode = new XmlParser().parseText(googleStyle);
+    } catch (IOException | SAXException | ParserConfigurationException e) {
+      throw new IllegalStateException(e);
+    }
+
+    googleStyleNode.attributes().put("name", "Project");
+    projectCodeStyleConfiguration.append(googleStyleNode);
   }
 
   private static void setupWorkspaceXml(Project project, XmlProvider xml) {
