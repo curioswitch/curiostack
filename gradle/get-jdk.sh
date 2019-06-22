@@ -55,9 +55,9 @@ if [ ! -d "$JAVA_HOME" ]; then
 
   echo "Downloading OpenJDK"
   if command -v wget >/dev/null 2>&1; then
-    wget -O "$DEST" "$SRC"
+    wget --quiet -O "$DEST" "$SRC"
   else
-    curl -L "$SRC" -o "$DEST"
+    curl --silent -L "$SRC" -o "$DEST"
   fi
 
   if "$windows" = "true"; then
