@@ -266,7 +266,8 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                 });
 
     // Don't need to slow down local builds with coverage.
-    if (!state.isLocalBuild()) {
+    if (!state.isLocalBuild()
+        && !"true".equals(project.findProperty("org.curioswitch.curiostack.ci.disableCoverage"))) {
       continuousBuild.dependsOn(uploadCoverage);
 
       project.allprojects(
