@@ -1015,11 +1015,11 @@ public class CuriostackPlugin implements Plugin<Project> {
                         "enabled_by_default",
                         "true")));
 
-    var projectCodeStyleSettingsManager =
-        findOrCreateChild(xml.asNode(), "component", "ProjectCodeStyleSettingsManager");
-    var perProjectSettings =
-        findOrCreateChild(projectCodeStyleSettingsManager, "option", "PER_PROJECT_SETTINGS");
-    var perProjectSettingsValue = findOrCreateChild(perProjectSettings, "value");
+    var projectCodeStyleConfiguration =
+        findOrCreateChild(xml.asNode(), "component", "ProjectCodeStyleConfiguration");
+    setOption(projectCodeStyleConfiguration, "USE_PER_PROJECT_SETTINGS", "true");
+    projectCodeStyleConfiguration.remove(
+        findOrCreateChild(projectCodeStyleConfiguration, "code_scheme", "Project"));
 
     final String googleStyle;
     try {
@@ -1038,9 +1038,8 @@ public class CuriostackPlugin implements Plugin<Project> {
       throw new IllegalStateException(e);
     }
 
-    for (Object child : googleStyleNode.children()) {
-      perProjectSettingsValue.append((Node) child);
-    }
+    googleStyleNode.attributes().put("name", "Project");
+    projectCodeStyleConfiguration.append(googleStyleNode);
   }
 
   private static void setupWorkspaceXml(Project project, XmlProvider xml) {
