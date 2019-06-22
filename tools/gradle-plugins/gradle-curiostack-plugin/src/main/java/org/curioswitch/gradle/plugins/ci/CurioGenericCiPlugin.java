@@ -365,9 +365,9 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       String branch = git.getRepository().getBranch();
 
       if (branch.equals("master")) {
-        affectedRelativeFilePaths = computeAffectedFilesForMaster(git);
+        affectedRelativeFilePaths = computeAffectedFilesForMaster(git, project);
       } else {
-        affectedRelativeFilePaths = computeAffectedFilesForBranch(git, branch);
+        affectedRelativeFilePaths = computeAffectedFilesForBranch(git, branch, project);
       }
     } catch (IOException e) {
       throw new UncheckedIOException(e);
@@ -384,6 +384,10 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                 .collect(
                     Collectors.toMap(
                         p -> Paths.get(p.getProjectDir().getAbsolutePath()), Function.identity())));
+
+    project.getLogger().info("CI found affected paths {}", affectedPaths);
+    project.getLogger().info("CI found affected projects {}", projectsByPath);
+
     return affectedPaths.stream()
         .map(f -> getProjectForFile(f, projectsByPath))
         .collect(Collectors.toSet());
@@ -402,8 +406,8 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
         "Could not find project for a file in the project, this cannot happen: " + filePath);
   }
 
-  private static Set<String> computeAffectedFilesForBranch(Git git, String branch)
-      throws IOException {
+  private static Set<String> computeAffectedFilesForBranch(
+      Git git, String branch, Project rootProject) throws IOException {
     String masterRemote =
         git.getRepository().getRemoteNames().contains("upstream") ? "upstream" : "origin";
     CanonicalTreeParser oldTreeParser =
@@ -411,11 +415,12 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
             git, git.getRepository().exactRef("refs/remotes/" + masterRemote + "/master"));
     CanonicalTreeParser newTreeParser =
         parserForBranch(git, git.getRepository().exactRef(Constants.HEAD));
-    return computeAffectedFiles(git, oldTreeParser, newTreeParser);
+    return computeAffectedFiles(git, oldTreeParser, newTreeParser, rootProject);
   }
 
   // Assume all tested changes are in a single commit, which works when commits are always squashed.
-  private static Set<String> computeAffectedFilesForMaster(Git git) throws IOException {
+  private static Set<String> computeAffectedFilesForMaster(Git git, Project rootProject)
+      throws IOException {
     ObjectId oldTreeId = git.getRepository().resolve("HEAD^{tree}");
     ObjectId newTreeId = git.getRepository().resolve("HEAD^^{tree}");
 
@@ -426,11 +431,14 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
       newTreeParser = parser(reader, newTreeId);
     }
 
-    return computeAffectedFiles(git, oldTreeParser, newTreeParser);
+    return computeAffectedFiles(git, oldTreeParser, newTreeParser, rootProject);
   }
 
   private static Set<String> computeAffectedFiles(
-      Git git, CanonicalTreeParser oldTreeParser, CanonicalTreeParser newTreeParser) {
+      Git git,
+      CanonicalTreeParser oldTreeParser,
+      CanonicalTreeParser newTreeParser,
+      Project rootProject) {
     final List<DiffEntry> diffs;
     try {
       diffs =
@@ -460,9 +468,15 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
           break;
       }
     }
-    return affectedRelativePaths.stream()
-        .filter(path -> !IGNORED_ROOT_FILES.contains(path))
-        .collect(toImmutableSet());
+
+    var filtered =
+        affectedRelativePaths.stream()
+            .filter(path -> !IGNORED_ROOT_FILES.contains(path))
+            .collect(toImmutableSet());
+
+    rootProject.getLogger().info("Found diffs: {}", filtered);
+
+    return filtered;
   }
 
   private static CanonicalTreeParser parserForBranch(Git git, Ref branch) throws IOException {
