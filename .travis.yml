@@ -44,4 +44,4 @@ cache:
 install: true
 
 script:
-  - "./gradlew continuousBuild --stacktrace --no-daemon -Porg.curioswitch.curiostack.ci.disableCoverage=true"
+  - "./gradlew continuousBuild --stacktrace --no-daemon -Porg.curioswitch.curiostack.ci.disableCoverage=true --info"
