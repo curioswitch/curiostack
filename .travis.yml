@@ -25,7 +25,8 @@ language: bash
 
 os:
   - osx
-  - windows
+  # Disabled unti fixing build issues on Windows under CI
+  # - windows
 
 git:
   depth: 10
