@@ -88,6 +88,11 @@ resource:
       service: cloudtrace.googleapis.com
       lifecycle:
         prevent_destroy: true
+    primary-vision:
+      project: "${google_project.primary_project.project_id}"
+      service: vision.googleapis.com
+      lifecycle:
+        prevent_destroy: true
     sysadmin-compute:
       project: "${google_project.sysadmin_project.project_id}"
       service: compute.googleapis.com
