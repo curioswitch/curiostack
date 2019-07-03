@@ -82,6 +82,9 @@ public class TerraformPlugin implements Plugin<Project> {
                         helm -> helm.args("init", "--client-only")))
             : ImmutableList.of();
 
+    var gcloudInstallComponents =
+        project.getRootProject().getTasks().named("gcloudInstallComponents");
+
     var terraformInit =
         project
             .getTasks()
@@ -98,6 +101,8 @@ public class TerraformPlugin implements Plugin<Project> {
                                   .getCuriostackDir()
                                   .resolve("terraform-plugins")));
                   sysadminOutputTasks.forEach(t::finalizedBy);
+
+                  t.dependsOn(gcloudInstallComponents);
                 });
 
     project

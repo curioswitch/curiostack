@@ -97,6 +97,19 @@ class CuriostackPluginTest {
                 assertThat(dependency.selectFirst("version").text()).isNotEmpty();
               });
     }
+
+    @Test
+    // This test is slow since it downloads a file, just run locally for now.
+    @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+    void terraformInstallsKubectl() {
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir.toFile())
+                  .withArguments(":terraform:terraformInit", "--stacktrace")
+                  .withPluginClasspath())
+          .builds()
+          .tasksDidSucceed(":gcloudInstallComponents", ":terraform:terraformInit");
+    }
   }
 
   @SuppressWarnings("ClassCanBeStatic")

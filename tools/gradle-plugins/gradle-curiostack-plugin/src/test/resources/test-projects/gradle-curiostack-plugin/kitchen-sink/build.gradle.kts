@@ -25,3 +25,8 @@
 plugins {
     id("org.curioswitch.gradle-curiostack-plugin")
 }
+
+gcloud {
+    clusterBaseName.set("curioswitch-testing")
+    cloudRegion.set("asia-northeast1")
+}
