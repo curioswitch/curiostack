@@ -78,8 +78,7 @@ class CuriostackPluginTest {
               GradleRunner.create()
                   .withProjectDir(projectDir.toFile())
                   .withArguments(":java-library1:generatePomFileForMavenPublication")
-                  .withPluginClasspath()
-                  .withDebug(true))
+                  .withPluginClasspath())
           .builds()
           .tasksDidSucceed(":java-library1:generatePomFileForMavenPublication");
 
@@ -96,6 +95,19 @@ class CuriostackPluginTest {
                 assertThat(dependency.selectFirst("artifactId").text()).isNotEmpty();
                 assertThat(dependency.selectFirst("version").text()).isNotEmpty();
               });
+    }
+
+    @Test
+    // This test is slow since it downloads a file, just run locally for now.
+    @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+    void terraformInstallsKubectl() {
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir.toFile())
+                  .withArguments(":terraform:terraformInit", "--stacktrace")
+                  .withPluginClasspath())
+          .builds()
+          .tasksDidSucceed(":gcloudInstallComponents", ":terraform:terraformInit");
     }
   }
 
