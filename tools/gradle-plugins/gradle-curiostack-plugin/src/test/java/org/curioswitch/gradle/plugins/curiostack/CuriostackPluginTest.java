@@ -78,8 +78,7 @@ class CuriostackPluginTest {
               GradleRunner.create()
                   .withProjectDir(projectDir.toFile())
                   .withArguments(":java-library1:generatePomFileForMavenPublication")
-                  .withPluginClasspath()
-                  .withDebug(true))
+                  .withPluginClasspath())
           .builds()
           .tasksDidSucceed(":java-library1:generatePomFileForMavenPublication");
 
