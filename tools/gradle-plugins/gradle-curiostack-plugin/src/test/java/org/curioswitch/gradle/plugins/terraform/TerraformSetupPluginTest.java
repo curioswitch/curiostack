@@ -76,9 +76,9 @@ class TerraformSetupPluginTest {
             ":toolsSetupTerraform",
             ":toolsDownloadTerraformProviderGsuite",
             ":toolsSetupTerraformProviderGsuite",
-            ":terraformBuildK8sProvider",
-            ":terraformBuildKubernetesForkProvider",
-            ":terraformBuildK8sNextProvider",
+            ":terraformBuildTerraformProviderK8s",
+            ":terraformBuildTerraformProviderKubernetes",
+            ":terraformBuildTerraformProviderK8sNext",
             ":terraformCopyPlugins");
 
     assertThat(
