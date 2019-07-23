@@ -83,9 +83,11 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                             tool.getBaseUrl()
                                 .set(
                                     "https://github.com/"
-                                        + provider.getGithubRepo().get()
+                                        + provider.getGitHubRepo().get()
                                         + "/archive/"
-                                        + provider.getVersion().get()
+                                        + provider
+                                            .getGitHubVersion()
+                                            .getOrElse(provider.getVersion().get())
                                         + ".zip");
                             tool.getArtifactPattern().set("");
                           });
@@ -94,11 +96,15 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                           DownloadToolUtil.getSetupTask(project, provider.getName());
 
                       String repoName =
-                          GITHUB_REPO_SPLITTER.splitToList(provider.getGithubRepo().get()).get(1);
+                          GITHUB_REPO_SPLITTER.splitToList(provider.getGitHubRepo().get()).get(1);
                       // GitHub source archive convention seems to be reponame-tag without
                       // leading v.
                       String sourceFolder =
-                          repoName + '-' + provider.getVersion().get().substring(1);
+                          repoName
+                              + '-'
+                              + provider
+                                  .getGitHubVersion()
+                                  .getOrElse(provider.getVersion().get().substring(1));
 
                       Path sourceDir =
                           DownloadedToolManager.get(project)
@@ -189,21 +195,16 @@ public class TerraformSetupPlugin implements Plugin<Project> {
     config.providers(
         providers -> {
           providers.register(
-              "terraform-provider-kubernetes",
-              provider -> {
-                provider.getGithubRepo().set("chokoswitch/terraform-provider-kubernetes");
-                provider.getVersion().set("v1.7.1-choko");
-              });
-          providers.register(
               "terraform-provider-k8s",
               provider -> {
-                provider.getGithubRepo().set("chokoswitch/terraform-provider-k8s");
+                provider.getGitHubRepo().set("chokoswitch/terraform-provider-k8s");
                 provider.getVersion().set("v1.0.1-choko");
               });
           providers.register(
               "terraform-provider-k8s-next",
               provider -> {
-                provider.getGithubRepo().set("chokoswitch/terraform-provider-k8s-1");
+                provider.getGitHubRepo().set("mingfang/terraform-provider-k8s");
+                provider.getGitHubVersion().set("master");
                 provider.getVersion().set("v0.0.1-choko");
               });
         });
