@@ -77,7 +77,6 @@ class TerraformSetupPluginTest {
             ":toolsDownloadTerraformProviderGsuite",
             ":toolsSetupTerraformProviderGsuite",
             ":terraformBuildTerraformProviderK8s",
-            ":terraformBuildTerraformProviderKubernetes",
             ":terraformBuildTerraformProviderK8sNext",
             ":terraformCopyPlugins");
 
@@ -105,10 +104,6 @@ class TerraformSetupPluginTest {
 
     assertThat(
             terraformDir.resolve(PathUtil.getExeName("terraform-provider-k8s-next_v0.0.1-choko")))
-        .exists();
-
-    assertThat(
-            terraformDir.resolve(PathUtil.getExeName("terraform-provider-kubernetes_v1.7.1-choko")))
         .exists();
   }
 }

@@ -78,8 +78,9 @@ public interface TerraformSetupExtension extends HasPublicType {
           objects
               .newInstance(ModifiableCustomProvider.class)
               .setName(name)
-              .setGithubRepo(objects.property(String.class))
-              .setVersion(objects.property(String.class));
+              .setGitHubRepo(objects.property(String.class))
+              .setVersion(objects.property(String.class))
+              .setGitHubVersion(objects.property(String.class));
 
       return provider;
     }
@@ -88,7 +89,7 @@ public interface TerraformSetupExtension extends HasPublicType {
      * The GitHub repository to fetch provider source from to build. Should be in the format of
      * organization/repository, e.g., {@code curioswitch/terraform-provider-curio}.
      */
-    Property<String> getGithubRepo();
+    Property<String> getGitHubRepo();
 
     /**
      * The version of the provider to build. This must match a GitHub release for the provider,
@@ -96,6 +97,12 @@ public interface TerraformSetupExtension extends HasPublicType {
      * https://github.com/organization/repository/archive/version.zip}.
      */
     Property<String> getVersion();
+
+    /**
+     * The version of the GitHub archive this provider's source is in. Should only be used if there
+     * is no release tag available (e.g., to download master).
+     */
+    Property<String> getGitHubVersion();
 
     @Override
     default TypeOf<?> getPublicType() {
