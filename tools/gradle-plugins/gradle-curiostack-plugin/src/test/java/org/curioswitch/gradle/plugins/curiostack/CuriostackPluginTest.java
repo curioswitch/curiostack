@@ -162,6 +162,15 @@ class CuriostackPluginTest {
                   .withPluginClasspath())
           .builds()
           .tasksDidSucceed(":idea");
+
+      final Path projectFile;
+      try (var s = Files.list(projectDir)) {
+        projectFile = s.filter(p -> p.toString().endsWith(".ipr")).findFirst().get();
+      }
+
+      // Make sure copyright is escaped correctly.
+      assertThat(Files.readString(projectFile))
+          .contains("<option name=\"notice\" value=\"MIT License&#10;&#10;Copyright");
     }
   }
 }

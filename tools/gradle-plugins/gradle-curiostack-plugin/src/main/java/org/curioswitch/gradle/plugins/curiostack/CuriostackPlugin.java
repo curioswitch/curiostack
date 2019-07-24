@@ -39,7 +39,6 @@ import com.google.common.io.Resources;
 import groovy.util.Node;
 import groovy.util.XmlParser;
 import groovy.xml.QName;
-import groovy.xml.XmlUtil;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -955,8 +954,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             }
             final String copyrightText;
             try {
-              copyrightText =
-                  XmlUtil.escapeControlCharacters(XmlUtil.escapeXml(Files.readString(file)));
+              copyrightText = Files.readString(file);
             } catch (IOException e) {
               throw new UncheckedIOException(e);
             }
