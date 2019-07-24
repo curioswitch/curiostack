@@ -4,7 +4,7 @@
   "description": "CurioStack developer portal.",
   "license": "MIT",
   "devDependencies": {
-    "firebase-tools": "6.11.0",
+    "firebase-tools": "7.1.1",
     "superstatic": "6.0.4"
   }
 }
