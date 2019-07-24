@@ -4,7 +4,7 @@
 resource kubernetes_deployment deployment {
   depends_on = ["kubernetes_config_map.rpcacls"]
   lifecycle {
-    ignore_changes = ["metadata[0].labels.revision", "spec[0].template[0].metadata[0].labels.revision"]
+    ignore_changes = [spec[0].template[0].metadata[0].labels["revision"]]
   }
   metadata {
     labels = {
@@ -35,7 +35,8 @@ resource kubernetes_deployment deployment {
           "prometheus.io/scrape" = "true"
         }
         labels = {
-          name = "${var.name}"
+          name = var.name
+          revision = "terraform"
         }
         namespace = ""
       }
