@@ -130,7 +130,7 @@ the below steps to migrate your configuration to 0.12.
 First, BACKUP your Terraform state, most simply by downloading the state bucket(s). Once you apply
 with 0.12, you will not be able to go back without restoring a backup.
 
-Add `org.curioswitch.curiostack.tools.terraform = 0.12.2` to the top level `gradle.properties` file.
+Add `org.curioswitch.curiostack.tools.terraform = 0.12.5` to the top level `gradle.properties` file.
 Then run 
 
 ```bash
@@ -139,9 +139,9 @@ Then run
 
 This will install Terraform 0.12 and set it up on your `PATH`.
 
-Update the provider versions referenced in your configuration to use patched versions
+Update the provider versions referenced in your configuration to use latest or patched versions
 
-- `kubernetes` -> `1.7.1-choko`
+- `kubernetes` -> `1.8.1`
 - `k8s` -> `1.0.1-choko`
 
 For each terraform project, run `terraformPlan` and correct errors until you get output you expect.
@@ -158,10 +158,8 @@ Some common migrations
 Rename it to anything else.
 - `google_container_cluster.ip_allocation_policy` needs to be fully specified with `null` for some reason
 
-For projects that use the `kubernetes` provider, set the version to `1.7.1-choko`. The current `1.7.0`
-has a longstanding critical bug https://github.com/terraform-providers/terraform-provider-kubernetes/issues/201.
-`1.7.1-choko` is the same as `1.7.0` with this PR merged in. If you do not make this change, you will
-have downtime as deployments are recreated instead of updated.
+For projects that use the `kubernetes` provider, set the version to `1.8.1`. Any older version has
+ a critical bug https://github.com/terraform-providers/terraform-provider-kubernetes/issues/201.
 
 If you are using HCL for a `curio-server` deployment like this repository, you will find many whitespace
 and similar no-op changes applied to the deployment causing it to be updated. It should be safe to
