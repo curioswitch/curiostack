@@ -58,7 +58,7 @@ function configure(options: any): Configuration {
             {
               modules: false,
               useBuiltIns: 'usage',
-              corejs: 3,
+              corejs: '3.1',
               targets: options.babelTargets || {
                 browsers,
               },
@@ -71,6 +71,7 @@ function configure(options: any): Configuration {
             '@babel/plugin-transform-runtime',
             {
               corejs: 3,
+              useESModules: true,
             },
           ],
           '@babel/proposal-class-properties',
