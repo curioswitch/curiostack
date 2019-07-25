@@ -42,6 +42,6 @@ provider:
     client_certificate: '${data.terraform_remote_state.tls.outputs.tiller-client-cert}'
     ca_certificate: '${data.terraform_remote_state.tls.outputs.tiller-ca-cert}'
   kubernetes:
-    version: "1.7.1-choko"
+    version: "1.8.1"
   k8s:
     version: "1.0.1-choko"
