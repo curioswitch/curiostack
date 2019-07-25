@@ -41,14 +41,14 @@ export interface Props extends ImgHTMLAttributes<{}> {
 
 export default class Picture extends React.PureComponent<Props> {
   public render() {
-    const { image, ...others } = this.props;
+    const { image, alt, ...others } = this.props;
     return (
       <picture>
         {image.sources.map((source) => (
           <source key={source.type} {...source} />
         ))}
         // eslint-disable-next-line jsx-a11y/alt-text
-        <img src={image.fallback} {...others} />
+        <img src={image.fallback} alt={alt} {...others} />
       </picture>
     );
   }
