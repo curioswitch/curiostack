@@ -51,3 +51,5 @@ export type DispatchProps = typeof Actions;
 export function mapDispatchToProps(dispatch: Dispatch<any>): DispatchProps {
   return bindActionCreators(Actions, dispatch);
 }
+
+export default Actions;

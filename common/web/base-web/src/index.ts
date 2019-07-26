@@ -28,6 +28,8 @@ import { LocaleMessages } from './containers/LanguageProvider';
 
 export { default as injectReducer } from './hoc/injectReducer';
 export { default as injectSaga } from './hoc/injectSaga';
+export { default as useReducer } from './hooks/useReducer';
+export { default as useSaga } from './hooks/useSaga';
 
 export { default as Picture } from './components/Picture';
 export { default as LoadingIndicator } from './components/LoadingIndicator';

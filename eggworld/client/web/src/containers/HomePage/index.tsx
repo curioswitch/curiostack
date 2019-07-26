@@ -28,17 +28,17 @@ import React, { useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { hot } from 'react-hot-loader/root';
 import { Stage } from 'react-konva';
-import { connect } from 'react-redux';
-import { compose } from 'redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-import { injectReducer, injectSaga } from '@curiostack/base-web';
+import { useReducer, useSaga } from '@curiostack/base-web';
 
 import AnimationLayer from '../../components/AnimationLayer';
 import FlowerLayer from '../../components/FlowerLayer';
 import FoodLayer from '../../components/FoodLayer';
 import MainLayer from '../../components/MainLayer';
 
-import { DispatchProps, mapDispatchToProps } from './actions';
+import Actions from './actions';
 import { INGREDIENTS } from './constants';
 import reducer, { State } from './reducer';
 import saga from './saga';
@@ -66,10 +66,21 @@ function getRandomInt(min: number, max: number) {
   return Math.floor(Math.random() * (maxFloor - minCeil + 1)) + minCeil;
 }
 
-type Props = State & DispatchProps;
+type Props = State;
 
-const HomePage: React.FunctionComponent<Props> = (props) => {
-  const { cooking, eatenFood, foodBeingEaten, rotateHammer } = props;
+const HomePage: React.FunctionComponent<Props> = () => {
+  const dispatch = useDispatch();
+
+  useReducer({ reducer, key: 'homePage' });
+  useSaga({ saga, key: 'homePage' });
+
+  const dispatchActions = useMemo(() => bindActionCreators(Actions, dispatch), [
+    dispatch,
+  ]);
+
+  const state = useSelector(selectHomePage);
+
+  const { cooking, eatenFood, foodBeingEaten } = state;
 
   const hammerAnimation = useMemo(
     () =>
@@ -90,14 +101,14 @@ const HomePage: React.FunctionComponent<Props> = (props) => {
           angleDiff = 0;
         }
         if (angleDiff !== 0) {
-          props.rotateHammer(angleDiff);
+          dispatchActions.rotateHammer(angleDiff);
         }
       }),
-    [rotateHammer],
+    [dispatch],
   );
 
   useEffect(() => {
-    props.checkIngredients(eatenFood.toArray());
+    dispatchActions.checkIngredients(eatenFood.toArray());
 
     if (!hammerAnimation.isRunning()) {
       hammerAnimation.start();
@@ -138,57 +149,44 @@ const HomePage: React.FunctionComponent<Props> = (props) => {
       </Helmet>
       <Stage width={width} height={height} scaleX={scale} scaleY={scale}>
         <MainLayer
-          selected={props.selectedTab}
+          selected={state.selectedTab}
           cooking={cooking}
-          onEggBreakingDone={props.eggBreakingDone}
-          onSelectTab={props.selectTab}
+          onEggBreakingDone={dispatchActions.eggBreakingDone}
+          onSelectTab={dispatchActions.selectTab}
         />
-        <FlowerLayer eatenFood={props.eatenFood} visible={!cooking} />
+        <FlowerLayer eatenFood={state.eatenFood} visible={!cooking} />
         <AnimationLayer
-          onHammerClick={props.cook}
-          onMouthAnimationFrame={props.mouthAnimationFrame}
-          hammerRotation={props.hammerRotation}
-          showHammer={!props.eatenFood.isEmpty()}
-          started={props.foodBeingEaten !== undefined}
+          onHammerClick={dispatchActions.cook}
+          onMouthAnimationFrame={dispatchActions.mouthAnimationFrame}
+          hammerRotation={state.hammerRotation}
+          showHammer={!state.eatenFood.isEmpty()}
+          started={state.foodBeingEaten !== undefined}
           visible={!cooking}
         />
         <FoodLayer
           ingredients={INGREDIENTS.fruit}
-          eatenFood={props.eatenFood}
-          usableFood={props.usableFood}
-          onFoodDragged={props.foodDragged}
-          visible={props.selectedTab === 'fruit'}
+          eatenFood={state.eatenFood}
+          usableFood={state.usableFood}
+          onFoodDragged={dispatchActions.foodDragged}
+          visible={state.selectedTab === 'fruit'}
         />
         <FoodLayer
           ingredients={INGREDIENTS.meat}
-          eatenFood={props.eatenFood}
-          usableFood={props.usableFood}
-          onFoodDragged={props.foodDragged}
-          visible={props.selectedTab === 'meat'}
+          eatenFood={state.eatenFood}
+          usableFood={state.usableFood}
+          onFoodDragged={dispatchActions.foodDragged}
+          visible={state.selectedTab === 'meat'}
         />
         <FoodLayer
           ingredients={INGREDIENTS.other}
-          eatenFood={props.eatenFood}
-          usableFood={props.usableFood}
-          onFoodDragged={props.foodDragged}
-          visible={props.selectedTab === 'other'}
+          eatenFood={state.eatenFood}
+          usableFood={state.usableFood}
+          onFoodDragged={dispatchActions.foodDragged}
+          visible={state.selectedTab === 'other'}
         />
       </Stage>
     </>
   );
 };
 
-const withConnect = connect(
-  selectHomePage,
-  mapDispatchToProps as any,
-);
-
-const withReducer = injectReducer({ reducer, key: 'homePage' });
-const withSaga = injectSaga({ saga, key: 'homePage' });
-
-export default compose(
-  hot,
-  withReducer,
-  withSaga,
-  withConnect,
-)(HomePage);
+export default hot(HomePage);
