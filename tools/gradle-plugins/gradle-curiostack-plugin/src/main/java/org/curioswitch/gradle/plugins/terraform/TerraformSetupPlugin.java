@@ -63,6 +63,10 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                 "terraformCopyPlugins",
                 Copy.class,
                 t -> {
+                  // Must make sure plugins are copied after Terraform is downloaded, otherwise the
+                  // download task will find an existing folder and skip the download.
+                  t.dependsOn(DownloadToolUtil.getDownloadTask(project, "terraform"));
+
                   t.into(DownloadedToolManager.get(project).getBinDir("terraform"));
                   t.include("terraform-provider-*");
                 });
