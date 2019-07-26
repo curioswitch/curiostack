@@ -22,6 +22,26 @@
  * SOFTWARE.
  */
 
-import { GlobalState } from '../../state';
+import { useEffect } from 'react';
+import { useStore } from 'react-redux';
+import { Reducer } from 'redux';
 
-export default (state: GlobalState) => state.homePage;
+import getInjectors from '../state/injector';
+import { InjectableStore } from '../state/store';
+
+interface Args {
+  key: string;
+  reducer: Reducer;
+}
+
+function useReducer({ key, reducer }: Args) {
+  const store = useStore() as InjectableStore;
+
+  const { injectReducer } = getInjectors(store);
+
+  useEffect(() => {
+    injectReducer(key, reducer);
+  }, []);
+}
+
+export default useReducer;

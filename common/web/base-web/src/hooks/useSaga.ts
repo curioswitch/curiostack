@@ -22,6 +22,31 @@
  * SOFTWARE.
  */
 
-import { GlobalState } from '../../state';
+import { useStore } from 'react-redux';
 
-export default (state: GlobalState) => state.homePage;
+import { useEffect } from 'react';
+
+import getInjectors from '../state/saga/injector';
+import { InjectableStore } from '../state/store';
+
+interface Args {
+  key: string;
+  saga: any;
+  mode?: string;
+  args?: any;
+}
+
+function useSaga({ key, saga, mode, args }: Args) {
+  const store = useStore() as InjectableStore;
+  const { injectSaga, ejectSaga } = getInjectors(store);
+
+  useEffect(() => {
+    injectSaga(key, { saga, mode }, args);
+
+    return () => {
+      ejectSaga(key);
+    };
+  }, []);
+}
+
+export default useSaga;
