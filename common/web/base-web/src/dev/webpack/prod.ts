@@ -42,6 +42,7 @@ import path from 'path';
 import { gzip } from '@gfx/zopfli';
 import BrotliPlugin from 'brotli-webpack-plugin';
 import CompressionPlugin from 'compression-webpack-plugin';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 import FaviconPlugin from 'favicons-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { ReactLoadablePlugin } from 'react-loadable/webpack';
@@ -89,6 +90,14 @@ const plugins = [
     emitStats: true,
     statsFilename: 'iconstats.json',
   }),
+
+  new CopyWebpackPlugin([
+    {
+      from: 'app/shared/assets',
+      to: 'assets',
+      ignore: ['README.md'],
+    },
+  ]),
 
   new CompressionPlugin({
     filename: '[path].gz[query]',
