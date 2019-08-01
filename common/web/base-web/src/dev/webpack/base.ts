@@ -24,6 +24,7 @@
 
 import path from 'path';
 
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import { Configuration } from 'webpack';
 
@@ -183,6 +184,13 @@ function configure(options: any): Configuration {
       extensions: ['.js', '.jsx', '.ts', '.tsx'],
       mainFields: ['browser', 'module', 'jsnext:main', 'main'],
       plugins: [
+        new CopyWebpackPlugin([
+          {
+            from: 'app/shared/assets',
+            to: 'assets',
+            ignore: ['README.md'],
+          },
+        ]),
         new TsconfigPathsPlugin({
           extensions: ['.ts', '.tsx', '.js', '.jsx'],
           mainFields: ['browser', 'module', 'jsnext:main', 'main'],
