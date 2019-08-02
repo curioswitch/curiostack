@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-node-dev",
-  "version": "0.0.14",
+  "version": "0.0.16",
   "description": "Curiostack's base dev dependencies for non-browser applications.",
   "main": "build/index.js",
   "repository": "curioswitch/curiostack",
@@ -14,7 +14,7 @@
     "lint": "eslint src/ --ext .js,.ts"
   },
   "dependencies": {
-    "@curiostack/eslint-config-base": "0.0.1",
+    "@curiostack/eslint-config-base": "0.0.2",
     "@types/node": "12.6.8",
     "prettier": "1.18.2",
     "rimraf": "2.6.3",
