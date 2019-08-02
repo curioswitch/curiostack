@@ -1,14 +1,14 @@
 {
   "name": "@curiostack/eslint-config-base",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Curiostack's base ESLint configuration for NodeJS applications (non-web).",
   "main": "index.js",
   "repository": "curioswitch/curiostack",
   "author": "Choko <choko@curioswitch.org>",
   "license": "MIT",
   "dependencies": {
-    "@typescript-eslint/parser": "1.13.0",
     "@typescript-eslint/eslint-plugin": "1.13.0",
+    "@typescript-eslint/parser": "1.13.0",
     "eslint": "6.1.0",
     "eslint-config-airbnb-base": "13.2.0",
     "eslint-config-prettier": "6.0.0",

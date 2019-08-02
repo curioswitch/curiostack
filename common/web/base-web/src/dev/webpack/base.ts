@@ -178,19 +178,21 @@ function configure(options: any): Configuration {
         },
       ],
     },
-    plugins: [...options.plugins],
+    plugins: [
+      new CopyWebpackPlugin([
+        {
+          from: 'app/shared/assets',
+          to: 'assets',
+          ignore: ['README.md'],
+        },
+      ]),
+      ...options.plugins,
+    ],
     resolve: {
       modules: ['src', 'node_modules'],
       extensions: ['.js', '.jsx', '.ts', '.tsx'],
       mainFields: ['browser', 'module', 'jsnext:main', 'main'],
       plugins: [
-        new CopyWebpackPlugin([
-          {
-            from: 'app/shared/assets',
-            to: 'assets',
-            ignore: ['README.md'],
-          },
-        ]),
         new TsconfigPathsPlugin({
           extensions: ['.ts', '.tsx', '.js', '.jsx'],
           mainFields: ['browser', 'module', 'jsnext:main', 'main'],
