@@ -103,8 +103,7 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
 
       if (!path.toString().endsWith(".tf.yml") && !path.toString().endsWith(".tf.yaml")) {
         var outDir =
-            outputDir.resolve(
-                project.getProjectDir().toPath().relativize(file.toPath()).getParent());
+            outputDir.resolve(project.getProjectDir().toPath().relativize(path.getParent()));
 
         if (path.toString().contains(".jinja.")) {
           var outPath = outDir.resolve(path.getFileName().toString().replace(".jinja.", "."));

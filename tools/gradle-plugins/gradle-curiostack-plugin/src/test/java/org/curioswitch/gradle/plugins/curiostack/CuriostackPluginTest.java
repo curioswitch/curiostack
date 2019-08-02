@@ -109,6 +109,20 @@ class CuriostackPluginTest {
           .builds()
           .tasksDidSucceed(":gcloudInstallComponents", ":terraform:terraformInit");
     }
+
+    @Test
+    void terraformConvertsConfigs() {
+      assertThat(
+              GradleRunner.create()
+                  .withProjectDir(projectDir.toFile())
+                  .withArguments(":terraform:terraformConvertConfigs", "--stacktrace")
+                  .withPluginClasspath())
+          .builds()
+          .tasksDidSucceed(":terraform:terraformConvertConfigs");
+
+      assertThat(projectDir.resolve("terraform/build/terraform/dummy.tf.json")).exists();
+      assertThat(projectDir.resolve("terraform/build/terraform/dummy2.tf")).exists();
+    }
   }
 
   @SuppressWarnings("ClassCanBeStatic")
