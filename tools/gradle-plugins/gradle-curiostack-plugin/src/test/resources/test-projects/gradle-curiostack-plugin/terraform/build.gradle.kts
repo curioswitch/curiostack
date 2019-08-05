@@ -24,5 +24,4 @@
 
 plugins {
     id("org.curioswitch.gradle-curiostack-plugin")
-    id("org.curioswitch.gradle-terraform-plugin")
 }

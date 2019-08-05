@@ -84,6 +84,7 @@ import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateProjectSettingsTask
 import org.curioswitch.gradle.plugins.gcloud.GcloudPlugin;
 import org.curioswitch.gradle.plugins.nodejs.NodePlugin;
 import org.curioswitch.gradle.plugins.nodejs.util.NodeUtil;
+import org.curioswitch.gradle.plugins.terraform.TerraformSetupPlugin;
 import org.curioswitch.gradle.release.ReleasePlugin;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
@@ -153,6 +154,7 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(IdeaPlugin.class);
     plugins.apply(NodePlugin.class);
     plugins.apply(ReleasePlugin.class);
+    plugins.apply(TerraformSetupPlugin.class);
     plugins.apply(ToolDownloaderPlugin.class);
 
     var updateGradleWrapper =

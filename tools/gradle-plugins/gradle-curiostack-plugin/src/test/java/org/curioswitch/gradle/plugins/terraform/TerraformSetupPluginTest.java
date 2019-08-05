@@ -68,7 +68,6 @@ class TerraformSetupPluginTest {
                 .withProjectDir(projectDir.toFile())
                 .withArguments("toolsSetupTerraform", "--stacktrace")
                 .withPluginClasspath()
-                .withDebug(true)
                 .withTestKitDir(gradleUserHome.toFile()))
         .builds()
         .tasksDidSucceed(
@@ -80,17 +79,9 @@ class TerraformSetupPluginTest {
             ":terraformBuildTerraformProviderK8sNext",
             ":terraformCopyPlugins");
 
-    assertThat(
-            gradleUserHome
-                .resolve("curiostack/terraform")
-                .resolve(ToolDependencies.getTerraformVersion(project))
-                .resolve(PathUtil.getExeName("terraform")))
-        .exists();
+    var terraformDir = gradleUserHome.resolve("curiostack/terraform").resolve("0.12.6");
 
-    var terraformDir =
-        gradleUserHome
-            .resolve("curiostack/terraform")
-            .resolve(ToolDependencies.getTerraformVersion(project));
+    assertThat(terraformDir.resolve(PathUtil.getExeName("terraform"))).exists();
 
     assertThat(
             terraformDir.resolve(
