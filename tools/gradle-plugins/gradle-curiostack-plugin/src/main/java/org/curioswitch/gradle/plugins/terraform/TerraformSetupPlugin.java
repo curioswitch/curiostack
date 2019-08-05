@@ -71,130 +71,51 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                   t.include("terraform-provider-*");
                 });
 
-    // TODO(choko): Figure out why this afterEvaluate is required, it doesn't seem like it should
-    // be.
-    project.afterEvaluate(
-        unusedProject ->
-            config
-                .getProviders()
-                // TODO(choko): See if it's possible to do this lazily.
-                .all(
-                    provider -> {
-                      toolDownloaderPlugin.registerToolIfAbsent(
-                          provider.getName(),
-                          tool -> {
-                            tool.getVersion().set(provider.getVersion());
-                            tool.getBaseUrl()
-                                .set(
-                                    "https://github.com/"
-                                        + provider.getGitHubRepo().get()
-                                        + "/archive/"
-                                        + provider
-                                            .getGitHubVersion()
-                                            .getOrElse(provider.getVersion().get())
-                                        + ".zip");
-                            tool.getArtifactPattern().set("");
-                          });
+    toolDownloaderPlugin.registerToolIfAbsent(
+        "terraform",
+        tool -> {
+          tool.getVersion().set(ToolDependencies.getTerraformVersion(project));
+          tool.getBaseUrl().set("https://releases.hashicorp.com/");
+          tool.getArtifactPattern()
+              .set("[artifact]/[revision]/[artifact]_[revision]_[classifier].[ext]");
 
-                      var sourceSetupTask =
-                          DownloadToolUtil.getSetupTask(project, provider.getName());
+          tool.getOsClassifiers().getLinux().set("linux_amd64");
+          tool.getOsClassifiers().getMac().set("darwin_amd64");
+          tool.getOsClassifiers().getWindows().set("windows_amd64");
 
-                      String repoName =
-                          GITHUB_REPO_SPLITTER.splitToList(provider.getGitHubRepo().get()).get(1);
-                      // GitHub source archive convention seems to be reponame-tag without
-                      // leading v.
-                      String sourceFolder =
-                          repoName
-                              + '-'
-                              + provider
-                                  .getGitHubVersion()
-                                  .getOrElse(provider.getVersion().get().substring(1));
+          tool.getOsExtensions().getLinux().set("zip");
+          tool.getOsExtensions().getMac().set("zip");
+          tool.getOsExtensions().getWindows().set("zip");
 
-                      Path sourceDir =
-                          DownloadedToolManager.get(project)
-                              .getToolDir(provider.getName())
-                              .resolve(sourceFolder);
-                      var buildTask =
-                          project
-                              .getTasks()
-                              .register(
-                                  "terraformBuild" + TaskUtil.toTaskSuffix(provider.getName()),
-                                  GoTask.class,
-                                  t -> {
-                                    t.dependsOn(sourceSetupTask);
+          tool.getPathSubDirs().add("");
+        });
 
-                                    String filename =
-                                        PathUtil.getExeName(
-                                            provider.getName() + '_' + provider.getVersion().get());
+    toolDownloaderPlugin.registerToolIfAbsent(
+        "helm",
+        tool -> {
+          tool.getVersion().set(ToolDependencies.getHelmVersion(project));
+          tool.getBaseUrl().set("https://storage.googleapis.com/kubernetes-helm/");
+          tool.getArtifactPattern().set("[artifact]-v[revision]-[classifier].[ext]");
+        });
 
-                                    t.args("build", "-o", filename);
+    toolDownloaderPlugin.registerToolIfAbsent(
+        "terraform-provider-gsuite",
+        tool -> {
+          tool.getVersion().set(ToolDependencies.getTerraformGsuiteProviderVersion(project));
+          tool.getBaseUrl()
+              .set("https://github.com/DeviaVir/terraform-provider-gsuite" + "/releases/download/");
+          tool.getArtifactPattern().set("v[revision]/[artifact]_[revision]_[classifier].[ext]");
 
-                                    t.execCustomizer(exec -> exec.workingDir(sourceDir));
+          tool.getOsClassifiers().getLinux().set("linux_amd64");
+          tool.getOsClassifiers().getMac().set("darwin_amd64");
+          tool.getOsClassifiers().getWindows().set("windows_amd64");
 
-                                    t.onlyIf(unused -> !Files.exists(sourceDir.resolve(filename)));
-                                  });
+          tool.getOsExtensions().getLinux().set("zip");
+          tool.getOsExtensions().getMac().set("zip");
+          tool.getOsExtensions().getWindows().set("zip");
 
-                      terraformCopyPlugins.configure(
-                          copy -> {
-                            copy.dependsOn(buildTask);
-                            copy.from(sourceDir);
-                          });
-                    }));
-    project
-        .getPlugins()
-        .withType(
-            ToolDownloaderPlugin.class,
-            plugin -> {
-              plugin.registerToolIfAbsent(
-                  "terraform",
-                  tool -> {
-                    tool.getVersion().set(ToolDependencies.getTerraformVersion(project));
-                    tool.getBaseUrl().set("https://releases.hashicorp.com/");
-                    tool.getArtifactPattern()
-                        .set("[artifact]/[revision]/[artifact]_[revision]_[classifier].[ext]");
-
-                    tool.getOsClassifiers().getLinux().set("linux_amd64");
-                    tool.getOsClassifiers().getMac().set("darwin_amd64");
-                    tool.getOsClassifiers().getWindows().set("windows_amd64");
-
-                    tool.getOsExtensions().getLinux().set("zip");
-                    tool.getOsExtensions().getMac().set("zip");
-                    tool.getOsExtensions().getWindows().set("zip");
-
-                    tool.getPathSubDirs().add("");
-                  });
-
-              plugin.registerToolIfAbsent(
-                  "helm",
-                  tool -> {
-                    tool.getVersion().set(ToolDependencies.getHelmVersion(project));
-                    tool.getBaseUrl().set("https://storage.googleapis.com/kubernetes-helm/");
-                    tool.getArtifactPattern().set("[artifact]-v[revision]-[classifier].[ext]");
-                  });
-
-              plugin.registerToolIfAbsent(
-                  "terraform-provider-gsuite",
-                  tool -> {
-                    tool.getVersion()
-                        .set(ToolDependencies.getTerraformGsuiteProviderVersion(project));
-                    tool.getBaseUrl()
-                        .set(
-                            "https://github.com/DeviaVir/terraform-provider-gsuite"
-                                + "/releases/download/");
-                    tool.getArtifactPattern()
-                        .set("v[revision]/[artifact]_[revision]_[classifier].[ext]");
-
-                    tool.getOsClassifiers().getLinux().set("linux_amd64");
-                    tool.getOsClassifiers().getMac().set("darwin_amd64");
-                    tool.getOsClassifiers().getWindows().set("windows_amd64");
-
-                    tool.getOsExtensions().getLinux().set("zip");
-                    tool.getOsExtensions().getMac().set("zip");
-                    tool.getOsExtensions().getWindows().set("zip");
-
-                    tool.getPathSubDirs().add("");
-                  });
-            });
+          tool.getPathSubDirs().add("");
+        });
 
     config.providers(
         providers -> {
@@ -212,6 +133,69 @@ public class TerraformSetupPlugin implements Plugin<Project> {
                 provider.getVersion().set("v0.0.1-choko");
               });
         });
+
+    config
+        .getProviders()
+        // TODO(choko): See if it's possible to do this lazily.
+        .all(
+            provider -> {
+              toolDownloaderPlugin.registerToolIfAbsent(
+                  provider.getName(),
+                  tool -> {
+                    tool.getVersion().set(provider.getVersion());
+                    tool.getBaseUrl()
+                        .set(
+                            "https://github.com/"
+                                + provider.getGitHubRepo().get()
+                                + "/archive/"
+                                + provider.getGitHubVersion().getOrElse(provider.getVersion().get())
+                                + ".zip");
+                    tool.getArtifactPattern().set("");
+                  });
+
+              var sourceSetupTask = DownloadToolUtil.getSetupTask(project, provider.getName());
+
+              String repoName =
+                  GITHUB_REPO_SPLITTER.splitToList(provider.getGitHubRepo().get()).get(1);
+              // GitHub source archive convention seems to be reponame-tag without
+              // leading v.
+              String sourceFolder =
+                  repoName
+                      + '-'
+                      + provider
+                          .getGitHubVersion()
+                          .getOrElse(provider.getVersion().get().substring(1));
+
+              Path sourceDir =
+                  DownloadedToolManager.get(project)
+                      .getToolDir(provider.getName())
+                      .resolve(sourceFolder);
+              var buildTask =
+                  project
+                      .getTasks()
+                      .register(
+                          "terraformBuild" + TaskUtil.toTaskSuffix(provider.getName()),
+                          GoTask.class,
+                          t -> {
+                            t.dependsOn(sourceSetupTask);
+
+                            String filename =
+                                PathUtil.getExeName(
+                                    provider.getName() + '_' + provider.getVersion().get());
+
+                            t.args("build", "-o", filename);
+
+                            t.execCustomizer(exec -> exec.workingDir(sourceDir));
+
+                            t.onlyIf(unused -> !Files.exists(sourceDir.resolve(filename)));
+                          });
+
+              terraformCopyPlugins.configure(
+                  copy -> {
+                    copy.dependsOn(buildTask);
+                    copy.from(sourceDir);
+                  });
+            });
 
     var setupTerraformGsuiteProvider =
         DownloadToolUtil.getSetupTask(project, "terraform-provider-gsuite");
