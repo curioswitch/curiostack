@@ -38,7 +38,7 @@ export function createAction<T extends string, P>(
   payload: P,
 ): ActionWithPayload<T, P>;
 export function createAction<T extends string, P>(type: T, payload?: P) {
-  return payload === undefined ? { type, payload } : { type };
+  return payload === undefined ? { type } : { type, payload };
 }
 
 export type ActionsUnion<A extends ActionCreatorsMapObject> = ReturnType<
