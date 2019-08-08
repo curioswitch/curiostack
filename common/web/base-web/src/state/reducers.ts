@@ -33,7 +33,7 @@ import { InjectableStore } from './store';
 export interface RouterStateRecord extends Record<RouterState>, RouterState {}
 
 export const routeInitialState: RouterStateRecord = Record<RouterState>({
-  location: createLocation(window.location.pathname),
+  location: createLocation(window.location),
   action: 'POP',
 })();
 
