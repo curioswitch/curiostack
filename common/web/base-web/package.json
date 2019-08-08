@@ -49,6 +49,7 @@
     "@storybook/addon-options": "5.1.9",
     "@storybook/addon-viewport": "5.1.9",
     "@storybook/react": "5.1.9",
+    "@types/enzyme": "3.10.3",
     "@types/history": "4.7.2",
     "@types/intl": "1.2.0",
     "@types/jest": "24.0.15",
@@ -137,7 +138,6 @@
   "devDependencies": {
     "@types/compression-webpack-plugin": "2.0.1",
     "@types/copy-webpack-plugin": "5.0.0",
-    "@types/enzyme": "3.10.3",
     "@types/enzyme-adapter-react-16": "1.0.5",
     "@types/eslint": "4.16.6",
     "@types/fontfaceobserver": "0.0.6",
