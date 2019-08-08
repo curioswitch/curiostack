@@ -22,6 +22,6 @@
  * SOFTWARE.
  */
 
-include(":dependency")
-include(":terraform")
-include(":zdependency")
+plugins {
+    id("org.curioswitch.gradle-terraform-plugin")
+}

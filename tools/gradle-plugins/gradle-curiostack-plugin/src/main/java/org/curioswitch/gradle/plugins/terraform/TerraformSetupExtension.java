@@ -106,7 +106,7 @@ public interface TerraformSetupExtension extends HasPublicType {
 
     @Override
     default TypeOf<?> getPublicType() {
-      return TypeOf.typeOf(TerraformSetupExtension.class);
+      return TypeOf.typeOf(CustomProvider.class);
     }
   }
 
