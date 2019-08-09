@@ -886,7 +886,7 @@
     typescript "3.5.3"
 
 "@curiostack/base-web@0.0.44":
-  version "0.0.47"
+  version "0.0.48"
   dependencies:
     "@babel/core" "7.5.5"
     "@babel/plugin-proposal-async-generator-functions" "7.2.0"
@@ -912,6 +912,7 @@
     "@storybook/addon-options" "5.1.9"
     "@storybook/addon-viewport" "5.1.9"
     "@storybook/react" "5.1.9"
+    "@types/enzyme" "3.10.3"
     "@types/history" "4.7.2"
     "@types/intl" "1.2.0"
     "@types/jest" "24.0.15"
