@@ -885,8 +885,8 @@
     tslint-plugin-prettier "2.0.1"
     typescript "3.5.3"
 
-"@curiostack/base-web@0.0.44":
-  version "0.0.48"
+"@curiostack/base-web@0.0.48":
+  version "0.0.49"
   dependencies:
     "@babel/core" "7.5.5"
     "@babel/plugin-proposal-async-generator-functions" "7.2.0"
