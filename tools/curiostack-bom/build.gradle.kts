@@ -193,8 +193,8 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "com.linecorp.armeria",
-        "0.87.0",
-        listOf("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-zipkin")
+        "0.90.3",
+        listOf("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-brave")
     ),
     DependencySet(
         "com.spotify",
