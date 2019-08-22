@@ -46,11 +46,9 @@
  * SOFTWARE.
  */
 
+// Having terraform in the middle of two dependencies in alphabetical order should test to make sure
+// it works regardless of evaluation order.
+
 plugins {
     id("org.curioswitch.gradle-terraform-plugin")
-}
-
-terraform {
-    dependencies.add(":dependency")
-    dependency(":zdependency")
 }

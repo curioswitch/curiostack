@@ -42,6 +42,7 @@ import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePlugin;
+import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.TaskProvider;
 
 public class TerraformPlugin implements Plugin<Project> {
@@ -52,9 +53,32 @@ public class TerraformPlugin implements Plugin<Project> {
 
     project.getPlugins().apply(BasePlugin.class);
 
+    var config = TerraformExtension.create(project);
+
     var convertConfigs =
         project.getTasks().create(ConvertConfigsToJsonTask.NAME, ConvertConfigsToJsonTask.class);
-    convertConfigs.dependsOn(BasePlugin.CLEAN_TASK_NAME);
+    var copyDependencies =
+        project
+            .getTasks()
+            .register("terraformCopyDependencies", Copy.class, t -> t.into("build/terraform"));
+    project.afterEvaluate(
+        unused -> {
+          for (var dependencyPath : config.getDependencies().get()) {
+            var depedendency = project.findProject(dependencyPath);
+            if (depedendency == null) {
+              throw new IllegalStateException(
+                  "Could not find dependency project with path  " + dependencyPath);
+            }
+            copyDependencies.configure(
+                t -> {
+                  t.dependsOn(depedendency.getTasks().withType(ConvertConfigsToJsonTask.class));
+                  t.from(
+                      depedendency.file("build/terraform"),
+                      copy -> copy.into(depedendency.getName()));
+                });
+          }
+        });
+    convertConfigs.dependsOn(BasePlugin.CLEAN_TASK_NAME, copyDependencies);
 
     List<TaskProvider<?>> sysadminOutputTasks =
         project.getPath().contains(":sysadmin")
