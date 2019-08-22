@@ -523,6 +523,12 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(VersionsPlugin.class);
 
     // Manage all dependencies by adding the bom as a platform.
+    Object bomDependency =
+        isCuriostack(project)
+            ? project.getDependencies().project(ImmutableMap.of("path", ":tools:curiostack-bom"))
+            : "org.curioswitch.curiostack:curiostack-bom:"
+                + ToolDependencies.getBomVersion(project);
+
     project
         .getConfigurations()
         .configureEach(
@@ -531,11 +537,7 @@ public class CuriostackPlugin implements Plugin<Project> {
                     .getDependencies()
                     .add(
                         configuration.getName(),
-                        project
-                            .getDependencies()
-                            .platform(
-                                "org.curioswitch.curiostack:curiostack-bom:"
-                                    + ToolDependencies.getBomVersion(project))));
+                        project.getDependencies().platform(bomDependency)));
 
     project.afterEvaluate(
         unused ->
@@ -1051,5 +1053,10 @@ public class CuriostackPlugin implements Plugin<Project> {
     setProperty(properties, "node.js.selected.package.eslint", "$PROJECT_DIR$/node_modules/eslint");
     setProperty(
         properties, "settings.editor.selected.configurable", "settings.javascript.linters.eslint");
+  }
+
+  private static boolean isCuriostack(Project project) {
+    return "true"
+        .equals(project.getRootProject().findProperty("org.curioswitch.curiostack.is_curiostack"));
   }
 }

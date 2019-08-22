@@ -34,8 +34,8 @@ import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
+import com.linecorp.armeria.common.brave.RequestContextCurrentTraceContext;
 import com.linecorp.armeria.common.metric.PrometheusMeterRegistries;
-import com.linecorp.armeria.common.tracing.RequestContextCurrentTraceContext;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.Lazy;
@@ -107,7 +107,7 @@ public abstract class MonitoringModule {
             .traceId128Bit(true)
             .supportsJoin(false)
             .propagationFactory(StackdriverTracePropagation.FACTORY)
-            .currentTraceContext(RequestContextCurrentTraceContext.DEFAULT)
+            .currentTraceContext(RequestContextCurrentTraceContext.ofDefault())
             .sampler(new CountingSampler((float) config.getTraceSamplingRate()));
     if (config.isReportTraces()) {
       builder.spanReporter(reporter.get());

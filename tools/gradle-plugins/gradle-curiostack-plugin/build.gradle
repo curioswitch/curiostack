@@ -170,7 +170,7 @@ gradlePlugin {
 
 publishing {
     publications {
-        maven(MavenPublication) {
+        pluginMaven(MavenPublication) {
             pom {
                 name = 'Gradle Curiostack Plugin'
                 description = 'A highly opinionated plugin for setting up a gradle codebase ' +

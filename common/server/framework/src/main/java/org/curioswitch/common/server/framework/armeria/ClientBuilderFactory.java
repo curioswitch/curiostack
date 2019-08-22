@@ -30,15 +30,14 @@ import com.linecorp.armeria.client.Client;
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.ClientFactoryBuilder;
+import com.linecorp.armeria.client.brave.BraveClient;
 import com.linecorp.armeria.client.endpoint.EndpointGroupRegistry;
 import com.linecorp.armeria.client.endpoint.EndpointSelectionStrategy;
 import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroup;
 import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroupBuilder;
-import com.linecorp.armeria.client.endpoint.healthcheck.HttpHealthCheckedEndpointGroup;
-import com.linecorp.armeria.client.endpoint.healthcheck.HttpHealthCheckedEndpointGroupBuilder;
+import com.linecorp.armeria.client.endpoint.healthcheck.HealthCheckedEndpointGroup;
 import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
-import com.linecorp.armeria.client.tracing.HttpTracingClient;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.SessionProtocol;
@@ -173,8 +172,8 @@ public class ClientBuilderFactory {
                   endpoints.stream()
                       .map(e -> MoreObjects.firstNonNull(e.ipAddr(), e.authority()))
                       .collect(Collectors.joining(","))));
-      HttpHealthCheckedEndpointGroup endpointGroup =
-          new HttpHealthCheckedEndpointGroupBuilder(dnsEndpointGroup, "/internal/health")
+      HealthCheckedEndpointGroup endpointGroup =
+          HealthCheckedEndpointGroup.builder(dnsEndpointGroup, "/internal/health")
               .clientFactory(clientFactory)
               .protocol(SessionProtocol.HTTPS)
               .retryInterval(Duration.ofSeconds(3))
@@ -190,7 +189,7 @@ public class ClientBuilderFactory {
     return builder
         .decorator(
             MetricCollectingClient.newDecorator(RpcMetricLabels.grpcRequestLabeler("grpc_clients")))
-        .decorator(HttpTracingClient.newDecorator(tracing))
+        .decorator(BraveClient.newDecorator(tracing))
         .decorator(loggingClient);
   }
 }

@@ -49,7 +49,7 @@ gradlePlugin {
 
 publishing {
     publications {
-        register("maven", MavenPublication::class) {
+        register<MavenPublication>("pluginMaven") {
             pom {
                 name.set("Gradle Protobuf Plugin")
                 description.set("Gradle plugin to compile proto files into generated code.")

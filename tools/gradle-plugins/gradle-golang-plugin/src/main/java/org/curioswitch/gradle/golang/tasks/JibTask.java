@@ -21,6 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+/*
+ * Copyright 2018 Google LLC.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package org.curioswitch.gradle.golang.tasks;
 
 import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
@@ -30,12 +45,25 @@ import com.google.cloud.tools.jib.api.ImageReference;
 import com.google.cloud.tools.jib.api.Jib;
 import com.google.cloud.tools.jib.api.JibContainerBuilder;
 import com.google.cloud.tools.jib.api.LayerConfiguration;
+import com.google.cloud.tools.jib.api.LogEvent;
 import com.google.cloud.tools.jib.api.Port;
 import com.google.cloud.tools.jib.api.RegistryImage;
+import com.google.cloud.tools.jib.event.events.ProgressEvent;
+import com.google.cloud.tools.jib.event.events.TimerEvent;
+import com.google.cloud.tools.jib.event.progress.ProgressEventHandler;
 import com.google.cloud.tools.jib.frontend.CredentialRetrieverFactory;
+import com.google.cloud.tools.jib.plugins.common.PropertyNames;
+import com.google.cloud.tools.jib.plugins.common.TimerEventHandler;
+import com.google.cloud.tools.jib.plugins.common.logging.ConsoleLoggerBuilder;
+import com.google.cloud.tools.jib.plugins.common.logging.ProgressDisplayGenerator;
+import com.google.cloud.tools.jib.plugins.common.logging.SingleThreadedExecutor;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.function.Consumer;
+import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.golang.GolangExtension;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
@@ -115,19 +143,62 @@ public class JibTask extends DefaultTask {
 
   @TaskAction
   public void exec() throws Exception {
+    // Logging related code copied from GradleProjectProperties, which isn't public.
+    var logger = getProject().getLogger();
+    SingleThreadedExecutor singleThreadedExecutor = new SingleThreadedExecutor();
+    ConsoleLoggerBuilder consoleLoggerBuilder =
+        (isProgressFooterEnabled(getProject())
+                ? ConsoleLoggerBuilder.rich(singleThreadedExecutor)
+                : ConsoleLoggerBuilder.plain(singleThreadedExecutor).progress(logger::lifecycle))
+            .lifecycle(logger::lifecycle);
+    if (logger.isDebugEnabled()) {
+      consoleLoggerBuilder.debug(logger::debug);
+    }
+    if (logger.isInfoEnabled()) {
+      consoleLoggerBuilder.info(logger::info);
+    }
+    if (logger.isWarnEnabled()) {
+      consoleLoggerBuilder.warn(logger::warn);
+    }
+    if (logger.isErrorEnabled()) {
+      consoleLoggerBuilder.error(logger::error);
+    }
+    var consoleLogger = consoleLoggerBuilder.build();
+
     var baseImage = RegistryImage.named(this.baseImage.get());
     var targetImage = RegistryImage.named(this.targetImage.get());
+
+    Consumer<LogEvent> logEventConsumer =
+        logEvent -> consoleLogger.log(logEvent.getLevel(), logEvent.getMessage());
+
     if (credentialHelper.isPresent()) {
       baseImage.addCredentialRetriever(
-          CredentialRetrieverFactory.forImage(ImageReference.parse(this.baseImage.get()))
+          CredentialRetrieverFactory.forImage(
+                  ImageReference.parse(this.baseImage.get()), logEventConsumer)
               .dockerCredentialHelper(credentialHelper.get()));
       targetImage.addCredentialRetriever(
-          CredentialRetrieverFactory.forImage(ImageReference.parse(this.targetImage.get()))
+          CredentialRetrieverFactory.forImage(
+                  ImageReference.parse(this.targetImage.get()), logEventConsumer)
               .dockerCredentialHelper(credentialHelper.get()));
     }
 
     var exePath = this.exePath.get();
-    var containerize = Containerizer.to(targetImage);
+    var containerize =
+        Containerizer.to(targetImage)
+            .addEventHandler(LogEvent.class, logEventConsumer)
+            .addEventHandler(
+                TimerEvent.class,
+                new TimerEventHandler(message -> consoleLogger.log(LogEvent.Level.DEBUG, message)))
+            .addEventHandler(
+                ProgressEvent.class,
+                new ProgressEventHandler(
+                    update -> {
+                      List<String> footer =
+                          ProgressDisplayGenerator.generateProgressDisplay(
+                              update.getProgress(), update.getUnfinishedLeafTasks());
+                      footer.add("");
+                      consoleLogger.setFooter(footer);
+                    }));
     additionalTags.get().forEach(containerize::withAdditionalTag);
     JibContainerBuilder jib =
         Jib.from(baseImage)
@@ -156,5 +227,23 @@ public class JibTask extends DefaultTask {
     environmentVariables.get().forEach(jib::addEnvironmentVariable);
 
     jib.containerize(containerize);
+  }
+
+  private static boolean isProgressFooterEnabled(Project project) {
+    if ("plain".equals(System.getProperty(PropertyNames.CONSOLE))) {
+      return false;
+    }
+
+    switch (project.getGradle().getStartParameter().getConsoleOutput()) {
+      case Plain:
+        return false;
+
+      case Auto:
+        // Enables progress footer when ANSI is supported (Windows or TERM not 'dumb').
+        return Os.isFamily(Os.FAMILY_WINDOWS) || !"dumb".equals(System.getenv("TERM"));
+
+      default:
+        return true;
+    }
   }
 }

@@ -87,11 +87,7 @@ public class DownloadTerraformPluginTask extends DefaultTask {
       File archive = new File(archiveDir, task.version + ".zip");
 
       var download = new DownloadAction(task.getProject());
-      try {
-        download.src(url);
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
-      }
+      download.src(url);
       download.dest(archive);
       try {
         download.execute();

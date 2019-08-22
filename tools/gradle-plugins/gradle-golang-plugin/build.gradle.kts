@@ -51,7 +51,7 @@ gradlePlugin {
 
 publishing {
     publications {
-        register("maven", MavenPublication::class) {
+        register<MavenPublication>("pluginMaven") {
             pom {
                 name.set("Gradle Golang Plugin")
                 description.set("Gradle plugin to build Go binaries.")

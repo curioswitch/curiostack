@@ -42,3 +42,7 @@ tasks.register('install', org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask.c
         !file("node_modules/.bin/build").exists()
     }
 }
+
+tasks.named('buildWeb') {
+    dependsOn('install')
+}

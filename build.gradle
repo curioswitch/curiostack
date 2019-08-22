@@ -64,43 +64,41 @@ allprojects {
             }
 
             publishing {
-                publications {
-                    maven(MavenPublication) {
-                        artifactId = project.archivesBaseName
+                publications.configureEach {publication->
+                    artifactId = project.archivesBaseName
 
-                        if (project.name != 'curiostack-bom') {
-                            from components.java
+                    // Plugin and BOM publications do not need this.
+                    if (publication.name == 'maven' && project.name != 'curiostack-bom') {
+                        from components.java
+                    }
 
+                    if (project.name != 'curiostack-bom') {
+                        artifact project.tasks.javadocJar
+                        artifact project.tasks.sourceJar
+                    }
 
-                            artifact project.tasks.javadocJar
-                            artifact project.tasks.sourceJar
-                        } else {
-                            from components.javaPlatform
+                    pom {
+                        licenses {
+                            license {
+                                name = 'MIT License'
+                                url = 'https://opensource.org/licenses/MIT'
+                                distribution = 'repo'
+                            }
+                        }
+                        developers {
+                            developer {
+                                id = 'chokoswitch'
+                                name = 'Choko'
+                                email = 'choko@curioswitch.org'
+                                organization = 'CurioSwitch'
+                                organizationUrl = 'https://github.com/curioswitch/curiostack'
+                            }
                         }
 
-                        pom {
-                            licenses {
-                                license {
-                                    name = 'MIT License'
-                                    url = 'https://opensource.org/licenses/MIT'
-                                    distribution = 'repo'
-                                }
-                            }
-                            developers {
-                                developer {
-                                    id = 'chokoswitch'
-                                    name = 'Choko'
-                                    email = 'choko@curioswitch.org'
-                                    organization = 'CurioSwitch'
-                                    organizationUrl = 'https://github.com/curioswitch/curiostack'
-                                }
-                            }
-
-                            scm {
-                                connection = 'scm:git:git://github.com/curioswitch/curiostack.git'
-                                developerConnection = 'scm:git:ssh://github.com:curioswitch/curiostack.git'
-                                url = 'https://github.com/curioswitch/curiostack'
-                            }
+                        scm {
+                            connection = 'scm:git:git://github.com/curioswitch/curiostack.git'
+                            developerConnection = 'scm:git:ssh://github.com:curioswitch/curiostack.git'
+                            url = 'https://github.com/curioswitch/curiostack'
                         }
                     }
                 }

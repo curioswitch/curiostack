@@ -46,7 +46,7 @@ gradlePlugin {
 
 publishing {
     publications {
-        register("maven", MavenPublication::class) {
+        register<MavenPublication>("pluginMaven") {
             pom {
                 name.set("Gradle Release Plugin")
                 description.set("Gradle plugin to perform versioning of releases using curiostack conventions.")

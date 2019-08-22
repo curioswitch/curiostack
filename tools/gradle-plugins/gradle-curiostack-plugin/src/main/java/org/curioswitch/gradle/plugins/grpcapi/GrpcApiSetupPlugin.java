@@ -37,7 +37,7 @@ import org.gradle.api.Project;
 
 public class GrpcApiSetupPlugin implements Plugin<Project> {
 
-  private static final String PROTOC_GEN_GRPC_WEB_VERSION = "1.0.4";
+  private static final String PROTOC_GEN_GRPC_WEB_VERSION = "1.0.6";
 
   @Override
   public void apply(Project project) {

@@ -53,7 +53,7 @@ gradlePlugin {
 
 publishing {
     publications {
-        register("maven", MavenPublication::class) {
+        register<MavenPublication>("pluginMaven") {
             pom {
                 name.set("Gradle Conda Plugin")
                 description.set("Gradle plugin to use miniconda to create a build environment.")
