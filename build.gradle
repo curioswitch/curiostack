@@ -60,7 +60,7 @@ allprojects {
                         }
                     }
                 }
-                publications = ['maven']
+                publications = publishing.publications.collect { it.name }
             }
 
             publishing {

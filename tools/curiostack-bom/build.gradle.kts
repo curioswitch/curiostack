@@ -27,9 +27,23 @@ plugins {
     `maven-publish`
 }
 
-val JACKSON_VERSION = "2.9.9"
+javaPlatform {
+    allowDependencies()
+}
 
 data class DependencySet(val group: String, val version: String, val modules: List<String>)
+
+val DEPENDENCY_BOMS = listOf(
+        "com.fasterxml.jackson:jackson-bom:2.9.9.20190807",
+        "com.google.cloud:google-cloud-bom:0.105.0-alpha",
+        "com.linecorp.armeria:armeria-bom:0.90.3",
+        "io.dropwizard.metrics:metrics-bom:4.1.0",
+        "io.grpc:grpc-bom:1.23.0",
+        "io.netty:netty-bom:4.1.39.Final",
+        "org.apache.beam:beam-sdks-java-bom:2.14.0",
+        "org.apache.logging.log4j:log4j-bom:2.12.1",
+        "org.junit:junit-bom:5.5.1"
+)
 
 val DEPENDENCY_SETS = listOf(
         DependencySet(
@@ -68,31 +82,6 @@ val DEPENDENCY_SETS = listOf(
                 listOf("auto-value", "auto-value-annotations")
         ),
         DependencySet(
-                "com.fasterxml.jackson.core",
-                JACKSON_VERSION,
-                listOf(
-                        "jackson-annotations",
-                        "jackson-core",
-                        "jackson-databind")
-        ),
-        DependencySet(
-                "com.fasterxml.jackson.dataformat",
-                JACKSON_VERSION,
-                listOf(
-                        "jackson-dataformat-xml",
-                        "jackson-dataformat-yaml"
-                )
-        ),
-        DependencySet(
-                "com.fasterxml.jackson.datatype",
-                JACKSON_VERSION,
-                listOf(
-                        // NB: Not a typo.
-                        "jackson-datatypes-collections",
-                        "jackson-datatype-guava",
-                        "jackson-datatype-jsr310")
-        ),
-        DependencySet(
                 "com.github.ben-manes.caffeine",
                 "2.8.0",
                 listOf("caffeine")
@@ -103,16 +92,6 @@ val DEPENDENCY_SETS = listOf(
                 listOf("google-api-client")
         ),
         DependencySet(
-                "com.google.api.grpc",
-                "0.59.0",
-                listOf("grpc-google-cloud-trace-v2")
-        ),
-        DependencySet(
-                "com.google.api.grpc",
-                "1.69.0",
-                listOf("grpc-google-cloud-pubsub-v1")
-        ),
-        DependencySet(
                 "com.google.auto",
                 "0.10",
                 listOf("auto-common")
@@ -121,26 +100,6 @@ val DEPENDENCY_SETS = listOf(
                 "com.google.code.findbugs",
                 "3.0.2",
                 listOf("jsr305")
-        ),
-        DependencySet(
-                "com.google.cloud",
-                "1.87.0",
-                listOf(
-                        "google-cloud-bigquery",
-                        "google-cloud-core",
-                        "google-cloud-core-grpc",
-                        "google-cloud-pubsub",
-                        "google-cloud-storage")
-        ),
-        DependencySet(
-                "com.google.cloud",
-                "0.53.0-alpha",
-                listOf("google-cloud-resourcemanager")
-        ),
-        DependencySet(
-                "com.google.cloud",
-                "1.23.0",
-                listOf("google-cloud-kms")
         ),
         DependencySet(
                 "com.google.cloud",
@@ -186,11 +145,6 @@ val DEPENDENCY_SETS = listOf(
                 listOf("protobuf-java", "protobuf-java-util", "protoc")
         ),
         DependencySet(
-                "com.linecorp.armeria",
-                "0.90.3",
-                listOf("armeria", "armeria-grpc", "armeria-retrofit2", "armeria-brave")
-        ),
-        DependencySet(
                 "com.spotify",
                 "4.2.0",
                 listOf("futures-extra")
@@ -227,11 +181,6 @@ val DEPENDENCY_SETS = listOf(
                 listOf("mockito-java8")
         ),
         DependencySet(
-                "io.dropwizard.metrics",
-                "4.1.0",
-                listOf("metrics-core", "metrics-jvm", "metrics-json", "metrics-log4j2")
-        ),
-        DependencySet(
                 "io.fabric8",
                 "4.4.1",
                 listOf("kubernetes-client")
@@ -242,51 +191,13 @@ val DEPENDENCY_SETS = listOf(
                 listOf("lettuce-core")
         ),
         DependencySet(
-                "io.grpc",
-                "1.23.0",
-                listOf(
-                        "gall",
-                        "grpc-alts",
-                        "grpc-auth",
-                        "grpc-context",
-                        "grpc-core",
-                        "grpc-grpclb",
-                        "grpc-netty",
-                        "grpc-netty-shaded",
-                        "grpc-okhttp",
-                        "grpc-protobuf",
-                        "grpc-protobuf-lite",
-                        "grpc-services",
-                        "grpc-stub")
-        ),
-        DependencySet(
                 "io.micrometer",
                 "1.2.0",
                 listOf("micrometer-core", "micrometer-registry-prometheus")
         ),
         DependencySet(
                 "io.netty",
-                "4.1.34.Final",
-                listOf(
-                        "netty-buffer",
-                        "netty-codec",
-                        "netty-codec-dns",
-                        "netty-codec-haproxy",
-                        "netty-codec-http2",
-                        "netty-codec-http",
-                        "netty-codec-socks",
-                        "netty-common",
-                        "netty-handler",
-                        "netty-handler-proxy",
-                        "netty-resolver",
-                        "netty-resolver-dns",
-                        "netty-transport",
-                        "netty-transport-native-epoll",
-                        "netty-transport-native-unix-common")
-        ),
-        DependencySet(
-                "io.netty",
-                "2.0.23.Final",
+                "2.0.25.Final",
                 listOf("netty-tcnative-boringssl-static")
         ),
         DependencySet(
@@ -320,14 +231,6 @@ val DEPENDENCY_SETS = listOf(
                 listOf("byte-buddy", "byte-buddy-agent")
         ),
         DependencySet(
-                "org.apache.beam",
-                "2.10.0",
-                listOf(
-                        "beam-runners-direct-java",
-                        "beam-runners-google-cloud-dataflow-java",
-                        "beam-sdks-java-io-google-cloud-platform")
-        ),
-        DependencySet(
                 "org.apache.httpcomponents",
                 "4.5.3",
                 listOf("httpclient")
@@ -336,11 +239,6 @@ val DEPENDENCY_SETS = listOf(
                 "org.apache.httpcomponents",
                 "4.4.6",
                 listOf("httpcore")
-        ),
-        DependencySet(
-                "org.apache.logging.log4j",
-                "2.12.1",
-                listOf("log4j-api", "log4j-core", "log4j-jcl", "log4j-jul", "log4j-slf4j-impl")
         ),
         DependencySet(
                 "org.assertj",
@@ -423,16 +321,6 @@ val DEPENDENCY_SETS = listOf(
                 listOf("jooq", "jooq-codegen", "jooq-meta")
         ),
         DependencySet(
-                "org.junit.jupiter",
-                "5.5.1",
-                listOf("junit-jupiter-api", "junit-jupiter-engine", "junit-jupiter-params")
-        ),
-        DependencySet(
-                "org.junit.vintage",
-                "5.5.1",
-                listOf("junit-vintage-engine")
-        ),
-        DependencySet(
                 "org.mockito",
                 "2.27.0",
                 listOf("mockito-core", "mockito-junit-jupiter")
@@ -491,6 +379,9 @@ val DEPENDENCIES = listOf(
 )
 
 dependencies {
+    for (bom in DEPENDENCY_BOMS) {
+        api(enforcedPlatform(bom))
+    }
     constraints {
         for (set in DEPENDENCY_SETS) {
             for (module in set.modules) {
