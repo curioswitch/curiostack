@@ -196,6 +196,7 @@ tasks.withType(Test) {
 // TODO(choko): Have curiostack plugin do this.
 test {
     testLogging {
+        testLogging.showStandardStreams = true
         exceptionFormat = 'full'
     }
 }
