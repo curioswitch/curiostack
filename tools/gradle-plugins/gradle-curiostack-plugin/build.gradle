@@ -170,7 +170,7 @@ gradlePlugin {
 
 publishing {
     publications {
-        maven(MavenPublication) {
+        pluginMaven(MavenPublication) {
             pom {
                 name = 'Gradle Curiostack Plugin'
                 description = 'A highly opinionated plugin for setting up a gradle codebase ' +
@@ -191,11 +191,14 @@ tasks.withType(License) {
 
 tasks.withType(Test) {
     jvmArgs "-Dorg.curioswitch.curiostack.testing.buildDir=${rootProject.buildDir}"
+
+    enabled = false
 }
 
 // TODO(choko): Have curiostack plugin do this.
 test {
     testLogging {
+        testLogging.showStandardStreams = true
         exceptionFormat = 'full'
     }
 }

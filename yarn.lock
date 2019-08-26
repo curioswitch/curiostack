@@ -2098,10 +2098,10 @@
     "@types/googlemaps" "*"
     "@types/react" "*"
 
-"@types/google-protobuf@3.2.7":
-  version "3.2.7"
-  resolved "https://registry.yarnpkg.com/@types/google-protobuf/-/google-protobuf-3.2.7.tgz#9576ed5dd62cdb1c9f952522028a03b7cb2b69b5"
-  integrity sha512-Pb9wl5qDEwfnJeeu6Zpn5Y+waLrKETStqLZXHMGCTbkNuBBudPy4qOGN6veamyeoUBwTm2knOVeP/FlHHhhmzA==
+"@types/google-protobuf@3.7.1":
+  version "3.7.1"
+  resolved "https://registry.yarnpkg.com/@types/google-protobuf/-/google-protobuf-3.7.1.tgz#69503856e717a4ed2fd0216d4aa3f0bebf5df5df"
+  integrity sha512-kiLxbqoi2C7NmkGj1ZpkSDyIqj4vqDEIjx7wX+O0GXV6bLX6u/oLz49CwefD0c0vzaKeBdOqmUtI8bC0bBRr0w==
 
 "@types/googlemaps@*":
   version "3.37.0"
@@ -8939,10 +8939,10 @@ google-p12-pem@^2.0.0:
   dependencies:
     node-forge "^0.8.0"
 
-google-protobuf@3.7.1:
-  version "3.7.1"
-  resolved "https://registry.yarnpkg.com/google-protobuf/-/google-protobuf-3.7.1.tgz#9ef0fa3bc9ee416ba3fbe32b21ec6b7626f898e2"
-  integrity sha512-6fvlUey6cNKtWSEn1bt4CT4wc2EID1fVluHS1dOnqIlxyIu3cBid2BvWE8Rwl6wN+hRTgiAKhfyydAGV/weZYQ==
+google-protobuf@3.9.1:
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/google-protobuf/-/google-protobuf-3.9.1.tgz#87e6a16b7fb16405b515a6c6622d5ace45578d86"
+  integrity sha512-tkz7SVwBktFbqFK3teXFUY/VM57+mbUgV9bSD+sZH1ocHJ7uk7BfEWMRdU24dd0ciUDokreA7ghH2fYFIczQdw==
 
 googleapis-common@^2.0.0:
   version "2.0.4"
@@ -9055,10 +9055,10 @@ growly@^1.3.0:
   resolved "https://registry.yarnpkg.com/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
   integrity sha1-8QdIy+dq+WS3yWyTxrzCivEgwIE=
 
-grpc-web@1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/grpc-web/-/grpc-web-1.0.4.tgz#dac13f3a1b42092595a8807f724aeaa5f5d6487a"
-  integrity sha512-CjIA05C1G9n0/aT5YrQ8SAYNh5foHZRVK+1yN81Ez9vpNQCmrvXCWQBOHlQK7tJg3EqC5m8F99XQRfAi+K8CyA==
+grpc-web@1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/grpc-web/-/grpc-web-1.0.6.tgz#9dc2886b5bff5cee08e51960e33702322890376e"
+  integrity sha512-iwqchQXNsA8bcJwuYEv/A8ScEaf5nA5+vtptEv2KN646KW94tsq7O+Q7hy5+gADOg6XhmJqPhSlvTMdiHlVfcw==
 
 grpc@^1.20.3:
   version "1.22.2"

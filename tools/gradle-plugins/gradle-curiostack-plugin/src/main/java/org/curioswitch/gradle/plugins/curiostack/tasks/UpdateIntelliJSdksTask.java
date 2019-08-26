@@ -58,13 +58,13 @@ public class UpdateIntelliJSdksTask extends DefaultTask {
   @VisibleForTesting static final String LATEST_INTELLIJ_CONFIG_FOLDER = ".IntelliJIdea2019.1";
 
   // TODO(choko): Use the same variable when generating get-jdk.sh and here.
-  @VisibleForTesting static final String JDK_FOLDER_NAME = "jdk-11.0.3+7";
+  @VisibleForTesting static final String JDK_FOLDER_NAME = "jdk-11.0.4+11";
 
-  @VisibleForTesting static final String JAVA_VERSION = "11.0.3";
+  @VisibleForTesting static final String JAVA_VERSION = "11.0.4";
 
-  @VisibleForTesting static final String JAVA_8_VERSION = "1.8.0_212";
+  @VisibleForTesting static final String JAVA_8_VERSION = "1.8.0_222";
 
-  @VisibleForTesting static final String JDK_8_FOLDER_NAME = "jdk8u212-b04/jdk8u212-b04";
+  @VisibleForTesting static final String JDK_8_FOLDER_NAME = "jdk8u222-b10/jdk8u222-b10";
 
   private static final List<String> JAVA_MODULES =
       ImmutableList.of(

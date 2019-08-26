@@ -47,15 +47,15 @@ import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.ServiceWithRoutes;
 import com.linecorp.armeria.server.auth.HttpAuthServiceBuilder;
 import com.linecorp.armeria.server.auth.OAuth2Token;
+import com.linecorp.armeria.server.brave.BraveService;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
+import com.linecorp.armeria.server.healthcheck.HealthCheckService;
 import com.linecorp.armeria.server.healthcheck.HealthChecker;
-import com.linecorp.armeria.server.healthcheck.HttpHealthCheckService;
 import com.linecorp.armeria.server.healthcheck.SettableHealthChecker;
 import com.linecorp.armeria.server.logging.LoggingService;
 import com.linecorp.armeria.server.metric.MetricCollectingService;
 import com.linecorp.armeria.server.metric.PrometheusExpositionService;
-import com.linecorp.armeria.server.tracing.HttpTracingService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.BindsOptionalOf;
@@ -418,7 +418,7 @@ public abstract class ServerModule {
 
     sb.service(
         "/internal/health",
-        internalService(new HttpHealthCheckService(healthCheckers), ipFilter, serverConfig));
+        internalService(HealthCheckService.of(healthCheckers), ipFilter, serverConfig));
     sb.service("/internal/dropwizard", internalService(metricsHttpService, ipFilter, serverConfig));
     sb.service(
         "/internal/metrics",
@@ -657,7 +657,7 @@ public abstract class ServerModule {
             .decorate(
                 MetricCollectingService.newDecorator(
                     RpcMetricLabels.grpcRequestLabeler("grpc_services")))
-            .decorate(HttpTracingService.newDecorator(tracing))
+            .decorate(BraveService.newDecorator(tracing))
             .decorate(
                 (delegate, ctx, req) -> {
                   TraceContext traceCtx = tracing.currentTraceContext().get();

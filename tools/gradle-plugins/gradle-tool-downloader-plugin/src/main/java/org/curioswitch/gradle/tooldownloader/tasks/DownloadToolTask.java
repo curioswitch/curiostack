@@ -178,11 +178,7 @@ public class DownloadToolTask extends DefaultTask {
       File archive = new File(archiveDir, archiveName);
 
       var download = new DownloadAction(task.getProject());
-      try {
-        download.src(url);
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
-      }
+      download.src(url);
       download.dest(archive);
       try {
         download.execute();

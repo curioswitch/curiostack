@@ -42,10 +42,10 @@ import org.gradle.api.tasks.TaskAction;
 
 public class PackageWebTask extends DefaultTask {
 
-  private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.14";
-  private static final String GOOGLE_PROTOBUF_VERSION = "3.7.1";
-  private static final String GRPC_WEB_VERSION = "1.0.4";
-  private static final String TYPES_GOOGLE_PROTOBUF_VERSION = "3.2.7";
+  private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.16";
+  private static final String GOOGLE_PROTOBUF_VERSION = "3.9.1";
+  private static final String GRPC_WEB_VERSION = "1.0.6";
+  private static final String TYPES_GOOGLE_PROTOBUF_VERSION = "3.7.1";
 
   @Input
   public String getPackageJsonTemplate() {

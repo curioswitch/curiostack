@@ -27,9 +27,9 @@ import brave.Tracing;
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientRequestContext;
 import com.linecorp.armeria.client.SimpleDecoratingClient;
+import com.linecorp.armeria.client.brave.BraveClient;
 import com.linecorp.armeria.client.logging.LoggingClientBuilder;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
-import com.linecorp.armeria.client.tracing.HttpTracingClient;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
@@ -69,7 +69,7 @@ public class GrpcApiClientBuilder {
                   }
                 })
         .decorator(credentialsDecorator.newAccessTokenDecorator())
-        .decorator(HttpRequest.class, HttpResponse.class, HttpTracingClient.newDecorator(tracing))
+        .decorator(HttpRequest.class, HttpResponse.class, BraveClient.newDecorator(tracing))
         .decorator(
             HttpRequest.class,
             HttpResponse.class,

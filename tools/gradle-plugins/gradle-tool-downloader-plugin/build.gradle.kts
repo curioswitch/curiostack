@@ -32,7 +32,7 @@ dependencies {
     compile(project(":tools:gradle-plugins:gradle-helpers"))
 
     compile("com.google.guava:guava")
-    compile("de.undercouch:gradle-download-task:3.4.3")
+    compile("de.undercouch:gradle-download-task")
 
     annotationProcessor("org.immutables:value")
     compileOnly("org.immutables:value-annotations")
@@ -49,7 +49,7 @@ gradlePlugin {
 
 publishing {
     publications {
-        register("maven", MavenPublication::class) {
+        register<MavenPublication>("pluginMaven") {
             pom {
                 name.set("Gradle Tool Downloader Plugin")
                 description.set("Gradle plugin to download tools for use in builds.")
