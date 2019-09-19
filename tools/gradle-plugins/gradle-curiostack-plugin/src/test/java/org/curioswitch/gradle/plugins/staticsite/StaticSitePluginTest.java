@@ -31,8 +31,10 @@ import java.nio.file.Path;
 import org.curioswitch.gradle.testing.ResourceProjects;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled
 class StaticSitePluginTest {
 
   private Path projectDir;
