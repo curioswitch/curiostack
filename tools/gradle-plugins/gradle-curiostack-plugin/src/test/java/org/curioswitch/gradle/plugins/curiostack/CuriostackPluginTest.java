@@ -60,7 +60,8 @@ class CuriostackPluginTest {
               GradleRunner.create()
                   .withProjectDir(projectDir.toFile())
                   .withArguments("wrapper")
-                  .withPluginClasspath())
+                  .withPluginClasspath()
+                  .forwardOutput())
           .builds()
           .tasksDidSucceed(":wrapper", ":curioUpdateWrapper");
 
