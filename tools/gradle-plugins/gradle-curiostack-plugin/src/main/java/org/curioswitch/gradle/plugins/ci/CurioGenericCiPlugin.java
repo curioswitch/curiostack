@@ -35,6 +35,7 @@ import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -360,6 +361,11 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
   }
 
   private static Set<Project> computeAffectedProjects(Project project) {
+    if (!Files.exists(project.getRootDir().toPath().resolve(".git"))) {
+      project.getLogger().warn("No .git directory, building all projects.");
+      return project.getAllprojects();
+    }
+
     final Set<String> affectedRelativeFilePaths;
     try (Git git = Git.open(project.getRootDir())) {
       // TODO(choko): Validate the remote of the branch, which matters if there are forks.
