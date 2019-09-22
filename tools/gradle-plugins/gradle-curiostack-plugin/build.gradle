@@ -191,6 +191,12 @@ tasks.withType(License) {
 
 tasks.withType(Test) {
     jvmArgs "-Dorg.curioswitch.curiostack.testing.buildDir=${rootProject.buildDir}"
+
+    if (System.env.CI == 'true') {
+        maxParallelForks = 1
+        minHeapSize = '128m'
+        maxHeapSize = '512m'
+    }
 }
 
 // TODO(choko): Have curiostack plugin do this.

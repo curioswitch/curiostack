@@ -59,7 +59,7 @@ class CuriostackPluginTest {
       assertThat(
               GradleRunner.create()
                   .withProjectDir(projectDir.toFile())
-                  .withArguments("wrapper", "--no-daemon")
+                  .withArguments("wrapper")
                   .withPluginClasspath()
                   .forwardOutput())
           .builds()
