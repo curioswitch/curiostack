@@ -193,6 +193,7 @@ tasks.withType(Test) {
     jvmArgs "-Dorg.curioswitch.curiostack.testing.buildDir=${rootProject.buildDir}"
 
     if (System.env.CI == 'true') {
+        println 'Overriding for CI'
         maxParallelForks = 1
         minHeapSize = '128m'
         maxHeapSize = '512m'
