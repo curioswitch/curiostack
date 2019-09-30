@@ -23,7 +23,7 @@
  */
 
 plugins {
-    id 'com.gradle.build-scan' version '2.0.2'
+    id 'com.gradle.build-scan' version '2.1'
     id 'org.curioswitch.gradle-curiostack-plugin'
 }
 

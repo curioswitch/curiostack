@@ -35,14 +35,14 @@ data class DependencySet(val group: String, val version: String, val modules: Li
 
 val DEPENDENCY_BOMS = listOf(
         "com.fasterxml.jackson:jackson-bom:2.9.9.20190807",
-        "com.google.cloud:google-cloud-bom:0.105.0-alpha",
+        "com.google.cloud:google-cloud-bom:0.110.0-alpha",
         "com.linecorp.armeria:armeria-bom:0.90.3",
         "io.dropwizard.metrics:metrics-bom:4.1.0",
         "io.grpc:grpc-bom:1.23.0",
         "io.netty:netty-bom:4.1.39.Final",
         "org.apache.beam:beam-sdks-java-bom:2.14.0",
         "org.apache.logging.log4j:log4j-bom:2.12.1",
-        "org.junit:junit-bom:5.5.1"
+        "org.junit:junit-bom:5.5.2"
 )
 
 val DEPENDENCY_SETS = listOf(
@@ -63,7 +63,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.auth",
-                "0.17.0",
+                "0.17.1",
                 listOf("google-auth-library-oauth2-http")
         ),
         DependencySet(
@@ -88,7 +88,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.api-client",
-                "1.29.2",
+                "1.30.3",
                 listOf("google-api-client")
         ),
         DependencySet(
@@ -108,7 +108,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.cloud.sql",
-                "1.0.14",
+                "1.0.15",
                 listOf(
                         "mysql-socket-factory",
                         "mysql-socket-factory-connector-j-6",
@@ -131,12 +131,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.firebase",
-                "6.9.0",
+                "6.10.0",
                 listOf("firebase-admin")
         ),
         DependencySet(
                 "com.google.guava",
-                "28.0-jre",
+                "28.1-jre",
                 listOf("guava", "guava-testlib")
         ),
         DependencySet(
@@ -146,12 +146,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.spotify",
-                "4.2.0",
+                "4.2.1",
                 listOf("futures-extra")
         ),
         DependencySet(
                 "com.squareup.retrofit2",
-                "2.6.0",
+                "2.6.1",
                 listOf(
                         "adapter-guava",
                         "adapter-java8",
@@ -172,7 +172,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.zaxxer",
-                "3.3.1",
+                "3.4.1",
                 listOf("HikariCP")
         ),
         DependencySet(
@@ -182,7 +182,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.fabric8",
-                "4.4.1",
+                "4.5.2",
                 listOf("kubernetes-client")
         ),
         DependencySet(
@@ -192,7 +192,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.micrometer",
-                "1.2.0",
+                "1.2.1",
                 listOf("micrometer-core", "micrometer-registry-prometheus")
         ),
         DependencySet(
@@ -207,12 +207,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.zipkin.brave",
-                "5.6.11",
+                "5.7.0",
                 listOf("brave", "brave-instrumentation-mysql", "brave-instrumentation-mysql8")
         ),
         DependencySet(
                 "io.zipkin.gcp",
-                "0.13.4",
+                "0.14.0",
                 listOf("brave-propagation-stackdriver", "zipkin-translation-stackdriver")
         ),
         DependencySet(
@@ -252,12 +252,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.awaitility",
-                "3.1.6",
+                "4.0.1",
                 listOf("awaitility")
         ),
         DependencySet(
                 "org.bouncycastle",
-                "1.62",
+                "1.63",
                 listOf("bcpkix-jdk15on", "bcprov-jdk15on")
         ),
         DependencySet(
@@ -292,7 +292,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.eclipse.jgit",
-                "5.3.0.201903130848-r",
+                "5.5.0.201909110433-r",
                 listOf("org.eclipse.jgit")
         ),
         DependencySet(
@@ -302,7 +302,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.immutables",
-                "2.7.5",
+                "2.8.0",
                 listOf("builder", "value", "value-annotations")
         ),
         DependencySet(
@@ -344,9 +344,9 @@ val DEPENDENCY_SETS = listOf(
 )
 
 val DEPENDENCIES = listOf(
-        "com.bmuschko:gradle-docker-plugin:5.0.0",
+        "com.bmuschko:gradle-docker-plugin:5.1.0",
         "com.diffplug.spotless:spotless-plugin-gradle:3.24.2",
-        "com.github.ben-manes:gradle-versions-plugin:0.22.0",
+        "com.github.ben-manes:gradle-versions-plugin:0.25.0",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",
         "com.google.maps:google-maps-services:0.9.3",
         "com.google.protobuf:protobuf-gradle-plugin:0.8.6",
@@ -356,13 +356,13 @@ val DEPENDENCIES = listOf(
         "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.5",
         "com.palantir:gradle-baseline-java:0.10.0",
         "de.undercouch:gradle-download-task:4.0.0",
-        "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.0",
+        "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.3",
         "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.5.0",
         "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.1.0",
         "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
         "gradle.plugin.com.palantir.graal:gradle-graal:0.2.0-4-g255fd1f",
         "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
-        "io.sgr:s2-geometry-library-java:1.0.0",
+        "io.sgr:s2-geometry-library-java:1.0.1",
         "io.spring.gradle:dependency-management-plugin:1.0.7.RELEASE",
         "it.unimi.dsi:fastutil:8.2.2",
         "javax.activation:activation:1.1.1",

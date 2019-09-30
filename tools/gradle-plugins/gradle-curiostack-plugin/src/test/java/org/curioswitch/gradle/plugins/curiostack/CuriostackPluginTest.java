@@ -36,10 +36,12 @@ import org.curioswitch.gradle.testing.ResourceProjects;
 import org.gradle.testkit.runner.GradleRunner;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
+@Disabled
 class CuriostackPluginTest {
 
   @SuppressWarnings("ClassCanBeStatic")
@@ -60,7 +62,8 @@ class CuriostackPluginTest {
               GradleRunner.create()
                   .withProjectDir(projectDir.toFile())
                   .withArguments("wrapper")
-                  .withPluginClasspath())
+                  .withPluginClasspath()
+                  .forwardOutput())
           .builds()
           .tasksDidSucceed(":wrapper", ":curioUpdateWrapper");
 

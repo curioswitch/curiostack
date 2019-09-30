@@ -74,6 +74,7 @@ repos:
           args:
           - continuousBuild
           - --stacktrace
+          - --scan
           - --no-daemon
           env:
             - CI=true
