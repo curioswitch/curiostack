@@ -58,6 +58,7 @@ steps:
   - CI=true
   - CI_MASTER=true
   - CLOUDBUILD_BUILD_ID=$BUILD_ID
+  - GRADLE_USER_HOME=/root/.gradle
   secretEnv:
     - CODECOV_TOKEN
 - id: curio-generated-push-compressed-build-cache
