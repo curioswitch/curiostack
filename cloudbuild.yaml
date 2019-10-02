@@ -75,7 +75,7 @@ steps:
   entrypoint: ash
   args:
   - -c
-  - ls curiostack && tar -cpf - wrapper caches curiostack/gcloud curiostack/miniconda2-build curiostack/openjdk | lz4 -qc - | gsutil -o GSUtil:parallel_composite_upload_threshold=150M cp - gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4
+  - ls /builder/home && tar -cpf - wrapper caches curiostack/gcloud curiostack/miniconda2-build curiostack/openjdk | lz4 -qc - | gsutil -o GSUtil:parallel_composite_upload_threshold=150M cp - gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4
 timeout: 60m
 secrets:
 - kmsKeyName: projects/curioswitch-cluster/locations/us-central1/keyRings/cloudbuild/cryptoKeys/github
