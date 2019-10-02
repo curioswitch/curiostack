@@ -34,12 +34,12 @@ javaPlatform {
 data class DependencySet(val group: String, val version: String, val modules: List<String>)
 
 val DEPENDENCY_BOMS = listOf(
-        "com.fasterxml.jackson:jackson-bom:2.9.9.20190807",
-        "com.google.cloud:google-cloud-bom:0.110.0-alpha",
-        "com.linecorp.armeria:armeria-bom:0.90.3",
+        "com.fasterxml.jackson:jackson-bom:2.10.0",
+        "com.google.cloud:google-cloud-bom:0.111.0-alpha",
+        "com.linecorp.armeria:armeria-bom:0.93.0",
         "io.dropwizard.metrics:metrics-bom:4.1.0",
-        "io.grpc:grpc-bom:1.23.0",
-        "io.netty:netty-bom:4.1.39.Final",
+        "io.grpc:grpc-bom:1.24.0",
+        "io.netty:netty-bom:4.1.42.Final",
         "org.apache.beam:beam-sdks-java-bom:2.14.0",
         "org.apache.logging.log4j:log4j-bom:2.12.1",
         "org.junit:junit-bom:5.5.2"
@@ -58,7 +58,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.auth0",
-                "3.8.2",
+                "3.8.3",
                 listOf("java-jwt")
         ),
         DependencySet(
@@ -68,7 +68,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.auto.factory",
-                "1.0-beta6",
+                "1.0-beta7",
                 listOf("auto-factory")
         ),
         DependencySet(
@@ -78,7 +78,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.auto.value",
-                "1.6.6",
+                "1.7rc1",
                 listOf("auto-value", "auto-value-annotations")
         ),
         DependencySet(
@@ -141,7 +141,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.protobuf",
-                "3.9.1",
+                "3.9.2",
                 listOf("protobuf-java", "protobuf-java-util", "protoc")
         ),
         DependencySet(
@@ -151,7 +151,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.squareup.retrofit2",
-                "2.6.1",
+                "2.6.2",
                 listOf(
                         "adapter-guava",
                         "adapter-java8",
@@ -182,27 +182,27 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.fabric8",
-                "4.5.2",
+                "4.6.0",
                 listOf("kubernetes-client")
         ),
         DependencySet(
                 "io.lettuce",
-                "5.1.8.RELEASE",
+                "5.2.0.RELEASE",
                 listOf("lettuce-core")
         ),
         DependencySet(
                 "io.micrometer",
-                "1.2.1",
+                "1.3.0",
                 listOf("micrometer-core", "micrometer-registry-prometheus")
         ),
         DependencySet(
                 "io.netty",
-                "2.0.25.Final",
+                "2.0.26.Final",
                 listOf("netty-tcnative-boringssl-static")
         ),
         DependencySet(
                 "io.prometheus",
-                "0.6.0",
+                "0.7.0",
                 listOf("simpleclient", "simpleclient_common", "simpleclient_hotspot", "simpleclient_log4j2")
         ),
         DependencySet(
@@ -212,7 +212,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.zipkin.gcp",
-                "0.14.0",
+                "0.14.1",
                 listOf("brave-propagation-stackdriver", "zipkin-translation-stackdriver")
         ),
         DependencySet(
@@ -332,7 +332,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.simpleflatmapper",
-                "7.0.3",
+                "8.0.3",
                 listOf(
                         "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
         ),
@@ -345,10 +345,10 @@ val DEPENDENCY_SETS = listOf(
 
 val DEPENDENCIES = listOf(
         "com.bmuschko:gradle-docker-plugin:5.1.0",
-        "com.diffplug.spotless:spotless-plugin-gradle:3.24.2",
+        "com.diffplug.spotless:spotless-plugin-gradle:3.24.3",
         "com.github.ben-manes:gradle-versions-plugin:0.25.0",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",
-        "com.google.maps:google-maps-services:0.9.3",
+        "com.google.maps:google-maps-services:0.10.1",
         "com.google.protobuf:protobuf-gradle-plugin:0.8.6",
         "com.hubspot.jinjava:jinjava:2.5.2",
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
@@ -356,9 +356,9 @@ val DEPENDENCIES = listOf(
         "com.netflix.nebula:gradle-resolution-rules-plugin:6.0.5",
         "com.palantir:gradle-baseline-java:0.10.0",
         "de.undercouch:gradle-download-task:4.0.0",
-        "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.3",
-        "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.5.0",
-        "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.1.0",
+        "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.4",
+        "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.6.1",
+        "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.0",
         "gradle.plugin.com.jetbrains.python:gradle-python-envs:0.0.25",
         "gradle.plugin.com.palantir.graal:gradle-graal:0.2.0-4-g255fd1f",
         "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",

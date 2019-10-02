@@ -148,7 +148,7 @@ public class JibTask extends DefaultTask {
     SingleThreadedExecutor singleThreadedExecutor = new SingleThreadedExecutor();
     ConsoleLoggerBuilder consoleLoggerBuilder =
         (isProgressFooterEnabled(getProject())
-                ? ConsoleLoggerBuilder.rich(singleThreadedExecutor)
+                ? ConsoleLoggerBuilder.rich(singleThreadedExecutor, false)
                 : ConsoleLoggerBuilder.plain(singleThreadedExecutor).progress(logger::lifecycle))
             .lifecycle(logger::lifecycle);
     if (logger.isDebugEnabled()) {
