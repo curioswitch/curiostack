@@ -26,6 +26,7 @@ package org.curioswitch.common.protobuf.json;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.BaseEncoding;
@@ -199,7 +200,7 @@ public final class ParseSupport {
         // Only need to check the uint32 range if the parsed long is negative.
         return result;
       }
-    } catch (JsonParseException | NumberFormatException e) {
+    } catch (JsonParseException | InputCoercionException | NumberFormatException e) {
       // Fall through.
     }
 
