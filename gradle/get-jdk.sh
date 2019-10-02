@@ -22,7 +22,7 @@ case "`uname`" in
     ;;
 esac
 
-GRADLE_HOME="${GRADLE_USER_HOME:-${HOME}/.gradle}"
+GRADLE_HOME="${GRADLE_USER_HOME:-~/.gradle}"
 
 if [ "$windows" ] && [ -n "$USERPROFILE" ]; then
   # msys
