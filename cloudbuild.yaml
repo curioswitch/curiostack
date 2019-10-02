@@ -34,7 +34,7 @@ steps:
   entrypoint: ash
   args:
   - -c
-  - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4 - | lz4 -dc - | tar -xp || echo Could not fetch compressed build cache...
+  - echo $HOME && gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4 - | lz4 -dc - | tar -xp || echo Could not fetch compressed build cache...
 - id: curio-generated-build-all
   waitFor:
   - curio-generated-deepen-git-repo
@@ -47,8 +47,6 @@ steps:
     path: /root/.gradle/caches
   - name: curiostack
     path: /root/.gradle/curiostack
-  - name: builder-home
-    path: /builder/home
   entrypoint: ./gradlew
   args:
   - continuousBuild
@@ -73,13 +71,11 @@ steps:
     path: /root/.gradle/caches
   - name: curiostack
     path: /root/.gradle/curiostack
-  - name: builder-home
-    path: /builder/home
   dir: /root/.gradle
   entrypoint: ash
   args:
   - -c
-  - ls /builder/home && tar -cpf - wrapper caches curiostack/gcloud curiostack/miniconda2-build curiostack/openjdk | lz4 -qc - | gsutil -o GSUtil:parallel_composite_upload_threshold=150M cp - gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4
+  - tar -cpf - wrapper caches curiostack/gcloud curiostack/miniconda2-build curiostack/openjdk | lz4 -qc - | gsutil -o GSUtil:parallel_composite_upload_threshold=150M cp - gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4
 timeout: 60m
 secrets:
 - kmsKeyName: projects/curioswitch-cluster/locations/us-central1/keyRings/cloudbuild/cryptoKeys/github
