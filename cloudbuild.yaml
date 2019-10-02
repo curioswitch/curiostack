@@ -47,6 +47,8 @@ steps:
     path: /root/.gradle/caches
   - name: curiostack
     path: /root/.gradle/curiostack
+  - name: builder-home
+    path: /builder/home
   entrypoint: ./gradlew
   args:
   - continuousBuild
@@ -71,6 +73,8 @@ steps:
     path: /root/.gradle/caches
   - name: curiostack
     path: /root/.gradle/curiostack
+  - name: builder-home
+    path: /builder/home
   dir: /root/.gradle
   entrypoint: ash
   args:
