@@ -53,7 +53,7 @@ fi
 if [ ! -d "$JAVA_HOME" ]; then
   mkdir -p "$OPENJDK_DIR"
 
-  echo "Downloading OpenJDK"
+  echo "Downloading OpenJDK to $JAVA_HOME"
   if command -v wget >/dev/null 2>&1; then
     wget --quiet -O "$DEST" "$SRC"
   else
