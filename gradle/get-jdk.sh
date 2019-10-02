@@ -24,7 +24,7 @@ esac
 
 GRADLE_HOME="${GRADLE_USER_HOME:-${HOME}/.gradle}"
 
-if [ ! -z "$USERPROFILE" ]; then
+if [ "$windows" ] && [ -n "$USERPROFILE" ]; then
   # msys
   USERPROFILE_CYG=$(cygpath $USERPROFILE)
   GRADLE_HOME="${USERPROFILE_CYG}/.gradle"
