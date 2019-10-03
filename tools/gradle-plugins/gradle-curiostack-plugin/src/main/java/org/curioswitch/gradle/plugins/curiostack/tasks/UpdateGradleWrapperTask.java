@@ -25,10 +25,17 @@
 package org.curioswitch.gradle.plugins.curiostack.tasks;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Map;
+import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.JavaVersion;
 import org.gradle.api.tasks.TaskAction;
 
 /**
@@ -41,9 +48,35 @@ public class UpdateGradleWrapperTask extends DefaultTask {
   public void exec() throws IOException {
     var rootProject = getProject().getRootProject();
 
-    Files.write(
-        rootProject.file("gradle/get-jdk.sh").toPath(),
-        Resources.toByteArray(Resources.getResource("curiostack/get-jdk.sh")));
+    String version = ToolDependencies.getOpenJdkVersion(rootProject);
+
+    String majorVersion = JavaVersion.toVersion(version).getMajorVersion();
+    String urlBase =
+        "https://github.com/AdoptOpenJDK/openjdk"
+            + majorVersion
+            + "-binaries/releases/download/jdk-"
+            + version.replace("+", "%2B")
+            + "/OpenJDK"
+            + majorVersion
+            + "U-jdk_x64_";
+    String suffix = "_hotspot_" + version.replace('+', '_');
+    Map<String, String> templateVars =
+        ImmutableMap.of(
+            "dest_folder", "jdk-" + version,
+            "url_linux", urlBase + "linux" + suffix + ".tar.gz",
+            "url_mac", urlBase + "mac" + suffix + ".tar.gz",
+            "url_windows", urlBase + "windows" + suffix + ".zip",
+            "dest_archive_name", "jdk-" + version + ".tar.gz.or.zip");
+
+    Jinjava jinjava = new Jinjava(JinjavaConfig.newBuilder().withFailOnUnknownTokens(true).build());
+    String rendered =
+        jinjava.render(
+            Resources.toString(
+                Resources.getResource("curiostack/get-jdk.sh.tmpl"), StandardCharsets.UTF_8),
+            templateVars);
+
+    Files.writeString(
+        rootProject.file("gradle/get-jdk.sh").toPath(), rendered, StandardCharsets.UTF_8);
 
     var gradlew = rootProject.file("gradlew").toPath();
     var gradleWrapperLines = Files.readAllLines(gradlew);

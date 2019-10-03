@@ -41,9 +41,11 @@ import java.util.List;
 import java.util.Map;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
+import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
 
@@ -55,12 +57,7 @@ public class UpdateIntelliJSdksTask extends DefaultTask {
 
   public static final String NAME = "curioUpdateIntelliJSdks";
 
-  @VisibleForTesting static final String LATEST_INTELLIJ_CONFIG_FOLDER = ".IntelliJIdea2019.1";
-
-  // TODO(choko): Use the same variable when generating get-jdk.sh and here.
-  @VisibleForTesting static final String JDK_FOLDER_NAME = "jdk-11.0.4+11";
-
-  @VisibleForTesting static final String JAVA_VERSION = "11.0.4";
+  @VisibleForTesting static final String LATEST_INTELLIJ_CONFIG_FOLDER = ".IntelliJIdea2019.2";
 
   @VisibleForTesting static final String JAVA_8_VERSION = "1.8.0_222";
 
@@ -222,14 +219,16 @@ public class UpdateIntelliJSdksTask extends DefaultTask {
         .getLogger()
         .info("Updating IntelliJ folder {}, found folders {}", intelliJFolder, intelliJFolders);
 
+    String javaVersion = ToolDependencies.getOpenJdkVersion(getProject());
+
     var jdkTable =
         Files.createDirectories(intelliJFolder.resolve("config/options")).resolve("jdk.table.xml");
     updateConfig(
         jdkTable,
-        JDK_FOLDER_NAME,
-        "11",
+        "jdk-" + javaVersion,
+        JavaVersion.toVersion(javaVersion).getMajorVersion(),
         "curiostack/openjdk-intellij-table-snippet.template.xml",
-        ImmutableMap.of("javaVersion", JAVA_VERSION, "javaModules", JAVA_MODULES),
+        ImmutableMap.of("javaVersion", javaVersion, "javaModules", JAVA_MODULES),
         getProject());
     updateConfig(
         jdkTable,

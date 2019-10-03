@@ -38,6 +38,7 @@ import org.curioswitch.gradle.golang.GolangSetupPlugin;
 import org.curioswitch.gradle.plugins.curiostack.CuriostackPlugin;
 import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.curioswitch.gradle.testing.GradleTempDirectories;
+import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,6 +64,10 @@ class UpdateIntelliJSdksTaskTest {
         Files.createDirectories(testUserHome.resolve("curiotest")).resolve("foo.txt"), "bar");
 
     var project = ProjectBuilder.builder().withGradleUserHomeDir(testGradleHome.toFile()).build();
+    project
+        .getExtensions()
+        .getByType(ExtraPropertiesExtension.class)
+        .set("org.curioswitch.curiostack.tools.openjdk", "11.0.4+11");
 
     project.getPlugins().apply(CuriostackPlugin.class);
     project.getPlugins().apply(GolangSetupPlugin.class);
@@ -199,8 +204,8 @@ class UpdateIntelliJSdksTaskTest {
         template,
         ImmutableMap.<String, Object>builder()
             .put("gradleHome", testGradleHome.toAbsolutePath().toString().replace('\\', '/'))
-            .put("jdkFolder", UpdateIntelliJSdksTask.JDK_FOLDER_NAME)
-            .put("javaVersion", UpdateIntelliJSdksTask.JAVA_VERSION)
+            .put("jdkFolder", "jdk-11.0.4+11")
+            .put("javaVersion", "11.0.4+11")
             .put("jdk8Folder", UpdateIntelliJSdksTask.JDK_8_FOLDER_NAME)
             .put("java8Version", UpdateIntelliJSdksTask.JAVA_8_VERSION)
             .put("goVersion", ToolDependencies.getDefaultVersion("golang"))
