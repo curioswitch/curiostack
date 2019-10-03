@@ -24,7 +24,7 @@ esac
 
 GRADLE_HOME="${GRADLE_USER_HOME:-${HOME}/.gradle}"
 
-if [ ! -z "$USERPROFILE" ]; then
+if [ "$windows" ] && [ -n "$USERPROFILE" ]; then
   # msys
   USERPROFILE_CYG=$(cygpath $USERPROFILE)
   GRADLE_HOME="${USERPROFILE_CYG}/.gradle"
@@ -32,28 +32,27 @@ fi
 
 OPENJDK_DIR="$GRADLE_HOME/curiostack/openjdk"
 
-export JAVA_HOME="$OPENJDK_DIR/jdk-11.0.4+11"
+export JAVA_HOME="$OPENJDK_DIR/{{ dest_folder }}"
+
+DEST="$OPENJDK_DIR/{{ dest_archive_name }}"
 
 if "$linux" = "true"; then
-  SRC="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.4%2B11/OpenJDK11U-jdk_x64_linux_hotspot_11.0.4_11.tar.gz"
-  DEST="$OPENJDK_DIR/OpenJDK11U-jdk_x64_linux_hotspot_11.0.4_11.tar.gz"
+  SRC="{{ url_linux }}"
 fi
 
 if "$darwin" = "true"; then
-  SRC="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.4%2B11/OpenJDK11U-jdk_x64_mac_hotspot_11.0.4_11.tar.gz"
-  DEST="$OPENJDK_DIR/OpenJDK11U-jdk_x64_mac_hotspot_11.0.4_11.tar.gz"
+  SRC="{{ url_mac }}"
   export JAVA_HOME="$JAVA_HOME/Contents/Home"
 fi
 
 if "$windows" = "true"; then
-  SRC="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.4%2B11/OpenJDK11U-jdk_x64_windows_hotspot_11.0.4_11.zip"
-  DEST="$OPENJDK_DIR/OpenJDK11U-jdk_x64_windows_hotspot_11.0.4_11.zip"
+  SRC="{{ url_windows }}"
 fi
 
 if [ ! -d "$JAVA_HOME" ]; then
   mkdir -p "$OPENJDK_DIR"
 
-  echo "Downloading OpenJDK"
+  echo "Downloading OpenJDK to $JAVA_HOME"
   if command -v wget >/dev/null 2>&1; then
     wget --quiet -O "$DEST" "$SRC"
   else
@@ -65,4 +64,6 @@ if [ ! -d "$JAVA_HOME" ]; then
   else
     tar -xf "$DEST" -C "$OPENJDK_DIR"
   fi
+
+  rm "$DEST"
 fi
