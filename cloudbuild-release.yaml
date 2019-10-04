@@ -44,4 +44,5 @@ steps:
   - CI=true
   - TAG_NAME=$TAG_NAME
   - BRANCH_NAME=$BRANCH_NAME
+  - CLOUDBUILD_BUILD_ID=$BUILD_ID
 timeout: 60m

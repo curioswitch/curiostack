@@ -80,6 +80,7 @@ repos:
             - CI=true
             - GITHUB_PR_REMOTE_REF=$_OTHER_BRANCH_REMOTE_REF
             - CLOUDBUILD_BUILD_ID=$BUILD_ID
+            - GRADLE_USER_HOME=/root/.gradle
           secretEnv:
             - CODECOV_TOKEN
       timeout: 60m

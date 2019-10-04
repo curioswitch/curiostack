@@ -31,10 +31,10 @@ import java.nio.file.Path;
 import org.curioswitch.gradle.testing.ResourceProjects;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
-@Disabled
+@DisabledIfEnvironmentVariable(named = "CLOUDBUILD_BUILD_ID", matches = ".+")
 class StaticSitePluginTest {
 
   private Path projectDir;
