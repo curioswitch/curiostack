@@ -23,14 +23,13 @@
  */
 
 plugins {
-    id("org.curioswitch.gradle-curiostack-plugin")
+    id("org.curioswitch.gradle-curio-web-plugin")
 }
 
-gcloud {
-    clusterBaseName.set("curioswitch-testing")
-    cloudRegion.set("asia-northeast1")
+base {
+    archivesBaseName = "web1-client-web"
 }
 
-nodeSetup {
-    excludes.add("redux")
+web {
+    javaPackage.set("org.curioswitch.web1.web")
 }
