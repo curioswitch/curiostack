@@ -96,11 +96,6 @@ dependencies {
     runtime 'com.google.cloud.sql:mysql-socket-factory'
     runtime 'mysql:mysql-connector-java'
 
-    // TODO(choko): Remove after jooq fixes this requirement - https://github.com/jOOQ/jOOQ/issues/6879
-    // It's simpler to add these explicitly rather than requiring Gradle to be run with --add-modules
-    runtime 'javax.activation:activation'
-    runtime 'org.glassfish.jaxb:jaxb-runtime'
-
     annotationProcessor 'org.immutables:value'
     compileOnly 'org.immutables:value-annotations'
 

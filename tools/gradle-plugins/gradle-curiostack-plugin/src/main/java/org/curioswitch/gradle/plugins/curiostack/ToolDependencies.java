@@ -33,10 +33,10 @@ public class ToolDependencies {
 
   private static Map<String, String> DEFAULT_VERSIONS =
       ImmutableMap.<String, String>builder()
-          .put("bom", "0.0.12")
+          .put("bom", "0.0.13")
           .put("claat", "2.2.0")
-          .put("gcloud", "259.0.0")
-          .put("golang", "1.12.9")
+          .put("gcloud", "265.0.0")
+          .put("golang", "1.13.1")
           .put("google-java-format", "1.7")
           .put("gradle", "5.6.2")
           .put("helm", "2.10.0")
@@ -44,9 +44,9 @@ public class ToolDependencies {
           .put("node", "11.13.0")
           .put("openjdk", "12.0.2+10")
           .put("openjdk8", "jdk8u222-b10")
-          .put("terraform", "0.12.6")
-          .put("terraform-gsuite-provider", "0.1.23")
-          .put("yarn", "1.17.3")
+          .put("terraform", "0.12.10")
+          .put("terraform-gsuite-provider", "0.1.29")
+          .put("yarn", "1.19.0")
           .build();
 
   public static String getBomVersion(Project project) {

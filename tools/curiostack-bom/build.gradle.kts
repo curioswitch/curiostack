@@ -25,6 +25,7 @@
 plugins {
     `java-platform`
     `maven-publish`
+    id("com.github.ben-manes.versions")
 }
 
 javaPlatform {
@@ -35,10 +36,11 @@ data class DependencySet(val group: String, val version: String, val modules: Li
 
 val DEPENDENCY_BOMS = listOf(
         "com.fasterxml.jackson:jackson-bom:2.10.0",
-        "com.google.cloud:google-cloud-bom:0.111.0-alpha",
-        "com.linecorp.armeria:armeria-bom:0.93.0",
+        "com.google.cloud:google-cloud-bom:0.114.0-alpha",
+        "com.linecorp.armeria:armeria-bom:0.94.0",
         "io.dropwizard.metrics:metrics-bom:4.1.0",
         "io.grpc:grpc-bom:1.24.0",
+        "io.zipkin.brave:brave-bom:5.8.0",
         "io.netty:netty-bom:4.1.42.Final",
         "org.apache.beam:beam-sdks-java-bom:2.14.0",
         "org.apache.logging.log4j:log4j-bom:2.12.1",
@@ -48,7 +50,7 @@ val DEPENDENCY_BOMS = listOf(
 val DEPENDENCY_SETS = listOf(
         DependencySet(
                 "commons-codec",
-                "1.10",
+                "1.12",
                 listOf("commons-codec")
         ),
         DependencySet(
@@ -63,7 +65,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.auth",
-                "0.17.1",
+                "0.17.2",
                 listOf("google-auth-library-oauth2-http")
         ),
         DependencySet(
@@ -88,7 +90,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.api-client",
-                "1.30.3",
+                "1.30.4",
                 listOf("google-api-client")
         ),
         DependencySet(
@@ -141,7 +143,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.protobuf",
-                "3.9.2",
+                "3.10.0",
                 listOf("protobuf-java", "protobuf-java-util", "protoc")
         ),
         DependencySet(
@@ -206,11 +208,6 @@ val DEPENDENCY_SETS = listOf(
                 listOf("simpleclient", "simpleclient_common", "simpleclient_hotspot", "simpleclient_log4j2")
         ),
         DependencySet(
-                "io.zipkin.brave",
-                "5.7.0",
-                listOf("brave", "brave-instrumentation-mysql", "brave-instrumentation-mysql8")
-        ),
-        DependencySet(
                 "io.zipkin.gcp",
                 "0.14.1",
                 listOf("brave-propagation-stackdriver", "zipkin-translation-stackdriver")
@@ -271,26 +268,6 @@ val DEPENDENCY_SETS = listOf(
                 listOf("groovy")
         ),
         DependencySet(
-                "org.curioswitch.curiostack",
-                "0.0.38",
-                listOf(
-                        "armeria-google-cloud-core",
-                        "armeria-google-cloud-iam",
-                        "armeria-google-cloud-pubsub",
-                        "armeria-google-cloud-storage",
-                        "armeria-google-cloud-trace")
-        ),
-        DependencySet(
-                "org.curioswitch.curiostack",
-                "0.0.110",
-                listOf("curio-server-framework")
-        ),
-        DependencySet(
-                "org.curioswitch.curiostack",
-                "0.0.15",
-                listOf("curio-testing-framework")
-        ),
-        DependencySet(
                 "org.eclipse.jgit",
                 "5.5.0.201909110433-r",
                 listOf("org.eclipse.jgit")
@@ -317,12 +294,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.jooq",
-                "3.11.12",
+                "3.12.1",
                 listOf("jooq", "jooq-codegen", "jooq-meta")
         ),
         DependencySet(
                 "org.mockito",
-                "2.27.0",
+                "3.1.1",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -344,8 +321,8 @@ val DEPENDENCY_SETS = listOf(
 )
 
 val DEPENDENCIES = listOf(
-        "com.bmuschko:gradle-docker-plugin:5.1.0",
-        "com.diffplug.spotless:spotless-plugin-gradle:3.24.3",
+        "com.bmuschko:gradle-docker-plugin:5.2.0",
+        "com.diffplug.spotless:spotless-plugin-gradle:3.25.0",
         "com.github.ben-manes:gradle-versions-plugin:0.25.0",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",
         "com.google.maps:google-maps-services:0.10.1",
@@ -383,6 +360,16 @@ dependencies {
         api(enforcedPlatform(bom))
     }
     constraints {
+        rootProject.allprojects {
+            if (path.startsWith(":common:")) {
+                plugins.withId("maven-publish") {
+                    afterEvaluate {
+                        api("${group}:${base.archivesBaseName}:${version}")
+                    }
+                }
+            }
+        }
+
         for (set in DEPENDENCY_SETS) {
             for (module in set.modules) {
                 api("${set.group}:${module}:${set.version}")
