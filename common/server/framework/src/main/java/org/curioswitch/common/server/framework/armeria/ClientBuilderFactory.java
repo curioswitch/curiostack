@@ -34,7 +34,6 @@ import com.linecorp.armeria.client.brave.BraveClient;
 import com.linecorp.armeria.client.endpoint.EndpointGroupRegistry;
 import com.linecorp.armeria.client.endpoint.EndpointSelectionStrategy;
 import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroup;
-import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroupBuilder;
 import com.linecorp.armeria.client.endpoint.healthcheck.HealthCheckedEndpointGroup;
 import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
@@ -162,7 +161,7 @@ public class ClientBuilderFactory {
     URI uri = URI.create(url);
     if (uri.getAuthority().endsWith("cluster.local")) {
       DnsAddressEndpointGroup dnsEndpointGroup =
-          new DnsAddressEndpointGroupBuilder(uri.getHost()).port(uri.getPort()).ttl(1, 10).build();
+          DnsAddressEndpointGroup.builder(uri.getHost()).port(uri.getPort()).ttl(1, 10).build();
       DnsAddressEndpointGroup.of(uri.getHost(), uri.getPort());
       dnsEndpointGroup.addListener(
           endpoints ->

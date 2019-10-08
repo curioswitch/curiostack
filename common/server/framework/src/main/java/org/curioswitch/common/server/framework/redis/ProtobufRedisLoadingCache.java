@@ -31,6 +31,7 @@ import com.github.benmanes.caffeine.cache.CaffeineSpec;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Message;
 import com.spotify.futures.CompletableFuturesExtra;
+import com.spotify.futures.ListenableFuturesExtra;
 import dagger.Lazy;
 import io.lettuce.core.ReadFrom;
 import io.lettuce.core.RedisClient;
@@ -251,7 +252,7 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
       fromCache = remoteCache.get(key);
     } catch (RedisException t) {
       logger.warn("Error reading from remoteCache cache. Computing value anyways.", t);
-      return CompletableFuturesExtra.toCompletableFuture(loader.apply(key));
+      return ListenableFuturesExtra.toCompletableFuture(loader.apply(key));
     }
     return fromCache
         .handleAsync(
@@ -263,7 +264,7 @@ public class ProtobufRedisLoadingCache<K extends Message, V extends Message> {
                 logger.warn("Error reading from remoteCache cache. Computing value anyways.", t);
               }
               CompletableFuture<V> loaded =
-                  CompletableFuturesExtra.toCompletableFuture(loader.apply(key));
+                  ListenableFuturesExtra.toCompletableFuture(loader.apply(key));
               loaded.thenAcceptAsync(val -> remoteCache.set(key, val, setArgs), executor);
               return loaded;
             },

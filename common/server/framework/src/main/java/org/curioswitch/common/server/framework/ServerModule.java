@@ -49,6 +49,7 @@ import com.linecorp.armeria.server.auth.HttpAuthServiceBuilder;
 import com.linecorp.armeria.server.auth.OAuth2Token;
 import com.linecorp.armeria.server.brave.BraveService;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
+import com.linecorp.armeria.server.grpc.GrpcService;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import com.linecorp.armeria.server.healthcheck.HealthCheckService;
 import com.linecorp.armeria.server.healthcheck.HealthChecker;
@@ -350,7 +351,7 @@ public abstract class ServerModule {
       sslCommonNamesProvider = Optional.of(commonNamesProvider);
     }
 
-    ServerBuilder sb = new ServerBuilder().https(serverConfig.getPort());
+    ServerBuilder sb = Server.builder().https(serverConfig.getPort());
 
     if (selfSignedCertificate.isPresent()) {
       SelfSignedCertificate certificate = selfSignedCertificate.get();
@@ -454,7 +455,7 @@ public abstract class ServerModule {
 
     for (GrpcServiceDefinition definition : grpcServiceDefinitions) {
       GrpcServiceBuilder serviceBuilder =
-          new GrpcServiceBuilder()
+          GrpcService.builder()
               .supportedSerializationFormats(GrpcSerializationFormats.values())
               .enableUnframedRequests(true);
       definition.services().forEach(serviceBuilder::addService);

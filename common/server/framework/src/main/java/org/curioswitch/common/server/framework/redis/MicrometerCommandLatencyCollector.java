@@ -52,7 +52,7 @@ class MicrometerCommandLatencyCollector implements CommandLatencyCollector {
       ProtocolKeyword commandType,
       long firstResponseLatency,
       long completionLatency) {
-    MoreMeters.timerWithDefaultQuantiles(
+    MoreMeters.newTimer(
             registry,
             idPrefix.name(),
             idPrefix.tags("remote", remote.toString(), "command", commandType.name()))

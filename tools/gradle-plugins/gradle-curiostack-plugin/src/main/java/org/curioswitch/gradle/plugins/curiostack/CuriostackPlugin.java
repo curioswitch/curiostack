@@ -810,9 +810,6 @@ public class CuriostackPlugin implements Plugin<Project> {
                           for (String dependency :
                               ImmutableList.of(
                                   "javax.activation:activation",
-                                  "javax.xml.bind:jaxb-api",
-                                  "com.sun.xml.bind:jaxb-core",
-                                  "com.sun.xml.bind:jaxb-impl",
                                   "mysql:mysql-connector-java",
                                   // Not sure why this isn't automatically added.
                                   "com.google.guava:guava",

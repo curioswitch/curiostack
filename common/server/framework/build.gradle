@@ -75,8 +75,6 @@ dependencies {
     implementation 'org.jctools:jctools-core'
 
     runtime 'com.google.cloud.sql:mysql-socket-factory'
-    runtime 'javax.xml.bind:jaxb-api'
-    runtime 'com.sun.xml.bind:jaxb-impl'
     runtime 'mysql:mysql-connector-java'
 
     annotationProcessor 'com.google.auto.factory:auto-factory'

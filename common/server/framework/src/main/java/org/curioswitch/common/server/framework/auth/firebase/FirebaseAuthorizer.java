@@ -25,6 +25,7 @@ package org.curioswitch.common.server.framework.auth.firebase;
 
 import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.linecorp.armeria.common.HttpRequest;
@@ -95,7 +96,8 @@ public class FirebaseAuthorizer
             ctx.attr(RAW_FIREBASE_TOKEN).set(data.accessToken());
             result.complete(true);
           }
-        });
+        },
+        MoreExecutors.directExecutor());
     return result;
   }
 
