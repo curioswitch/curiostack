@@ -231,7 +231,8 @@ public class GcloudPlugin implements Plugin<Project> {
 
     project.afterEvaluate(
         p -> {
-          if (System.getenv("CI") != null) {
+          if (System.getenv("CI") != null
+              && project.getGradle().getStartParameter().isBuildCacheEnabled()) {
             project
                 .getPlugins()
                 .withType(ToolDownloaderPlugin.class)
