@@ -55,6 +55,8 @@ public class NodeSetupPlugin implements Plugin<Project> {
     checkState(
         project.getParent() == null, "node-setup-plugin can only be applied to the root project.");
 
+    NodeSetupExtension.create(project);
+
     project.getPlugins().apply(CondaBuildEnvPlugin.class);
     project.getPlugins().apply(BasePlugin.class);
 
@@ -168,7 +170,8 @@ public class NodeSetupPlugin implements Plugin<Project> {
                                       .toString()));
                     }));
 
-    project.getTasks().create(UpdateNodeResolutions.NAME, UpdateNodeResolutions.class, false);
+    var updateNodeResolutions =
+        project.getTasks().register(UpdateNodeResolutions.NAME, UpdateNodeResolutions.class, false);
     var checkNodeResolutions =
         project
             .getTasks()
@@ -233,6 +236,7 @@ public class NodeSetupPlugin implements Plugin<Project> {
                   yarnWarning.get().onlyIf(unused -> t.getState().getFailure() != null);
                   t.finalizedBy(yarnWarning, checkNodeResolutions);
                 });
+    checkNodeResolutions.configure(t -> t.dependsOn(yarn));
 
     project.getTasks().register("yarnUpdate", NodeTask.class, t -> t.dependsOn(setupNode));
   }
