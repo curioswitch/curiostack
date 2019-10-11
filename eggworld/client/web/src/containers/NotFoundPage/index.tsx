@@ -29,6 +29,7 @@ import messages from './messages';
 
 const NotFoundPage: React.FunctionComponent = React.memo(() => (
   <h1>
+    {/* eslint-disable-next-line react/jsx-props-no-spreading */}
     <FormattedMessage {...messages.header} />
   </h1>
 ));

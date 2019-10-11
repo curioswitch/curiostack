@@ -23,6 +23,8 @@
  * SOFTWARE.
  */
 
+import './common';
+
 import { lint } from './check';
 
 if (require.main === module) {

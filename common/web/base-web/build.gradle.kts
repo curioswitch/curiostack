@@ -37,7 +37,6 @@ tasks {
         inputs.file(rootProject.file("yarn.lock"))
         outputs.dir("build")
 
-        dependsOn(":common:web:base-node-dev:prepare")
         args("prepare")
     }
 }

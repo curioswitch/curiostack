@@ -83,7 +83,7 @@ const plugins = [
   }),
 
   new FaviconPlugin({
-    inject: false,
+    inject: true,
     logo: 'favicon.png',
     prefix: 'icons-[hash]/',
     emitStats: true,

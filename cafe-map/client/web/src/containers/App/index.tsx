@@ -28,9 +28,9 @@ import { injectReducer } from '@curiostack/base-web';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { GoogleApiWrapper } from 'google-maps-react';
 import React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import { hot } from 'react-hot-loader/root';
-import { InjectedIntlProps, injectIntl } from 'react-intl';
+import { WrappedComponentProps, injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import { compose, Reducer } from 'redux';
@@ -47,7 +47,7 @@ import messages from './messages';
 import reducer from './reducer';
 import mapStateToProps, { SelectedProps } from './selectors';
 
-type Props = SelectedProps & DispatchProps & InjectedIntlProps;
+type Props = SelectedProps & DispatchProps & WrappedComponentProps;
 
 class App extends React.PureComponent<Props> {
   public render() {

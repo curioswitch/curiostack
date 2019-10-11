@@ -105,14 +105,11 @@ export default function configureStore<S extends object>(
 
   // NOTE(choko): Cannot use spread with a generic type yet - https://github.com/Microsoft/TypeScript/pull/13288
   // tslint:disable-next-line:prefer-object-spread
-  const merged = Object.assign(
-    {},
-    {
-      language: languageProviderInitialState,
-      router: routeInitialState,
-    },
-    initialState,
-  );
+  const merged = {
+    language: languageProviderInitialState,
+    router: routeInitialState,
+    ...initialState,
+  };
   const globalInitialState = Record<GlobalState>(merged)();
 
   const identityReducers = globalInitialState

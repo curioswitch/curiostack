@@ -54,13 +54,14 @@ export default ({ key, saga, mode }: Options) => <TOriginalProps extends {}>(
     | React.StatelessComponent<TOriginalProps>,
 ) => {
   class InjectSaga extends React.Component<TOriginalProps & HocProps> {
+    // eslint-disable-next-line react/static-property-placement
     public static displayName = `withSaga(${WrappedComponent.displayName ||
       WrappedComponent.name ||
       'Component'})`;
 
     private injectors = getInjectors(this.props.reduxCtx.store as any);
 
-    public componentWillMount() {
+    public componentDidMount() {
       const { injectSaga } = this.injectors;
 
       injectSaga(key, { saga, mode }, this.props);
@@ -74,12 +75,16 @@ export default ({ key, saga, mode }: Options) => <TOriginalProps extends {}>(
 
     public render() {
       const { reduxCtx, ...others } = this.props as any;
+      // eslint-disable-next-line react/jsx-props-no-spreading
       return <WrappedComponent {...others} />;
     }
   }
   return (props: TOriginalProps) => (
     <ReactReduxContext.Consumer>
-      {(value) => <InjectSaga reduxCtx={value} {...props} />}
+      {(value) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <InjectSaga reduxCtx={value} {...props} />
+      )}
     </ReactReduxContext.Consumer>
   );
 };

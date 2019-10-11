@@ -22,21 +22,33 @@
  * SOFTWARE.
  */
 
-import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask
+import 'module-alias/register';
+import { addAlias } from 'module-alias';
 
-plugins {
-    id("org.curioswitch.gradle-node-plugin")
-}
+let RECURSIVE_RESOLVE = false;
 
-tasks {
-    val prepare by registering(NodeTask::class) {
-        dependsOn(":yarn")
-
-        inputs.dir("src")
-        inputs.file("package.json")
-        inputs.file(rootProject.file("yarn.lock"))
-        outputs.dir("build")
-
-        args("prepare")
+addAlias('core-js', (_, request) => {
+  if (RECURSIVE_RESOLVE) {
+    return 'core-js';
+  }
+  RECURSIVE_RESOLVE = true;
+  try {
+    try {
+      require.resolve(request);
+      // No error, the module exists
+      return 'core-js';
+    } catch (e) {
+      // Fall through to try core-js-2
     }
-}
+    try {
+      require.resolve(request.replace('core-js/', 'core-js-2/'));
+      // No error, the module exists in core-js-2
+      return 'core-js-2';
+    } catch (e) {
+      // Not in core-js-2, just return the default (which will fail and provide an error message).
+    }
+  } finally {
+    RECURSIVE_RESOLVE = false;
+  }
+  return 'core-js';
+});

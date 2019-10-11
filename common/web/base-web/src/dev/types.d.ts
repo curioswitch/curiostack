@@ -138,6 +138,7 @@ declare module 'favicons-webpack-plugin' {
   import { Plugin } from 'webpack';
   interface Args {
     logo: string;
+    devMode?: string;
     inject?: boolean;
     prefix?: string;
     emitStats?: boolean;
@@ -164,4 +165,9 @@ declare module 'webpack-sane-compiler-reporter' {
 
   function startReporting(compiler: SaneCompiler): any;
   export = startReporting;
+}
+
+declare module 'module-alias' {
+  type Callback = (fromPath: string, request: string, alias: string) => string;
+  export function addAlias(alias: string, callback: Callback);
 }

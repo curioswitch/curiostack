@@ -49,6 +49,7 @@ const SearchBox: React.FunctionComponent<
         </IconButton>
       }
       error={touched && invalid}
+      // eslint-disable-next-line react/jsx-props-no-spreading
       {...input}
     />
   </Paper>

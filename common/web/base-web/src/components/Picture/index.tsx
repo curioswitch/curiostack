@@ -45,9 +45,11 @@ export default class Picture extends React.PureComponent<Props> {
     return (
       <picture>
         {image.sources.map((source) => (
+          // eslint-disable-next-line react/jsx-props-no-spreading
           <source key={source.type} {...source} />
         ))}
         // eslint-disable-next-line jsx-a11y/alt-text
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
         <img src={image.fallback} alt={alt} {...others} />
       </picture>
     );

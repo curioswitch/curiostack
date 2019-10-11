@@ -47,7 +47,7 @@ export default function({
   extraStyles,
 }: Args) {
   return (
-    // eslint-disable-next-line jsx-a11y/html-has-lang
+    // eslint-disable-next-line jsx-a11y/html-has-lang,react/jsx-props-no-spreading
     <html {...helmet.htmlAttributes.toComponent()}>
       <head>
         {helmet.title.toComponent()}

@@ -8,6 +8,7 @@ class NotFoundPage extends React.PureComponent {
   public render() {
     return (
       <h1>
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
         <FormattedMessage {...messages.header} />
       </h1>
     );

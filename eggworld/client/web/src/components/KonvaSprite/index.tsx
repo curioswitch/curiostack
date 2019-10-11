@@ -73,6 +73,7 @@ const KonvaSprite: React.FunctionComponent<Props> = (props) => {
     return null;
   }
 
+  // eslint-disable-next-line react/jsx-props-no-spreading
   return <Sprite ref={node} image={image} {...others} />;
 };
 

@@ -2,26 +2,14 @@
   "name": "@curiostack/base-node-dev",
   "version": "0.0.16",
   "description": "Curiostack's base dev dependencies for non-browser applications.",
-  "main": "build/index.js",
   "repository": "curioswitch/curiostack",
   "author": "Choko <choko@curioswitch.org>",
   "license": "MIT",
-  "scripts": {
-    "clean": "rimraf ./build",
-    "prebuild": "yarn run clean && yarn run lint",
-    "build": "tsc --outDir ./build --noEmit false --lib es2016 --target es2016",
-    "prepare": "yarn run build",
-    "lint": "eslint src/ --ext .js,.ts"
-  },
   "dependencies": {
     "@curiostack/eslint-config-base": "0.0.2",
-    "@types/node": "12.6.8",
+    "@types/node": "12.7.12",
     "prettier": "1.18.2",
-    "rimraf": "2.6.3",
-    "tslint": "5.18.0",
-    "tslint-config-airbnb-base": "0.3.0",
-    "tslint-config-prettier": "1.18.0",
-    "tslint-plugin-prettier": "2.0.1",
-    "typescript": "3.5.3"
+    "rimraf": "3.0.0",
+    "typescript": "3.6.3"
   }
 }
