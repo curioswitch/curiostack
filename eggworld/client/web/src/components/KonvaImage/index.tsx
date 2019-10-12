@@ -62,6 +62,7 @@ const KonvaImage: React.FunctionComponent<Props | ImageConfig> = (props) => {
     return null;
   }
 
+  // eslint-disable-next-line react/jsx-props-no-spreading
   return <ReactKonvaImage image={image} {...props} />;
 };
 

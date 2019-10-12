@@ -22,8 +22,6 @@
  * SOFTWARE.
  */
 
-import { addLocaleData } from 'react-intl';
-
 import { LocaleMessages, Messages } from '../containers/LanguageProvider';
 
 function formatTranslationMessages(
@@ -46,11 +44,6 @@ export default function init(
   defaultLocale: string,
   translations: LocaleMessages,
 ): LocaleMessages {
-  // TODO(choko): Try code-splitting of non-default locale data.
-  for (const locale of Object.keys(translations)) {
-    // eslint-disable-next-line global-require,import/no-dynamic-require
-    addLocaleData(require(`react-intl/locale-data/${locale}`));
-  }
   const defaultMessages = formatTranslationMessages(
     translations[defaultLocale],
     {},

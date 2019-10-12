@@ -1,6 +1,0 @@
-{
-  "extends": "./build/dev/tslint-config",
-  "rules": {
-    "no-implicit-dependencies": false
-  }
-}

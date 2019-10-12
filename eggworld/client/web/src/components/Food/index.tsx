@@ -51,7 +51,8 @@ export default class Food extends React.Component<Props> {
 
   private removed = false;
 
-  public componentWillReceiveProps(nextProps: Props) {
+  // eslint-disable-next-line camelcase
+  public UNSAFE_componentWillReceiveProps(nextProps: Props) {
     if (!this.node || this.removed) {
       return;
     }

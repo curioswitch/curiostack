@@ -28,9 +28,9 @@ import { Grid, GridList, GridListTile } from '@material-ui/core';
 import { push } from 'connected-react-router';
 import { LocationDescriptorObject } from 'history';
 import React, { useCallback } from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import { hot } from 'react-hot-loader/root';
-import { InjectedIntlProps, injectIntl } from 'react-intl';
+import { WrappedComponentProps, injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { compose } from 'redux';
@@ -52,7 +52,7 @@ interface OwnDispatchProps extends DispatchProps {
   doPush: (url: string) => void;
 }
 
-type Props = OwnDispatchProps & InjectedIntlProps & StateProps;
+type Props = OwnDispatchProps & WrappedComponentProps & StateProps;
 
 const SearchBoxWrapper = styled.div`
   position: absolute;
@@ -73,6 +73,7 @@ const SearchBoxContainer: React.FunctionComponent<SearchBoxProps> = React.memo(
     <SearchBoxWrapper>
       <Grid container justify="center" alignItems="center">
         <Grid item xs={11} md={6}>
+          {/* eslint-disable-next-line react/jsx-props-no-spreading */}
           <Field name="query" component={SearchBox} {...props} />
         </Grid>
       </Grid>

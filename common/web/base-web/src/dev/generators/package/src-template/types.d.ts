@@ -1,17 +1,3 @@
-/* tslint:disable:max-classes-per-file */
-/* tslint:disable:no-namespace */
-
-interface AutoMessages {
-  [key: string]: string;
-}
-namespace ReactIntl {
-  function defineMessages<T extends AutoMessages>(messages: T): Messages;
-}
-
-declare module 'react-intl' {
-  export = ReactIntl;
-}
-
 declare module '*.json' {
   const value: any;
   export default value;
@@ -50,8 +36,4 @@ declare module '*.woff' {
 declare module '*.woff2' {
   const value: string;
   export default value;
-}
-
-declare module 'intl/locale-data/jsonp/*.js' {
-
 }

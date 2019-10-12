@@ -50,25 +50,30 @@ export default ({ key, reducer }: Options) => <TOriginalProps extends {}>(
     | React.StatelessComponent<TOriginalProps>,
 ) => {
   class ReducerInjector extends React.Component<TOriginalProps & HocProps> {
+    // eslint-disable-next-line react/static-property-placement
     public static displayName = `withReducer(${WrappedComponent.displayName ||
       WrappedComponent.name ||
       'Component'})`;
 
     private injectors = getInjectors(this.props.reduxCtx.store as any);
 
-    public componentWillMount() {
+    public componentDidMount() {
       const { injectReducer } = this.injectors;
       injectReducer(key, reducer);
     }
 
     public render() {
       const { reduxCtx, ...others } = this.props as any;
+      // eslint-disable-next-line react/jsx-props-no-spreading
       return <WrappedComponent {...others} />;
     }
   }
   return (props: TOriginalProps) => (
     <ReactReduxContext.Consumer>
-      {(value) => <ReducerInjector reduxCtx={value} {...props} />}
+      {(value) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <ReducerInjector reduxCtx={value} {...props} />
+      )}
     </ReactReduxContext.Consumer>
   );
 };

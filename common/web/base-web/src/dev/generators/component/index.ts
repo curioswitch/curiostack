@@ -28,7 +28,7 @@ import path from 'path';
 import { promisify } from 'util';
 
 import program from 'commander';
-import inquirer, { Question } from 'inquirer';
+import inquirer, { DistinctQuestion } from 'inquirer';
 
 import {
   componentExists,
@@ -67,7 +67,7 @@ async function run() {
   const storiesTemplate = await readFile(require.resolve('./stories.tsx.hbs'));
   const testTemplate = await readFile(require.resolve('./test.tsx.hbs'));
 
-  const questions: Question[] = [];
+  const questions: DistinctQuestion[] = [];
   let type: Type | undefined = program.type;
   if (!type) {
     questions.push({

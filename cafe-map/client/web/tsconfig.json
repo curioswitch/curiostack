@@ -1,7 +1,8 @@
 {
   "extends": "../../../tsconfig.json",
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "../../../node_modules/babel-plugin-react-intl-auto/**/*.d.ts"
   ],
   "compilerOptions": {
     "incremental": true,
