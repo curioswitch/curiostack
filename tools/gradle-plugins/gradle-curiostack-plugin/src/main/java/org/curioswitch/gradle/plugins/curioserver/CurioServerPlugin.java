@@ -92,7 +92,7 @@ public class CurioServerPlugin implements Plugin<Project> {
           container.setPorts(ImmutableList.of("8080"));
         });
 
-    jib.getFrom().setImage("curiostack/java-cloud-runner");
+    jib.getFrom().setImage(config.getBaseImage().get());
     jib.getTo()
         .setCredHelper(
             DownloadedToolManager.get(project)
