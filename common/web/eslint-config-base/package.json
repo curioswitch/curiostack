@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/eslint-config-base",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Curiostack's base ESLint configuration for NodeJS applications (non-web).",
   "main": "index.js",
   "repository": "curioswitch/curiostack",
