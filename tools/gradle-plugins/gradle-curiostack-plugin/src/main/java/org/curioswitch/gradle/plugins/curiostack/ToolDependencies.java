@@ -33,7 +33,7 @@ public class ToolDependencies {
 
   private static Map<String, String> DEFAULT_VERSIONS =
       ImmutableMap.<String, String>builder()
-          .put("bom", "0.0.12")
+          .put("bom", "0.0.13")
           .put("claat", "2.2.0")
           .put("gcloud", "265.0.0")
           .put("golang", "1.13.1")
@@ -41,7 +41,7 @@ public class ToolDependencies {
           .put("gradle", "5.6.2")
           .put("helm", "2.10.0")
           .put("miniconda", "4.5.12")
-          .put("node", "11.13.0")
+          .put("node", "12.11.1")
           .put("openjdk", "12.0.2+10")
           .put("openjdk8", "jdk8u222-b10")
           .put("terraform", "0.12.10")

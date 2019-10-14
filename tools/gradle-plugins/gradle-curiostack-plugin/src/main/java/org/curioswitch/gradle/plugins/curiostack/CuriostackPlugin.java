@@ -620,7 +620,6 @@ public class CuriostackPlugin implements Plugin<Project> {
                   .setCompilerArgs(
                       ImmutableList.of(
                           "-XDcompilePolicy=byfile",
-                          "-Adagger.gradle.incremental",
                           "-Aimmutables.gradle.incremental"));
 
               ErrorProneOptions errorProne =
