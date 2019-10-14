@@ -52,12 +52,12 @@ public class UpdateNodeResolutions extends DefaultTask {
   public static final String NAME = "updateNodeResolutions";
   public static final String CHECK_NAME = "checkNodeResolutions";
 
-  private static final List<String> CURIOSTACK_PACKAGES = ImmutableList.of(
-      "@curiostack/eslint-config-base",
+  private static final List<String> CURIOSTACK_PACKAGES =
+      ImmutableList.of(
+          "@curiostack/eslint-config-base",
           "@curiostack/eslint-config-web",
           "@curiostack/base-node-dev",
-          "@curiostack/base-web"
-  );
+          "@curiostack/base-web");
 
   private static final Splitter PACKAGE_SPLITTER = Splitter.on('/');
 
@@ -118,17 +118,20 @@ public class UpdateNodeResolutions extends DefaultTask {
       }
       if (!localPackageJson.exists()) {
         throw new GradleException(
-            "Could not find " + pkg + "'s package.json to check resolutions. Did yarn run correctly?");
+            "Could not find "
+                + pkg
+                + "'s package.json to check resolutions. Did yarn run correctly?");
       }
 
       Map<String, String> dependencies =
           OBJECT_MAPPER.convertValue(
               OBJECT_MAPPER.readTree(localPackageJson).get("dependencies"), NODE_DEPENDENCIES);
-      dependencies.forEach((name, version) -> {
-        if (!excludes.contains(name)) {
-          managedDependencies.put(name, version);
-        }
-      });
+      dependencies.forEach(
+          (name, version) -> {
+            if (!excludes.contains(name)) {
+              managedDependencies.put(name, version);
+            }
+          });
     }
 
     if (checkOnly) {
