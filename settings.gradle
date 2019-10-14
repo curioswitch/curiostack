@@ -37,7 +37,7 @@ pluginManagement {
         jcenter()
         gradlePluginPortal()
         maven {
-            url 'http://dl.bintray.com/curioswitch/curiostack'
+            url 'https://dl.bintray.com/curioswitch/curiostack'
         }
         mavenLocal()
     }
@@ -48,7 +48,7 @@ buildscript {
         jcenter()
         gradlePluginPortal()
         maven {
-            url 'http://dl.bintray.com/curioswitch/curiostack'
+            url 'https://dl.bintray.com/curioswitch/curiostack'
         }
         mavenLocal()
     }

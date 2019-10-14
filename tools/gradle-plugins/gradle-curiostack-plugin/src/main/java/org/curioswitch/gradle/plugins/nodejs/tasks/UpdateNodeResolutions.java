@@ -24,17 +24,18 @@
 
 package org.curioswitch.gradle.plugins.nodejs.tasks;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -50,6 +51,15 @@ public class UpdateNodeResolutions extends DefaultTask {
 
   public static final String NAME = "updateNodeResolutions";
   public static final String CHECK_NAME = "checkNodeResolutions";
+
+  private static final List<String> CURIOSTACK_PACKAGES =
+      ImmutableList.of(
+          "@curiostack/eslint-config-base",
+          "@curiostack/eslint-config-web",
+          "@curiostack/base-node-dev",
+          "@curiostack/base-web");
+
+  private static final Splitter PACKAGE_SPLITTER = Splitter.on('/');
 
   private static final ObjectMapper OBJECT_MAPPER =
       new ObjectMapper().configure(SerializationFeature.INDENT_OUTPUT, true);
@@ -97,31 +107,35 @@ public class UpdateNodeResolutions extends DefaultTask {
       return;
     }
 
-    var localBaseWebPackageJson =
-        getProject()
-            .file(System.getProperty("packageJsonLocation", "common/web/base-web/package.json"));
-    if (!localBaseWebPackageJson.exists()) {
-      localBaseWebPackageJson = getProject().file("node_modules/@curiostack/base-web/package.json");
-    }
-    final byte[] baseWebPackageJson;
-    if (localBaseWebPackageJson.exists()) {
-      baseWebPackageJson = Files.readAllBytes(localBaseWebPackageJson.toPath());
-    } else {
-      throw new GradleException(
-          "Could not find package.json to check resolutions. " + "Did yarn run correctly?");
-    }
+    Map<String, String> managedDependencies = new HashMap<>();
+    List<String> excludes = config.getExcludes().get();
 
-    var excludes = config.getExcludes().get();
-    Map<String, String> baseWebDependencies =
-        OBJECT_MAPPER.convertValue(
-            OBJECT_MAPPER.readTree(baseWebPackageJson).get("dependencies"), NODE_DEPENDENCIES);
-    baseWebDependencies =
-        baseWebDependencies.entrySet().stream()
-            .filter(e -> !excludes.contains(e.getKey()))
-            .collect(toImmutableMap(Entry::getKey, Entry::getValue));
+    for (var pkg : CURIOSTACK_PACKAGES) {
+      String packageFolder = Iterables.getLast(PACKAGE_SPLITTER.splitToList(pkg));
+      File localPackageJson = getProject().file("common/web/" + packageFolder + "/package.json");
+      if (!localPackageJson.exists()) {
+        localPackageJson = getProject().file("node_modules/" + pkg + "/package.json");
+      }
+      if (!localPackageJson.exists()) {
+        throw new GradleException(
+            "Could not find "
+                + pkg
+                + "'s package.json to check resolutions. Did yarn run correctly?");
+      }
+
+      Map<String, String> dependencies =
+          OBJECT_MAPPER.convertValue(
+              OBJECT_MAPPER.readTree(localPackageJson).get("dependencies"), NODE_DEPENDENCIES);
+      dependencies.forEach(
+          (name, version) -> {
+            if (!excludes.contains(name)) {
+              managedDependencies.put(name, version);
+            }
+          });
+    }
 
     if (checkOnly) {
-      baseWebDependencies.forEach(
+      managedDependencies.forEach(
           (name, version) -> {
             if (!version.equals(oldResolutions.get(name))) {
               throw new GradleException(
@@ -138,7 +152,7 @@ public class UpdateNodeResolutions extends DefaultTask {
 
     Map<String, String> newResolutions = new TreeMap<>();
     newResolutions.putAll(oldResolutions);
-    newResolutions.putAll(baseWebDependencies);
+    newResolutions.putAll(managedDependencies);
 
     // Recreate new root instead of replacing field to preserve order.
     ObjectNode newRoot = OBJECT_MAPPER.getNodeFactory().objectNode();

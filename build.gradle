@@ -23,7 +23,7 @@
  */
 
 plugins {
-    id 'com.gradle.build-scan' version '2.1'
+    id 'com.gradle.build-scan' version '2.4.2'
     id 'org.curioswitch.gradle-curiostack-plugin'
 }
 
@@ -140,5 +140,3 @@ tasks.named('yarn').configure {
     // Hack to make sure yarn symlinks are set up after building the base packages.
     finalizedBy ':eggworld:client:web:install'
 }
-
-tasks.checkNodeResolutions.enabled = false
