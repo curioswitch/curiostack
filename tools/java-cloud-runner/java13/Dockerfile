@@ -30,15 +30,22 @@ RUN cd / && jlink --no-header-files --no-man-pages --compress=2 --strip-debug \
 
 FROM debian:stretch-backports AS debian
 
+RUN apt-get -y update && apt-get -y install ca-certificates-java
+
 ADD https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz /tmp/gcloud/profiler_java_agent.tar.gz
 ADD https://github.com/GoogleCloudPlatform/cloud-debug-java/releases/download/v2.21/cdbg_java_agent_service_account.tar.gz /tmp/gcloud/cdbg_java_agent_service_account.tar.gz
 
 RUN mkdir /opt/cprof && \
   tar -xzf /tmp/gcloud/profiler_java_agent.tar.gz -C /opt/cprof && \
   mkdir /opt/cdbg && \
-  tar -xzf /tmp/gcloud/cdbg_java_agent_service_account.tar.gz -C /opt/cdbg
+  tar -xzf /tmp/gcloud/cdbg_java_agent_service_account.tar.gz -C /opt/cdbg && \
+  keytool -importkeystore -srckeystore /etc/ssl/certs/java/cacerts -destkeystore /etc/ssl/certs/java/cacerts.jks -deststoretype JKS -srcstorepass changeit -deststorepass changeit -noprompt && \
+  mv /etc/ssl/certs/java/cacerts.jks /etc/ssl/certs/java/cacerts && \
+  /var/lib/dpkg/info/ca-certificates-java.postinst configure
 
 FROM gcr.io/distroless/cc:debug
+
+COPY --from=debian /etc/ssl/certs/java/ /etc/ssl/certs/java/
 
 COPY --from=debian /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1.2.8
 RUN ["/busybox/sh", "-c", "ln -s /lib/x86_64-linux-gnu/libz.so.1.2.8 /lib/x86_64-linux-gnu/libz.so.1"]
