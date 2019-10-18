@@ -38,7 +38,7 @@ public class ToolDependencies {
           .put("gcloud", "265.0.0")
           .put("golang", "1.13.1")
           .put("google-java-format", "1.7")
-          .put("gradle", "5.6.2")
+          .put("gradle", "5.6.3")
           .put("helm", "2.10.0")
           .put("miniconda", "4.5.12")
           .put("node", "12.11.1")
