@@ -47,15 +47,15 @@ data class DependencySet(val group: String, val version: String, val modules: Li
 
 val DEPENDENCY_BOMS = listOf(
         "com.fasterxml.jackson:jackson-bom:2.10.0",
-        "com.google.cloud:google-cloud-bom:0.114.0-alpha",
+        "com.google.cloud:google-cloud-bom:0.116.0-alpha",
         "com.google.api-client:google-api-client-bom:1.30.4",
-        "com.google.http-client:google-http-client-bom:1.32.0",
+        "com.google.http-client:google-http-client-bom:1.32.1",
         "com.linecorp.armeria:armeria-bom:0.94.0",
         "io.dropwizard.metrics:metrics-bom:4.1.0",
         "io.grpc:grpc-bom:1.24.0",
         "io.zipkin.brave:brave-bom:5.8.0",
         "io.netty:netty-bom:4.1.42.Final",
-        "org.apache.beam:beam-sdks-java-bom:2.14.0",
+        "org.apache.beam:beam-sdks-java-bom:2.16.0",
         "org.apache.logging.log4j:log4j-bom:2.12.1",
         "org.junit:junit-bom:5.5.2"
 )
@@ -187,7 +187,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.fabric8",
-                "4.6.0",
+                "4.6.1",
                 listOf("kubernetes-client")
         ),
         DependencySet(
@@ -212,7 +212,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.zipkin.gcp",
-                "0.14.1",
+                "0.15.0",
                 listOf("brave-propagation-stackdriver", "zipkin-translation-stackdriver")
         ),
         DependencySet(
@@ -227,7 +227,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "net.bytebuddy",
-                "1.10.1",
+                "1.10.2",
                 listOf("byte-buddy", "byte-buddy-agent")
         ),
         DependencySet(
@@ -326,7 +326,7 @@ val DEPENDENCY_SETS = listOf(
 val DEPENDENCIES = listOf(
         "com.bmuschko:gradle-docker-plugin:5.2.0",
         "com.diffplug.spotless:spotless-plugin-gradle:3.25.0",
-        "com.github.ben-manes:gradle-versions-plugin:0.26.0",
+        "com.github.ben-manes:gradle-versions-plugin:0.27.0",
         "com.google.code.gson:gson:2.8.6",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",
         "com.google.maps:google-maps-services:0.10.1",
@@ -335,9 +335,9 @@ val DEPENDENCIES = listOf(
         "com.palantir:gradle-baseline-java:0.10.0",
         "de.undercouch:gradle-download-task:4.0.0",
         "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.6",
-        "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.6.1",
+        "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.7.0",
         "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.0",
-        "gradle.plugin.com.palantir.graal:gradle-graal:0.6.0-16-g4a3ef27",
+        "gradle.plugin.com.palantir.graal:gradle-graal:0.6.0-25-g2b2309b",
         "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
         "io.sgr:s2-geometry-library-java:1.0.1",
         "it.unimi.dsi:fastutil:8.3.0",
@@ -346,7 +346,7 @@ val DEPENDENCIES = listOf(
         "me.champeau.gradle:jmh-gradle-plugin:0.5.0-rc-2",
         "mysql:mysql-connector-java:8.0.18",
         "net.ltgt.gradle:gradle-apt-plugin:0.21",
-        "net.ltgt.gradle:gradle-errorprone-plugin:0.8.1",
+        "net.ltgt.gradle:gradle-errorprone-plugin:1.1.0",
         "nu.studer:gradle-jooq-plugin:3.0.3",
         "org.jacoco:org.jacoco.agent:0.8.5",
         "org.jacoco:org.jacoco.ant:0.8.5",

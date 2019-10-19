@@ -172,7 +172,13 @@ public class CuriostackPlugin implements Plugin<Project> {
             });
 
     rootProject.getTasks().register("setupGitHooks", SetupGitHooks.class);
-    rootProject.getTasks().register("updateShellConfig", CreateShellConfigTask.class);
+    var updateShellConfig =
+        rootProject.getTasks().register("updateShellConfig", CreateShellConfigTask.class);
+    DownloadToolUtil.getDownloadTask(rootProject, "miniconda2-build")
+        .configure(t -> t.finalizedBy(updateShellConfig));
+    rootProject
+        .getTasks()
+        .named("condaInstallPackagesMiniconda2Build", t -> t.mustRunAfter(updateShellConfig));
 
     plugins.withType(
         ToolDownloaderPlugin.class,
@@ -215,7 +221,7 @@ public class CuriostackPlugin implements Plugin<Project> {
             t -> {
               t.dependsOn(idea);
               t.dependsOn(rootProject.getTasks().named("toolsSetupAll"));
-              t.dependsOn("updateShellConfig");
+              t.dependsOn(updateShellConfig);
             });
 
     String baselineFiles;

@@ -39,8 +39,8 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
     condas.create(
         "miniconda2-build",
         conda -> {
-          conda.getVersion().set("Miniconda2-4.5.11");
-          conda.getPackages().addAll("make", "git");
+          conda.getVersion().set("Miniconda2-4.7.12");
+          conda.getPackages().add("git");
 
           var platformHelper = new PlatformHelper();
           var operatingSystem = platformHelper.getOs();
@@ -54,7 +54,8 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
                       "curl",
                       "gcc_linux-64",
                       "gxx_linux-64",
-                      "gfortran_linux-64");
+                      "gfortran_linux-64",
+                      "make");
               break;
             case MAC_OSX:
               conda
@@ -65,7 +66,8 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
                       "curl",
                       "clang_osx-64",
                       "clangxx_osx-64",
-                      "gfortran_osx-64");
+                      "gfortran_osx-64",
+                      "make");
               break;
             case WINDOWS:
               conda
@@ -74,6 +76,7 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
                       "m2-automake1.15",
                       "m2-curl",
                       "m2-autoconf",
+                      "m2-make",
                       "m2w64-gcc",
                       "m2w64-gcc-fortran");
               break;
