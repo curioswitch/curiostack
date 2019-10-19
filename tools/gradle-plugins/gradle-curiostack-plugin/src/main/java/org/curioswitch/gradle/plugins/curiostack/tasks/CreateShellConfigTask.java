@@ -45,13 +45,6 @@ public class CreateShellConfigTask extends DefaultTask {
 
   private static final ImmutableList<String> SHELL_RCS = ImmutableList.of(".zshrc", ".bashrc");
 
-  List<Path> paths = ImmutableList.of();
-
-  public CreateShellConfigTask path(Path path) {
-    paths = ImmutableList.<Path>builder().addAll(paths).add(path).build();
-    return this;
-  }
-
   @TaskAction
   public void exec() {
     String homeDir = System.getProperty("user.shellHome", System.getProperty("user.home", ""));
