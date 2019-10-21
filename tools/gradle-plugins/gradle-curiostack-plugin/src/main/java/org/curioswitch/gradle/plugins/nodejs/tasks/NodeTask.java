@@ -24,10 +24,12 @@
 
 package org.curioswitch.gradle.plugins.nodejs.tasks;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
@@ -41,8 +43,10 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecSpec;
-import org.gradle.workers.IsolationMode;
+import org.gradle.workers.WorkAction;
+import org.gradle.workers.WorkParameters;
 import org.gradle.workers.WorkerExecutor;
 
 @CacheableTask
@@ -95,53 +99,66 @@ public class NodeTask extends DefaultTask {
 
   @TaskAction
   public void exec() {
-    String mapKey = UUID.randomUUID().toString();
-    TASKS.put(mapKey, this);
+    var toolManager = DownloadedToolManager.get(getProject());
 
-    workerExecutor.submit(
-        DoNodeTask.class,
-        config -> {
-          config.setIsolationMode(IsolationMode.NONE);
-          config.params(mapKey);
-        });
+    workerExecutor
+        .noIsolation()
+        .submit(
+            DoNodeTask.class,
+            parameters -> {
+              parameters
+                  .getNodeBinDir()
+                  .set(toolManager.getBinDir("node").toAbsolutePath().toString());
+              parameters.getCommand().set(command);
+              parameters.getArgs().set(args);
+              parameters
+                  .getExecOverrides()
+                  .add(
+                      exec ->
+                          toolManager.addAllToPath(
+                              exec,
+                              getProject().getRootProject().file("node_modules/.bin").toPath()));
+              execOverrides.forEach(parameters.getExecOverrides()::add);
+              execOverrides.add(exec -> CondaExecUtil.condaExec(exec, getProject()));
+            });
   }
 
-  public static class DoNodeTask implements Runnable {
+  abstract static class DoNodeTask implements WorkAction<ActionParameters> {
 
-    private final String mapKey;
+    private final ExecOperations exec;
 
     @Inject
-    public DoNodeTask(String mapKey) {
-      this.mapKey = mapKey;
+    public DoNodeTask(ExecOperations exec) {
+      this.exec = checkNotNull(exec, "exec");
     }
 
     @Override
-    public void run() {
-      var task = TASKS.remove(mapKey);
-
-      task.getProject()
-          .exec(
-              exec -> {
-                var toolManager = DownloadedToolManager.get(task.getProject());
-
-                String command = task.command.get();
-                if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
-                  if (command.equals("node")) {
-                    command += ".exe";
-                  } else {
-                    command += ".cmd";
-                  }
-                }
-                Path binDir = toolManager.getBinDir("node");
-                exec.executable(binDir.resolve(command));
-                exec.args(task.args.get());
-
-                toolManager.addAllToPath(
-                    exec, task.getProject().getRootProject().file("node_modules/.bin").toPath());
-
-                task.execOverrides.forEach(o -> o.execute(exec));
-                CondaExecUtil.condaExec(exec, task.getProject());
-              });
+    public void execute() {
+      exec.exec(
+          exec -> {
+            String command = getParameters().getCommand().get();
+            if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
+              if (command.equals("node")) {
+                command += ".exe";
+              } else {
+                command += ".cmd";
+              }
+            }
+            Path binDir = Paths.get(getParameters().getNodeBinDir().get());
+            exec.executable(binDir.resolve(command));
+            exec.args(getParameters().getArgs().get());
+            getParameters().getExecOverrides().get().forEach(o -> o.execute(exec));
+          });
     }
+  }
+
+  interface ActionParameters extends WorkParameters {
+    Property<String> getNodeBinDir();
+
+    Property<String> getCommand();
+
+    ListProperty<String> getArgs();
+
+    ListProperty<Action<? super ExecSpec>> getExecOverrides();
   }
 }

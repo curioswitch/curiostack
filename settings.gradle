@@ -56,7 +56,11 @@ buildscript {
         classpath "org.curioswitch.curiostack:gradle-curiostack-plugin:${getProperty('org.curioswitch.curiostack.version')}"
     }
 }
-
+/*
+plugins {
+    id 'com.gradle.enterprise' version '3.0'
+}
+*/
 apply plugin: 'org.curioswitch.gradle-gcloud-build-cache-plugin'
 
 def isCiServer = System.getenv().containsKey('CI')

@@ -25,6 +25,7 @@ package org.curioswitch.gradle.golang;
 
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Project;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.process.ExecSpec;
 
@@ -33,7 +34,6 @@ public final class GoExecUtil {
   public static void goExec(ExecSpec exec, Project project, String command, Iterable<String> args) {
     var toolManager = DownloadedToolManager.get(project);
     exec.executable(toolManager.getBinDir("go").resolve(command));
-
     exec.args(args);
     exec.environment("GOROOT", toolManager.getToolDir("go").resolve("go"));
     exec.environment(

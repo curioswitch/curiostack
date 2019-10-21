@@ -28,11 +28,12 @@ plugins {
 }
 
 dependencies {
-    compile(project(":common:curio-helpers"))
-    compile(project(":tools:gradle-plugins:gradle-helpers"))
+    implementation(project(":tools:gradle-plugins:gradle-helpers"))
 
-    compile("com.google.gradle:osdetector-gradle-plugin")
-    compile("com.google.guava:guava")
+    implementation("com.google.gradle:osdetector-gradle-plugin")
+    implementation("com.google.guava:guava")
+
+    compileOnly(project(":common:curio-helpers"))
 
     annotationProcessor("org.immutables:value")
     compileOnly("org.immutables:value-annotations")

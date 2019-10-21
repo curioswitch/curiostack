@@ -24,6 +24,7 @@
 package org.curioswitch.gradle.protobuf.tasks;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
@@ -42,8 +43,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.curioswitch.gradle.protobuf.ProtobufExtension;
@@ -69,17 +68,14 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectories;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecSpec;
-import org.gradle.workers.IsolationMode;
+import org.gradle.workers.WorkAction;
+import org.gradle.workers.WorkParameters;
 import org.gradle.workers.WorkerExecutor;
 
 @CacheableTask
 public class GenerateProtoTask extends DefaultTask {
-
-  // It is extremely hacky to use global state to propagate the Task to workers, but
-  // it works so let"s enjoy the speed.
-  private static final ConcurrentHashMap<String, GenerateProtoTask> TASKS =
-      new ConcurrentHashMap<>();
 
   private static final Splitter COORDINATE_SPLITTER = Splitter.on('@');
   private static final Splitter ARTIFACT_SPLITTER = Splitter.on(':');
@@ -247,40 +243,40 @@ public class GenerateProtoTask extends DefaultTask {
     // to avoid triggering unnecessary rebuilds downstream
     sources.getFiles().stream().map(File::getAbsolutePath).sorted().forEach(protocCommand::add);
 
-    String mapKey = UUID.randomUUID().toString();
-    TASKS.put(mapKey, this);
-
-    workerExecutor.submit(
-        DoGenerateProto.class,
-        config -> {
-          config.setIsolationMode(IsolationMode.NONE);
-          config.params(protocCommand.build(), mapKey);
-        });
+    workerExecutor
+        .noIsolation()
+        .submit(
+            DoGenerateProto.class,
+            parameters -> {
+              parameters.getProtocCommand().set(protocCommand.build());
+              execOverrides.forEach(parameters.getExecOverrides()::add);
+            });
   }
 
-  public static class DoGenerateProto implements Runnable {
+  abstract static class DoGenerateProto implements WorkAction<ActionParameters> {
 
-    private final List<String> protocCommand;
-    private final String mapKey;
+    private final ExecOperations exec;
 
+    @SuppressWarnings("InjectOnConstructorOfAbstractClass")
     @Inject
-    public DoGenerateProto(List<String> protocCommand, String mapKey) {
-      this.protocCommand = protocCommand;
-      this.mapKey = mapKey;
+    public DoGenerateProto(ExecOperations exec) {
+      this.exec = checkNotNull(exec, "exec");
     }
 
     @Override
-    public void run() {
-      GenerateProtoTask task = TASKS.remove(mapKey);
-
-      task.getProject()
-          .exec(
-              exec -> {
-                exec.commandLine(protocCommand);
-
-                task.execOverrides.forEach(a -> a.execute(exec));
-              });
+    public void execute() {
+      exec.exec(
+          exec -> {
+            exec.commandLine(getParameters().getProtocCommand().get());
+            getParameters().getExecOverrides().get().forEach(override -> override.execute(exec));
+          });
     }
+  }
+
+  interface ActionParameters extends WorkParameters {
+    ListProperty<String> getProtocCommand();
+
+    ListProperty<Action<? super ExecSpec>> getExecOverrides();
   }
 
   private static String optionsPrefix(List<String> options) {

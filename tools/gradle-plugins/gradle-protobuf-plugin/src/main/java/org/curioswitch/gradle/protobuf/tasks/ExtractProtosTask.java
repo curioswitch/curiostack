@@ -43,8 +43,8 @@ public class ExtractProtosTask extends DefaultTask {
   @Inject
   public ExtractProtosTask() {
 
-    files = getProject().getLayout().configurableFiles();
-    destDir = newOutputDirectory();
+    files = getProject().getObjects().fileCollection();
+    destDir = getProject().getObjects().directoryProperty();
 
     onlyIf(unused -> !files.isEmpty());
   }

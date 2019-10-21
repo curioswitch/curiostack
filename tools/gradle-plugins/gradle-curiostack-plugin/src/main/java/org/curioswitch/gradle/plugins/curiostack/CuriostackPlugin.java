@@ -102,14 +102,13 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.JavaExec;
-import org.gradle.api.tasks.SourceSet;
-import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.api.tasks.testing.Test;
@@ -117,7 +116,6 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat;
 import org.gradle.api.tasks.wrapper.Wrapper;
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType;
 import org.gradle.external.javadoc.CoreJavadocOptions;
-import org.gradle.jvm.tasks.Jar;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
 import org.gradle.testing.jacoco.plugins.JacocoPlugin;
@@ -528,6 +526,10 @@ public class CuriostackPlugin implements Plugin<Project> {
     plugins.apply(SpotlessPlugin.class);
     plugins.apply(VersionsPlugin.class);
 
+    var java = project.getExtensions().getByType(JavaPluginExtension.class);
+    java.publishJavadoc();
+    java.publishSources();
+
     // Manage all dependencies by adding the bom as a platform.
     Object bomDependency =
         isCuriostack(project)
@@ -733,34 +735,13 @@ public class CuriostackPlugin implements Plugin<Project> {
           options.addBooleanOption("Xdoclint:all,-missing", true);
         });
 
-    project
-        .getTasks()
-        .register(
-            "javadocJar",
-            Jar.class,
-            javadocJar -> {
-              javadocJar.dependsOn(javadoc);
-              javadocJar.getArchiveClassifier().set("javadoc");
-              javadocJar.from(javadoc.get().getDestinationDir());
-            });
 
-    SourceSetContainer sourceSets = javaPlugin.getSourceSets();
-    var mainSourceSet = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-    project
-        .getTasks()
-        .register(
-            "sourceJar",
-            Jar.class,
-            sourceJar -> {
-              sourceJar.getArchiveClassifier().set("sources");
-              sourceJar.from(mainSourceSet.getAllSource());
-            });
 
     SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
     spotless.java(
-        (java) -> {
-          java.target("src/**/*.java");
-          java.googleJavaFormat(ToolDependencies.getGoogleJavaFormatVersion(project));
+        (spotlessJava) -> {
+          spotlessJava.target("src/**/*.java");
+          spotlessJava.googleJavaFormat(ToolDependencies.getGoogleJavaFormatVersion(project));
         });
 
     project

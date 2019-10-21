@@ -51,7 +51,7 @@ val DEPENDENCY_BOMS = listOf(
         "com.google.api-client:google-api-client-bom:1.30.4",
         "com.google.http-client:google-http-client-bom:1.32.1",
         "com.linecorp.armeria:armeria-bom:0.94.0",
-        "io.dropwizard.metrics:metrics-bom:4.1.0",
+        "io.dropwizard.metrics:metrics-bom:4.1.1",
         "io.grpc:grpc-bom:1.24.0",
         "io.zipkin.brave:brave-bom:5.8.0",
         "io.netty:netty-bom:4.1.42.Final",
@@ -272,7 +272,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.codehaus.groovy",
-                "2.5.4",
+                "2.5.8",
                 listOf("groovy")
         ),
         DependencySet(
@@ -282,7 +282,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.immutables",
-                "2.8.0",
+                "2.8.1",
                 listOf("builder", "value", "value-annotations")
         ),
         DependencySet(

@@ -28,11 +28,12 @@ plugins {
 }
 
 dependencies {
-    compile(project(":common:curio-helpers"))
-    compile(project(":tools:gradle-plugins:gradle-helpers"))
+    implementation(project(":tools:gradle-plugins:gradle-helpers"))
 
-    compile("com.google.guava:guava")
-    compile("org.eclipse.jgit:org.eclipse.jgit")
+    implementation("com.google.guava:guava")
+    implementation("org.eclipse.jgit:org.eclipse.jgit")
+
+    compileOnly(project(":common:curio-helpers"))
 }
 
 gradlePlugin {

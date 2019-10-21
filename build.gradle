@@ -23,7 +23,6 @@
  */
 
 plugins {
-    id 'com.gradle.build-scan' version '2.4.2'
     id 'org.curioswitch.gradle-curiostack-plugin'
 }
 
@@ -81,11 +80,6 @@ allprojects {
                         from components.java
                     }
 
-                    if (project.name != 'curiostack-bom') {
-                        artifact project.tasks.javadocJar
-                        artifact project.tasks.sourceJar
-                    }
-
                     pom {
                         licenses {
                             license {
@@ -130,12 +124,12 @@ ci {
         }
     }
 }
-
+/*
 buildScan {
     termsOfServiceUrl = 'https://gradle.com/terms-of-service'
     termsOfServiceAgree = 'yes'
 }
-
+*/
 tasks.named('yarn').configure {
     // Hack to make sure yarn symlinks are set up after building the base packages.
     finalizedBy ':eggworld:client:web:install'
