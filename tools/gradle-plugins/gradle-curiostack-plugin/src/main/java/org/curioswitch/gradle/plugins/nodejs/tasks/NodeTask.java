@@ -30,7 +30,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
@@ -51,10 +50,6 @@ import org.gradle.workers.WorkerExecutor;
 
 @CacheableTask
 public class NodeTask extends DefaultTask {
-
-  // It is extremely hacky to use global state to propagate the Task to workers, but
-  // it works so let's enjoy the speed.
-  private static final ConcurrentHashMap<String, NodeTask> TASKS = new ConcurrentHashMap<>();
 
   private final Property<String> command;
   private final ListProperty<String> args;
@@ -127,6 +122,7 @@ public class NodeTask extends DefaultTask {
 
     private final ExecOperations exec;
 
+    @SuppressWarnings("InjectOnConstructorOfAbstractClass")
     @Inject
     public DoNodeTask(ExecOperations exec) {
       this.exec = checkNotNull(exec, "exec");

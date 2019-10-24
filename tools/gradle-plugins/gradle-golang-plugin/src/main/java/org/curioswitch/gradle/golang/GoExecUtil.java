@@ -25,7 +25,6 @@ package org.curioswitch.gradle.golang;
 
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.Project;
-import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.process.ExecSpec;
 

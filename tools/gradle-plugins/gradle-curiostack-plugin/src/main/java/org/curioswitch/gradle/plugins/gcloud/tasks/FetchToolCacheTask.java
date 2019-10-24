@@ -80,6 +80,7 @@ public class FetchToolCacheTask extends DefaultTask {
 
     private final ExecOperations exec;
 
+    @SuppressWarnings("InjectOnConstructorOfAbstractClass")
     @Inject
     public GsutilCopy(ExecOperations exec) {
       this.exec = checkNotNull(exec, "exec");

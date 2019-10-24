@@ -35,7 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.curioswitch.gradle.golang.GolangSetupPlugin;
-import org.curioswitch.gradle.plugins.curiostack.CuriostackPlugin;
+import org.curioswitch.gradle.plugins.curiostack.CuriostackRootPlugin;
 import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.curioswitch.gradle.testing.GradleTempDirectories;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
@@ -69,7 +69,7 @@ class UpdateIntelliJSdksTaskTest {
         .getByType(ExtraPropertiesExtension.class)
         .set("org.curioswitch.curiostack.tools.openjdk", "11.0.4+11");
 
-    project.getPlugins().apply(CuriostackPlugin.class);
+    project.getPlugins().apply(CuriostackRootPlugin.class);
     project.getPlugins().apply(GolangSetupPlugin.class);
 
     task =

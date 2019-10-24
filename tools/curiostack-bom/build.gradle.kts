@@ -330,6 +330,7 @@ val DEPENDENCIES = listOf(
         "com.google.code.gson:gson:2.8.6",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",
         "com.google.maps:google-maps-services:0.10.1",
+        "com.gradle:gradle-enterprise-gradle-plugin:3.0",
         "com.hubspot.jinjava:jinjava:2.5.2",
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
         "com.palantir:gradle-baseline-java:0.10.0",

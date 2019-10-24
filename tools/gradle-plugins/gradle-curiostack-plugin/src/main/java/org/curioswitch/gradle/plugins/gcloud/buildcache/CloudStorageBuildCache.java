@@ -24,26 +24,20 @@
 
 package org.curioswitch.gradle.plugins.gcloud.buildcache;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import org.gradle.api.provider.Provider;
 import org.gradle.caching.configuration.AbstractBuildCache;
 
 public class CloudStorageBuildCache extends AbstractBuildCache {
 
-  private String project;
-  private String bucket;
+  private Provider<String> bucket;
 
-  public String getProject() {
-    return project;
-  }
-
-  public void setProject(String project) {
-    this.project = project;
-  }
-
-  public String getBucket() {
+  public Provider<String> getBucket() {
     return bucket;
   }
 
-  public void setBucket(String bucket) {
-    this.bucket = bucket;
+  public void setBucket(Provider<String> bucket) {
+    this.bucket = checkNotNull(bucket, "bucket");
   }
 }

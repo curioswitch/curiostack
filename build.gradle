@@ -22,10 +22,6 @@
  * SOFTWARE.
  */
 
-plugins {
-    id 'org.curioswitch.gradle-curiostack-plugin'
-}
-
 allprojects {
     project.group = 'org.curioswitch.curiostack'
 
@@ -75,11 +71,6 @@ allprojects {
                 publications.configureEach {publication->
                     artifactId = project.archivesBaseName
 
-                    // Plugin and BOM publications do not need this.
-                    if (publication.name == 'maven' && project.name != 'curiostack-bom') {
-                        from components.java
-                    }
-
                     pom {
                         licenses {
                             license {
@@ -124,12 +115,12 @@ ci {
         }
     }
 }
-/*
+
 buildScan {
     termsOfServiceUrl = 'https://gradle.com/terms-of-service'
     termsOfServiceAgree = 'yes'
 }
-*/
+
 tasks.named('yarn').configure {
     // Hack to make sure yarn symlinks are set up after building the base packages.
     finalizedBy ':eggworld:client:web:install'

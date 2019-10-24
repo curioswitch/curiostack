@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,29 +22,33 @@
  * SOFTWARE.
  */
 
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == 'org.curioswitch.gradle-curiostack-settings-plugin') {
-                useModule "org.curioswitch.curiostack:gradle-curiostack-plugin:${requested.version}"
-            }
-        }
-    }
-    repositories {
-        jcenter()
-        gradlePluginPortal()
-        maven {
-            url 'https://dl.bintray.com/curioswitch/curiostack'
-        }
-        mavenLocal()
-    }
-}
+package org.curioswitch.gradle.plugins.curiostack;
 
-plugins {
-    id 'com.gradle.enterprise' version '3.0'
-    id 'org.curioswitch.gradle-curiostack-plugin' version '0.0.188-RC1'
-}
+import org.curioswitch.gradle.helpers.immutables.ExtensionStyle;
+import org.gradle.api.initialization.Settings;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
+import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Modifiable;
 
-curiostack {
-    buildCacheBucket = 'curioswitch-gradle-build-cache'
+@Immutable
+@Modifiable
+@ExtensionStyle
+public interface CuriostackExtension extends HasPublicType {
+
+  String NAME = "curiostack";
+
+  static CuriostackExtension createAndAdd(Settings settings, ObjectFactory objects) {
+    return settings.getExtensions().create(NAME, ModifiableCuriostackExtension.class)
+        .setBuildCacheBucket(objects.property(String.class));
+  }
+
+  Property<String> getBuildCacheBucket();
+
+  @Override
+  default TypeOf<?> getPublicType() {
+    return TypeOf.typeOf(CuriostackExtension.class);
+  }
 }
