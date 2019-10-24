@@ -52,7 +52,6 @@ steps:
   - continuousBuild
   - --scan
   - --stacktrace
-  - --no-daemon
   - -Pcuriostack.revisionId=$REVISION_ID
   env:
   - CI=true

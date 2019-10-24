@@ -77,7 +77,12 @@ public class CuriostackPlugin implements Plugin<Settings> {
           remote.setPush(System.getenv().containsKey("CI_MASTER"));
         });
 
-    settings.apply(c -> c.from("project.settings.gradle.kts"));
+    try {
+      settings.apply(c -> c.from("project.settings.gradle.kts"));
+    } catch (Throwable t) {
+      // Ignore failure to apply projects, it usually means missing file.
+      System.out.println("Couldn't apply project.settings.gradle.kts, skipping.");
+    }
 
     settings
         .getGradle()

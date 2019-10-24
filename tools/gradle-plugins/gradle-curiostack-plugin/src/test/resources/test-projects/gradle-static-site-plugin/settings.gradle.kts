@@ -22,6 +22,10 @@
  * SOFTWARE.
  */
 
+plugins {
+    id("org.curioswitch.gradle-curiostack-plugin")
+}
+
 include(":portal")
 include(":site1")
 include(":site2")

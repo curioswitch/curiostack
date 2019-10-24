@@ -23,6 +23,5 @@
  */
 
 plugins {
-    id("org.curioswitch.gradle-curiostack-plugin")
     id("org.curioswitch.gradle-codelabs-plugin")
 }

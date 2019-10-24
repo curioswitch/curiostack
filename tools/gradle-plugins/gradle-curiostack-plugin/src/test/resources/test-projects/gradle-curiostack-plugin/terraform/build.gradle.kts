@@ -22,6 +22,3 @@
  * SOFTWARE.
  */
 
-plugins {
-    id("org.curioswitch.gradle-curiostack-plugin")
-}

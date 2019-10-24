@@ -22,6 +22,10 @@
  * SOFTWARE.
  */
 
+plugins {
+    id("org.curioswitch.gradle-curiostack-plugin")
+}
+
 include(":library1")
 include(":library2")
 include(":server1")
