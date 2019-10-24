@@ -25,7 +25,7 @@
 pluginManagement {
     resolutionStrategy {
         eachPlugin {
-            if (requested.id.id == 'org.curioswitch.gradle-curiostack-settings-plugin') {
+            if (requested.id.id == 'org.curioswitch.gradle-curiostack-plugin') {
                 useModule "org.curioswitch.curiostack:gradle-curiostack-plugin:${requested.version}"
             }
         }
