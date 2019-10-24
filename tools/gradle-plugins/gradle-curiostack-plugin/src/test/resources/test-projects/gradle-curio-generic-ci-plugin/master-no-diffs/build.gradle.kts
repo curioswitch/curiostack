@@ -1,5 +1,3 @@
-import jnr.ffi.provider.jffi.CodegenUtils.ci
-
 /*
  * MIT License
  *
@@ -23,6 +21,8 @@ import jnr.ffi.provider.jffi.CodegenUtils.ci
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+// |DIFF-ME|
 
 // We only want to verify what tasks would run in our tests, but don't want to run them.
 gradle.taskGraph.beforeTask {
