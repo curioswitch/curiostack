@@ -60,7 +60,8 @@ public class CloudStorageBuildCacheServiceFactory
       CloudStorageBuildCache buildCache, Describer describer) {
     checkNotNull(buildCache.getBucket(), "buildCache.bucket");
 
-    describer.type("Google Cloud Storage Build Cache")
+    describer
+        .type("Google Cloud Storage Build Cache")
         .config("bucket", buildCache.getBucket().get());
 
     final Credentials credentials;

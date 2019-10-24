@@ -41,7 +41,9 @@ public interface CuriostackExtension extends HasPublicType {
   String NAME = "curiostack";
 
   static CuriostackExtension createAndAdd(Settings settings, ObjectFactory objects) {
-    return settings.getExtensions().create(NAME, ModifiableCuriostackExtension.class)
+    return settings
+        .getExtensions()
+        .create(NAME, ModifiableCuriostackExtension.class)
         .setBuildCacheBucket(objects.property(String.class));
   }
 

@@ -735,8 +735,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           options.addBooleanOption("Xdoclint:all,-missing", true);
         });
 
-
-
     SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
     spotless.java(
         (spotlessJava) -> {

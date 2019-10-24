@@ -81,10 +81,11 @@ public class CuriostackPlugin implements Plugin<Settings> {
 
     settings
         .getGradle()
-        .rootProject(project -> {
-          configureRepositories(project.getBuildscript().getRepositories());
-          project.getPlugins().apply(CuriostackRootPlugin.class);
-        });
+        .rootProject(
+            project -> {
+              configureRepositories(project.getBuildscript().getRepositories());
+              project.getPlugins().apply(CuriostackRootPlugin.class);
+            });
   }
 
   private static void configureRepositories(RepositoryHandler repositories) {
