@@ -24,9 +24,8 @@
 
 package org.curioswitch.gradle.plugins.ci.tasks;
 
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
+import org.curioswitch.gradle.helpers.exec.ExternalExecUtil;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
@@ -35,15 +34,9 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
 public class FetchCodeCovCacheTask extends DefaultTask {
-
-  // It is extremely hacky to use global state to propagate the Task to workers, but
-  // it works so let's enjoy the speed.
-  private static final ConcurrentHashMap<String, FetchCodeCovCacheTask> TASKS =
-      new ConcurrentHashMap<>();
 
   private final Property<String> src;
 
@@ -73,47 +66,22 @@ public class FetchCodeCovCacheTask extends DefaultTask {
 
   @TaskAction
   public void exec() {
-    String mapKey = UUID.randomUUID().toString();
-    TASKS.put(mapKey, this);
+    ExternalExecUtil.exec(
+        getProject(),
+        workerExecutor,
+        exec -> {
+          var toolManager = DownloadedToolManager.get(getProject());
 
-    workerExecutor.submit(
-        FetchReports.class,
-        config -> {
-          config.setIsolationMode(IsolationMode.NONE);
-          config.params(mapKey);
+          String gsutil =
+              new PlatformHelper().getOs() == OperatingSystem.WINDOWS ? "gsutil.cmd" : "gsutil";
+
+          exec.executable("bash");
+
+          exec.args("-c", gsutil + " cp " + src.get() + " - | tar -xpz --skip-old-files");
+
+          exec.setIgnoreExitValue(true);
+
+          toolManager.addAllToPath(exec);
         });
-  }
-
-  public static class FetchReports implements Runnable {
-
-    private final String mapKey;
-
-    @Inject
-    public FetchReports(String mapKey) {
-      this.mapKey = mapKey;
-    }
-
-    @Override
-    public void run() {
-      var task = TASKS.remove(mapKey);
-
-      var toolManager = DownloadedToolManager.get(task.getProject());
-
-      String gsutil =
-          new PlatformHelper().getOs() == OperatingSystem.WINDOWS ? "gsutil.cmd" : "gsutil";
-
-      task.getProject()
-          .exec(
-              exec -> {
-                exec.executable("bash");
-
-                exec.args(
-                    "-c", gsutil + " cp " + task.src.get() + " - | tar -xpz --skip-old-files");
-
-                exec.setIgnoreExitValue(true);
-
-                toolManager.addAllToPath(exec);
-              });
-    }
   }
 }

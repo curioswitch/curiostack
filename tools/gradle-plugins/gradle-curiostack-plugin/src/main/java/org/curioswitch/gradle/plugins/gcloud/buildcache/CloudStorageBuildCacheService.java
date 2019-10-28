@@ -81,6 +81,7 @@ public class CloudStorageBuildCacheService implements BuildCacheService {
         buildCacheEntryWriter.writeTo(os);
       } catch (IOException e) {
         logger.warn("Couldn't write cache entry to buffer.", e);
+        buf.release();
         return;
       }
 

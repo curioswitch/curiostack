@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,29 +22,36 @@
  * SOFTWARE.
  */
 
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == 'org.curioswitch.gradle-curiostack-plugin') {
-                useModule "org.curioswitch.curiostack:gradle-curiostack-plugin:${requested.version}"
-            }
-        }
-    }
-    repositories {
-        jcenter()
-        gradlePluginPortal()
-        maven {
-            url 'https://dl.bintray.com/curioswitch/curiostack'
-        }
-        mavenLocal()
-    }
-}
+package org.curioswitch.gradle.helpers.exec;
 
-plugins {
-    id 'com.gradle.enterprise' version '3.0'
-    id 'org.curioswitch.gradle-curiostack-plugin' version '0.0.188-RC2'
-}
+import static com.google.common.base.Preconditions.checkNotNull;
 
-curiostack {
-    buildCacheBucket = 'curioswitch-gradle-build-cache'
+import javax.inject.Inject;
+import org.curioswitch.gradle.helpers.exec.ExecWorkAction.Parameters;
+import org.gradle.api.provider.Property;
+import org.gradle.process.ExecOperations;
+import org.gradle.workers.WorkAction;
+import org.gradle.workers.WorkParameters;
+
+/**
+ * A {@link WorkAction} to execute an external process with the given customizer.
+ */
+public abstract class ExecWorkAction implements WorkAction<Parameters> {
+
+  private final ExecOperations exec;
+
+  @SuppressWarnings("InjectOnConstructorOfAbstractClass")
+  @Inject
+  public ExecWorkAction(ExecOperations exec) {
+    this.exec = checkNotNull(exec, "exec");
+  }
+
+  @Override
+  public void execute() {
+    exec.exec(exec -> getParameters().getExecCustomizer().get().copyTo(exec));
+  }
+
+  public interface Parameters extends WorkParameters {
+    Property<ExecCustomizer> getExecCustomizer();
+  }
 }

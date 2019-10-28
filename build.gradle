@@ -71,6 +71,11 @@ allprojects {
                 publications.configureEach {publication->
                     artifactId = project.archivesBaseName
 
+                    // Plugin and BOM publications do not need this.
+                    if (publication.name == 'maven' && project.name != 'curiostack-bom') {
+                        from components.java
+                    }
+
                     pom {
                         licenses {
                             license {

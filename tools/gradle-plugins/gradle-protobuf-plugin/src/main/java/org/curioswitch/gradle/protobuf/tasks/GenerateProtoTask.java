@@ -24,7 +24,6 @@
 package org.curioswitch.gradle.protobuf.tasks;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
@@ -45,6 +44,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import org.curioswitch.gradle.helpers.exec.ExternalExecUtil;
 import org.curioswitch.gradle.protobuf.ProtobufExtension;
 import org.curioswitch.gradle.protobuf.ProtobufExtension.DescriptorSetOptions;
 import org.curioswitch.gradle.protobuf.ProtobufExtension.Executable;
@@ -68,10 +68,7 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectories;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecSpec;
-import org.gradle.workers.WorkAction;
-import org.gradle.workers.WorkParameters;
 import org.gradle.workers.WorkerExecutor;
 
 @CacheableTask
@@ -243,40 +240,10 @@ public class GenerateProtoTask extends DefaultTask {
     // to avoid triggering unnecessary rebuilds downstream
     sources.getFiles().stream().map(File::getAbsolutePath).sorted().forEach(protocCommand::add);
 
-    workerExecutor
-        .noIsolation()
-        .submit(
-            DoGenerateProto.class,
-            parameters -> {
-              parameters.getProtocCommand().set(protocCommand.build());
-              execOverrides.forEach(parameters.getExecOverrides()::add);
-            });
-  }
-
-  abstract static class DoGenerateProto implements WorkAction<ActionParameters> {
-
-    private final ExecOperations exec;
-
-    @SuppressWarnings("InjectOnConstructorOfAbstractClass")
-    @Inject
-    public DoGenerateProto(ExecOperations exec) {
-      this.exec = checkNotNull(exec, "exec");
-    }
-
-    @Override
-    public void execute() {
-      exec.exec(
-          exec -> {
-            exec.commandLine(getParameters().getProtocCommand().get());
-            getParameters().getExecOverrides().get().forEach(override -> override.execute(exec));
-          });
-    }
-  }
-
-  interface ActionParameters extends WorkParameters {
-    ListProperty<String> getProtocCommand();
-
-    ListProperty<Action<? super ExecSpec>> getExecOverrides();
+    ExternalExecUtil.exec(getProject(), workerExecutor, exec -> {
+      exec.commandLine(protocCommand.build());
+      execOverrides.forEach(a -> a.execute(exec));
+    });
   }
 
   private static String optionsPrefix(List<String> options) {
@@ -342,7 +309,7 @@ public class GenerateProtoTask extends DefaultTask {
     // Resolve once to download all tools in parallel.
     configuration.resolve();
 
-    // This will not redownload.
+    // This will not re-download.
     ResolvedConfiguration resolved = configuration.getResolvedConfiguration();
     Map<String, File> downloaded =
         Streams.zip(

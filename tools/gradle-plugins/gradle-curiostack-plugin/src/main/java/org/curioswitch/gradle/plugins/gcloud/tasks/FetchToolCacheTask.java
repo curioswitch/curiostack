@@ -24,8 +24,8 @@
 
 package org.curioswitch.gradle.plugins.gcloud.tasks;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import org.apache.tools.ant.taskdefs.condition.Os;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
@@ -33,12 +33,14 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecOperations;
-import org.gradle.workers.WorkAction;
-import org.gradle.workers.WorkParameters;
 import org.gradle.workers.WorkerExecutor;
 
 public class FetchToolCacheTask extends DefaultTask {
+
+  // It is extremely hacky to use global state to propagate the Task to workers, but
+  // it works so let's enjoy the speed.
+  private static final ConcurrentHashMap<String, FetchToolCacheTask> TASKS =
+      new ConcurrentHashMap<>();
 
   private final Property<String> src;
 
@@ -63,50 +65,43 @@ public class FetchToolCacheTask extends DefaultTask {
 
   @TaskAction
   public void exec() {
-    var curiostackDir = DownloadedToolManager.get(getProject()).getCuriostackDir();
-    getProject().mkdir(curiostackDir);
+    getProject().mkdir(DownloadedToolManager.get(getProject()).getCuriostackDir());
 
-    workerExecutor
-        .noIsolation()
-        .submit(
-            GsutilCopy.class,
-            parameters -> {
-              parameters.getCuriostackDir().set(curiostackDir.toAbsolutePath().toString());
-              parameters.getSrc().set(src);
-            });
+    String mapKey = UUID.randomUUID().toString();
+    TASKS.put(mapKey, this);
+
+    // We usually execute long-running tasks in the executor but directly run for now since gsutil
+    // seems to be flaky under high concurrency.
+    new GsutilCopy(mapKey).run();
   }
 
-  abstract static class GsutilCopy implements WorkAction<ActionParameters> {
+  public static class GsutilCopy implements Runnable {
 
-    private final ExecOperations exec;
+    private final String mapKey;
 
-    @SuppressWarnings("InjectOnConstructorOfAbstractClass")
     @Inject
-    public GsutilCopy(ExecOperations exec) {
-      this.exec = checkNotNull(exec, "exec");
+    public GsutilCopy(String mapKey) {
+      this.mapKey = mapKey;
     }
 
     @Override
-    public void execute() {
+    public void run() {
+      FetchToolCacheTask task = TASKS.remove(mapKey);
+
+      var toolManager = DownloadedToolManager.get(task.getProject());
+
       String gsutil = Os.isFamily(Os.FAMILY_WINDOWS) ? "gsutil" + ".cmd" : "gsutil";
 
-      exec.exec(
-          exec -> {
-            exec.executable("bash");
-            exec.workingDir(getParameters().getCuriostackDir().get());
+      task.getProject()
+          .exec(
+              exec -> {
+                exec.executable("bash");
+                exec.workingDir(toolManager.getCuriostackDir());
 
-            exec.args(
-                "-c",
-                gsutil + " cp " + getParameters().getSrc().get() + " - | lz4 -dc - | tar -xp");
+                exec.args("-c", gsutil + " cp " + task.src.get() + " - | lz4 -dc - | tar -xp");
 
-            exec.setIgnoreExitValue(true);
-          });
+                exec.setIgnoreExitValue(true);
+              });
     }
-  }
-
-  interface ActionParameters extends WorkParameters {
-    Property<String> getCuriostackDir();
-
-    Property<String> getSrc();
   }
 }
