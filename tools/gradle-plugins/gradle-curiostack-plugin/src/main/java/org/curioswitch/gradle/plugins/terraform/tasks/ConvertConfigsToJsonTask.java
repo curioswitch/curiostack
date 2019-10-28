@@ -24,6 +24,7 @@
 
 package org.curioswitch.gradle.plugins.terraform.tasks;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.io.Files.getNameWithoutExtension;
 import static java.nio.file.Files.createDirectories;
 
@@ -41,22 +42,18 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.workers.IsolationMode;
+import org.gradle.workers.WorkAction;
+import org.gradle.workers.WorkParameters;
 import org.gradle.workers.WorkerExecutor;
 
 public class ConvertConfigsToJsonTask extends DefaultTask {
-
-  // It is extremely hacky to use global state to propagate the Task to workers, but
-  // it works so let's enjoy the speed.
-  private static final ConcurrentHashMap<String, ConvertConfigsToJsonTask> TASKS =
-      new ConcurrentHashMap<>();
 
   public static final String NAME = "terraformConvertConfigs";
 
@@ -150,14 +147,14 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
       } catch (IOException e) {
         throw new UncheckedIOException("Could not create output directory.", e);
       }
-      String mapKey = UUID.randomUUID().toString();
-      TASKS.put(mapKey, this);
-      workerExecutor.submit(
-          ConvertToJson.class,
-          config -> {
-            config.setIsolationMode(IsolationMode.NONE);
-            config.params(mapKey, file, outPath.toFile());
-          });
+      workerExecutor
+          .noIsolation()
+          .submit(
+              ConvertToJson.class,
+              parameters -> {
+                parameters.getSourceFile().set(file);
+                parameters.getOutFile().set(outPath.toFile());
+              });
     }
   }
 
@@ -169,28 +166,26 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
     return filenamePrefix + filename;
   }
 
-  public static class ConvertToJson implements Runnable {
+  public abstract static class ConvertToJson implements WorkAction<ActionParameters> {
 
-    private final String mapKey;
-    private final File sourceFile;
-    private final File outFile;
+    private final ProjectLayout layout;
 
+    @SuppressWarnings("InjectOnConstructorOfAbstractClass")
     @Inject
-    public ConvertToJson(String mapKey, File sourceFile, File outFile) {
-      this.mapKey = mapKey;
-      this.sourceFile = sourceFile;
-      this.outFile = outFile;
+    public ConvertToJson(ProjectLayout layout) {
+      this.layout = checkNotNull(layout, "layout");
     }
 
     @Override
-    public void run() {
-      var task = TASKS.remove(mapKey);
+    public void execute() {
+      File sourceFile = getParameters().getSourceFile().get();
+      File outFile = getParameters().getOutFile().get();
 
       final String fileContents;
       if (sourceFile.getName().contains(".jinja.")) {
         var jinJava = new Jinjava();
         try {
-          jinJava.setResourceLocator(new FileLocator(task.getProject().getProjectDir()));
+          jinJava.setResourceLocator(new FileLocator(layout.getProjectDirectory().getAsFile()));
         } catch (FileNotFoundException e) {
           throw new IllegalStateException("Could not initialize Jinjava");
         }
@@ -223,5 +218,11 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
         throw new UncheckedIOException("Could not write config json.", e);
       }
     }
+  }
+
+  public interface ActionParameters extends WorkParameters {
+    Property<File> getSourceFile();
+
+    Property<File> getOutFile();
   }
 }
