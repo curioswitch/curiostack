@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+
 plugins {
     `java-platform`
     `maven-publish`
@@ -48,13 +50,13 @@ data class DependencySet(val group: String, val version: String, val modules: Li
 val DEPENDENCY_BOMS = listOf(
         "com.fasterxml.jackson:jackson-bom:2.10.0",
         "com.google.cloud:google-cloud-bom:0.116.0-alpha",
-        "com.google.api-client:google-api-client-bom:1.30.4",
+        "com.google.api-client:google-api-client-bom:1.30.5",
         "com.google.http-client:google-http-client-bom:1.32.1",
-        "com.linecorp.armeria:armeria-bom:0.94.0",
+        "com.linecorp.armeria:armeria-bom:0.95.0",
         "io.dropwizard.metrics:metrics-bom:4.1.1",
-        "io.grpc:grpc-bom:1.24.0",
+        "io.grpc:grpc-bom:1.24.1",
         "io.zipkin.brave:brave-bom:5.8.0",
-        "io.netty:netty-bom:4.1.42.Final",
+        "io.netty:netty-bom:4.1.43.Final",
         "org.apache.beam:beam-sdks-java-bom:2.16.0",
         "org.apache.logging.log4j:log4j-bom:2.12.1",
         "org.junit:junit-bom:5.5.2"
@@ -102,11 +104,6 @@ val DEPENDENCY_SETS = listOf(
                 listOf("caffeine")
         ),
         DependencySet(
-                "com.google.api-client",
-                "1.30.4",
-                listOf("google-api-client")
-        ),
-        DependencySet(
                 "com.google.auto",
                 "0.10",
                 listOf("auto-common")
@@ -118,7 +115,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.cloud",
-                "0.103.0-beta",
+                "0.115.0-beta",
                 listOf("google-cloud-iot")
         ),
         DependencySet(
@@ -131,7 +128,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.dagger",
-                "2.24",
+                "2.25.2",
                 listOf("dagger", "dagger-compiler", "dagger-producers")
         ),
         DependencySet(
@@ -207,7 +204,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.prometheus",
-                "0.7.0",
+                "0.8.0",
                 listOf("simpleclient", "simpleclient_common", "simpleclient_hotspot", "simpleclient_log4j2")
         ),
         DependencySet(
@@ -242,7 +239,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.assertj",
-                "3.13.2",
+                "3.14.0",
                 listOf("assertj-core")
         ),
         DependencySet(
@@ -297,7 +294,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.jooq",
-                "3.12.1",
+                "3.12.2",
                 listOf("jooq", "jooq-codegen", "jooq-meta")
         ),
         DependencySet(
@@ -334,11 +331,11 @@ val DEPENDENCIES = listOf(
         "com.hubspot.jinjava:jinjava:2.5.2",
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
         "com.palantir:gradle-baseline-java:0.10.0",
-        "de.undercouch:gradle-download-task:4.0.0",
+        "de.undercouch:gradle-download-task:4.0.1",
         "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.6",
         "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.7.0",
         "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.0",
-        "gradle.plugin.com.palantir.graal:gradle-graal:0.6.0-25-g2b2309b",
+        "gradle.plugin.com.palantir.graal:gradle-graal:0.6.0-27-ge8430f6",
         "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
         "io.sgr:s2-geometry-library-java:1.0.1",
         "it.unimi.dsi:fastutil:8.3.0",
@@ -347,7 +344,7 @@ val DEPENDENCIES = listOf(
         "me.champeau.gradle:jmh-gradle-plugin:0.5.0-rc-2",
         "mysql:mysql-connector-java:8.0.18",
         "net.ltgt.gradle:gradle-apt-plugin:0.21",
-        "net.ltgt.gradle:gradle-errorprone-plugin:1.1.0",
+        "net.ltgt.gradle:gradle-errorprone-plugin:1.1.1",
         "nu.studer:gradle-jooq-plugin:3.0.3",
         "org.jacoco:org.jacoco.agent:0.8.5",
         "org.jacoco:org.jacoco.ant:0.8.5",
@@ -393,5 +390,11 @@ publishing {
                 setPackaging("pom")
             }
         }
+    }
+}
+
+tasks {
+    named<DependencyUpdatesTask>("dependencyUpdates") {
+        revision = "release"
     }
 }
