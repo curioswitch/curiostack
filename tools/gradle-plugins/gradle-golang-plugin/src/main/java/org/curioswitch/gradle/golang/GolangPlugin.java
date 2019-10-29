@@ -167,9 +167,7 @@ public class GolangPlugin implements Plugin<Project> {
                 GoTestTask.class,
                 t -> {
                   t.execCustomizer(
-                      exec ->
-                          CondaExecUtil.condaExec(
-                              exec, toolManager, golang.getConda().get()));
+                      exec -> CondaExecUtil.condaExec(exec, toolManager, golang.getConda().get()));
 
                   t.dependsOn(
                       DownloadToolUtil.getSetupTask(project, golang.getConda().get()),

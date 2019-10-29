@@ -46,8 +46,8 @@ import org.gradle.process.ExecSpec;
 import org.gradle.process.ProcessForkOptions;
 
 /**
- * A {@link Serializable} {@link ExecSpec} for customizing execution of an external process from
- * a {@link org.gradle.workers.WorkerExecutor}.
+ * A {@link Serializable} {@link ExecSpec} for customizing execution of an external process from a
+ * {@link org.gradle.workers.WorkerExecutor}.
  */
 class ExecCustomizer implements ExecSpec, Serializable {
 
@@ -56,22 +56,14 @@ class ExecCustomizer implements ExecSpec, Serializable {
 
   // Unlike the normal Exec, we force all values to String to make sure they're Serializable.
   // This works for most objects.
-  @Nullable
-  private String executable;
-  @Nullable
-  private List<String> arguments;
-  @Nullable
-  private Map<String, String> environment;
-  @Nullable
-  private Boolean ignoreExitValue;
-  @Nullable
-  private File workingDir;
-  @Nullable
-  private InputStream standardInput;
-  @Nullable
-  private OutputStream standardOutput;
-  @Nullable
-  private OutputStream standardError;
+  @Nullable private String executable;
+  @Nullable private List<String> arguments;
+  @Nullable private Map<String, String> environment;
+  @Nullable private Boolean ignoreExitValue;
+  @Nullable private File workingDir;
+  @Nullable private InputStream standardInput;
+  @Nullable private OutputStream standardOutput;
+  @Nullable private OutputStream standardError;
 
   ExecCustomizer(Project project) {
     this.project = checkNotNull(project, "project");

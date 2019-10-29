@@ -33,9 +33,7 @@ import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
 
-/**
- * A {@link WorkAction} to execute an external process with the given customizer.
- */
+/** A {@link WorkAction} to execute an external process with the given customizer. */
 public abstract class ExecWorkAction implements WorkAction<Parameters> {
 
   private final ExecOperations exec;

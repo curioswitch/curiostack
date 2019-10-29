@@ -29,7 +29,12 @@ allprojects {
         afterEvaluate {
             tasks.withType(JavaCompile) {
                 // This check is broken in Java 12.  See https://github.com/google/error-prone/issues/1257
-                options.errorprone.errorproneArgs = ['-Xep:Finally:OFF', '-Xep:TypeParameterUnusedInFormals:OFF']
+                options.errorprone.errorproneArgs = [
+                        '-Xep:Finally:OFF',
+                        '-Xep:TypeParameterUnusedInFormals:OFF',
+                        '-Xep:BadImport:OFF',
+                        '-Xep:JavaTimeDefaultTimeZone:OFF',
+                ]
             }
         }
     }

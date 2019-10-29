@@ -67,6 +67,8 @@ import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectories;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
 import org.gradle.workers.WorkerExecutor;
@@ -128,11 +130,13 @@ public class GenerateProtoTask extends DefaultTask {
   }
 
   @InputFiles
+  @PathSensitive(PathSensitivity.RELATIVE)
   public SourceDirectorySet getSources() {
     return sources;
   }
 
   @InputFiles
+  @PathSensitive(PathSensitivity.RELATIVE)
   public SourceDirectorySet getIncludes() {
     return includeDirs;
   }
@@ -240,10 +244,13 @@ public class GenerateProtoTask extends DefaultTask {
     // to avoid triggering unnecessary rebuilds downstream
     sources.getFiles().stream().map(File::getAbsolutePath).sorted().forEach(protocCommand::add);
 
-    ExternalExecUtil.exec(getProject(), workerExecutor, exec -> {
-      exec.commandLine(protocCommand.build());
-      execOverrides.forEach(a -> a.execute(exec));
-    });
+    ExternalExecUtil.exec(
+        getProject(),
+        workerExecutor,
+        exec -> {
+          exec.commandLine(protocCommand.build());
+          execOverrides.forEach(a -> a.execute(exec));
+        });
   }
 
   private static String optionsPrefix(List<String> options) {
