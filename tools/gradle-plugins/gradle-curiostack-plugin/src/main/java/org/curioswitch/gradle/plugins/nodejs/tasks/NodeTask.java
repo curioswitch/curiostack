@@ -24,14 +24,12 @@
 
 package org.curioswitch.gradle.plugins.nodejs.tasks;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
+import org.curioswitch.gradle.helpers.exec.ExternalExecUtil;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
@@ -42,10 +40,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecSpec;
-import org.gradle.workers.WorkAction;
-import org.gradle.workers.WorkParameters;
 import org.gradle.workers.WorkerExecutor;
 
 @CacheableTask
@@ -94,67 +89,28 @@ public class NodeTask extends DefaultTask {
 
   @TaskAction
   public void exec() {
-    var toolManager = DownloadedToolManager.get(getProject());
-
-    workerExecutor
-        .noIsolation()
-        .submit(
-            DoNodeTask.class,
-            parameters -> {
-              parameters
-                  .getNodeBinDir()
-                  .set(toolManager.getBinDir("node").toAbsolutePath().toString());
-              parameters.getCommand().set(command);
-              parameters.getArgs().set(args);
-              parameters
-                  .getExecOverrides()
-                  .add(
-                      exec ->
-                          toolManager.addAllToPath(
-                              exec,
-                              getProject().getRootProject().file("node_modules/.bin").toPath()));
-              execOverrides.forEach(parameters.getExecOverrides()::add);
-              execOverrides.add(exec -> CondaExecUtil.condaExec(exec, getProject()));
-            });
-  }
-
-  abstract static class DoNodeTask implements WorkAction<ActionParameters> {
-
-    private final ExecOperations exec;
-
-    @SuppressWarnings("InjectOnConstructorOfAbstractClass")
-    @Inject
-    public DoNodeTask(ExecOperations exec) {
-      this.exec = checkNotNull(exec, "exec");
-    }
-
-    @Override
-    public void execute() {
-      exec.exec(
-          exec -> {
-            String command = getParameters().getCommand().get();
-            if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
-              if (command.equals("node")) {
-                command += ".exe";
-              } else {
-                command += ".cmd";
-              }
+    ExternalExecUtil.exec(
+        getProject(),
+        workerExecutor,
+        exec -> {
+          var toolManager = DownloadedToolManager.get(getProject());
+          String command = this.command.get();
+          if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
+            if (command.equals("node")) {
+              command += ".exe";
+            } else {
+              command += ".cmd";
             }
-            Path binDir = Paths.get(getParameters().getNodeBinDir().get());
-            exec.executable(binDir.resolve(command));
-            exec.args(getParameters().getArgs().get());
-            getParameters().getExecOverrides().get().forEach(o -> o.execute(exec));
-          });
-    }
-  }
+          }
+          Path binDir = toolManager.getBinDir("node");
+          exec.executable(binDir.resolve(command));
+          exec.args(args.get());
 
-  interface ActionParameters extends WorkParameters {
-    Property<String> getNodeBinDir();
+          toolManager.addAllToPath(
+              exec, getProject().getRootProject().file("node_modules/.bin").toPath());
 
-    Property<String> getCommand();
-
-    ListProperty<String> getArgs();
-
-    ListProperty<Action<? super ExecSpec>> getExecOverrides();
+          execOverrides.forEach(o -> o.execute(exec));
+          CondaExecUtil.condaExec(exec, getProject());
+        });
   }
 }

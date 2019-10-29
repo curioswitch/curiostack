@@ -396,5 +396,6 @@ publishing {
 tasks {
     named<DependencyUpdatesTask>("dependencyUpdates") {
         revision = "release"
+        checkConstraints = true
     }
 }
