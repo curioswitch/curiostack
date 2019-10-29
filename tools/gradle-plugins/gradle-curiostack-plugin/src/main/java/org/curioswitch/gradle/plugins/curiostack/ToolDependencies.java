@@ -42,7 +42,7 @@ public class ToolDependencies {
           .put("helm", "2.10.0")
           .put("miniconda", "4.5.12")
           .put("node", "12.12.0")
-          .put("openjdk", "12.0.2+10")
+          .put("openjdk", "zulu13.28.11-ca-jdk13.0.1")
           .put("openjdk8", "jdk8u222-b10")
           .put("terraform", "0.12.11")
           .put("terraform-gsuite-provider", "0.1.34")
