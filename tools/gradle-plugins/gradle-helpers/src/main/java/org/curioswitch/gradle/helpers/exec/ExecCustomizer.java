@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
 import org.gradle.process.BaseExecSpec;
@@ -194,38 +195,42 @@ class ExecCustomizer implements ExecSpec, Serializable {
 
   @Override
   public void setExecutable(String executable) {
-    this.executable = executable;
+    this.executable = checkNotNull(executable, "executable");
   }
 
   @Override
   public void setExecutable(Object executable) {
-    this.executable = executable == null ? null : executable.toString();
+    checkNotNull(executable, "executable");
+    this.executable = executable.toString();
   }
 
   @Override
   public ProcessForkOptions executable(Object executable) {
+    checkNotNull(executable, "executable");
     setExecutable(executable);
     return this;
   }
 
   @Override
-  @Nullable
   public File getWorkingDir() {
-    return workingDir;
+    File workingDir = this.workingDir;
+    return Objects.requireNonNullElse(workingDir, project.getProjectDir());
   }
 
   @Override
   public void setWorkingDir(File dir) {
-    workingDir = dir;
+    workingDir = checkNotNull(dir, "dir");
   }
 
   @Override
   public void setWorkingDir(Object dir) {
+    checkNotNull(dir, "dir");
     setWorkingDir(project.file(dir));
   }
 
   @Override
   public ProcessForkOptions workingDir(Object dir) {
+    checkNotNull(dir, "dir");
     setWorkingDir(dir);
     return this;
   }
@@ -237,6 +242,7 @@ class ExecCustomizer implements ExecSpec, Serializable {
 
   @Override
   public void setEnvironment(Map<String, ?> environmentVariables) {
+    checkNotNull(environmentVariables, "environmentVariables");
     environment().clear();
     environmentVariables.forEach(
         (key, value) -> environment().put(key, value == null ? null : value.toString()));
@@ -244,13 +250,15 @@ class ExecCustomizer implements ExecSpec, Serializable {
 
   @Override
   public ProcessForkOptions environment(Map<String, ?> environmentVariables) {
+    checkNotNull(environmentVariables, "environmentVariables");
     setEnvironment(environmentVariables);
     return this;
   }
 
   @Override
   public ProcessForkOptions environment(String name, Object value) {
-    environment().put(name, value == null ? null : value.toString());
+    checkNotNull(value, "value");
+    environment().put(name, value.toString());
     return this;
   }
 
