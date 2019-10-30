@@ -25,20 +25,6 @@
 allprojects {
     project.group = 'org.curioswitch.curiostack'
 
-    allprojects {
-        afterEvaluate {
-            tasks.withType(JavaCompile) {
-                // This check is broken in Java 12.  See https://github.com/google/error-prone/issues/1257
-                options.errorprone.errorproneArgs = [
-                        '-Xep:Finally:OFF',
-                        '-Xep:TypeParameterUnusedInFormals:OFF',
-                        '-Xep:BadImport:OFF',
-                        '-Xep:JavaTimeDefaultTimeZone:OFF',
-                ]
-            }
-        }
-    }
-
     plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
         project.apply plugin: 'com.jfrog.bintray'
         // This should happen automatically, not clear why not.
