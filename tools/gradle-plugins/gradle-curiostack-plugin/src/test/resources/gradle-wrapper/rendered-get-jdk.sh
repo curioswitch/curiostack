@@ -63,7 +63,7 @@ if [ ! -d "$JAVA_HOME" ]; then
     unzip "$DEST" -d "$OPENJDK_DIR"
     mv "${OPENJDK_DIR}/11.0.4+11-win_x64" "$JAVA_HOME"
   else
-    tar -xf --strip-components 1 "$DEST" -C "$JAVA_HOME"
+    tar --strip-components 1 -xf "$DEST" -C "$JAVA_HOME"
   fi
 
   rm "$DEST"
