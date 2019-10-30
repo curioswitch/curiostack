@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # OS specific support (must be 'true' or 'false').
 windows=false
 darwin=false
