@@ -22,5 +22,7 @@
  * SOFTWARE.
  */
 
-include(":java-library1")
-include(":terraform")
+plugins {
+    id("org.curioswitch.gradle-curiostack-plugin")
+}
+

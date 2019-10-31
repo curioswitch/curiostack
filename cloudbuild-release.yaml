@@ -39,7 +39,6 @@ steps:
   args:
   - releaseBuild
   - --stacktrace
-  - --no-daemon
   env:
   - CI=true
   - TAG_NAME=$TAG_NAME

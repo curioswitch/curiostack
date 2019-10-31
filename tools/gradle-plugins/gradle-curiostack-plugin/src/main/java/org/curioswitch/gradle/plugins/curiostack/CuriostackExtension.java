@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,31 +22,35 @@
  * SOFTWARE.
  */
 
-apply plugin: 'groovy'
-apply plugin: 'java-library'
-apply plugin: 'maven-publish'
+package org.curioswitch.gradle.plugins.curiostack;
 
-dependencies {
-    api 'org.codehaus.groovy:groovy'
-}
+import org.curioswitch.gradle.helpers.immutables.ExtensionStyle;
+import org.gradle.api.initialization.Settings;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
+import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Modifiable;
 
-// For some reason, this always gets run even though the Java is compiled within compileTestGroovy.
-// If we don't disable it ourselves, the tasks are never marked UP-TO-DATE and all builds get slowed
-// down.
-tasks.compileTestJava {
-    enabled = false
-}
+@Immutable
+@Modifiable
+@ExtensionStyle
+public interface CuriostackExtension extends HasPublicType {
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            pom {
-                name = 'Java/Groovy Compatability Helper'
-                description = 'A utility library with functions for interacting with Groovy ' +
-                        'libraries from Java.'
-                url = 'https://github.com/curioswitch/curiostack/tree/master/' +
-                        'tools/gradle-plugins/java-groovy-compat'
-            }
-        }
-    }
+  String NAME = "curiostack";
+
+  static CuriostackExtension createAndAdd(Settings settings, ObjectFactory objects) {
+    return settings
+        .getExtensions()
+        .create(NAME, ModifiableCuriostackExtension.class)
+        .setBuildCacheBucket(objects.property(String.class));
+  }
+
+  Property<String> getBuildCacheBucket();
+
+  @Override
+  default TypeOf<?> getPublicType() {
+    return TypeOf.typeOf(CuriostackExtension.class);
+  }
 }

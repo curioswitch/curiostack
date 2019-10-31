@@ -35,7 +35,6 @@ import java.nio.file.Files;
 import java.util.Map;
 import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.JavaVersion;
 import org.gradle.api.tasks.TaskAction;
 
 /**
@@ -50,23 +49,16 @@ public class UpdateGradleWrapperTask extends DefaultTask {
 
     String version = ToolDependencies.getOpenJdkVersion(rootProject);
 
-    String majorVersion = JavaVersion.toVersion(version).getMajorVersion();
-    String urlBase =
-        "https://github.com/AdoptOpenJDK/openjdk"
-            + majorVersion
-            + "-binaries/releases/download/jdk-"
-            + version.replace("+", "%2B")
-            + "/OpenJDK"
-            + majorVersion
-            + "U-jdk_x64_";
-    String suffix = "_hotspot_" + version.replace('+', '_');
+    String urlBase = "https://cdn.azul.com/zulu/bin/" + version + '-';
     Map<String, String> templateVars =
-        ImmutableMap.of(
-            "dest_folder", "jdk-" + version,
-            "url_linux", urlBase + "linux" + suffix + ".tar.gz",
-            "url_mac", urlBase + "mac" + suffix + ".tar.gz",
-            "url_windows", urlBase + "windows" + suffix + ".zip",
-            "dest_archive_name", "jdk-" + version + ".tar.gz.or.zip");
+        ImmutableMap.<String, String>builder()
+            .put("dest_folder", "jdk-" + version)
+            .put("url_linux", urlBase + "linux_x64.tar.gz")
+            .put("url_mac", urlBase + "macosx_x64.tar.gz")
+            .put("url_windows", urlBase + "win_x64.zip")
+            .put("dest_archive_name", "jdk-" + version + ".tar.gz.or.zip")
+            .put("version", version)
+            .build();
 
     Jinjava jinjava = new Jinjava(JinjavaConfig.newBuilder().withFailOnUnknownTokens(true).build());
     String rendered =

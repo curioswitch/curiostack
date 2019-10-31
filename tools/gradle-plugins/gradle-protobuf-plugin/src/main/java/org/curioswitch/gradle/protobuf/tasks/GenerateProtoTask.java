@@ -42,10 +42,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import org.curioswitch.gradle.helpers.exec.ExternalExecUtil;
 import org.curioswitch.gradle.protobuf.ProtobufExtension;
 import org.curioswitch.gradle.protobuf.ProtobufExtension.DescriptorSetOptions;
 import org.curioswitch.gradle.protobuf.ProtobufExtension.Executable;
@@ -68,18 +67,14 @@ import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectories;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
-import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
 @CacheableTask
 public class GenerateProtoTask extends DefaultTask {
-
-  // It is extremely hacky to use global state to propagate the Task to workers, but
-  // it works so let"s enjoy the speed.
-  private static final ConcurrentHashMap<String, GenerateProtoTask> TASKS =
-      new ConcurrentHashMap<>();
 
   private static final Splitter COORDINATE_SPLITTER = Splitter.on('@');
   private static final Splitter ARTIFACT_SPLITTER = Splitter.on(':');
@@ -135,11 +130,13 @@ public class GenerateProtoTask extends DefaultTask {
   }
 
   @InputFiles
+  @PathSensitive(PathSensitivity.RELATIVE)
   public SourceDirectorySet getSources() {
     return sources;
   }
 
   @InputFiles
+  @PathSensitive(PathSensitivity.RELATIVE)
   public SourceDirectorySet getIncludes() {
     return includeDirs;
   }
@@ -247,40 +244,13 @@ public class GenerateProtoTask extends DefaultTask {
     // to avoid triggering unnecessary rebuilds downstream
     sources.getFiles().stream().map(File::getAbsolutePath).sorted().forEach(protocCommand::add);
 
-    String mapKey = UUID.randomUUID().toString();
-    TASKS.put(mapKey, this);
-
-    workerExecutor.submit(
-        DoGenerateProto.class,
-        config -> {
-          config.setIsolationMode(IsolationMode.NONE);
-          config.params(protocCommand.build(), mapKey);
+    ExternalExecUtil.exec(
+        getProject(),
+        workerExecutor,
+        exec -> {
+          exec.commandLine(protocCommand.build());
+          execOverrides.forEach(a -> a.execute(exec));
         });
-  }
-
-  public static class DoGenerateProto implements Runnable {
-
-    private final List<String> protocCommand;
-    private final String mapKey;
-
-    @Inject
-    public DoGenerateProto(List<String> protocCommand, String mapKey) {
-      this.protocCommand = protocCommand;
-      this.mapKey = mapKey;
-    }
-
-    @Override
-    public void run() {
-      GenerateProtoTask task = TASKS.remove(mapKey);
-
-      task.getProject()
-          .exec(
-              exec -> {
-                exec.commandLine(protocCommand);
-
-                task.execOverrides.forEach(a -> a.execute(exec));
-              });
-    }
   }
 
   private static String optionsPrefix(List<String> options) {
@@ -346,7 +316,7 @@ public class GenerateProtoTask extends DefaultTask {
     // Resolve once to download all tools in parallel.
     configuration.resolve();
 
-    // This will not redownload.
+    // This will not re-download.
     ResolvedConfiguration resolved = configuration.getResolvedConfiguration();
     Map<String, File> downloaded =
         Streams.zip(

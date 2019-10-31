@@ -186,7 +186,9 @@ class CurioGenericCiPluginTest {
       Path projectDir =
           copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
-      addDiffs(projectDir, "library1/src/main/java/Library1.java");
+      try (var git = Git.open(projectDir.toFile())) {
+        addDiffs(projectDir, git, "library1/src/main/java/Library1.java");
+      }
 
       this.projectDir = projectDir.toFile();
     }
@@ -221,7 +223,9 @@ class CurioGenericCiPluginTest {
       Path projectDir =
           copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
-      addDiffs(projectDir, "library2/src/main/java/Library2.java");
+      try (var git = Git.open(projectDir.toFile())) {
+        addDiffs(projectDir, git, "library2/src/main/java/Library2.java");
+      }
 
       this.projectDir = projectDir.toFile();
     }
@@ -250,7 +254,9 @@ class CurioGenericCiPluginTest {
       Path projectDir =
           copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
-      addDiffs(projectDir, "server1/src/main/java/Server1.java");
+      try (var git = Git.open(projectDir.toFile())) {
+        addDiffs(projectDir, git, "server1/src/main/java/Server1.java");
+      }
 
       this.projectDir = projectDir.toFile();
     }
@@ -279,7 +285,9 @@ class CurioGenericCiPluginTest {
       Path projectDir =
           copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
-      addDiffs(projectDir, "server2/src/main/java/Server2.java");
+      try (var git = Git.open(projectDir.toFile())) {
+        addDiffs(projectDir, git, "server2/src/main/java/Server2.java");
+      }
 
       this.projectDir = projectDir.toFile();
     }
@@ -310,7 +318,9 @@ class CurioGenericCiPluginTest {
       Path projectDir =
           copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
-      addDiffs(projectDir, "staticsite1/build.gradle.kts");
+      try (var git = Git.open(projectDir.toFile())) {
+        addDiffs(projectDir, git, "staticsite1/build.gradle.kts");
+      }
 
       this.projectDir = projectDir.toFile();
     }
@@ -339,7 +349,9 @@ class CurioGenericCiPluginTest {
       Path projectDir =
           copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
-      addDiffs(projectDir, "staticsite2/build.gradle.kts");
+      try (var git = Git.open(projectDir.toFile())) {
+        addDiffs(projectDir, git, "staticsite2/build.gradle.kts");
+      }
 
       this.projectDir = projectDir.toFile();
     }
@@ -368,7 +380,9 @@ class CurioGenericCiPluginTest {
       Path projectDir =
           copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
-      addDiffs(projectDir, "build.gradle.kts");
+      try (var git = Git.open(projectDir.toFile())) {
+        addDiffs(projectDir, git, "build.gradle.kts");
+      }
 
       this.projectDir = projectDir.toFile();
     }
@@ -411,8 +425,10 @@ class CurioGenericCiPluginTest {
       Path projectDir =
           copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
-      addDiffs(projectDir, "build.gradle.kts");
-      addTwoEmptyCommits(projectDir);
+      try (var git = Git.open(projectDir.toFile())) {
+        addDiffs(projectDir, git, "build.gradle.kts");
+        addTwoEmptyCommits(git);
+      }
 
       this.projectDir = projectDir.toFile();
     }
@@ -441,9 +457,11 @@ class CurioGenericCiPluginTest {
       Path projectDir =
           copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
-      changeBranch(projectDir, "prbuild");
-      addDiffs(projectDir, "library1/src/main/java/Library1.java");
-      addTwoEmptyCommits(projectDir);
+      try (var git = Git.open(projectDir.toFile())) {
+        changeBranch("prbuild", git);
+        addDiffs(projectDir, git, "library1/src/main/java/Library1.java");
+        addTwoEmptyCommits(git);
+      }
 
       this.projectDir = projectDir.toFile();
     }
@@ -472,9 +490,11 @@ class CurioGenericCiPluginTest {
       Path projectDir =
           copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
-      changeBranch(projectDir, "prbuild");
-      addDiffs(projectDir, "library2/src/main/java/Library2.java");
-      addTwoEmptyCommits(projectDir);
+      try (var git = Git.open(projectDir.toFile())) {
+        changeBranch("prbuild", git);
+        addDiffs(projectDir, git, "library2/src/main/java/Library2.java");
+        addTwoEmptyCommits(git);
+      }
 
       this.projectDir = projectDir.toFile();
     }
@@ -503,9 +523,11 @@ class CurioGenericCiPluginTest {
       Path projectDir =
           copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
-      changeBranch(projectDir, "prbuild");
-      addDiffs(projectDir, "server1/src/main/java/Server1.java");
-      addTwoEmptyCommits(projectDir);
+      try (var git = Git.open(projectDir.toFile())) {
+        changeBranch("prbuild", git);
+        addDiffs(projectDir, git, "server1/src/main/java/Server1.java");
+        addTwoEmptyCommits(git);
+      }
 
       this.projectDir = projectDir.toFile();
     }
@@ -534,9 +556,11 @@ class CurioGenericCiPluginTest {
       Path projectDir =
           copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
-      changeBranch(projectDir, "prbuild");
-      addDiffs(projectDir, "server2/src/main/java/Server2.java");
-      addTwoEmptyCommits(projectDir);
+      try (var git = Git.open(projectDir.toFile())) {
+        changeBranch("prbuild", git);
+        addDiffs(projectDir, git, "server2/src/main/java/Server2.java");
+        addTwoEmptyCommits(git);
+      }
 
       this.projectDir = projectDir.toFile();
     }
@@ -548,8 +572,7 @@ class CurioGenericCiPluginTest {
                   .withProjectDir(projectDir)
                   .withArguments("continuousBuild")
                   .withEnvironment(ImmutableMap.of("CI", "true"))
-                  .withPluginClasspath()
-                  .forwardOutput())
+                  .withPluginClasspath())
           .builds()
           .satisfies(onlyDidRun(":library1:jar", ":server2:build"));
     }
@@ -566,9 +589,11 @@ class CurioGenericCiPluginTest {
       Path projectDir =
           copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
-      changeBranch(projectDir, "prbuild");
-      addDiffs(projectDir, "staticsite1/build.gradle.kts");
-      addTwoEmptyCommits(projectDir);
+      try (var git = Git.open(projectDir.toFile())) {
+        changeBranch("prbuild", git);
+        addDiffs(projectDir, git, "staticsite1/build.gradle.kts");
+        addTwoEmptyCommits(git);
+      }
 
       this.projectDir = projectDir.toFile();
     }
@@ -580,8 +605,7 @@ class CurioGenericCiPluginTest {
                   .withProjectDir(projectDir)
                   .withArguments("continuousBuild")
                   .withEnvironment(ImmutableMap.of("CI", "true"))
-                  .withPluginClasspath()
-                  .forwardOutput())
+                  .withPluginClasspath())
           .builds()
           .tasksDidNotRun(ALL_TASKS);
     }
@@ -598,9 +622,11 @@ class CurioGenericCiPluginTest {
       Path projectDir =
           copyGitRepoFromResources("test-projects/gradle-curio-generic-ci-plugin/master-no-diffs");
 
-      changeBranch(projectDir, "prbuild");
-      addDiffs(projectDir, "build.gradle.kts");
-      addTwoEmptyCommits(projectDir);
+      try (Git git = Git.open(projectDir.toFile())) {
+        changeBranch("prbuild", git);
+        addDiffs(projectDir, git, "build.gradle.kts");
+        addTwoEmptyCommits(git);
+      }
 
       this.projectDir = projectDir.toFile();
     }
@@ -642,7 +668,7 @@ class CurioGenericCiPluginTest {
     return projectDir;
   }
 
-  private static void addDiffs(Path projectDir, String... paths) {
+  private static void addDiffs(Path projectDir, Git git, String... paths) throws Exception {
     for (String path : paths) {
       var filePath = projectDir.resolve(path);
       try {
@@ -652,42 +678,30 @@ class CurioGenericCiPluginTest {
       }
     }
 
-    try (Git git = Git.open(projectDir.toFile())) {
-      git.commit()
-          .setAll(true)
-          .setMessage("Automated commit in test")
-          .setAuthor("Unit Test", "test@curioswitch.org")
-          .call();
-    } catch (Exception e) {
-      throw new IllegalStateException("Error manipulating git repo.", e);
-    }
+    git.commit()
+        .setAll(true)
+        .setMessage("Automated commit in test")
+        .setAuthor("Unit Test", "test@curioswitch.org")
+        .call();
   }
 
-  private static void changeBranch(Path projectDir, String branch) {
-    try (Git git = Git.open(projectDir.toFile())) {
-      git.checkout().setName(branch).call();
-    } catch (Exception e) {
-      throw new IllegalStateException("Error manipulating git repo.", e);
-    }
+  private static void changeBranch(String branch, Git git) throws Exception {
+    git.checkout().setName(branch).call();
   }
 
   // We add two empty commits to the branch builds to make sure the diff isn't being computed from
   // the latest commits but the actual branch diff.
-  private static void addTwoEmptyCommits(Path projectDir) {
-    try (Git git = Git.open(projectDir.toFile())) {
-      git.commit()
-          .setAllowEmpty(true)
-          .setMessage("Empty commit 1")
-          .setAuthor("Unit Test", "test@curioswitch.org")
-          .call();
-      git.commit()
-          .setAllowEmpty(true)
-          .setMessage("Empty commit 2")
-          .setAuthor("Unit Test", "test@curioswitch.org")
-          .call();
-    } catch (Exception e) {
-      throw new IllegalStateException("Error manipulating git repo.", e);
-    }
+  private static void addTwoEmptyCommits(Git git) throws Exception {
+    git.commit()
+        .setAllowEmpty(true)
+        .setMessage("Empty commit 1")
+        .setAuthor("Unit Test", "test@curioswitch.org")
+        .call();
+    git.commit()
+        .setAllowEmpty(true)
+        .setMessage("Empty commit 2")
+        .setAuthor("Unit Test", "test@curioswitch.org")
+        .call();
   }
 
   private static Consumer<BuildResult> onlyDidRun(String... tasks) {

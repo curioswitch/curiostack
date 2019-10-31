@@ -21,19 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.curioswitch.gradle.common;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.concurrent.atomic.AtomicReference;
-import org.junit.Test;
-
-public class LambdaClosureTest {
-
-  @Test
-  public void oneArg() {
-    AtomicReference<String> stringHolder = new AtomicReference<>("");
-    new LambdaClosureTestGroovyHelper("oneArg").runClosure(LambdaClosure.of(stringHolder::set));
-    assertThat(stringHolder.get()).isEqualTo("oneArg");
-  }
-}
+include(":java-library1")
+include(":terraform")
+include(":web1")

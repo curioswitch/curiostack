@@ -25,19 +25,11 @@ package org.curioswitch.gradle.golang.tasks;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.channels.OverlappingFileLockException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.curioswitch.gradle.golang.GoExecUtil;
+import org.curioswitch.gradle.helpers.exec.ExternalExecUtil;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.provider.ListProperty;
@@ -45,22 +37,15 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
-import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
 public class GoTask extends DefaultTask {
-
-  // It is extremely hacky to use global state to propagate the Task to workers, but
-  // it works so let's enjoy the speed.
-  private static final ConcurrentHashMap<String, GoTask> TASKS = new ConcurrentHashMap<>();
 
   private final Property<String> command;
   private final ListProperty<String> args;
   private final List<Action<ExecSpec>> execCustomizers;
 
   private final WorkerExecutor workerExecutor;
-
-  @Nullable private File lockFile;
 
   @Inject
   public GoTask(WorkerExecutor workerExecutor) {
@@ -102,78 +87,19 @@ public class GoTask extends DefaultTask {
     return this;
   }
 
-  public GoTask setLockFile(File lockFile) {
-    this.lockFile = lockFile;
-    return this;
-  }
-
   @Input
   public ListProperty<String> getArgs() {
     return args;
   }
 
   @TaskAction
-  void exec() throws Exception {
-    String mapKey = UUID.randomUUID().toString();
-    TASKS.put(mapKey, this);
-
-    workerExecutor.submit(
-        DoGoTask.class,
-        config -> {
-          config.setIsolationMode(IsolationMode.NONE);
-          config.params(mapKey);
+  void exec() {
+    ExternalExecUtil.exec(
+        getProject(),
+        workerExecutor,
+        exec -> {
+          GoExecUtil.goExec(exec, getProject(), command.get(), args.get());
+          execCustomizers.forEach(a -> a.execute(exec));
         });
-  }
-
-  public static class DoGoTask implements Runnable {
-
-    private final String mapKey;
-
-    @Inject
-    public DoGoTask(String mapKey) {
-      this.mapKey = mapKey;
-    }
-
-    @Override
-    public void run() {
-      var task = TASKS.remove(mapKey);
-
-      FileLock lock = null;
-      if (task.lockFile != null) {
-        try {
-          FileChannel lockChannel = new RandomAccessFile(task.lockFile, "rw").getChannel();
-          while (true) {
-            try {
-              lock = lockChannel.lock();
-              break;
-            } catch (OverlappingFileLockException e) {
-              Thread.sleep(100);
-            }
-          }
-        } catch (InterruptedException | IOException e) {
-          throw new IllegalStateException("Could not acquire lock.", e);
-        }
-      }
-
-      try {
-        task.getProject()
-            .exec(
-                exec -> {
-                  GoExecUtil.goExec(exec, task.getProject(), task.command.get(), task.args.get());
-
-                  for (var execCustomizer : task.execCustomizers) {
-                    execCustomizer.execute(exec);
-                  }
-                });
-      } finally {
-        if (lock != null) {
-          try {
-            lock.release();
-          } catch (IOException e) {
-            task.getProject().getLogger().warn("Could not release lock.", e);
-          }
-        }
-      }
-    }
   }
 }

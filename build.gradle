@@ -22,22 +22,8 @@
  * SOFTWARE.
  */
 
-plugins {
-    id 'com.gradle.build-scan' version '2.4.2'
-    id 'org.curioswitch.gradle-curiostack-plugin'
-}
-
 allprojects {
     project.group = 'org.curioswitch.curiostack'
-
-    allprojects {
-        afterEvaluate {
-            tasks.withType(JavaCompile) {
-                // This check is broken in Java 12.  See https://github.com/google/error-prone/issues/1257
-                options.errorprone.errorproneArgs = ['-Xep:Finally:OFF']
-            }
-        }
-    }
 
     plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
         project.apply plugin: 'com.jfrog.bintray'
@@ -79,11 +65,6 @@ allprojects {
                     // Plugin and BOM publications do not need this.
                     if (publication.name == 'maven' && project.name != 'curiostack-bom') {
                         from components.java
-                    }
-
-                    if (project.name != 'curiostack-bom') {
-                        artifact project.tasks.javadocJar
-                        artifact project.tasks.sourceJar
                     }
 
                     pom {

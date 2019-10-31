@@ -33,7 +33,6 @@ public final class GoExecUtil {
   public static void goExec(ExecSpec exec, Project project, String command, Iterable<String> args) {
     var toolManager = DownloadedToolManager.get(project);
     exec.executable(toolManager.getBinDir("go").resolve(command));
-
     exec.args(args);
     exec.environment("GOROOT", toolManager.getToolDir("go").resolve("go"));
     exec.environment(

@@ -28,11 +28,12 @@ plugins {
 }
 
 dependencies {
-    compile(project(":common:curio-helpers"))
-    compile(project(":tools:gradle-plugins:gradle-helpers"))
+    implementation(project(":tools:gradle-plugins:gradle-helpers"))
 
-    compile("com.google.guava:guava")
-    compile("de.undercouch:gradle-download-task")
+    implementation("com.google.guava:guava")
+    implementation("de.undercouch:gradle-download-task")
+
+    compileOnly(project(":common:curio-helpers"))
 
     annotationProcessor("org.immutables:value")
     compileOnly("org.immutables:value-annotations")

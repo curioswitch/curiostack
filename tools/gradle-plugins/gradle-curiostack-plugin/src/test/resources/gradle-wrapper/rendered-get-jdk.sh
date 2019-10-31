@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # OS specific support (must be 'true' or 'false').
 windows=false
 darwin=false
@@ -37,16 +39,16 @@ export JAVA_HOME="$OPENJDK_DIR/jdk-11.0.4+11"
 DEST="$OPENJDK_DIR/jdk-11.0.4+11.tar.gz.or.zip"
 
 if "$linux" = "true"; then
-  SRC="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.4%2B11/OpenJDK11U-jdk_x64_linux_hotspot_11.0.4_11.tar.gz"
+  SRC="https://cdn.azul.com/zulu/bin/11.0.4+11-linux_x64.tar.gz"
 fi
 
 if "$darwin" = "true"; then
-  SRC="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.4%2B11/OpenJDK11U-jdk_x64_mac_hotspot_11.0.4_11.tar.gz"
+  SRC="https://cdn.azul.com/zulu/bin/11.0.4+11-macosx_x64.tar.gz"
   export JAVA_HOME="$JAVA_HOME/Contents/Home"
 fi
 
 if "$windows" = "true"; then
-  SRC="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.4%2B11/OpenJDK11U-jdk_x64_windows_hotspot_11.0.4_11.zip"
+  SRC="https://cdn.azul.com/zulu/bin/11.0.4+11-win_x64.zip"
 fi
 
 if [ ! -d "$JAVA_HOME" ]; then
@@ -61,8 +63,10 @@ if [ ! -d "$JAVA_HOME" ]; then
 
   if "$windows" = "true"; then
     unzip "$DEST" -d "$OPENJDK_DIR"
+    mv "${OPENJDK_DIR}/11.0.4+11-win_x64" "$JAVA_HOME"
   else
-    tar -xf "$DEST" -C "$OPENJDK_DIR"
+    mkdir -p "$JAVA_HOME"
+    tar --strip-components 1 -xf "$DEST" -C "$JAVA_HOME"
   fi
 
   rm "$DEST"

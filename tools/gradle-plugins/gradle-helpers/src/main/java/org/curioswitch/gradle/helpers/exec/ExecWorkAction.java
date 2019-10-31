@@ -21,17 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.curioswitch.gradle.common
 
-class LambdaClosureTestGroovyHelper {
+package org.curioswitch.gradle.helpers.exec;
 
-    final String echo
+import static com.google.common.base.Preconditions.checkNotNull;
 
-    LambdaClosureTestGroovyHelper(String echo) {
-        this.echo = echo
-    }
+import javax.inject.Inject;
+import org.curioswitch.gradle.helpers.exec.ExecWorkAction.Parameters;
+import org.gradle.api.provider.Property;
+import org.gradle.process.ExecOperations;
+import org.gradle.workers.WorkAction;
+import org.gradle.workers.WorkParameters;
 
-    def runClosure(Closure closure) {
-        closure.call(echo)
-    }
+/** A {@link WorkAction} to execute an external process with the given customizer. */
+public abstract class ExecWorkAction implements WorkAction<Parameters> {
+
+  private final ExecOperations exec;
+
+  @SuppressWarnings("InjectOnConstructorOfAbstractClass")
+  @Inject
+  public ExecWorkAction(ExecOperations exec) {
+    this.exec = checkNotNull(exec, "exec");
+  }
+
+  @Override
+  public void execute() {
+    exec.exec(exec -> getParameters().getExecCustomizer().get().copyTo(exec));
+  }
+
+  public interface Parameters extends WorkParameters {
+    Property<ExecCustomizer> getExecCustomizer();
+  }
 }

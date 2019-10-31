@@ -24,10 +24,6 @@
 
 // |DIFF-ME|
 
-plugins {
-    id("org.curioswitch.gradle-curiostack-plugin")
-}
-
 // We only want to verify what tasks would run in our tests, but don't want to run them.
 gradle.taskGraph.beforeTask {
     onlyIf {

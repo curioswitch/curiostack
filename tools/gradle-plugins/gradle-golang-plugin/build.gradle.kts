@@ -28,13 +28,14 @@ plugins {
 }
 
 dependencies {
-    compile(project(":common:curio-helpers"))
-    compile(project(":tools:gradle-plugins:gradle-conda-plugin"))
-    compile(project(":tools:gradle-plugins:gradle-tool-downloader-plugin"))
-    compile(project(":tools:gradle-plugins:gradle-helpers"))
+    implementation(project(":tools:gradle-plugins:gradle-conda-plugin"))
+    implementation(project(":tools:gradle-plugins:gradle-tool-downloader-plugin"))
+    implementation(project(":tools:gradle-plugins:gradle-helpers"))
 
-    compile("com.google.guava:guava")
-    compile("gradle.plugin.com.google.cloud.tools:jib-gradle-plugin")
+    implementation("com.google.guava:guava")
+    implementation("gradle.plugin.com.google.cloud.tools:jib-gradle-plugin")
+
+    compileOnly(project(":common:curio-helpers"))
 
     annotationProcessor("org.immutables:value")
     compileOnly("org.immutables:value-annotations")

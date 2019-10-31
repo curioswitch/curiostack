@@ -22,6 +22,10 @@
  * SOFTWARE.
  */
 
+plugins {
+    id("org.curioswitch.gradle-curiostack-plugin")
+}
+
 include(":dependency")
 include(":terraform")
 include(":zdependency")

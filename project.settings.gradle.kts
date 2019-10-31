@@ -66,5 +66,4 @@ include(":tools:gradle-plugins:gradle-protobuf-plugin")
 include(":tools:gradle-plugins:gradle-release-plugin")
 include(":tools:gradle-plugins:gradle-test-helpers")
 include(":tools:gradle-plugins:gradle-tool-downloader-plugin")
-include(":tools:gradle-plugins:java-groovy-compat")
 // curio-auto-generated DO NOT MANUALLY EDIT

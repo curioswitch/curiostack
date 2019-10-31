@@ -60,7 +60,9 @@ public class CloudStorageBuildCacheServiceFactory
       CloudStorageBuildCache buildCache, Describer describer) {
     checkNotNull(buildCache.getBucket(), "buildCache.bucket");
 
-    describer.type("Google Cloud Storage Build Cache").config("bucket", buildCache.getBucket());
+    describer
+        .type("Google Cloud Storage Build Cache")
+        .config("bucket", buildCache.getBucket().get());
 
     final Credentials credentials;
     try {
@@ -87,7 +89,7 @@ public class CloudStorageBuildCacheServiceFactory
     StorageClient storageClient =
         new StorageClient(
             authenticatedGoogleApis,
-            new StorageConfig.Builder().bucket(buildCache.getBucket()).build());
+            new StorageConfig.Builder().bucket(buildCache.getBucket().get()).build());
 
     // Try to read a file from the cache, if there's an exception we disable the build cache
     // assuming there is something wrong with the credentials or network.
