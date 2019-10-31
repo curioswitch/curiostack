@@ -26,7 +26,19 @@ FROM azul/zulu-openjdk-debian:13 AS jre
 RUN apt-get -y update && apt-get -y install binutils
 
 RUN cd / && jlink --no-header-files --no-man-pages --compress=2 --strip-debug \
-    --add-modules java.base,java.desktop,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.sql,java.sql.rowset,jdk.naming.dns,jdk.unsupported --output jre
+    --add-modules java.base \
+    --add-modules java.desktop \
+    --add-modules java.instrument \
+    --add-modules java.logging \
+    --add-modules java.management \
+    --add-modules java.management.rmi \
+    --add-modules java.naming \
+    --add-modules java.sql \
+    --add-modules java.sql.rowset \
+    --add-modules jdk.crypto.ec \
+    --add-modules jdk.naming.dns \
+    --add-modules jdk.unsupported \
+    --output jre
 
 FROM debian:stretch-backports AS debian
 
