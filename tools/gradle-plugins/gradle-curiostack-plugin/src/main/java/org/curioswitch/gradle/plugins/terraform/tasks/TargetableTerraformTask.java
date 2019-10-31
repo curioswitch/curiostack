@@ -26,6 +26,7 @@ package org.curioswitch.gradle.plugins.terraform.tasks;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.options.Option;
 
 public class TargetableTerraformTask extends TerraformTask {
@@ -41,6 +42,7 @@ public class TargetableTerraformTask extends TerraformTask {
         });
   }
 
+  @Input
   public List<String> getTargets() {
     return targets;
   }

@@ -29,6 +29,7 @@ import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
 
@@ -37,18 +38,24 @@ public class TerraformTask extends DefaultTask {
   private Iterable<String> args;
   private Action<ExecSpec> execCustomizer;
 
+  @Input
+  public Iterable<String> getArgs() {
+    return args;
+  }
+
   public TerraformTask setArgs(Iterable<String> args) {
     this.args = args;
     return this;
   }
 
+  @Input
+  public Action<ExecSpec> getExecCustomizer() {
+    return execCustomizer;
+  }
+
   public TerraformTask setExecCustomizer(Action<ExecSpec> execCustomizer) {
     this.execCustomizer = execCustomizer;
     return this;
-  }
-
-  public Action<ExecSpec> getExecCustomizer() {
-    return execCustomizer;
   }
 
   @TaskAction
