@@ -23,18 +23,15 @@
  */
 package org.curioswitch.common.testing.snapshot;
 
-import com.google.auto.service.AutoService;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
  * A Jupiter extension to read and write snapshots for use with snapshot assertions. All assertions
  * must be made from the test thread.
  */
-@AutoService(Extension.class)
 public class SnapshotExtension implements BeforeEachCallback, AfterEachCallback, AfterAllCallback {
 
   static final ThreadLocal<ExtensionContext> CURRENT_CONTEXT = new ThreadLocal<>();
