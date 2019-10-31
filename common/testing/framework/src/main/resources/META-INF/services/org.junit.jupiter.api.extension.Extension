@@ -22,4 +22,5 @@
 # SOFTWARE.
 #
 
+org.curioswitch.common.testing.snapshot.SnapshotExtension
 org.mockito.junit.jupiter.MockitoExtension

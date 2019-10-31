@@ -44,9 +44,6 @@ dependencies {
     implementation 'org.mockito:mockito-core'
     implementation 'org.mockito:mockito-junit-jupiter'
 
-    annotationProcessor 'com.google.auto.service:auto-service'
-    compileOnly 'com.google.auto.service:auto-service'
-
     annotationProcessor 'com.google.dagger:dagger-compiler'
 
     annotationProcessor 'org.immutables:value'
