@@ -28,7 +28,7 @@ plugins {
 }
 
 dependencies {
-    api("javax.inject:javax.inject")
+    api("jakarta.inject:jakarta.inject-api")
 
     implementation(gradleApi())
     implementation("com.google.guava:guava")

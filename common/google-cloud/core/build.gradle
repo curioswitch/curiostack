@@ -38,7 +38,7 @@ dependencies {
     api 'com.linecorp.armeria:armeria-retrofit2'
     api 'com.typesafe:config'
     api 'io.zipkin.brave:brave'
-    api 'javax.inject:javax.inject'
+    api 'jakarta.inject:jakarta.inject-api'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-guava'

@@ -33,19 +33,19 @@ public class ToolDependencies {
 
   private static Map<String, String> DEFAULT_VERSIONS =
       ImmutableMap.<String, String>builder()
-          .put("bom", "0.0.14")
+          .put("bom", "0.0.15")
           .put("claat", "2.2.0")
-          .put("gcloud", "267.0.0")
-          .put("golang", "1.13.3")
+          .put("gcloud", "269.0.0")
+          .put("golang", "1.13.4")
           .put("google-java-format", "1.7")
-          .put("gradle", "6.0-rc-1")
+          .put("gradle", "6.0-rc-2")
           .put("helm", "2.10.0")
           .put("miniconda", "4.5.12")
-          .put("node", "12.12.0")
+          .put("node", "12.13.0")
           .put("openjdk", "zulu13.28.11-ca-jdk13.0.1")
-          .put("openjdk8", "jdk8u222-b10")
-          .put("terraform", "0.12.11")
-          .put("terraform-gsuite-provider", "0.1.34")
+          .put("openjdk8", "zulu8.42.0.21-ca-jdk8.0.232")
+          .put("terraform", "0.12.13")
+          .put("terraform-gsuite-provider", "0.1.35")
           .put("yarn", "1.19.1")
           .build();
 

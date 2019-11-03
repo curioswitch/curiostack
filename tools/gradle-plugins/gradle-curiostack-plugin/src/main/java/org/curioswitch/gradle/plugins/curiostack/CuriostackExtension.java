@@ -47,6 +47,10 @@ public interface CuriostackExtension extends HasPublicType {
         .setBuildCacheBucket(objects.property(String.class));
   }
 
+  default void setBuildCacheBucket(String bucket) {
+    getBuildCacheBucket().set(bucket);
+  }
+
   Property<String> getBuildCacheBucket();
 
   @Override

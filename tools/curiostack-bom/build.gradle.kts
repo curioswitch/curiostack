@@ -55,7 +55,7 @@ val DEPENDENCY_BOMS = listOf(
         "com.linecorp.armeria:armeria-bom:0.95.0",
         "io.dropwizard.metrics:metrics-bom:4.1.1",
         "io.grpc:grpc-bom:1.24.1",
-        "io.zipkin.brave:brave-bom:5.8.0",
+        "io.zipkin.brave:brave-bom:5.9.0",
         "io.netty:netty-bom:4.1.43.Final",
         "org.apache.beam:beam-sdks-java-bom:2.16.0",
         "org.apache.logging.log4j:log4j-bom:2.12.1",
@@ -138,7 +138,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.firebase",
-                "6.10.0",
+                "6.11.0",
                 listOf("firebase-admin")
         ),
         DependencySet(
@@ -184,12 +184,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.fabric8",
-                "4.6.1",
+                "4.6.2",
                 listOf("kubernetes-client")
         ),
         DependencySet(
                 "io.lettuce",
-                "5.2.0.RELEASE",
+                "5.2.1.RELEASE",
                 listOf("lettuce-core")
         ),
         DependencySet(
@@ -209,8 +209,18 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.zipkin.gcp",
-                "0.15.0",
+                "0.15.1",
                 listOf("brave-propagation-stackdriver", "zipkin-translation-stackdriver")
+        ),
+        DependencySet(
+                "jakarta.annotation",
+                "1.3.5",
+                listOf("jakarta.annotation-api")
+        ),
+        DependencySet(
+                "jakarta.inject",
+                "1.0",
+                listOf("jakarta.inject-api")
         ),
         DependencySet(
                 "javax.inject",
@@ -259,7 +269,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.checkerframework",
-                "2.11.1",
+                "3.0.0",
                 listOf("checker-qual")
         ),
         DependencySet(
@@ -294,22 +304,22 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.jooq",
-                "3.12.2",
+                "3.12.3",
                 listOf("jooq", "jooq-codegen", "jooq-meta")
         ),
         DependencySet(
                 "org.mockito",
-                "3.1.1",
+                "3.1.5",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
                 "org.slf4j",
                 "1.7.28",
-                listOf("jul-toslf4j", "slf4j-api")
+                listOf("jul-to-slf4j", "slf4j-api")
         ),
         DependencySet(
                 "org.simpleflatmapper",
-                "8.0.3",
+                "8.1.0",
                 listOf(
                         "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
         ),
@@ -321,7 +331,7 @@ val DEPENDENCY_SETS = listOf(
 )
 
 val DEPENDENCIES = listOf(
-        "com.bmuschko:gradle-docker-plugin:5.2.0",
+        "com.bmuschko:gradle-docker-plugin:5.3.0",
         "com.diffplug.spotless:spotless-plugin-gradle:3.25.0",
         "com.github.ben-manes:gradle-versions-plugin:0.27.0",
         "com.google.code.gson:gson:2.8.6",
@@ -330,24 +340,21 @@ val DEPENDENCIES = listOf(
         "com.gradle:gradle-enterprise-gradle-plugin:3.0",
         "com.hubspot.jinjava:jinjava:2.5.2",
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
-        "com.palantir:gradle-baseline-java:0.10.0",
         "de.undercouch:gradle-download-task:4.0.1",
         "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.6",
         "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.7.0",
         "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.0",
-        "gradle.plugin.com.palantir.graal:gradle-graal:0.6.0-27-ge8430f6",
+        "gradle.plugin.com.palantir.graal:gradle-graal: 0.6.0-30-gade71a8",
         "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
         "io.sgr:s2-geometry-library-java:1.0.1",
         "it.unimi.dsi:fastutil:8.3.0",
         "javax.activation:activation:1.1.1",
         "javax.annotation:javax.annotation-api:1.3.2",
-        "me.champeau.gradle:jmh-gradle-plugin:0.5.0-rc-2",
+        "me.champeau.gradle:jmh-gradle-plugin:0.5.0",
         "mysql:mysql-connector-java:8.0.18",
         "net.ltgt.gradle:gradle-apt-plugin:0.21",
         "net.ltgt.gradle:gradle-errorprone-plugin:1.1.1",
         "nu.studer:gradle-jooq-plugin:3.0.3",
-        "org.jacoco:org.jacoco.agent:0.8.5",
-        "org.jacoco:org.jacoco.ant:0.8.5",
         "org.jsoup:jsoup:1.12.1"
 )
 

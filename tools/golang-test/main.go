@@ -24,10 +24,15 @@
 
 package main
 
+/*
+#include "test.h"
+*/
+import "C"
+
 import (
 	_ "github.com/pkg/errors"
 )
 
 func main() {
-
+	C.print()
 }
