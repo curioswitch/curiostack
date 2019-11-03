@@ -24,28 +24,17 @@
 
 package org.curioswitch.gradle.plugins.curiostack;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import javax.inject.Inject;
 import org.curioswitch.gradle.plugins.gcloud.GcloudBuildCachePlugin;
 import org.curioswitch.gradle.plugins.gcloud.buildcache.CloudStorageBuildCache;
 import org.gradle.api.Plugin;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.initialization.Settings;
-import org.gradle.api.model.ObjectFactory;
 
 public class CuriostackPlugin implements Plugin<Settings> {
 
-  private final ObjectFactory objects;
-
-  @Inject
-  public CuriostackPlugin(ObjectFactory objects) {
-    this.objects = checkNotNull(objects, "objects");
-  }
-
   @Override
   public void apply(Settings settings) {
-    var config = CuriostackExtension.createAndAdd(settings, objects);
+    var config = CuriostackExtension.createAndAdd(settings);
 
     var pluginManagement = settings.getPluginManagement();
     pluginManagement

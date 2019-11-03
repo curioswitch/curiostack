@@ -34,6 +34,7 @@ import com.github.benmanes.gradle.versions.VersionsPlugin;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import groovy.util.Node;
@@ -52,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import javax.xml.parsers.ParserConfigurationException;
 import me.champeau.gradle.JMHPlugin;
@@ -118,6 +120,7 @@ import org.gradle.api.tasks.wrapper.Wrapper.DistributionType;
 import org.gradle.external.javadoc.CoreJavadocOptions;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
+import org.gradle.testing.jacoco.plugins.JacocoPlugin;
 import org.xml.sax.SAXException;
 
 public class CuriostackRootPlugin implements Plugin<Project> {
@@ -217,7 +220,8 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           .put("ParameterComment", ERROR)
           .put("ParameterNotNullable", ERROR)
           .put("PrivateConstructorForUtilityClass", ERROR)
-          .put("RemoveUnusedImports", ERROR)
+          // Handled by spotless which also allows fixing it.
+          .put("RemoveUnusedImports", OFF)
           .put("ReturnMissingNullable", ERROR)
           .put("SwitchDefault", ERROR)
           .put("ThrowsUncheckedException", ERROR)
@@ -230,6 +234,9 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           .put("BadImport", OFF)
           .put("JavaTimeDefaultTimeZone", OFF)
           .build();
+
+  private static final Set<String> NOT_PLATFORM_MANAGED_CONFIGURATIONS =
+      ImmutableSet.of(JacocoPlugin.AGENT_CONFIGURATION_NAME, JacocoPlugin.ANT_CONFIGURATION_NAME);
 
   @Override
   public void apply(Project rootProject) {
@@ -538,12 +545,14 @@ public class CuriostackRootPlugin implements Plugin<Project> {
     project
         .getConfigurations()
         .configureEach(
-            configuration ->
+            configuration -> {
+              if (!NOT_PLATFORM_MANAGED_CONFIGURATIONS.contains(configuration.getName())) {
                 project
                     .getDependencies()
                     .add(
-                        configuration.getName(),
-                        project.getDependencies().platform(bomDependency)));
+                        configuration.getName(), project.getDependencies().platform(bomDependency));
+              }
+            });
 
     project.afterEvaluate(
         unused ->

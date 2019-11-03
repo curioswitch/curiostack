@@ -24,37 +24,16 @@
 
 package org.curioswitch.gradle.plugins.curiostack;
 
-import org.curioswitch.gradle.helpers.immutables.ExtensionStyle;
 import org.gradle.api.initialization.Settings;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Modifiable;
 
-@Immutable
-@Modifiable
-@ExtensionStyle
-public interface CuriostackExtension extends HasPublicType {
+public interface CuriostackExtension {
 
   String NAME = "curiostack";
 
-  static CuriostackExtension createAndAdd(Settings settings, ObjectFactory objects) {
-    return settings
-        .getExtensions()
-        .create(NAME, ModifiableCuriostackExtension.class)
-        .setBuildCacheBucket(objects.property(String.class));
-  }
-
-  default void setBuildCacheBucket(String bucket) {
-    getBuildCacheBucket().set(bucket);
+  static CuriostackExtension createAndAdd(Settings settings) {
+    return settings.getExtensions().create(NAME, CuriostackExtension.class);
   }
 
   Property<String> getBuildCacheBucket();
-
-  @Override
-  default TypeOf<?> getPublicType() {
-    return TypeOf.typeOf(CuriostackExtension.class);
-  }
 }
