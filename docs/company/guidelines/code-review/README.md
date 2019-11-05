@@ -136,7 +136,7 @@ solve. This can be a good opportunity for the author to reflect on whether the c
 intended and gives reviewers good background when reviewing. A good 
 [example](https://github.com/line/armeria/pull/1148) can be PRs in the armeria repository. For 
 smaller PRs, it's ok to leave out a description under the assumption that it is fairly obvious - 
-worst caase a reviewer will ask about confusing points. 
+worst case a reviewer will ask about confusing points. 
 
 * In the description, make sure to list out any followup PRs you have planned or limitations you 
 already have considered so reviewers know not to focus on them.
