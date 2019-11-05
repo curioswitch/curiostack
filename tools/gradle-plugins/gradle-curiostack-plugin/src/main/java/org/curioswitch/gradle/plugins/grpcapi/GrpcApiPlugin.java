@@ -93,8 +93,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
         .getLanguages()
         .register(
             "grpc",
-            language ->
-                language.getPlugin().getArtifact().set("io.grpc:protoc-gen-grpc-java"));
+            language -> language.getPlugin().getArtifact().set("io.grpc:protoc-gen-grpc-java"));
 
     project.afterEvaluate(
         p -> {
