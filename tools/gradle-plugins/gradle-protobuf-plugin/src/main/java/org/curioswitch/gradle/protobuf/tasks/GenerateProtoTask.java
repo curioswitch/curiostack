@@ -25,6 +25,7 @@ package org.curioswitch.gradle.protobuf.tasks;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import com.google.common.base.Splitter;
@@ -36,7 +37,6 @@ import com.google.gradle.osdetector.OsDetector;
 import java.io.File;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -267,7 +267,7 @@ public class GenerateProtoTask extends DefaultTask {
     // get protoc, even for non-Java projects. We restore to the previous state after the task.
     repositories.mavenCentral();
 
-    Dependency[] dependencies =
+    List<Dependency> dependencies =
         artifacts.stream()
             .map(
                 artifact -> {
@@ -309,9 +309,9 @@ public class GenerateProtoTask extends DefaultTask {
 
                   return getProject().getDependencies().create(depParts.build());
                 })
-            .toArray(Dependency[]::new);
-    Configuration configuration =
-        getProject().getConfigurations().detachedConfiguration(dependencies);
+            .collect(toImmutableList());
+    Configuration configuration = getProject().getConfigurations().maybeCreate("protobufTools");
+    configuration.getDependencies().addAll(dependencies);
 
     // Resolve once to download all tools in parallel.
     configuration.resolve();
@@ -321,7 +321,7 @@ public class GenerateProtoTask extends DefaultTask {
     Map<String, File> downloaded =
         Streams.zip(
                 artifacts.stream(),
-                Arrays.stream(dependencies),
+                dependencies.stream(),
                 (artifact, dep) -> {
                   Set<File> files =
                       resolved.getFiles(

@@ -149,7 +149,12 @@ val DEPENDENCY_SETS = listOf(
         DependencySet(
                 "com.google.protobuf",
                 "3.10.0",
-                listOf("protobuf-java", "protobuf-java-util", "protoc")
+                listOf("protobuf-java", "protobuf-java-util")
+        ),
+        DependencySet(
+                "com.google.protobuf",
+                "3.10.1",
+                listOf("protoc")
         ),
         DependencySet(
                 "com.spotify",
@@ -194,7 +199,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.micrometer",
-                "1.3.0",
+                "1.3.1",
                 listOf("micrometer-core", "micrometer-registry-prometheus")
         ),
         DependencySet(
@@ -319,7 +324,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.simpleflatmapper",
-                "8.1.0",
+                "8.1.1",
                 listOf(
                         "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
         ),
@@ -344,7 +349,7 @@ val DEPENDENCIES = listOf(
         "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.6",
         "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.7.0",
         "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.0",
-        "gradle.plugin.com.palantir.graal:gradle-graal: 0.6.0-30-gade71a8",
+        "gradle.plugin.com.palantir.graal:gradle-graal:0.6.0-30-gade71a8",
         "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
         "io.sgr:s2-geometry-library-java:1.0.1",
         "it.unimi.dsi:fastutil:8.3.0",
