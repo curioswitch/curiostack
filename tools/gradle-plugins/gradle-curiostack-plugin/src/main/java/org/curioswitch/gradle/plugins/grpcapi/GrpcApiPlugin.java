@@ -88,13 +88,12 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
     ProtobufExtension protobuf = project.getExtensions().getByType(ProtobufExtension.class);
 
-    protobuf.getProtoc().getArtifact().set("com.google.protobuf:protoc:3.10.0");
+    protobuf.getProtoc().getArtifact().set("com.google.protobuf:protoc");
     protobuf
         .getLanguages()
         .register(
             "grpc",
-            language ->
-                language.getPlugin().getArtifact().set("io.grpc:protoc-gen-grpc-java:1.24.0"));
+            language -> language.getPlugin().getArtifact().set("io.grpc:protoc-gen-grpc-java"));
 
     project.afterEvaluate(
         p -> {

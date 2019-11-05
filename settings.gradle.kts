@@ -22,11 +22,13 @@
  * SOFTWARE.
  */
 
+import org.curioswitch.gradle.plugins.curiostack.CuriostackExtension
+
 pluginManagement {
     resolutionStrategy {
         eachPlugin {
-            if (requested.id.id == 'org.curioswitch.gradle-curiostack-plugin') {
-                useModule "org.curioswitch.curiostack:gradle-curiostack-plugin:${requested.version}"
+            if (requested.id.id == "org.curioswitch.gradle-curiostack-plugin") {
+                useModule("org.curioswitch.curiostack:gradle-curiostack-plugin:${requested.version}")
             }
         }
     }
@@ -34,17 +36,17 @@ pluginManagement {
         jcenter()
         gradlePluginPortal()
         maven {
-            url 'https://dl.bintray.com/curioswitch/curiostack'
+            setUrl("https://dl.bintray.com/curioswitch/curiostack")
         }
         mavenLocal()
     }
 }
 
 plugins {
-    id 'com.gradle.enterprise' version '3.0'
-    id 'org.curioswitch.gradle-curiostack-plugin' version '0.0.188-RC3'
+    id("com.gradle.enterprise").version("3.0")
+    id("org.curioswitch.gradle-curiostack-plugin").version("0.0.188-RC6")
 }
 
-curiostack {
-    buildCacheBucket = 'curioswitch-gradle-build-cache'
+configure<CuriostackExtension> {
+    buildCacheBucket.set("curioswitch-gradle-build-cache")
 }

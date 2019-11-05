@@ -34,6 +34,7 @@ import com.github.benmanes.gradle.versions.VersionsPlugin;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import groovy.util.Node;
@@ -52,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import javax.xml.parsers.ParserConfigurationException;
 import me.champeau.gradle.JMHPlugin;
@@ -218,7 +220,8 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           .put("ParameterComment", ERROR)
           .put("ParameterNotNullable", ERROR)
           .put("PrivateConstructorForUtilityClass", ERROR)
-          .put("RemoveUnusedImports", ERROR)
+          // Handled by spotless which also allows fixing it.
+          .put("RemoveUnusedImports", OFF)
           .put("ReturnMissingNullable", ERROR)
           .put("SwitchDefault", ERROR)
           .put("ThrowsUncheckedException", ERROR)
@@ -231,6 +234,9 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           .put("BadImport", OFF)
           .put("JavaTimeDefaultTimeZone", OFF)
           .build();
+
+  private static final Set<String> NOT_PLATFORM_MANAGED_CONFIGURATIONS =
+      ImmutableSet.of(JacocoPlugin.AGENT_CONFIGURATION_NAME, JacocoPlugin.ANT_CONFIGURATION_NAME);
 
   @Override
   public void apply(Project rootProject) {
@@ -292,20 +298,14 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                 "openjdk",
                 tool -> {
                   var version = ToolDependencies.getOpenJdk8Version(rootProject);
-                  var binaryVersion = version.replace("-", "").substring("jdk".length());
 
                   tool.getVersion().set(version);
-                  tool.getBaseUrl()
-                      .set("https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/");
-                  tool.getArtifactPattern()
-                      .set(
-                          "[revision]/OpenJDK8U-jdk_[classifier]_hotspot_"
-                              + binaryVersion
-                              + ".[ext]");
+                  tool.getBaseUrl().set("https://cdn.azul.com/zulu/bin/");
+                  tool.getArtifactPattern().set("[revision]-[classifier].[ext]");
                   var classifiers = tool.getOsClassifiers();
-                  classifiers.getLinux().set("x64_linux");
-                  classifiers.getMac().set("x64_mac");
-                  classifiers.getWindows().set("x64_windows");
+                  classifiers.getLinux().set("linux_x64");
+                  classifiers.getMac().set("macosx_x64");
+                  classifiers.getWindows().set("win_x64");
                 }));
 
     var updateIntelliJJdks =
@@ -532,8 +532,8 @@ public class CuriostackRootPlugin implements Plugin<Project> {
     plugins.apply(VersionsPlugin.class);
 
     var java = project.getExtensions().getByType(JavaPluginExtension.class);
-    java.publishJavadoc();
-    java.publishSources();
+    java.withJavadocJar();
+    java.withSourcesJar();
 
     // Manage all dependencies by adding the bom as a platform.
     Object bomDependency =
@@ -545,12 +545,14 @@ public class CuriostackRootPlugin implements Plugin<Project> {
     project
         .getConfigurations()
         .configureEach(
-            configuration ->
+            configuration -> {
+              if (!NOT_PLATFORM_MANAGED_CONFIGURATIONS.contains(configuration.getName())) {
                 project
                     .getDependencies()
                     .add(
-                        configuration.getName(),
-                        project.getDependencies().platform(bomDependency)));
+                        configuration.getName(), project.getDependencies().platform(bomDependency));
+              }
+            });
 
     project.afterEvaluate(
         unused ->
@@ -646,19 +648,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
             });
 
     project
-        .getPlugins()
-        .withType(
-            JacocoPlugin.class,
-            unused -> {
-              project
-                  .getDependencies()
-                  .add(JacocoPlugin.AGENT_CONFIGURATION_NAME, "org.jacoco:org.jacoco.agent");
-              project
-                  .getDependencies()
-                  .add(JacocoPlugin.ANT_CONFIGURATION_NAME, "org.jacoco:org.jacoco.ant");
-            });
-
-    project
         .getTasks()
         .withType(SpotlessTask.class)
         .configureEach(task -> task.dependsOn(project.getTasks().withType(JavaCompile.class)));
@@ -713,7 +702,9 @@ public class CuriostackRootPlugin implements Plugin<Project> {
     // Pretty much all java code needs at least the Generated annotation.
     project
         .getDependencies()
-        .add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, "javax.annotation:javax.annotation-api");
+        .add(
+            JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME,
+            "jakarta.annotation:jakarta.annotation-api");
     project
         .getDependencies()
         .add(ErrorPronePlugin.CONFIGURATION_NAME, "com.google.errorprone:error_prone_core");

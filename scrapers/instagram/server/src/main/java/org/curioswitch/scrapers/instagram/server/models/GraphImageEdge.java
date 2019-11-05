@@ -33,6 +33,6 @@ import org.immutables.value.Value.Immutable;
 @CurioStyle
 @JsonDeserialize(as = ImmutableGraphImageEdge.class)
 public interface GraphImageEdge {
-  /** The {@link GraphImage in this edge. */
+  /** The {@link GraphImage} in this edge. */
   GraphImage getNode();
 }
