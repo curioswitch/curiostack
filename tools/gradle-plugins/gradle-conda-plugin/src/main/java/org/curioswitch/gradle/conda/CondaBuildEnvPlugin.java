@@ -122,7 +122,6 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
                               DownloadedToolManager.get(project).getToolDir("macos-sdk"));
                           exec.workingDir(archive.getParent());
                         });
-                    project.delete(archive);
                   }));
     }
   }
