@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkState;
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
@@ -87,7 +88,7 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
         });
     CondaExecUtil.addExecToProject(project);
 
-    if (new PlatformHelper().getOs() == OperatingSystem.MAC_OSX) {
+    if (new PlatformHelper().getOs() == OperatingSystem.LINUX) {
       project
           .getPlugins()
           .withType(
@@ -101,7 +102,7 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
                       tool.getBaseUrl()
                           .set("https://github.com/phracker/MacOSX-SDKs/releases/download/10.13/");
                       tool.getArtifactPattern().set("[artifact][revision].sdk.[ext]");
-                      tool.getOsExtensions().getMac().set("tar.xz");
+                      tool.getOsExtensions().getLinux().set("tar.xz");
                     });
               });
       var downloadSdk = DownloadToolUtil.getDownloadTask(project, "macos-sdk");
@@ -112,7 +113,13 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
                     project.exec(
                         exec -> {
                           exec.executable("tar");
-                          exec.args("-xf", archive.getAbsolutePath());
+                          exec.args(
+                              "--strip-components",
+                              "1",
+                              "-xf",
+                              archive.getAbsolutePath(),
+                              "-C",
+                              DownloadedToolManager.get(project).getToolDir("macos-sdk"));
                           exec.workingDir(archive.getParent());
                         });
                     project.delete(archive);
