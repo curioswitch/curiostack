@@ -91,12 +91,11 @@ public final class CondaExecUtil {
       // CMake - CMAKE_OSX_SYSROOT
       exec.environment("SDKROOT", macOsSdkPath);
 
-      exec.environment("CGO_FLAGS_ALLOW", "-isysroot=");
       for (var flag : SYSROOT_GCC_ENV_VARIABLES) {
         var environment = exec.getEnvironment();
         exec.environment(
             flag,
-            "-isysroot="
+            "-isysroot"
                 + macOsSdkPath
                 + ' '
                 + environment.getOrDefault(flag, "")
