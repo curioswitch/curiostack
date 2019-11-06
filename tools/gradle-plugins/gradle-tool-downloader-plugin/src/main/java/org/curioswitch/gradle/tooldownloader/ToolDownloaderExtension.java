@@ -123,8 +123,9 @@ public interface ToolDownloaderExtension extends Named, HasPublicType {
           return getMac().get();
         case WINDOWS:
           return getWindows().get();
+        default:
+          throw new IllegalArgumentException("Unsupported os: " + os);
       }
-      throw new IllegalArgumentException("Unsupported os: " + os);
     }
 
     /** A value to use on Linux. */

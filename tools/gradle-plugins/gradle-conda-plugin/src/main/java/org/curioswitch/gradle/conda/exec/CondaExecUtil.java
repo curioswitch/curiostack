@@ -26,6 +26,7 @@ package org.curioswitch.gradle.conda.exec;
 import com.google.common.collect.ImmutableList;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.curioswitch.gradle.helpers.platform.PathUtil;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
@@ -35,6 +36,9 @@ import org.gradle.api.Project;
 import org.gradle.process.ExecSpec;
 
 public final class CondaExecUtil {
+
+  private static final List<String> SYSROOT_GCC_ENV_VARIABLES =
+      ImmutableList.of("CFLAGS", "CXXFLAGS", "CGO_CFLAGS", "CGO_CXXFLAGS");
 
   public static void addExecToProject(Project project) {
     project
@@ -57,7 +61,8 @@ public final class CondaExecUtil {
 
   /** Modifies the {@link ExecSpec} to run its command in a conda environment. */
   public static void condaExec(ExecSpec exec, DownloadedToolManager toolManager, String tool) {
-    if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
+    var platformHelper = new PlatformHelper();
+    if (platformHelper.getOs() == OperatingSystem.WINDOWS) {
       // Doesn't currently work on Windows.
       return;
     }
@@ -76,6 +81,29 @@ public final class CondaExecUtil {
                 + PathUtil.toBashString(exec.getWorkingDir().toPath())
                 + " && "
                 + String.join(" ", currentCommandLine)));
+
+    if (platformHelper.getOs() == OperatingSystem.MAC_OSX) {
+      // Set known environment variables for controlling sysroot on Mac. It never hurts to define
+      // too many environment variables.
+
+      var macOsSdkPath = toolManager.getToolDir("macos-sdk").toAbsolutePath().toString();
+
+      // CMake - CMAKE_OSX_SYSROOT
+      exec.environment("SDKROOT", macOsSdkPath);
+
+      exec.environment("CGO_FLAGS_ALLOW", "-isysroot=");
+      for (var flag : SYSROOT_GCC_ENV_VARIABLES) {
+        var environment = exec.getEnvironment();
+        exec.environment(
+            flag,
+            "-isysroot="
+                + macOsSdkPath
+                + ' '
+                + environment.getOrDefault(flag, "")
+                + ' '
+                + System.getenv().getOrDefault(flag, ""));
+      }
+    }
   }
 
   private CondaExecUtil() {}

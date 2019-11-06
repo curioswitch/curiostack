@@ -214,7 +214,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.zipkin.gcp",
-                "0.15.1",
+                "0.15.2",
                 listOf("brave-propagation-stackdriver", "zipkin-translation-stackdriver")
         ),
         DependencySet(

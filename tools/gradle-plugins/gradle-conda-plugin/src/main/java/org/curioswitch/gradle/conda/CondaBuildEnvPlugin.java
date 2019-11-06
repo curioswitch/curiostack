@@ -47,8 +47,8 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
           conda.getPackages().add("git");
 
           var platformHelper = new PlatformHelper();
-          var operatingSystem = platformHelper.getOs();
-          switch (operatingSystem) {
+          var os = platformHelper.getOs();
+          switch (os) {
             case LINUX:
               conda
                   .getPackages()
@@ -84,11 +84,13 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
                       "m2w64-gcc",
                       "m2w64-gcc-fortran");
               break;
+            default:
+              throw new IllegalStateException("Unsupported os: " + os);
           }
         });
     CondaExecUtil.addExecToProject(project);
 
-    if (new PlatformHelper().getOs() == OperatingSystem.LINUX) {
+    if (new PlatformHelper().getOs() == OperatingSystem.MAC_OSX) {
       project
           .getPlugins()
           .withType(
@@ -102,7 +104,7 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
                       tool.getBaseUrl()
                           .set("https://github.com/phracker/MacOSX-SDKs/releases/download/10.13/");
                       tool.getArtifactPattern().set("[artifact][revision].sdk.[ext]");
-                      tool.getOsExtensions().getLinux().set("tar.xz");
+                      tool.getOsExtensions().getMac().set("tar.xz");
                     });
               });
       var downloadSdk = DownloadToolUtil.getDownloadTask(project, "macos-sdk");

@@ -29,11 +29,19 @@ import org.apache.tools.ant.taskdefs.condition.Os;
 /** A helper for determining information about the platform running Gradle. */
 public class PlatformHelper {
 
+  private final OperatingSystem os;
+
   @Inject
-  public PlatformHelper() {}
+  public PlatformHelper() {
+    os = computeOs();
+  }
 
   /** Returns the {@link OperatingSystem} that is currently being run on. */
   public OperatingSystem getOs() {
+    return os;
+  }
+
+  private static OperatingSystem computeOs() {
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
       return OperatingSystem.WINDOWS;
     } else if (Os.isFamily(Os.FAMILY_MAC)) {
@@ -41,8 +49,8 @@ public class PlatformHelper {
     } else if (Os.isFamily(Os.FAMILY_UNIX)) {
       // Assume linux version works on any unix until told otherwise.
       return OperatingSystem.LINUX;
+    } else {
+      return OperatingSystem.UNKNOWN;
     }
-
-    throw new IllegalArgumentException("Unsupported OS.");
   }
 }
