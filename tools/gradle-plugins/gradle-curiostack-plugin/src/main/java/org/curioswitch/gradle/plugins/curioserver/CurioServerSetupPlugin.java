@@ -59,7 +59,8 @@ public class CurioServerSetupPlugin implements Plugin<Project> {
                       tool.getOsExtensions().getWindows().set("tar.gz");
 
                       var pathBase = tool.getVersion().map(v -> "graalvm-ce-" + v);
-                      switch (new PlatformHelper().getOs()) {
+                      var os = new PlatformHelper().getOs();
+                      switch (os) {
                         case LINUX:
                         case WINDOWS:
                           tool.getPathSubDirs().add(pathBase.map(p -> p + "/bin"));
@@ -67,6 +68,8 @@ public class CurioServerSetupPlugin implements Plugin<Project> {
                         case MAC_OSX:
                           tool.getPathSubDirs().add(pathBase.map(p -> p + "/Contents/Home/bin"));
                           break;
+                        default:
+                          throw new IllegalStateException("Unsupported os: " + os);
                       }
                     }));
   }

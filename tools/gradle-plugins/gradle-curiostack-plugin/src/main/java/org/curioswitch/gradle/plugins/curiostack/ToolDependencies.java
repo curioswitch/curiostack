@@ -33,14 +33,14 @@ public class ToolDependencies {
 
   private static Map<String, String> DEFAULT_VERSIONS =
       ImmutableMap.<String, String>builder()
-          .put("bom", "0.0.15")
+          .put("bom", "0.0.16")
           .put("claat", "2.2.0")
           .put("gcloud", "269.0.0")
           .put("golang", "1.13.4")
           .put("google-java-format", "1.7")
-          .put("gradle", "6.0-rc-2")
+          .put("gradle", "6.0-rc-3")
           .put("helm", "2.10.0")
-          .put("miniconda", "4.5.12")
+          .put("miniconda", "4.7.12.1")
           .put("node", "12.13.0")
           .put("openjdk", "zulu13.28.11-ca-jdk13.0.1")
           .put("openjdk8", "zulu8.42.0.21-ca-jdk8.0.232")

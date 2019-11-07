@@ -26,7 +26,11 @@ package org.curioswitch.gradle.conda;
 import static com.google.common.base.Preconditions.checkState;
 
 import org.curioswitch.gradle.conda.exec.CondaExecUtil;
+import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
+import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
+import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -43,8 +47,8 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
           conda.getPackages().add("git");
 
           var platformHelper = new PlatformHelper();
-          var operatingSystem = platformHelper.getOs();
-          switch (operatingSystem) {
+          var os = platformHelper.getOs();
+          switch (os) {
             case LINUX:
               conda
                   .getPackages()
@@ -80,8 +84,47 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
                       "m2w64-gcc",
                       "m2w64-gcc-fortran");
               break;
+            default:
+              throw new IllegalStateException("Unsupported os: " + os);
           }
         });
     CondaExecUtil.addExecToProject(project);
+
+    if (new PlatformHelper().getOs() == OperatingSystem.MAC_OSX) {
+      project
+          .getPlugins()
+          .withType(
+              ToolDownloaderPlugin.class,
+              plugin -> {
+                plugin.registerToolIfAbsent(
+                    "macos-sdk",
+                    tool -> {
+                      tool.getArtifact().set("MacOSX");
+                      tool.getVersion().set("10.9");
+                      tool.getBaseUrl()
+                          .set("https://github.com/phracker/MacOSX-SDKs/releases/download/10.13/");
+                      tool.getArtifactPattern().set("[artifact][revision].sdk.[ext]");
+                      tool.getOsExtensions().getMac().set("tar.xz");
+                    });
+              });
+      var downloadSdk = DownloadToolUtil.getDownloadTask(project, "macos-sdk");
+      downloadSdk.configure(
+          t ->
+              t.setArchiveExtractAction(
+                  archive -> {
+                    project.exec(
+                        exec -> {
+                          exec.executable("tar");
+                          exec.args(
+                              "--strip-components",
+                              "1",
+                              "-xf",
+                              archive.getAbsolutePath(),
+                              "-C",
+                              DownloadedToolManager.get(project).getToolDir("macos-sdk"));
+                          exec.workingDir(archive.getParent());
+                        });
+                  }));
+    }
   }
 }

@@ -36,4 +36,7 @@ public enum OperatingSystem {
 
   /** The Windows operating system. */
   WINDOWS,
+
+  /** An unknown operating system. */
+  UNKNOWN,
 }

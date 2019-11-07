@@ -416,6 +416,7 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                                         DownloadedToolManager.get(project)
                                             .getBinDir("gcloud")
                                             .resolve("docker-credential-gcr")));
+
                     project
                         .getTasks()
                         .withType(JibTask.class)
