@@ -24,34 +24,19 @@
 
 package org.curioswitch.gradle.plugins.nodejs;
 
-import org.curioswitch.gradle.helpers.immutables.ExtensionStyle;
 import org.gradle.api.Project;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
-import org.immutables.value.Value.Modifiable;
 
-@Modifiable
-@ExtensionStyle
-public interface NodeSetupExtension extends HasPublicType {
+public interface NodeSetupExtension {
 
   String NAME = "nodeSetup";
 
   static NodeSetupExtension create(Project project) {
-    var objects = project.getObjects();
-    var extension =
-        project
-            .getExtensions()
-            .create(NAME, ModifiableNodeSetupExtension.class)
-            .setExcludes(objects.listProperty(String.class).empty());
+    var extension = project.getExtensions().create(NAME, NodeSetupExtension.class);
+    extension.getExcludes().empty();
     return extension;
   }
 
   /** List of packages to exclude from top-level package resolution. */
   ListProperty<String> getExcludes();
-
-  @Override
-  default TypeOf<?> getPublicType() {
-    return TypeOf.typeOf(NodeSetupExtension.class);
-  }
 }

@@ -57,10 +57,12 @@ import org.gradle.api.tasks.SourceSetContainer;
  */
 public class GrpcApiPlugin implements Plugin<Project> {
 
-  public static final String PACKAGE_JSON_TEMPLATE;
+  private static final String PACKAGE_JSON_TEMPLATE;
 
   static {
     try {
+      // Gradle often initializes tasks in a separate classloader that can't read this resource
+      // easily so we make sure to load it here instead of in the task which is its only usage.
       PACKAGE_JSON_TEMPLATE =
           Resources.toString(
               Resources.getResource("grpcapi/package-template.json"), StandardCharsets.UTF_8);
@@ -82,7 +84,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
     project.getPlugins().apply(ProtobufPlugin.class);
     project.getPlugins().apply(NodePlugin.class);
 
-    project.getExtensions().create(ImmutableGrpcExtension.NAME, GrpcExtension.class);
+    var config = GrpcExtension.createAndAdd(project);
 
     GRPC_DEPENDENCIES.forEach(dep -> project.getDependencies().add("api", "io.grpc:" + dep));
 
@@ -97,8 +99,6 @@ public class GrpcApiPlugin implements Plugin<Project> {
 
     project.afterEvaluate(
         p -> {
-          ImmutableGrpcExtension config = project.getExtensions().getByType(GrpcExtension.class);
-
           String archivesBaseName =
               project.getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
           var descriptorOptions = protobuf.getDescriptorSetOptions();
@@ -115,7 +115,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
           descriptorOptions.getIncludeSourceInfo().set(true);
           descriptorOptions.getIncludeImports().set(true);
 
-          if (config.web()) {
+          if (config.getWeb().get()) {
             protobuf
                 .getLanguages()
                 .register(
@@ -155,9 +155,7 @@ public class GrpcApiPlugin implements Plugin<Project> {
     // Additional configuration of tasks created by protobuf plugin.
     project.afterEvaluate(
         p -> {
-          ImmutableGrpcExtension config = project.getExtensions().getByType(GrpcExtension.class);
-
-          if (config.web()) {
+          if (config.getWeb().get()) {
             var installProtocGenGrpcWeb =
                 DownloadToolUtil.getSetupTask(project, "protoc-gen-grpc-web");
             var generateProto = project.getTasks().named("generateProto");
@@ -165,7 +163,14 @@ public class GrpcApiPlugin implements Plugin<Project> {
             var packageWeb =
                 project
                     .getTasks()
-                    .register("packageWeb", PackageWebTask.class, t -> t.dependsOn(generateProto));
+                    .register(
+                        "packageWeb",
+                        PackageWebTask.class,
+                        t -> {
+                          t.dependsOn(generateProto);
+                          t.getWebPackageName().set(config.getWebPackageName());
+                          t.getPackageJsonTemplate().set(PACKAGE_JSON_TEMPLATE);
+                        });
 
             generateProto.configure(
                 t -> t.dependsOn(installProtocGenGrpcWeb).finalizedBy(packageWeb));

@@ -33,6 +33,6 @@ base {
 }
 
 grpc {
-    setWeb(true)
-    setWebPackageName("@curiostack/cafemap-api")
+    web.set(true)
+    webPackageName.set("@curiostack/cafemap-api")
 }

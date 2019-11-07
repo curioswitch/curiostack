@@ -24,23 +24,20 @@
 
 package org.curioswitch.gradle.plugins.grpcapi.tasks;
 
-import static org.curioswitch.gradle.plugins.grpcapi.GrpcApiPlugin.PACKAGE_JSON_TEMPLATE;
-
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import org.curioswitch.gradle.plugins.grpcapi.GrpcExtension;
-import org.curioswitch.gradle.plugins.grpcapi.ImmutableGrpcExtension;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.plugins.BasePluginConvention;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 
-public class PackageWebTask extends DefaultTask {
+public abstract class PackageWebTask extends DefaultTask {
 
   private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.16";
   private static final String GOOGLE_PROTOBUF_VERSION = "3.10.0";
@@ -48,9 +45,10 @@ public class PackageWebTask extends DefaultTask {
   private static final String TYPES_GOOGLE_PROTOBUF_VERSION = "3.7.2";
 
   @Input
-  public String getPackageJsonTemplate() {
-    return PACKAGE_JSON_TEMPLATE;
-  }
+  public abstract Property<String> getWebPackageName();
+
+  @Input
+  public abstract Property<String> getPackageJsonTemplate();
 
   @Input
   public List<String> getVersions() {
@@ -73,20 +71,20 @@ public class PackageWebTask extends DefaultTask {
 
   @TaskAction
   public void exec() throws IOException {
-    ImmutableGrpcExtension config = getProject().getExtensions().getByType(GrpcExtension.class);
-
     Path packageJsonPath = getProject().file("build/web/package.json").toPath();
+    String webPackageName = getWebPackageName().get();
     String packageName =
-        config.webPackageName().isEmpty()
+        webPackageName.isEmpty()
             ? getProject()
                 .getConvention()
                 .getPlugin(BasePluginConvention.class)
                 .getArchivesBaseName()
-            : config.webPackageName();
+            : webPackageName;
 
     Files.writeString(
         packageJsonPath,
-        PACKAGE_JSON_TEMPLATE
+        getPackageJsonTemplate()
+            .get()
             .replaceFirst("\\|PACKAGE_NAME\\|", packageName)
             .replaceFirst("\\|TYPES_GOOGLE_PROTOBUF_VERSION\\|", TYPES_GOOGLE_PROTOBUF_VERSION)
             .replaceFirst("\\|GOOGLE_PROTOBUF_VERSION\\|", GOOGLE_PROTOBUF_VERSION)
