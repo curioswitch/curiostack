@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,27 +25,22 @@
 package org.curioswitch.gradle.plugins.grpcapi;
 
 import org.gradle.api.Project;
-import org.immutables.value.Value;
-import org.immutables.value.Value.Modifiable;
-import org.immutables.value.Value.Style;
+import org.gradle.api.provider.Property;
 
-/** Configuration for setting up a Kubernetes cluster resource. */
-@Modifiable
-@Style(create = "new", typeModifiable = "*", defaultAsDefault = true, typeAbstract = "Immutable*")
-public interface ImmutableGrpcExtension {
+public interface GrpcExtension {
 
   String NAME = "grpc";
 
-  @Value.Parameter
-  Project gradleProject();
+  static GrpcExtension createAndAdd(Project project) {
+    var extension = project.getExtensions().create(NAME, GrpcExtension.class);
+    extension.getWeb().convention(false);
+    extension.getWebPackageName().convention("");
+    return extension;
+  }
 
   /** Whether to build grpc-web version of the API too. */
-  default boolean web() {
-    return false;
-  }
+  Property<Boolean> getWeb();
 
   /** The name to use in the package.json for the web package. */
-  default String webPackageName() {
-    return "";
-  }
+  Property<String> getWebPackageName();
 }

@@ -125,6 +125,8 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
                           exec.workingDir(archive.getParent());
                         });
                   }));
+      DownloadToolUtil.getSetupTask(project, "miniconda2-build")
+          .configure(t -> t.dependsOn(downloadSdk));
     }
   }
 }

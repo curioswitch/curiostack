@@ -27,8 +27,8 @@ apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
 archivesBaseName = 'curioswitch-eggworld-api'
 
 grpc {
-    web = true
-    webPackageName = '@curiostack/eggworld-api'
+    web.set(true)
+    webPackageName.set('@curiostack/eggworld-api')
 }
 
 // TODO(choko): Reenable after https://github.com/protocolbuffers/protobuf/pull/6802 is released
