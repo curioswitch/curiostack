@@ -73,3 +73,5 @@ if [ ! -d "$JAVA_HOME" ]; then
 
   rm "$DEST"
 fi
+
+set +e
