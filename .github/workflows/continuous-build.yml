@@ -38,20 +38,20 @@ jobs:
         with:
           fetch-depth: 10
       - name: Cache Gradle Modules
-          uses: actions/cache@v1
-          with:
-            path: ~/.gradle/caches
-            key: gradle-caches
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: gradle-caches
       - name: Cache Gradle Wrapper
-          uses: actions/cache@v1
-          with:
-           path: ~/.gradle/wrapper
-           key: gradle-wrapper
+        uses: actions/cache@v1
+        with:
+         path: ~/.gradle/wrapper
+         key: gradle-wrapper
       - name: Cache Curiostack
-          uses: actions/cache@v1
-          with:
-            path: ~/.gradle/curiostack
-            key: ${{ runner.os }}-gradle-curiostack
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/curiostack
+          key: ${{ runner.os }}-gradle-curiostack
       - name: Execute continuousBuild
         run: ./gradlew continuousBuild --stacktrace -Porg.curioswitch.curiostack.ci.disableCoverage=true
         shell: bash
