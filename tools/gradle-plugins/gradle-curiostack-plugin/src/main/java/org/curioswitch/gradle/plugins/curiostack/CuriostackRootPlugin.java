@@ -285,11 +285,11 @@ public class CuriostackRootPlugin implements Plugin<Project> {
     rootProject.getTasks().register("setupGitHooks", SetupGitHooks.class);
     var updateShellConfig =
         rootProject.getTasks().register("updateShellConfig", CreateShellConfigTask.class);
-    DownloadToolUtil.getDownloadTask(rootProject, "miniconda2-build")
+    DownloadToolUtil.getDownloadTask(rootProject, "miniconda-build")
         .configure(t -> t.finalizedBy(updateShellConfig));
     rootProject
         .getTasks()
-        .named("condaInstallPackagesMiniconda2Build", t -> t.mustRunAfter(updateShellConfig));
+        .named("condaInstallPackagesMinicondaBuild", t -> t.mustRunAfter(updateShellConfig));
 
     plugins.withType(
         ToolDownloaderPlugin.class,
@@ -485,14 +485,12 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                 plugin
                     .getCondas()
                     .withType(CondaExtension.class)
-                    .named("miniconda2-build")
+                    .named("miniconda-build")
                     .configure(
                         conda ->
                             conda
                                 .getVersion()
-                                .set(
-                                    "Miniconda2-"
-                                        + ToolDependencies.getMinicondaVersion(rootProject))));
+                                .set(ToolDependencies.getMinicondaVersion(rootProject))));
   }
 
   private static void setupRepositories(Project project) {

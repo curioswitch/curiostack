@@ -30,6 +30,8 @@ if [ "$windows" ] && [ -n "$USERPROFILE" ]; then
   # msys
   USERPROFILE_CYG=$(cygpath $USERPROFILE)
   GRADLE_HOME="${USERPROFILE_CYG}/.gradle"
+  MSYS_BASH_PATH="$(cygpath -w "$(which bash)")"
+  export MSYS_BASH_PATH
 fi
 
 OPENJDK_DIR="$GRADLE_HOME/curiostack/openjdk"

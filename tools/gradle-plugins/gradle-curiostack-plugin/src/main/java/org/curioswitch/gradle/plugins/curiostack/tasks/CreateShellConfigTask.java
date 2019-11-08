@@ -59,12 +59,11 @@ public class CreateShellConfigTask extends DefaultTask {
                 + PathUtil.toBashString(toolManager.getCuriostackDir().resolve("shims"))
                 + ":$PATH",
             "export CLOUDSDK_PYTHON="
-                + PathUtil.toBashString(
-                    toolManager.getBinDir("miniconda2-build").resolve("python")),
+                + PathUtil.toBashString(toolManager.getBinDir("miniconda-build").resolve("python")),
             "export CLOUDSDK_PYTHON_SITEPACKAGES=1",
             ". "
                 + PathUtil.toBashString(
-                    toolManager.getToolDir("miniconda2-build").resolve("etc/profile.d/conda.sh")),
+                    toolManager.getToolDir("miniconda-build").resolve("etc/profile.d/conda.sh")),
             MARKER);
 
     for (String rcFile : SHELL_RCS) {

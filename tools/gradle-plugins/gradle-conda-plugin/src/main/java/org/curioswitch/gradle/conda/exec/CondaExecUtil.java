@@ -24,6 +24,7 @@
 package org.curioswitch.gradle.conda.exec;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -56,22 +57,25 @@ public final class CondaExecUtil {
   }
 
   public static void condaExec(ExecSpec exec, Project project) {
-    condaExec(exec, DownloadedToolManager.get(project), "miniconda2-build");
+    condaExec(exec, DownloadedToolManager.get(project), "miniconda-build");
   }
 
   /** Modifies the {@link ExecSpec} to run its command in a conda environment. */
   public static void condaExec(ExecSpec exec, DownloadedToolManager toolManager, String tool) {
     var platformHelper = new PlatformHelper();
-    if (platformHelper.getOs() == OperatingSystem.WINDOWS) {
-      // Doesn't currently work on Windows.
-      return;
-    }
 
     Path condaDir = toolManager.getToolDir(tool);
     Path condaSh = condaDir.resolve(Paths.get("etc", "profile.d", "conda.sh"));
 
-    var currentCommandLine = exec.getCommandLine();
-    exec.setExecutable("bash");
+    List<String> currentCommandLine = exec.getCommandLine();
+    if (platformHelper.getOs() == OperatingSystem.WINDOWS) {
+      currentCommandLine =
+          ImmutableList.<String>builderWithExpectedSize(currentCommandLine.size())
+              .add(PathUtil.toBashString(currentCommandLine.get(0)))
+              .addAll(Iterables.skip(currentCommandLine, 1))
+              .build();
+    }
+    exec.setExecutable(PathUtil.getBashExecutable());
     exec.setArgs(
         ImmutableList.of(
             "-c",
@@ -97,7 +101,7 @@ public final class CondaExecUtil {
             flag,
             "-isysroot"
                 + macOsSdkPath
-                + ' '
+                + " -mmacosx-version-min=10.10 "
                 + environment.getOrDefault(flag, "")
                 + ' '
                 + System.getenv().getOrDefault(flag, ""));

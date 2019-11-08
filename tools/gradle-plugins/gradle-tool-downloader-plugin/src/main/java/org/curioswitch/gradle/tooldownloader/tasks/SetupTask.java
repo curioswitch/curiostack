@@ -116,9 +116,9 @@ public class SetupTask extends DefaultTask {
                   "||REPO_PATH||",
                   PathUtil.toBashString(
                       "$(git rev-parse --show-toplevel 2>/dev/null || echo /dev/null)"))
-              .replace("||TOOL_EXE_PATH||", PathUtil.toBashString(exePath))
+              .replace("||TOOL_EXE_PATH||", PathUtil.toBashString(exePath.toString()))
               .replace("||EXE_NAME||", exePath.getFileName().toString())
-              .replace("||SHIMS_PATH||", PathUtil.toBashString(shimsPath));
+              .replace("||SHIMS_PATH||", PathUtil.toBashString(shimsPath.toString()));
 
       try {
         com.google.common.io.Files.asCharSink(shimPath.toFile(), StandardCharsets.UTF_8)

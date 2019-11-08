@@ -33,12 +33,7 @@ public final class PathUtil {
    * invocation.
    */
   public static String toBashString(Path path) {
-    var helper = new PlatformHelper();
-    if (helper.getOs() != OperatingSystem.WINDOWS) {
-      return path.toString();
-    } else {
-      return "$(cygpath '" + path.toString() + "')";
-    }
+    return toBashString(path.toAbsolutePath().toString());
   }
 
   /**
@@ -49,9 +44,17 @@ public final class PathUtil {
     var helper = new PlatformHelper();
     if (helper.getOs() != OperatingSystem.WINDOWS) {
       return path;
-    } else {
+    }
+    if (path.contains("$")) {
+      // Path is an interpolation, only option is to delegate to cygwin
       return "$(cygpath " + path + ")";
     }
+    path = path.replace('\\', '/');
+    int colonIndex = path.indexOf(':');
+    if (colonIndex < 0) {
+      return path;
+    }
+    return '/' + path.substring(0, colonIndex) + path.substring(colonIndex + 1);
   }
 
   /**
@@ -65,6 +68,14 @@ public final class PathUtil {
     } else {
       return name;
     }
+  }
+
+  /**
+   * Returns a path that can be used to execute bash by Gradle, taking into account OS-specific
+   * conventions.
+   */
+  public static String getBashExecutable() {
+    return System.getenv().getOrDefault("MSYS_BASH_PATH", "bash");
   }
 
   private PathUtil() {}

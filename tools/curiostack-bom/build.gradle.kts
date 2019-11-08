@@ -54,7 +54,7 @@ val DEPENDENCY_BOMS = listOf(
         "com.google.http-client:google-http-client-bom:1.32.1",
         "com.linecorp.armeria:armeria-bom:0.95.0",
         "io.dropwizard.metrics:metrics-bom:4.1.1",
-        "io.grpc:grpc-bom:1.24.1",
+        "io.grpc:grpc-bom:1.25.0",
         "io.zipkin.brave:brave-bom:5.9.0",
         "io.netty:netty-bom:4.1.43.Final",
         "org.apache.beam:beam-sdks-java-bom:2.16.0",
@@ -228,11 +228,6 @@ val DEPENDENCY_SETS = listOf(
                 listOf("jakarta.inject-api")
         ),
         DependencySet(
-                "javax.inject",
-                "1",
-                listOf("javax.inject")
-        ),
-        DependencySet(
                 "junit",
                 "4.12",
                 listOf("junit")
@@ -314,7 +309,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "3.1.5",
+                "3.1.8",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -349,7 +344,7 @@ val DEPENDENCIES = listOf(
         "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.6",
         "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.7.0",
         "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.0",
-        "gradle.plugin.com.palantir.graal:gradle-graal:0.6.0-30-gade71a8",
+        "gradle.plugin.com.palantir.graal:gradle-graal:0.6.0-32-g68fa986",
         "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
         "io.sgr:s2-geometry-library-java:1.0.1",
         "it.unimi.dsi:fastutil:8.3.0",

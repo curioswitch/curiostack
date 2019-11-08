@@ -41,9 +41,9 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
     checkState(project.getParent() == null, "build-env plugin must be applied to root project.");
     var condas = project.getPlugins().apply(CondaPlugin.class).getCondas();
     condas.create(
-        "miniconda2-build",
+        "miniconda-build",
         conda -> {
-          conda.getVersion().set("Miniconda2-4.7.12");
+          conda.getVersion().set("Miniconda3-4.7.12.1");
           conda.getPackages().add("git");
 
           var platformHelper = new PlatformHelper();
@@ -100,7 +100,7 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
                     "macos-sdk",
                     tool -> {
                       tool.getArtifact().set("MacOSX");
-                      tool.getVersion().set("10.9");
+                      tool.getVersion().set("10.10");
                       tool.getBaseUrl()
                           .set("https://github.com/phracker/MacOSX-SDKs/releases/download/10.13/");
                       tool.getArtifactPattern().set("[artifact][revision].sdk.[ext]");
@@ -125,7 +125,7 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
                           exec.workingDir(archive.getParent());
                         });
                   }));
-      DownloadToolUtil.getSetupTask(project, "miniconda2-build")
+      DownloadToolUtil.getSetupTask(project, "miniconda-build")
           .configure(t -> t.dependsOn(downloadSdk));
     }
   }
