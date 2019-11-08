@@ -71,7 +71,7 @@ public class KubectlTask extends DefaultTask {
               exec.executable(executable);
               exec.args(args.get());
               exec.environment(
-                  "CLOUDSDK_PYTHON", toolManager.getBinDir("miniconda2-build").resolve("python"));
+                  "CLOUDSDK_PYTHON", toolManager.getBinDir("miniconda-build").resolve("python"));
               exec.environment("CLOUDSDK_PYTHON_SITEPACKAGES", "1");
               exec.setStandardInput(System.in);
               exec.setIgnoreExitValue(ignoreExitValue);

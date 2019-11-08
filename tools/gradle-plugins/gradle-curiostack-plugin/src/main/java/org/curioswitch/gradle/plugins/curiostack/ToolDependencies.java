@@ -40,7 +40,7 @@ public class ToolDependencies {
           .put("google-java-format", "1.7")
           .put("gradle", "6.0-rc-3")
           .put("helm", "2.10.0")
-          .put("miniconda", "4.7.12.1")
+          .put("miniconda", "Miniconda3-4.7.12.1")
           .put("node", "12.13.0")
           .put("openjdk", "zulu13.28.11-ca-jdk13.0.1")
           .put("openjdk8", "zulu8.42.0.21-ca-jdk8.0.232")

@@ -110,7 +110,7 @@ public class NodeSetupPlugin implements Plugin<Project> {
                                         "install", "--global", "--no-save", "yarn@" + yarnVersion);
                                     t.dependsOn(
                                         DownloadToolUtil.getDownloadTask(project, "node"),
-                                        DownloadToolUtil.getSetupTask(project, "miniconda2-build"));
+                                        DownloadToolUtil.getSetupTask(project, "miniconda-build"));
 
                                     t.onlyIf(
                                         unused -> {

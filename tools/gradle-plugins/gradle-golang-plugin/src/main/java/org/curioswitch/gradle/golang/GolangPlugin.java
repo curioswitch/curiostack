@@ -86,7 +86,7 @@ public class GolangPlugin implements Plugin<Project> {
             });
 
     var setupGo = DownloadToolUtil.getSetupTask(project, "go");
-    setupGo.configure(t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build")));
+    setupGo.configure(t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda-build")));
 
     project.getTasks().withType(GoTask.class).configureEach(t -> t.dependsOn(setupGo));
 

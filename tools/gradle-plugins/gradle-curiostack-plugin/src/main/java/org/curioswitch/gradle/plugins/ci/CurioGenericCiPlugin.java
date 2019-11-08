@@ -260,7 +260,7 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
                 "uploadToCodeCov",
                 UploadToCodeCovTask.class,
                 t -> {
-                  t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build"));
+                  t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda-build"));
                   if (state.isMasterBuild()) {
                     t.finalizedBy(uploadCodeCovCache);
                   }

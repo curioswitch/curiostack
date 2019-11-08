@@ -25,8 +25,6 @@ package org.curioswitch.gradle.conda;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 import org.curioswitch.gradle.conda.tasks.InstallCondaPackagesTask;
 import org.curioswitch.gradle.conda.tasks.InstallPythonPackagesTask;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
@@ -39,8 +37,6 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 public class CondaPlugin implements Plugin<Project> {
-
-  private static final Splitter CONDA_VERSION_SPLITTER = Splitter.on('-');
 
   private NamedDomainObjectContainer<CondaExtension> condas;
 
@@ -74,23 +70,10 @@ public class CondaPlugin implements Plugin<Project> {
               plugin.registerToolIfAbsent(
                   conda.getName(),
                   tool -> {
-                    var artifact =
-                        conda
-                            .getVersion()
-                            .map(
-                                fullVersion ->
-                                    CONDA_VERSION_SPLITTER.splitToList(fullVersion).get(0));
-                    var version =
-                        conda
-                            .getVersion()
-                            .map(
-                                fullVersion ->
-                                    Iterables.getLast(
-                                        CONDA_VERSION_SPLITTER.splitToList(fullVersion)));
-                    tool.getArtifact().set(artifact);
-                    tool.getVersion().set(version);
+                    tool.getArtifact().set(conda.getName());
+                    tool.getVersion().set(conda.getVersion());
                     tool.getBaseUrl().set("https://repo.continuum.io/miniconda/");
-                    tool.getArtifactPattern().set("[artifact]-[revision]-[classifier].[ext]");
+                    tool.getArtifactPattern().set("[revision]-[classifier].[ext]");
 
                     if (operatingSystem == OperatingSystem.WINDOWS) {
                       tool.getPathSubDirs().addAll("", "Scripts", "Library/bin");

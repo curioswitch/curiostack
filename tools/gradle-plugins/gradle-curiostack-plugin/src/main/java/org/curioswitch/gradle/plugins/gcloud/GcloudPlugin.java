@@ -106,7 +106,7 @@ public class GcloudPlugin implements Plugin<Project> {
                       osClassifiers.getWindows().set("windows-x86_64");
                     }));
     DownloadToolUtil.getSetupTask(project, "gcloud")
-        .configure(t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda2-build")));
+        .configure(t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "miniconda-build")));
 
     project
         .getPlugins()
@@ -116,7 +116,7 @@ public class GcloudPlugin implements Plugin<Project> {
                 plugin
                     .getCondas()
                     .withType(ModifiableCondaExtension.class)
-                    .named("miniconda2-build")
+                    .named("miniconda-build")
                     .configure(
                         conda -> {
                           conda.getPackages().add("lz4-c");

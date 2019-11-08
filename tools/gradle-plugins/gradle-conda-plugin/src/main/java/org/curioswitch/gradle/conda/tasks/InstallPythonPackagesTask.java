@@ -59,7 +59,7 @@ public class InstallPythonPackagesTask extends DefaultTask {
             return false;
           }
 
-          Path minicondaDir = toolManager.getToolDir("miniconda2-build");
+          Path minicondaDir = toolManager.getToolDir("miniconda-build");
           final Path sitePackagesDir;
           if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
             sitePackagesDir = minicondaDir.resolve("lib/site-packages");
@@ -72,7 +72,7 @@ public class InstallPythonPackagesTask extends DefaultTask {
               continue;
             } else {
               // Some packages only install a script, no library. Optimistically search for it.
-              if (toolManager.getBinDirs("miniconda2-build").stream()
+              if (toolManager.getBinDirs("miniconda-build").stream()
                   .anyMatch(binDir -> Files.exists(binDir.resolve(pkg)))) {
                 continue;
               }

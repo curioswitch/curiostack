@@ -50,7 +50,7 @@ public interface GolangExtension extends HasPublicType {
             .setExecutableName(objects.property(String.class))
             .setGoOses(objects.listProperty(String.class).empty())
             .setGoArchs(objects.listProperty(String.class).empty())
-            .setConda(objects.property(String.class).value("miniconda2-build"))
+            .setConda(objects.property(String.class).value("miniconda-build"))
             .setJib(Jib.create(objects));
     return extension;
   }
