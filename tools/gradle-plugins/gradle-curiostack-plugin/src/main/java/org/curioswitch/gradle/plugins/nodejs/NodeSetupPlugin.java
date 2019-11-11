@@ -66,6 +66,8 @@ public class NodeSetupPlugin implements Plugin<Project> {
         .named("clean")
         .configure(t -> t.delete("node_modules"));
 
+    var toolManager = DownloadedToolManager.get(project);
+
     project
         .getPlugins()
         .withType(
@@ -95,6 +97,7 @@ public class NodeSetupPlugin implements Plugin<Project> {
 
                       tool.getPathSubDirs().add(nodePathSubDir);
                       tool.getAdditionalCachedDirs().add("yarn-cache");
+
                       var downloadYarn =
                           project
                               .getRootProject()
@@ -111,11 +114,13 @@ public class NodeSetupPlugin implements Plugin<Project> {
                                     t.dependsOn(
                                         DownloadToolUtil.getDownloadTask(project, "node"),
                                         DownloadToolUtil.getSetupTask(project, "miniconda-build"));
+                                    t.execOverride(
+                                        exec -> exec.workingDir(toolManager.getBinDir("node")));
 
                                     t.onlyIf(
                                         unused -> {
                                           File packageJson =
-                                              DownloadedToolManager.get(project)
+                                              toolManager
                                                   .getBinDir("node")
                                                   .resolve(
                                                       operatingSystem != OperatingSystem.WINDOWS
