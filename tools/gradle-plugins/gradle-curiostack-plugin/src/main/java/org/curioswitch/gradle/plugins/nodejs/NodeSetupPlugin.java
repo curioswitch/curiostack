@@ -116,6 +116,7 @@ public class NodeSetupPlugin implements Plugin<Project> {
                                     t.setCommand("npm");
                                     t.args(
                                         "install",
+                                        "--global",
                                         "--prefix",
                                         PathUtil.toBashString(prefixDir),
                                         "--no-save",
