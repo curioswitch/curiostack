@@ -31,9 +31,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
+import org.curioswitch.gradle.helpers.platform.PathUtil;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask;
@@ -66,6 +68,8 @@ public class NodeSetupPlugin implements Plugin<Project> {
         .named("clean")
         .configure(t -> t.delete("node_modules"));
 
+    var toolManager = DownloadedToolManager.get(project);
+
     project
         .getPlugins()
         .withType(
@@ -89,12 +93,16 @@ public class NodeSetupPlugin implements Plugin<Project> {
 
                       String nodePathSubDir =
                           "node-v" + version + "-" + classifiers.getValue(operatingSystem);
+
+                      Path prefixDir = toolManager.getToolDir("node").resolve(nodePathSubDir);
+
                       if (operatingSystem != OperatingSystem.WINDOWS) {
                         nodePathSubDir += "/bin";
                       }
 
                       tool.getPathSubDirs().add(nodePathSubDir);
                       tool.getAdditionalCachedDirs().add("yarn-cache");
+
                       var downloadYarn =
                           project
                               .getRootProject()
@@ -107,15 +115,22 @@ public class NodeSetupPlugin implements Plugin<Project> {
 
                                     t.setCommand("npm");
                                     t.args(
-                                        "install", "--global", "--no-save", "yarn@" + yarnVersion);
+                                        "install",
+                                        "--global",
+                                        "--prefix",
+                                        PathUtil.toBashString(prefixDir),
+                                        "--no-save",
+                                        "yarn@" + yarnVersion);
                                     t.dependsOn(
                                         DownloadToolUtil.getDownloadTask(project, "node"),
                                         DownloadToolUtil.getSetupTask(project, "miniconda-build"));
+                                    t.execOverride(
+                                        exec -> exec.workingDir(toolManager.getBinDir("node")));
 
                                     t.onlyIf(
                                         unused -> {
                                           File packageJson =
-                                              DownloadedToolManager.get(project)
+                                              toolManager
                                                   .getBinDir("node")
                                                   .resolve(
                                                       operatingSystem != OperatingSystem.WINDOWS
