@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Choko (choko@curioswitch.org)
+ * Copyright (c) 2019 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.curioswitch.gradle.plugins.curiostack;
 
 import static net.ltgt.gradle.errorprone.CheckSeverity.ERROR;
@@ -35,20 +34,14 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import groovy.util.Node;
 import groovy.util.XmlParser;
 import groovy.xml.QName;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -328,46 +321,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
               t.dependsOn(rootProject.getTasks().named("toolsSetupAll"));
               t.dependsOn(updateShellConfig);
             });
-
-    String baselineFiles;
-    try {
-      baselineFiles =
-          Resources.toString(
-              Resources.getResource("META-INF/org.curioswitch.curiostack.baseline_manifest.txt"),
-              StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-
-    var baselineUpdateConfig =
-        rootProject
-            .getTasks()
-            .register(
-                "baselineUpdateConfig",
-                t ->
-                    t.doLast(
-                        task -> {
-                          File baselineDir = rootProject.file(".baseline");
-                          baselineDir.mkdirs();
-                          for (String filePath : NEW_LINE_SPLITTER.split(baselineFiles)) {
-                            Path path = Paths.get(filePath);
-                            Path outputDirectory =
-                                Paths.get(baselineDir.getAbsolutePath()).resolve(path.getParent());
-                            rootProject.file(outputDirectory.toAbsolutePath()).mkdirs();
-                            try (FileOutputStream os =
-                                    new FileOutputStream(
-                                        outputDirectory.resolve(path.getFileName()).toFile());
-                                InputStream is = Resources.getResource(filePath).openStream()) {
-                              ByteStreams.copy(is, os);
-                            } catch (IOException e) {
-                              throw new UncheckedIOException(e);
-                            }
-                          }
-                        }));
-
-    if (!rootProject.file(".baseline").exists()) {
-      rootProject.getTasks().named("ideaProject").configure(t -> t.dependsOn(baselineUpdateConfig));
-    }
 
     var updateProjectSettings =
         rootProject.getTasks().register("updateProjectSettings", UpdateProjectSettingsTask.class);
