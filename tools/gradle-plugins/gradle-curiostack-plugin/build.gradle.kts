@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import nl.javadude.gradle.plugins.license.License
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
@@ -192,5 +193,16 @@ tasks.withType(Test::class) {
     testLogging {
         showStandardStreams = true
         exceptionFormat = TestExceptionFormat.FULL
+    }
+}
+
+tasks.withType(License::class) {
+    exclude("**/*.xml")
+}
+
+tasks {
+    named<License>("licenseTest") {
+        exclude("**/rendered-get-jdk.sh")
+        exclude("**/test-projects/**")
     }
 }
