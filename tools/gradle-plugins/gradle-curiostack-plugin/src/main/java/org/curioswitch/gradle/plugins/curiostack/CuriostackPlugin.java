@@ -27,7 +27,6 @@ package org.curioswitch.gradle.plugins.curiostack;
 import org.curioswitch.gradle.plugins.gcloud.GcloudBuildCachePlugin;
 import org.curioswitch.gradle.plugins.gcloud.buildcache.CloudStorageBuildCache;
 import org.gradle.api.Plugin;
-import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.initialization.Settings;
 
 public class CuriostackPlugin implements Plugin<Settings> {
@@ -35,25 +34,6 @@ public class CuriostackPlugin implements Plugin<Settings> {
   @Override
   public void apply(Settings settings) {
     var config = CuriostackExtension.createAndAdd(settings);
-
-    var pluginManagement = settings.getPluginManagement();
-    pluginManagement
-        .getResolutionStrategy()
-        .eachPlugin(
-            plugin -> {
-              if ("org.curioswitch".equals(plugin.getRequested().getId().getNamespace())) {
-                String curiostackVersion =
-                    settings
-                        .getStartParameter()
-                        .getProjectProperties()
-                        .get("org.curioswitch.curiostack.version");
-                plugin.useModule(
-                    "org.curioswitch.curiostack:gradle-curiostack-plugin:" + curiostackVersion);
-              }
-            });
-
-    configureRepositories(pluginManagement.getRepositories());
-    configureRepositories(settings.getBuildscript().getRepositories());
 
     settings.getPlugins().apply(GcloudBuildCachePlugin.class);
 
@@ -77,15 +57,7 @@ public class CuriostackPlugin implements Plugin<Settings> {
         .getGradle()
         .rootProject(
             project -> {
-              configureRepositories(project.getBuildscript().getRepositories());
               project.getPlugins().apply(CuriostackRootPlugin.class);
             });
-  }
-
-  private static void configureRepositories(RepositoryHandler repositories) {
-    repositories.jcenter();
-    repositories.gradlePluginPortal();
-    repositories.maven(maven -> maven.setUrl("https://dl.bintray.com/curioswitch/curiostack"));
-    repositories.mavenLocal();
   }
 }

@@ -25,6 +25,7 @@
 plugins {
     `java-gradle-plugin`
     `maven-publish`
+    id("com.gradle.plugin-publish").version("0.10.1")
 }
 
 dependencies {
@@ -45,9 +46,17 @@ gradlePlugin {
     plugins {
         register("golang") {
             id = "org.curioswitch.gradle-golang-plugin"
+            displayName = "Gradle Golang Plugin"
+            description = "A simple and fast plugin for building golang binaries with Gradle."
             implementationClass = "org.curioswitch.gradle.golang.GolangPlugin"
         }
     }
+}
+
+pluginBundle {
+    website = "https://github.com/curioswitch/curiostack/"
+    vcsUrl = "https://github.com/curioswitch/curiostack.git"
+    tags = listOf("curiostack", "gcp", "grpc", "terraform", "miniconda", "nodejs")
 }
 
 publishing {

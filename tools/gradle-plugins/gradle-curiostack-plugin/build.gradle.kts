@@ -165,9 +165,9 @@ gradlePlugin {
 }
 
 pluginBundle {
-    website = "https://github.com/curioswitch/curiostack"
+    website = "https://github.com/curioswitch/curiostack/tree/master/tools/gradle-plugins/gradle-golang-plugin"
     vcsUrl = "https://github.com/curioswitch/curiostack.git"
-    tags = listOf("curiostack", "gcp", "grpc", "terraform", "miniconda", "nodejs")
+    tags = listOf("curiostack", "go")
 }
 
 publishing {
