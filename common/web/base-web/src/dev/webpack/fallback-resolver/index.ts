@@ -22,27 +22,44 @@
  * SOFTWARE.
  */
 
-import 'module-alias/register';
-import { addAlias } from 'module-alias';
+import Resolver from 'enhanced-resolve/lib/Resolver';
 
-import { config as RESOLVE_CONFIG, rewriteResolveRequest } from '../resolve';
+import { rewriteResolveRequest } from '../../resolve';
 
-export const DISABLER = {
-  DISABLE_ALIAS: false,
-};
+type ResolverRequest = import('enhanced-resolve/lib/common-types').ResolverRequest;
 
-for (const lib of Object.keys(RESOLVE_CONFIG)) {
-  addAlias(lib, (_, request) => {
-    if (DISABLER.DISABLE_ALIAS) {
-      return lib;
-    }
+export default class FallbackResolverPlugin {
+  public apply(resolver: Resolver) {
+    const tapable = resolver as any;
 
-    const rewritten = rewriteResolveRequest(request);
+    const target = tapable.ensureHook('resolve');
 
-    if (rewritten === request) {
-      return lib;
-    }
+    tapable
+      .ensureHook('described-resolve')
+      .tapAsync(
+        'FallbackResolverPlugin',
+        (
+          request: ResolverRequest,
+          resolveContext: any,
+          callback: () => void,
+        ) => {
+          const rewritten = rewriteResolveRequest(request.request);
+          if (rewritten === request.request) {
+            return callback();
+          }
 
-    return rewritten.split('/', 1)[0];
-  });
+          // Cast to any since types don't match webpack definition
+          return (resolver as any).doResolve(
+            target,
+            {
+              ...request,
+              request: rewritten,
+            },
+            `rewriting ${request.request} to ${rewritten}`,
+            resolveContext,
+            callback,
+          );
+        },
+      );
+  }
 }

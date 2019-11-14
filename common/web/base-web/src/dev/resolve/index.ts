@@ -22,27 +22,46 @@
  * SOFTWARE.
  */
 
-import 'module-alias/register';
-import { addAlias } from 'module-alias';
+import path from 'path';
 
-import { config as RESOLVE_CONFIG, rewriteResolveRequest } from '../resolve';
+import { DISABLER } from '../scripts/common';
 
-export const DISABLER = {
-  DISABLE_ALIAS: false,
+// eslint-disable-next-line
+const packageJson = require(path.resolve(process.cwd(), 'package.json'));
+
+interface ResolveOverrides {
+  [key: string]: string[];
+}
+
+const packageOverrides = packageJson.curiostack
+  ? packageJson.curiostack.resolveOverrides
+  : {};
+
+export const config: ResolveOverrides = {
+  'core-js': ['core-js', 'core-js-2'],
+  ...packageOverrides,
 };
 
-for (const lib of Object.keys(RESOLVE_CONFIG)) {
-  addAlias(lib, (_, request) => {
-    if (DISABLER.DISABLE_ALIAS) {
-      return lib;
+export function rewriteResolveRequest(request: string): string {
+  for (const [lib, overrides] of Object.entries(config)) {
+    if (request !== lib && !request.startsWith(`${lib}/`)) {
+      continue;
     }
 
-    const rewritten = rewriteResolveRequest(request);
-
-    if (rewritten === request) {
-      return lib;
+    const remainingRequest = request.substring(request.indexOf('/') + 1);
+    for (const override of overrides) {
+      const rewritten = `${override}/${remainingRequest}`;
+      DISABLER.DISABLE_ALIAS = true;
+      try {
+        require.resolve(rewritten);
+        // Resolved so we found a working override.
+        return rewritten;
+      } catch (e) {
+        // Fall through to try other overrides.
+      } finally {
+        DISABLER.DISABLE_ALIAS = false;
+      }
     }
-
-    return rewritten.split('/', 1)[0];
-  });
+  }
+  return request;
 }
