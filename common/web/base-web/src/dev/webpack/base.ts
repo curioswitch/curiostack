@@ -28,6 +28,8 @@ import CopyWebpackPlugin from 'copy-webpack-plugin';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import { Configuration } from 'webpack';
 
+import FallbackResolverPlugin from './fallback-resolver';
+
 // eslint-disable-next-line
 const packageJson = require(path.resolve(process.cwd(), 'package.json'));
 
@@ -193,6 +195,7 @@ function configure(options: any): Configuration {
       extensions: ['.js', '.jsx', '.ts', '.tsx'],
       mainFields: ['browser', 'module', 'jsnext:main', 'main'],
       plugins: [
+        new FallbackResolverPlugin(),
         new TsconfigPathsPlugin({
           extensions: ['.ts', '.tsx', '.js', '.jsx'],
           mainFields: ['browser', 'module', 'jsnext:main', 'main'],

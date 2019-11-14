@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-web",
-  "version": "0.0.50",
+  "version": "0.0.51",
   "description": "Curiostack's base dependencies for browser applications.",
   "repository": "curioswitch/curiostack",
   "author": "Choko <choko@curioswitch.org>",
@@ -139,6 +139,7 @@
   "devDependencies": {
     "@types/compression-webpack-plugin": "2.0.1",
     "@types/copy-webpack-plugin": "5.0.0",
+    "@types/enhanced-resolve": "3.0.6",
     "@types/enzyme-adapter-react-16": "1.0.5",
     "@types/eslint": "6.1.2",
     "@types/favicons-webpack-plugin": "1.0.0",
