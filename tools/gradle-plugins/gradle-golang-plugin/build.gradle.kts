@@ -56,7 +56,7 @@ gradlePlugin {
 pluginBundle {
     website = "https://github.com/curioswitch/curiostack/"
     vcsUrl = "https://github.com/curioswitch/curiostack.git"
-    tags = listOf("curiostack", "gcp", "grpc", "terraform", "miniconda", "nodejs")
+    tags = listOf("curiostack", "go", "golang")
 }
 
 publishing {

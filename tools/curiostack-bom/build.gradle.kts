@@ -48,10 +48,10 @@ repositories {
 data class DependencySet(val group: String, val version: String, val modules: List<String>)
 
 val DEPENDENCY_BOMS = listOf(
-        "com.fasterxml.jackson:jackson-bom:2.10.0",
+        "com.fasterxml.jackson:jackson-bom:2.10.1",
         "com.google.cloud:google-cloud-bom:0.116.0-alpha",
         "com.google.api-client:google-api-client-bom:1.30.5",
-        "com.google.http-client:google-http-client-bom:1.32.1",
+        "com.google.http-client:google-http-client-bom:1.33.0",
         "com.linecorp.armeria:armeria-bom:0.95.0",
         "io.dropwizard.metrics:metrics-bom:4.1.1",
         "io.grpc:grpc-bom:1.25.0",
@@ -114,11 +114,6 @@ val DEPENDENCY_SETS = listOf(
                 listOf("jsr305")
         ),
         DependencySet(
-                "com.google.cloud",
-                "0.115.0-beta",
-                listOf("google-cloud-iot")
-        ),
-        DependencySet(
                 "com.google.cloud.sql",
                 "1.0.15",
                 listOf(
@@ -158,7 +153,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.spotify",
-                "4.2.1",
+                "4.2.2",
                 listOf("futures-extra")
         ),
         DependencySet(
@@ -189,7 +184,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.fabric8",
-                "4.6.2",
+                "4.6.3",
                 listOf("kubernetes-client")
         ),
         DependencySet(
@@ -234,7 +229,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "net.bytebuddy",
-                "1.10.2",
+                "1.10.3",
                 listOf("byte-buddy", "byte-buddy-agent")
         ),
         DependencySet(
@@ -254,7 +249,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.assertj",
-                "3.2.1",
+                "3.3.0",
                 listOf("assertj-guava")
         ),
         DependencySet(
@@ -309,7 +304,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "3.1.8",
+                "3.1.10",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -319,7 +314,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.simpleflatmapper",
-                "8.1.1",
+                "8.2.0",
                 listOf(
                         "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
         ),
@@ -332,7 +327,7 @@ val DEPENDENCY_SETS = listOf(
 
 val DEPENDENCIES = listOf(
         "com.bmuschko:gradle-docker-plugin:5.3.0",
-        "com.diffplug.spotless:spotless-plugin-gradle:3.25.0",
+        "com.diffplug.spotless:spotless-plugin-gradle:3.26.0",
         "com.github.ben-manes:gradle-versions-plugin:0.27.0",
         "com.google.code.gson:gson:2.8.6",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",
@@ -344,7 +339,6 @@ val DEPENDENCIES = listOf(
         "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.6",
         "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.7.0",
         "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.0",
-        "gradle.plugin.com.palantir.graal:gradle-graal:0.6.0-32-g68fa986",
         "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
         "io.sgr:s2-geometry-library-java:1.0.1",
         "it.unimi.dsi:fastutil:8.3.0",
