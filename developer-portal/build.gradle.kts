@@ -23,7 +23,7 @@
  */
 
 plugins {
-    id("org.curioswitch.gradle-curio-static-site-plugin")
+    id("org.curioswitch.gradle-static-site-plugin")
 }
 
 
