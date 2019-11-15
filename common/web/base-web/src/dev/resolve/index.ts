@@ -48,9 +48,10 @@ export function rewriteResolveRequest(request: string): string {
       continue;
     }
 
-    const remainingRequest = request.substring(request.indexOf('/') + 1);
+    const slashIndex = request.indexOf('/');
+    const requestPath = slashIndex > 0 ? request.substring(slashIndex) : '';
     for (const override of overrides) {
-      const rewritten = `${override}/${remainingRequest}`;
+      const rewritten = `${override}${requestPath}`;
       DISABLER.DISABLE_ALIAS = true;
       try {
         require.resolve(rewritten);
