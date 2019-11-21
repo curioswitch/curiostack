@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-web",
-  "version": "0.0.52",
+  "version": "0.1.0",
   "description": "Curiostack's base dependencies for browser applications.",
   "repository": "curioswitch/curiostack",
   "author": "Choko <choko@curioswitch.org>",
@@ -39,8 +39,8 @@
     "@babel/runtime": "7.7.2",
     "@babel/runtime-corejs2": "7.7.2",
     "@babel/runtime-corejs3": "7.7.2",
-    "@curiostack/base-node-dev": "0.0.18",
-    "@curiostack/eslint-config-web": "0.0.3",
+    "@curiostack/base-node-dev": "0.1.0",
+    "@curiostack/eslint-config-web": "0.1.1",
     "@gfx/zopfli": "1.0.14",
     "@hugmanrique/react-markdown-loader": "0.0.2",
     "@storybook/addon-actions": "5.2.6",
