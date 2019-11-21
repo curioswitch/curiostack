@@ -17,7 +17,7 @@ engineering codebase? Check out our resources [here](./docs/company) which can h
 ## Have a question?
 
 Feel free to open an [issue](https://github.com/curioswitch/curiostack/issues/new) if you have any questions. 
-You are also welcome to join our [Slack workspace](https://join.slack.com/t/curiostack/shared_invite/enQtNjM5OTAyMzYzNDU4LTA2YjJjODkwMGVkZjkyMzZiMjM2ZTc0NDM4YWZlMGY1MDJkNzc1ZWEzOTU2ZTZjZjI3ZWY1M2YwZDc5ZjBmNmI) 
+You are also welcome to join our [Slack workspace](https://join.slack.com/t/curiostack/shared_invite/enQtODMxODkzMDg4NDM1LTllMmZiNzU3MTUxZjYzYTA2YjdlYWNkYTM1YjBlMTY1ODMxN2YxYTI2ZjFhOWZiYmVjZGY4ZTZkZWViNDRlZWU) 
 and ask there.
 
 ## Set up
