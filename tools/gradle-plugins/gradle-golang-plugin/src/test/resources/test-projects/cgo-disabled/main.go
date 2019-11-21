@@ -21,12 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.curioswitch.gradle.golang;
 
-import org.junit.jupiter.api.Test;
+package main
 
-class GoExecUtilTest {
+/*
+#include "test.h"
+*/
+import "C"
 
-  @Test
-  void normal() {}
+func main() {
+	C.print()
 }
