@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+
 plugins {
     `java-gradle-plugin`
     `maven-publish`
@@ -40,6 +42,8 @@ dependencies {
 
     annotationProcessor("org.immutables:value")
     compileOnly("org.immutables:value-annotations")
+
+    testImplementation(project(":tools:gradle-plugins:gradle-test-helpers"))
 }
 
 gradlePlugin {
@@ -69,5 +73,15 @@ publishing {
                         "gradle-plugins/gradle-golang-plugin")
             }
         }
+    }
+}
+
+tasks.withType(Test::class) {
+    jvmArgs("-Dorg.curioswitch.curiostack.testing.buildDir=${rootProject.buildDir}")
+
+    // TODO(choko): Have curiostack plugin do this.
+    testLogging {
+        showStandardStreams = true
+        exceptionFormat = TestExceptionFormat.FULL
     }
 }
