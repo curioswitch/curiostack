@@ -1,5 +1,4 @@
 import styled, { keyframes } from 'styled-components';
-import styledTS from 'styled-components-ts';
 
 const circleFadeDelay = keyframes`
   0%,
@@ -18,7 +17,7 @@ export interface Props {
   rotate?: number;
 }
 
-export default styledTS<Props>(styled.div)`
+export default styled<Props>(styled.div)`
   width: 100%;
   height: 100%;
   position: absolute;

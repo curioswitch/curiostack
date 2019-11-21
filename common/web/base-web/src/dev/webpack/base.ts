@@ -61,7 +61,7 @@ function configure(options: any): Configuration {
             {
               modules: false,
               useBuiltIns: 'usage',
-              corejs: '3.2',
+              corejs: '3.4',
               targets: options.babelTargets || {
                 browsers,
               },
