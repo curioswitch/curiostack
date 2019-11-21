@@ -150,15 +150,8 @@ const PlacePage: React.FunctionComponent<Props> = React.memo(
     );
   },
 );
-const withConnect = connect(
-  selectPlacePage,
-  mapDispatchToProps,
-);
+const withConnect = connect(selectPlacePage, mapDispatchToProps);
 const withReducer = injectReducer({ reducer, key: 'placePage' });
 const withSaga = injectSaga({ saga, key: 'placePage' });
 
-export default compose(
-  withReducer,
-  withSaga,
-  withConnect,
-)(PlacePage);
+export default compose(withReducer, withSaga, withConnect)(PlacePage);

@@ -17,7 +17,7 @@ export interface Props {
   rotate?: number;
 }
 
-export default styled<Props>(styled.div)`
+export default styled.div<Props>`
   width: 100%;
   height: 100%;
   position: absolute;

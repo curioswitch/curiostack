@@ -43,6 +43,12 @@ const config: PrerenderConfig = {
     document: {
       getElementById: () => {},
     },
+    // Workaround https://github.com/supasate/connected-react-router/pull/380
+    window: {
+      location: {
+        search: undefined,
+      },
+    },
   },
 };
 
