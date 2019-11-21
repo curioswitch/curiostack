@@ -21,8 +21,3 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "stdio.h"
-
-void print() {
-  printf("Hello World\n");
-}

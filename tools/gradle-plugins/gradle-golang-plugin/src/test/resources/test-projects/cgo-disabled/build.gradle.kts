@@ -21,8 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "stdio.h"
 
-void print() {
-  printf("Hello World\n");
+import org.curioswitch.gradle.golang.tasks.GoTask;
+
+plugins {
+    id("org.curioswitch.gradle-golang-plugin")
+}
+
+afterEvaluate {
+    tasks {
+        named<GoTask>("goBuild") {
+            execCustomizer {
+                environment("CGO_ENABLED", "0")
+            }
+        }
+    }
 }
