@@ -145,13 +145,10 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
   },
 );
 
-const withConnect = connect(
-  selectHomePage,
-  (dispatch) => ({
-    ...mapDispatchToProps(dispatch),
-    doPush: (location: LocationDescriptorObject) => dispatch(push(location)),
-  }),
-);
+const withConnect = connect(selectHomePage, (dispatch) => ({
+  ...mapDispatchToProps(dispatch),
+  doPush: (location: LocationDescriptorObject) => dispatch(push(location)),
+}));
 const withReducer = injectReducer({
   reducer,
   key: 'homePage',

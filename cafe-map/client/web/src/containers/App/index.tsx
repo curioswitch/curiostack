@@ -72,10 +72,7 @@ class App extends React.PureComponent<Props> {
   }
 }
 
-const withConnect = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
+const withConnect = connect(mapStateToProps, mapDispatchToProps);
 const withReducer = injectReducer({
   reducer: reducer as Reducer<any>,
   key: 'app',

@@ -74,6 +74,9 @@ export function lint(fix?: boolean) {
   });
 
   const report = lintCli.executeOnFiles(['src/']);
+  if (fix) {
+    CLIEngine.outputFixes(report);
+  }
   console.log(lintCli.getFormatter()(report.results));
   return report.errorCount === 0;
 }
