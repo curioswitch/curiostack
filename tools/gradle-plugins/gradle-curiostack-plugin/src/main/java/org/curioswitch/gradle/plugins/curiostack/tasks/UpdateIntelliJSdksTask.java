@@ -57,11 +57,7 @@ public class UpdateIntelliJSdksTask extends DefaultTask {
 
   public static final String NAME = "curioUpdateIntelliJSdks";
 
-  @VisibleForTesting static final String LATEST_INTELLIJ_CONFIG_FOLDER = ".IntelliJIdea2019.2";
-
-  @VisibleForTesting static final String JAVA_8_VERSION = "1.8.0_222";
-
-  @VisibleForTesting static final String JDK_8_FOLDER_NAME = "jdk8u222-b10/jdk8u222-b10";
+  @VisibleForTesting static final String LATEST_INTELLIJ_CONFIG_FOLDER = ".IntelliJIdea2019.3";
 
   private static final List<String> JAVA_MODULES =
       ImmutableList.of(
@@ -220,22 +216,44 @@ public class UpdateIntelliJSdksTask extends DefaultTask {
         .info("Updating IntelliJ folder {}, found folders {}", intelliJFolder, intelliJFolders);
 
     String javaVersion = ToolDependencies.getOpenJdkVersion(getProject());
+    String majorVersion =
+        javaVersion.startsWith("zulu")
+            ? JavaVersion.toVersion(javaVersion.substring("zulu".length())).getMajorVersion()
+            : JavaVersion.toVersion(javaVersion).getMajorVersion();
+
+    String java8Version = ToolDependencies.getOpenJdk8Version(getProject());
+    final String jdk8FolderSuffix;
+    switch (new PlatformHelper().getOs()) {
+      case WINDOWS:
+        jdk8FolderSuffix = "win_x64";
+        break;
+      case MAC_OSX:
+        jdk8FolderSuffix = "macosx_x64";
+        break;
+      case LINUX:
+        jdk8FolderSuffix = "linux_x64";
+        break;
+      default:
+        throw new IllegalStateException("Unknown OS");
+    }
+    String jdk8FolderName = java8Version + "/" + java8Version + "-" + jdk8FolderSuffix;
 
     var jdkTable =
         Files.createDirectories(intelliJFolder.resolve("config/options")).resolve("jdk.table.xml");
     updateConfig(
         jdkTable,
         "jdk-" + javaVersion,
-        JavaVersion.toVersion(javaVersion).getMajorVersion(),
+        majorVersion,
         "curiostack/openjdk-intellij-table-snippet.template.xml",
-        ImmutableMap.of("javaVersion", javaVersion, "javaModules", JAVA_MODULES),
+        ImmutableMap.of(
+            "javaVersion", javaVersion, "javaModules", JAVA_MODULES, "majorVersion", majorVersion),
         getProject());
     updateConfig(
         jdkTable,
-        JDK_8_FOLDER_NAME,
+        jdk8FolderName,
         "1.8",
         "curiostack/openjdk-8-intellij-table-snippet.template.xml",
-        ImmutableMap.of("javaVersion", JAVA_8_VERSION, "javaModules", JAVA_8_JARS),
+        ImmutableMap.of("javaVersion", java8Version, "javaModules", JAVA_8_JARS),
         getProject());
 
     updateGoSdk(intelliJFolder, getProject());

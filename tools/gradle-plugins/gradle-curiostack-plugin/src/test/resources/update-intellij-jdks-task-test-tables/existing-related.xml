@@ -28,9 +28,9 @@
       <additional />
     </jdk>
     <jdk version="2">
-      <name value="11" />
+      <name value="13" />
       <type value="JavaSDK" />
-      <version value="java version &quot;11.0.old&quot;" />
+      <version value="java version &quot;13.0.old&quot;" />
       <homePath value="a/folder/we/ignore/curiostack/openjdk/openjdk-old" />
       <roots>
         <annotationsPath>

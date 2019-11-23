@@ -35,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.curioswitch.gradle.golang.GolangSetupPlugin;
+import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.plugins.curiostack.CuriostackRootPlugin;
 import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.curioswitch.gradle.testing.GradleTempDirectories;
@@ -64,10 +65,9 @@ class UpdateIntelliJSdksTaskTest {
         Files.createDirectories(testUserHome.resolve("curiotest")).resolve("foo.txt"), "bar");
 
     var project = ProjectBuilder.builder().withGradleUserHomeDir(testGradleHome.toFile()).build();
-    project
-        .getExtensions()
-        .getByType(ExtraPropertiesExtension.class)
-        .set("org.curioswitch.curiostack.tools.openjdk", "11.0.4+11");
+    var properties = project.getExtensions().getByType(ExtraPropertiesExtension.class);
+    properties.set("org.curioswitch.curiostack.tools.openjdk", "zulu13.28.11-ca-jdk13.0.1");
+    properties.set("org.curioswitch.curiostack.tools.openjdk8", "zulu8.42.0.21-ca-jdk8.0.232");
 
     project.getPlugins().apply(CuriostackRootPlugin.class);
     project.getPlugins().apply(GolangSetupPlugin.class);
@@ -204,11 +204,25 @@ class UpdateIntelliJSdksTaskTest {
         template,
         ImmutableMap.<String, Object>builder()
             .put("gradleHome", testGradleHome.toAbsolutePath().toString().replace('\\', '/'))
-            .put("jdkFolder", "jdk-11.0.4+11")
-            .put("javaVersion", "11.0.4+11")
-            .put("jdk8Folder", UpdateIntelliJSdksTask.JDK_8_FOLDER_NAME)
-            .put("java8Version", UpdateIntelliJSdksTask.JAVA_8_VERSION)
+            .put("jdkFolder", "jdk-zulu13.28.11-ca-jdk13.0.1")
+            .put("javaVersion", "zulu13.28.11-ca-jdk13.0.1")
+            .put(
+                "jdk8Folder", "zulu8.42.0.21-ca-jdk8.0.232/zulu8.42.0.21-ca-jdk8.0.232-" + suffix())
+            .put("java8Version", "zulu8.42.0.21-ca-jdk8.0.232")
             .put("goVersion", ToolDependencies.getDefaultVersion("golang"))
             .build());
+  }
+
+  private static String suffix() {
+    switch (new PlatformHelper().getOs()) {
+      case WINDOWS:
+        return "win_x64";
+      case MAC_OSX:
+        return "macosx_x64";
+      case LINUX:
+        return "linux_x64";
+      default:
+        throw new IllegalStateException("Unknown OS");
+    }
   }
 }
