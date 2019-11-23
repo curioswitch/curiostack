@@ -218,7 +218,7 @@ class UpdateIntelliJSdksTaskTest {
       case WINDOWS:
         return "win_x64";
       case MAC_OSX:
-        return "macos_x64";
+        return "macosx_x64";
       case LINUX:
         return "linux_x64";
       default:
