@@ -1,5 +1,5 @@
     <jdk version="2">
-      <name value="11" />
+      <name value="{{ majorVersion }}" />
       <type value="JavaSDK" />
       <version value="java version &quot;{{ javaVersion }}&quot;" />
       <homePath value="{{ jdkFolder }}" />

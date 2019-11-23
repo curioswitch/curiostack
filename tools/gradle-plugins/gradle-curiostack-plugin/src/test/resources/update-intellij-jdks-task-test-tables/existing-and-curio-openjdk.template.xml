@@ -28,7 +28,7 @@
       <additional />
     </jdk>
     <jdk version="2">
-      <name value="11" />
+      <name value="13" />
       <type value="JavaSDK" />
       <version value="java version &quot;{{ javaVersion }}&quot;" />
       <homePath value="{{ gradleHome }}/curiostack/openjdk/{{ jdkFolder }}" />
