@@ -27,7 +27,7 @@ import com.google.auth.Credentials;
 import com.google.auth.oauth2.ComputeEngineCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
-import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.WebClient;
 import java.time.Clock;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -38,11 +38,11 @@ public interface AccessTokenProvider {
 
   @Singleton
   class Factory {
-    private final HttpClient googleAccountsClient;
+    private final WebClient googleAccountsClient;
     private final Clock clock;
 
     @Inject
-    public Factory(@RetryingGoogleApis HttpClient googleApisClient, Clock clock) {
+    public Factory(@RetryingGoogleApis WebClient googleApisClient, Clock clock) {
       this.googleAccountsClient = googleApisClient;
       this.clock = clock;
     }

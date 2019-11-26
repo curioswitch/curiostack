@@ -29,7 +29,7 @@ import static com.spotify.futures.CompletableFuturesExtra.toListenableFuture;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.common.AggregatedHttpResponse;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import dagger.producers.ProducerModule;
@@ -87,7 +87,7 @@ public class ScrapeLocationsGraph {
   @Produces
   @HashtagPage
   static ListenableFuture<List<@Nullable AggregatedHttpResponse>> fetchHashtags(
-      ScrapeLocationsRequest request, HttpClient instagramClient, ServiceRequestContext ctx) {
+      ScrapeLocationsRequest request, WebClient instagramClient, ServiceRequestContext ctx) {
     return Futures.successfulAsList(
         request.getHashtagList().stream()
             .map(
@@ -104,7 +104,7 @@ public class ScrapeLocationsGraph {
   static ListenableFuture<List<@Nullable AggregatedHttpResponse>> fetchPosts(
       @HashtagPage List<@Nullable AggregatedHttpResponse> hashtagPages,
       SharedDataExtractor sharedDataExtractor,
-      HttpClient instagramClient,
+      WebClient instagramClient,
       ServiceRequestContext ctx) {
     return Futures.successfulAsList(
         hashtagPages.stream()
@@ -126,7 +126,7 @@ public class ScrapeLocationsGraph {
   @Produces
   @UserPage
   static ListenableFuture<List<@Nullable AggregatedHttpResponse>> fetchUserPages(
-      ScrapeLocationsRequest request, HttpClient instagramClient, ServiceRequestContext ctx) {
+      ScrapeLocationsRequest request, WebClient instagramClient, ServiceRequestContext ctx) {
     return Futures.successfulAsList(
         request.getUsernameList().stream()
             .map(
@@ -143,7 +143,7 @@ public class ScrapeLocationsGraph {
   static ListenableFuture<List<@Nullable AggregatedHttpResponse>> fetchLocations(
       @FetchedPostPage List<@Nullable AggregatedHttpResponse> postPages,
       @UserPage List<@Nullable AggregatedHttpResponse> userPages,
-      HttpClient instagramClient,
+      WebClient instagramClient,
       SharedDataExtractor sharedDataExtractor,
       ServiceRequestContext ctx) {
     return Futures.successfulAsList(

@@ -27,7 +27,7 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.server.Route;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -51,7 +51,7 @@ class RoutingConfigLoader {
     this.clientBuilderFactory = clientBuilderFactory;
   }
 
-  Map<Route, HttpClient> load(Path configPath) {
+  Map<Route, WebClient> load(Path configPath) {
     final RoutingConfig config;
     try {
       config = OBJECT_MAPPER.readValue(configPath.toFile(), RoutingConfig.class);
@@ -59,7 +59,7 @@ class RoutingConfigLoader {
       throw new UncheckedIOException("Could not read routing config.", e);
     }
 
-    Map<String, HttpClient> clients =
+    Map<String, WebClient> clients =
         config.getTargets().stream()
             .collect(
                 toImmutableMap(
@@ -67,7 +67,7 @@ class RoutingConfigLoader {
                     t ->
                         clientBuilderFactory
                             .create(t.getName(), addSerializationFormat(t.getUrl()))
-                            .build(HttpClient.class)));
+                            .build(WebClient.class)));
 
     return config.getRules().stream()
         .collect(

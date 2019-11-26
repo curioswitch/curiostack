@@ -26,10 +26,10 @@ package org.curioswitch.common.server.framework.armeria;
 import brave.Tracing;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
-import com.linecorp.armeria.client.Client;
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.ClientFactoryBuilder;
+import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.client.brave.BraveClient;
 import com.linecorp.armeria.client.endpoint.EndpointGroupRegistry;
 import com.linecorp.armeria.client.endpoint.EndpointSelectionStrategy;
@@ -37,8 +37,6 @@ import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroup;
 import com.linecorp.armeria.client.endpoint.healthcheck.HealthCheckedEndpointGroup;
 import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
-import com.linecorp.armeria.common.HttpRequest;
-import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.SessionProtocol;
 import com.linecorp.armeria.internal.TransportType;
 import dagger.Lazy;
@@ -77,16 +75,13 @@ public class ClientBuilderFactory {
   private final ClientFactory clientFactory;
   private final Tracing tracing;
   private final MeterRegistry meterRegistry;
-  private final Function<
-          Client<HttpRequest, HttpResponse>, LoggingClient<HttpRequest, HttpResponse>>
-      loggingClient;
+  private final Function<HttpClient, LoggingClient> loggingClient;
 
   @Inject
   public ClientBuilderFactory(
       MeterRegistry meterRegistry,
       Tracing tracing,
-      Function<Client<HttpRequest, HttpResponse>, LoggingClient<HttpRequest, HttpResponse>>
-          loggingClient,
+      Function<HttpClient, LoggingClient> loggingClient,
       Optional<SelfSignedCertificate> selfSignedCertificate,
       Optional<TrustManagerFactory> caTrustManager,
       Lazy<Factory> googleCredentialsDecoratingClient,
@@ -142,7 +137,7 @@ public class ClientBuilderFactory {
       clientTlsCustomizer = clientCertificateCustomizer;
     }
     ClientFactoryBuilder factoryBuilder =
-        new ClientFactoryBuilder()
+        ClientFactory.builder()
             .sslContextCustomizer(clientTlsCustomizer)
             .meterRegistry(meterRegistry);
     if (serverConfig.getDisableEdns()) {

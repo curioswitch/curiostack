@@ -31,8 +31,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.client.InvalidResponseException;
+import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
@@ -74,13 +74,13 @@ public class StorageClient {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().findAndRegisterModules();
 
-  private final HttpClient httpClient;
+  private final WebClient httpClient;
 
   private final String uploadUrl;
   private final String objectUrlPrefix;
 
   @Inject
-  public StorageClient(@ForStorage HttpClient httpClient, StorageConfig config) {
+  public StorageClient(@ForStorage WebClient httpClient, StorageConfig config) {
     this.httpClient = httpClient;
 
     uploadUrl = "/upload/storage/v1/b/" + config.getBucket() + "/o?uploadType=resumable";

@@ -29,7 +29,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
@@ -68,10 +68,10 @@ public class FileWriter {
    * upload is cancelled in the middle.
    */
   public static class Resumer {
-    private final HttpClient httpClient;
+    private final WebClient httpClient;
 
     @Inject
-    Resumer(@ForStorage HttpClient httpClient) {
+    Resumer(@ForStorage WebClient httpClient) {
       this.httpClient = httpClient;
     }
 
@@ -119,14 +119,14 @@ public class FileWriter {
   private static final int CHUNK_ALIGNMENT = 256 * 1024;
 
   private final String uploadUrl;
-  private final HttpClient httpClient;
+  private final WebClient httpClient;
   private final ByteBufAllocator alloc;
   private final EventLoop eventLoop;
 
   private long filePosition;
   @Nullable private ByteBuf unfinishedChunk;
 
-  FileWriter(String uploadUrl, ByteBufAllocator alloc, EventLoop eventLoop, HttpClient httpClient) {
+  FileWriter(String uploadUrl, ByteBufAllocator alloc, EventLoop eventLoop, WebClient httpClient) {
     this.uploadUrl = uploadUrl;
     this.httpClient = httpClient;
     this.alloc = alloc;
@@ -137,7 +137,7 @@ public class FileWriter {
       String uploadUrl,
       ByteBufAllocator alloc,
       EventLoop eventLoop,
-      HttpClient httpClient,
+      WebClient httpClient,
       long filePosition,
       @Nullable ByteBuf unfinishedChunk) {
     this.uploadUrl = uploadUrl;

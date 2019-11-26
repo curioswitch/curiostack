@@ -28,7 +28,7 @@ import com.google.api.client.json.webtoken.JsonWebSignature;
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.common.base.MoreObjects;
-import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.common.RequestContext;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -49,7 +49,7 @@ class ServiceAccountAccessTokenProvider extends AbstractAccessTokenProvider {
   private final ServiceAccountCredentials credentials;
 
   ServiceAccountAccessTokenProvider(
-      HttpClient googleAccountsClient, Clock clock, ServiceAccountCredentials credentials) {
+      WebClient googleAccountsClient, Clock clock, ServiceAccountCredentials credentials) {
     super(googleAccountsClient, clock);
     this.credentials = credentials;
   }

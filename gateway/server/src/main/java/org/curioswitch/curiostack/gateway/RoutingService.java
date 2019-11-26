@@ -25,7 +25,7 @@ package org.curioswitch.curiostack.gateway;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.common.Flags;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
@@ -44,13 +44,13 @@ class RoutingService implements HttpService {
 
   private static final Logger logger = LogManager.getLogger();
 
-  @Nullable private final LoadingCache<RoutingContext, HttpClient> pathClients;
+  @Nullable private final LoadingCache<RoutingContext, WebClient> pathClients;
   private final boolean cachePaths;
 
-  private volatile Map<Route, HttpClient> clients;
+  private volatile Map<Route, WebClient> clients;
 
   @SuppressWarnings("ConstructorLeaksThis")
-  RoutingService(Map<Route, HttpClient> clients) {
+  RoutingService(Map<Route, WebClient> clients) {
     this.clients = clients;
 
     cachePaths = Flags.parsedPathCacheSpec().isPresent();
@@ -61,7 +61,7 @@ class RoutingService implements HttpService {
   @Override
   public HttpResponse serve(ServiceRequestContext ctx, HttpRequest req) {
     RoutingContext mappingContext = ctx.routingContext();
-    final HttpClient client;
+    final WebClient client;
     if (pathClients != null && mappingContext.query() == null) {
       client = pathClients.get(mappingContext);
     } else {
@@ -83,7 +83,7 @@ class RoutingService implements HttpService {
   }
 
   @Nullable
-  private HttpClient find(RoutingContext mappingContext) {
+  private WebClient find(RoutingContext mappingContext) {
     return clients.entrySet().stream()
         .filter(entry -> entry.getKey().apply(mappingContext).isPresent())
         .map(Entry::getValue)
@@ -91,7 +91,7 @@ class RoutingService implements HttpService {
         .orElse(null);
   }
 
-  void updateClients(Map<Route, HttpClient> clients) {
+  void updateClients(Map<Route, WebClient> clients) {
     logger.info("Updating router targets.");
     this.clients = clients;
     pathClients.invalidateAll();

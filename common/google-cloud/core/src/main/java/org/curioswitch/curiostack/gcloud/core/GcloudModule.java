@@ -23,18 +23,15 @@
  */
 package org.curioswitch.curiostack.gcloud.core;
 
-import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientDecoration;
 import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.ClientFactoryBuilder;
 import com.linecorp.armeria.client.ClientOption;
 import com.linecorp.armeria.client.Clients;
-import com.linecorp.armeria.client.HttpClient;
-import com.linecorp.armeria.client.logging.LoggingClientBuilder;
+import com.linecorp.armeria.client.WebClient;
+import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.retry.RetryStrategy;
 import com.linecorp.armeria.client.retry.RetryingHttpClient;
-import com.linecorp.armeria.common.HttpRequest;
-import com.linecorp.armeria.common.HttpResponse;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.BindsOptionalOf;
@@ -61,7 +58,7 @@ public abstract class GcloudModule {
   @Provides
   @Singleton
   @GoogleApis
-  public static HttpClient googleApisClient(
+  public static WebClient googleApisClient(
       Optional<MeterRegistry> meterRegistry, GcloudConfig config) {
     ClientFactory factory =
         meterRegistry
@@ -75,22 +72,20 @@ public abstract class GcloudModule {
                   return builder.build();
                 })
             .orElse(ClientFactory.DEFAULT);
-    return new ClientBuilder("none+https://www.googleapis.com/")
+    return WebClient.builder("https://www.googleapis.com/")
         .factory(factory)
-        .decorator(HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator())
-        .build(HttpClient.class);
+        .decorator(LoggingClient.builder().newDecorator())
+        .build();
   }
 
   @Provides
   @Singleton
   @RetryingGoogleApis
-  public static HttpClient retryingGoogleApisClient(@GoogleApis HttpClient googleApisClient) {
+  public static WebClient retryingGoogleApisClient(@GoogleApis WebClient googleApisClient) {
     return Clients.newDerivedClient(
         googleApisClient,
         ClientOption.DECORATION.newValue(
             ClientDecoration.of(
-                HttpRequest.class,
-                HttpResponse.class,
                 RetryingHttpClient.newDecorator(RetryStrategy.onServerErrorStatus()))));
   }
 

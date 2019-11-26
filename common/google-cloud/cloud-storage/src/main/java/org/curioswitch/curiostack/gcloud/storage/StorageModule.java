@@ -26,10 +26,8 @@ package org.curioswitch.curiostack.gcloud.storage;
 import com.linecorp.armeria.client.ClientDecoration;
 import com.linecorp.armeria.client.ClientOption;
 import com.linecorp.armeria.client.Clients;
-import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
-import com.linecorp.armeria.common.HttpRequest;
-import com.linecorp.armeria.common.HttpResponse;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.Module;
@@ -55,13 +53,11 @@ public abstract class StorageModule {
   @Provides
   @ForStorage
   @Singleton
-  static HttpClient metricClient(@RetryingAuthenticatedGoogleApis HttpClient httpClient) {
+  static WebClient metricClient(@RetryingAuthenticatedGoogleApis WebClient httpClient) {
     return Clients.newDerivedClient(
         httpClient,
         ClientOption.DECORATION.newValue(
             ClientDecoration.of(
-                HttpRequest.class,
-                HttpResponse.class,
                 MetricCollectingClient.newDecorator(MetricLabels.storageRequestLabeler()))));
   }
 

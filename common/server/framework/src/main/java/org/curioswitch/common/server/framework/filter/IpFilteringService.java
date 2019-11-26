@@ -32,9 +32,10 @@ import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
+import com.linecorp.armeria.server.HttpService;
 import com.linecorp.armeria.server.Service;
 import com.linecorp.armeria.server.ServiceRequestContext;
-import com.linecorp.armeria.server.SimpleDecoratingService;
+import com.linecorp.armeria.server.SimpleDecoratingHttpService;
 import io.netty.handler.ipfilter.IpFilterRule;
 import io.netty.handler.ipfilter.IpFilterRuleType;
 import io.netty.handler.ipfilter.IpSubnetFilterRule;
@@ -51,21 +52,20 @@ import org.apache.logging.log4j.Logger;
  * manage - when possible, an authentication based system like Google Identity-Aware Proxy is
  * strongly recommended.
  */
-public class IpFilteringService extends SimpleDecoratingService<HttpRequest, HttpResponse> {
+public class IpFilteringService extends SimpleDecoratingHttpService {
 
   private static final Logger logger = LogManager.getLogger();
 
   private static final Splitter RULE_SPLITTER = Splitter.on('/');
 
-  public static Function<Service<HttpRequest, HttpResponse>, IpFilteringService> newDecorator(
-      List<String> ipRules) {
+  public static Function<HttpService, IpFilteringService> newDecorator(List<String> ipRules) {
     return service -> new IpFilteringService(service, ipRules);
   }
 
   private final List<IpFilterRule> rules;
 
   /** Creates a new instance that decorates the specified {@link Service}. */
-  private IpFilteringService(Service<HttpRequest, HttpResponse> delegate, List<String> ipRules) {
+  private IpFilteringService(HttpService delegate, List<String> ipRules) {
     super(delegate);
     rules = parseRules(ipRules);
   }

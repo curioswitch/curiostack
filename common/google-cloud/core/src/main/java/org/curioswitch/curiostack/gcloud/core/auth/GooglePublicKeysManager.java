@@ -29,7 +29,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Streams;
-import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpHeaders;
@@ -80,14 +80,14 @@ public class GooglePublicKeysManager {
     }
   }
 
-  private final HttpClient googleApisClient;
+  private final WebClient googleApisClient;
   private final Clock clock;
   private final AsyncRefreshingValue<CachedPublicKeys> keysCache;
 
   @Inject
   // We want to use seconds like the HTTP response.
   @SuppressWarnings({"CanonicalDuration", "ConstructorLeaksThis"})
-  public GooglePublicKeysManager(@RetryingGoogleApis HttpClient googleApisClient, Clock clock) {
+  public GooglePublicKeysManager(@RetryingGoogleApis WebClient googleApisClient, Clock clock) {
     this.googleApisClient = googleApisClient;
     this.clock = clock;
 

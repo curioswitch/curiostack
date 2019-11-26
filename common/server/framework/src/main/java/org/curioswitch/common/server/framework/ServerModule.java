@@ -33,18 +33,17 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.Futures;
 import com.linecorp.armeria.common.Flags;
 import com.linecorp.armeria.common.HttpHeaderNames;
-import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.common.RequestContext;
 import com.linecorp.armeria.common.grpc.GrpcSerializationFormats;
+import com.linecorp.armeria.server.HttpService;
+import com.linecorp.armeria.server.HttpServiceWithRoutes;
 import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.ServerListener;
-import com.linecorp.armeria.server.Service;
 import com.linecorp.armeria.server.ServiceRequestContext;
-import com.linecorp.armeria.server.ServiceWithRoutes;
 import com.linecorp.armeria.server.auth.HttpAuthServiceBuilder;
 import com.linecorp.armeria.server.auth.OAuth2Token;
 import com.linecorp.armeria.server.brave.BraveService;
@@ -311,8 +310,7 @@ public abstract class ServerModule {
       Set<Consumer<ServerBuilder>> serverCustomizers,
       Set<PostServerCustomizer> postServerCustomizers,
       Set<WatchedPath> watchedPaths,
-      Function<Service<HttpRequest, HttpResponse>, LoggingService<HttpRequest, HttpResponse>>
-          loggingService,
+      Function<HttpService, LoggingService> loggingService,
       MetricsHttpService metricsHttpService,
       CollectorRegistry collectorRegistry,
       MeterRegistry meterRegistry,
@@ -393,8 +391,7 @@ public abstract class ServerModule {
 
     serverCustomizers.forEach(c -> c.accept(sb));
 
-    Optional<Function<Service<HttpRequest, HttpResponse>, IpFilteringService>> ipFilter =
-        Optional.empty();
+    Optional<Function<HttpService, IpFilteringService>> ipFilter = Optional.empty();
     if (!serverConfig.getIpFilterRules().isEmpty()) {
       ipFilter = Optional.of(IpFilteringService.newDecorator(serverConfig.getIpFilterRules()));
     }
@@ -463,7 +460,7 @@ public abstract class ServerModule {
         serviceBuilder.addService(ProtoReflectionService.newInstance());
       }
       definition.customizer().accept(serviceBuilder);
-      ServiceWithRoutes<HttpRequest, HttpResponse> service = serviceBuilder.build();
+      HttpServiceWithRoutes service = serviceBuilder.build();
       if (definition.path().equals("/")) {
         Optional<SslCommonNamesProvider> sslCommonNamesProvider0 = sslCommonNamesProvider;
         sb.service(
@@ -607,8 +604,8 @@ public abstract class ServerModule {
     return server;
   }
 
-  private static Service<HttpRequest, HttpResponse> decorateService(
-      Service<HttpRequest, HttpResponse> service,
+  private static HttpService decorateService(
+      HttpService service,
       Tracing tracing,
       Lazy<FirebaseAuthorizer> firebaseAuthorizer,
       Lazy<JwtAuthorizer.Factory> jwtAuthorizer,
@@ -682,9 +679,9 @@ public abstract class ServerModule {
         .applicationProtocolConfig(HTTPS_ALPN_CFG);
   }
 
-  private static Service<HttpRequest, HttpResponse> internalService(
-      Service<HttpRequest, HttpResponse> service,
-      Optional<Function<Service<HttpRequest, HttpResponse>, IpFilteringService>> ipFilter,
+  private static HttpService internalService(
+      HttpService service,
+      Optional<Function<HttpService, IpFilteringService>> ipFilter,
       ServerConfig config) {
     if (!ipFilter.isPresent() || !config.getIpFilterInternalOnly()) {
       return service;

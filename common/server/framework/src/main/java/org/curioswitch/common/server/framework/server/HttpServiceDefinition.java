@@ -23,8 +23,7 @@
  */
 package org.curioswitch.common.server.framework.server;
 
-import com.linecorp.armeria.common.HttpRequest;
-import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.server.HttpService;
 import com.linecorp.armeria.server.Route;
 import com.linecorp.armeria.server.Service;
 import org.curioswitch.common.server.framework.immutables.CurioStyle;
@@ -42,5 +41,5 @@ public interface HttpServiceDefinition {
 
   Route route();
 
-  Service<HttpRequest, HttpResponse> service();
+  HttpService service();
 }

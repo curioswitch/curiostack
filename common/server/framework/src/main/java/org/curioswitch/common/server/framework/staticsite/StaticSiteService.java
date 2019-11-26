@@ -28,12 +28,10 @@ import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.ServerCacheControl;
 import com.linecorp.armeria.server.HttpService;
-import com.linecorp.armeria.server.Service;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.ServiceRequestContextWrapper;
-import com.linecorp.armeria.server.SimpleDecoratingService;
-import com.linecorp.armeria.server.composition.AbstractCompositeService;
-import com.linecorp.armeria.server.composition.CompositeServiceEntry;
+import com.linecorp.armeria.server.SimpleDecoratingHttpService;
+import com.linecorp.armeria.server.composition.SimpleCompositeServiceBuilder;
 import com.linecorp.armeria.server.file.HttpFileBuilder;
 import com.linecorp.armeria.server.file.HttpFileService;
 import com.linecorp.armeria.server.file.HttpFileServiceBuilder;
@@ -45,9 +43,9 @@ import com.linecorp.armeria.server.file.HttpFileServiceBuilder;
  * all other requests will resolve to "index.html" in the classpath for handling by the SPA.
  *
  * <p>The static site will automatically serve precompressed files if they are found, using the
- * conventions specified in {@link HttpFileServiceBuilder#serveCompressedFiles}.
+ * conventions specified in {@link HttpFileServiceBuilder#serveCompressedFiles(boolean)}.
  */
-public class StaticSiteService extends AbstractCompositeService<HttpRequest, HttpResponse> {
+public final class StaticSiteService {
 
   /**
    * Creates a new {@link StaticSiteService}.
@@ -55,7 +53,7 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
    * @param staticPath the URL path from which static resources will be served, e.g., "/static".
    * @param classpathRoot the root directory in the classpath to serve resources from.
    */
-  public static StaticSiteService of(String staticPath, String classpathRoot) {
+  public static HttpService of(String staticPath, String classpathRoot) {
     HttpFileService staticFileService =
         HttpFileServiceBuilder.forClassPath(classpathRoot)
             .serveCompressedFiles(true)
@@ -77,21 +75,15 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
             .orElse(indexHtmlService)
             .decorate(TrailingSlashAddingService::new);
 
-    return new StaticSiteService(staticPath, staticFileService, indexService);
+    return new SimpleCompositeServiceBuilder()
+        .serviceUnder(staticPath, staticFileService)
+        .serviceUnder("/", indexService)
+        .build();
   }
 
-  @SuppressWarnings("ConstructorInvokesOverridable")
-  private StaticSiteService(
-      String staticPath, HttpFileService fileService, TrailingSlashAddingService indexService) {
-    super(
-        CompositeServiceEntry.ofPrefix(staticPath, fileService),
-        CompositeServiceEntry.ofCatchAll(indexService));
-  }
+  private static class TrailingSlashAddingService extends SimpleDecoratingHttpService {
 
-  private static class TrailingSlashAddingService
-      extends SimpleDecoratingService<HttpRequest, HttpResponse> {
-
-    private TrailingSlashAddingService(Service<HttpRequest, HttpResponse> delegate) {
+    private TrailingSlashAddingService(HttpService delegate) {
       super(delegate);
     }
 
@@ -127,4 +119,6 @@ public class StaticSiteService extends AbstractCompositeService<HttpRequest, Htt
       }
     }
   }
+
+  private StaticSiteService() {}
 }

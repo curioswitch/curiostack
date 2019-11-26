@@ -52,10 +52,10 @@ val DEPENDENCY_BOMS = listOf(
         "com.google.cloud:google-cloud-bom:0.116.0-alpha",
         "com.google.api-client:google-api-client-bom:1.30.5",
         "com.google.http-client:google-http-client-bom:1.33.0",
-        "com.linecorp.armeria:armeria-bom:0.95.0",
+        "com.linecorp.armeria:armeria-bom:0.96.0",
         "io.dropwizard.metrics:metrics-bom:4.1.1",
         "io.grpc:grpc-bom:1.25.0",
-        "io.zipkin.brave:brave-bom:5.9.0",
+        "io.zipkin.brave:brave-bom:5.9.1",
         "io.netty:netty-bom:4.1.43.Final",
         "org.apache.beam:beam-sdks-java-bom:2.16.0",
         "org.apache.logging.log4j:log4j-bom:2.12.1",
@@ -143,12 +143,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.protobuf",
-                "3.10.0",
+                "3.11.0",
                 listOf("protobuf-java", "protobuf-java-util")
         ),
         DependencySet(
                 "com.google.protobuf",
-                "3.10.1",
+                "3.11.0",
                 listOf("protoc")
         ),
         DependencySet(
@@ -284,7 +284,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.immutables",
-                "2.8.1",
+                "2.8.2",
                 listOf("builder", "value", "value-annotations")
         ),
         DependencySet(
@@ -304,7 +304,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "3.1.10",
+                "3.1.12",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -314,7 +314,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.simpleflatmapper",
-                "8.2.0",
+                "8.2.1",
                 listOf(
                         "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
         ),
@@ -326,18 +326,18 @@ val DEPENDENCY_SETS = listOf(
 )
 
 val DEPENDENCIES = listOf(
-        "com.bmuschko:gradle-docker-plugin:5.3.0",
+        "com.bmuschko:gradle-docker-plugin:6.0.0",
         "com.diffplug.spotless:spotless-plugin-gradle:3.26.0",
         "com.github.ben-manes:gradle-versions-plugin:0.27.0",
         "com.google.code.gson:gson:2.8.6",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",
         "com.google.maps:google-maps-services:0.10.1",
-        "com.gradle:gradle-enterprise-gradle-plugin:3.0",
+        "com.gradle:gradle-enterprise-gradle-plugin:3.1",
         "com.hubspot.jinjava:jinjava:2.5.2",
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
-        "de.undercouch:gradle-download-task:4.0.1",
+        "de.undercouch:gradle-download-task:4.0.2",
         "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.6",
-        "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.7.0",
+        "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.8.0",
         "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.0",
         "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
         "io.sgr:s2-geometry-library-java:1.0.1",

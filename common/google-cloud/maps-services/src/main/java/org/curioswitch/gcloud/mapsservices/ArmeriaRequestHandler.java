@@ -60,8 +60,7 @@ import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.ClientFactoryBuilder;
 import com.linecorp.armeria.client.ClientOptions;
 import com.linecorp.armeria.client.ClientOptionsBuilder;
-import com.linecorp.armeria.client.HttpClient;
-import com.linecorp.armeria.client.HttpClientBuilder;
+import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.client.retry.Backoff;
 import com.linecorp.armeria.client.retry.RetryStrategy;
 import com.linecorp.armeria.client.retry.RetryingHttpClient;
@@ -119,7 +118,7 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
 
   private final ClientFactory clientFactory;
   private final ClientOptions clientOptions;
-  private final Map<String, HttpClient> httpClients;
+  private final Map<String, WebClient> httpClients;
 
   ArmeriaRequestHandler(ClientFactory clientFactory, ClientOptions clientOptions) {
     this.clientFactory = clientFactory;
@@ -189,8 +188,7 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
     var client =
         httpClients.computeIfAbsent(
             hostName,
-            host ->
-                new HttpClientBuilder(host).factory(clientFactory).options(clientOptions).build());
+            host -> WebClient.builder(host).factory(clientFactory).options(clientOptions).build());
 
     var gson = gsonForPolicy(fieldNamingPolicy);
 
