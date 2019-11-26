@@ -31,9 +31,8 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Streams;
-import com.linecorp.armeria.client.HttpClient;
-import com.linecorp.armeria.client.HttpClientBuilder;
-import com.linecorp.armeria.client.logging.LoggingClientBuilder;
+import com.linecorp.armeria.client.WebClient;
+import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.retry.RetryStrategy;
 import com.linecorp.armeria.client.retry.RetryingHttpClient;
 import com.linecorp.armeria.common.CommonPools;
@@ -76,7 +75,7 @@ public class PublicKeysManager {
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private final Clock clock;
-  private final HttpClient httpClient;
+  private final WebClient httpClient;
   private final String path;
   private final AsyncRefreshingValue<CachedPublicKeys> keysCache;
 
@@ -88,8 +87,8 @@ public class PublicKeysManager {
     path = uri.getPath();
 
     httpClient =
-        new HttpClientBuilder(uri.getScheme() + "://" + uri.getAuthority())
-            .decorator(new LoggingClientBuilder().newDecorator())
+        WebClient.builder(uri.getScheme() + "://" + uri.getAuthority())
+            .decorator(LoggingClient.builder().newDecorator())
             .decorator(RetryingHttpClient.newDecorator(RetryStrategy.onServerErrorStatus()))
             .build();
     keysCache =

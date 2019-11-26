@@ -24,9 +24,8 @@
 package org.curioswitch.curiostack.gcloud.core.auth;
 
 import com.google.auth.oauth2.ComputeEngineCredentials;
-import com.linecorp.armeria.client.HttpClient;
-import com.linecorp.armeria.client.HttpClientBuilder;
-import com.linecorp.armeria.client.logging.LoggingClientBuilder;
+import com.linecorp.armeria.client.WebClient;
+import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.common.AggregatedHttpResponse;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpMethod;
@@ -43,7 +42,7 @@ class ComputeEngineAccessTokenProvider extends AbstractAccessTokenProvider {
   private static final AsciiString METADATA_FLAVOR_HEADER = HttpHeaderNames.of("Metadata-Flavor");
 
   @Inject
-  ComputeEngineAccessTokenProvider(HttpClient googleApisClient, Clock clock) {
+  ComputeEngineAccessTokenProvider(WebClient googleApisClient, Clock clock) {
     super(googleApisClient, clock);
   }
 
@@ -58,9 +57,9 @@ class ComputeEngineAccessTokenProvider extends AbstractAccessTokenProvider {
 
     // In practice, this URL shouldn't change at runtime but it's not infeasible, and since this
     // shouldn't be executed often, just create a client every time.
-    HttpClient client =
-        new HttpClientBuilder("h1c://" + uri.getAuthority() + "/")
-            .decorator(new LoggingClientBuilder().newDecorator())
+    WebClient client =
+        WebClient.builder("h1c://" + uri.getAuthority() + "/")
+            .decorator(LoggingClient.builder().newDecorator())
             .build();
     return client
         .execute(RequestHeaders.of(HttpMethod.GET, uri.getPath(), METADATA_FLAVOR_HEADER, "Google"))

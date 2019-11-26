@@ -25,16 +25,13 @@ package org.curioswitch.curiostack.gcloud.iam;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.linecorp.armeria.client.logging.LoggingClientBuilder;
+import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.retrofit2.ArmeriaRetrofitBuilder;
-import com.linecorp.armeria.common.HttpRequest;
-import com.linecorp.armeria.common.HttpResponse;
 import dagger.Module;
 import dagger.Provides;
 import org.curioswitch.curiostack.gcloud.core.GcloudConfig;
 import org.curioswitch.curiostack.gcloud.core.GcloudModule;
 import org.curioswitch.curiostack.gcloud.core.auth.GoogleCredentialsDecoratingClient;
-import retrofit2.adapter.java8.Java8CallAdapterFactory;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 @Module(includes = GcloudModule.class)
@@ -50,19 +47,12 @@ public class GcloudIamModule {
       GcloudConfig config, GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
     return new ArmeriaRetrofitBuilder()
         .baseUrl("https://iam.googleapis.com/v1/projects/" + config.getProject() + "/")
-        .addCallAdapterFactory(Java8CallAdapterFactory.create())
         .addConverterFactory(JacksonConverterFactory.create(OBJECT_MAPPER))
         .withClientOptions(
             (unused, options) ->
                 options
-                    .decorator(
-                        HttpRequest.class,
-                        HttpResponse.class,
-                        new LoggingClientBuilder().newDecorator())
-                    .decorator(
-                        HttpRequest.class,
-                        HttpResponse.class,
-                        credentialsDecorator.newAccessTokenDecorator()))
+                    .decorator(LoggingClient.builder().newDecorator())
+                    .decorator(credentialsDecorator.newAccessTokenDecorator()))
         .build()
         .create(ServiceAccountsClient.class);
   }

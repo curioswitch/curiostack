@@ -23,9 +23,7 @@
  */
 package org.curioswitch.common.server.framework.grpc;
 
-import com.linecorp.armeria.common.HttpRequest;
-import com.linecorp.armeria.common.HttpResponse;
-import com.linecorp.armeria.server.Service;
+import com.linecorp.armeria.server.HttpService;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
 import io.grpc.BindableService;
 import java.util.List;
@@ -52,8 +50,7 @@ public interface GrpcServiceDefinition {
   List<BindableService> services();
 
   /** The decorator to be applied to the service. */
-  Function<Service<HttpRequest, HttpResponse>, ? extends Service<HttpRequest, HttpResponse>>
-      decorator();
+  Function<? super HttpService, ? extends HttpService> decorator();
 
   /** The URL path to bind the service to. */
   default String path() {

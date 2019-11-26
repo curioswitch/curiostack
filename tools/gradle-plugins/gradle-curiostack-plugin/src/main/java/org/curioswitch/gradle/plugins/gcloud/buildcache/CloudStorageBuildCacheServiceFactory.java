@@ -29,7 +29,7 @@ import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.linecorp.armeria.client.ClientOption;
 import com.linecorp.armeria.client.Clients;
-import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.WebClient;
 import io.netty.buffer.ByteBuf;
 import java.io.IOException;
 import java.time.Clock;
@@ -74,16 +74,16 @@ public class CloudStorageBuildCacheServiceFactory
     }
 
     ModifiableGcloudConfig config = new ModifiableGcloudConfig();
-    HttpClient googleApis = GcloudModule.googleApisClient(Optional.empty(), config);
+    WebClient googleApis = GcloudModule.googleApisClient(Optional.empty(), config);
     AccessTokenProvider.Factory accessTokenProviderFactory =
         new AccessTokenProvider.Factory(googleApis, Clock.systemUTC());
     AccessTokenProvider accessTokenProvider = accessTokenProviderFactory.create(credentials);
     GoogleCredentialsDecoratingClient.Factory credentialsDecoratorFactory =
         new GoogleCredentialsDecoratingClient.Factory(accessTokenProvider);
-    HttpClient authenticatedGoogleApis =
+    WebClient authenticatedGoogleApis =
         Clients.newDerivedClient(
             GcloudAuthModule.authenticatedGoogleApisClient(googleApis, credentialsDecoratorFactory),
-            ClientOption.DEFAULT_MAX_RESPONSE_LENGTH.newValue(100 * 1000 * 1000L));
+            ClientOption.MAX_RESPONSE_LENGTH.newValue(100 * 1000 * 1000L));
 
     StorageClient storageClient =
         new StorageClient(

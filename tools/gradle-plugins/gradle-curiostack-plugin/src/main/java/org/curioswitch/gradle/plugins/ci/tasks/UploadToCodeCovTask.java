@@ -24,9 +24,9 @@
 package org.curioswitch.gradle.plugins.ci.tasks;
 
 import com.google.common.base.Splitter;
-import com.linecorp.armeria.client.HttpClientBuilder;
+import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.client.retry.RetryStrategy;
-import com.linecorp.armeria.client.retry.RetryingHttpClientBuilder;
+import com.linecorp.armeria.client.retry.RetryingHttpClient;
 import com.linecorp.armeria.common.HttpData;
 import java.io.File;
 import java.nio.file.Files;
@@ -51,9 +51,9 @@ public class UploadToCodeCovTask extends DefaultTask {
     final HttpData codeCovUploadScript;
     try {
       codeCovUploadScript =
-          new HttpClientBuilder("https://codecov.io")
+          WebClient.builder("https://codecov.io")
               .decorator(
-                  new RetryingHttpClientBuilder(RetryStrategy.onServerErrorStatus())
+                  RetryingHttpClient.builder(RetryStrategy.onServerErrorStatus())
                       .maxTotalAttempts(3)
                       .newDecorator())
               .build()

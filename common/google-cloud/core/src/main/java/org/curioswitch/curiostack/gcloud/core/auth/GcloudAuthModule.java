@@ -28,9 +28,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.linecorp.armeria.client.ClientDecoration;
 import com.linecorp.armeria.client.ClientOption;
 import com.linecorp.armeria.client.Clients;
-import com.linecorp.armeria.client.HttpClient;
-import com.linecorp.armeria.common.HttpRequest;
-import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.client.WebClient;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.Module;
@@ -99,8 +97,8 @@ public abstract class GcloudAuthModule {
   @Provides
   @Singleton
   @AuthenticatedGoogleApis
-  public static HttpClient authenticatedGoogleApisClient(
-      @GoogleApis HttpClient googleApisClient,
+  public static WebClient authenticatedGoogleApisClient(
+      @GoogleApis WebClient googleApisClient,
       GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
     return authenticated(googleApisClient, credentialsDecorator);
   }
@@ -108,21 +106,18 @@ public abstract class GcloudAuthModule {
   @Provides
   @Singleton
   @RetryingAuthenticatedGoogleApis
-  public static HttpClient retryingAuthenticatedGoogleApisClient(
-      @RetryingGoogleApis HttpClient googleApisClient,
+  public static WebClient retryingAuthenticatedGoogleApisClient(
+      @RetryingGoogleApis WebClient googleApisClient,
       GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
     return authenticated(googleApisClient, credentialsDecorator);
   }
 
-  private static HttpClient authenticated(
-      HttpClient client, GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
+  private static WebClient authenticated(
+      WebClient client, GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
     return Clients.newDerivedClient(
         client,
         ClientOption.DECORATION.newValue(
-            ClientDecoration.of(
-                HttpRequest.class,
-                HttpResponse.class,
-                credentialsDecorator.newAccessTokenDecorator())));
+            ClientDecoration.of(credentialsDecorator.newAccessTokenDecorator())));
   }
 
   private GcloudAuthModule() {}

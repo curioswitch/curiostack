@@ -38,9 +38,9 @@ import org.gradle.api.tasks.TaskAction;
 
 public abstract class PackageWebTask extends DefaultTask {
 
-  private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.0.16";
-  private static final String GOOGLE_PROTOBUF_VERSION = "3.10.0";
-  private static final String GRPC_WEB_VERSION = "1.0.6";
+  private static final String CURIOSTACK_BASE_NODE_DEV_VERSION = "0.1.0";
+  private static final String GOOGLE_PROTOBUF_VERSION = "3.11.0";
+  private static final String GRPC_WEB_VERSION = "1.0.7";
   private static final String TYPES_GOOGLE_PROTOBUF_VERSION = "3.7.2";
 
   @Input

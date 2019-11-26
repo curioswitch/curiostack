@@ -28,8 +28,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.retrofit2.ArmeriaRetrofitBuilder;
 import com.linecorp.armeria.common.HttpHeaderNames;
-import com.linecorp.armeria.common.HttpRequest;
-import com.linecorp.armeria.common.HttpResponse;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.Module;
@@ -65,7 +63,7 @@ public abstract class YummlyApiModule {
                 options
                     .addHttpHeader(HttpHeaderNames.of("X-Yummly-App-ID"), config.getApiId())
                     .addHttpHeader(HttpHeaderNames.of("X-Yummly-App-Key"), config.getApiKey())
-                    .decorator(HttpRequest.class, HttpResponse.class, LoggingClient.newDecorator()))
+                    .decorator(LoggingClient.builder().newDecorator()))
         .build()
         .create(YummlyApi.class);
   }

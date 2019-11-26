@@ -24,15 +24,13 @@
 package org.curioswitch.common.server.framework.logging;
 
 import com.google.common.collect.ImmutableSet;
-import com.linecorp.armeria.client.Client;
+import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.logging.LoggingClientBuilder;
 import com.linecorp.armeria.common.HttpHeadersBuilder;
-import com.linecorp.armeria.common.HttpRequest;
-import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.logging.LogLevel;
 import com.linecorp.armeria.common.logging.LoggingDecoratorBuilder;
-import com.linecorp.armeria.server.Service;
+import com.linecorp.armeria.server.HttpService;
 import com.linecorp.armeria.server.logging.LoggingService;
 import com.linecorp.armeria.server.logging.LoggingServiceBuilder;
 import com.typesafe.config.Config;
@@ -69,34 +67,32 @@ public abstract class LoggingModule {
 
   @Provides
   @Singleton
-  static Function<Service<HttpRequest, HttpResponse>, LoggingService<HttpRequest, HttpResponse>>
-      loggingService(
-          LoggingConfig config,
-          @RequestHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> requestHeaderSanitizers,
-          @ResponseHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> responseHeaderSanitizers) {
+  static Function<HttpService, LoggingService> loggingService(
+      LoggingConfig config,
+      @RequestHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> requestHeaderSanitizers,
+      @ResponseHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> responseHeaderSanitizers) {
     LoggingServiceBuilder builder = new LoggingServiceBuilder();
     configureLoggingDecorator(builder, config, requestHeaderSanitizers, responseHeaderSanitizers);
     if (config.getLogAllServerRequests()) {
       builder.requestLogLevel(LogLevel.INFO);
       builder.successfulResponseLogLevel(LogLevel.INFO);
     }
-    return builder.newDecorator();
+    return builder::build;
   }
 
   @Provides
   @Singleton
-  static Function<Client<HttpRequest, HttpResponse>, LoggingClient<HttpRequest, HttpResponse>>
-      loggingClient(
-          LoggingConfig config,
-          @RequestHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> requestHeaderSanitizers,
-          @ResponseHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> responseHeaderSanitizers) {
+  static Function<HttpClient, LoggingClient> loggingClient(
+      LoggingConfig config,
+      @RequestHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> requestHeaderSanitizers,
+      @ResponseHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> responseHeaderSanitizers) {
     LoggingClientBuilder builder = new LoggingClientBuilder();
     configureLoggingDecorator(builder, config, requestHeaderSanitizers, responseHeaderSanitizers);
     if (config.getLogAllClientRequests()) {
       builder.requestLogLevel(LogLevel.INFO);
       builder.successfulResponseLogLevel(LogLevel.INFO);
     }
-    return builder.newDecorator();
+    return builder::build;
   }
 
   private static void configureLoggingDecorator(

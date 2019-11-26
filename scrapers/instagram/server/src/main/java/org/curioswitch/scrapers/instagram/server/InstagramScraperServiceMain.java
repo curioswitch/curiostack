@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.geometry.S2CellId;
 import com.google.common.geometry.S2LatLng;
-import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.server.Server;
 import dagger.Binds;
@@ -70,11 +70,11 @@ public class InstagramScraperServiceMain {
     abstract BindableService service(InstagramScraperService service);
 
     @Provides
-    static HttpClient instagramClient(ClientBuilderFactory factory) {
+    static WebClient instagramClient(ClientBuilderFactory factory) {
       return factory
           .create("instagram-client", "none+https://www.instagram.com/")
           .setHttpHeader(HttpHeaderNames.USER_AGENT, "CurioBot 0.1")
-          .build(HttpClient.class);
+          .build(WebClient.class);
     }
 
     @Provides

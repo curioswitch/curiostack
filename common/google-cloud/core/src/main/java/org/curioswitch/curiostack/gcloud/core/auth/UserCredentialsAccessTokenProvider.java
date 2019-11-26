@@ -24,7 +24,7 @@
 package org.curioswitch.curiostack.gcloud.core.auth;
 
 import com.google.auth.oauth2.UserCredentials;
-import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.WebClient;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -38,7 +38,7 @@ class UserCredentialsAccessTokenProvider extends AbstractAccessTokenProvider {
   private final ByteBuf refreshRequestContent;
 
   UserCredentialsAccessTokenProvider(
-      HttpClient googleAccountsClient, Clock clock, UserCredentials credentials) {
+      WebClient googleAccountsClient, Clock clock, UserCredentials credentials) {
     super(googleAccountsClient, clock);
     refreshRequestContent = createRefreshRequestContent(credentials);
   }

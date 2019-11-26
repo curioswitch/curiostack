@@ -25,7 +25,9 @@ package org.curioswitch.curiostack.gcloud.core.auth;
 
 import com.linecorp.armeria.client.Client;
 import com.linecorp.armeria.client.ClientRequestContext;
+import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.client.SimpleDecoratingClient;
+import com.linecorp.armeria.client.SimpleDecoratingHttpClient;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
@@ -36,8 +38,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /** A {@link SimpleDecoratingClient} that annotates requests with Google authentication metadata. */
-public class GoogleCredentialsDecoratingClient
-    extends SimpleDecoratingClient<HttpRequest, HttpResponse> {
+public class GoogleCredentialsDecoratingClient extends SimpleDecoratingHttpClient {
 
   @Singleton
   public static class Factory {
@@ -48,25 +49,23 @@ public class GoogleCredentialsDecoratingClient
       this.accessTokenProvider = accessTokenProvider;
     }
 
-    public Function<Client<HttpRequest, HttpResponse>, GoogleCredentialsDecoratingClient>
-        newAccessTokenDecorator() {
+    public Function<HttpClient, GoogleCredentialsDecoratingClient> newAccessTokenDecorator() {
       return newAccessTokenDecorator(HttpHeaderNames.AUTHORIZATION);
     }
 
-    public Function<Client<HttpRequest, HttpResponse>, GoogleCredentialsDecoratingClient>
-        newAccessTokenDecorator(AsciiString header) {
+    public Function<HttpClient, GoogleCredentialsDecoratingClient> newAccessTokenDecorator(
+        AsciiString header) {
       return client ->
           new GoogleCredentialsDecoratingClient(
               client, accessTokenProvider, TokenType.ACCESS_TOKEN, header);
     }
 
-    public Function<Client<HttpRequest, HttpResponse>, GoogleCredentialsDecoratingClient>
-        newIdTokenDecorator() {
+    public Function<HttpClient, GoogleCredentialsDecoratingClient> newIdTokenDecorator() {
       return newIdTokenDecorator(HttpHeaderNames.AUTHORIZATION);
     }
 
-    public Function<Client<HttpRequest, HttpResponse>, GoogleCredentialsDecoratingClient>
-        newIdTokenDecorator(AsciiString header) {
+    public Function<HttpClient, GoogleCredentialsDecoratingClient> newIdTokenDecorator(
+        AsciiString header) {
       return client ->
           new GoogleCredentialsDecoratingClient(
               client, accessTokenProvider, TokenType.ID_TOKEN, header);
@@ -84,7 +83,7 @@ public class GoogleCredentialsDecoratingClient
 
   /** Creates a new instance that decorates the specified {@link Client}. */
   private GoogleCredentialsDecoratingClient(
-      Client<HttpRequest, HttpResponse> delegate,
+      HttpClient delegate,
       AccessTokenProvider accessTokenProvider,
       TokenType type,
       AsciiString header) {
@@ -95,7 +94,7 @@ public class GoogleCredentialsDecoratingClient
   }
 
   @Override
-  public HttpResponse execute(ClientRequestContext ctx, HttpRequest req) throws Exception {
+  public HttpResponse execute(ClientRequestContext ctx, HttpRequest req) {
     // if (ctx.additionalRequestHeaders().contains(header) || req.headers().contains(header)) {
     //  return delegate().execute(ctx, req);
     // }

@@ -26,7 +26,7 @@ package org.curioswitch.curiostack.gcloud.core.auth;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.AccessToken;
-import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.common.AggregatedHttpResponse;
 import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.HttpData;
@@ -61,13 +61,13 @@ abstract class AbstractAccessTokenProvider implements AccessTokenProvider {
     ID_TOKEN
   }
 
-  private final HttpClient googleApisClient;
+  private final WebClient googleApisClient;
   private final Clock clock;
 
   private final AsyncRefreshingValue<AccessToken> cachedAccessToken;
   private final AsyncRefreshingValue<AccessToken> cachedIdToken;
 
-  AbstractAccessTokenProvider(HttpClient googleApisClient, Clock clock) {
+  AbstractAccessTokenProvider(WebClient googleApisClient, Clock clock) {
     this.googleApisClient = googleApisClient;
     this.clock = clock;
     cachedAccessToken =

@@ -26,9 +26,9 @@ package org.curioswitch.curiostack.gcloud.core.grpc;
 import brave.Tracing;
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientRequestContext;
-import com.linecorp.armeria.client.SimpleDecoratingClient;
+import com.linecorp.armeria.client.SimpleDecoratingHttpClient;
 import com.linecorp.armeria.client.brave.BraveClient;
-import com.linecorp.armeria.client.logging.LoggingClientBuilder;
+import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpRequest;
@@ -52,7 +52,7 @@ public class GrpcApiClientBuilder {
     return new ClientBuilder("gproto+" + url)
         .decorator(
             client ->
-                new SimpleDecoratingClient<HttpRequest, HttpResponse>(client) {
+                new SimpleDecoratingHttpClient(client) {
                   @Override
                   public HttpResponse execute(ClientRequestContext ctx, HttpRequest req)
                       throws Exception {
@@ -69,13 +69,9 @@ public class GrpcApiClientBuilder {
                   }
                 })
         .decorator(credentialsDecorator.newAccessTokenDecorator())
-        .decorator(HttpRequest.class, HttpResponse.class, BraveClient.newDecorator(tracing))
-        .decorator(
-            HttpRequest.class,
-            HttpResponse.class,
-            MetricCollectingClient.newDecorator(MetricLabels.grpcRequestLabeler()))
-        .decorator(
-            HttpRequest.class, HttpResponse.class, new LoggingClientBuilder().newDecorator());
+        .decorator(BraveClient.newDecorator(tracing))
+        .decorator(MetricCollectingClient.newDecorator(MetricLabels.grpcRequestLabeler()))
+        .decorator(LoggingClient.builder().newDecorator());
   }
 
   public <T> T create(String url, Class<T> clz) {

@@ -30,8 +30,10 @@ import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.common.ResponseHeaders;
+import com.linecorp.armeria.server.HttpService;
 import com.linecorp.armeria.server.Service;
 import com.linecorp.armeria.server.ServiceRequestContext;
+import com.linecorp.armeria.server.SimpleDecoratingHttpService;
 import com.linecorp.armeria.server.SimpleDecoratingService;
 import io.netty.util.AsciiString;
 import java.util.function.Function;
@@ -46,7 +48,7 @@ import org.curioswitch.common.server.framework.config.SecurityConfig;
  * <p>Insecure HTTP requests are redirected to HTTPS while HTTPS responses have best practice secure
  * headers such as Strict-Transport-Security and embed blocking.
  */
-public class HttpsOnlyService extends SimpleDecoratingService<HttpRequest, HttpResponse> {
+public class HttpsOnlyService extends SimpleDecoratingHttpService {
 
   public static class Factory {
     private final SecurityConfig config;
@@ -56,7 +58,7 @@ public class HttpsOnlyService extends SimpleDecoratingService<HttpRequest, HttpR
       this.config = config;
     }
 
-    public Function<Service<HttpRequest, HttpResponse>, HttpsOnlyService> newDecorator() {
+    public Function<HttpService, HttpsOnlyService> newDecorator() {
       return service -> new HttpsOnlyService(service, config);
     }
   }
@@ -68,7 +70,7 @@ public class HttpsOnlyService extends SimpleDecoratingService<HttpRequest, HttpR
   private final SecurityConfig config;
 
   /** Creates a new instance that decorates the specified {@link Service}. */
-  private HttpsOnlyService(Service<HttpRequest, HttpResponse> delegate, SecurityConfig config) {
+  private HttpsOnlyService(HttpService delegate, SecurityConfig config) {
     super(delegate);
     this.config = config;
   }

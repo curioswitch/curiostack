@@ -36,11 +36,11 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 // This test is slow since it downloads a file, just run locally for now.
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
-@SuppressWarnings("PrivateConstructorForUtilityClass")
 class GolangPluginTest {
 
+  @SuppressWarnings("ClassCanBeStatic")
   @Nested
-  static class CanSetEnvironmentVariable {
+  class CanSetEnvironmentVariable {
 
     private Path projectDir;
 

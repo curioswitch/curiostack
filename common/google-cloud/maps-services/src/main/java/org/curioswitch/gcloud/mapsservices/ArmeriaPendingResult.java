@@ -30,7 +30,7 @@ import com.google.maps.ImageResult;
 import com.google.maps.PendingResult;
 import com.google.maps.errors.ApiException;
 import com.google.maps.internal.ApiResponse;
-import com.linecorp.armeria.client.HttpClient;
+import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.common.AggregatedHttpResponse;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpRequest;
@@ -41,12 +41,12 @@ import javax.annotation.Nullable;
 
 class ArmeriaPendingResult<T, R extends ApiResponse<T>> implements PendingResult<T> {
 
-  private final HttpClient client;
+  private final WebClient client;
   private final HttpRequest request;
   private final Class<R> responseClass;
   private final Gson gson;
 
-  ArmeriaPendingResult(HttpClient client, HttpRequest request, Class<R> responseClass, Gson gson) {
+  ArmeriaPendingResult(WebClient client, HttpRequest request, Class<R> responseClass, Gson gson) {
     this.client = client;
     this.request = request;
     this.responseClass = responseClass;
