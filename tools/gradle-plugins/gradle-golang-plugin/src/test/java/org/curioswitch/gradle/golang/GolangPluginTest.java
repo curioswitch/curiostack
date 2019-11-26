@@ -39,8 +39,9 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 @SuppressWarnings("PrivateConstructorForUtilityClass")
 class GolangPluginTest {
 
+  @SuppressWarnings("ClassCanBeStatic")
   @Nested
-  static class CanSetEnvironmentVariable {
+  class CanSetEnvironmentVariable {
 
     private Path projectDir;
 
