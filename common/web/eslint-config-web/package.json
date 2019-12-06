@@ -1,16 +1,16 @@
 {
   "name": "@curiostack/eslint-config-web",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Curiostack's ESLint configuration for web applications.",
   "main": "index.js",
   "repository": "curioswitch/curiostack",
   "author": "Choko <choko@curioswitch.org>",
   "license": "MIT",
   "dependencies": {
-    "@curiostack/eslint-config-base": "0.1.0",
+    "@curiostack/eslint-config-base": "0.1.1",
     "eslint-config-airbnb": "18.0.1",
     "eslint-plugin-import": "2.18.2",
     "eslint-plugin-jsx-a11y": "6.2.3",
-    "eslint-plugin-react": "7.16.0"
+    "eslint-plugin-react": "7.17.0"
   }
 }
