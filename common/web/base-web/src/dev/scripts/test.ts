@@ -66,8 +66,9 @@ const CONFIG = {
   transformIgnorePatterns: ['node_modules/(?!@curiostack)'],
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  setupTestFrameworkScriptFile:
+  setupFilesAfterEnv: [
     '@curiostack/base-web/build/dev/testing/test-bundler.jsx',
+  ],
   snapshotSerializers: ['enzyme-to-json/serializer'],
   moduleNameMapper: {
     '.*\\.(css|less|styl|scss|sass)$':

@@ -41,7 +41,9 @@ const config: PrerenderConfig = {
     Howl,
     Sound,
     document: {
-      getElementById: () => {},
+      getElementById: () => {
+        // Do nothing
+      },
     },
     // Workaround https://github.com/supasate/connected-react-router/pull/380
     window: {
