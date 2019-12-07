@@ -246,6 +246,7 @@ public final class SerializeSupport {
     return s;
   }
 
+  @SuppressWarnings("UnnecessaryLambda")
   private static final Comparator<Entry<String, ?>> STRING_KEY_COMPARATOR =
       (o1, o2) -> {
         ByteString s1 = ByteString.copyFromUtf8(o1.getKey());
