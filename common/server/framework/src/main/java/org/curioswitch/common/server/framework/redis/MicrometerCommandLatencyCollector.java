@@ -32,8 +32,8 @@ import io.lettuce.core.metrics.CommandMetrics;
 import io.lettuce.core.protocol.ProtocolKeyword;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.net.SocketAddress;
+import java.time.Duration;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 class MicrometerCommandLatencyCollector implements CommandLatencyCollector {
 
@@ -56,7 +56,7 @@ class MicrometerCommandLatencyCollector implements CommandLatencyCollector {
             registry,
             idPrefix.name(),
             idPrefix.tags("remote", remote.toString(), "command", commandType.name()))
-        .record(completionLatency, TimeUnit.NANOSECONDS);
+        .record(Duration.ofNanos(completionLatency));
   }
 
   @Override

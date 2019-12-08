@@ -49,10 +49,12 @@ data class DependencySet(val group: String, val version: String, val modules: Li
 
 val DEPENDENCY_BOMS = listOf(
         "com.fasterxml.jackson:jackson-bom:2.10.1",
-        "com.google.cloud:google-cloud-bom:0.116.0-alpha",
+        "com.google.cloud:google-cloud-bom:0.120.2-alpha",
+        // TODO(choko): Remove after https://github.com/googleapis/java-cloud-bom/pull/142
+        "com.google.cloud:google-cloud-trace-bom:0.109.3-beta",
         "com.google.api-client:google-api-client-bom:1.30.5",
         "com.google.http-client:google-http-client-bom:1.33.0",
-        "com.linecorp.armeria:armeria-bom:0.96.0",
+        "com.linecorp.armeria:armeria-bom:0.97.0",
         "io.dropwizard.metrics:metrics-bom:4.1.1",
         "io.grpc:grpc-bom:1.25.0",
         "io.zipkin.brave:brave-bom:5.9.1",
@@ -128,7 +130,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.errorprone",
-                "2.3.3",
+                "2.3.4",
                 listOf("error_prone_annotations", "error_prone_core")
         ),
         DependencySet(
@@ -143,12 +145,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.protobuf",
-                "3.11.0",
+                "3.11.1",
                 listOf("protobuf-java", "protobuf-java-util")
         ),
         DependencySet(
                 "com.google.protobuf",
-                "3.11.0",
+                "3.11.1",
                 listOf("protoc")
         ),
         DependencySet(
@@ -184,7 +186,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.fabric8",
-                "4.6.3",
+                "4.6.4",
                 listOf("kubernetes-client")
         ),
         DependencySet(
@@ -194,7 +196,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.micrometer",
-                "1.3.1",
+                "1.3.2",
                 listOf("micrometer-core", "micrometer-registry-prometheus")
         ),
         DependencySet(
@@ -229,7 +231,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "net.bytebuddy",
-                "1.10.3",
+                "1.10.4",
                 listOf("byte-buddy", "byte-buddy-agent")
         ),
         DependencySet(
@@ -264,7 +266,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.checkerframework",
-                "3.0.0",
+                "3.0.1",
                 listOf("checker-qual")
         ),
         DependencySet(
@@ -304,7 +306,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "3.1.12",
+                "3.2.0",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -327,7 +329,7 @@ val DEPENDENCY_SETS = listOf(
 
 val DEPENDENCIES = listOf(
         "com.bmuschko:gradle-docker-plugin:6.0.0",
-        "com.diffplug.spotless:spotless-plugin-gradle:3.26.0",
+        "com.diffplug.spotless:spotless-plugin-gradle:3.26.1",
         "com.github.ben-manes:gradle-versions-plugin:0.27.0",
         "com.google.code.gson:gson:2.8.6",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",

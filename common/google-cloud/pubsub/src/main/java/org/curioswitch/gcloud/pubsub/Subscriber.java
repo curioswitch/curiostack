@@ -208,7 +208,7 @@ public class Subscriber implements Closeable, StreamObserver<StreamingPullRespon
                   }
 
                   messageProcessingTime.record(
-                      System.nanoTime() - startTimeNanos, TimeUnit.NANOSECONDS);
+                      Duration.ofNanos(System.nanoTime() - startTimeNanos));
                 }
               });
     }

@@ -45,7 +45,7 @@ import org.jooq.tools.jdbc.MockDataProvider;
 import org.jooq.tools.jdbc.MockExecuteContext;
 import org.jooq.tools.jdbc.MockResult;
 import org.mockito.Answers;
-import org.mockito.stubbing.Answer;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.verification.VerificationMode;
 
 /** Utilities for working with a mock database in tests. */
@@ -53,15 +53,15 @@ public final class DatabaseTestUtil {
 
   public static final DSLContext DB = DSL.using(SQLDialect.MYSQL);
 
-  private static final Answer<Object> LOGS_QUERY =
-      invocation -> {
-        MockExecuteContext ctx = invocation.getArgument(0);
-        throw new AssertionError("Invalid SQL query: " + ctx.sql());
-      };
+  private static Object logQuery(InvocationOnMock invocation) {
+    MockExecuteContext ctx = invocation.getArgument(0);
+    throw new AssertionError("Invalid SQL query: " + ctx.sql());
+  }
 
   public static MockDataProvider mockProvider() {
     return mock(
-        MockDataProvider.class, withSettings().name("dbProvider").defaultAnswer(LOGS_QUERY));
+        MockDataProvider.class,
+        withSettings().name("dbProvider").defaultAnswer(DatabaseTestUtil::logQuery));
   }
 
   /**
