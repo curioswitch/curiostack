@@ -61,7 +61,8 @@ export default ({ key, saga, mode }: Options) => <TOriginalProps extends {}>(
 
     private injectors = getInjectors(this.props.reduxCtx.store as any);
 
-    public componentDidMount() {
+    // eslint-disable-next-line camelcase
+    public UNSAFE_componentWillMount() {
       const { injectSaga } = this.injectors;
 
       injectSaga(key, { saga, mode }, this.props);
