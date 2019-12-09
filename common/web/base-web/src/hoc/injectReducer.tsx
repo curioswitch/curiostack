@@ -43,7 +43,7 @@ interface HocProps {
  * @param {string} key A key of the reducer
  * @param {function} reducer A reducer that will be injected
  *
- * Deprecated - this HOC will be deleted when React 17 is released. Migrate to hooks and useSaga before then.
+ * Deprecated - this HOC will be deleted when React 17 is released. Migrate to hooks and useReducer before then.
  *
  */
 export default ({ key, reducer }: Options) => <TOriginalProps extends {}>(
