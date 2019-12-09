@@ -43,6 +43,8 @@ interface HocProps {
  * @param {string} key A key of the reducer
  * @param {function} reducer A reducer that will be injected
  *
+ * Deprecated - this HOC will be deleted when React 17 is released. Migrate to hooks and useReducer before then.
+ *
  */
 export default ({ key, reducer }: Options) => <TOriginalProps extends {}>(
   WrappedComponent:
@@ -57,7 +59,8 @@ export default ({ key, reducer }: Options) => <TOriginalProps extends {}>(
 
     private injectors = getInjectors(this.props.reduxCtx.store as any);
 
-    public componentDidMount() {
+    // eslint-disable-next-line camelcase
+    public UNSAFE_componentWillMount() {
       const { injectReducer } = this.injectors;
       injectReducer(key, reducer);
     }
