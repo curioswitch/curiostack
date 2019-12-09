@@ -47,6 +47,8 @@ interface HocProps {
  *   - constants.DAEMON—starts the saga on component mount and never cancels it or starts again,
  *   - constants.ONCE_TILL_UNMOUNT—behaves like 'RESTART_ON_REMOUNT' but never runs it again.
  *
+ * Deprecated - this HOC will be deleted when React 17 is released. Migrate to hooks and useSaga before then.
+ *
  */
 export default ({ key, saga, mode }: Options) => <TOriginalProps extends {}>(
   WrappedComponent:
