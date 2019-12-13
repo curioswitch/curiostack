@@ -30,6 +30,3 @@ grpc {
     web.set(true)
     webPackageName.set('@curiostack/eggworld-api')
 }
-
-// TODO(choko): Reenable after https://github.com/protocolbuffers/protobuf/pull/6802 is released
-tasks.javadoc.enabled = false
