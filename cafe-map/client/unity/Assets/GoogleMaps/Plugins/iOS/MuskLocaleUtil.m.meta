@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: d728e43b2fdc4041b1f52056cbdfb0a6
+labels:
+- gvh
+- gvh_version-0.0.0
+timeCreated: 1512000968
+PluginImporter:
+  serializedVersion: 2
+  iconMap: {}
+  executionOrder: {}
+  isPreloaded: 0
+  isOverridable: 0
+  platformData:
+    data:
+      first:
+        tvOS: tvOS
+      second:
+        enabled: 1
+        settings: {}
+  userData:
+  assetBundleName:
+  assetBundleVariant:

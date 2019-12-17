@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: BuildingRoof1
+  m_Shader: {fileID: 4800000, guid: 09987760f6b8d4a66973ff349cf679ce, type: 3}
+  m_ShaderKeywords: _EMISSION
+  m_LightmapFlags: 1
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - <noninit>:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmitMap:
+        m_Texture: {fileID: 2800000, guid: 62f13ef4968e3482db076098562b8c01, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: aa9de84515a8e482cb13d819beca435f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecMap:
+        m_Texture: {fileID: 2800000, guid: 62f13ef4968e3482db076098562b8c01, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - <noninit>: 0
+    - _Shininess: 3
+    - _TexDivisions: 32
+    - _TexHeight: 15
+    - _TexLeft: 1
+    - _TexLeftBound: 0.25
+    - _TexLower: 5
+    - _TexLowerBound: 0.25
+    - _TexRight: 1
+    - _TexRightBound: 0.75
+    - _TexUpper: 3
+    - _TexUpperBound: 0.75
+    - _TexWidth: 15
+    m_Colors:
+    - <noninit>: {r: 0, g: 1, b: 0, a: NaN}
+    - _Color: {r: 0.93333334, g: 0.9490196, b: 0.9647059, a: 1}
+    - _EmitColor: {r: 1, g: 0.8998888, b: 0.4494056, a: 1}
