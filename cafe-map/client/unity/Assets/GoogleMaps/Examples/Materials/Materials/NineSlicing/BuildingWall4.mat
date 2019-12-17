@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: BuildingWall4
+  m_Shader: {fileID: 4800000, guid: 5e67d416e7060442f84a83d2a3256744, type: 3}
+  m_ShaderKeywords: _EMISSION
+  m_LightmapFlags: 1
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - <noninit>:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DebugTex:
+        m_Texture: {fileID: 2800000, guid: 0c5cadf2b9ec24f878168caacb84d756, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmitMap:
+        m_Texture: {fileID: 2800000, guid: 75edc5260005e4c2ca90e13f6963dda6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 51237f8eaccfe456e9d1a0ebdb0ea6ea, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MapTex:
+        m_Texture: {fileID: 2800000, guid: 75edc5260005e4c2ca90e13f6963dda6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecMap:
+        m_Texture: {fileID: 2800000, guid: bae9d1505a2c64df796158165f10c6b1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - <noninit>: 0
+    - _Animation: 0
+    - _Shininess: 1
+    - _SpecMin: 0.1
+    - _TexDivisions: 32
+    - _TexHeight: 20
+    - _TexLeft: 7
+    - _TexLeftBound: 0.25
+    - _TexLower: 4
+    - _TexLowerBound: 0.25
+    - _TexRight: 7
+    - _TexRightBound: 0.75
+    - _TexUpper: 7
+    - _TexUpperBound: 0.75
+    - _TexWidth: 20
+    m_Colors:
+    - <noninit>: {r: 0, g: 1, b: 0, a: NaN}
+    - _EmitColor: {r: 0, g: 0, b: 0, a: 0}
