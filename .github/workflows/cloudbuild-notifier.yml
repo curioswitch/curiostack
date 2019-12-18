@@ -23,7 +23,7 @@
 
 name: Cloud Build Notifier
 on:
-  check_run:
+  check_suite:
     types: [created, completed]
 jobs:
   notify:
