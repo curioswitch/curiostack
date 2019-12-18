@@ -1,14 +1,16 @@
 ---
 steps:
-- id: curio-generated-deepen-git-repo
+- id: curio-fetch-source
   waitFor:
   - '-'
-  name: gcr.io/cloud-builders/git
+  entrypoint: bash
   args:
-  - fetch
-  - origin
-  - master
-  - --depth=10
+    - '-c'
+    - |
+    # Cloud Build does not copy in the git repo, just source files, so we can't compute a diff.
+    # Check out the code again using git.
+    rm -rf *
+    git clone https://github.com/curioswitch/curiostack . --depth=10
   env:
   - CI=true
 - id: curio-generated-fetch-builder-image
@@ -37,7 +39,7 @@ steps:
   - echo $$HOME && gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4 - | lz4 -dc - | tar -xp || echo Could not fetch compressed build cache...
 - id: curio-generated-build-all
   waitFor:
-  - curio-generated-deepen-git-repo
+  - curio-generated-fetch-source
   - curio-generated-fetch-compressed-build-cache
   name: curiostack/cloud-builder
   volumes:
