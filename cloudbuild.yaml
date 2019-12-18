@@ -11,6 +11,7 @@ steps:
       # Cloud Build does not copy in the git repo, just source files, so we can't compute a diff.
       # Check out the code again using git.
       rm -rf *
+      ls -al
       git clone https://github.com/curioswitch/curiostack . --depth=10
   env:
   - CI=true
