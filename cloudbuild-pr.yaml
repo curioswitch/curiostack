@@ -9,7 +9,7 @@ steps:
     - |
       # Cloud Build does not copy in the git repo, just source files, so we can't compute a diff.
       # Check out the code again using git.
-      rm -rf *
+      ls -A1 | xargs rm -rf
       git init
       echo git fetch --no-tags --progress $$REPO_URL +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF
       git fetch --no-tags --progress $$REPO_URL +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF
