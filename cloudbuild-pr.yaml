@@ -1,0 +1,10 @@
+steps:
+- id: fetch-source
+  waitFor:
+    - '-'
+  name: gcr.io/cloud-builders/gcloud
+  entrypoint: bash
+  args:
+    - '-c'
+    - |
+      echo "Head Branch: $_HEAD_BRANCH\nBase Branch: $_BASE_BRANCH\nHEAD_REPO_URL: $_HEAD_REPO_URL\nPR_NUMBER: $_PR_NUMBER"
