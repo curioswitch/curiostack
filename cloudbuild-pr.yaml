@@ -7,7 +7,34 @@ steps:
   args:
     - '-c'
     - |
+      # Cloud Build does not copy in the git repo, just source files, so we can't compute a diff.
+      rm -rf * && \
+      git init && \
+      git fetch --no-tags --progress $_HEAD_REPO_URL +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF && \
+      git config remote.origin.url $_HEAD_REPO_URL && \
+      git config user.name cloudbuild && \
+      git config user.email cloudbuild@example.com && \
+      git checkout -f $$OTHER_BRANCH_LOCAL_REF && \
+      git merge --no-ff --no-edit --no-progress $$BASE_BRANCH_LOCAL_REF && \
+      MERGE_REV=$(git rev-parse HEAD^{commit}) && \
+      git checkout -f $$BASE_BRANCH_LOCAL_REF && \
+      git merge --no-ff --no-edit --no-progress $$MERGE_REV && \
+      MERGE_REV=$(git rev-parse HEAD^{commit}) && \
+      git checkout -f $$MERGE_REV
       echo "Head Branch: $_HEAD_BRANCH\nBase Branch: $_BASE_BRANCH\nHEAD_REPO_URL: $_HEAD_REPO_URL\nPR_NUMBER: $_PR_NUMBER"
       echo Foo
       ls
-      git remote -v
+      cat cloudbuild-pr.yaml
+  env:
+    - GIT_ASKPASS=/tmp/cloudbuild-github-pass.sh
+    - OTHER_BRANCH_REMOTE_REF=refs/pull/$_PR_NUMBER/head
+    - OTHER_BRANCH_LOCAL_REF=refs/remotes/origin/PR-$_PR_NUMBER
+    - BASE_BRANCH_REMOTE_REF=refs/heads/$_BASE_BRANCH
+    - BASE_BRANCH_LOCAL_REF=refs/remotes/origin/$_BASE_BRANCH
+  secretEnv:
+    - GITHUB_TOKEN
+secrets:
+  - kmsKeyName: projects/curioswitch-cluster/locations/us-central1/keyRings/cloudbuild/cryptoKeys/github
+    secretEnv:
+      GITHUB_TOKEN: CiQAxdYgHKy7zJMVlxWy8cIw05kknrquhxEOlNjZyZlWoj5Cnc8SUQA/OpLBO9ycMNajhYGLluk2Kji4Do5vT9DqV/zVmFdJ7orxk6n0bTw8cUY+gjp8IohjMdpt8ElWrRkChYzY2FLQIlGo+eldnEPUttZg1vWDjA==
+      CODECOV_TOKEN: CiQAxdYgHOdQ5tY7WYjvBYlUsXk9g4GvELjEJZhEIFcxrkuDKY4STQA/OpLB7g9Gr8K5MZrwZXVDH/Ste1P6ZOFJl0TYILjU31c72w8Mmhde5JJv1VyEHW+67h8UARJHh6yOktrGFBU6wGzKDud0p6az3PoW
