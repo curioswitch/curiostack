@@ -2,9 +2,87 @@ steps:
 - id: fetch-source
   waitFor:
     - '-'
-  name: gcr.io/cloud-builders/gcloud
+  name: gcr.io/cloud-builders/git
   entrypoint: bash
   args:
     - '-c'
     - |
-      echo "Head Branch: $_HEAD_BRANCH\nBase Branch: $_BASE_BRANCH\nHEAD_REPO_URL: $_HEAD_REPO_URL\nPR_NUMBER: $_PR_NUMBER"
+      # Cloud Build does not copy in the git repo, just source files, so we can't compute a diff.
+      # Check out the code again using git.
+      rm -rf *
+      git init
+      echo git fetch --no-tags --progress $$REPO_URL +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF
+      git fetch --no-tags --progress $$REPO_URL +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF
+      git config remote.origin.url $$REPO_URL
+      git config user.name cloudbuild
+      git config user.email cloudbuild@example.com
+      git checkout -f $$OTHER_BRANCH_LOCAL_REF
+      git merge --no-ff --no-edit --no-progress $$BASE_BRANCH_LOCAL_REF
+      MERGE_REV=$(git rev-parse HEAD^{commit})
+      git checkout -f $$BASE_BRANCH_LOCAL_REF
+      git merge --no-ff --no-edit --no-progress $$MERGE_REV
+      MERGE_REV=$(git rev-parse HEAD^{commit})
+      git checkout -f $$MERGE_REV
+  env:
+    - GIT_ASKPASS=/tmp/cloudbuild-github-pass.sh
+    - OTHER_BRANCH_REMOTE_REF=refs/pull/$_PR_NUMBER/head
+    - OTHER_BRANCH_LOCAL_REF=refs/remotes/origin/PR-$_PR_NUMBER
+    - BASE_BRANCH_REMOTE_REF=refs/heads/$_BASE_BRANCH
+    - BASE_BRANCH_LOCAL_REF=refs/remotes/origin/$_BASE_BRANCH
+    - REPO_URL=https://github.com/curioswitch/curiostack
+  secretEnv:
+    - GITHUB_TOKEN
+- id: curio-generated-fetch-builder-image
+  waitFor:
+    - '-'
+  name: curiostack/cloud-builder
+  entrypoint: bash
+  args:
+    - -c
+    - echo Fetched builder image.
+- id: curio-generated-fetch-compressed-build-cache
+  waitFor:
+    - '-'
+  name: curiostack/gsutil-lz4
+  volumes:
+    - name: gradle-wrapper
+      path: /root/.gradle/wrapper
+    - name: gradle-caches
+      path: /root/.gradle/caches
+    - name: curiostack
+      path: /root/.gradle/curiostack
+  dir: /root/.gradle
+  entrypoint: ash
+  args:
+    - -c
+    - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4 /tmp/cloudbuild-cache-compressed.tar.lz4 && lz4 -dc /tmp/cloudbuild-cache-compressed.tar.lz4 | tar -xp || echo Could not fetch compressed build cache...
+- id: build-all
+  waitFor:
+    - fetch-source
+    - curio-generated-fetch-compressed-build-cache
+  name: curiostack/cloud-builder
+  volumes:
+    - name: gradle-wrapper
+      path: /root/.gradle/wrapper
+    - name: gradle-caches
+      path: /root/.gradle/caches
+    - name: curiostack
+      path: /root/.gradle/curiostack
+  entrypoint: ./gradlew
+  args:
+    - continuousBuild
+    - --stacktrace
+    - --scan
+    - --no-daemon
+  env:
+    - CI=true
+    - GITHUB_PR_REMOTE_REF=refs/pull/$_PR_NUMBER/head
+    - CLOUDBUILD_BUILD_ID=$BUILD_ID
+    - GRADLE_USER_HOME=/root/.gradle
+  secretEnv:
+    - CODECOV_TOKEN
+secrets:
+  - kmsKeyName: projects/curioswitch-cluster/locations/us-central1/keyRings/cloudbuild/cryptoKeys/github
+    secretEnv:
+      GITHUB_TOKEN: CiQAxdYgHKy7zJMVlxWy8cIw05kknrquhxEOlNjZyZlWoj5Cnc8SUQA/OpLBO9ycMNajhYGLluk2Kji4Do5vT9DqV/zVmFdJ7orxk6n0bTw8cUY+gjp8IohjMdpt8ElWrRkChYzY2FLQIlGo+eldnEPUttZg1vWDjA==
+      CODECOV_TOKEN: CiQAxdYgHOdQ5tY7WYjvBYlUsXk9g4GvELjEJZhEIFcxrkuDKY4STQA/OpLB7g9Gr8K5MZrwZXVDH/Ste1P6ZOFJl0TYILjU31c72w8Mmhde5JJv1VyEHW+67h8UARJHh6yOktrGFBU6wGzKDud0p6az3PoW
