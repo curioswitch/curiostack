@@ -24,9 +24,10 @@
 name: Cloud Build Notifier
 on:
   check_suite:
-    types: [created, completed]
+    types: [requested, completed]
 jobs:
   notify:
+    runs-on: ubuntu-latest
     steps:
       - name: Dump GitHub context
         env:
