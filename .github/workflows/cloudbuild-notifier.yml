@@ -23,8 +23,8 @@
 
 name: Cloud Build Notifier
 on:
-  check_suite:
-    types: [requested, completed]
+  check_run:
+    types: [created, completed]
 jobs:
   notify:
     runs-on: ubuntu-latest
