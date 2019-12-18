@@ -24,7 +24,7 @@
 name: Cloud Build Notifier
 on:
   check_suite:
-    types: completed
+    types: [requested, completed]
 jobs:
   notify:
     steps:
