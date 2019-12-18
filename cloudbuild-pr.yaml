@@ -37,4 +37,4 @@ secrets:
   - kmsKeyName: projects/curioswitch-cluster/locations/us-central1/keyRings/cloudbuild/cryptoKeys/github
     secretEnv:
       GITHUB_TOKEN: CiQAxdYgHKy7zJMVlxWy8cIw05kknrquhxEOlNjZyZlWoj5Cnc8SUQA/OpLBO9ycMNajhYGLluk2Kji4Do5vT9DqV/zVmFdJ7orxk6n0bTw8cUY+gjp8IohjMdpt8ElWrRkChYzY2FLQIlGo+eldnEPUttZg1vWDjA==
-      CODECOV_TOKEN: CiQAxdYgHOdQ5tY7WYjvBYlUsXk9g4GvELjEJZhEIFcxrkuDKY4STQA/OpLB7g9Gr8K5MZrwZXVDH/Ste1P6ZOFJl0TYILjU31c72w8Mmhde5JJv1VyEHW+67h8UARJHh6yOktrGFBU6wGzKDud0p6az3PoW
+      # CODECOV_TOKEN: CiQAxdYgHOdQ5tY7WYjvBYlUsXk9g4GvELjEJZhEIFcxrkuDKY4STQA/OpLB7g9Gr8K5MZrwZXVDH/Ste1P6ZOFJl0TYILjU31c72w8Mmhde5JJv1VyEHW+67h8UARJHh6yOktrGFBU6wGzKDud0p6az3PoW
