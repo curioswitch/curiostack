@@ -8,11 +8,12 @@ steps:
     - '-c'
     - |
       # Cloud Build does not copy in the git repo, just source files, so we can't compute a diff.
+      # Check out the code again using git.
       rm -rf *
       git init
-      echo git fetch --no-tags --progress $_HEAD_REPO_URL +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF
-      git fetch --no-tags --progress $_HEAD_REPO_URL +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF
-      git config remote.origin.url $_HEAD_REPO_URL
+      echo git fetch --no-tags --progress $REPO_NAME +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF
+      git fetch --no-tags --progress $REPO_NAME +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF
+      git config remote.origin.url $REPO_NAME
       git config user.name cloudbuild
       git config user.email cloudbuild@example.com
       git checkout -f $$OTHER_BRANCH_LOCAL_REF
@@ -22,7 +23,7 @@ steps:
       git merge --no-ff --no-edit --no-progress $$MERGE_REV
       MERGE_REV=$(git rev-parse HEAD^{commit})
       git checkout -f $$MERGE_REV
-      echo "Head Branch: $_HEAD_BRANCH\nBase Branch: $_BASE_BRANCH\nHEAD_REPO_URL: $_HEAD_REPO_URL\nPR_NUMBER: $_PR_NUMBER"
+      echo "Head Branch: $_HEAD_BRANCH\nBase Branch: $_BASE_BRANCH\nHEAD_REPO_URL: $REPO_NAME\nPR_NUMBER: $_PR_NUMBER"
       echo Foo
       ls
       cat cloudbuild-pr.yaml
