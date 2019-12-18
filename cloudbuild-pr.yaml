@@ -8,18 +8,19 @@ steps:
     - '-c'
     - |
       # Cloud Build does not copy in the git repo, just source files, so we can't compute a diff.
-      rm -rf * && \
-      git init && \
-      git fetch --no-tags --progress $_HEAD_REPO_URL +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF && \
-      git config remote.origin.url $_HEAD_REPO_URL && \
-      git config user.name cloudbuild && \
-      git config user.email cloudbuild@example.com && \
-      git checkout -f $$OTHER_BRANCH_LOCAL_REF && \
-      git merge --no-ff --no-edit --no-progress $$BASE_BRANCH_LOCAL_REF && \
-      MERGE_REV=$(git rev-parse HEAD^{commit}) && \
-      git checkout -f $$BASE_BRANCH_LOCAL_REF && \
-      git merge --no-ff --no-edit --no-progress $$MERGE_REV && \
-      MERGE_REV=$(git rev-parse HEAD^{commit}) && \
+      rm -rf *
+      git init
+      echo git fetch --no-tags --progress $_HEAD_REPO_URL +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF
+      git fetch --no-tags --progress $_HEAD_REPO_URL +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF
+      git config remote.origin.url $_HEAD_REPO_URL
+      git config user.name cloudbuild
+      git config user.email cloudbuild@example.com
+      git checkout -f $$OTHER_BRANCH_LOCAL_REF
+      git merge --no-ff --no-edit --no-progress $$BASE_BRANCH_LOCAL_REF
+      MERGE_REV=$(git rev-parse HEAD^{commit})
+      git checkout -f $$BASE_BRANCH_LOCAL_REF
+      git merge --no-ff --no-edit --no-progress $$MERGE_REV
+      MERGE_REV=$(git rev-parse HEAD^{commit})
       git checkout -f $$MERGE_REV
       echo "Head Branch: $_HEAD_BRANCH\nBase Branch: $_BASE_BRANCH\nHEAD_REPO_URL: $_HEAD_REPO_URL\nPR_NUMBER: $_PR_NUMBER"
       echo Foo
