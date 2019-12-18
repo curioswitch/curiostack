@@ -9,4 +9,5 @@ steps:
     - |
       echo "Head Branch: $_HEAD_BRANCH\nBase Branch: $_BASE_BRANCH\nHEAD_REPO_URL: $_HEAD_REPO_URL\nPR_NUMBER: $_PR_NUMBER"
       echo Foo
+      ls
       git remote -v
