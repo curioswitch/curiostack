@@ -1,6 +1,7 @@
 ---
 steps:
 - id: curio-fetch-source
+  name: gcr.io/cloud-builders/git
   waitFor:
   - '-'
   entrypoint: bash
