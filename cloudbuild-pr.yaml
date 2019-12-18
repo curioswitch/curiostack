@@ -11,9 +11,9 @@ steps:
       # Check out the code again using git.
       rm -rf *
       git init
-      echo git fetch --no-tags --progress $REPO_NAME +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF
-      git fetch --no-tags --progress $REPO_NAME +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF
-      git config remote.origin.url $REPO_NAME
+      echo git fetch --no-tags --progress $$REPO_URL +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF
+      git fetch --no-tags --progress $$REPO_URL +$$OTHER_BRANCH_REMOTE_REF:$$OTHER_BRANCH_LOCAL_REF +$$BASE_BRANCH_REMOTE_REF:$$BASE_BRANCH_LOCAL_REF
+      git config remote.origin.url $$REPO_URL
       git config user.name cloudbuild
       git config user.email cloudbuild@example.com
       git checkout -f $$OTHER_BRANCH_LOCAL_REF
@@ -33,6 +33,7 @@ steps:
     - OTHER_BRANCH_LOCAL_REF=refs/remotes/origin/PR-$_PR_NUMBER
     - BASE_BRANCH_REMOTE_REF=refs/heads/$_BASE_BRANCH
     - BASE_BRANCH_LOCAL_REF=refs/remotes/origin/$_BASE_BRANCH
+    - REPO_URL=https://github.com/curioswitch/curiostack
   secretEnv:
     - GITHUB_TOKEN
 secrets:
