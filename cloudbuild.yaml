@@ -1,6 +1,6 @@
 ---
 steps:
-- id: curio-fetch-source
+- id: curio-generated-fetch-source
   name: gcr.io/cloud-builders/git
   waitFor:
   - '-'
