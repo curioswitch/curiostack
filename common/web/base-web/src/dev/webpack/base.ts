@@ -145,7 +145,7 @@ function configure(options: any): Configuration {
         },
         {
           test: /\.ts(x?)$/,
-          include: /node_modules\/@curiostack\/base-web/,
+          include: /node_modules[\\/]@curiostack[\\/]base-web/,
           use: typescriptLoader,
         },
         {
