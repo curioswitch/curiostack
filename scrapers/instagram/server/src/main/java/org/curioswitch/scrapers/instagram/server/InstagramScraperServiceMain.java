@@ -41,6 +41,7 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoSet;
 import io.grpc.BindableService;
+import java.time.Duration;
 import java.util.function.Function;
 import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
@@ -82,6 +83,7 @@ public class InstagramScraperServiceMain {
         ClientBuilderFactory factory) {
       return factory
           .create("scraper-client", "gproto+https://localhost:8080/api/")
+          .responseTimeout(Duration.ZERO)
           .build(InstagramScraperServiceBlockingStub.class);
     }
 
@@ -123,6 +125,7 @@ public class InstagramScraperServiceMain {
                 .addUsername("nicefotoco")
                 .addUsername("cafemiru.jp")
                 .addHashtag("%E8%A1%A8%E5%8F%82%E9%81%93%E3%82%AB%E3%83%95%E3%82%A7")
+                .addHashtag("%E7%A5%9E%E8%B0%B7%E7%94%BA%E3%82%AB%E3%83%95%E3%82%A7")
                 .build());
 
     var deduped =

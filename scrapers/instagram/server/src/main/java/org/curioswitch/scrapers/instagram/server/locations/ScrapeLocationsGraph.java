@@ -31,6 +31,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.common.AggregatedHttpResponse;
+import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import dagger.producers.ProducerModule;
 import dagger.producers.Produces;
@@ -174,7 +175,7 @@ public class ScrapeLocationsGraph {
     return ScrapeLocationsResponse.newBuilder()
         .addAllLocation(
             locationPages.stream()
-                    .filter(Objects::nonNull)
+                    .filter(response -> response != null && response.status().equals(HttpStatus.OK))
                     .map(page -> sharedDataExtractor.extractSharedData(page, LocationsPage.class))
                     .map(ScrapeLocationsGraph::convertLocationPage)
                 ::iterator)
