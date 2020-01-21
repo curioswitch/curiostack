@@ -81,6 +81,7 @@ steps:
     - GRADLE_USER_HOME=/root/.gradle
   secretEnv:
     - CODECOV_TOKEN
+timeout: 60m
 secrets:
   - kmsKeyName: projects/curioswitch-cluster/locations/us-central1/keyRings/cloudbuild/cryptoKeys/github
     secretEnv:
