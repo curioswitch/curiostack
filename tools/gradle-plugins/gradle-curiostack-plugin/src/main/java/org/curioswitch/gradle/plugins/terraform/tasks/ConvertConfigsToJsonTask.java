@@ -23,7 +23,6 @@
  */
 package org.curioswitch.gradle.plugins.terraform.tasks;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.io.Files.getNameWithoutExtension;
 import static java.nio.file.Files.createDirectories;
 
@@ -43,7 +42,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
@@ -151,6 +149,7 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
           .submit(
               ConvertToJson.class,
               parameters -> {
+                parameters.getProjectDirectory().set(project.getProjectDir());
                 parameters.getSourceFile().set(file);
                 parameters.getOutFile().set(outPath.toFile());
               });
@@ -167,14 +166,6 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
 
   public abstract static class ConvertToJson implements WorkAction<ActionParameters> {
 
-    private final ProjectLayout layout;
-
-    @SuppressWarnings("InjectOnConstructorOfAbstractClass")
-    @Inject
-    public ConvertToJson(ProjectLayout layout) {
-      this.layout = checkNotNull(layout, "layout");
-    }
-
     @Override
     public void execute() {
       File sourceFile = getParameters().getSourceFile().get();
@@ -184,7 +175,7 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
       if (sourceFile.getName().contains(".jinja.")) {
         var jinJava = new Jinjava();
         try {
-          jinJava.setResourceLocator(new FileLocator(layout.getProjectDirectory().getAsFile()));
+          jinJava.setResourceLocator(new FileLocator(getParameters().getProjectDirectory().get()));
         } catch (FileNotFoundException e) {
           throw new IllegalStateException("Could not initialize Jinjava");
         }
@@ -220,6 +211,8 @@ public class ConvertConfigsToJsonTask extends DefaultTask {
   }
 
   public interface ActionParameters extends WorkParameters {
+    Property<File> getProjectDirectory();
+
     Property<File> getSourceFile();
 
     Property<File> getOutFile();
