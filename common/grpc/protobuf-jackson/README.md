@@ -28,7 +28,7 @@ likely be deprecated.
 Include protobuf-jackson as a dependency. Gradle users can add
 
 ```groovy
-'org.curioswitch.curiostack:protobuf-jackson:0.1.0'
+'org.curioswitch.curiostack:protobuf-jackson:1.0.0'
 ```
 
 to their dependencies.
@@ -66,9 +66,7 @@ No reflection allows the JIT to optimize generated machine code as much as possi
 bytecode, we approach the same speed that could be achieved by generating the source code itself.
 
 All of the same tests as ```JsonFormat``` (besides the differences listed below) pass, so
-protobuf-jackson should be mostly compatible with upstream and ready for production. After 
-integrating into a larger project and verifying the public API is easy to use, it will probably be
-promoted to version ```1.0.0```. Most work after that will be in smaller optimizations.
+protobuf-jackson should be mostly compatible with upstream and ready for production.
 
 ## Differences with upstream
 
@@ -77,8 +75,6 @@ Differences with JsonFormat are
 - No support for ```DynamicMessage```. The library is designed to interact with generated code for
 optimal performance. If you don't know what ```DynamicMessage``` is, you are not using it. If you
 do, stick with ```JsonFormat```.
-
-- Cannot put unknown enum values in maps. Will be fixed with https://github.com/google/protobuf/issues/2936
 
 - Does not support parsing Any messages where ```@type``` is not the first field.
 
