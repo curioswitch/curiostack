@@ -51,6 +51,15 @@ public class ProtobufPlugin implements Plugin<Project> {
     project.getPlugins().apply(OsDetectorPlugin.class);
 
     ProtobufExtension extension = ProtobufExtension.createAndAdd(project);
+    project
+        .getConfigurations()
+        .create(
+            "protobufTools",
+            protobufTools -> {
+              protobufTools.setCanBeResolved(true);
+              protobufTools.setCanBeConsumed(false);
+              protobufTools.setVisible(false);
+            });
 
     SourceSetTasks mainTasks = configureSourceSet("main", project, extension);
 

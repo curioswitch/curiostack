@@ -310,7 +310,7 @@ public class GenerateProtoTask extends DefaultTask {
                   return getProject().getDependencies().create(depParts.build());
                 })
             .collect(toImmutableList());
-    Configuration configuration = getProject().getConfigurations().maybeCreate("protobufTools");
+    Configuration configuration = getProject().getConfigurations().getByName("protobufTools");
     configuration.getDependencies().addAll(dependencies);
 
     // Resolve once to download all tools in parallel.

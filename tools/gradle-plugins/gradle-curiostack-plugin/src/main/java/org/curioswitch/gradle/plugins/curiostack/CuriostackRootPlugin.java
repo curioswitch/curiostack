@@ -30,10 +30,8 @@ import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
 import com.diffplug.gradle.spotless.SpotlessTask;
 import com.github.benmanes.gradle.versions.VersionsPlugin;
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import groovy.util.Node;
 import groovy.util.XmlParser;
@@ -46,7 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 import javax.xml.parsers.ParserConfigurationException;
 import me.champeau.gradle.JMHPlugin;
@@ -113,12 +110,9 @@ import org.gradle.api.tasks.wrapper.Wrapper.DistributionType;
 import org.gradle.external.javadoc.CoreJavadocOptions;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
-import org.gradle.testing.jacoco.plugins.JacocoPlugin;
 import org.xml.sax.SAXException;
 
 public class CuriostackRootPlugin implements Plugin<Project> {
-
-  private static final Splitter NEW_LINE_SPLITTER = Splitter.on('\n');
 
   private static final Map<String, CheckSeverity> ERROR_PRONE_CHECKS =
       ImmutableMap.<String, CheckSeverity>builder()
@@ -227,9 +221,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           .put("BadImport", OFF)
           .put("JavaTimeDefaultTimeZone", OFF)
           .build();
-
-  private static final Set<String> NOT_PLATFORM_MANAGED_CONFIGURATIONS =
-      ImmutableSet.of(JacocoPlugin.AGENT_CONFIGURATION_NAME, JacocoPlugin.ANT_CONFIGURATION_NAME);
 
   @Override
   public void apply(Project rootProject) {
@@ -494,88 +485,91 @@ public class CuriostackRootPlugin implements Plugin<Project> {
             : "org.curioswitch.curiostack:curiostack-bom:"
                 + ToolDependencies.getBomVersion(project);
 
-    project
-        .getConfigurations()
-        .configureEach(
-            configuration -> {
-              if (!NOT_PLATFORM_MANAGED_CONFIGURATIONS.contains(configuration.getName())) {
-                project
-                    .getDependencies()
-                    .add(
-                        configuration.getName(), project.getDependencies().platform(bomDependency));
-              }
-            });
-
     project.afterEvaluate(
-        unused ->
-            plugins.withType(
-                MavenPublishPlugin.class,
-                unused2 -> {
-                  var publishing = project.getExtensions().getByType(PublishingExtension.class);
-                  publishing
-                      .getPublications()
-                      .configureEach(
-                          publication -> {
-                            if (!(publication instanceof MavenPublication)) {
-                              return;
-                            }
-                            var mavenPublication = (MavenPublication) publication;
-                            mavenPublication
-                                .getPom()
-                                .withXml(
-                                    xml -> {
-                                      var root = xml.asNode();
-                                      findChild(root, "dependencyManagement")
-                                          .ifPresent(root::remove);
+        unused -> {
+          // Needs to be in afterEvaluate since there is no way to guarantee isCanBeResolved, etc
+          // are set otherwise.
+          project
+              .getConfigurations()
+              .configureEach(
+                  configuration -> {
+                    if (configuration.isCanBeResolved() && !configuration.isCanBeConsumed()) {
+                      project
+                          .getDependencies()
+                          .add(
+                              configuration.getName(),
+                              project.getDependencies().platform(bomDependency));
+                    }
+                  });
 
-                                      var dependencies = findChild(root, "dependencies");
-                                      if (!dependencies.isPresent()) {
-                                        return;
+          plugins.withType(
+              MavenPublishPlugin.class,
+              unused2 -> {
+                var publishing = project.getExtensions().getByType(PublishingExtension.class);
+                publishing
+                    .getPublications()
+                    .configureEach(
+                        publication -> {
+                          if (!(publication instanceof MavenPublication)) {
+                            return;
+                          }
+                          var mavenPublication = (MavenPublication) publication;
+                          mavenPublication
+                              .getPom()
+                              .withXml(
+                                  xml -> {
+                                    var root = xml.asNode();
+                                    findChild(root, "dependencyManagement").ifPresent(root::remove);
+
+                                    var dependencies = findChild(root, "dependencies");
+                                    if (!dependencies.isPresent()) {
+                                      return;
+                                    }
+
+                                    @SuppressWarnings("unchecked")
+                                    List<Node> dependencyList =
+                                        (List<Node>) dependencies.get().get("dependency");
+                                    for (var dependency : dependencyList) {
+                                      findChild(dependency, "exclusions")
+                                          .ifPresent(dependency::remove);
+
+                                      if (findChild(dependency, "version").isPresent()) {
+                                        continue;
                                       }
 
-                                      @SuppressWarnings("unchecked")
-                                      List<Node> dependencyList =
-                                          (List<Node>) dependencies.get().get("dependency");
-                                      for (var dependency : dependencyList) {
-                                        findChild(dependency, "exclusions")
-                                            .ifPresent(dependency::remove);
-
-                                        if (findChild(dependency, "version").isPresent()) {
-                                          continue;
-                                        }
-
-                                        var groupId = findChild(dependency, "groupId");
-                                        if (groupId.isEmpty()) {
-                                          continue;
-                                        }
-                                        var artifactId = findChild(dependency, "artifactId");
-                                        if (artifactId.isEmpty()) {
-                                          continue;
-                                        }
-
-                                        project.getConfigurations()
-                                            .getByName(
-                                                JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME)
-                                            .getResolvedConfiguration()
-                                            .getFirstLevelModuleDependencies().stream()
-                                            .filter(
-                                                module ->
-                                                    module
-                                                            .getModuleGroup()
-                                                            .equals(groupId.get().text())
-                                                        && module
-                                                            .getModuleName()
-                                                            .equals(artifactId.get().text()))
-                                            .findFirst()
-                                            .ifPresent(
-                                                resolvedDependency ->
-                                                    dependency.appendNode(
-                                                        "version",
-                                                        resolvedDependency.getModuleVersion()));
+                                      var groupId = findChild(dependency, "groupId");
+                                      if (groupId.isEmpty()) {
+                                        continue;
                                       }
-                                    });
-                          });
-                }));
+                                      var artifactId = findChild(dependency, "artifactId");
+                                      if (artifactId.isEmpty()) {
+                                        continue;
+                                      }
+
+                                      project.getConfigurations()
+                                          .getByName(
+                                              JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME)
+                                          .getResolvedConfiguration()
+                                          .getFirstLevelModuleDependencies().stream()
+                                          .filter(
+                                              module ->
+                                                  module
+                                                          .getModuleGroup()
+                                                          .equals(groupId.get().text())
+                                                      && module
+                                                          .getModuleName()
+                                                          .equals(artifactId.get().text()))
+                                          .findFirst()
+                                          .ifPresent(
+                                              resolvedDependency ->
+                                                  dependency.appendNode(
+                                                      "version",
+                                                      resolvedDependency.getModuleVersion()));
+                                    }
+                                  });
+                        });
+              });
+        });
 
     project
         .getTasks()

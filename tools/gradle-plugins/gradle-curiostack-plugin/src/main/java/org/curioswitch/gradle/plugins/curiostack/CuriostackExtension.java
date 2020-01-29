@@ -24,7 +24,9 @@
 
 package org.curioswitch.gradle.plugins.curiostack;
 
+import org.gradle.api.Project;
 import org.gradle.api.initialization.Settings;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 
 public interface CuriostackExtension {
@@ -36,4 +38,6 @@ public interface CuriostackExtension {
   }
 
   Property<String> getBuildCacheBucket();
+
+  ListProperty<Project> getPlatfromProjects();
 }
