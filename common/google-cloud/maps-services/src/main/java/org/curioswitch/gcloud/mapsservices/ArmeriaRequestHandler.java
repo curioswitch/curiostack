@@ -65,7 +65,6 @@ import com.linecorp.armeria.client.retry.Backoff;
 import com.linecorp.armeria.client.retry.RetryStrategy;
 import com.linecorp.armeria.client.retry.RetryingHttpClient;
 import com.linecorp.armeria.common.HttpData;
-import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpStatus;
@@ -132,6 +131,7 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
       String hostName,
       String url,
       String userAgent,
+      String experienceIdHeaderValue,
       Class<R> clazz,
       FieldNamingPolicy fieldNamingPolicy,
       long errorTimeout,
@@ -143,6 +143,7 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
         url,
         HttpData.EMPTY_DATA,
         userAgent,
+        experienceIdHeaderValue,
         clazz,
         fieldNamingPolicy,
         errorTimeout,
@@ -156,6 +157,7 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
       String url,
       String payload,
       String userAgent,
+      String experienceIdHeaderValue,
       Class<R> clazz,
       FieldNamingPolicy fieldNamingPolicy,
       long errorTimeout,
@@ -167,6 +169,7 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
         url,
         HttpData.ofUtf8(payload),
         userAgent,
+        experienceIdHeaderValue,
         clazz,
         fieldNamingPolicy,
         errorTimeout,
@@ -180,6 +183,7 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
       String url,
       HttpData payload,
       String userAgent,
+      String experienceIdHeaderValue,
       Class<R> clazz,
       FieldNamingPolicy fieldNamingPolicy,
       long errorTimeout,
@@ -192,9 +196,11 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
 
     var gson = gsonForPolicy(fieldNamingPolicy);
 
-    var request =
-        HttpRequest.of(
-            RequestHeaders.of(method, url, HttpHeaderNames.USER_AGENT, userAgent), payload);
+    var headers = RequestHeaders.builder(method, url);
+    if (experienceIdHeaderValue != null) {
+      headers.add("X-Goog-Maps-Experience-ID", experienceIdHeaderValue);
+    }
+    var request = HttpRequest.of(headers.build(), payload);
 
     return new ArmeriaPendingResult<>(client, request, clazz, gson);
   }

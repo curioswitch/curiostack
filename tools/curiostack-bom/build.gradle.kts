@@ -55,7 +55,7 @@ val DEPENDENCY_BOMS = listOf(
         "com.linecorp.armeria:armeria-bom:0.97.0",
         "io.dropwizard.metrics:metrics-bom:4.1.2",
         "io.grpc:grpc-bom:1.26.0",
-        "io.zipkin.brave:brave-bom:5.9.1",
+        "io.zipkin.brave:brave-bom:5.9.2",
         "io.netty:netty-bom:4.1.43.Final",
         "org.apache.beam:beam-sdks-java-bom:2.16.0",
         "org.apache.logging.log4j:log4j-bom:2.13.0",
@@ -80,7 +80,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.auth",
-                "0.19.0",
+                "0.20.0",
                 listOf("google-auth-library-oauth2-http")
         ),
         DependencySet(
@@ -133,7 +133,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.firebase",
-                "6.12.0",
+                "6.12.1",
                 listOf("firebase-admin")
         ),
         DependencySet(
@@ -158,7 +158,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.squareup.retrofit2",
-                "2.7.0",
+                "2.7.1",
                 listOf(
                         "adapter-guava",
                         "adapter-java8",
@@ -184,7 +184,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.fabric8",
-                "4.7.0",
+                "4.7.1",
                 listOf("kubernetes-client")
         ),
         DependencySet(
@@ -204,7 +204,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.prometheus",
-                "0.8.0",
+                "0.8.1",
                 listOf("simpleclient", "simpleclient_common", "simpleclient_hotspot", "simpleclient_log4j2")
         ),
         DependencySet(
@@ -244,7 +244,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.assertj",
-                "3.14.0",
+                "3.15.0",
                 listOf("assertj-core")
         ),
         DependencySet(
@@ -304,7 +304,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "3.2.8",
+                "3.2.9",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -326,18 +326,18 @@ val DEPENDENCY_SETS = listOf(
 )
 
 val DEPENDENCIES = listOf(
-        "com.bmuschko:gradle-docker-plugin:6.1.2",
+        "com.bmuschko:gradle-docker-plugin:6.1.3",
         "com.diffplug.spotless:spotless-plugin-gradle:3.27.1",
         "com.github.ben-manes:gradle-versions-plugin:0.27.0",
         "com.google.code.gson:gson:2.8.6",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",
-        "com.google.maps:google-maps-services:0.10.2",
+        "com.google.maps:google-maps-services:0.11.0",
         "com.gradle:gradle-enterprise-gradle-plugin:3.1.1",
         "com.hubspot.jinjava:jinjava:2.5.2",
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
-        "de.undercouch:gradle-download-task:4.0.2",
+        "de.undercouch:gradle-download-task:4.0.4",
         "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.6",
-        "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.8.0",
+        "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:2.0.0",
         "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.0",
         "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
         "io.sgr:s2-geometry-library-java:1.0.1",

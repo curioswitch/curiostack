@@ -23,7 +23,9 @@
  */
 package org.curioswitch.gradle.helpers.platform;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /** Utilities for working with file paths. */
 public final class PathUtil {
@@ -75,7 +77,18 @@ public final class PathUtil {
    * conventions.
    */
   public static String getBashExecutable() {
-    return System.getenv().getOrDefault("MSYS_BASH_PATH", "bash");
+    String bashExecutable = System.getenv("MSYS_BASH_PATH");
+    if (bashExecutable != null) {
+      return bashExecutable;
+    }
+    // Optimistically try the default msys location if env variable isn't set (e.g., IntelliJ).
+    bashExecutable = "C:\\tools\\msys64\\usr\\bin\\bash.exe";
+    if (Files.exists(Paths.get(bashExecutable))) {
+      return bashExecutable;
+    }
+    // This is usually Git bash on CI, but WSL bash on a desktop machine which will not work.
+    // TODO(choko): Find a more robust way of doing this.
+    return "bash";
   }
 
   private PathUtil() {}
