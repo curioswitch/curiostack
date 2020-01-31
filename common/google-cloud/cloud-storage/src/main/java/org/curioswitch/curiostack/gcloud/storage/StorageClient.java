@@ -224,7 +224,7 @@ public class StorageClient {
         .handle(
             (msg, t) -> {
               if (t != null) {
-                throw new RuntimeException("Unexpected error composing file.", t);
+                throw new RuntimeException("Unexpected error deleting file.", t);
               }
               if (msg.status().equals(HttpStatus.OK)) {
                 return null;
