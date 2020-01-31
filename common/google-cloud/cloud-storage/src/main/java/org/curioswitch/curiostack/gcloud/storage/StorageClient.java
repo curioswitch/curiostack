@@ -226,7 +226,7 @@ public class StorageClient {
               if (t != null) {
                 throw new RuntimeException("Unexpected error deleting file.", t);
               }
-              if (msg.status().equals(HttpStatus.OK)) {
+              if (msg.status().equals(HttpStatus.NO_CONTENT)) {
                 return null;
               } else {
                 throw new IllegalStateException(
