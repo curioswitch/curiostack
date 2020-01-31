@@ -39,6 +39,7 @@ import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
+import com.linecorp.armeria.common.HttpStatusClass;
 import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.common.RequestContext;
 import com.linecorp.armeria.common.RequestHeaders;
@@ -226,7 +227,7 @@ public class StorageClient {
               if (t != null) {
                 throw new RuntimeException("Unexpected error deleting file.", t);
               }
-              if (msg.status().equals(HttpStatus.NO_CONTENT)) {
+              if (msg.status().codeClass().equals(HttpStatusClass.SUCCESS)) {
                 return null;
               } else {
                 throw new IllegalStateException(
