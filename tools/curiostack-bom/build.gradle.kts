@@ -48,16 +48,16 @@ repositories {
 data class DependencySet(val group: String, val version: String, val modules: List<String>)
 
 val DEPENDENCY_BOMS = listOf(
-        "com.fasterxml.jackson:jackson-bom:2.10.2",
+        "com.fasterxml.jackson:jackson-bom:2.10.2.20200130",
         "com.google.cloud:google-cloud-bom:0.121.0-alpha",
         "com.google.api-client:google-api-client-bom:1.30.7",
-        "com.google.http-client:google-http-client-bom:1.34.0",
+        "com.google.http-client:google-http-client-bom:1.34.1",
         "com.linecorp.armeria:armeria-bom:0.97.0",
         "io.dropwizard.metrics:metrics-bom:4.1.2",
-        "io.grpc:grpc-bom:1.26.0",
+        "io.grpc:grpc-bom:1.27.0",
         "io.zipkin.brave:brave-bom:5.9.2",
         "io.netty:netty-bom:4.1.43.Final",
-        "org.apache.beam:beam-sdks-java-bom:2.16.0",
+        "org.apache.beam:beam-sdks-java-bom:2.18.0",
         "org.apache.logging.log4j:log4j-bom:2.13.0",
         "org.junit:junit-bom:5.6.0"
 )
@@ -123,7 +123,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.dagger",
-                "2.25.4",
+                "2.26",
                 listOf("dagger", "dagger-compiler", "dagger-producers")
         ),
         DependencySet(
@@ -299,12 +299,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.jooq",
-                "3.12.3",
+                "3.12.4",
                 listOf("jooq", "jooq-codegen", "jooq-meta")
         ),
         DependencySet(
                 "org.mockito",
-                "3.2.9",
+                "3.2.10",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
