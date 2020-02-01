@@ -97,6 +97,7 @@ import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.publish.PublishingExtension;
+import org.gradle.api.publish.VariantVersionMappingStrategy;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 import org.gradle.api.tasks.Copy;
@@ -514,58 +515,18 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                             return;
                           }
                           var mavenPublication = (MavenPublication) publication;
+
+                          mavenPublication.versionMapping(
+                              mapping ->
+                                  mapping.allVariants(
+                                      VariantVersionMappingStrategy::fromResolutionResult));
+
                           mavenPublication
                               .getPom()
                               .withXml(
                                   xml -> {
                                     var root = xml.asNode();
                                     findChild(root, "dependencyManagement").ifPresent(root::remove);
-
-                                    var dependencies = findChild(root, "dependencies");
-                                    if (!dependencies.isPresent()) {
-                                      return;
-                                    }
-
-                                    @SuppressWarnings("unchecked")
-                                    List<Node> dependencyList =
-                                        (List<Node>) dependencies.get().get("dependency");
-                                    for (var dependency : dependencyList) {
-                                      findChild(dependency, "exclusions")
-                                          .ifPresent(dependency::remove);
-
-                                      if (findChild(dependency, "version").isPresent()) {
-                                        continue;
-                                      }
-
-                                      var groupId = findChild(dependency, "groupId");
-                                      if (groupId.isEmpty()) {
-                                        continue;
-                                      }
-                                      var artifactId = findChild(dependency, "artifactId");
-                                      if (artifactId.isEmpty()) {
-                                        continue;
-                                      }
-
-                                      project.getConfigurations()
-                                          .getByName(
-                                              JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME)
-                                          .getResolvedConfiguration()
-                                          .getFirstLevelModuleDependencies().stream()
-                                          .filter(
-                                              module ->
-                                                  module
-                                                          .getModuleGroup()
-                                                          .equals(groupId.get().text())
-                                                      && module
-                                                          .getModuleName()
-                                                          .equals(artifactId.get().text()))
-                                          .findFirst()
-                                          .ifPresent(
-                                              resolvedDependency ->
-                                                  dependency.appendNode(
-                                                      "version",
-                                                      resolvedDependency.getModuleVersion()));
-                                    }
                                   });
                         });
               });
