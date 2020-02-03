@@ -91,7 +91,6 @@ import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.artifacts.repositories.MavenRepositoryContentDescriptor;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.ExtensionAware;
-import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.JavaPluginExtension;
@@ -720,24 +719,22 @@ public class CuriostackRootPlugin implements Plugin<Project> {
   }
 
   private static void addStandardJavaTestDependencies(Project project) {
-    Configuration testConfiguration =
-        project.getPlugins().hasPlugin(JavaLibraryPlugin.class)
-            ? project
-                .getConfigurations()
-                .getByName(JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME)
-            : project.getConfigurations().getByName(JavaPlugin.TEST_COMPILE_CONFIGURATION_NAME);
     DependencyHandler dependencies = project.getDependencies();
 
     dependencies.add(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME, "com.google.code.findbugs:jsr305");
     dependencies.add(
-        testConfiguration.getName(), "org.curioswitch.curiostack:curio-testing-framework");
-    dependencies.add(testConfiguration.getName(), "org.assertj:assertj-core");
-    dependencies.add(testConfiguration.getName(), "org.awaitility:awaitility");
-    dependencies.add(testConfiguration.getName(), "junit:junit");
-    dependencies.add(testConfiguration.getName(), "org.mockito:mockito-core");
-    dependencies.add(testConfiguration.getName(), "info.solidsoft.mockito:mockito-java8");
+        JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME,
+        "org.curioswitch.curiostack:curio-testing-framework");
+    dependencies.add(JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME, "org.assertj:assertj-core");
+    dependencies.add(
+        JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME, "org.awaitility:awaitility");
+    dependencies.add(JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME, "junit:junit");
+    dependencies.add(JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME, "org.mockito:mockito-core");
+    dependencies.add(
+        JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME, "info.solidsoft.mockito:mockito-java8");
 
-    dependencies.add(testConfiguration.getName(), "org.junit.jupiter:junit-jupiter-api");
+    dependencies.add(
+        JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME, "org.junit.jupiter:junit-jupiter-api");
     dependencies.add(
         JavaPlugin.TEST_RUNTIME_ONLY_CONFIGURATION_NAME, "org.junit.jupiter:junit-jupiter-engine");
     dependencies.add(

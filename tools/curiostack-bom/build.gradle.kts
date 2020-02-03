@@ -309,7 +309,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.slf4j",
-                "1.7.28",
+                "1.7.30",
                 listOf("jul-to-slf4j", "slf4j-api")
         ),
         DependencySet(
