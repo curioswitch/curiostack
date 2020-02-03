@@ -130,7 +130,9 @@ public class StorageClient {
               ResponseHeaders responseHeaders = msg.headers();
               if (!responseHeaders.status().equals(HttpStatus.OK)) {
                 throw new RuntimeException(
-                    "Non-successful response when creating new file: "
+                    "Non-successful response when creating new file at "
+                        + uploadUrl
+                        + ": "
                         + responseHeaders
                         + "\n"
                         + msg.content().toStringUtf8());
@@ -172,7 +174,8 @@ public class StorageClient {
               if (!msg.status().equals(HttpStatus.OK)) {
                 String response = msg.contentUtf8();
                 ReferenceCountUtil.safeRelease(msg.content());
-                throw new InvalidResponseException("Could not fetch file: " + response);
+                throw new InvalidResponseException(
+                    "Could not fetch file at " + filename + ": " + response);
               }
               HttpData data = msg.content();
               if (data instanceof ByteBufHolder) {
@@ -231,7 +234,7 @@ public class StorageClient {
                 return null;
               } else {
                 throw new IllegalStateException(
-                    "Could not delete file: " + msg.content().toStringUtf8());
+                    "Could not delete file at " + url + ": " + msg.content().toStringUtf8());
               }
             });
   }
@@ -254,7 +257,7 @@ public class StorageClient {
                   return null;
                 } else {
                   throw new IllegalStateException(
-                      "Could not compose file: " + msg.content().toStringUtf8());
+                      "Could not compose file at " + url + ": " + msg.content().toStringUtf8());
                 }
               } finally {
                 ReferenceCountUtil.safeRelease(msg.content());
