@@ -32,14 +32,6 @@ base {
     archivesBaseName = "curio-testing-framework"
 }
 
-configurations {
-    testImplementation {
-        // Curiostack plugin adds this but this is the one project we don't want it since we are the
-        // framework.
-        exclude("org.curioswitch.curiostack", "curio-testing-framework")
-    }
-}
-
 dependencies {
     api(project(":common:server:framework"))
     api(project(":common:testing:assertj-protobuf"))
