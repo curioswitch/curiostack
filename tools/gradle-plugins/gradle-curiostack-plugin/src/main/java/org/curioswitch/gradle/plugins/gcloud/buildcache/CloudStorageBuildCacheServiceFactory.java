@@ -44,7 +44,6 @@ import org.curioswitch.curiostack.gcloud.storage.StorageClient;
 import org.curioswitch.curiostack.gcloud.storage.StorageConfig;
 import org.gradle.caching.BuildCacheEntryReader;
 import org.gradle.caching.BuildCacheEntryWriter;
-import org.gradle.caching.BuildCacheException;
 import org.gradle.caching.BuildCacheKey;
 import org.gradle.caching.BuildCacheService;
 import org.gradle.caching.BuildCacheServiceFactory;
@@ -115,15 +114,14 @@ public class CloudStorageBuildCacheServiceFactory
     INSTANCE;
 
     @Override
-    public boolean load(BuildCacheKey key, BuildCacheEntryReader reader)
-        throws BuildCacheException {
+    public boolean load(BuildCacheKey key, BuildCacheEntryReader reader) {
       return false;
     }
 
     @Override
-    public void store(BuildCacheKey key, BuildCacheEntryWriter writer) throws BuildCacheException {}
+    public void store(BuildCacheKey key, BuildCacheEntryWriter writer) {}
 
     @Override
-    public void close() throws IOException {}
+    public void close() {}
   }
 }
