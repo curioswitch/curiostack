@@ -1,7 +1,7 @@
 # Curio Server Framework
 
 A targeted and opinionated framework for creating servers, such as API servers and web services.
-Based on Armeria, GRPC, Dagger, and others.
+Based on Armeria, gRPC, Dagger, and others.
 
 ## Usage
 
