@@ -42,9 +42,11 @@ import org.curioswitch.curiostack.gcloud.core.auth.GcloudAuthModule;
 import org.curioswitch.curiostack.gcloud.core.auth.GoogleCredentialsDecoratingClient;
 import org.curioswitch.curiostack.gcloud.storage.StorageClient;
 import org.curioswitch.curiostack.gcloud.storage.StorageConfig;
+import org.gradle.caching.BuildCacheEntryReader;
+import org.gradle.caching.BuildCacheEntryWriter;
+import org.gradle.caching.BuildCacheKey;
 import org.gradle.caching.BuildCacheService;
 import org.gradle.caching.BuildCacheServiceFactory;
-import org.gradle.caching.internal.NoOpBuildCacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +72,7 @@ public class CloudStorageBuildCacheServiceFactory
       logger.warn(
           "Could not load Google credentials - did you run "
               + "./gradlew :gcloud_auth_application-default_login? Disabling build cache.");
-      return new NoOpBuildCacheService();
+      return NoOpBuildCacheService.INSTANCE;
     }
 
     ModifiableGcloudConfig config = new ModifiableGcloudConfig();
@@ -102,9 +104,24 @@ public class CloudStorageBuildCacheServiceFactory
           "Could not access build cache, are you logged in with the correct account? "
               + "Try ./gradlew :gcloud_auth_application-default_login again. "
               + "Disabling build cache.");
-      return new NoOpBuildCacheService();
+      return NoOpBuildCacheService.INSTANCE;
     }
 
     return new CloudStorageBuildCacheService(storageClient);
+  }
+
+  private enum NoOpBuildCacheService implements BuildCacheService {
+    INSTANCE;
+
+    @Override
+    public boolean load(BuildCacheKey key, BuildCacheEntryReader reader) {
+      return false;
+    }
+
+    @Override
+    public void store(BuildCacheKey key, BuildCacheEntryWriter writer) {}
+
+    @Override
+    public void close() {}
   }
 }

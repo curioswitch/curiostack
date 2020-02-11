@@ -35,7 +35,7 @@ dependencies {
 }
 
 jooq {
-    version = '3.12.1'
+    version = '3.12.4'
     curioswitchDb(sourceSets.main) {
         jdbc {
             driver = 'com.mysql.jdbc.Driver'
