@@ -63,7 +63,8 @@ allprojects {
             }
 
             publishing {
-                publications.configureEach {publication->
+                publications.configureEach { publication ->
+                    groupId = project.group
                     artifactId = project.archivesBaseName
 
                     // Plugin and BOM publications do not need this.

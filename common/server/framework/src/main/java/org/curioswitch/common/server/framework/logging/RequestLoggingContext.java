@@ -42,7 +42,7 @@ public final class RequestLoggingContext {
 
   public static void put(RequestContext ctx, String key, String value) {
     // Copy into a new map similar to what log4j2 does for thread-safety.
-    ImmutableMap<String, String> oldLoggingContext = ctx.attr(LOGGING_CONTEXT).get();
+    ImmutableMap<String, String> oldLoggingContext = ctx.attr(LOGGING_CONTEXT);
     if (oldLoggingContext == null) {
       oldLoggingContext = ImmutableMap.of();
     }
@@ -55,13 +55,13 @@ public final class RequestLoggingContext {
           }
         });
     newLoggingContext.put(key, value);
-    ctx.attr(LOGGING_CONTEXT).set(newLoggingContext.build());
+    ctx.setAttr(LOGGING_CONTEXT, newLoggingContext.build());
   }
 
   static ImmutableMap<String, String> get() {
     ImmutableMap<String, String> loggingContext =
         MoreObjects.firstNonNull(
-            RequestContext.mapCurrent(ctx -> ctx.attr(LOGGING_CONTEXT).get(), ImmutableMap::of),
+            RequestContext.mapCurrent(ctx -> ctx.attr(LOGGING_CONTEXT), ImmutableMap::of),
             ImmutableMap.of());
     checkNotNull(loggingContext);
     return loggingContext;

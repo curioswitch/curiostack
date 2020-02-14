@@ -23,22 +23,41 @@
  */
 package org.curioswitch.curiostack.gcloud.storage;
 
+import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.logging.RequestLog;
+import com.linecorp.armeria.common.logging.RequestOnlyLog;
 import com.linecorp.armeria.common.metric.MeterIdPrefix;
 import com.linecorp.armeria.common.metric.MeterIdPrefixFunction;
+import io.micrometer.core.instrument.MeterRegistry;
 
 final class MetricLabels {
 
   static MeterIdPrefixFunction storageRequestLabeler() {
-    return ((registry, log) -> {
-      // Not gRPC, but for now just use the standard convention.
-      return new MeterIdPrefix(
-          "grpc_clients", "service", "CloudStorage", "method", serviceMethod(log));
-    });
+    return StorageRequestLabeler.INSTANCE;
   }
 
-  private static String serviceMethod(RequestLog log) {
-    switch (log.method()) {
+  private enum StorageRequestLabeler implements MeterIdPrefixFunction {
+    INSTANCE;
+
+    @Override
+    public MeterIdPrefix activeRequestPrefix(MeterRegistry registry, RequestOnlyLog log) {
+      // Not gRPC, but for now just use the standard convention.
+      return new MeterIdPrefix(
+          "grpc_clients",
+          "service",
+          "CloudStorage",
+          "method",
+          serviceMethod(log.requestHeaders().method()));
+    }
+
+    @Override
+    public MeterIdPrefix completeRequestPrefix(MeterRegistry registry, RequestLog log) {
+      return activeRequestPrefix(registry, log);
+    }
+  }
+
+  private static String serviceMethod(HttpMethod method) {
+    switch (method) {
       case GET:
         return "Read";
       case POST:

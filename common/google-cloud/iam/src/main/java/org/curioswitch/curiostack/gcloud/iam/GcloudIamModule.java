@@ -25,8 +25,9 @@ package org.curioswitch.curiostack.gcloud.iam;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.client.logging.LoggingClient;
-import com.linecorp.armeria.client.retrofit2.ArmeriaRetrofitBuilder;
+import com.linecorp.armeria.client.retrofit2.ArmeriaRetrofit;
 import dagger.Module;
 import dagger.Provides;
 import org.curioswitch.curiostack.gcloud.core.GcloudConfig;
@@ -45,14 +46,12 @@ public class GcloudIamModule {
   @Provides
   static ServiceAccountsClient serviceAccountsClient(
       GcloudConfig config, GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
-    return new ArmeriaRetrofitBuilder()
-        .baseUrl("https://iam.googleapis.com/v1/projects/" + config.getProject() + "/")
+    return ArmeriaRetrofit.builder(
+            WebClient.builder("https://iam.googleapis.com/v1/projects/" + config.getProject() + "/")
+                .decorator(LoggingClient.builder().newDecorator())
+                .decorator(credentialsDecorator.newAccessTokenDecorator())
+                .build())
         .addConverterFactory(JacksonConverterFactory.create(OBJECT_MAPPER))
-        .withClientOptions(
-            (unused, options) ->
-                options
-                    .decorator(LoggingClient.builder().newDecorator())
-                    .decorator(credentialsDecorator.newAccessTokenDecorator()))
         .build()
         .create(ServiceAccountsClient.class);
   }

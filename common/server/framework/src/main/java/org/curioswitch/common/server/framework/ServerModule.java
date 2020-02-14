@@ -44,6 +44,8 @@ import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.ServerListener;
 import com.linecorp.armeria.server.ServiceRequestContext;
+import com.linecorp.armeria.server.auth.AuthService;
+import com.linecorp.armeria.server.auth.AuthServiceBuilder;
 import com.linecorp.armeria.server.auth.HttpAuthServiceBuilder;
 import com.linecorp.armeria.server.auth.OAuth2Token;
 import com.linecorp.armeria.server.brave.BraveService;
@@ -613,7 +615,7 @@ public abstract class ServerModule {
       ServerConfig serverConfig,
       FirebaseAuthConfig authConfig) {
     if (sslCommonNamesProvider.isPresent() && !serverConfig.isDisableSslAuthorization()) {
-      HttpAuthServiceBuilder authServiceBuilder = new HttpAuthServiceBuilder();
+      AuthServiceBuilder authServiceBuilder = AuthService.builder();
       authServiceBuilder.add(new SslAuthorizer(sslCommonNamesProvider.get()));
       service = service.decorate(authServiceBuilder.newDecorator());
     }
@@ -622,7 +624,7 @@ public abstract class ServerModule {
           service
               .decorate(
                   (delegate, ctx, req) -> {
-                    DecodedJWT jwt = ctx.attr(JwtAuthorizer.DECODED_JWT).get();
+                    DecodedJWT jwt = ctx.attr(JwtAuthorizer.DECODED_JWT);
                     String loggedInUserEmail =
                         jwt != null ? jwt.getClaim("email").asString() : "unknown";
                     RequestLoggingContext.put(ctx, "logged_in_user", loggedInUserEmail);
