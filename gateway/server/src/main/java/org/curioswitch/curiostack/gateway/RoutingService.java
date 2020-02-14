@@ -53,9 +53,13 @@ class RoutingService implements HttpService {
   RoutingService(Map<Route, WebClient> clients) {
     this.clients = clients;
 
-    cachePaths = Flags.parsedPathCacheSpec().isPresent();
-    pathClients =
-        Flags.parsedPathCacheSpec().map(spec -> Caffeine.from(spec).build(this::find)).orElse(null);
+    if (Flags.parsedPathCacheSpec() != null) {
+      cachePaths = true;
+      pathClients = Caffeine.from(Flags.parsedPathCacheSpec()).build(this::find);
+    } else {
+      cachePaths = false;
+      pathClients = null;
+    }
   }
 
   @Override

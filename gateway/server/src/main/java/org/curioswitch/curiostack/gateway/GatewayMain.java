@@ -46,8 +46,7 @@ public class GatewayMain {
     @Provides
     @Singleton
     static GatewayConfig gatewayConfig(Config config) {
-      return ((ModifiableGatewayConfig)
-              ConfigBeanFactory.create(config.getConfig("gateway"), ModifiableGatewayConfig.class))
+      return ConfigBeanFactory.create(config.getConfig("gateway"), ModifiableGatewayConfig.class)
           .toImmutable();
     }
 
