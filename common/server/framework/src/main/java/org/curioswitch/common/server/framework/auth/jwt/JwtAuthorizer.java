@@ -63,8 +63,8 @@ public class JwtAuthorizer implements Authorizer<OAuth2Token> {
               if (t != null) {
                 return false;
               }
-              ctx.attr(DECODED_JWT).set(jwt);
-              ctx.attr(RAW_JWT).set(data.accessToken());
+              ctx.setAttr(DECODED_JWT, jwt);
+              ctx.setAttr(RAW_JWT, data.accessToken());
               return true;
             });
   }

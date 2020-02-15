@@ -49,14 +49,15 @@ data class DependencySet(val group: String, val version: String, val modules: Li
 
 val DEPENDENCY_BOMS = listOf(
         "com.fasterxml.jackson:jackson-bom:2.10.2.20200130",
-        "com.google.cloud:google-cloud-bom:0.121.0-alpha",
+        "com.google.cloud:google-cloud-bom:0.122.2-alpha",
         "com.google.api-client:google-api-client-bom:1.30.7",
         "com.google.http-client:google-http-client-bom:1.34.1",
-        "com.linecorp.armeria:armeria-bom:0.97.0",
+        "com.linecorp.armeria:armeria-bom:0.98.1",
         "io.dropwizard.metrics:metrics-bom:4.1.2",
-        "io.grpc:grpc-bom:1.27.0",
-        "io.zipkin.brave:brave-bom:5.9.2",
-        "io.netty:netty-bom:4.1.43.Final",
+        "io.grpc:grpc-bom:1.27.1",
+        "io.micrometer:micrometer-bom:1.3.5",
+        "io.zipkin.brave:brave-bom:5.9.5",
+        "io.netty:netty-bom:4.1.45.Final",
         "org.apache.beam:beam-sdks-java-bom:2.18.0",
         "org.apache.logging.log4j:log4j-bom:2.13.0",
         "org.junit:junit-bom:5.6.0"
@@ -133,7 +134,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.firebase",
-                "6.12.1",
+                "6.12.2",
                 listOf("firebase-admin")
         ),
         DependencySet(
@@ -143,13 +144,8 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.protobuf",
-                "3.11.1",
-                listOf("protobuf-java", "protobuf-java-util")
-        ),
-        DependencySet(
-                "com.google.protobuf",
-                "3.11.2",
-                listOf("protoc")
+                "3.11.3",
+                listOf("protobuf-java", "protobuf-java-util", "protoc")
         ),
         DependencySet(
                 "com.spotify",
@@ -189,17 +185,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.lettuce",
-                "5.2.1.RELEASE",
+                "5.2.2.RELEASE",
                 listOf("lettuce-core")
         ),
         DependencySet(
-                "io.micrometer",
-                "1.3.3",
-                listOf("micrometer-core", "micrometer-registry-prometheus")
-        ),
-        DependencySet(
                 "io.netty",
-                "2.0.26.Final",
+                "2.0.28.Final",
                 listOf("netty-tcnative-boringssl-static")
         ),
         DependencySet(
@@ -264,7 +255,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.checkerframework",
-                "3.1.0",
+                "3.1.1",
                 listOf("checker-qual")
         ),
         DependencySet(
@@ -299,12 +290,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.jooq",
-                "3.12.4",
+                "3.13.0",
                 listOf("jooq", "jooq-codegen", "jooq-meta")
         ),
         DependencySet(
                 "org.mockito",
-                "3.2.10",
+                "3.2.11",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -338,10 +329,10 @@ val DEPENDENCIES = listOf(
         "de.undercouch:gradle-download-task:4.0.4",
         "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.6",
         "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:2.0.0",
-        "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.0",
+        "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.1",
         "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
         "io.sgr:s2-geometry-library-java:1.0.1",
-        "it.unimi.dsi:fastutil:8.3.0",
+        "it.unimi.dsi:fastutil:8.3.1",
         "javax.activation:activation:1.1.1",
         "javax.annotation:javax.annotation-api:1.3.2",
         "me.champeau.gradle:jmh-gradle-plugin:0.5.0",
@@ -349,7 +340,7 @@ val DEPENDENCIES = listOf(
         "net.ltgt.gradle:gradle-apt-plugin:0.21",
         "net.ltgt.gradle:gradle-errorprone-plugin:1.1.1",
         "nu.studer:gradle-jooq-plugin:4.1",
-        "org.jsoup:jsoup:1.12.1"
+        "org.jsoup:jsoup:1.12.2"
 )
 
 dependencies {

@@ -25,8 +25,11 @@ package org.curioswitch.common.server.framework.monitoring;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.linecorp.armeria.common.logging.RequestLog;
+import com.linecorp.armeria.common.logging.RequestOnlyLog;
 import com.linecorp.armeria.common.metric.MeterIdPrefix;
 import com.linecorp.armeria.common.metric.MeterIdPrefixFunction;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.util.List;
 
 public final class RpcMetricLabels {
@@ -34,13 +37,23 @@ public final class RpcMetricLabels {
   private static final Splitter PATH_SPLITTER = Splitter.on('/').omitEmptyStrings();
 
   public static MeterIdPrefixFunction grpcRequestLabeler(String name) {
-    return (registry, log) -> {
-      // The service name and method name will always be the last two path components.
-      List<String> methodParts = ImmutableList.copyOf(PATH_SPLITTER.split(log.path())).reverse();
-      if (methodParts.size() >= 2) {
-        return new MeterIdPrefix(name, "service", methodParts.get(1), "method", methodParts.get(0));
-      } else {
-        return new MeterIdPrefix(name + "-unknowntags");
+    return new MeterIdPrefixFunction() {
+      @Override
+      public MeterIdPrefix activeRequestPrefix(MeterRegistry registry, RequestOnlyLog log) {
+        // The service name and method name will always be the last two path components.
+        List<String> methodParts =
+            ImmutableList.copyOf(PATH_SPLITTER.split(log.requestHeaders().path())).reverse();
+        if (methodParts.size() >= 2) {
+          return new MeterIdPrefix(
+              name, "service", methodParts.get(1), "method", methodParts.get(0));
+        } else {
+          return new MeterIdPrefix(name + "-unknowntags");
+        }
+      }
+
+      @Override
+      public MeterIdPrefix completeRequestPrefix(MeterRegistry registry, RequestLog log) {
+        return activeRequestPrefix(registry, log);
       }
     };
   }

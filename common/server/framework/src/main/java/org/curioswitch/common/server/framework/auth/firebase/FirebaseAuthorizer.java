@@ -92,8 +92,8 @@ public class FirebaseAuthorizer
                 return;
               }
             }
-            ctx.attr(FIREBASE_TOKEN).set(token);
-            ctx.attr(RAW_FIREBASE_TOKEN).set(data.accessToken());
+            ctx.setAttr(FIREBASE_TOKEN, token);
+            ctx.setAttr(RAW_FIREBASE_TOKEN, data.accessToken());
             result.complete(true);
           }
         },

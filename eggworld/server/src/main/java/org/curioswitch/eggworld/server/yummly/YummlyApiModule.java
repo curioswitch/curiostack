@@ -25,8 +25,9 @@ package org.curioswitch.eggworld.server.yummly;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.client.logging.LoggingClient;
-import com.linecorp.armeria.client.retrofit2.ArmeriaRetrofitBuilder;
+import com.linecorp.armeria.client.retrofit2.ArmeriaRetrofit;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
@@ -54,16 +55,14 @@ public abstract class YummlyApiModule {
   @Provides
   @Singleton
   static YummlyApi yummlyApi(YummlyConfig config) {
-    return new ArmeriaRetrofitBuilder()
-        .baseUrl("http://api.yummly.com/v1/api/")
+    return ArmeriaRetrofit.builder(
+            WebClient.builder("http://api.yummly.com/v1/api/")
+                .addHttpHeader(HttpHeaderNames.of("X-Yummly-App-ID"), config.getApiId())
+                .addHttpHeader(HttpHeaderNames.of("X-Yummly-App-Key"), config.getApiKey())
+                .decorator(LoggingClient.builder().newDecorator())
+                .build())
         .addCallAdapterFactory(GuavaCallAdapterFactory.create())
         .addConverterFactory(JacksonConverterFactory.create(OBJECT_MAPPER))
-        .withClientOptions(
-            (unused, options) ->
-                options
-                    .addHttpHeader(HttpHeaderNames.of("X-Yummly-App-ID"), config.getApiId())
-                    .addHttpHeader(HttpHeaderNames.of("X-Yummly-App-Key"), config.getApiKey())
-                    .decorator(LoggingClient.builder().newDecorator()))
         .build()
         .create(YummlyApi.class);
   }

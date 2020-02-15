@@ -71,7 +71,7 @@ public abstract class LoggingModule {
       LoggingConfig config,
       @RequestHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> requestHeaderSanitizers,
       @ResponseHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> responseHeaderSanitizers) {
-    LoggingServiceBuilder builder = new LoggingServiceBuilder();
+    LoggingServiceBuilder builder = LoggingService.builder();
     configureLoggingDecorator(builder, config, requestHeaderSanitizers, responseHeaderSanitizers);
     if (config.getLogAllServerRequests()) {
       builder.requestLogLevel(LogLevel.INFO);
@@ -86,7 +86,7 @@ public abstract class LoggingModule {
       LoggingConfig config,
       @RequestHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> requestHeaderSanitizers,
       @ResponseHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> responseHeaderSanitizers) {
-    LoggingClientBuilder builder = new LoggingClientBuilder();
+    LoggingClientBuilder builder = LoggingClient.builder();
     configureLoggingDecorator(builder, config, requestHeaderSanitizers, responseHeaderSanitizers);
     if (config.getLogAllClientRequests()) {
       builder.requestLogLevel(LogLevel.INFO);
@@ -96,7 +96,7 @@ public abstract class LoggingModule {
   }
 
   private static void configureLoggingDecorator(
-      LoggingDecoratorBuilder<?> builder,
+      LoggingDecoratorBuilder builder,
       LoggingConfig config,
       @RequestHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> requestHeaderSanitizers,
       @ResponseHeaderSanitizer Set<Consumer<HttpHeadersBuilder>> responseHeaderSanitizers) {

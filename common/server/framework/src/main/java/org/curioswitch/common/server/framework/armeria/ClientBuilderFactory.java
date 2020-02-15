@@ -25,21 +25,20 @@ package org.curioswitch.common.server.framework.armeria;
 
 import brave.Tracing;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Strings;
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.ClientFactoryBuilder;
+import com.linecorp.armeria.client.Clients;
+import com.linecorp.armeria.client.Endpoint;
 import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.client.brave.BraveClient;
-import com.linecorp.armeria.client.endpoint.EndpointGroupRegistry;
-import com.linecorp.armeria.client.endpoint.EndpointSelectionStrategy;
+import com.linecorp.armeria.client.endpoint.EndpointGroup;
 import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroup;
 import com.linecorp.armeria.client.endpoint.healthcheck.HealthCheckedEndpointGroup;
 import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
 import com.linecorp.armeria.common.SessionProtocol;
-import com.linecorp.armeria.internal.TransportType;
-import dagger.Lazy;
+import com.linecorp.armeria.common.util.EventLoopGroups;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
@@ -61,7 +60,6 @@ import org.apache.logging.log4j.Logger;
 import org.curioswitch.common.server.framework.config.ServerConfig;
 import org.curioswitch.common.server.framework.monitoring.RpcMetricLabels;
 import org.curioswitch.common.server.framework.util.ResourceUtil;
-import org.curioswitch.curiostack.gcloud.core.auth.GoogleCredentialsDecoratingClient.Factory;
 
 /**
  * A convenience factory that sets up a {@link ClientBuilder} with appropriate default parameters.
@@ -84,7 +82,6 @@ public class ClientBuilderFactory {
       Function<HttpClient, LoggingClient> loggingClient,
       Optional<SelfSignedCertificate> selfSignedCertificate,
       Optional<TrustManagerFactory> caTrustManager,
-      Lazy<Factory> googleCredentialsDecoratingClient,
       ServerConfig serverConfig) {
     this.tracing = tracing;
     this.meterRegistry = meterRegistry;
@@ -137,15 +134,13 @@ public class ClientBuilderFactory {
       clientTlsCustomizer = clientCertificateCustomizer;
     }
     ClientFactoryBuilder factoryBuilder =
-        ClientFactory.builder()
-            .sslContextCustomizer(clientTlsCustomizer)
-            .meterRegistry(meterRegistry);
+        ClientFactory.builder().tlsCustomizer(clientTlsCustomizer).meterRegistry(meterRegistry);
     if (serverConfig.getDisableEdns()) {
       factoryBuilder.addressResolverGroupFactory(
           eventLoopGroup ->
               new DnsAddressResolverGroup(
                   new DnsNameResolverBuilder()
-                      .channelType(TransportType.datagramChannelType(eventLoopGroup))
+                      .channelType(EventLoopGroups.datagramChannelType(eventLoopGroup))
                       .nameServerProvider(DnsServerAddressStreamProviders.platformDefault())
                       .optResourceEnabled(false)));
     }
@@ -154,10 +149,10 @@ public class ClientBuilderFactory {
 
   public ClientBuilder create(String name, String url) {
     URI uri = URI.create(url);
-    if (uri.getAuthority().endsWith("cluster.local")) {
+    EndpointGroup endpoint = Endpoint.parse(url);
+    if (((Endpoint) endpoint).authority().endsWith("cluster.local")) {
       DnsAddressEndpointGroup dnsEndpointGroup =
           DnsAddressEndpointGroup.builder(uri.getHost()).port(uri.getPort()).ttl(1, 10).build();
-      DnsAddressEndpointGroup.of(uri.getHost(), uri.getPort());
       dnsEndpointGroup.addListener(
           endpoints ->
               logger.info(
@@ -172,13 +167,10 @@ public class ClientBuilderFactory {
               .protocol(SessionProtocol.HTTPS)
               .retryInterval(Duration.ofSeconds(3))
               .build();
-      EndpointGroupRegistry.register(name, endpointGroup, EndpointSelectionStrategy.ROUND_ROBIN);
-      endpointGroup.newMeterBinder(name).bindTo(meterRegistry);
-
-      url = uri.getScheme() + "://group:" + name + Strings.nullToEmpty(uri.getPath());
+      endpoint = endpointGroup;
     }
 
-    ClientBuilder builder = new ClientBuilder(url).factory(clientFactory);
+    ClientBuilder builder = Clients.builder(uri.getScheme(), endpoint).factory(clientFactory);
 
     return builder
         .decorator(

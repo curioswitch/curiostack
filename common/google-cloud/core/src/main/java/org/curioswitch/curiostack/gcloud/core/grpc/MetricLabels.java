@@ -25,8 +25,11 @@ package org.curioswitch.curiostack.gcloud.core.grpc;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.linecorp.armeria.common.logging.RequestLog;
+import com.linecorp.armeria.common.logging.RequestOnlyLog;
 import com.linecorp.armeria.common.metric.MeterIdPrefix;
 import com.linecorp.armeria.common.metric.MeterIdPrefixFunction;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.util.List;
 
 public class MetricLabels {
@@ -35,15 +38,27 @@ public class MetricLabels {
   private static final Splitter PATH_SPLITTER = Splitter.on('/');
 
   public static MeterIdPrefixFunction grpcRequestLabeler() {
-    return (registry, log) -> {
-      // The service name and method name will always be the last two path components.
-      List<String> methodParts = Lists.reverse(PATH_SPLITTER.splitToList(log.path()));
+    return GrpcRequestLabeler.INSTANCE;
+  }
+
+  private enum GrpcRequestLabeler implements MeterIdPrefixFunction {
+    INSTANCE;
+
+    @Override
+    public MeterIdPrefix activeRequestPrefix(MeterRegistry registry, RequestOnlyLog log) {
+      List<String> methodParts =
+          Lists.reverse(PATH_SPLITTER.splitToList(log.requestHeaders().path()));
       if (methodParts.size() == 2) {
         return new MeterIdPrefix(NAME, "service", methodParts.get(1), "method", methodParts.get(0));
       } else {
         return new MeterIdPrefix(NAME);
       }
-    };
+    }
+
+    @Override
+    public MeterIdPrefix completeRequestPrefix(MeterRegistry registry, RequestLog log) {
+      return activeRequestPrefix(registry, log);
+    }
   }
 
   private MetricLabels() {}
