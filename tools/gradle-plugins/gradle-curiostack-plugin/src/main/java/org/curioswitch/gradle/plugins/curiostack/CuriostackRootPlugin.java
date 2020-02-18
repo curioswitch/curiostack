@@ -89,6 +89,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolutionStrategy;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.artifacts.repositories.MavenRepositoryContentDescriptor;
+import org.gradle.api.attributes.java.TargetJvmVersion;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.JavaPlugin;
@@ -101,6 +102,7 @@ import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.JavaExec;
+import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.api.tasks.testing.Test;
@@ -487,6 +489,8 @@ public class CuriostackRootPlugin implements Plugin<Project> {
 
     project.afterEvaluate(
         unused -> {
+          var platform = project.getDependencies().platform(bomDependency);
+
           // Needs to be in afterEvaluate since there is no way to guarantee isCanBeResolved, etc
           // are set otherwise.
           project
@@ -494,13 +498,13 @@ public class CuriostackRootPlugin implements Plugin<Project> {
               .configureEach(
                   configuration -> {
                     if (configuration.isCanBeResolved() && !configuration.isCanBeConsumed()) {
-                      project
-                          .getDependencies()
-                          .add(
-                              configuration.getName(),
-                              project.getDependencies().platform(bomDependency));
+                      project.getDependencies().add(configuration.getName(), platform);
                     }
                   });
+
+          // Add bom to deprecated configurations too for now.
+          project.getDependencies().add("compile", platform);
+          project.getDependencies().add("testCompile", platform);
 
           plugins.withType(
               MavenPublishPlugin.class,
@@ -561,6 +565,20 @@ public class CuriostackRootPlugin implements Plugin<Project> {
     JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
     javaPlugin.setSourceCompatibility(JavaVersion.VERSION_11);
     javaPlugin.setTargetCompatibility(JavaVersion.VERSION_11);
+
+    // Even for libraries that set source version to 8 for compatibility with older runtimes,
+    // we always use 11 for tests.
+    var testSourceSet = javaPlugin.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
+    project
+        .getConfigurations()
+        .getByName(testSourceSet.getCompileClasspathConfigurationName())
+        .getAttributes()
+        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 11);
+    project
+        .getConfigurations()
+        .getByName(testSourceSet.getRuntimeClasspathConfigurationName())
+        .getAttributes()
+        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 11);
 
     project
         .getTasks()
