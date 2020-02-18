@@ -141,7 +141,7 @@ public class ProtobufPlugin implements Plugin<Project> {
                 .from(
                     project
                         .getConfigurations()
-                        .getByName(SourceSetUtils.getConfigName(sourceSet.getName(), "compile")))
+                        .getByName(sourceSet.getCompileClasspathConfigurationName()))
                 .from(sourceSet.getCompileClasspath()));
   }
 

@@ -35,16 +35,13 @@ pluginManagement {
     repositories {
         jcenter()
         gradlePluginPortal()
-        maven {
-            setUrl("https://dl.bintray.com/curioswitch/curiostack")
-        }
         mavenLocal()
     }
 }
 
 plugins {
     id("com.gradle.enterprise").version("3.1.1")
-    id("org.curioswitch.gradle-curiostack-plugin").version("0.4.0")
+    id("org.curioswitch.gradle-curiostack-plugin").version("0.4.1")
 }
 
 configure<CuriostackExtension> {

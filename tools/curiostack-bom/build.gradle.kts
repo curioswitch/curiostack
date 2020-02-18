@@ -51,8 +51,8 @@ val DEPENDENCY_BOMS = listOf(
         "com.fasterxml.jackson:jackson-bom:2.10.2.20200130",
         "com.google.cloud:google-cloud-bom:0.122.2-alpha",
         "com.google.api-client:google-api-client-bom:1.30.7",
-        "com.google.http-client:google-http-client-bom:1.34.1",
-        "com.linecorp.armeria:armeria-bom:0.98.1",
+        "com.google.http-client:google-http-client-bom:1.34.2",
+        "com.linecorp.armeria:armeria-bom:0.98.2",
         "io.dropwizard.metrics:metrics-bom:4.1.2",
         "io.grpc:grpc-bom:1.27.1",
         "io.micrometer:micrometer-bom:1.3.5",
@@ -76,7 +76,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.auth0",
-                "3.9.0",
+                "3.10.0",
                 listOf("java-jwt")
         ),
         DependencySet(
@@ -144,7 +144,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.protobuf",
-                "3.11.3",
+                "3.11.4",
                 listOf("protobuf-java", "protobuf-java-util", "protoc")
         ),
         DependencySet(
@@ -180,7 +180,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.fabric8",
-                "4.7.1",
+                "4.8.0",
                 listOf("kubernetes-client")
         ),
         DependencySet(
@@ -220,7 +220,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "net.bytebuddy",
-                "1.10.7",
+                "1.10.8",
                 listOf("byte-buddy", "byte-buddy-agent")
         ),
         DependencySet(
@@ -270,7 +270,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.eclipse.jgit",
-                "5.6.0.201912101111-r",
+                "5.6.1.202002131546-r",
                 listOf("org.eclipse.jgit")
         ),
         DependencySet(
