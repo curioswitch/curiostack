@@ -24,14 +24,11 @@ steps:
       MERGE_REV=$(git rev-parse HEAD^{commit})
       git checkout -f $$MERGE_REV
   env:
-    - GIT_ASKPASS=/tmp/cloudbuild-github-pass.sh
     - OTHER_BRANCH_REMOTE_REF=refs/pull/$_PR_NUMBER/head
     - OTHER_BRANCH_LOCAL_REF=refs/remotes/origin/PR-$_PR_NUMBER
     - BASE_BRANCH_REMOTE_REF=refs/heads/$_BASE_BRANCH
     - BASE_BRANCH_LOCAL_REF=refs/remotes/origin/$_BASE_BRANCH
     - REPO_URL=https://github.com/curioswitch/curiostack
-  secretEnv:
-    - GITHUB_TOKEN
 - id: curio-generated-fetch-builder-image
   waitFor:
     - '-'
