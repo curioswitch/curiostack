@@ -749,6 +749,8 @@ public class CuriostackRootPlugin implements Plugin<Project> {
     dependencies.add(JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME, "junit:junit");
     dependencies.add(JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME, "org.mockito:mockito-core");
     dependencies.add(
+        JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME, "org.mockito:mockito-junit-jupiter");
+    dependencies.add(
         JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME, "info.solidsoft.mockito:mockito-java8");
 
     dependencies.add(

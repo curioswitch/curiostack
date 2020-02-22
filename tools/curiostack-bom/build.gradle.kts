@@ -295,7 +295,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "3.2.11",
+                "3.3.0",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -319,7 +319,7 @@ val DEPENDENCY_SETS = listOf(
 val DEPENDENCIES = listOf(
         "com.bmuschko:gradle-docker-plugin:6.1.3",
         "com.diffplug.spotless:spotless-plugin-gradle:3.27.1",
-        "com.github.ben-manes:gradle-versions-plugin:0.27.0",
+        "com.github.ben-manes:gradle-versions-plugin:0.28.0",
         "com.google.code.gson:gson:2.8.6",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",
         "com.google.maps:google-maps-services:0.11.0",
