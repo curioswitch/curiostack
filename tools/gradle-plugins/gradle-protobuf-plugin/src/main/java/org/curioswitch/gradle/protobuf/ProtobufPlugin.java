@@ -36,7 +36,6 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.BasePlugin;
-import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
@@ -105,10 +104,8 @@ public class ProtobufPlugin implements Plugin<Project> {
                 .getByName(
                     sourceSet.getName(),
                     source -> {
-                      ((ExtensionAware) sourceSet).getExtensions().add("proto", source);
-                      sourceSet.getAllSource().source(source);
-
-                      source.getSrcDirs().forEach(sourceSet.getOutput()::dir);
+                      sourceSet.getExtensions().add("proto", source);
+                      source.getSrcDirs().forEach(sourceSet.getResources()::srcDir);
                     }));
 
     extension
@@ -141,8 +138,9 @@ public class ProtobufPlugin implements Plugin<Project> {
                 .from(
                     project
                         .getConfigurations()
-                        .getByName(sourceSet.getCompileClasspathConfigurationName()))
-                .from(sourceSet.getCompileClasspath()));
+                        // NOTE: Must be runtime, not compile, classpath since proto files are
+                        // resources and not part of Java compilation.
+                        .getByName(sourceSet.getRuntimeClasspathConfigurationName())));
   }
 
   private static SourceSetTasks configureSourceSet(
