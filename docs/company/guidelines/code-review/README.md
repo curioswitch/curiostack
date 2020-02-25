@@ -99,7 +99,9 @@ and maintain.
 
 * Technical debt is inevitable - if the author acknowledges a short-term good but long-term poor 
 decision, it's fine and encourage them to leave a TODO and/or JIRA (whether JIRA is filed will 
-depend on the size of the debt, use judgment).
+depend on the size of the debt, use judgment). This can also be useful to address non-blocking
+issues at a later date - it is better to get the main requirements of a change done sooner than
+spend significant time addressing issues that are non-blocking, e.g., adding clarifying comments.
 
 * Language specific points will / are gathered in language-specific guidelines
 
