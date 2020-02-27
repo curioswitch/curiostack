@@ -149,7 +149,7 @@ public class ClientBuilderFactory {
 
   public ClientBuilder create(String name, String url) {
     URI uri = URI.create(url);
-    EndpointGroup endpoint = Endpoint.parse(url);
+    EndpointGroup endpoint = Endpoint.parse(uri.getAuthority());
     if (((Endpoint) endpoint).authority().endsWith("cluster.local")) {
       DnsAddressEndpointGroup dnsEndpointGroup =
           DnsAddressEndpointGroup.builder(uri.getHost()).port(uri.getPort()).ttl(1, 10).build();
@@ -170,8 +170,8 @@ public class ClientBuilderFactory {
       endpoint = endpointGroup;
     }
 
-    ClientBuilder builder = Clients.builder(uri.getScheme(), endpoint).factory(clientFactory);
-
+    ClientBuilder builder =
+        Clients.builder(uri.getScheme(), endpoint).factory(clientFactory).path(uri.getPath());
     return builder
         .decorator(
             MetricCollectingClient.newDecorator(RpcMetricLabels.grpcRequestLabeler("grpc_clients")))
