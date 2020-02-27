@@ -12,10 +12,10 @@
     }
   },
   "dependencies": {
-    "@curiostack/base-web": "0.0.48",
+    "@curiostack/base-web": "0.1.2",
     "@curiostack/cafemap-api": "1.0.0",
-    "@material-ui/core": "4.6.1",
-    "@material-ui/icons": "4.5.1",
+    "@material-ui/core": "4.9.4",
+    "@material-ui/icons": "4.9.1",
     "google-maps-react": "2.0.2",
     "lodash.throttle": "4.1.1",
     "react-swipeable-views": "0.13.3",
