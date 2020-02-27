@@ -56,7 +56,7 @@ val DEPENDENCY_BOMS = listOf(
         "io.dropwizard.metrics:metrics-bom:4.1.2",
         "io.grpc:grpc-bom:1.27.1",
         "io.micrometer:micrometer-bom:1.3.5",
-        "io.zipkin.brave:brave-bom:5.9.5",
+        "io.zipkin.brave:brave-bom:5.10.1",
         "io.netty:netty-bom:4.1.45.Final",
         "org.apache.beam:beam-sdks-java-bom:2.18.0",
         "org.apache.logging.log4j:log4j-bom:2.13.0",
@@ -295,7 +295,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "3.3.0",
+                "3.3.1",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -317,7 +317,7 @@ val DEPENDENCY_SETS = listOf(
 )
 
 val DEPENDENCIES = listOf(
-        "com.bmuschko:gradle-docker-plugin:6.1.3",
+        "com.bmuschko:gradle-docker-plugin:6.1.4",
         "com.diffplug.spotless:spotless-plugin-gradle:3.27.1",
         "com.github.ben-manes:gradle-versions-plugin:0.28.0",
         "com.google.code.gson:gson:2.8.6",
@@ -328,7 +328,7 @@ val DEPENDENCIES = listOf(
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
         "de.undercouch:gradle-download-task:4.0.4",
         "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.6",
-        "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:2.0.0",
+        "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:2.1.0",
         "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.1",
         "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
         "io.sgr:s2-geometry-library-java:1.0.1",
