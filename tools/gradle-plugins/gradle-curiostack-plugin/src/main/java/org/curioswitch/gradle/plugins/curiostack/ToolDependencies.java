@@ -45,7 +45,7 @@ public class ToolDependencies {
           .put("openjdk8", "zulu8.44.0.11-ca-jdk8.0.242")
           .put("terraform", "0.12.20")
           .put("terraform-gsuite-provider", "0.1.36")
-          .put("yarn", "1.21.2")
+          .put("yarn", "1.22.0")
           .build();
 
   public static String getBomVersion(Project project) {
