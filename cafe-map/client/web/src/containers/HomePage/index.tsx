@@ -30,7 +30,7 @@ import { LocationDescriptorObject } from 'history';
 import React, { useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { hot } from 'react-hot-loader/root';
-import { WrappedComponentProps, injectIntl } from 'react-intl';
+import { injectIntl, WrappedComponentProps } from 'react-intl';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { compose } from 'redux';
@@ -110,7 +110,7 @@ const HomePage: React.FunctionComponent<Props & InjectedFormProps> = React.memo(
 
     const updateMap = useCallback(() => {
       getPlaces();
-      getLandmarks();
+      // getLandmarks();
     }, [getPlaces, getLandmarks]);
 
     return (
