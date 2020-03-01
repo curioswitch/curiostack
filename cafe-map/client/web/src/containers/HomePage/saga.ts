@@ -39,8 +39,8 @@ import {
 import {
   GetPlacesRequest,
   GetPlacesResponse,
-  LatLngBounds,
   LatLng,
+  LatLngBounds,
 } from '@curiostack/cafemap-api/org/curioswitch/cafemap/api/cafe-map-service_pb';
 
 import ApiClient from '../../utils/api-client';
@@ -228,7 +228,6 @@ function* getPlaces() {
     Promise.all(
       response
         .getPlaceList()
-        .slice(0, 5)
         .map((place) => placeDetails(placesService, place.getGooglePlaceId())),
     ),
   );
