@@ -1014,6 +1014,7 @@
     "@babel/runtime-corejs3" "7.8.7"
     "@curiostack/base-node-dev" "0.1.1"
     "@curiostack/eslint-config-web" "0.1.2"
+    "@curiostack/tsconfig" "0.1.0"
     "@gfx/zopfli" "1.0.14"
     "@hugmanrique/react-markdown-loader" "0.0.2"
     "@storybook/addon-actions" "5.3.14"
