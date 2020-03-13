@@ -25,11 +25,12 @@
 module.exports = {
   extends: [
     '@curiostack/base',
-    'airbnb',
-    'prettier',
+    'airbnb-typescript',
+    'plugin:prettier/recommended',
     'prettier/@typescript-eslint',
-    'prettier/react',
+    'prettier/react'
   ],
+  plugins: ['@typescript-eslint', 'react'],
   env: {
     browser: true,
     jest: true,
@@ -75,13 +76,5 @@ module.exports = {
     'react/no-multi-comp': 'off',
     'react/prop-types': 'off',
     'react/sort-comp': 'off',
-  },
-  settings: {
-    'import/extensions': ['.js', '.jsx', '.ts', '.tsx'],
-    'import/resolver': {
-      node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
-      },
-    },
   },
 };
