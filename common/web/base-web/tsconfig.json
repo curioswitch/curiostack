@@ -1,6 +1,6 @@
 {
-  "extends": "../../../tsconfig.json",
-  "compilerOptions": {
-    "isolatedModules": false
-  }
+  "extends": "@curiostack/tsconfig",
+  "include": [
+    "src/**/*"
+  ]
 }

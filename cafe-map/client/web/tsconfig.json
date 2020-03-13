@@ -1,17 +1,10 @@
 {
-  "extends": "../../../tsconfig.json",
+  "extends": "@curiostack/tsconfig",
   "include": [
     "src/**/*",
     "../../../node_modules/babel-plugin-react-intl-auto/**/*.d.ts"
   ],
   "compilerOptions": {
-    "incremental": true,
-    "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo.json",
-    "baseUrl": ".",
-    "paths": {
-      "@babel/runtime/helpers/builtin/*": [
-        "../../../node_modules/@babel/runtime-corejs2/helpers/*"
-      ]
-    }
+    "baseUrl": "."
   }
 }

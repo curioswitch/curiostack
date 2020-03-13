@@ -1,5 +1,5 @@
 {
-  "extends": "../../../tsconfig.json",
+  "extends": "@curiostack/tsconfig",
   "compilerOptions": {
     "rootDir": "src/dev",
     "declaration": true,
