@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-// tslint:disable:max-classes-per-file
+/* eslint-disable max-classes-per-file */
 
 // TODO(choko): Figure out why @types/intl isn't enough.
 declare module 'intl' {}

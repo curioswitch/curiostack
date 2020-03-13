@@ -82,6 +82,7 @@ function configure(options: any): Configuration {
           '@babel/proposal-optional-catch-binding',
           '@babel/syntax-dynamic-import',
           '@babel/syntax-object-rest-spread',
+          'babel-plugin-macros',
           'react-hot-loader/babel',
           [
             'react-intl-auto',
