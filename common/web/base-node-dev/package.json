@@ -1,12 +1,12 @@
 {
   "name": "@curiostack/base-node-dev",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Curiostack's base dev dependencies for non-browser applications.",
   "repository": "curioswitch/curiostack",
   "author": "Choko <choko@curioswitch.org>",
   "license": "MIT",
   "dependencies": {
-    "@curiostack/eslint-config-base": "0.1.1",
+    "@curiostack/eslint-config-base": "0.2.0",
     "@types/node": "13.9.1",
     "prettier": "1.19.1",
     "rimraf": "3.0.2",
