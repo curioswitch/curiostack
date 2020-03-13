@@ -24,14 +24,11 @@ steps:
       MERGE_REV=$(git rev-parse HEAD^{commit})
       git checkout -f $$MERGE_REV
   env:
-    - GIT_ASKPASS=/tmp/cloudbuild-github-pass.sh
     - OTHER_BRANCH_REMOTE_REF=refs/pull/$_PR_NUMBER/head
     - OTHER_BRANCH_LOCAL_REF=refs/remotes/origin/PR-$_PR_NUMBER
     - BASE_BRANCH_REMOTE_REF=refs/heads/$_BASE_BRANCH
     - BASE_BRANCH_LOCAL_REF=refs/remotes/origin/$_BASE_BRANCH
     - REPO_URL=https://github.com/curioswitch/curiostack
-  secretEnv:
-    - GITHUB_TOKEN
 - id: curio-generated-fetch-builder-image
   waitFor:
     - '-'
@@ -85,5 +82,4 @@ timeout: 60m
 secrets:
   - kmsKeyName: projects/curioswitch-cluster/locations/us-central1/keyRings/cloudbuild/cryptoKeys/github
     secretEnv:
-      GITHUB_TOKEN: CiQAxdYgHKy7zJMVlxWy8cIw05kknrquhxEOlNjZyZlWoj5Cnc8SUQA/OpLBO9ycMNajhYGLluk2Kji4Do5vT9DqV/zVmFdJ7orxk6n0bTw8cUY+gjp8IohjMdpt8ElWrRkChYzY2FLQIlGo+eldnEPUttZg1vWDjA==
       CODECOV_TOKEN: CiQAxdYgHOdQ5tY7WYjvBYlUsXk9g4GvELjEJZhEIFcxrkuDKY4STQA/OpLB7g9Gr8K5MZrwZXVDH/Ste1P6ZOFJl0TYILjU31c72w8Mmhde5JJv1VyEHW+67h8UARJHh6yOktrGFBU6wGzKDud0p6az3PoW
