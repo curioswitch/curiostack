@@ -24,15 +24,15 @@
 
 module.exports = {
   extends: [
-    'airbnb-base',
-    'plugin:@typescript-eslint/recommended',
-    // TODO(choko): Use this after https://github.com/benmosher/eslint-plugin-import/pull/1277
-    // is released.
-    // 'plugin:import/typescript',
-    'prettier',
+    'airbnb-typescript/base',
+    'plugin:prettier/recommended',
     'prettier/@typescript-eslint',
   ],
-  plugins: ['prettier'],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: ['./tsconfig.json'],
+  },
+  plugins: ['@typescript-eslint'],
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
@@ -68,13 +68,5 @@ module.exports = {
         trailingComma: 'all',
       },
     ],
-  },
-  settings: {
-    'import/extensions': ['.js', '.jsx', '.ts', '.tsx'],
-    'import/resolver': {
-      node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
-      },
-    },
   },
 };

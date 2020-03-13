@@ -8,8 +8,8 @@
   "license": "MIT",
   "dependencies": {
     "@curiostack/eslint-config-base": "0.1.1",
-    "eslint-config-airbnb": "18.0.1",
+    "eslint-config-airbnb-typescript": "7.0.0",
     "eslint-plugin-jsx-a11y": "6.2.3",
-    "eslint-plugin-react": "7.18.3"
+    "eslint-plugin-react": "7.19.0"
   }
 }
