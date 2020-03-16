@@ -24,6 +24,8 @@
 
 /* eslint-disable max-classes-per-file */
 
+import { Plugin } from 'webpack';
+
 // TODO(choko): Figure out why @types/intl isn't enough.
 declare module 'intl' {}
 
@@ -37,7 +39,6 @@ declare module '*.json' {
 }
 
 declare module 'autodll-webpack-plugin' {
-  import { Plugin } from 'webpack';
   interface Entry {
     [key: string]: string[];
   }
@@ -58,7 +59,6 @@ declare module 'autodll-webpack-plugin' {
 }
 
 declare module 'brotli-webpack-plugin' {
-  import { Plugin } from 'webpack';
   interface Args {
     asset: string;
     test: RegExp;
@@ -74,7 +74,6 @@ declare module 'brotli-webpack-plugin' {
 declare module 'koa-proxies' {}
 
 declare module 'webapp-webpack-plugin' {
-  import { Plugin } from 'webpack';
   interface Args {
     logo: string;
     prefix?: string;
@@ -88,7 +87,6 @@ declare module 'webapp-webpack-plugin' {
 }
 
 declare module 'zopfli-webpack-plugin' {
-  import { Plugin } from 'webpack';
   interface Args {
     asset: string;
     algorithm: string;
