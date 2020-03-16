@@ -1,6 +1,6 @@
 {
   "name": "@curiostack/base-web",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Curiostack's base dependencies for browser applications.",
   "repository": "curioswitch/curiostack",
   "author": "Choko <choko@curioswitch.org>",
