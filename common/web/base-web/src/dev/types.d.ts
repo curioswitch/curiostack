@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-// tslint:disable:max-classes-per-file
+/* eslint-disable max-classes-per-file */
 
 declare module '@storybook/react/standalone' {
   interface DevOptions {
@@ -40,13 +40,9 @@ declare module '@storybook/react/standalone' {
 }
 
 // TODO(choko): Figure out why @types/intl isn't enough.
-declare module 'intl' {
+declare module 'intl' {}
 
-}
-
-declare module 'intl/locale-data/jsonp/*.js' {
-
-}
+declare module 'intl/locale-data/jsonp/*.js' {}
 
 declare module 'jest-cli' {
   export interface Argv {
@@ -64,7 +60,16 @@ declare module '*.json' {
 }
 
 declare module 'autodll-webpack-plugin' {
-  import { Plugin } from 'webpack';
+  import {
+    Plugin,
+    Plugin,
+    Plugin,
+    Plugin,
+    Plugin,
+    Configuration,
+    Stats,
+  } from 'webpack';
+
   interface Entry {
     [key: string]: string[];
   }
@@ -85,7 +90,6 @@ declare module 'autodll-webpack-plugin' {
 }
 
 declare module 'brotli-webpack-plugin' {
-  import { Plugin } from 'webpack';
   interface Args {
     asset: string;
     test: RegExp;
@@ -101,17 +105,14 @@ declare module 'brotli-webpack-plugin' {
 declare module 'html-to-react' {
   import { Component } from 'react';
 
-  class Parser {
+  export class Parser {
     public parse(html: string): Component;
   }
 }
 
-declare module 'koa-proxies' {
-
-}
+declare module 'koa-proxies' {}
 
 declare module 'react-loadable/webpack' {
-  import { Plugin } from 'webpack';
   interface Args {
     filename: string;
   }
@@ -121,7 +122,6 @@ declare module 'react-loadable/webpack' {
 }
 
 declare module 'static-site-generator-webpack-plugin' {
-  import { Plugin } from 'webpack';
   interface Args {
     entry: string;
     paths: string[];
@@ -135,7 +135,6 @@ declare module 'static-site-generator-webpack-plugin' {
 }
 
 declare module 'favicons-webpack-plugin' {
-  import { Plugin } from 'webpack';
   interface Args {
     logo: string;
     devMode?: string;
@@ -152,7 +151,6 @@ declare module 'favicons-webpack-plugin' {
 }
 
 declare module 'webpack-sane-compiler' {
-  import { Configuration, Stats } from 'webpack';
   class SaneCompiler {
     public run(): Promise<{ stats: Stats }>;
   }
