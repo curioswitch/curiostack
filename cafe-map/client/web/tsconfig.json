@@ -1,8 +1,7 @@
 {
   "extends": "@curiostack/tsconfig",
   "include": [
-    "src/**/*",
-    "../../../node_modules/babel-plugin-react-intl-auto/**/*.d.ts"
+    "src/**/*"
   ],
   "compilerOptions": {
     "baseUrl": "."

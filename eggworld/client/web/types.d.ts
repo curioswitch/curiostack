@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 
-declare module '*.json' {
-  const value: any;
-  export default value;
-}
+/* eslint-disable spaced-comment */
+
+/// <reference types="@curiostack/base-web" />
