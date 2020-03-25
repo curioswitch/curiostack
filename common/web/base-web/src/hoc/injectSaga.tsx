@@ -57,9 +57,9 @@ export default ({ key, saga, mode }: Options) => <TOriginalProps extends {}>(
 ) => {
   class InjectSaga extends React.Component<TOriginalProps & HocProps> {
     // eslint-disable-next-line react/static-property-placement
-    public static displayName = `withSaga(${WrappedComponent.displayName ||
-      WrappedComponent.name ||
-      'Component'})`;
+    public static displayName = `withSaga(${
+      WrappedComponent.displayName || WrappedComponent.name || 'Component'
+    })`;
 
     private injectors = getInjectors(this.props.reduxCtx.store as any);
 

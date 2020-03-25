@@ -37,7 +37,7 @@ export const initialState = Record<StateProps>({
   globalErrorMessage: '',
 })();
 
-export default function(state: State, action: Actions): State {
+export default function (state: State, action: Actions): State {
   switch (action.type) {
     case ActionTypes.SET_GLOBAL_ERROR_MESSAGE:
       return state.set('globalErrorMessage', action.payload);

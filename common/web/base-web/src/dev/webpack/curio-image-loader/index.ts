@@ -75,9 +75,7 @@ async function createImage(
   format: string,
   width: number,
 ) {
-  let s = sharp(content)
-    .resize(width)
-    .toFormat(format);
+  let s = sharp(content).resize(width).toFormat(format);
   if (format === 'jpg') {
     s = s.jpeg(options.jpeg);
   } else if (format === 'png') {

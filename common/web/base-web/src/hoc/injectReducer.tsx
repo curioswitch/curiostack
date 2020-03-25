@@ -53,9 +53,9 @@ export default ({ key, reducer }: Options) => <TOriginalProps extends {}>(
 ) => {
   class ReducerInjector extends React.Component<TOriginalProps & HocProps> {
     // eslint-disable-next-line react/static-property-placement
-    public static displayName = `withReducer(${WrappedComponent.displayName ||
-      WrappedComponent.name ||
-      'Component'})`;
+    public static displayName = `withReducer(${
+      WrappedComponent.displayName || WrappedComponent.name || 'Component'
+    })`;
 
     private injectors = getInjectors(this.props.reduxCtx.store as any);
 

@@ -43,7 +43,7 @@ export const initialState = Record<StateProps>({
   place: undefined,
 })();
 
-export default function(state: State, action: Actions): State {
+export default function (state: State, action: Actions): State {
   switch (action.type) {
     case ActionTypes.GET_PLACE_RESPONSE:
       return state.set('place', action.payload);

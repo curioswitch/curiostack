@@ -35,11 +35,11 @@ export interface ImageDescriptor {
   fallback: string;
 }
 
-export interface Props extends ImgHTMLAttributes<{}> {
+export interface PictureProps extends ImgHTMLAttributes<{}> {
   image: ImageDescriptor;
 }
 
-export default class Picture extends React.PureComponent<Props> {
+export default class Picture extends React.PureComponent<PictureProps> {
   public render() {
     const { image, alt, ...others } = this.props;
     return (

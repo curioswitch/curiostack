@@ -31,14 +31,18 @@ export { default as injectSaga } from './hoc/injectSaga';
 export { default as useReducer } from './hooks/useReducer';
 export { default as useSaga } from './hooks/useSaga';
 
-export { default as Picture } from './components/Picture';
+export {
+  default as Picture,
+  ImageDescriptor,
+  PictureProps,
+} from './components/Picture';
 export { default as LoadingIndicator } from './components/LoadingIndicator';
 
 export { GlobalStateBase } from './state';
 export * from './state/actions';
 
 export interface WebappConfig {
-  component: React.ComponentClass | React.StatelessComponent;
+  component: React.ComponentClass | React.FunctionComponent;
   messages: LocaleMessages;
   defaultLocale: string;
   initialState: any;
