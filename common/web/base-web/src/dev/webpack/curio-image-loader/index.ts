@@ -176,7 +176,7 @@ async function run(ctx: LoaderContext, content: Buffer) {
     fallback,
   };
 
-  ctx.callback(undefined, `export default ${JSON.stringify(output)}`);
+  ctx.callback(undefined, `module.exports = ${JSON.stringify(output)}`);
 }
 
 export default function curioImageLoader(this: LoaderContext, content: Buffer) {

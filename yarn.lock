@@ -906,7 +906,7 @@
     typescript "3.8.3"
 
 "@curiostack/base-web@0.2.0":
-  version "0.2.1"
+  version "0.2.2"
   dependencies:
     "@babel/core" "7.8.7"
     "@babel/plugin-proposal-async-generator-functions" "7.8.3"

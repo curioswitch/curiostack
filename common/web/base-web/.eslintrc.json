@@ -1,6 +1,0 @@
-{
-  "extends": "@curiostack/web",
-  "rules": {
-    "react/destructuring-assignment": "off"
-  }
-}
