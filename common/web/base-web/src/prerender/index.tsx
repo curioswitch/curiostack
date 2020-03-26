@@ -179,6 +179,6 @@ async function run(locals: any) {
   );
 }
 
-export default function(locals: any) {
+export default function (locals: any) {
   return run(locals);
 }

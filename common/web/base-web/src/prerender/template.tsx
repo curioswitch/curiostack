@@ -37,7 +37,7 @@ export interface Args {
   extraStyles: JSX.Element[];
 }
 
-export default function({
+export default function ({
   content,
   delayedScriptSrcs,
   helmet,

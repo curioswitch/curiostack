@@ -40,10 +40,12 @@ const browsers: string[] = (packageJson.curiostack &&
 if (browsers.includes('last 2 versions')) {
   // eslint-disable-next-line no-console
   console.warn(
-    `${'Your value for curiostack.browsers contains "last 2 versions". This should be avoided as ' +
+    `${
+      'Your value for curiostack.browsers contains "last 2 versions". This should be avoided as ' +
       'it includes a whole range of ancient browsers, including IE10. Please check out ' +
       'https://github.com/browserslist/browserslist for better possible values and when in ' +
-      'doubt, "defaults" is still fine. Current value: '}${browsers}`,
+      'doubt, "defaults" is still fine. Current value: '
+    }${browsers}`,
   );
 }
 
@@ -61,7 +63,7 @@ function configure(options: any): Configuration {
             {
               modules: false,
               useBuiltIns: 'usage',
-              corejs: '3.4',
+              corejs: '3.6',
               targets: options.babelTargets || {
                 browsers,
               },

@@ -49,7 +49,7 @@ export const initialState = Record<StateProps>({
   bottomSheetVisibility: SheetVisibility.HIDDEN,
 })();
 
-export default function(state: State, action: Actions): State {
+export default function (state: State, action: Actions): State {
   switch (action.type) {
     case ActionTypes.GET_LANDMARKS_RESPONSE:
       return state.set('landmarks', List(action.payload));

@@ -35,13 +35,9 @@ export interface SearchBoxProps {
   onSearch: () => void;
 }
 
-const SearchBox: React.FunctionComponent<SearchBoxProps &
-  WrappedFieldProps> = ({
-  className,
-  input,
-  onSearch,
-  meta: { touched, invalid },
-}) => (
+const SearchBox: React.FunctionComponent<
+  SearchBoxProps & WrappedFieldProps
+> = ({ className, input, onSearch, meta: { touched, invalid } }) => (
   <Paper className={className} elevation={1}>
     <InputBase
       placeholder="Find a station"
