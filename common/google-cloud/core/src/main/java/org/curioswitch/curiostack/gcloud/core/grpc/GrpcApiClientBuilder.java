@@ -26,6 +26,7 @@ package org.curioswitch.curiostack.gcloud.core.grpc;
 import brave.Tracing;
 import com.linecorp.armeria.client.ClientBuilder;
 import com.linecorp.armeria.client.ClientRequestContext;
+import com.linecorp.armeria.client.Clients;
 import com.linecorp.armeria.client.SimpleDecoratingHttpClient;
 import com.linecorp.armeria.client.brave.BraveClient;
 import com.linecorp.armeria.client.logging.LoggingClient;
@@ -49,7 +50,7 @@ public class GrpcApiClientBuilder {
   }
 
   public ClientBuilder newBuilder(String url) {
-    return new ClientBuilder("gproto+" + url)
+    return Clients.builder("gproto+" + url)
         .decorator(
             client ->
                 new SimpleDecoratingHttpClient(client) {
@@ -59,8 +60,7 @@ public class GrpcApiClientBuilder {
                     // Many Google services do not support the standard application/grpc+proto
                     // header...
                     req =
-                        HttpRequest.of(
-                            req,
+                        req.withHeaders(
                             req.headers()
                                 .toBuilder()
                                 .set(HttpHeaderNames.CONTENT_TYPE, "application/grpc")

@@ -63,7 +63,7 @@ import com.linecorp.armeria.client.ClientOptionsBuilder;
 import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.client.retry.Backoff;
 import com.linecorp.armeria.client.retry.RetryStrategy;
-import com.linecorp.armeria.client.retry.RetryingHttpClient;
+import com.linecorp.armeria.client.retry.RetryingClient;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpRequest;
@@ -141,7 +141,7 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
         HttpMethod.GET,
         hostName,
         url,
-        HttpData.EMPTY_DATA,
+        HttpData.empty(),
         userAgent,
         experienceIdHeaderValue,
         clazz,
@@ -210,8 +210,8 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
 
   public static class Builder implements GeoApiContext.RequestHandler.Builder {
 
-    private final ClientFactoryBuilder clientFactoryBuilder = new ClientFactoryBuilder();
-    private final ClientOptionsBuilder clientOptionsBuilder = new ClientOptionsBuilder();
+    private final ClientFactoryBuilder clientFactoryBuilder = ClientFactory.builder();
+    private final ClientOptionsBuilder clientOptionsBuilder = ClientOptions.builder();
 
     @Override
     public RequestHandler.Builder connectTimeout(long timeout, TimeUnit unit) {
@@ -221,13 +221,13 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
 
     @Override
     public RequestHandler.Builder readTimeout(long timeout, TimeUnit unit) {
-      clientOptionsBuilder.defaultResponseTimeoutMillis(unit.toMillis(timeout));
+      clientOptionsBuilder.responseTimeoutMillis(unit.toMillis(timeout));
       return this;
     }
 
     @Override
     public RequestHandler.Builder writeTimeout(long timeout, TimeUnit unit) {
-      clientOptionsBuilder.defaultWriteTimeoutMillis(unit.toMillis(timeout));
+      clientOptionsBuilder.writeTimeoutMillis(unit.toMillis(timeout));
       return this;
     }
 
@@ -254,7 +254,7 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
     @Override
     public RequestHandler build() {
       clientOptionsBuilder.decorator(
-          RetryingHttpClient.newDecorator(
+          RetryingClient.newDecorator(
               RetryStrategy.onStatus(
                   (status, t) -> {
                     if (t != null || RETRY_STATUSES.contains(status)) {

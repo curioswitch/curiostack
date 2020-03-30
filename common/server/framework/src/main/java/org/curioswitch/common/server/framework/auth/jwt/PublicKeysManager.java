@@ -34,7 +34,7 @@ import com.google.common.collect.Streams;
 import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.retry.RetryStrategy;
-import com.linecorp.armeria.client.retry.RetryingHttpClient;
+import com.linecorp.armeria.client.retry.RetryingClient;
 import com.linecorp.armeria.common.CommonPools;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpHeaders;
@@ -89,7 +89,7 @@ public class PublicKeysManager {
     httpClient =
         WebClient.builder(uri.getScheme() + "://" + uri.getAuthority())
             .decorator(LoggingClient.builder().newDecorator())
-            .decorator(RetryingHttpClient.newDecorator(RetryStrategy.onServerErrorStatus()))
+            .decorator(RetryingClient.newDecorator(RetryStrategy.onServerErrorStatus()))
             .build();
     keysCache =
         new AsyncRefreshingValue<>(

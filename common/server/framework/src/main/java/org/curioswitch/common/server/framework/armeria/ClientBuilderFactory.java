@@ -171,7 +171,7 @@ public class ClientBuilderFactory {
     }
 
     ClientBuilder builder =
-        Clients.builder(uri.getScheme(), endpoint).factory(clientFactory).path(uri.getPath());
+        Clients.builder(uri.getScheme(), endpoint, uri.getPath()).factory(clientFactory);
     return builder
         .decorator(
             MetricCollectingClient.newDecorator(RpcMetricLabels.grpcRequestLabeler("grpc_clients")))

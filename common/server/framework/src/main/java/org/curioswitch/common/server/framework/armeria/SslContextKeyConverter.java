@@ -32,7 +32,7 @@ import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
-import java.util.function.BiFunction;
+import java.util.function.BiConsumer;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JcaPKCS8Generator;
 import org.bouncycastle.util.io.pem.PemGenerationException;
@@ -45,10 +45,10 @@ import org.curioswitch.common.server.framework.crypto.KeyUtil;
  */
 public final class SslContextKeyConverter {
 
-  public static SslContextBuilder execute(
+  public static void execute(
       InputStream keyCertChainFile,
       InputStream keyFile,
-      BiFunction<InputStream, InputStream, SslContextBuilder> operation) {
+      BiConsumer<InputStream, InputStream> operation) {
     final byte[] key;
     final byte[] keyCertChain;
     try {
@@ -59,7 +59,7 @@ public final class SslContextKeyConverter {
     }
 
     try {
-      return operation.apply(new ByteArrayInputStream(keyCertChain), new ByteArrayInputStream(key));
+      operation.accept(new ByteArrayInputStream(keyCertChain), new ByteArrayInputStream(key));
     } catch (Exception e) {
       // Try to convert the key to PCKS8.
       PrivateKey privateKey = KeyUtil.loadPrivateKey(key);
@@ -78,8 +78,7 @@ public final class SslContextKeyConverter {
         throw new UncheckedIOException("Could not write key to String, can't happen.", ex);
       }
       byte[] pkcs8key = sw.toString().getBytes(StandardCharsets.UTF_8);
-      return operation.apply(
-          new ByteArrayInputStream(keyCertChain), new ByteArrayInputStream(pkcs8key));
+      operation.accept(new ByteArrayInputStream(keyCertChain), new ByteArrayInputStream(pkcs8key));
     }
   }
 

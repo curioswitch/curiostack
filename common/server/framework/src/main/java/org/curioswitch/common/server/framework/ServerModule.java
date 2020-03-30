@@ -31,7 +31,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.Futures;
-import com.linecorp.armeria.common.Flags;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
@@ -46,9 +45,9 @@ import com.linecorp.armeria.server.ServerListener;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.auth.AuthService;
 import com.linecorp.armeria.server.auth.AuthServiceBuilder;
-import com.linecorp.armeria.server.auth.HttpAuthServiceBuilder;
 import com.linecorp.armeria.server.auth.OAuth2Token;
 import com.linecorp.armeria.server.brave.BraveService;
+import com.linecorp.armeria.server.docs.DocService;
 import com.linecorp.armeria.server.docs.DocServiceBuilder;
 import com.linecorp.armeria.server.grpc.GrpcService;
 import com.linecorp.armeria.server.grpc.GrpcServiceBuilder;
@@ -69,16 +68,12 @@ import dagger.producers.Production;
 import io.grpc.BindableService;
 import io.grpc.protobuf.services.ProtoReflectionService;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.netty.handler.codec.http2.Http2SecurityUtil;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
 import io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
 import io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
 import io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ClientAuth;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslProvider;
-import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.prometheus.client.CollectorRegistry;
@@ -103,7 +98,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.inject.Singleton;
-import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -355,20 +349,17 @@ public abstract class ServerModule {
 
     if (selfSignedCertificate.isPresent()) {
       SelfSignedCertificate certificate = selfSignedCertificate.get();
-      try {
-        SslContextBuilder sslContext =
-            serverSslContext(
-                    ResourceUtil.openStream(certificate.certificate().getAbsolutePath()),
-                    ResourceUtil.openStream(certificate.privateKey().getAbsolutePath()))
-                .trustManager(InsecureTrustManagerFactory.INSTANCE);
-        if (!serverConfig.isDisableSslAuthorization()) {
-          sslContext.clientAuth(ClientAuth.OPTIONAL);
-        }
-        sb.tls(sslContext.build());
-      } catch (SSLException e) {
-        // Can't happen.
-        throw new IllegalStateException(e);
-      }
+      SslContextKeyConverter.execute(
+          ResourceUtil.openStream(certificate.certificate().getAbsolutePath()),
+          ResourceUtil.openStream(certificate.privateKey().getAbsolutePath()),
+          sb::tls);
+      sb.tlsCustomizer(
+          tls -> {
+            tls.trustManager(InsecureTrustManagerFactory.INSTANCE);
+            if (!serverConfig.isDisableSslAuthorization()) {
+              tls.clientAuth(ClientAuth.OPTIONAL);
+            }
+          });
     } else if (serverConfig.getTlsCertificatePath().isEmpty()
         || serverConfig.getTlsPrivateKeyPath().isEmpty()
         || !caTrustManager.isPresent()) {
@@ -376,19 +367,17 @@ public abstract class ServerModule {
           "No TLS configuration provided, Curiostack does not support non-TLS servers. "
               + "Use gradle-curio-cluster-plugin to set up a namespace and TLS.");
     } else {
-      try {
-        SslContextBuilder sslContext =
-            serverSslContext(
-                    ResourceUtil.openStream(serverConfig.getTlsCertificatePath()),
-                    ResourceUtil.openStream(serverConfig.getTlsPrivateKeyPath()))
-                .trustManager(caTrustManager.get());
-        if (!serverConfig.isDisableSslAuthorization()) {
-          sslContext.clientAuth(ClientAuth.OPTIONAL);
-        }
-        sb.tls(sslContext.build());
-      } catch (SSLException e) {
-        throw new IllegalStateException("Could not load TLS certificate.", e);
-      }
+      SslContextKeyConverter.execute(
+          ResourceUtil.openStream(serverConfig.getTlsCertificatePath()),
+          ResourceUtil.openStream(serverConfig.getTlsPrivateKeyPath()),
+          sb::tls);
+      sb.tlsCustomizer(
+          tls -> {
+            tls.trustManager(caTrustManager.get());
+            if (!serverConfig.isDisableSslAuthorization()) {
+              tls.clientAuth(ClientAuth.OPTIONAL);
+            }
+          });
     }
 
     serverCustomizers.forEach(c -> c.accept(sb));
@@ -399,7 +388,7 @@ public abstract class ServerModule {
     }
 
     if (!serverConfig.isDisableDocService()) {
-      DocServiceBuilder docService = new DocServiceBuilder();
+      DocServiceBuilder docService = DocService.builder();
       if (!authConfig.getServiceAccountBase64().isEmpty()) {
         docService.injectedScript(
             "armeria.registerHeaderProvider(function() {\n"
@@ -631,7 +620,7 @@ public abstract class ServerModule {
                     return delegate.serve(ctx, req);
                   })
               .decorate(
-                  new HttpAuthServiceBuilder()
+                  AuthService.builder()
                       .addTokenAuthorizer(
                           headers ->
                               OAuth2Token.of(
@@ -646,10 +635,7 @@ public abstract class ServerModule {
       FirebaseAuthorizer authorizer = firebaseAuthorizer.get();
       service =
           service.decorate(
-              new HttpAuthServiceBuilder()
-                  .addOAuth2(authorizer)
-                  .onFailure(authorizer)
-                  .newDecorator());
+              AuthService.builder().addOAuth2(authorizer).onFailure(authorizer).newDecorator());
     }
 
     service =
@@ -668,17 +654,6 @@ public abstract class ServerModule {
                   return delegate.serve(ctx, req);
                 });
     return service;
-  }
-
-  private static SslContextBuilder serverSslContext(
-      InputStream keyCertChainFile, InputStream keyFile) {
-    SslContextBuilder builder =
-        SslContextKeyConverter.execute(
-            keyCertChainFile, keyFile, (cert, key) -> SslContextBuilder.forServer(cert, key, null));
-    return builder
-        .sslProvider(Flags.useOpenSsl() ? SslProvider.OPENSSL : SslProvider.JDK)
-        .ciphers(Http2SecurityUtil.CIPHERS, SupportedCipherSuiteFilter.INSTANCE)
-        .applicationProtocolConfig(HTTPS_ALPN_CFG);
   }
 
   private static HttpService internalService(
