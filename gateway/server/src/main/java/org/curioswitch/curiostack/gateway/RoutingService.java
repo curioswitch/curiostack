@@ -77,7 +77,7 @@ class RoutingService implements HttpService {
     // We don't want to pass the external domain name through to the backend server since this
     // causes problems with the TLS handshake between this server and the backend (the external
     // hostname does not match the names we use in our certs for server to server communication).
-    req = HttpRequest.of(req, req.headers().toBuilder().authority("").build());
+    req = req.withHeaders(req.headers().toBuilder().authority("").build());
     return client.execute(req);
   }
 
