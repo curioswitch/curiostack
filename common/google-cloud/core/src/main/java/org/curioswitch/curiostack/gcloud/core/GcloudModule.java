@@ -85,8 +85,7 @@ public abstract class GcloudModule {
     return Clients.newDerivedClient(
         googleApisClient,
         ClientOption.DECORATION.newValue(
-            ClientDecoration.of(
-                RetryingClient.newDecorator(RetryStrategy.onServerErrorStatus()))));
+            ClientDecoration.of(RetryingClient.newDecorator(RetryStrategy.onServerErrorStatus()))));
   }
 
   private GcloudModule() {}
