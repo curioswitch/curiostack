@@ -56,8 +56,8 @@ public abstract class GcloudPubSubModule {
   static SubscriberStub streamingSubscriber(GrpcApiClientBuilder clientBuilder) {
     return clientBuilder
         .newBuilder("https://pubsub.googleapis.com/")
-        .defaultMaxResponseLength(Integer.MAX_VALUE)
-        .defaultResponseTimeout(Duration.ZERO)
+        .maxResponseLength(Integer.MAX_VALUE)
+        .responseTimeout(Duration.ZERO)
         .build(SubscriberStub.class);
   }
 

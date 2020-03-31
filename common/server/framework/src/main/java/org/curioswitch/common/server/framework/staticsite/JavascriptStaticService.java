@@ -57,7 +57,7 @@ public class JavascriptStaticService extends AbstractHttpService {
 
   @Override
   protected HttpResponse doGet(ServiceRequestContext ctx, HttpRequest req) {
-    ctx.addAdditionalResponseHeaders(INFINITE_CACHE_HEADERS);
+    ctx.mutateAdditionalResponseHeaders(headers -> headers.add(INFINITE_CACHE_HEADERS));
     return HttpResponse.of(HttpStatus.OK, MediaType.JAVASCRIPT_UTF_8, response);
   }
 }

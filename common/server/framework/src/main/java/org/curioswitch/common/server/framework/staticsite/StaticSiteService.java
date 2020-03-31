@@ -31,10 +31,10 @@ import com.linecorp.armeria.server.HttpService;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.ServiceRequestContextWrapper;
 import com.linecorp.armeria.server.SimpleDecoratingHttpService;
-import com.linecorp.armeria.server.composition.SimpleCompositeServiceBuilder;
-import com.linecorp.armeria.server.file.HttpFileBuilder;
-import com.linecorp.armeria.server.file.HttpFileService;
-import com.linecorp.armeria.server.file.HttpFileServiceBuilder;
+import com.linecorp.armeria.server.composition.SimpleCompositeService;
+import com.linecorp.armeria.server.file.FileService;
+import com.linecorp.armeria.server.file.FileServiceBuilder;
+import com.linecorp.armeria.server.file.HttpFile;
 
 /**
  * A {@link com.linecorp.armeria.server.Service} which serves a singlepage static site (SPA). All
@@ -43,7 +43,7 @@ import com.linecorp.armeria.server.file.HttpFileServiceBuilder;
  * all other requests will resolve to "index.html" in the classpath for handling by the SPA.
  *
  * <p>The static site will automatically serve precompressed files if they are found, using the
- * conventions specified in {@link HttpFileServiceBuilder#serveCompressedFiles(boolean)}.
+ * conventions specified in {@link FileServiceBuilder#serveCompressedFiles(boolean)}.
  */
 public final class StaticSiteService {
 
@@ -54,28 +54,28 @@ public final class StaticSiteService {
    * @param classpathRoot the root directory in the classpath to serve resources from.
    */
   public static HttpService of(String staticPath, String classpathRoot) {
-    HttpFileService staticFileService =
-        HttpFileServiceBuilder.forClassPath(classpathRoot)
+    FileService staticFileService =
+        FileService.builder(StaticSiteService.class.getClassLoader(), classpathRoot)
             .serveCompressedFiles(true)
             .cacheControl(ServerCacheControl.IMMUTABLE)
             .addHeader(HttpHeaderNames.VARY, "Accept-Encoding")
             .build();
 
     HttpService indexHtmlService =
-        HttpFileBuilder.ofResource(classpathRoot + "/index.html")
+        HttpFile.builder(StaticSiteService.class.getClassLoader(), classpathRoot + "/index.html")
             .cacheControl(ServerCacheControl.DISABLED)
             .build()
             .asService();
 
     TrailingSlashAddingService indexService =
-        HttpFileServiceBuilder.forClassPath(classpathRoot)
+        FileService.builder(StaticSiteService.class.getClassLoader(), classpathRoot)
             .serveCompressedFiles(true)
             .cacheControl(ServerCacheControl.DISABLED)
             .build()
             .orElse(indexHtmlService)
             .decorate(TrailingSlashAddingService::new);
 
-    return new SimpleCompositeServiceBuilder()
+    return SimpleCompositeService.builder()
         .serviceUnder(staticPath, staticFileService)
         .serviceUnder("/", indexService)
         .build();

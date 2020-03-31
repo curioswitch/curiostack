@@ -31,7 +31,7 @@ import com.google.firebase.auth.FirebaseToken;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
-import com.linecorp.armeria.server.Service;
+import com.linecorp.armeria.server.HttpService;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.auth.AuthFailureHandler;
 import com.linecorp.armeria.server.auth.Authorizer;
@@ -45,8 +45,7 @@ import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class FirebaseAuthorizer
-    implements Authorizer<OAuth2Token>, AuthFailureHandler<HttpRequest, HttpResponse> {
+public class FirebaseAuthorizer implements Authorizer<OAuth2Token>, AuthFailureHandler {
 
   private static final Logger logger = LogManager.getLogger();
 
@@ -103,10 +102,7 @@ public class FirebaseAuthorizer
 
   @Override
   public HttpResponse authFailed(
-      Service<HttpRequest, HttpResponse> delegate,
-      ServiceRequestContext ctx,
-      HttpRequest req,
-      @Nullable Throwable cause)
+      HttpService delegate, ServiceRequestContext ctx, HttpRequest req, @Nullable Throwable cause)
       throws Exception {
     if (cause != null) {
       logger.warn("Unexpected exception during authorization.", cause);

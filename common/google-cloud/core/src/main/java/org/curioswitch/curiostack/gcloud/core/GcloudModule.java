@@ -31,7 +31,7 @@ import com.linecorp.armeria.client.Clients;
 import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.retry.RetryStrategy;
-import com.linecorp.armeria.client.retry.RetryingHttpClient;
+import com.linecorp.armeria.client.retry.RetryingClient;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
 import dagger.BindsOptionalOf;
@@ -64,14 +64,14 @@ public abstract class GcloudModule {
         meterRegistry
             .map(
                 registry -> {
-                  ClientFactoryBuilder builder = new ClientFactoryBuilder().meterRegistry(registry);
+                  ClientFactoryBuilder builder = ClientFactory.builder().meterRegistry(registry);
                   if (config.getDisableEdns()) {
                     builder.domainNameResolverCustomizer(
                         dnsNameResolverBuilder -> dnsNameResolverBuilder.optResourceEnabled(false));
                   }
                   return builder.build();
                 })
-            .orElse(ClientFactory.DEFAULT);
+            .orElse(ClientFactory.ofDefault());
     return WebClient.builder("https://www.googleapis.com/")
         .factory(factory)
         .decorator(LoggingClient.builder().newDecorator())
@@ -85,8 +85,7 @@ public abstract class GcloudModule {
     return Clients.newDerivedClient(
         googleApisClient,
         ClientOption.DECORATION.newValue(
-            ClientDecoration.of(
-                RetryingHttpClient.newDecorator(RetryStrategy.onServerErrorStatus()))));
+            ClientDecoration.of(RetryingClient.newDecorator(RetryStrategy.onServerErrorStatus()))));
   }
 
   private GcloudModule() {}

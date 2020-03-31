@@ -182,7 +182,7 @@ public class StorageClient {
                 return ((ByteBufHolder) msg.content()).content();
               } else {
                 ByteBuf buf = alloc.buffer(data.length());
-                buf.writeBytes(data.array(), data.offset(), data.length());
+                buf.writeBytes(data.array());
                 return buf;
               }
             });
