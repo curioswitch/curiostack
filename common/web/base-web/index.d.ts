@@ -53,7 +53,7 @@ declare module '*.mp4' {
 
 declare module '*.m4a' {
   const value: string;
-  export default value
+  export default value;
 }
 declare module '*.eot' {
   const value: string;
