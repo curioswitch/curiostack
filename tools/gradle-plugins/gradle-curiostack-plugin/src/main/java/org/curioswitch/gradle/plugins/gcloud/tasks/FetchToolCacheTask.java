@@ -24,6 +24,7 @@
 package org.curioswitch.gradle.plugins.gcloud.tasks;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.inject.Inject;
@@ -87,6 +88,12 @@ public class FetchToolCacheTask extends DefaultTask {
         getProject(),
         workerExecutor,
         exec -> {
+          if (!Files.exists(archive)) {
+            exec.executable("bash");
+            exec.args("-c", "echo Cache failed to download, skipping...");
+            return;
+          }
+
           exec.executable("bash");
           exec.workingDir(toolManager.getCuriostackDir());
 
