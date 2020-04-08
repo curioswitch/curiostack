@@ -23,10 +23,12 @@
  */
 package org.curioswitch.gradle.plugins.gcloud.tasks;
 
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.inject.Inject;
 import org.apache.tools.ant.taskdefs.condition.Os;
+import org.curioswitch.gradle.helpers.exec.ExternalExecUtil;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.provider.Property;
@@ -35,11 +37,6 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.workers.WorkerExecutor;
 
 public class FetchToolCacheTask extends DefaultTask {
-
-  // It is extremely hacky to use global state to propagate the Task to workers, but
-  // it works so let's enjoy the speed.
-  private static final ConcurrentHashMap<String, FetchToolCacheTask> TASKS =
-      new ConcurrentHashMap<>();
 
   private final Property<String> src;
 
@@ -63,44 +60,39 @@ public class FetchToolCacheTask extends DefaultTask {
   }
 
   @TaskAction
-  public void exec() {
+  public void exec() throws Exception {
     getProject().mkdir(DownloadedToolManager.get(getProject()).getCuriostackDir());
 
-    String mapKey = UUID.randomUUID().toString();
-    TASKS.put(mapKey, this);
+    File tempDir = getTemporaryDir();
+    tempDir.createNewFile();
 
-    // We usually execute long-running tasks in the executor but directly run for now since gsutil
-    // seems to be flaky under high concurrency.
-    new GsutilCopy(mapKey).run();
-  }
+    Path archive = Paths.get(tempDir.getAbsolutePath(), "tool-cache.lz4");
 
-  public static class GsutilCopy implements Runnable {
+    var toolManager = DownloadedToolManager.get(getProject());
 
-    private final String mapKey;
+    ExternalExecUtil.exec(
+        getProject(),
+        workerExecutor,
+        exec -> {
+          String gsutil = Os.isFamily(Os.FAMILY_WINDOWS) ? "gsutil" + ".cmd" : "gsutil";
 
-    @Inject
-    public GsutilCopy(String mapKey) {
-      this.mapKey = mapKey;
-    }
+          exec.executable(toolManager.getBinDir("gcloud").resolve(gsutil));
 
-    @Override
-    public void run() {
-      FetchToolCacheTask task = TASKS.remove(mapKey);
+          exec.args("cp", src.get(), archive);
 
-      var toolManager = DownloadedToolManager.get(task.getProject());
+          exec.setIgnoreExitValue(true);
+        });
 
-      String gsutil = Os.isFamily(Os.FAMILY_WINDOWS) ? "gsutil" + ".cmd" : "gsutil";
+    ExternalExecUtil.exec(
+        getProject(),
+        workerExecutor,
+        exec -> {
+          exec.executable("bash");
+          exec.workingDir(toolManager.getCuriostackDir());
 
-      task.getProject()
-          .exec(
-              exec -> {
-                exec.executable("bash");
-                exec.workingDir(toolManager.getCuriostackDir());
+          exec.args("-c", "lz4 -dc " + archive + " | tar -xp");
 
-                exec.args("-c", gsutil + " cp " + task.src.get() + " - | lz4 -dc - | tar -xp");
-
-                exec.setIgnoreExitValue(true);
-              });
-    }
+          exec.setIgnoreExitValue(true);
+        });
   }
 }
