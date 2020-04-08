@@ -77,23 +77,24 @@ public class FetchToolCacheTask extends DefaultTask {
         exec -> {
           String gsutil = Os.isFamily(Os.FAMILY_WINDOWS) ? "gsutil" + ".cmd" : "gsutil";
 
-          exec.executable(toolManager.getBinDir("gcloud").resolve(gsutil));
+          exec.executable(gsutil);
 
           exec.args("cp", src.get(), archive);
 
           exec.setIgnoreExitValue(true);
         });
 
+    workerExecutor.await();
+
+    if (!Files.exists(archive)) {
+      getLogger().quiet("Cache failed to download, skipping.");
+      return;
+    }
+
     ExternalExecUtil.exec(
         getProject(),
         workerExecutor,
         exec -> {
-          if (!Files.exists(archive)) {
-            exec.executable("bash");
-            exec.args("-c", "echo Cache failed to download, skipping...");
-            return;
-          }
-
           exec.executable("bash");
           exec.workingDir(toolManager.getCuriostackDir());
 
