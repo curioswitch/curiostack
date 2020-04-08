@@ -23,7 +23,7 @@ steps:
   entrypoint: ash
   args:
     - -c
-    - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4 - | lz4 -dc - | tar -xp || echo Could not fetch compressed build cache...
+    - gsutil cp gs://curioswitch-gradle-build-cache/cloudbuild-cache-compressed.tar.lz4 /tmp/cloudbuild-cache-compressed.tar.lz4 && lz4 -dc /tmp/cloudbuild-cache-compressed.tar.lz4 | tar -xp || echo Could not fetch compressed build cache...
 - id: curio-generated-build-releases
   waitFor:
   - curio-generated-fetch-compressed-build-cache
