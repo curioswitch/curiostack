@@ -86,7 +86,11 @@ public class FetchToolCacheTask extends DefaultTask {
           exec.setIgnoreExitValue(true);
         });
 
-    workerExecutor.await();
+    try {
+      workerExecutor.await();
+    } catch (Exception e) {
+      getLogger().warn("Cache failed to download, skipping.", e);
+    }
 
     if (!Files.exists(archive)) {
       getLogger().quiet("Cache failed to download, skipping.");
