@@ -49,14 +49,14 @@ data class DependencySet(val group: String, val version: String, val modules: Li
 
 val DEPENDENCY_BOMS = listOf(
         "com.fasterxml.jackson:jackson-bom:2.10.3",
-        "com.google.cloud:google-cloud-bom:0.123.0-alpha",
+        "com.google.cloud:google-cloud-bom:0.123.1-alpha",
         "com.google.api-client:google-api-client-bom:1.30.9",
         "com.google.http-client:google-http-client-bom:1.34.2",
-        "com.linecorp.armeria:armeria-bom:0.99.1",
+        "com.linecorp.armeria:armeria-bom:0.99.2",
         "io.dropwizard.metrics:metrics-bom:4.1.5",
-        "io.grpc:grpc-bom:1.28.0",
+        "io.grpc:grpc-bom:1.28.1",
         "io.micrometer:micrometer-bom:1.4.1",
-        "io.zipkin.brave:brave-bom:5.10.2",
+        "io.zipkin.brave:brave-bom:5.11.2",
         "io.netty:netty-bom:4.1.48.Final",
         "org.apache.beam:beam-sdks-java-bom:2.19.0",
         "org.apache.logging.log4j:log4j-bom:2.13.1",
@@ -76,7 +76,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.auth0",
-                "3.10.1",
+                "3.10.2",
                 listOf("java-jwt")
         ),
         DependencySet(
@@ -250,12 +250,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.bouncycastle",
-                "1.64",
+                "1.65",
                 listOf("bcpkix-jdk15on", "bcprov-jdk15on")
         ),
         DependencySet(
                 "org.checkerframework",
-                "3.2.0",
+                "3.3.0",
                 listOf("checker-qual")
         ),
         DependencySet(
@@ -318,12 +318,12 @@ val DEPENDENCY_SETS = listOf(
 
 val DEPENDENCIES = listOf(
         "com.bmuschko:gradle-docker-plugin:6.4.0",
-        "com.diffplug.spotless:spotless-plugin-gradle:3.28.0",
+        "com.diffplug.spotless:spotless-plugin-gradle:3.28.1",
         "com.github.ben-manes:gradle-versions-plugin:0.28.0",
         "com.google.code.gson:gson:2.8.6",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",
         "com.google.maps:google-maps-services:0.11.0",
-        "com.gradle:gradle-enterprise-gradle-plugin:3.2",
+        "com.gradle:gradle-enterprise-gradle-plugin:3.2.1",
         "com.hubspot.jinjava:jinjava:2.5.3",
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
         "de.undercouch:gradle-download-task:4.0.4",
