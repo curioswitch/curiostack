@@ -46,7 +46,14 @@ public abstract class ExecWorkAction implements WorkAction<Parameters> {
 
   @Override
   public void execute() {
-    exec.exec(exec -> getParameters().getExecCustomizer().get().copyTo(exec));
+    var execCustomizer = getParameters().getExecCustomizer().get();
+    try {
+      exec.exec(execCustomizer::copyTo);
+    } catch (Exception e) {
+      if (!execCustomizer.isIgnoreExitValue()) {
+        throw e;
+      }
+    }
   }
 
   public interface Parameters extends WorkParameters {
