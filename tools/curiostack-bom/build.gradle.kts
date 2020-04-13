@@ -295,7 +295,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "3.3.6",
+                "3.3.7",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -325,7 +325,7 @@ val DEPENDENCIES = listOf(
         "com.google.maps:google-maps-services:0.11.0",
         "com.gradle:gradle-enterprise-gradle-plugin:3.2.1",
         "com.hubspot.jinjava:jinjava:2.5.3",
-        "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4",
+        "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5",
         "de.undercouch:gradle-download-task:4.0.4",
         "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.6",
         "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:2.1.0",

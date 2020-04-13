@@ -32,10 +32,10 @@ public class ToolDependencies {
 
   private static Map<String, String> DEFAULT_VERSIONS =
       ImmutableMap.<String, String>builder()
-          .put("bom", "0.5.0")
+          .put("bom", "0.5.0.1")
           .put("claat", "2.2.0")
-          .put("gcloud", "286.0.0")
-          .put("golang", "1.14.1")
+          .put("gcloud", "288.0.0")
+          .put("golang", "1.14.2")
           .put("google-java-format", "1.7")
           .put("gradle", "6.3")
           .put("helm", "2.10.0")
