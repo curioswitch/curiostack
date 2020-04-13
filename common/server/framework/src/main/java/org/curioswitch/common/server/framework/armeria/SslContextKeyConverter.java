@@ -60,8 +60,8 @@ public final class SslContextKeyConverter {
 
     try {
       // This triggers Netty to try to read the key and will throw an exception if it can't.
-      SslContextBuilder
-          .forServer(new ByteArrayInputStream(keyCertChain), new ByteArrayInputStream(key));
+      SslContextBuilder.forServer(
+          new ByteArrayInputStream(keyCertChain), new ByteArrayInputStream(key));
       operation.accept(new ByteArrayInputStream(keyCertChain), new ByteArrayInputStream(key));
     } catch (Exception e) {
       // Try to convert the key to PCKS8.
@@ -85,6 +85,5 @@ public final class SslContextKeyConverter {
     }
   }
 
-  private SslContextKeyConverter() {
-  }
+  private SslContextKeyConverter() {}
 }
