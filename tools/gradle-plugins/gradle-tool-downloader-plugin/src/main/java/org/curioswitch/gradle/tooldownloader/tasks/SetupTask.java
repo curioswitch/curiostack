@@ -24,12 +24,14 @@
 package org.curioswitch.gradle.tooldownloader.tasks;
 
 import com.google.common.io.Resources;
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.curioswitch.gradle.helpers.platform.PathUtil;
@@ -52,7 +54,7 @@ public class SetupTask extends DefaultTask {
   }
 
   @TaskAction
-  public void exec() {
+  public void exec() throws Exception {
     if ("true".equals(System.getenv("CI")) || toolName.equals("graalvm")) {
       return;
     }
@@ -60,6 +62,11 @@ public class SetupTask extends DefaultTask {
     DownloadedToolManager toolManager = DownloadToolUtil.getManager(getProject());
 
     Path shimsPath = toolManager.getCuriostackDir().resolve("shims");
+    if (Files.exists(shimsPath)) {
+      try (var s = Files.walk(shimsPath)) {
+        s.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+      }
+    }
     getProject().mkdir(shimsPath);
 
     final String shimTemplate;
@@ -76,6 +83,9 @@ public class SetupTask extends DefaultTask {
         s.filter(Files::isExecutable)
             // Git is mainly for use on CI, don't shim it on dev machines since it's never better.
             .filter(p -> !p.getFileName().toString().startsWith("git"))
+            // Probably not a good idea to shim DLLs
+            .filter(p -> !p.getFileName().endsWith(".dll"))
+            .filter(p -> !p.getFileName().endsWith(".pyd"))
             .forEach(
                 path ->
                     workerExecutor.submit(
