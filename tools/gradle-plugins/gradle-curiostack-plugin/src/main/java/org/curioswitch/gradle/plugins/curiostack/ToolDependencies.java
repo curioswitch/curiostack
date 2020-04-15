@@ -32,6 +32,7 @@ public class ToolDependencies {
 
   private static Map<String, String> DEFAULT_VERSIONS =
       ImmutableMap.<String, String>builder()
+          .put("awscli", "2.0.7")
           .put("bom", "0.5.0.1")
           .put("claat", "2.2.0")
           .put("gcloud", "288.0.0")
@@ -47,6 +48,10 @@ public class ToolDependencies {
           .put("terraform-gsuite-provider", "0.1.40")
           .put("yarn", "1.22.4")
           .build();
+
+  public static String getAwsCliVersion(Project project) {
+    return getVersion("awscli", project);
+  }
 
   public static String getBomVersion(Project project) {
     return getVersion("bom", project);
