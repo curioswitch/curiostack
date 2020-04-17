@@ -340,7 +340,8 @@ val DEPENDENCIES = listOf(
         "net.ltgt.gradle:gradle-apt-plugin:0.21",
         "net.ltgt.gradle:gradle-errorprone-plugin:1.1.1",
         "nu.studer:gradle-jooq-plugin:4.1",
-        "org.jsoup:jsoup:1.13.1"
+        "org.jsoup:jsoup:1.13.1",
+        "software.amazon.awssdk:bom:2.11.12"
 )
 
 dependencies {

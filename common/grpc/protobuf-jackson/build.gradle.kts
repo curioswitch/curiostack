@@ -29,6 +29,7 @@ plugins {
     id("me.champeau.gradle.jmh")
     id("org.curioswitch.gradle-protobuf-plugin")
 }
+
 base {
     archivesBaseName = "protobuf-jackson"
 }
