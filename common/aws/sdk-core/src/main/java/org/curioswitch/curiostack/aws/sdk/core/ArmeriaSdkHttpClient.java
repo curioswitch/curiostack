@@ -44,7 +44,6 @@ import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import software.amazon.awssdk.http.SdkHttpMethod;
 import software.amazon.awssdk.http.SdkHttpRequest;
 import software.amazon.awssdk.http.SdkHttpResponse;
@@ -52,6 +51,7 @@ import software.amazon.awssdk.http.async.AsyncExecuteRequest;
 import software.amazon.awssdk.http.async.SdkAsyncHttpClient;
 import software.amazon.awssdk.http.async.SdkAsyncHttpResponseHandler;
 import software.amazon.awssdk.utils.AttributeMap;
+import software.amazon.awssdk.utils.async.DelegatingSubscriber;
 
 public class ArmeriaSdkHttpClient implements SdkAsyncHttpClient {
 
@@ -165,48 +165,26 @@ public class ArmeriaSdkHttpClient implements SdkAsyncHttpClient {
     headers.forEach((name, value) -> builder.appendHeader(name.toString(), value));
   }
 
-  private static class SdkToHttpDataSubscriber implements Subscriber<ByteBuffer> {
-    private final Subscriber<? super HttpData> delegate;
-
+  private static class SdkToHttpDataSubscriber extends DelegatingSubscriber<ByteBuffer, HttpData> {
     private SdkToHttpDataSubscriber(Subscriber<? super HttpData> delegate) {
-      this.delegate = delegate;
-    }
-
-    @Override
-    public void onSubscribe(Subscription s) {
-      delegate.onSubscribe(s);
+      super(delegate);
     }
 
     @Override
     public void onNext(ByteBuffer byteBuffer) {
-      delegate.onNext(HttpData.wrap(Unpooled.wrappedBuffer(byteBuffer)));
-    }
-
-    @Override
-    public void onError(Throwable t) {
-      delegate.onError(t);
-    }
-
-    @Override
-    public void onComplete() {
-      delegate.onComplete();
+      subscriber.onNext(HttpData.wrap(Unpooled.wrappedBuffer(byteBuffer)));
     }
   }
 
-  private static class HttpObjectToSdkSubscriber implements Subscriber<HttpObject> {
+  private static class HttpObjectToSdkSubscriber
+      extends DelegatingSubscriber<HttpObject, ByteBuffer> {
 
-    private final Subscriber<? super ByteBuffer> delegate;
     private final SdkAsyncHttpResponseHandler handler;
 
     public HttpObjectToSdkSubscriber(
         Subscriber<? super ByteBuffer> delegate, SdkAsyncHttpResponseHandler handler) {
-      this.delegate = delegate;
+      super(delegate);
       this.handler = handler;
-    }
-
-    @Override
-    public void onSubscribe(Subscription s) {
-      delegate.onSubscribe(s);
     }
 
     @Override
@@ -217,7 +195,7 @@ public class ArmeriaSdkHttpClient implements SdkAsyncHttpClient {
         HttpData data = (HttpData) obj;
         // We can't subscribe with pooled objects since there is no SDK callback that would let us
         // release them so can just wrap the array here.
-        delegate.onNext(ByteBuffer.wrap(data.array()));
+        subscriber.onNext(ByteBuffer.wrap(data.array()));
       } else {
         // Trailers. Documentation doesn't make clear whether the SDK actually can handle trailers
         // but it also doesn't say the callback can only be called once so just try calling it again
@@ -227,16 +205,6 @@ public class ArmeriaSdkHttpClient implements SdkAsyncHttpClient {
         fillHeaders((HttpHeaders) obj, builder);
         handler.onHeaders(builder.build());
       }
-    }
-
-    @Override
-    public void onError(Throwable t) {
-      delegate.onError(t);
-    }
-
-    @Override
-    public void onComplete() {
-      delegate.onComplete();
     }
   }
 }
