@@ -29,6 +29,10 @@ allprojects {
         task allDeps(type: DependencyReportTask) {}
     }
 
+    plugins.withType(nl.javadude.gradle.plugins.license.LicensePlugin) {
+        license.skipExistingHeaders = true
+    }
+
     plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
         project.apply plugin: 'com.jfrog.bintray'
         // This should happen automatically, not clear why not.
