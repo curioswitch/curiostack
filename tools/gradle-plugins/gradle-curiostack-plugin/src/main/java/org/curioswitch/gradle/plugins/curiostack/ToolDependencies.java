@@ -33,7 +33,7 @@ public class ToolDependencies {
   private static Map<String, String> DEFAULT_VERSIONS =
       ImmutableMap.<String, String>builder()
           .put("awscli", "2.0.7")
-          .put("bom", "0.5.0.1")
+          .put("bom", "0.5.2")
           .put("claat", "2.2.0")
           .put("gcloud", "288.0.0")
           .put("golang", "1.14.2")

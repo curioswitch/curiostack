@@ -91,7 +91,6 @@ public class CurioServerPlugin implements Plugin<Project> {
           container.setPorts(ImmutableList.of("8080"));
         });
 
-    jib.getFrom().setImage(config.getBaseImage().get());
     jib.getTo()
         .setCredHelper(
             DownloadedToolManager.get(project)
@@ -123,6 +122,8 @@ public class CurioServerPlugin implements Plugin<Project> {
 
     project.afterEvaluate(
         p -> {
+          jib.getFrom().setImage(config.getBaseImage().get());
+
           String archivesBaseName =
               project.getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
 

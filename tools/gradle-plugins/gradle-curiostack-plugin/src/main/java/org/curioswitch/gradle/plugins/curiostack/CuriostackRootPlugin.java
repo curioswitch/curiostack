@@ -543,10 +543,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
         .configureEach(
             task -> {
               task.getOptions().setIncremental(true);
-              task.getOptions()
-                  .setCompilerArgs(
-                      ImmutableList.of(
-                          "-XDcompilePolicy=byfile", "-Aimmutables.gradle.incremental"));
 
               ErrorProneOptions errorProne =
                   ((ExtensionAware) task.getOptions())
