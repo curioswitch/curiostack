@@ -55,7 +55,7 @@ val DEPENDENCY_BOMS = listOf(
         "com.linecorp.armeria:armeria-bom:0.99.2",
         "io.dropwizard.metrics:metrics-bom:4.1.5",
         "io.grpc:grpc-bom:1.28.1",
-        "io.micrometer:micrometer-bom:1.4.1",
+        "io.micrometer:micrometer-bom:1.3.8",
         "io.zipkin.brave:brave-bom:5.11.2",
         "io.netty:netty-bom:4.1.48.Final",
         "org.apache.beam:beam-sdks-java-bom:2.19.0",
@@ -76,7 +76,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.auth0",
-                "3.10.2",
+                "3.10.3",
                 listOf("java-jwt")
         ),
         DependencySet(
@@ -200,7 +200,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.zipkin.gcp",
-                "0.16.0",
+                "0.16.1",
                 listOf("brave-propagation-stackdriver", "zipkin-translation-stackdriver")
         ),
         DependencySet(
@@ -295,7 +295,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "3.3.7",
+                "3.3.9",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -339,7 +339,7 @@ val DEPENDENCIES = listOf(
         "mysql:mysql-connector-java:8.0.19",
         "net.ltgt.gradle:gradle-apt-plugin:0.21",
         "net.ltgt.gradle:gradle-errorprone-plugin:1.1.1",
-        "nu.studer:gradle-jooq-plugin:4.1",
+        "nu.studer:gradle-jooq-plugin:4.2",
         "org.jsoup:jsoup:1.13.1",
         "software.amazon.awssdk:bom:2.11.12"
 )
