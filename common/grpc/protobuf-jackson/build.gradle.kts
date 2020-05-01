@@ -50,6 +50,10 @@ jmh {
 }
 
 protobuf {
+    protoc {
+        artifact.set("com.google.protobuf:protoc:3.8.0")
+    }
+
     descriptorSetOptions.enabled.set(false)
     descriptorSetOptions.path.set(file("build/unused-descriptor-set"))
 }
