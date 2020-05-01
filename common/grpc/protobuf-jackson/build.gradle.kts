@@ -45,14 +45,11 @@ jmh {
     iterations = 10
     fork = 5
     profilers = listOf()
-    setIncludeTests(true)
+    isIncludeTests = true
+    isZip64 = true
 }
 
 protobuf {
-    protoc {
-        artifact.set("com.google.protobuf:protoc:3.8.0")
-    }
-
     descriptorSetOptions.enabled.set(false)
     descriptorSetOptions.path.set(file("build/unused-descriptor-set"))
 }

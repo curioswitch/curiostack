@@ -28,6 +28,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.assertEquals;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.protobuf.Any;
 import com.google.protobuf.BoolValue;
@@ -931,6 +934,25 @@ public class MessageMarshallerTest {
   @Test
   public void fieldsOutOfOrder() throws Exception {
     assertMatchesUpstream(TestFieldOrder.newBuilder().setValue1("foo").setValue2("bar").build());
+  }
+
+  @Test
+  public void doesNotCloseJsonGenerator() throws Exception {
+    JsonGenerator generator =
+        new ObjectMapper().getFactory().createGenerator(new ByteArrayOutputStream());
+    MessageMarshaller marshaller =
+        MessageMarshaller.builder().register(TestAllTypes.getDefaultInstance()).build();
+    marshaller.writeValue(TestAllTypes.getDefaultInstance(), generator);
+    assertThat(generator.isClosed()).isFalse();
+  }
+
+  @Test
+  public void doesNotCloseJsonParser() throws Exception {
+    JsonParser parser = new ObjectMapper().getFactory().createParser("{}");
+    MessageMarshaller marshaller =
+        MessageMarshaller.builder().register(TestAllTypes.getDefaultInstance()).build();
+    marshaller.mergeValue(parser, TestAllTypes.newBuilder());
+    assertThat(parser.isClosed()).isFalse();
   }
 
   private static String recursiveJson(int numRecursions) {
