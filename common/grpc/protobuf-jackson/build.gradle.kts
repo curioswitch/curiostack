@@ -45,7 +45,8 @@ jmh {
     iterations = 10
     fork = 5
     profilers = listOf()
-    setIncludeTests(true)
+    isIncludeTests = true
+    isZip64 = true
 }
 
 protobuf {

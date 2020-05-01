@@ -156,8 +156,9 @@ public class MessageMarshaller {
   public void mergeValue(byte[] json, Message.Builder builder) throws IOException {
     checkNotNull(json, "json");
     checkNotNull(builder, "builder");
-    JsonParser parser = jsonFactory.createParser(json);
-    mergeValue(parser, builder);
+    try (JsonParser parser = jsonFactory.createParser(json)) {
+      mergeValue(parser, builder);
+    }
   }
 
   /**
@@ -169,8 +170,9 @@ public class MessageMarshaller {
   public void mergeValue(String json, Message.Builder builder) throws IOException {
     checkNotNull(json, "json");
     checkNotNull(builder, "builder");
-    JsonParser parser = jsonFactory.createParser(json);
-    mergeValue(parser, builder);
+    try (JsonParser parser = jsonFactory.createParser(json)) {
+      mergeValue(parser, builder);
+    }
   }
 
   /**
@@ -183,8 +185,9 @@ public class MessageMarshaller {
   public void mergeValue(InputStream json, Message.Builder builder) throws IOException {
     checkNotNull(json, "json");
     checkNotNull(builder, "builder");
-    JsonParser parser = jsonFactory.createParser(json);
-    mergeValue(parser, builder);
+    try (JsonParser parser = jsonFactory.createParser(json)) {
+      mergeValue(parser, builder);
+    }
   }
 
   /**
@@ -204,8 +207,6 @@ public class MessageMarshaller {
       throw e;
     } catch (IOException e) {
       throw new InvalidProtocolBufferException(e);
-    } finally {
-      jsonParser.close();
     }
   }
 
@@ -217,8 +218,9 @@ public class MessageMarshaller {
   public <T extends Message> byte[] writeValueAsBytes(T message) throws IOException {
     checkNotNull(message, "message");
     ByteArrayBuilder builder = new ByteArrayBuilder(jsonFactory._getBufferRecycler());
-    JsonGenerator gen = jsonFactory.createGenerator(builder);
-    writeValue(message, gen);
+    try (JsonGenerator gen = jsonFactory.createGenerator(builder)) {
+      writeValue(message, gen);
+    }
     return builder.toByteArray();
   }
 
@@ -230,8 +232,9 @@ public class MessageMarshaller {
   public <T extends Message> String writeValueAsString(T message) throws IOException {
     checkNotNull(message, "message");
     SegmentedStringWriter sw = new SegmentedStringWriter(jsonFactory._getBufferRecycler());
-    JsonGenerator gen = jsonFactory.createGenerator(sw);
-    writeValue(message, gen);
+    try (JsonGenerator gen = jsonFactory.createGenerator(sw)) {
+      writeValue(message, gen);
+    }
     return sw.getAndClear();
   }
 
@@ -242,8 +245,9 @@ public class MessageMarshaller {
   public <T extends Message> void writeValue(T message, OutputStream out) throws IOException {
     checkNotNull(message, "message");
     checkNotNull(out, "out");
-    JsonGenerator gen = jsonFactory.createGenerator(out);
-    writeValue(message, gen);
+    try (JsonGenerator gen = jsonFactory.createGenerator(out)) {
+      writeValue(message, gen);
+    }
   }
 
   /**
@@ -267,8 +271,6 @@ public class MessageMarshaller {
       throw e;
     } catch (IOException e) {
       throw new InvalidProtocolBufferException(e);
-    } finally {
-      gen.close();
     }
   }
 
