@@ -27,7 +27,8 @@ package org.curioswitch.curiostack.aws.sdk.core;
 import static org.curioswitch.common.testing.assertj.CurioAssertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import com.linecorp.armeria.client.WebClient;
+import com.linecorp.armeria.common.AggregatedHttpRequest;
+import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.testing.junit.server.mock.MockWebServerExtension;
@@ -54,7 +55,6 @@ class ArmeriaSdkHttpClientIntegrationTest {
         DynamoDbAsyncClient.builder()
             .credentialsProvider(
                 StaticCredentialsProvider.create(AwsBasicCredentials.create("access", "secret")))
-            .httpClient(new ArmeriaSdkHttpClient(WebClient.of()))
             .region(Region.AP_NORTHEAST_1)
             .endpointOverride(server.httpUri())
             .build();
@@ -69,5 +69,8 @@ class ArmeriaSdkHttpClientIntegrationTest {
             .getItem(GetItemRequest.builder().tableName("test").key(ImmutableMap.of()).build())
             .join();
     assertThat(response.sdkHttpResponse().isSuccessful()).isTrue();
+
+    AggregatedHttpRequest request = server.takeRequest().request();
+    assertThat(request.headers().get(HttpHeaderNames.USER_AGENT)).contains("http/ArmeriaAsync");
   }
 }
