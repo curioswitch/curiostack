@@ -22,28 +22,15 @@
  * SOFTWARE.
  */
 
-plugins {
-    `java-library`
-    `maven-publish`
-}
+package org.curioswitch.curiostack.aws.sdk.core;
 
-base {
-    archivesBaseName = "armeria-aws-sdk-core"
-}
+import software.amazon.awssdk.http.async.SdkAsyncHttpClient.Builder;
+import software.amazon.awssdk.http.async.SdkAsyncHttpService;
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
+public class ArmeriaSdkHttpService implements SdkAsyncHttpService {
 
-dependencies {
-    api("com.linecorp.armeria:armeria")
-    api("software.amazon.awssdk:http-client-spi")
-
-    testImplementation("com.google.guava:guava")
-    testImplementation("com.linecorp.armeria:armeria-testing-junit")
-    testImplementation("software.amazon.awssdk:dynamodb") {
-        exclude("software.amazon.awssdk", "apache-client")
-        exclude("software.amazon.awssdk", "netty-nio-client")
-    }
+  @Override
+  public Builder<ArmeriaSdkHttpClient.Builder> createAsyncHttpClientFactory() {
+    return new ArmeriaSdkHttpClient.Builder();
+  }
 }
