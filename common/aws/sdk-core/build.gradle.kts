@@ -38,7 +38,7 @@ java {
 
 dependencies {
     api("com.linecorp.armeria:armeria")
-    api("software.amazon.awssdk:http-client-spi:2.11.12")
+    api("software.amazon.awssdk:http-client-spi")
 
     testImplementation("com.google.guava:guava")
     testImplementation("com.linecorp.armeria:armeria-testing-junit")
