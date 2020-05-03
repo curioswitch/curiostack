@@ -44,6 +44,7 @@ import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import software.amazon.awssdk.http.SdkHttpMethod;
 import software.amazon.awssdk.http.SdkHttpRequest;
 import software.amazon.awssdk.http.SdkHttpResponse;
@@ -86,9 +87,7 @@ public class ArmeriaSdkHttpClient implements SdkAsyncHttpClient {
     HttpRequest request = HttpRequest.of(headersBuilder.build(), requestStream);
 
     HttpResponse response = client.execute(request);
-    Publisher<ByteBuffer> responseStream =
-        delegate -> response.subscribe(new HttpObjectToSdkSubscriber(delegate, handler));
-    handler.onStream(responseStream);
+    response.subscribe(new ResponseSubscriber(handler));
 
     CompletableFuture<Void> completionFuture = response.whenComplete();
     completionFuture.whenComplete(
@@ -176,26 +175,64 @@ public class ArmeriaSdkHttpClient implements SdkAsyncHttpClient {
     }
   }
 
-  private static class HttpObjectToSdkSubscriber
-      extends DelegatingSubscriber<HttpObject, ByteBuffer> {
+  private static class ResponseSubscriber implements Subscriber<HttpObject>, Publisher<ByteBuffer> {
 
     private final SdkAsyncHttpResponseHandler handler;
 
-    public HttpObjectToSdkSubscriber(
-        Subscriber<? super ByteBuffer> delegate, SdkAsyncHttpResponseHandler handler) {
-      super(delegate);
+    private boolean startedStream;
+    private Subscription subscription;
+    private Subscriber<? super ByteBuffer> sdkSubscriber;
+
+    private ResponseSubscriber(SdkAsyncHttpResponseHandler handler) {
       this.handler = handler;
     }
 
     @Override
+    public void onSubscribe(Subscription subscription) {
+      this.subscription = subscription;
+      subscription.request(1);
+    }
+
+    @Override
     public void onNext(HttpObject obj) {
-      if (obj instanceof ResponseHeaders) {
+      if (!startedStream) {
+        assert obj instanceof ResponseHeaders;
+        startedStream = true;
+
         handler.onHeaders(convert((ResponseHeaders) obj));
-      } else if (obj instanceof HttpData) {
+
+        // We've only requested one object, the headers so far. No more objects will be signaled
+        // until handler subscribes and requests more objects so we don't have to worry about
+        // buffering.
+        handler.onStream(this);
+      } else {
+        notifyObject(obj);
+      }
+    }
+
+    @Override
+    public void onError(Throwable t) {
+      sdkSubscriber.onError(t);
+    }
+
+    @Override
+    public void onComplete() {
+      sdkSubscriber.onComplete();
+    }
+
+    @Override
+    public void subscribe(Subscriber<? super ByteBuffer> subscriber) {
+      this.sdkSubscriber = subscriber;
+      // The SDK subscriber will request objects, controlling the stream from here.
+      subscriber.onSubscribe(subscription);
+    }
+
+    private void notifyObject(HttpObject obj) {
+      if (obj instanceof HttpData) {
         HttpData data = (HttpData) obj;
         // We can't subscribe with pooled objects since there is no SDK callback that would let us
         // release them so can just wrap the array here.
-        subscriber.onNext(ByteBuffer.wrap(data.array()));
+        sdkSubscriber.onNext(ByteBuffer.wrap(data.array()));
       } else {
         // Trailers. Documentation doesn't make clear whether the SDK actually can handle trailers
         // but it also doesn't say the callback can only be called once so just try calling it again
