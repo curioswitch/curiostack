@@ -42,4 +42,5 @@ dependencies {
 
     testImplementation("com.google.guava:guava")
     testImplementation("com.linecorp.armeria:armeria-testing-junit")
+    testImplementation("software.amazon.awssdk:dynamodb")
 }
