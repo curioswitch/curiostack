@@ -589,7 +589,11 @@ public class CuriostackRootPlugin implements Plugin<Project> {
               }
               test.useJUnitPlatform(
                   platform -> platform.includeEngines("junit-jupiter", "junit-vintage"));
-              test.testLogging(logging -> logging.setExceptionFormat(TestExceptionFormat.FULL));
+              test.testLogging(
+                  logging -> {
+                    logging.setShowStandardStreams(true);
+                    logging.setExceptionFormat(TestExceptionFormat.FULL);
+                  });
             });
 
     // While Gradle attempts to generate a unique module name automatically,
