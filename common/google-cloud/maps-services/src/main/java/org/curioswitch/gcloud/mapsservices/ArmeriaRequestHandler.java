@@ -45,6 +45,7 @@ import com.google.maps.internal.LocalTimeAdapter;
 import com.google.maps.internal.PriceLevelAdapter;
 import com.google.maps.internal.SafeEnumAdapter;
 import com.google.maps.internal.ZonedDateTimeAdapter;
+import com.google.maps.metrics.RequestMetrics;
 import com.google.maps.model.AddressComponentType;
 import com.google.maps.model.AddressType;
 import com.google.maps.model.Distance;
@@ -136,7 +137,8 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
       FieldNamingPolicy fieldNamingPolicy,
       long errorTimeout,
       Integer maxRetries,
-      ExceptionsAllowedToRetry exceptionsAllowedToRetry) {
+      ExceptionsAllowedToRetry exceptionsAllowedToRetry,
+      RequestMetrics metrics) {
     return handleMethod(
         HttpMethod.GET,
         hostName,
@@ -162,7 +164,8 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
       FieldNamingPolicy fieldNamingPolicy,
       long errorTimeout,
       Integer maxRetries,
-      ExceptionsAllowedToRetry exceptionsAllowedToRetry) {
+      ExceptionsAllowedToRetry exceptionsAllowedToRetry,
+      RequestMetrics metrics) {
     return handleMethod(
         HttpMethod.POST,
         hostName,
