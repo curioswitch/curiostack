@@ -44,6 +44,7 @@ public class ToolDependencies {
           .put("node", "13.12.0")
           .put("openjdk", "zulu14.27.1-ca-jdk14")
           .put("openjdk8", "zulu8.44.0.11-ca-jdk8.0.242")
+          .put("pulumi", "2.1.0")
           .put("terraform", "0.12.24")
           .put("terraform-gsuite-provider", "0.1.40")
           .put("yarn", "1.22.4")
@@ -95,6 +96,10 @@ public class ToolDependencies {
 
   public static String getOpenJdk8Version(Project project) {
     return getVersion("openjdk8", project);
+  }
+
+  public static String getPulumiVersion(Project project) {
+    return getVersion("pulumi", project);
   }
 
   public static String getTerraformVersion(Project project) {

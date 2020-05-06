@@ -137,6 +137,12 @@ gradlePlugin {
             description = "Plugin for invoking NodeJS"
             implementationClass = "org.curioswitch.gradle.plugins.nodejs.NodePlugin"
         }
+        register("pulumi") {
+            id = "org.curioswitch.gradle-pulumi-plugin"
+            displayName = "Gradle Pulumi Plugin"
+            description = "Plugin for invoking Pulumi"
+            implementationClass = "org.curioswitch.gradle.plugins.pulumi.PulumiPlugin"
+        }
         register("server") {
             id = "org.curioswitch.gradle-curio-server-plugin"
             displayName = "Gradle Curio Server Plugin"
