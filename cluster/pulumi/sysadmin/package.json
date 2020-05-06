@@ -1,0 +1,13 @@
+{
+    "name": "sysadmin",
+    "version": "0.0.1",
+    "private": true,
+    "devDependencies": {
+        "@types/node": "13.13.5"
+    },
+    "dependencies": {
+        "@pulumi/pulumi": "2.1.0",
+        "@pulumi/aws": "2.3.0",
+        "@pulumi/awsx": "0.20.0"
+    }
+}
