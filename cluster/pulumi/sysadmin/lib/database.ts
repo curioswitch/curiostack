@@ -40,7 +40,7 @@ export class DatabaseCluster extends pulumi.ComponentResource {
     args: DatabaseArgs = {},
     options: pulumi.ComponentResourceOptions = {},
   ) {
-    super('curiostack:aws:DatabaseCluster', name, options);
+    super('curiostack:aws:DatabaseCluster', name, {}, options);
 
     this.masterPassword = new random.RandomPassword(
       `${name}-password`,
@@ -117,6 +117,7 @@ export class DatabaseCluster extends pulumi.ComponentResource {
 
     this.registerOutputs({
       arn: this.cluster.arn,
+      endpoint: this.cluster.endpoint,
       rootPassword: this.masterPassword.result,
     });
   }
