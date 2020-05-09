@@ -30,8 +30,6 @@ const curioswithdb = new DatabaseCluster(
   'curioswitchdb',
   {},
   {
-    providers: {
-      aws: engineering,
-    },
+    providers: [engineering],
   },
 );
