@@ -22,14 +22,10 @@
  * SOFTWARE.
  */
 
-import { DatabaseCluster } from '../lib/database';
+import { DatabaseInstance } from '../lib/database';
 
 import { engineering } from '../providers/aws';
 
-const curioswithdb = new DatabaseCluster(
-  'curioswitchdb',
-  {},
-  {
-    providers: [engineering],
-  },
-);
+const curioswithdb = new DatabaseInstance('curioswitchdb', undefined, {
+  providers: [engineering],
+});
