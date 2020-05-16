@@ -30,7 +30,7 @@ import com.linecorp.armeria.client.ClientOption;
 import com.linecorp.armeria.client.Clients;
 import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.client.logging.LoggingClient;
-import com.linecorp.armeria.client.retry.RetryStrategy;
+import com.linecorp.armeria.client.retry.RetryRule;
 import com.linecorp.armeria.client.retry.RetryingClient;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigBeanFactory;
@@ -85,7 +85,7 @@ public abstract class GcloudModule {
     return Clients.newDerivedClient(
         googleApisClient,
         ClientOption.DECORATION.newValue(
-            ClientDecoration.of(RetryingClient.newDecorator(RetryStrategy.onServerErrorStatus()))));
+            ClientDecoration.of(RetryingClient.newDecorator(RetryRule.onServerErrorStatus()))));
   }
 
   private GcloudModule() {}

@@ -42,7 +42,7 @@ public class ToolDependencies {
           .put("helm", "2.10.0")
           .put("miniconda", "Miniconda3-4.7.12.1")
           .put("node", "13.12.0")
-          .put("openjdk", "zulu14.27.1-ca-jdk14")
+          .put("openjdk", "zulu14.28.21-ca-jdk14.0.1")
           .put("openjdk8", "zulu8.44.0.11-ca-jdk8.0.242")
           .put("pulumi", "2.1.0")
           .put("terraform", "0.12.24")

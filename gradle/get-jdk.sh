@@ -36,21 +36,21 @@ fi
 
 OPENJDK_DIR="$GRADLE_HOME/curiostack/openjdk"
 
-export JAVA_HOME="$OPENJDK_DIR/jdk-zulu14.27.1-ca-jdk14"
+export JAVA_HOME="$OPENJDK_DIR/jdk-zulu14.28.21-ca-jdk14.0.1"
 
-DEST="$OPENJDK_DIR/jdk-zulu14.27.1-ca-jdk14.tar.gz.or.zip"
+DEST="$OPENJDK_DIR/jdk-zulu14.28.21-ca-jdk14.0.1.tar.gz.or.zip"
 
 if "$linux" = "true"; then
-  SRC="https://cdn.azul.com/zulu/bin/zulu14.27.1-ca-jdk14-linux_x64.tar.gz"
+  SRC="https://cdn.azul.com/zulu/bin/zulu14.28.21-ca-jdk14.0.1-linux_x64.tar.gz"
 fi
 
 if "$darwin" = "true"; then
-  SRC="https://cdn.azul.com/zulu/bin/zulu14.27.1-ca-jdk14-macosx_x64.tar.gz"
+  SRC="https://cdn.azul.com/zulu/bin/zulu14.28.21-ca-jdk14.0.1-macosx_x64.tar.gz"
   export JAVA_HOME="$JAVA_HOME/Contents/Home"
 fi
 
 if "$windows" = "true"; then
-  SRC="https://cdn.azul.com/zulu/bin/zulu14.27.1-ca-jdk14-win_x64.zip"
+  SRC="https://cdn.azul.com/zulu/bin/zulu14.28.21-ca-jdk14.0.1-win_x64.zip"
 fi
 
 if [ ! -d "$JAVA_HOME" ]; then
@@ -65,7 +65,7 @@ if [ ! -d "$JAVA_HOME" ]; then
 
   if "$windows" = "true"; then
     unzip "$DEST" -d "$OPENJDK_DIR"
-    mv "${OPENJDK_DIR}/zulu14.27.1-ca-jdk14-win_x64" "$JAVA_HOME"
+    mv "${OPENJDK_DIR}/zulu14.28.21-ca-jdk14.0.1-win_x64" "$JAVA_HOME"
   else
     mkdir -p "$JAVA_HOME"
     tar --strip-components 1 -xf "$DEST" -C "$JAVA_HOME"

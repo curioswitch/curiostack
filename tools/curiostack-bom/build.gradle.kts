@@ -52,7 +52,7 @@ val DEPENDENCY_BOMS = listOf(
         "com.google.cloud:google-cloud-bom:0.125.0",
         "com.google.api-client:google-api-client-bom:1.30.9",
         "com.google.http-client:google-http-client-bom:1.35.0",
-        "com.linecorp.armeria:armeria-bom:0.99.4",
+        "com.linecorp.armeria:armeria-bom:0.99.5",
         "io.dropwizard.metrics:metrics-bom:4.1.7",
         "io.grpc:grpc-bom:1.29.0",
         "io.micrometer:micrometer-bom:1.5.1",
