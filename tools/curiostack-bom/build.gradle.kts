@@ -55,13 +55,13 @@ val DEPENDENCY_BOMS = listOf(
         "com.linecorp.armeria:armeria-bom:0.99.4",
         "io.dropwizard.metrics:metrics-bom:4.1.7",
         "io.grpc:grpc-bom:1.29.0",
-        "io.micrometer:micrometer-bom:1.3.8",
+        "io.micrometer:micrometer-bom:1.5.1",
         "io.zipkin.brave:brave-bom:5.11.2",
-        "io.netty:netty-bom:4.1.48.Final",
+        "io.netty:netty-bom:4.1.50.Final",
         "org.apache.beam:beam-sdks-java-bom:2.20.0",
-        "org.apache.logging.log4j:log4j-bom:2.13.2",
+        "org.apache.logging.log4j:log4j-bom:2.13.3",
         "org.junit:junit-bom:5.6.1",
-        "software.amazon.awssdk:bom:2.13.8"
+        "software.amazon.awssdk:bom:2.13.17"
 )
 
 val DEPENDENCY_SETS = listOf(
@@ -92,12 +92,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.auto.service",
-                "1.0-rc6",
+                "1.0-rc7",
                 listOf("auto-service")
         ),
         DependencySet(
                 "com.google.auto.value",
-                "1.7.1",
+                "1.7.2",
                 listOf("auto-value", "auto-value-annotations")
         ),
         DependencySet(
@@ -135,7 +135,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.firebase",
-                "6.12.2",
+                "6.13.0",
                 listOf("firebase-admin")
         ),
         DependencySet(
@@ -145,7 +145,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.protobuf",
-                "3.11.4",
+                "3.12.0",
                 listOf("protobuf-java", "protobuf-java-util", "protoc")
         ),
         DependencySet(
@@ -181,7 +181,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.fabric8",
-                "4.9.1",
+                "4.10.1",
                 listOf("kubernetes-client")
         ),
         DependencySet(
@@ -196,7 +196,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.prometheus",
-                "0.8.1",
+                "0.9.0",
                 listOf("simpleclient", "simpleclient_common", "simpleclient_hotspot", "simpleclient_log4j2")
         ),
         DependencySet(
@@ -236,7 +236,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.assertj",
-                "3.15.0",
+                "3.16.1",
                 listOf("assertj-core")
         ),
         DependencySet(
@@ -256,7 +256,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.checkerframework",
-                "3.3.0",
+                "3.4.0",
                 listOf("checker-qual")
         ),
         DependencySet(
@@ -276,7 +276,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.immutables",
-                "2.8.7",
+                "2.8.8",
                 listOf("builder", "value", "value-annotations")
         ),
         DependencySet(
@@ -291,12 +291,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.jooq",
-                "3.13.1",
+                "3.13.2",
                 listOf("jooq", "jooq-codegen", "jooq-meta")
         ),
         DependencySet(
                 "org.mockito",
-                "3.3.10",
+                "3.3.11",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -306,7 +306,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.simpleflatmapper",
-                "8.2.2",
+                "8.2.3",
                 listOf(
                         "sfm-converter", "sfm-jdbc", "sfm-jooq", "sfm-map", "sfm-reflect", "sfm-util")
         ),
@@ -319,12 +319,12 @@ val DEPENDENCY_SETS = listOf(
 
 val DEPENDENCIES = listOf(
         "com.bmuschko:gradle-docker-plugin:6.4.0",
-        "com.diffplug.spotless:spotless-plugin-gradle:3.28.1",
+        "com.diffplug.spotless:spotless-plugin-gradle:3.30.0",
         "com.github.ben-manes:gradle-versions-plugin:0.28.0",
         "com.google.code.gson:gson:2.8.6",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",
         "com.google.maps:google-maps-services:0.13.0",
-        "com.gradle:gradle-enterprise-gradle-plugin:3.2.1",
+        "com.gradle:gradle-enterprise-gradle-plugin:3.3.1",
         "com.hubspot.jinjava:jinjava:2.5.3",
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5",
         "de.undercouch:gradle-download-task:4.0.4",
