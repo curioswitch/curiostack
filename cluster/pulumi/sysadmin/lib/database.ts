@@ -26,7 +26,96 @@ import * as aws from '@pulumi/aws';
 import * as pulumi from '@pulumi/pulumi';
 import * as random from '@pulumi/random';
 
-export interface DatabaseArgs extends aws.rds.ClusterArgs {}
+const DEFAULT_MYSQL_PARAMS = [
+  {
+    name: 'character_set_server',
+    value: 'utf8mb4',
+  },
+  {
+    name: 'collation_server',
+    value: 'utf8mb4_unicode_ci',
+  },
+  {
+    name: 'long_query_time',
+    value: '0.1',
+  },
+  {
+    name: 'slow_query_log',
+    value: '1',
+  },
+  {
+    name: 'time_zone',
+    value: 'UTC',
+  },
+];
+
+export interface DatabaseInstanceArgs extends aws.rds.InstanceArgs {}
+
+export class DatabaseInstance extends pulumi.ComponentResource {
+  public static DEFAULT_ARGS: DatabaseInstanceArgs = {
+    allocatedStorage: 20,
+    applyImmediately: true,
+    autoMinorVersionUpgrade: true,
+    enabledCloudwatchLogsExports: ['audit', 'error', 'general', 'slowquery'],
+    engine: 'mysql',
+    engineVersion: '5.7',
+    iamDatabaseAuthenticationEnabled: true,
+    instanceClass: 'db.t3.micro',
+    storageEncrypted: true,
+  };
+
+  private readonly masterPassword: random.RandomPassword;
+
+  private readonly parameterGroup: aws.rds.ParameterGroup;
+
+  private readonly instance: aws.rds.Instance;
+
+  constructor(
+    name: string,
+    args: DatabaseInstanceArgs = DatabaseInstance.DEFAULT_ARGS,
+    options: pulumi.ComponentResourceOptions = {},
+  ) {
+    super('curiostack:aws:DatabaseInstance', name, undefined, options);
+
+    this.masterPassword = new random.RandomPassword(
+      `${name}-password`,
+      {
+        length: 32,
+        special: false,
+      },
+      {
+        parent: this,
+      },
+    );
+
+    this.parameterGroup = new aws.rds.ParameterGroup(
+      `${name}-parameters`,
+      {
+        family: 'mysql5.7',
+        parameters: DEFAULT_MYSQL_PARAMS,
+      },
+      {
+        parent: this,
+      },
+    );
+
+    this.instance = new aws.rds.Instance(
+      `${name}-instance`,
+      {
+        ...DatabaseInstance.DEFAULT_ARGS,
+        parameterGroupName: this.parameterGroup.name,
+        password: this.masterPassword.result,
+        username: 'root',
+        ...args,
+      },
+      {
+        parent: this,
+      },
+    );
+  }
+}
+
+export interface DatabaseClusterArgs extends aws.rds.ClusterArgs {}
 
 export class DatabaseCluster extends pulumi.ComponentResource {
   private readonly masterPassword: random.RandomPassword;
@@ -37,7 +126,7 @@ export class DatabaseCluster extends pulumi.ComponentResource {
 
   constructor(
     name: string,
-    args: DatabaseArgs = {},
+    args: DatabaseClusterArgs = {},
     options: pulumi.ComponentResourceOptions = {},
   ) {
     super('curiostack:aws:DatabaseCluster', name, {}, options);
@@ -58,28 +147,7 @@ export class DatabaseCluster extends pulumi.ComponentResource {
       {
         name,
         family: 'aurora5.6',
-        parameters: [
-          {
-            name: 'character_set_server',
-            value: 'utf8mb4',
-          },
-          {
-            name: 'collation_server',
-            value: 'utf8mb4_unicode_ci',
-          },
-          {
-            name: 'long_query_time',
-            value: '0.1',
-          },
-          {
-            name: 'slow_query_log',
-            value: '1',
-          },
-          {
-            name: 'time_zone',
-            value: 'UTC',
-          },
-        ],
+        parameters: DEFAULT_MYSQL_PARAMS,
       },
       {
         parent: this,

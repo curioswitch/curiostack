@@ -6,5 +6,6 @@ module.exports = {
   rules: {
     '@typescript-eslint/no-unused-vars': 'off',
     'import/prefer-default-export': 'off',
+    'max-classes-per-file': 'off',
   },
 };
