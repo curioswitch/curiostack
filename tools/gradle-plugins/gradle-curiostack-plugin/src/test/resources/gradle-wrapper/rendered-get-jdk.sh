@@ -68,7 +68,11 @@ if [ ! -d "$JAVA_HOME" ]; then
     mv "${OPENJDK_DIR}/11.0.4+11-win_x64" "$JAVA_HOME"
   else
     mkdir -p "$JAVA_HOME"
-    tar --strip-components 1 -xf "$DEST" -C "$JAVA_HOME"
+    if "$darwin" = "true"; then
+      tar --strip-components 2 -xf "$DEST" -C "$JAVA_HOME"
+    else
+      tar --strip-components 1 -xf "$DEST" -C "$JAVA_HOME"
+    fi
   fi
 
   rm "$DEST"

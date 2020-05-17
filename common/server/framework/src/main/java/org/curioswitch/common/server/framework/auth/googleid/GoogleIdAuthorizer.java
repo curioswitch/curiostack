@@ -27,9 +27,9 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.linecorp.armeria.common.auth.OAuth2Token;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.auth.Authorizer;
-import com.linecorp.armeria.server.auth.OAuth2Token;
 import java.io.IOException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;

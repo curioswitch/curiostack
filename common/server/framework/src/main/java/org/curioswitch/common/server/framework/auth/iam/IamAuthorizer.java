@@ -27,12 +27,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
+import com.linecorp.armeria.common.auth.OAuth2Token;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.auth.Authorizer;
-import com.linecorp.armeria.server.auth.OAuth2Token;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 
@@ -51,7 +51,7 @@ public class IamAuthorizer implements Authorizer<OAuth2Token> {
     this.checker = checker;
     ServiceAccountCredentials creds = (ServiceAccountCredentials) serverCredentials;
     serviceAccount =
-        Objects.requireNonNullElse(creds.getServiceAccountUser(), creds.getClientEmail());
+        MoreObjects.firstNonNull(creds.getServiceAccountUser(), creds.getClientEmail());
   }
 
   @Override
