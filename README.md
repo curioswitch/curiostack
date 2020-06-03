@@ -1,6 +1,19 @@
 # curiostack
 Very full stack to help satisfy curiosity
 
+
+Curiostack enforces best practices without the headaches. All users
+- Have a CI that only builds affected projects. Let the monorepo grow as needed.
+- Deploy alpha servers on every commit. All changes can be checked right away.
+- Are secure by default. Servers only accept TLS connections, even on localhost. Services
+require TLS mutual authentication.
+- Always have the latest tools. The build automatically downloads tools and versions are 
+tied to the repo, not the developer's machine.
+- Can write an API focusing on the business logic, without restrictions of serverless tools.
+- Have fast, modern web clients that have code to render pages, not boilerplate.
+
+and more!
+
 ## Developer resources
 
 Developers should start at our developer portal, [https://developers.curioswitch.org](https://developers.curioswitch.org).
