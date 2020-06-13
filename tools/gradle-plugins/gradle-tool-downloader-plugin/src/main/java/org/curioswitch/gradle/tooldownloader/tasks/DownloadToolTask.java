@@ -74,8 +74,7 @@ public class DownloadToolTask extends DefaultTask {
 
   private final WorkerExecutor workerExecutor;
 
-  @Nullable
-  private Action<File> archiveExtractAction;
+  @Nullable private Action<File> archiveExtractAction;
 
   @Inject
   public DownloadToolTask(

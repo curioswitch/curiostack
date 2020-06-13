@@ -32,8 +32,7 @@ import org.gradle.caching.configuration.AbstractBuildCache;
 
 public class CloudStorageBuildCache extends AbstractBuildCache {
 
-  @MonotonicNonNull
-  private Provider<String> bucket;
+  @MonotonicNonNull private Provider<String> bucket;
 
   @Nullable
   public Provider<String> getBucket() {

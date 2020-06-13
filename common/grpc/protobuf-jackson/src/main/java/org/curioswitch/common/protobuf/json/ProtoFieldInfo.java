@@ -82,7 +82,9 @@ class ProtoFieldInfo {
   }
 
   /** Returns whether this is a map field. */
-  @EnsuresNonNullIf(expression = {"mapKeyField", "mapValueField"}, result = true)
+  @EnsuresNonNullIf(
+      expression = {"mapKeyField", "mapValueField"},
+      result = true)
   boolean isMapField() {
     return field.isMapField();
   }

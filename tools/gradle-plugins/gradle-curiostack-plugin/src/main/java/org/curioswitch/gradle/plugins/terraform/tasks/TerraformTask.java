@@ -37,10 +37,8 @@ import org.gradle.process.ExecSpec;
 
 public class TerraformTask extends DefaultTask {
 
-  @MonotonicNonNull
-  private Iterable<String> args;
-  @MonotonicNonNull
-  private Action<ExecSpec> execCustomizer;
+  @MonotonicNonNull private Iterable<String> args;
+  @MonotonicNonNull private Action<ExecSpec> execCustomizer;
 
   @Input
   public Iterable<String> getArgs() {

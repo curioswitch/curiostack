@@ -62,6 +62,7 @@ import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
 import nu.studer.gradle.jooq.JooqTask;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.curioswitch.gradle.conda.CondaBuildEnvPlugin;
 import org.curioswitch.gradle.conda.CondaExtension;
 import org.curioswitch.gradle.conda.CondaPlugin;
@@ -564,6 +565,9 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                 var nullaway =
                     ((ExtensionAware) errorProne).getExtensions().getByType(NullAwayOptions.class);
                 nullaway.getSeverity().set(WARN);
+                nullaway
+                    .getExcludedFieldAnnotations()
+                    .addAll(MonotonicNonNull.class.getCanonicalName(), "org.mockito.Mock");
               }
             });
 
@@ -643,6 +647,9 @@ public class CuriostackRootPlugin implements Plugin<Project> {
         .add(
             JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME,
             "jakarta.annotation:jakarta.annotation-api");
+    project
+        .getDependencies()
+        .add(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME, "org.checkerframework:checker-qual");
     project
         .getDependencies()
         .add(ErrorPronePlugin.CONFIGURATION_NAME, "com.google.errorprone:error_prone_core");

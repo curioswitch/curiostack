@@ -182,11 +182,9 @@ public class ArmeriaSdkHttpClient implements SdkAsyncHttpClient {
 
     private boolean startedStream;
 
-    @MonotonicNonNull
-    private Subscription subscription;
+    @MonotonicNonNull private Subscription subscription;
 
-    @MonotonicNonNull
-    private Subscriber<? super ByteBuffer> sdkSubscriber;
+    @MonotonicNonNull private Subscriber<? super ByteBuffer> sdkSubscriber;
 
     private ResponseSubscriber(SdkAsyncHttpResponseHandler handler) {
       this.handler = handler;

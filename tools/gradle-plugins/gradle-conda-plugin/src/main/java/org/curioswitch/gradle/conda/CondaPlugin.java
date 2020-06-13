@@ -39,8 +39,7 @@ import org.gradle.api.Project;
 
 public class CondaPlugin implements Plugin<Project> {
 
-  @MonotonicNonNull
-  private NamedDomainObjectContainer<CondaExtension> condas;
+  @MonotonicNonNull private NamedDomainObjectContainer<CondaExtension> condas;
 
   @Override
   public void apply(Project project) {

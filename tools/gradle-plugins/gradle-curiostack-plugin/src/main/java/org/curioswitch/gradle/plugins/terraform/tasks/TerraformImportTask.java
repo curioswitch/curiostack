@@ -32,10 +32,8 @@ public class TerraformImportTask extends TerraformTask {
 
   public static final String NAME = "terraformImport";
 
-  @MonotonicNonNull
-  private String module;
-  @MonotonicNonNull
-  private String id;
+  @MonotonicNonNull private String module;
+  @MonotonicNonNull private String id;
 
   public TerraformImportTask() {
     setExecCustomizer(

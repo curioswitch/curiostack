@@ -230,7 +230,7 @@ public class JibTask extends DefaultTask {
   }
 
   // Incompatible with switch expressions.
-  @SuppressWarnings({ "NullAway", "UnnecessaryParentheses" })
+  @SuppressWarnings({"NullAway", "UnnecessaryParentheses"})
   private static boolean isProgressFooterEnabled(Project project) {
     if ("plain".equals(System.getProperty(PropertyNames.CONSOLE))) {
       return false;

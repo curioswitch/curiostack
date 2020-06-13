@@ -29,8 +29,7 @@ import org.gradle.api.tasks.options.Option;
 
 public class TargetableTerraformPlanTask extends TargetableTerraformTask {
 
-  @MonotonicNonNull
-  private String out;
+  @MonotonicNonNull private String out;
 
   public TargetableTerraformPlanTask() {
     setExecCustomizer(

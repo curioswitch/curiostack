@@ -38,11 +38,9 @@ import org.gradle.api.plugins.ExtraPropertiesExtension;
 
 public class ToolDownloaderPlugin implements Plugin<Project> {
 
-  @MonotonicNonNull
-  private NamedDomainObjectContainer<ToolDownloaderExtension> tools;
+  @MonotonicNonNull private NamedDomainObjectContainer<ToolDownloaderExtension> tools;
 
-  @MonotonicNonNull
-  private DownloadedToolManager toolManager;
+  @MonotonicNonNull private DownloadedToolManager toolManager;
 
   @Override
   public void apply(Project project) {

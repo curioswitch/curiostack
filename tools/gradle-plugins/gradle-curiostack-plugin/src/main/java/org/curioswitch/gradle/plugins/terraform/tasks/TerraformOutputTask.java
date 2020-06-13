@@ -32,10 +32,8 @@ public class TerraformOutputTask extends TerraformTask {
 
   public static final String NAME = "terraformOutput";
 
-  @MonotonicNonNull
-  private String module;
-  @MonotonicNonNull
-  private String name;
+  @MonotonicNonNull private String module;
+  @MonotonicNonNull private String name;
 
   public TerraformOutputTask() {
     setExecCustomizer(
