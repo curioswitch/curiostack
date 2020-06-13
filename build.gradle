@@ -27,6 +27,16 @@ allprojects {
 
     plugins.withId('java') {
         task allDeps(type: DependencyReportTask) {}
+
+        nullaway {
+            annotatedPackages.add("org.curioswitch")
+        }
+
+        tasks.withType(JavaCompile).configureEach {
+            options.errorprone.nullaway {
+                excludedFieldAnnotations.add("org.checkerframework.checker.nullness.qual.MonotonicNonNull")
+            }
+        }
     }
 
     plugins.withType(nl.javadude.gradle.plugins.license.LicensePlugin) {

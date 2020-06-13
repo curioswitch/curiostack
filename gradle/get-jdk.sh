@@ -68,11 +68,7 @@ if [ ! -d "$JAVA_HOME" ]; then
     mv "${OPENJDK_DIR}/zulu14.28.21-ca-jdk14.0.1-win_x64" "$JAVA_HOME"
   else
     mkdir -p "$JAVA_HOME"
-    if "$darwin" = "true"; then
-      tar --strip-components 2 -xf "$DEST" -C "$JAVA_HOME"
-    else
-      tar --strip-components 1 -xf "$DEST" -C "$JAVA_HOME"
-    fi
+    tar --strip-components 1 -xf "$DEST" -C "$JAVA_HOME"
   fi
 
   rm "$DEST"

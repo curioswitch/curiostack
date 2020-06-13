@@ -25,6 +25,7 @@ package org.curioswitch.gradle.plugins.curiostack;
 
 import static net.ltgt.gradle.errorprone.CheckSeverity.ERROR;
 import static net.ltgt.gradle.errorprone.CheckSeverity.OFF;
+import static net.ltgt.gradle.errorprone.CheckSeverity.WARN;
 
 import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
@@ -54,6 +55,8 @@ import net.ltgt.gradle.apt.AptPlugin;
 import net.ltgt.gradle.errorprone.CheckSeverity;
 import net.ltgt.gradle.errorprone.ErrorProneOptions;
 import net.ltgt.gradle.errorprone.ErrorPronePlugin;
+import net.ltgt.gradle.nullaway.NullAwayOptions;
+import net.ltgt.gradle.nullaway.NullAwayPlugin;
 import nl.javadude.gradle.plugins.license.License;
 import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
@@ -133,8 +136,8 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           .put("DoubleCheckedLocking", ERROR)
           .put("EqualsIncompatibleType", ERROR)
           .put("FallThrough", ERROR)
-          // TODO(choko): Enable when it works on Java 13
-          .put("Finally", OFF)
+          .put("FieldCanBeStatic", ERROR)
+          .put("Finally", ERROR)
           .put("FloatCast", ERROR)
           .put("FloatingPointLiteralPrecision", ERROR)
           .put("GetClassOnEnum", ERROR)
@@ -147,12 +150,14 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           .put("IntLongMath", ERROR)
           .put("IterableAndIterator", ERROR)
           .put("JavaLangClash", ERROR)
+          .put("LockOnBoxedPrimitive", ERROR)
           .put("LogicalAssignment", ERROR)
           .put("MissingCasesInEnumSwitch", ERROR)
           .put("MissingOverride", ERROR)
           .put("ModifyCollectionInEnhancedForLoop", ERROR)
           .put("MultipleParallelOrSequentialCalls", ERROR)
           .put("MutableConstantField", OFF)
+          .put("MutablePublicArray", ERROR)
           .put("NarrowingCompoundAssignment", ERROR)
           .put("NestedInstanceOfConditions", ERROR)
           .put("NonAtomicVolatileUpdate", ERROR)
@@ -163,7 +168,10 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           .put("OptionalNotPresent", ERROR)
           .put("OverrideThrowableToString", ERROR)
           .put("PreconditionsInvalidPlaceholder", ERROR)
+          .put("ProtectedMembersInFinalClass", ERROR)
+          .put("PublicConstructorForAbstractClass", ERROR)
           .put("ShortCircuitBoolean", ERROR)
+          .put("StaticAssignmentInConstructor", ERROR)
           .put("StaticGuardedByInstance", ERROR)
           .put("StreamResourceLeak", ERROR)
           .put("StringSplitter", ERROR)
@@ -177,6 +185,7 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           .put("AutoFactoryAtInject", ERROR)
           .put("ClassName", ERROR)
           .put("ComparisonContractViolated", ERROR)
+          .put("ConstantPatternCompile", ERROR)
           .put("DepAnn", ERROR)
           .put("DivZero", ERROR)
           .put("EmptyIf", ERROR)
@@ -191,7 +200,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           .put("ProtoStringFieldReferenceEquality", ERROR)
           .put("AssistedInjectAndInjectOnConstructors", ERROR)
           .put("BigDecimalLiteralDouble", ERROR)
-          .put("ConstructorLeaksThis", ERROR)
           .put("InconsistentOverloads", ERROR)
           .put("MissingDefault", ERROR)
           .put("PrimitiveArrayPassedToVarargsMethod", ERROR)
@@ -212,7 +220,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           .put("PrivateConstructorForUtilityClass", ERROR)
           // Handled by spotless which also allows fixing it.
           .put("RemoveUnusedImports", OFF)
-          .put("ReturnMissingNullable", ERROR)
           .put("SwitchDefault", ERROR)
           .put("ThrowsUncheckedException", ERROR)
           .put("UngroupedOverloads", ERROR)
@@ -475,6 +482,7 @@ public class CuriostackRootPlugin implements Plugin<Project> {
     plugins.apply(ErrorPronePlugin.class);
     plugins.apply(IdeaPlugin.class);
     plugins.apply(LicensePlugin.class);
+    plugins.apply(NullAwayPlugin.class);
     plugins.apply(SpotlessPlugin.class);
     plugins.apply(VersionsPlugin.class);
 
@@ -552,6 +560,10 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                 errorProne.getDisableWarningsInGeneratedCode().set(true);
                 errorProne.getExcludedPaths().set("(.*/build/.*|.*/gen-src/.*)");
                 errorProne.getChecks().set(errorProneChecks);
+
+                var nullaway =
+                    ((ExtensionAware) errorProne).getExtensions().getByType(NullAwayOptions.class);
+                nullaway.getSeverity().set(WARN);
               }
             });
 
@@ -561,22 +573,22 @@ public class CuriostackRootPlugin implements Plugin<Project> {
         .configureEach(task -> task.dependsOn(project.getTasks().withType(JavaCompile.class)));
 
     JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
-    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_11);
-    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_11);
+    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_14);
+    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_14);
 
     // Even for libraries that set source version to 8 for compatibility with older runtimes,
-    // we always use 11 for tests.
+    // we always use 14 for tests.
     var testSourceSet = javaPlugin.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
     project
         .getConfigurations()
         .getByName(testSourceSet.getCompileClasspathConfigurationName())
         .getAttributes()
-        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 11);
+        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 14);
     project
         .getConfigurations()
         .getByName(testSourceSet.getRuntimeClasspathConfigurationName())
         .getAttributes()
-        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 11);
+        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 14);
 
     project
         .getTasks()
@@ -634,6 +646,9 @@ public class CuriostackRootPlugin implements Plugin<Project> {
     project
         .getDependencies()
         .add(ErrorPronePlugin.CONFIGURATION_NAME, "com.google.errorprone:error_prone_core");
+    project
+        .getDependencies()
+        .add(ErrorPronePlugin.CONFIGURATION_NAME, "com.uber.nullaway:nullaway");
     project
         .getDependencies()
         .add(ErrorPronePlugin.CONFIGURATION_NAME, "com.google.auto.value:auto-value-annotations");

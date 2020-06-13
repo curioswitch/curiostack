@@ -40,6 +40,8 @@ dependencies {
     api("com.linecorp.armeria:armeria")
     api("software.amazon.awssdk:http-client-spi")
 
+    compileOnly("org.checkerframework:checker-qual")
+
     testImplementation("com.google.guava:guava")
     testImplementation("com.linecorp.armeria:armeria-testing-junit")
     testImplementation("software.amazon.awssdk:dynamodb") {

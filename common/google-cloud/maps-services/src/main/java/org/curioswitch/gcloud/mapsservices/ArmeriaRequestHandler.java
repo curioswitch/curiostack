@@ -62,8 +62,7 @@ import com.linecorp.armeria.client.ClientFactoryBuilder;
 import com.linecorp.armeria.client.ClientOptions;
 import com.linecorp.armeria.client.ClientOptionsBuilder;
 import com.linecorp.armeria.client.WebClient;
-import com.linecorp.armeria.client.retry.Backoff;
-import com.linecorp.armeria.client.retry.RetryStrategy;
+import com.linecorp.armeria.client.retry.RetryRule;
 import com.linecorp.armeria.client.retry.RetryingClient;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpMethod;
@@ -258,13 +257,7 @@ public class ArmeriaRequestHandler implements GeoApiContext.RequestHandler {
     public RequestHandler build() {
       clientOptionsBuilder.decorator(
           RetryingClient.newDecorator(
-              RetryStrategy.onStatus(
-                  (status, t) -> {
-                    if (t != null || RETRY_STATUSES.contains(status)) {
-                      return Backoff.ofDefault();
-                    }
-                    return null;
-                  })));
+              RetryRule.builder().onException().onStatus(RETRY_STATUSES).thenBackoff()));
 
       return new ArmeriaRequestHandler(clientFactoryBuilder.build(), clientOptionsBuilder.build());
     }

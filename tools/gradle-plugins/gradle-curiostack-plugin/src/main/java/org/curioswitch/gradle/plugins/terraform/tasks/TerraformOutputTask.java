@@ -25,13 +25,16 @@ package org.curioswitch.gradle.plugins.terraform.tasks;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.gradle.api.tasks.options.Option;
 
 public class TerraformOutputTask extends TerraformTask {
 
   public static final String NAME = "terraformOutput";
 
+  @MonotonicNonNull
   private String module;
+  @MonotonicNonNull
   private String name;
 
   public TerraformOutputTask() {

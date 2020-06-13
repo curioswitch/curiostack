@@ -86,8 +86,10 @@ gradle.taskGraph.whenReady { graph ->
     }
 }
 
+tasks.withType(com.diffplug.gradle.spotless.SpotlessCheck) {
+    enabled = false
+}
+
 afterEvaluate {
     tasks.cleanGenerateCurioswitchDbJooqSchemaSource.enabled = false
-    tasks.spotlessJava.enabled = false
-    tasks.spotlessJavaApply.enabled = false
 }

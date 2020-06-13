@@ -229,21 +229,18 @@ public class JibTask extends DefaultTask {
     jib.containerize(containerize);
   }
 
+  // Incompatible with switch expressions.
+  @SuppressWarnings({ "NullAway", "UnnecessaryParentheses" })
   private static boolean isProgressFooterEnabled(Project project) {
     if ("plain".equals(System.getProperty(PropertyNames.CONSOLE))) {
       return false;
     }
 
-    switch (project.getGradle().getStartParameter().getConsoleOutput()) {
-      case Plain:
-        return false;
-
-      case Auto:
-        // Enables progress footer when ANSI is supported (Windows or TERM not 'dumb').
-        return Os.isFamily(Os.FAMILY_WINDOWS) || !"dumb".equals(System.getenv("TERM"));
-
-      default:
-        return true;
-    }
+    // Enables progress footer when ANSI is supported (Windows or TERM not 'dumb').
+    return switch (project.getGradle().getStartParameter().getConsoleOutput()) {
+      case Plain -> false;
+      case Auto -> Os.isFamily(Os.FAMILY_WINDOWS) || !"dumb".equals(System.getenv("TERM"));
+      default -> true;
+    };
   }
 }

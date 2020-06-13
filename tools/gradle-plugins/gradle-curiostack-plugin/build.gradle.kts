@@ -59,6 +59,7 @@ dependencies {
     implementation("me.champeau.gradle:jmh-gradle-plugin")
     implementation("net.ltgt.gradle:gradle-apt-plugin")
     implementation("net.ltgt.gradle:gradle-errorprone-plugin")
+    implementation("net.ltgt.gradle:gradle-nullaway-plugin")
     implementation("nu.studer:gradle-jooq-plugin")
     implementation("org.bouncycastle:bcpkix-jdk15on")
 

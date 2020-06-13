@@ -113,8 +113,15 @@ public class ScrapeLocationsGraph {
             .map(page -> sharedDataExtractor.extractSharedData(page, TagPage.class))
             .flatMap(
                 page ->
-                    page.getEntryData().getTagPage().get(0).getGraphql().getHashtag().getPosts()
-                        .getEdges().stream())
+                    page
+                        .getEntryData()
+                        .getTagPage()
+                        .get(0)
+                        .getGraphql()
+                        .getHashtag()
+                        .getPosts()
+                        .getEdges()
+                        .stream())
             .map(
                 post ->
                     toListenableFuture(
@@ -183,8 +190,15 @@ public class ScrapeLocationsGraph {
   }
 
   private static Stream<String> getLocationPageIds(ProfilePage profilePage) {
-    return profilePage.getEntryData().getProfilePage().get(0).getGraphql().getUser().getTimeline()
-        .getEdges().stream()
+    return profilePage
+        .getEntryData()
+        .getProfilePage()
+        .get(0)
+        .getGraphql()
+        .getUser()
+        .getTimeline()
+        .getEdges()
+        .stream()
         .map(edge -> edge.getNode().getLocation())
         .filter(Objects::nonNull)
         .map(Location::getId);
