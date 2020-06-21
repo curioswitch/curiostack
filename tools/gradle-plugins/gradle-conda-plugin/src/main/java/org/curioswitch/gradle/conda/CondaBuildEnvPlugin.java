@@ -33,6 +33,7 @@ import org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin;
 import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.tasks.Copy;
 
 public class CondaBuildEnvPlugin implements Plugin<Project> {
 
@@ -125,8 +126,35 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
                           exec.workingDir(archive.getParent());
                         });
                   }));
+
+      // There doesn't seem to be a way to have CMake prefer the tools in Miniconda over system ones
+      // without making sure the names match the unprefixed ones.
+      var copyLlvmExecutables =
+          project
+              .getTasks()
+              .register(
+                  "copyBinUtils",
+                  Copy.class,
+                  t -> {
+                    var minicondaPath =
+                        DownloadedToolManager.get(project)
+                            .getToolDir("miniconda-build")
+                            .resolve("bin");
+                    t.from(
+                        minicondaPath,
+                        copy -> {
+                          copy.include("llvm-*");
+                          copy.rename("llvm-(.*)", "$1");
+                        });
+
+                    t.into(minicondaPath);
+                  });
+
       DownloadToolUtil.getSetupTask(project, "miniconda-build")
-          .configure(t -> t.dependsOn(downloadSdk));
+          .configure(
+              t -> {
+                t.dependsOn(downloadSdk, copyLlvmExecutables);
+              });
     }
   }
 }
