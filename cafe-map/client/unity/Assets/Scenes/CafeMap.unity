@@ -334,8 +334,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1606997818}
   - component: {fileID: 1606997815}
-  - component: {fileID: 1606997816}
   - component: {fileID: 1606997817}
+  - component: {fileID: 1606997816}
   m_Layer: 0
   m_Name: Map Base
   m_TagString: Untagged
@@ -466,12 +466,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1606997814}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d998febeff6e423baf0d081cd85e448, type: 3}
+  m_Script: {fileID: 11500000, guid: 8f14ac8b938915a4580b0690c23b2d94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LatLng:
-    _Lat: 35.4710404
-    _Lng: 139.61971889999995
 --- !u!114 &1606997817
 MonoBehaviour:
   m_ObjectHideFlags: 0
