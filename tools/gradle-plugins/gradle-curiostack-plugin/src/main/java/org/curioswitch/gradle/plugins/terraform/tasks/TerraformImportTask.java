@@ -23,22 +23,23 @@
  */
 package org.curioswitch.gradle.plugins.terraform.tasks;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.gradle.api.tasks.options.Option;
 
 public class TerraformImportTask extends TerraformTask {
 
   public static final String NAME = "terraformImport";
 
-  private String module;
-  private String id;
+  @MonotonicNonNull private String module;
+  @MonotonicNonNull private String id;
 
   public TerraformImportTask() {
     setExecCustomizer(
         exec -> {
-          checkArgument(module != null, "--module must be set.");
-          checkArgument(id != null, "--id must be set.");
+          requireNonNull(module, "--module must be set.");
+          requireNonNull(id, "--id must be set.");
           exec.args(module, id);
         });
   }

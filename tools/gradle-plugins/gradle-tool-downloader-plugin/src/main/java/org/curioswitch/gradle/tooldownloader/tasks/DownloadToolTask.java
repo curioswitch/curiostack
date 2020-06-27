@@ -34,6 +34,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
@@ -73,7 +74,7 @@ public class DownloadToolTask extends DefaultTask {
 
   private final WorkerExecutor workerExecutor;
 
-  private Action<File> archiveExtractAction;
+  @Nullable private Action<File> archiveExtractAction;
 
   @Inject
   public DownloadToolTask(

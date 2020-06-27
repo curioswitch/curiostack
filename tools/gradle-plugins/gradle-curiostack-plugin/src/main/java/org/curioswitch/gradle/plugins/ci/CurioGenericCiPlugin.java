@@ -526,7 +526,8 @@ public class CurioGenericCiPlugin implements Plugin<Project> {
     if (affectedProjects.isEmpty()) {
       // Not a statically defined tag, try to guess.
       var parts =
-          RELEASE_TAG_SPLITTER.splitToList(state.getBranch().substring("RELEASE_".length()))
+          RELEASE_TAG_SPLITTER
+              .splitToList(state.getBranch().substring("RELEASE_".length()))
               .stream()
               .map(Ascii::toLowerCase)
               .collect(toImmutableList());

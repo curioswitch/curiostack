@@ -61,8 +61,7 @@ public class GrpcApiClientBuilder {
                     // header...
                     req =
                         req.withHeaders(
-                            req.headers()
-                                .toBuilder()
+                            req.headers().toBuilder()
                                 .set(HttpHeaderNames.CONTENT_TYPE, "application/grpc")
                                 .build());
                     return delegate().execute(ctx, req);

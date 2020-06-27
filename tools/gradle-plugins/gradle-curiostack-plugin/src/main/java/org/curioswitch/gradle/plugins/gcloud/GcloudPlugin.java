@@ -504,7 +504,8 @@ public class GcloudPlugin implements Plugin<Project> {
 
     default List<String> env() {
       return ImmutableList.of("CI=true");
-    };
+    }
+    ;
   }
 
   @Immutable

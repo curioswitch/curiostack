@@ -23,7 +23,10 @@
  */
 package org.curioswitch.gradle.plugins.terraform.tasks;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.File;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.gradle.api.Action;
@@ -34,8 +37,8 @@ import org.gradle.process.ExecSpec;
 
 public class TerraformTask extends DefaultTask {
 
-  private Iterable<String> args;
-  private Action<ExecSpec> execCustomizer;
+  @MonotonicNonNull private Iterable<String> args;
+  @MonotonicNonNull private Action<ExecSpec> execCustomizer;
 
   @Input
   public Iterable<String> getArgs() {
@@ -43,7 +46,7 @@ public class TerraformTask extends DefaultTask {
   }
 
   public TerraformTask setArgs(Iterable<String> args) {
-    this.args = args;
+    this.args = requireNonNull(args, "args");
     return this;
   }
 
@@ -53,7 +56,7 @@ public class TerraformTask extends DefaultTask {
   }
 
   public TerraformTask setExecCustomizer(Action<ExecSpec> execCustomizer) {
-    this.execCustomizer = execCustomizer;
+    this.execCustomizer = requireNonNull(execCustomizer, "execCustomizer");
     return this;
   }
 

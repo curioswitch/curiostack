@@ -55,7 +55,8 @@ abstract class AbstractJacksonFactory {
 
   protected final boolean stacktraceAsString;
 
-  public AbstractJacksonFactory(final boolean includeStacktrace, final boolean stacktraceAsString) {
+  protected AbstractJacksonFactory(
+      final boolean includeStacktrace, final boolean stacktraceAsString) {
     super();
     this.includeStacktrace = includeStacktrace;
     this.stacktraceAsString = stacktraceAsString;

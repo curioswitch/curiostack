@@ -25,6 +25,7 @@ package org.curioswitch.gradle.conda;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.curioswitch.gradle.conda.tasks.InstallCondaPackagesTask;
 import org.curioswitch.gradle.conda.tasks.InstallPythonPackagesTask;
 import org.curioswitch.gradle.helpers.platform.OperatingSystem;
@@ -38,7 +39,7 @@ import org.gradle.api.Project;
 
 public class CondaPlugin implements Plugin<Project> {
 
-  private NamedDomainObjectContainer<CondaExtension> condas;
+  @MonotonicNonNull private NamedDomainObjectContainer<CondaExtension> condas;
 
   @Override
   public void apply(Project project) {

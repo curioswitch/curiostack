@@ -38,7 +38,7 @@ public abstract class ExecWorkAction implements WorkAction<Parameters> {
 
   private final ExecOperations exec;
 
-  @SuppressWarnings("InjectOnConstructorOfAbstractClass")
+  @SuppressWarnings({"InjectOnConstructorOfAbstractClass", "PublicConstructorForAbstractClass"})
   @Inject
   public ExecWorkAction(ExecOperations exec) {
     this.exec = checkNotNull(exec, "exec");

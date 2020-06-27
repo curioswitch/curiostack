@@ -25,6 +25,7 @@ package org.curioswitch.gradle.tooldownloader;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.curioswitch.gradle.helpers.platform.PlatformHelper;
 import org.curioswitch.gradle.helpers.task.TaskUtil;
 import org.curioswitch.gradle.tooldownloader.tasks.DownloadToolTask;
@@ -37,8 +38,9 @@ import org.gradle.api.plugins.ExtraPropertiesExtension;
 
 public class ToolDownloaderPlugin implements Plugin<Project> {
 
-  private NamedDomainObjectContainer<ToolDownloaderExtension> tools;
-  private DownloadedToolManager toolManager;
+  @MonotonicNonNull private NamedDomainObjectContainer<ToolDownloaderExtension> tools;
+
+  @MonotonicNonNull private DownloadedToolManager toolManager;
 
   @Override
   public void apply(Project project) {

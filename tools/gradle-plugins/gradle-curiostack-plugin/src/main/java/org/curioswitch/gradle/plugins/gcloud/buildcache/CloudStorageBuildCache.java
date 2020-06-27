@@ -25,13 +25,16 @@ package org.curioswitch.gradle.plugins.gcloud.buildcache;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import javax.annotation.Nullable;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.gradle.api.provider.Provider;
 import org.gradle.caching.configuration.AbstractBuildCache;
 
 public class CloudStorageBuildCache extends AbstractBuildCache {
 
-  private Provider<String> bucket;
+  @MonotonicNonNull private Provider<String> bucket;
 
+  @Nullable
   public Provider<String> getBucket() {
     return bucket;
   }

@@ -24,6 +24,7 @@
 package org.curioswitch.gradle.protobuf.tasks;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
@@ -193,7 +194,7 @@ public class GenerateProtoTask extends DefaultTask {
 
     File protocPath =
         protocArtifact.isPresent()
-            ? downloadedTools.get(protocArtifact.get())
+            ? checkNotNull(downloadedTools.get(protocArtifact.get()))
             : this.protocPath.get();
 
     ImmutableList.Builder<String> protocCommand = ImmutableList.builder();

@@ -38,6 +38,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 
 /**
  * A wrapper of a {@link FieldDescriptor} to provide additional information like protobuf generated
@@ -81,6 +82,9 @@ class ProtoFieldInfo {
   }
 
   /** Returns whether this is a map field. */
+  @EnsuresNonNullIf(
+      expression = {"mapKeyField", "mapValueField"},
+      result = true)
   boolean isMapField() {
     return field.isMapField();
   }
@@ -103,7 +107,6 @@ class ProtoFieldInfo {
    * Returns the {@link ProtoFieldInfo} describing the actual value of this field, which for map
    * fields is the map's value.
    */
-  @Nullable
   ProtoFieldInfo valueField() {
     return mapValueField != null ? mapValueField : this;
   }
@@ -209,7 +212,7 @@ class ProtoFieldInfo {
   Method setValueMethod() {
     StringBuilder setter = new StringBuilder();
     final Class<?>[] args;
-    if (field.isMapField()) {
+    if (isMapField()) {
       setter.append("put");
       args = new Class<?>[] {mapKeyField.javaClass(), javaClass()};
     } else {

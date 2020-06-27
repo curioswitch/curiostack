@@ -32,21 +32,21 @@ public class ToolDependencies {
 
   private static Map<String, String> DEFAULT_VERSIONS =
       ImmutableMap.<String, String>builder()
-          .put("awscli", "2.0.7")
-          .put("bom", "0.5.2")
+          .put("awscli", "2.0.19")
+          .put("bom", "0.6.0-RC1")
           .put("claat", "2.2.0")
           .put("gcloud", "288.0.0")
           .put("golang", "1.14.2")
-          .put("google-java-format", "1.7")
-          .put("gradle", "6.4.1")
+          .put("google-java-format", "1.8")
+          .put("gradle", "6.5")
           .put("helm", "2.10.0")
           .put("miniconda", "Miniconda3-4.7.12.1")
           .put("node", "13.12.0")
           .put("openjdk", "zulu14.28.21-ca-jdk14.0.1")
           .put("openjdk8", "zulu8.44.0.11-ca-jdk8.0.242")
-          .put("pulumi", "2.1.0")
-          .put("terraform", "0.12.24")
-          .put("terraform-gsuite-provider", "0.1.40")
+          .put("pulumi", "2.3.0")
+          .put("terraform", "0.12.26")
+          .put("terraform-gsuite-provider", "0.1.45")
           .put("yarn", "1.22.4")
           .build();
 
@@ -115,13 +115,13 @@ public class ToolDependencies {
   }
 
   public static String getDefaultVersion(String tool) {
-    return DEFAULT_VERSIONS.get(tool);
+    return DEFAULT_VERSIONS.getOrDefault(tool, "");
   }
 
   private static String getVersion(String tool, Project project) {
     return Objects.requireNonNullElse(
         (String) project.getRootProject().findProperty("org.curioswitch.curiostack.tools." + tool),
-        DEFAULT_VERSIONS.get(tool));
+        DEFAULT_VERSIONS.getOrDefault(tool, ""));
   }
 
   private ToolDependencies() {}

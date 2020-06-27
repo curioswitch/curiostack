@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -180,8 +181,10 @@ public class ArmeriaSdkHttpClient implements SdkAsyncHttpClient {
     private final SdkAsyncHttpResponseHandler handler;
 
     private boolean startedStream;
-    private Subscription subscription;
-    private Subscriber<? super ByteBuffer> sdkSubscriber;
+
+    @MonotonicNonNull private Subscription subscription;
+
+    @MonotonicNonNull private Subscriber<? super ByteBuffer> sdkSubscriber;
 
     private ResponseSubscriber(SdkAsyncHttpResponseHandler handler) {
       this.handler = handler;

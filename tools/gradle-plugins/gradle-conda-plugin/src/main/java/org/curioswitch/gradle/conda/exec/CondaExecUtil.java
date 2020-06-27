@@ -86,6 +86,27 @@ public final class CondaExecUtil {
                 + " && "
                 + String.join(" ", currentCommandLine)));
 
+    switch (platformHelper.getOs()) {
+      case LINUX:
+        exec.environment("CONAN_ENV_COMPILER", "gcc");
+        exec.environment("CONAN_ENV_COMPILER_VERSION", "7");
+        exec.environment("CONAN_ENV_COMPILER_LIBCXX", "libstdc++");
+        break;
+      case MAC_OSX:
+        exec.environment("CONAN_ENV_COMPILER", "apple-clang");
+        exec.environment("CONAN_ENV_COMPILER_VERSION", "10.0");
+        exec.environment("CONAN_ENV_COMPILER_LIBCXX", "libc++");
+        break;
+      case WINDOWS:
+        exec.environment("CONAN_ENV_COMPILER", "gcc");
+        exec.environment("CONAN_ENV_COMPILER_VERSION", "5");
+        exec.environment("CONAN_ENV_COMPILER_LIBCXX", "libstdc++");
+        break;
+      case UNKNOWN:
+      default:
+        throw new IllegalArgumentException("Unsupported OS.");
+    }
+
     if (platformHelper.getOs() == OperatingSystem.MAC_OSX) {
       // Set known environment variables for controlling sysroot on Mac. It never hurts to define
       // too many environment variables.
