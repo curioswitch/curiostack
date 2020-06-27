@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 369b3aa6233d14978bce811549b8a4a5
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/04_Advanced/EditTimePreview/Materials/ExtrudedStructureRoof_EditTimePreview.mat
+timeCreated: 1561009791
+licenseType: Pro
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData:
+  assetBundleName:
+  assetBundleVariant:

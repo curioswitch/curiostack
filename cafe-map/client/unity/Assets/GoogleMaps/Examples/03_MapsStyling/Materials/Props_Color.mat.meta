@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: a1c629bd103764d5d9cb75191e826ce5
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/03_MapsStyling/Materials/Props_Color.mat
+timeCreated: 1516316175
+licenseType: Pro
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData:
+  assetBundleName:
+  assetBundleVariant:

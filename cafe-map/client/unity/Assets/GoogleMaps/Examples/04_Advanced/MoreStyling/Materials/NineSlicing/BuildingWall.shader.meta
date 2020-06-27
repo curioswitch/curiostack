@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 5e67d416e7060442f84a83d2a3256744
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/04_Advanced/MoreStyling/Materials/NineSlicing/BuildingWall.shader
+timeCreated: 1490223862
+licenseType: Pro
+ShaderImporter:
+  defaultTextures: []
+  userData:
+  assetBundleName:
+  assetBundleVariant:

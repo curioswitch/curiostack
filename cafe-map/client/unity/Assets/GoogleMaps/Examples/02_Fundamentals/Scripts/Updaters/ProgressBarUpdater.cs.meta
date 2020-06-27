@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: ef90157e3eaff465ebcab53ef1a37527
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/02_Fundamentals/Scripts/Updaters/ProgressBarUpdater.cs
+timeCreated: 1480838400
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon:
+    instanceID: 0
+  userData:
+  assetBundleName:
+  assetBundleVariant:

@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: e33e270ffd75547aea46d9e258a01bc8
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/SharedAssets/Materials/GroundPlane.mat
+timeCreated: 1486858886
+licenseType: Pro
+NativeFormatImporter:
+  userData:
+  assetBundleName:
+  assetBundleVariant:

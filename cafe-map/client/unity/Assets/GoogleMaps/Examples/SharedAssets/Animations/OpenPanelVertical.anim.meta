@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: f005c576764ff41018e3430bc5c39e5b
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/SharedAssets/Animations/OpenPanelVertical.anim
+timeCreated: 1480838400
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData:
+  assetBundleName:
+  assetBundleVariant:

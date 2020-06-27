@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 0bea07ef4e7524e489bfbbd3eb77e9fe
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/04_Advanced/Pathfinding/Materials/ScrollingTextureDefault.mat
+timeCreated: 1480838400
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData:
+  assetBundleName:
+  assetBundleVariant:

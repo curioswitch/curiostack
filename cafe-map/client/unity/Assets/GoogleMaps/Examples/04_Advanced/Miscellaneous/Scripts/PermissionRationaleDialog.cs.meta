@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: c02dfff5bdbce4737b7974de58de7816
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/04_Advanced/Miscellaneous/Scripts/PermissionRationaleDialog.cs
+timeCreated: 1480838400
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon:
+    instanceID: 0
+  userData:
+  assetBundleName:
+  assetBundleVariant:

@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: e2fbd16d50e424fb4b36edfff38eed09
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Resources/MuskStandard.shader
+timeCreated: 1490223862
+licenseType: Pro
+ShaderImporter:
+  defaultTextures: []
+  userData:
+  assetBundleName:
+  assetBundleVariant:

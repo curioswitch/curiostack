@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 49a2cc7246db64201b1626dafe78f0dc
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/SharedAssets/Shaders/UIOverlay.shader
+timeCreated: 1509596956
+licenseType: Pro
+ShaderImporter:
+  defaultTextures: []
+  userData:
+  assetBundleName:
+  assetBundleVariant:

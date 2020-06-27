@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -317494595, guid: 322c8874b7f0401c8c1211fe39d44d90, type: 3}
+  m_Name: ExtrudedStructureStyleSettings_EditTimePreview
+  m_EditorClassIdentifier:
+  RoofMaterialAlignment: 1
+  ApplyFixedHeight: 1
+  FixedHeight: 50
+  DefaultBuildingHeight: 50
+  RoofMaterial: {fileID: 2100000, guid: 369b3aa6233d14978bce811549b8a4a5, type: 2}
+  WallMaterial: {fileID: 2100000, guid: 4d1a1c8c69b9c4b32b0453e4df01b882, type: 2}

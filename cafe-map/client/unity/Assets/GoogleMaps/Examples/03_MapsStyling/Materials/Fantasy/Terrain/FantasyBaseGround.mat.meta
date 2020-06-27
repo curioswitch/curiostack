@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: f28224eb289b6449e9944808433526a3
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/03_MapsStyling/Materials/Fantasy/Terrain/FantasyBaseGround.mat
+timeCreated: 1515802201
+licenseType: Pro
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData:
+  assetBundleName:
+  assetBundleVariant:

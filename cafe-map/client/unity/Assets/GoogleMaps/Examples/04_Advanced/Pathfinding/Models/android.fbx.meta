@@ -1,0 +1,193 @@
+fileFormatVersion: 2
+guid: a159e1242b1a54329a736023bcc3df92
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/04_Advanced/Pathfinding/Models/android.fbx
+timeCreated: 1480838400
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: antenka_leva
+    100004: antenka_prava
+    100006: Armature
+    100008: Back
+    100010: Camera
+    100012: hlava
+    100014: hlava_0
+    100016: Lamp
+    100018: noha_leva
+    100020: noha_leva_0
+    100022: noha_prava
+    100024: noha_prava_0
+    100026: oko_leva
+    100028: oko_prava
+    100030: ruka_leva
+    100032: ruka_leva_0
+    100034: ruka_prava
+    100036: ruka_prava_0
+    100038: telo
+    400000: //RootNode
+    400002: antenka_leva
+    400004: antenka_prava
+    400006: Armature
+    400008: Back
+    400010: Camera
+    400012: hlava
+    400014: hlava_0
+    400016: Lamp
+    400018: noha_leva
+    400020: noha_leva_0
+    400022: noha_prava
+    400024: noha_prava_0
+    400026: oko_leva
+    400028: oko_prava
+    400030: ruka_leva
+    400032: ruka_leva_0
+    400034: ruka_prava
+    400036: ruka_prava_0
+    400038: telo
+    2100000: android
+    2100002: oko
+    2300000: antenka_leva
+    2300002: antenka_prava
+    2300004: oko_leva
+    2300006: oko_prava
+    3300000: antenka_leva
+    3300002: antenka_prava
+    3300004: oko_leva
+    3300006: oko_prava
+    4300000: ruka_leva
+    4300002: ruka_prava
+    4300004: telo
+    4300006: hlava
+    4300008: antenka_prava
+    4300010: antenka_leva
+    4300012: oko_prava
+    4300014: oko_leva
+    4300016: noha_prava
+    4300018: noha_leva
+    9500000: //RootNode
+    13700000: hlava
+    13700002: noha_leva
+    13700004: noha_prava
+    13700006: ruka_leva
+    13700008: ruka_prava
+    13700010: telo
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName:
+    rigImportErrors:
+    rigImportWarnings:
+    animationImportErrors:
+    animationImportWarnings:
+    animationRetargetingWarnings:
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Default Take
+      takeName: Default Take
+      firstFrame: 0
+      lastFrame: 249
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 130370310256083141592481363987862190795860304042906551321287270051075401918576827156564017152
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource:
+        instanceID: 0
+      additiveReferencePoseFrame: 0
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 100
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 0
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 0
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName:
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource:
+    instanceID: 0
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData:
+  assetBundleName:
+  assetBundleVariant:

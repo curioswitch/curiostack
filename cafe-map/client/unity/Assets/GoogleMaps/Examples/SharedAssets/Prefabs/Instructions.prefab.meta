@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 7047c96517d854d4cbb9bc98098490d5
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/SharedAssets/Prefabs/Instructions.prefab
+timeCreated: 1508884956
+licenseType: Pro
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData:
+  assetBundleName:
+  assetBundleVariant:

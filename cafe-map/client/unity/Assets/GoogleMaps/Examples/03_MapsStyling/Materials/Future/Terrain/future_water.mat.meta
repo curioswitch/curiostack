@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 389cd296c27b69945b2e883a78a6d0d0
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/03_MapsStyling/Materials/Future/Terrain/future_water.mat
+timeCreated: 1519260400
+licenseType: Pro
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData:
+  assetBundleName:
+  assetBundleVariant:

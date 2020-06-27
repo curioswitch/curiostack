@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: a89762e09fda84f348f9f1242a2760e0
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/02_Fundamentals/Scripts/BaseMapLoader.cs
+timeCreated: 1480838400
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon:
+    instanceID: 0
+  userData:
+  assetBundleName:
+  assetBundleVariant:
