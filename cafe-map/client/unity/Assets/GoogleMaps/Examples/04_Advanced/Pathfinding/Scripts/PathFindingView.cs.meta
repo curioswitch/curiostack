@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 81d18d99e7bff43e4a4c7d8877f89a15
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/04_Advanced/Pathfinding/Scripts/PathFindingView.cs
+timeCreated: 1480838400
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon:
+    instanceID: 0
+  userData:
+  assetBundleName:
+  assetBundleVariant:

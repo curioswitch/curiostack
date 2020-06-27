@@ -333,10 +333,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1606997818}
-  - component: {fileID: 1606997817}
-  - component: {fileID: 1606997816}
   - component: {fileID: 1606997815}
-  - component: {fileID: 1606997819}
+  - component: {fileID: 1606997816}
+  - component: {fileID: 1606997817}
   m_Layer: 0
   m_Name: Map Base
   m_TagString: Untagged
@@ -353,44 +352,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1606997814}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb79bec31eea14738bfe923d2f78241d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  LatLng:
-    _Lat: 40.748
-    _Lng: -73.988
-  MaxDistance: 1000
-  Ground: {fileID: 1341386539453272, guid: b3f7476c463c2460c8153e7bc9bd6085, type: 3}
-  OnMapLoadStarted:
-    m_PersistentCalls:
-      m_Calls: []
-  Loading: 0
---- !u!114 &1606997816
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1606997814}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e0b68449f5c494498f0894eb2aa8a16, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1606997817
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1606997814}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
   m_Script: {fileID: -576295101, guid: 322c8874b7f0401c8c1211fe39d44d90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ApiKey: 
-  VectorTileApiAddress: 127.0.0.1
+  ApiKey: AIzaSyBPPo8oNQx83c8BXmyK-GsDGzD-qdoB0tw
   NetworkPoolSize: 100
   NetworkTimeoutSeconds: 10
   EnableDiagnostics: 1
@@ -442,6 +407,9 @@ MonoBehaviour:
         m_PersistentCalls:
           m_Calls: []
     _MapEvents:
+      LoadStart:
+        m_PersistentCalls:
+          m_Calls: []
       Loaded:
         m_PersistentCalls:
           m_Calls: []
@@ -451,8 +419,20 @@ MonoBehaviour:
       Progress:
         m_PersistentCalls:
           m_Calls: []
+    _TerrainEvents:
+      WillCreate:
+        m_PersistentCalls:
+          m_Calls: []
+      DidCreate:
+        m_PersistentCalls:
+          m_Calls: []
+      AlphaMapsNeedPaint:
+        m_PersistentCalls:
+          m_Calls: []
+      DidPaint:
+        m_PersistentCalls:
+          m_Calls: []
   EnableModeledStructures: 1
-  EnablePoliticalFeatures: 0
   EnablePrivateRoads: 0
   ObjectCreationFrameBudget: 0
   StaticBatching: 0
@@ -470,13 +450,40 @@ MonoBehaviour:
   ZoomLevel: 17
   _CacheOptions:
     BasePath: 
-    Directory: Google.Maps\SVT
-    MaxDiskBytes: 10
+    Directory: Google.Maps
+    MaxDiskBytes: 10485760
     DiskTimeoutSeconds: 0
-  CountryProvider: {fileID: 1606997816}
+  CountryProvider: {fileID: 1606997817}
   MinBasemapSortingOrder: -32767
   MaxBasemapSortingOrder: -1
   NonBasemapSortingOrder: 0
+--- !u!114 &1606997816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1606997814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d998febeff6e423baf0d081cd85e448, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LatLng:
+    _Lat: 35.4710404
+    _Lng: 139.61971889999995
+--- !u!114 &1606997817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1606997814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e0b68449f5c494498f0894eb2aa8a16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1606997818
 Transform:
   m_ObjectHideFlags: 0
@@ -491,15 +498,3 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1606997819
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1606997814}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c0cec46dc8d9564fb2546b6b6c61ffa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

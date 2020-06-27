@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 690dd255df3aa45be9301e11bc5b120b
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/03_MapsStyling/Scripts/RegionConfigView.cs
+timeCreated: 1480838400
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon:
+    instanceID: 0
+  userData:
+  assetBundleName:
+  assetBundleVariant:

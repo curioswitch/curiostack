@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: e2d3c60a68bb54c3ba1bef21b4492e9e
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/02_Fundamentals/Scripts/Updaters/DynamicMapsUpdater.cs
+timeCreated: 1480838400
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon:
+    instanceID: 0
+  userData:
+  assetBundleName:
+  assetBundleVariant:

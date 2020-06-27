@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 5761d36feb59b4d7f970232efff60444
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/SharedAssets/Scripts/MeshCleaner.cs
+timeCreated: 1480838400
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon:
+    instanceID: 0
+  userData:
+  assetBundleName:
+  assetBundleVariant:

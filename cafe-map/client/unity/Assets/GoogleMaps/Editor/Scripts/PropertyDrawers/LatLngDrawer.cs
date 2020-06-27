@@ -10,7 +10,6 @@ namespace Google.Maps.Editor.PropertyDrawers {
   /// </summary>
   [CustomPropertyDrawer(typeof(LatLng))]
   public class LatLngDrawer : PropertyDrawer {
-
     /// <summary>
     /// The available on-screen width to the right of the property drawer label for controls. Used
     /// to calculate the height of the property drawer.
@@ -52,6 +51,7 @@ namespace Google.Maps.Editor.PropertyDrawers {
       // Draw text field and update LatLng if valid.
       string newLatLng =
           EditorGUI.TextField(position, TextFieldContent, LatLngPropertyToString(property));
+
       if (!newLatLng.Equals(PreviousString)) {
         PreviousString = newLatLng;
         TrySetLatLng(newLatLng, property);
@@ -107,13 +107,18 @@ namespace Google.Maps.Editor.PropertyDrawers {
       // formatting, but independent of any country, producing reliable numerical formatting.
       if (components.Length >= 1) {
         double.TryParse(
-            components[0], NumberStyles.Float | NumberStyles.AllowThousands,
-            CultureInfo.InvariantCulture, out lat);
+            components[0],
+            NumberStyles.Float | NumberStyles.AllowThousands,
+            CultureInfo.InvariantCulture,
+            out lat);
       }
+
       if (components.Length >= 2) {
         double.TryParse(
-            components[1], NumberStyles.Float | NumberStyles.AllowThousands,
-            CultureInfo.InvariantCulture, out lng);
+            components[1],
+            NumberStyles.Float | NumberStyles.AllowThousands,
+            CultureInfo.InvariantCulture,
+            out lng);
       }
     }
 
@@ -161,6 +166,7 @@ namespace Google.Maps.Editor.PropertyDrawers {
     private string LatLngPropertyToString(SerializedProperty property) {
       double lat = property.FindPropertyRelative("_Lat").doubleValue;
       double lng = property.FindPropertyRelative("_Lng").doubleValue;
+
       return LatLngToString(lat, lng);
     }
   }

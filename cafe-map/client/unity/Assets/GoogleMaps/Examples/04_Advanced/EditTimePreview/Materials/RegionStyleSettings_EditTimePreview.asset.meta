@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 154cb6f54b01e484bb073786394d3c3a
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/04_Advanced/EditTimePreview/Materials/RegionStyleSettings_EditTimePreview.asset
+timeCreated: 1561009330
+licenseType: Pro
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData:
+  assetBundleName:
+  assetBundleVariant:

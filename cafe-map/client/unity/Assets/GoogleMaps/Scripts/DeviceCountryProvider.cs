@@ -20,14 +20,14 @@ namespace Google.Maps.Scripts {
     /// </summary>
     public void Awake() {
 #if UNITY_EDITOR
+
       // If running in the editor, don't try to run native code, even if the build target is one of
       // the mobile platforms below.
       CountryCode = null;
 #elif UNITY_ANDROID
       try {
         using (var localeClass = new AndroidJavaClass("java.util.Locale")) {
-          using (var defaultLocale =
-              localeClass.CallStatic<AndroidJavaObject>("getDefault")) {
+          using (var defaultLocale = localeClass.CallStatic<AndroidJavaObject>("getDefault")) {
             CountryCode = defaultLocale.Call<string>("getCountry");
           }
         }
@@ -53,6 +53,5 @@ namespace Google.Maps.Scripts {
     [DllImport("__Internal")]
     private static extern string MuskGetLocaleRegion();
 #endif
-
   }
 }

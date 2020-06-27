@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 8bde75262351f4be0a1ba7ea25d245e1
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/02_Fundamentals/Scripts/Updaters/SearchByPlaceIdUpdater.cs
+timeCreated: 1480838400
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon:
+    instanceID: 0
+  userData:
+  assetBundleName:
+  assetBundleVariant:

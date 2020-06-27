@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 0accdf3c01eff4b4f8caf0afa2475719
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/SharedAssets/Materials/UIOverlay.mat
+timeCreated: 1509425977
+licenseType: Pro
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData:
+  assetBundleName:
+  assetBundleVariant:

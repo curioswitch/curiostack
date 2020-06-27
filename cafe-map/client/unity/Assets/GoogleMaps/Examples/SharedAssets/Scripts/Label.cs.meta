@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 85b1930da76dc4a228d468e35dadda3f
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/SharedAssets/Scripts/Label.cs
+timeCreated: 1510099382
+licenseType: Pro
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon:
+    instanceID: 0
+  userData:
+  assetBundleName:
+  assetBundleVariant:

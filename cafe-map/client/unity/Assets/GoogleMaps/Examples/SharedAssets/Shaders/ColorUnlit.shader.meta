@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: e36ba421324df4f5da522c321307c223
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/SharedAssets/Shaders/ColorUnlit.shader
+timeCreated: 1490223862
+licenseType: Pro
+ShaderImporter:
+  defaultTextures: []
+  userData:
+  assetBundleName:
+  assetBundleVariant:
