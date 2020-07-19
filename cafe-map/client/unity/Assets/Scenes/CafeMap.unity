@@ -307,90 +307,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 963194225}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2185c353a85dbe847bb6643ffef1a5b0, type: 3}
+  m_Script: {fileID: 11500000, guid: fb36e9891c646a3489a1fcd659a6f189, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MovementSpeed: 20
-  translateAction:
-    m_Name: Translate
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: a20dceee-e1ec-49cc-9137-a21b94d0983f
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 2D Vector
-      m_Id: ce215fff-90c4-4ec0-9b6a-a35d154ee267
-      m_Path: 2DVector
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Translate
-      m_Flags: 4
-    - m_Name: up
-      m_Id: 3883303b-ab6e-4f2e-84b8-3e2bd1f9857f
-      m_Path: <Keyboard>/w
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Translate
-      m_Flags: 8
-    - m_Name: down
-      m_Id: 67476057-edaf-4c48-8231-7ec715a58357
-      m_Path: <Keyboard>/s
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Translate
-      m_Flags: 8
-    - m_Name: left
-      m_Id: 98a28b91-fd9c-47e3-ab22-ba3c5c71a3cc
-      m_Path: <Keyboard>/a
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Translate
-      m_Flags: 8
-    - m_Name: right
-      m_Id: a31de23d-b7f3-4b06-bf79-6dd50ee4fd10
-      m_Path: <Keyboard>/d
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Translate
-      m_Flags: 8
-  zoomAction:
-    m_Name: Zoom
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 11da1f2f-5253-4e1b-9ff6-a56eceb8ca91
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 1D Axis
-      m_Id: c8157f9a-a95a-43af-8a50-0959cbdc2190
-      m_Path: 1DAxis
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Zoom
-      m_Flags: 4
-    - m_Name: negative
-      m_Id: a6293384-e06c-4a71-a45d-066b41aa6fad
-      m_Path: <Keyboard>/q
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Zoom
-      m_Flags: 8
-    - m_Name: positive
-      m_Id: 8367fd1b-37e0-4f38-9279-af86fb2d38a2
-      m_Path: <Keyboard>/e
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Zoom
-      m_Flags: 8
+  maxDistanceForTap: 40
+  maxDurationForTap: 0.4
+  useMouse: 1
+  mouseScrollSpeed: 1.1
+  controlCamera: 1
+  cam: {fileID: 0}
+  ignoreUI: 0
+  useBounds: 0
+  boundMinX: -150
+  boundMaxX: 150
+  boundMinY: -150
+  boundMaxY: 150
 --- !u!114 &963194230
 MonoBehaviour:
   m_ObjectHideFlags: 0
