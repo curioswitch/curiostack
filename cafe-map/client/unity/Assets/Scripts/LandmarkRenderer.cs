@@ -13,7 +13,6 @@ public class LandmarkRenderer : MonoBehaviour
     void Start()
     {
         var mapsService = GetComponent<MapsService>();
-        mapsService.InitFloatingOrigin(new LatLng(35.4710404,139.6197189));
         
         mapsService.Events.ExtrudedStructureEvents.WillCreate.AddListener(args =>
         {
