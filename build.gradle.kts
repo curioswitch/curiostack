@@ -51,8 +51,8 @@ allprojects {
             dependsOn(tasks.named("publishToMavenLocal"))
         }
 
-        val bintrayUser = project.findProperty("bintray.user") as String
-        val bintrayKey = project.findProperty("bintray.key") as String
+        val bintrayUser = project.findProperty("bintray.user") as String?
+        val bintrayKey = project.findProperty("bintray.key") as String?
 
         afterEvaluate {
             configure<BintrayExtension> {
