@@ -143,3 +143,12 @@ tasks.named("yarn").configure {
     // Hack to make sure yarn symlinks are set up after building the base packages.
     finalizedBy(":eggworld:client:web:install")
 }
+
+tools {
+    create("grpc_csharp") {
+        version.set("2.31.0")
+        artifact.set("Grpc.Tools")
+        baseUrl.set("https://www.nuget.org/api/v2/package/")
+        artifactPattern.set("[artifact]/[revision]")
+    }
+}

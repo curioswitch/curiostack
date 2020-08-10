@@ -211,10 +211,11 @@ public class DownloadToolTask extends DefaultTask {
       } else {
         project.copy(
             copy -> {
-              if (archive.getName().endsWith(".zip")) {
-                copy.from(project.zipTree(archive));
-              } else if (archive.getName().contains(".tar.")) {
+              if (archive.getName().contains(".tar.")) {
                 copy.from(project.tarTree(archive));
+              } else {
+                // Zip is the most common format, fallback to it for other extensions.
+                copy.from(project.zipTree(archive));
               }
               copy.into(task.getToolDir());
             });
