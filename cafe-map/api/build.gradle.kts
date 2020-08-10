@@ -25,6 +25,7 @@
 import org.curioswitch.gradle.helpers.platform.OperatingSystem
 import org.curioswitch.gradle.helpers.platform.PlatformHelper
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager
+import org.curioswitch.gradle.tooldownloader.util.DownloadToolUtil
 
 plugins {
     id("org.curioswitch.gradle-grpc-api-plugin")
@@ -63,7 +64,9 @@ grpc {
 }
 
 tasks {
-    val generateProto by named("generateProto")
+    val generateProto by named("generateProto") {
+        dependsOn(DownloadToolUtil.getSetupTask(project, "grpc_csharp"));
+    }
     val copyCsharpProto by registering(Copy::class) {
         dependsOn(generateProto)
 
