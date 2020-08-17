@@ -32,7 +32,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 51237f8eaccfe456e9d1a0ebdb0ea6ea, type: 3}
+        m_Texture: {fileID: 2800000, guid: ea185700385e84802a9552e55b0ed608, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MapTex:
@@ -61,4 +61,4 @@ Material:
     - _TexWidth: 20
     m_Colors:
     - <noninit>: {r: 0, g: 1, b: 0, a: NaN}
-    - _EmitColor: {r: 0, g: 0, b: 0, a: 0}
+    - _EmitColor: {r: 0.44700074, g: 0.4486637, b: 0.46226418, a: 0}
