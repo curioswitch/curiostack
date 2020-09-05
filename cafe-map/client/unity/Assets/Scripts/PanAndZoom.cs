@@ -94,6 +94,7 @@ public class PanAndZoom : MonoBehaviour {
     void Awake() {
         transform.Translate(0, 300, 0);
         transform.LookAt(Vector3.zero);
+        transform.Rotate(-20, 0, 0);
     }
 
     void Start()
@@ -255,11 +256,10 @@ public class PanAndZoom : MonoBehaviour {
             onSwipe(deltaPosition);
         }
 
-        if (controlCamera && cameraControlEnabled) {
-            if (cam == null) cam = Camera.main;
-
-            cam.transform.Translate(-deltaPosition.x, -deltaPosition.y, 0);
-        }
+        // TODO(choko): Get better at camera control to be able to do this in one step.
+        transform.Rotate(20, 0, 0);
+        transform.Translate(-deltaPosition.x, -deltaPosition.y, 0);
+        transform.Rotate(-20, 0, 0);
     }
     void DoOnPinch(Vector2 center, float oldDistance, float newDistance, Vector2 touchDelta) {
         if (onPinch != null) {
