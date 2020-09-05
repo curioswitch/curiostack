@@ -38,23 +38,23 @@ base {
 
 protobuf {
     languages {
-        register("csharp") {
-            outputDir.set(file("build/generated/csharp"))
-        }
+//        register("csharp") {
+//            outputDir.set(file("build/generated/csharp"))
+//        }
 
-        register("grpc_csharp") {
-            outputDir.set(file("build/generated/csharp"))
-            plugin {
-                val osPrefix = when (PlatformHelper().os) {
-                    OperatingSystem.LINUX -> "linux"
-                    OperatingSystem.MAC_OSX -> "macosx"
-                    OperatingSystem.WINDOWS -> "windows"
-                    else -> "unknown"
-                }
-                val pluginPath = "tools/${osPrefix}_x64/grpc_csharp_plugin${if (PlatformHelper().os == OperatingSystem.WINDOWS) ".exe" else ""}"
-                path.set(file(DownloadedToolManager.get(project).getToolDir("grpc_csharp").resolve(pluginPath)))
-            }
-        }
+//        register("grpc_csharp") {
+//            outputDir.set(file("build/generated/csharp"))
+//            plugin {
+//                val osPrefix = when (PlatformHelper().os) {
+//                    OperatingSystem.LINUX -> "linux"
+//                    OperatingSystem.MAC_OSX -> "macosx"
+//                    OperatingSystem.WINDOWS -> "windows"
+//                    else -> "unknown"
+//                }
+//                val pluginPath = "tools/${osPrefix}_x64/grpc_csharp_plugin${if (PlatformHelper().os == OperatingSystem.WINDOWS) ".exe" else ""}"
+//                path.set(file(DownloadedToolManager.get(project).getToolDir("grpc_csharp").resolve(pluginPath)))
+//            }
+//        }
     }
 }
 
@@ -67,13 +67,13 @@ tasks {
     val generateProto by named("generateProto") {
         dependsOn(DownloadToolUtil.getSetupTask(project, "grpc_csharp"));
     }
-    val copyCsharpProto by registering(Copy::class) {
-        dependsOn(generateProto)
+//    val copyCsharpProto by registering(Copy::class) {
+//        dependsOn(generateProto)
 
-        from("build/generated/csharp")
-        into("../client/unity/Assets/Generated/Proto")
-    }
-    val assemble by named("assemble") {
-        dependsOn(copyCsharpProto)
-    }
+//        from("build/generated/csharp")
+//        into("../client/unity/Assets/Generated/Proto")
+//    }
+//    val assemble by named("assemble") {
+//        dependsOn(copyCsharpProto)
+//    }
 }
