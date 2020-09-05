@@ -1,76 +1,33 @@
 fileFormatVersion: 2
 guid: 4bc5fa8a13ae24517a23727a5c269547
-labels:
-- gvh
-- gvh_version-0.0.0
-- gvhp_exportpath-GoogleMaps/Plugins/Google.Protobuf.dll
-timeCreated: 1506050995
-licenseType: Pro
 PluginImporter:
-  serializedVersion: 1
+  externalObjects: {}
+  serializedVersion: 2
   iconMap: {}
   executionOrder: {}
+  defineConstraints: []
   isPreloaded: 0
   isOverridable: 0
+  isExplicitlyReferenced: 0
+  validateReferences: 1
   platformData:
-    Any:
+  - first:
+      Any: 
+    second:
       enabled: 1
       settings: {}
-    Editor:
-      enabled: 1
+  - first:
+      Editor: Editor
+    second:
+      enabled: 0
       settings:
         DefaultValueInitialized: true
-    WindowsStoreApps:
-      enabled: 1
+  - first:
+      Windows Store Apps: WindowsStoreApps
+    second:
+      enabled: 0
       settings:
         CPU: AnyCPU
-    Android:
-      enabled: 1
-      settings:
-        CPU: AnyCPU
-    Linux:
-      enabled: 1
-      settings:
-        CPU: x86
-    Linux64:
-      enabled: 1
-      settings:
-        CPU: x86_64
-    LinuxUniversal:
-      enabled: 1
-      settings:
-        CPU: AnyCPU
-    OSXIntel:
-      enabled: 1
-      settings:
-        CPU: x86
-    OSXIntel64:
-      enabled: 1
-      settings:
-        CPU: x86_64
-    OSXUniversal:
-      enabled: 1
-      settings:
-        CPU: AnyCPU
-    Web:
-      enabled: 1
-      settings: {}
-    WebStreamed:
-      enabled: 1
-      settings: {}
-    Win:
-      enabled: 1
-      settings:
-        CPU: x86
-    Win64:
-      enabled: 1
-      settings:
-        CPU: x86_64
-    iOS:
-      enabled: 1
-      settings:
-        CompileFlags:
-        FrameworkDependencies:
-  userData:
-  assetBundleName:
-  assetBundleVariant:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
