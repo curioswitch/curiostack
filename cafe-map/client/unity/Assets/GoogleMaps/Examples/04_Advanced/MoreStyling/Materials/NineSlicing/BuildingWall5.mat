@@ -32,7 +32,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: a45d183be8eff4e04b8cbccb759c3e65, type: 3}
+        m_Texture: {fileID: 2800000, guid: f455bf90f14d14e1489b2a645e165728, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MapTex:
@@ -48,7 +48,7 @@ Material:
     - _Animation: 0
     - _Shininess: 1
     - _SpecMin: 0.1
-    - _TexDivisions: 32
+    - _TexDivisions: 50
     - _TexHeight: 20
     - _TexLeft: 10
     - _TexLeftBound: 0.25
