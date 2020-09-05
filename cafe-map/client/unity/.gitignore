@@ -1,3 +1,4 @@
 /Assets/Resources/Secrets/**
 /Assets/Resources/Secrets.meta
 !/Assets/Resources/Secrets/README.txt
+/Assets/Generated
