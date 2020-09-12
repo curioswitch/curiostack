@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using Google.Maps;
 using Google.Maps.Examples.Shared;
 using Google.Maps.Feature;
+using Google.Maps.Feature.Shape;
 using Google.Maps.Feature.Style;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -83,13 +84,14 @@ namespace CafeMap.Map
             }
 
             var buildingModels = new Dictionary<StructureMetadata.UsageType, Object>();
-            buildingModels.Add(StructureMetadata.UsageType.Bar, Resources.Load("Prefabs/Buildings/Building_Bar"));
+            buildingModels.Add(StructureMetadata.UsageType.Bar, Resources.Load("Prefabs/Buildings/57_Building_Bar"));
             buildingModels.Add(StructureMetadata.UsageType.Cafe,
-                Resources.Load("Prefabs/Buildings/Building_Coffee Shop"));
+                Resources.Load("Prefabs/Buildings/61_Building_Coffee Shop"));
             buildingModels.Add(StructureMetadata.UsageType.Restaurant,
-                Resources.Load("Prefabs/Buildings/Building_Restaurant"));
+                Resources.Load("Prefabs/Buildings/75_Building_Restaurant"));
+            buildingModels.Add(StructureMetadata.UsageType.School, Resources.Load("Prefabs/Buildings/39_school"));
             buildingModels.Add(StructureMetadata.UsageType.Shopping,
-                Resources.Load("Prefabs/Buildings/Building_Super Market"));
+                Resources.Load("Prefabs/Buildings/72_Building_Music Store"));
 
             // Get the required Dynamic Maps Service on this GameObject.
             MapsService mapsService = GetComponent<MapsService>();
@@ -98,10 +100,24 @@ namespace CafeMap.Map
             {
                 if (buildingModels.TryGetValue(args.MapFeature.Metadata.Usage, out var model))
                 {
-                    GameObject prefab = (GameObject) Instantiate(model, Vector3.zero, Quaternion.identity);
-                    ExtrudedStructureStyle style =
-                        new ExtrudedStructureStyle.Builder {Prefab = prefab}.Build();
-                    args.Style = style;
+                    if (args.MapFeature.GetShape() is ExtrudedArea area && area.Extrusions.Length == 1)
+                    {
+                        var vertices = area.Extrusions[0].FootPrint.Vertices;
+                        if (vertices.Length >= 2)
+                        {
+                            var edge = vertices[1] - vertices[0];
+                            float angle = Vector2.Angle(edge, Vector2.right);
+                            var rotation = Quaternion.AngleAxis(angle + 90, Vector3.up);
+                            GameObject parent = new GameObject();
+                            GameObject prefab = (GameObject) Instantiate(model, Vector3.zero, rotation);
+                            prefab.transform.localScale *= 2;
+                            prefab.transform.Translate(0, 10, 0);
+                            prefab.transform.parent = parent.transform;
+                            ExtrudedStructureStyle style =
+                                new ExtrudedStructureStyle.Builder {Prefab = parent}.Build();
+                            args.Style = style;
+                        }
+                    }
                 }
             });
 
