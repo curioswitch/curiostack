@@ -7,7 +7,7 @@ namespace CafeMap.Player
     public class LocationService : MonoBehaviour
     {
         // Start is called before the first frame update
-        void Start()
+        IEnu Start()
         {
 
         }
