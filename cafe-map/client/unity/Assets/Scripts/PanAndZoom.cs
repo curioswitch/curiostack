@@ -72,6 +72,8 @@ public class PanAndZoom : MonoBehaviour {
     [Tooltip("Is the camera bound to an area?")]
     public bool useBounds;
 
+    public float tilt = 20;
+
     public float boundMinX = -150;
     public float boundMaxX = 150;
     public float boundMinY = -150;
@@ -94,7 +96,7 @@ public class PanAndZoom : MonoBehaviour {
     void Awake() {
         transform.Translate(0, 300, 0);
         transform.LookAt(Vector3.zero);
-        transform.Rotate(-20, 0, 0);
+        transform.Rotate(-tilt, 0, 0);
     }
 
     void Start()
@@ -257,9 +259,9 @@ public class PanAndZoom : MonoBehaviour {
         }
 
         // TODO(choko): Get better at camera control to be able to do this in one step.
-        transform.Rotate(20, 0, 0);
+        transform.Rotate(tilt, 0, 0);
         transform.Translate(-deltaPosition.x, -deltaPosition.y, 0);
-        transform.Rotate(-20, 0, 0);
+        transform.Rotate(-tilt, 0, 0);
     }
     void DoOnPinch(Vector2 center, float oldDistance, float newDistance, Vector2 touchDelta) {
         if (onPinch != null) {

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="21.759" viewBox="0 0 16 21.759">
+  <defs>
+    <clipPath id="clip-path">
+      <path id="パス_17392" data-name="パス 17392" d="M51.322-69.234a7.942,7.942,0,0,0,8-7.883,7.942,7.942,0,0,0-8-7.883,7.942,7.942,0,0,0-8,7.883v13.876Q45.8-69.234,51.322-69.234Z" transform="translate(-43.322 85)" fill="#9f9f9f" clip-rule="evenodd"/>
+    </clipPath>
+    <clipPath id="clip-path-2">
+      <path id="パス_17391" data-name="パス 17391" d="M-278-82.467H80.383V-319H-278Z" transform="translate(278 319)" fill="#9f9f9f"/>
+    </clipPath>
+    <clipPath id="clip-path-3">
+      <path id="パス_17395" data-name="パス 17395" d="M65.863-59.65a2.972,2.972,0,0,0,2.994-2.95,2.972,2.972,0,0,0-2.994-2.95,2.972,2.972,0,0,0-2.994,2.95A2.972,2.972,0,0,0,65.863-59.65Z" transform="translate(-62.869 65.551)" fill="none" clip-rule="evenodd"/>
+    </clipPath>
+    <clipPath id="clip-path-4">
+      <path id="パス_17394" data-name="パス 17394" d="M-278-82.472H80.375V-319H-278Z" transform="translate(278 319)" fill="none"/>
+    </clipPath>
+  </defs>
+  <g id="グループ化_5165" data-name="グループ化 5165" transform="translate(-185.411 -251.826)">
+    <g id="グループ化_5154" data-name="グループ化 5154" transform="translate(185.41 251.826)" clip-path="url(#clip-path)">
+      <g id="グループ化_5153" data-name="グループ化 5153" transform="translate(-82.255 -59.901)" clip-path="url(#clip-path-2)">
+        <path id="パス_17390" data-name="パス 17390" d="M38.322-90h18.56v24.319H38.322Z" transform="translate(42.653 148.621)" fill="#9f9f9f"/>
+      </g>
+    </g>
+    <g id="グループ化_5156" data-name="グループ化 5156" transform="translate(190.414 256.805)" clip-path="url(#clip-path-3)">
+      <g id="グループ化_5155" data-name="グループ化 5155" transform="translate(-87.256 -64.878)" clip-path="url(#clip-path-4)">
+        <path id="パス_17393" data-name="パス 17393" d="M57.869-70.551h8.548v8.46H57.869Z" transform="translate(28.107 134.149)" fill="#fff"/>
+      </g>
+    </g>
+  </g>
+</svg>
