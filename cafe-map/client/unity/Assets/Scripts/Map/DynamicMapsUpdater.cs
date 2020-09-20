@@ -3,6 +3,7 @@ using System.Collections;
 using Google.Maps;
 using UnityEngine;
 using UnityEngine.Events;
+using Zenject;
 
 namespace CafeMap.Map
 {
@@ -19,13 +20,6 @@ namespace CafeMap.Map
         public class MapRegionUnloadedOutsideCircleEvent : UnityEvent<Vector3, float>
         {
         }
-
-        /// <summary>
-        /// Reference to the base map loader (which knows about MapsService).
-        /// The <see cref="BaseMapLoader"/> handles the basic loading of a map region and provides
-        /// default styling parameters and loading errors management.
-        /// </summary>
-        public BaseMapLoader BaseMapLoader;
 
         [Tooltip(
             "The ground plane. We keep this centered underneath Camera.main, so as we move around " +
@@ -84,6 +78,16 @@ namespace CafeMap.Map
         /// </summary>
         private Quaternion LastCameraRotation;
 
+        private MapsService mapsService;
+        private BaseMapLoader baseMapLoader;
+
+        [Inject]
+        public void Init(MapsService mapsService, BaseMapLoader baseMapLoader)
+        {
+            this.mapsService = mapsService;
+            this.baseMapLoader = baseMapLoader;
+        }
+
         public void LoadMap()
         {
             NeedsLoading = true;
@@ -98,13 +102,6 @@ namespace CafeMap.Map
                 // Disable this script to prevent error spamming (where Update will producing one or more
                 // errors every frame because one or more parameters are undefined).
                 enabled = false;
-            }
-
-            // Get the required base map loader
-            if (BaseMapLoader == null)
-            {
-                Debug.LogError(Errors.MissingParameter(
-                    this, BaseMapLoader, "Base Map Loader", "is required for this script to work."));
             }
         }
 
@@ -133,9 +130,9 @@ namespace CafeMap.Map
             if (NeedsLoading)
             {
                 Ground.transform.position = new Vector3(cameraPosition.x, 0f, cameraPosition.z);
-                if (BaseMapLoader != null)
+                if (baseMapLoader != null)
                 {
-                    BaseMapLoader.LoadMap();
+                    baseMapLoader.LoadMap();
                 }
 
                 LastCameraPosition = cameraPosition;
@@ -159,17 +156,17 @@ namespace CafeMap.Map
         {
             while (true)
             {
-                if (BaseMapLoader != null && BaseMapLoader.IsInitialized && NeedsUnloading)
+                if (baseMapLoader != null && baseMapLoader.IsInitialized && NeedsUnloading)
                 {
                     // Unload map regions that are not in viewport, and are outside a radius around the
                     // camera. This is to avoid unloading geometry that may be reloaded again very shortly (as
                     // it is right on the edge of the view).
-                    BaseMapLoader.MapsService.MakeMapLoadRegion()
-                        .AddCircle(Camera.main.transform.position, BaseMapLoader.MaxDistance)
+                    mapsService.MakeMapLoadRegion()
+                        .AddCircle(Camera.main.transform.position, baseMapLoader.MaxDistance)
                         .UnloadOutside();
 
                     if (UnloadedEvent != null)
-                        UnloadedEvent.Invoke(Camera.main.transform.position, BaseMapLoader.MaxDistance);
+                        UnloadedEvent.Invoke(Camera.main.transform.position, baseMapLoader.MaxDistance);
 
                     // Reset unload flag to prevent unnecessary calls each interval.
                     NeedsUnloading = false;

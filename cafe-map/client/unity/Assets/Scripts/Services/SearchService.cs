@@ -4,13 +4,11 @@ using Google.Maps;
 using Google.Maps.Coord;
 using GoogleApi;
 using GoogleApi.Entities.Places.Search.Text.Request;
-using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-public class SearchService : IInitializable
+public class SearchService
 {
-    private readonly InputField searchBox;
     private readonly PanAndZoom cameraControl;
 
     private readonly DynamicMapsUpdater mapsUpdater;
@@ -18,17 +16,20 @@ public class SearchService : IInitializable
     private readonly MapsService mapsService;
     private readonly KeysService keysService;
 
-    public SearchService([Inject(Id = "SearchBox")] InputField searchBox, PanAndZoom cameraControl,
-        MapsService mapsService, KeysService keysService, DynamicMapsUpdater mapsUpdater)
+    public SearchService(
+        PanAndZoom cameraControl,
+        MapsService mapsService, 
+        KeysService keysService, 
+        DynamicMapsUpdater mapsUpdater)
     {
-        this.searchBox = searchBox;
         this.cameraControl = cameraControl;
         this.mapsService = mapsService;
         this.keysService = keysService;
         this.mapsUpdater = mapsUpdater;
     }
 
-    public void Initialize()
+    [Inject]
+    public void Init([Inject(Id = "SearchBox")] InputField searchBox)
     {
         searchBox.onEndEdit.AddListener(text => search(text));
     }

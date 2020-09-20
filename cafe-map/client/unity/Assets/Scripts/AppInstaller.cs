@@ -9,13 +9,15 @@ public class AppInstaller : MonoInstaller
 {
     public override void InstallBindings()
     {
-        var mapBase = GameObject.FindWithTag("GameController");
         var searchBox = GameObject.FindWithTag("SearchBox");
 
-        Container.BindInstance(mapBase.GetComponent<MapsService>());
-        Container.BindInstance(mapBase.GetComponent<DynamicMapsUpdater>());
-        Container.Bind<InputField>().WithId("SearchBox").FromInstance(searchBox.GetComponent<InputField>());
+        Container.Bind<MapsService>().FromComponentOnRoot().AsSingle();
+        Container.Bind<BaseMapLoader>().FromComponentOnRoot().AsSingle();
+        Container.Bind<DynamicMapsUpdater>().FromComponentOnRoot().AsSingle();
+
         Container.BindInstance(Camera.main.GetComponent<PanAndZoom>());
+
+        Container.Bind<InputField>().WithId("SearchBox").FromInstance(searchBox.GetComponent<InputField>());
 
         Container.Bind<TextAsset>().WithId("Secrets").FromResources("Secrets").AsSingle();
 

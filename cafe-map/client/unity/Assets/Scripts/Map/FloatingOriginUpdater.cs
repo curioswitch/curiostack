@@ -5,6 +5,7 @@ using Google.Maps;
 using Google.Maps.Examples.Shared;
 using UnityEngine;
 using UnityEngine.Events;
+using Zenject;
 
 namespace CafeMap.Map
 {
@@ -41,11 +42,6 @@ namespace CafeMap.Map
         public bool DebugFloatingOrigin = true;
 
         /// <summary>
-        /// The <see cref="MapsService"/> to update the floating origin of.
-        /// </summary>
-        public MapsService MapsService;
-
-        /// <summary>
         /// All <see cref="GameObject"/>s to be moved when the world's Floating Origin is moved.
         /// </summary>
         /// <remarks>
@@ -56,20 +52,20 @@ namespace CafeMap.Map
         /// </remarks>
         private GameObject[] AdditionalGameObjects;
 
+        public MapsService mapsService;
+
+        [Inject]
+        public void Inject(MapsService mapsService)
+        {
+            this.mapsService = mapsService;
+        }
+
         /// <summary>
         /// Use <see cref="CameraController"/>'s OnMove event to detect when the <see cref="Camera"/>
         /// has moved far enough that the Floating Origin needs to be recentered.
         /// </summary>
         private void Awake()
         {
-            if (MapsService == null)
-            {
-                Debug.LogError(ExampleErrors.MissingParameter(
-                    this, MapsService, "Maps Service", "is required for this script to work."));
-
-                return;
-            }
-
             // Verify a Camera Controller has been given.
             if (CameraController == null)
             {
@@ -120,7 +116,7 @@ namespace CafeMap.Map
         /// </summary>
         private void TryMoveFloatingOrigin(Vector2 unused)
         {
-            if (MapsService == null)
+            if (mapsService == null)
             {
                 return;
             }
@@ -140,7 +136,7 @@ namespace CafeMap.Map
             // moved together, until the Camera is over the origin again. Note that the MoveFloatingOrigin
             // function automatically moves all geometry loaded by the Maps Service.
             Vector3 originOffset =
-                MapsService.MoveFloatingOrigin(newFloatingOrigin, AdditionalGameObjects);
+                mapsService.MoveFloatingOrigin(newFloatingOrigin, AdditionalGameObjects);
 
             // Use event to inform other classes of change in origin. Note that because this is a Unity
             // Event a null reference exception will not be triggered if no listeners have been added.

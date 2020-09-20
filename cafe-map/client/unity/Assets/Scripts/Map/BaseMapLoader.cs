@@ -3,12 +3,14 @@ using UnityEngine;
 using UnityEngine.Events;
 using Google.Maps.Coord;
 using Google.Maps.Event;
+using Google.Maps.Examples.Shared;
+using Zenject;
 
 namespace CafeMap.Map
 {
     /// <summary>
     /// This script provides a template for loading a maps area.
-    /// It relies on <see cref="MapsService"/> for the communication with the Maps SDK.
+    /// It relies on <see cref="mapsService"/> for the communication with the Maps SDK.
     ///
     /// Before loading a map, you need to:
     /// - setup a Latitude/Longitude origin
@@ -28,15 +30,6 @@ namespace CafeMap.Map
     {
         [Tooltip("LatLng to load (must be set before hitting play).")]
         public LatLng LatLng = new LatLng(40.6892199, -74.044601);
-
-        /// <summary>
-        /// The <see cref="MapsService"/> is the entry point to communicate with to the Maps SDK for
-        /// Unity. It provides apis to load map regions, and dispatches events throughout the loading
-        /// process. These events, in particular WillCreate/DidCreate events provide a finer control on
-        /// each loaded map feature.
-        /// </summary>
-        [Tooltip("Required maps service (used to communicate with the Maps plugin).")]
-        public MapsService MapsService;
 
         [Tooltip(
             "Maximum distance to render to (prevents loading massive amount of geometry if looking" +
@@ -81,12 +74,12 @@ namespace CafeMap.Map
             "Service.")]
         public UnityEvent MapClearedEvent;
 
-        void Awake()
+        private MapsService mapsService;
+
+        [Inject]
+        public void Init(MapsService mapsService)
         {
-            if (MapsService == null)
-            {
-                throw new System.Exception("Maps Service is required for loading maps data.");
-            }
+            this.mapsService = mapsService;
         }
 
         /// <summary>
@@ -118,13 +111,13 @@ namespace CafeMap.Map
         /// </summary>
         protected virtual void InitFloatingOrigin()
         {
-            if (MapsService == null)
+            if (mapsService == null)
             {
                 return;
             }
 
             // Set real-world location to load.
-            MapsService.InitFloatingOrigin(LatLng);
+            mapsService.InitFloatingOrigin(LatLng);
         }
 
         /// <summary>
@@ -147,7 +140,7 @@ namespace CafeMap.Map
         /// </summary>
         protected virtual void InitErrorHandling()
         {
-            if (MapsService == null)
+            if (mapsService == null)
             {
                 return;
             }
@@ -155,7 +148,7 @@ namespace CafeMap.Map
             // Sign up to event called whenever an error occurs. Note that this event must be set now
             // during Awake, so that when Dynamic Maps Service starts loading the map during Start, this
             // event will be triggered on any error.
-            MapsService.Events.MapEvents.LoadError.AddListener(args =>
+            mapsService.Events.MapEvents.LoadError.AddListener(args =>
             {
                 // Check for the most common errors, showing specific error message in these cases.
                 switch (args.DetailedErrorCode)
@@ -209,7 +202,7 @@ namespace CafeMap.Map
         /// </summary>
         protected virtual void InitEventListeners()
         {
-            if (MapsService == null)
+            if (mapsService == null)
             {
                 return;
             }
@@ -217,7 +210,7 @@ namespace CafeMap.Map
             // Revert loading flag to false whenever loading finishes (this flag is set to true whenever
             // loading starts, and so it remain true until the currently requested geometry has finished
             // loading).
-            MapsService.Events.MapEvents.Loaded.AddListener(args => IsLoading = false);
+            mapsService.Events.MapEvents.Loaded.AddListener(args => IsLoading = false);
         }
 
         /// <summary>
@@ -226,13 +219,13 @@ namespace CafeMap.Map
         /// </summary>
         public virtual void LoadMap()
         {
-            if (MapsService == null || RenderingStyles == null || !IsInitialized || Camera.main == null)
+            if (mapsService == null || RenderingStyles == null || !IsInitialized || Camera.main == null)
             {
                 return;
             }
 
             // Don't load if the application has quit and we're not in edit-time preview mode.
-            if (HasQuit && (Application.isPlaying || !MapsService.MapPreviewOptions.Enable))
+            if (HasQuit && (Application.isPlaying || !mapsService.MapPreviewOptions.Enable))
             {
                 return;
             }
@@ -248,7 +241,7 @@ namespace CafeMap.Map
             }
 
             // Load the visible map region.
-            MapsService.MakeMapLoadRegion()
+            mapsService.MakeMapLoadRegion()
                 .AddViewport(Camera.main, MaxDistance)
                 .Load(RenderingStyles);
         }
@@ -267,17 +260,17 @@ namespace CafeMap.Map
         public virtual void ClearMap()
         {
             // Don't clear if the application has quit and we're not in edit-time preview mode.
-            if (HasQuit && (Application.isPlaying || !MapsService.MapPreviewOptions.Enable))
+            if (HasQuit && (Application.isPlaying || !mapsService.MapPreviewOptions.Enable))
             {
                 return;
             }
 
-            if (MapsService.GameObjectManager != null)
+            if (mapsService.GameObjectManager != null)
             {
-                MapsService.GameObjectManager.DestroyAll();
+                mapsService.GameObjectManager.DestroyAll();
             }
 
-            foreach (Transform child in MapsService.transform)
+            foreach (Transform child in mapsService.transform)
             {
                 Destroy(child.gameObject);
             }
