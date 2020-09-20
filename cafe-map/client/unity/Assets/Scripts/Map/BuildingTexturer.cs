@@ -8,6 +8,7 @@ using Google.Maps.Feature;
 using Google.Maps.Feature.Shape;
 using Google.Maps.Feature.Style;
 using UnityEngine;
+using Zenject;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
@@ -27,6 +28,9 @@ namespace CafeMap.Map
             "Materials array, as we will try to match given Walls to given Roofs (e.g. if a building " +
             "is given Building Wall Material 2, then it will also be given Building Roof Material 2).")]
         public Material[] RoofMaterials;
+
+        private readonly Dictionary<StructureMetadata.UsageType, Object> buildingModels 
+            = new Dictionary<StructureMetadata.UsageType, Object>();
 
         /// <summary>
         /// Verify given <see cref="Material"/> arrays are valid (not empty nor containing any null
@@ -83,7 +87,6 @@ namespace CafeMap.Map
                 }
             }
 
-            var buildingModels = new Dictionary<StructureMetadata.UsageType, Object>();
             buildingModels.Add(StructureMetadata.UsageType.Bar, Resources.Load("Prefabs/Buildings/57_Building_Bar"));
             buildingModels.Add(StructureMetadata.UsageType.Cafe,
                 Resources.Load("Prefabs/Buildings/61_Building_Coffee Shop"));
@@ -92,10 +95,11 @@ namespace CafeMap.Map
             buildingModels.Add(StructureMetadata.UsageType.School, Resources.Load("Prefabs/Buildings/39_school"));
             buildingModels.Add(StructureMetadata.UsageType.Shopping,
                 Resources.Load("Prefabs/Buildings/72_Building_Music Store"));
+        }
 
-            // Get the required Dynamic Maps Service on this GameObject.
-            MapsService mapsService = GetComponent<MapsService>();
-
+        [Inject]
+        public void Init(MapsService mapsService)
+        {
             mapsService.Events.ExtrudedStructureEvents.WillCreate.AddListener(args =>
             {
                 if (buildingModels.TryGetValue(args.MapFeature.Metadata.Usage, out var model))
