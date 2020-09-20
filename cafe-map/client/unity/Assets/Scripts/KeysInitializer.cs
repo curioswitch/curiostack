@@ -5,10 +5,15 @@ using UnityEngine;
 
 public class KeysInitializer : MonoBehaviour
 {
+
+    private static string googleApiKey;
+
+    public static string GoogleApiKey => googleApiKey;
+
     // Start is called before the first frame update
     void Awake()
     {
-        var googleApiKey = readSecret("google-api-key");
+        googleApiKey = readSecret("google-api-key");
         foreach (var map in GameObject.FindObjectsOfType<MapsService>())
         {
             map.ApiKey = googleApiKey;
