@@ -84,6 +84,11 @@ namespace CafeMap.Map
         /// </summary>
         private Quaternion LastCameraRotation;
 
+        public void LoadMap()
+        {
+            NeedsLoading = true;
+        }
+
         void Awake()
         {
             // Verify all required parameters are defined and correctly setup, skipping any further setup
