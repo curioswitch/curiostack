@@ -93,7 +93,14 @@ public class PanAndZoom : MonoBehaviour {
     /// <summary> The point of contact if it exists in Screen space. </summary>
     public Vector2 touchPosition { get { return touch0LastPosition; } }
 
-    void Awake() {
+    private Vector3 startPosition;
+    private Quaternion startRotation;
+
+    void Awake()
+    {
+        startPosition = transform.position;
+        startRotation = transform.rotation;
+
         transform.Translate(0, 300, 0);
         transform.LookAt(Vector3.zero);
         transform.Rotate(-tilt, 0, 0);
@@ -263,6 +270,16 @@ public class PanAndZoom : MonoBehaviour {
         transform.Translate(-deltaPosition.x, -deltaPosition.y, 0);
         transform.Rotate(-tilt, 0, 0);
     }
+
+    public void SetPosition(Vector3 position)
+    {
+        transform.SetPositionAndRotation(startPosition, startRotation);
+        
+        transform.Translate(position.x, 300, position.z);
+        transform.LookAt(Vector3.zero);
+        transform.Rotate(-tilt, 0, 0);
+    }
+    
     void DoOnPinch(Vector2 center, float oldDistance, float newDistance, Vector2 touchDelta) {
         if (onPinch != null) {
             onPinch(oldDistance, newDistance);
