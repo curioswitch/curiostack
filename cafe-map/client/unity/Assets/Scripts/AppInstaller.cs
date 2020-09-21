@@ -12,8 +12,8 @@ public class AppInstaller : MonoInstaller
         var searchBox = GameObject.FindWithTag("SearchBox");
 
         Container.Bind<MapsService>().FromComponentOnRoot().AsSingle();
-        Container.Bind<BaseMapLoader>().FromComponentOnRoot().AsSingle();
-        Container.Bind<DynamicMapsUpdater>().FromComponentOnRoot().AsSingle();
+        Container.BindInterfacesAndSelfTo<BaseMapLoader>().FromComponentOnRoot().AsSingle();
+        Container.BindInterfacesAndSelfTo<DynamicMapsUpdater>().FromComponentOnRoot().AsSingle();
 
         Container.BindInstance(Camera.main.GetComponent<PanAndZoom>());
 
@@ -21,6 +21,7 @@ public class AppInstaller : MonoInstaller
 
         Container.Bind<TextAsset>().WithId("Secrets").FromResources("Secrets").AsSingle();
 
+        Container.BindInterfacesAndSelfTo<ViewportService>().AsSingle();
         Container.BindInterfacesAndSelfTo<KeysService>().AsSingle().NonLazy();
         Container.BindInterfacesAndSelfTo<SearchService>().AsSingle().NonLazy();
     }

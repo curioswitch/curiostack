@@ -9,23 +9,16 @@ using Zenject;
 
 public class SearchService
 {
-    private readonly PanAndZoom cameraControl;
+    private readonly ViewportService viewportService;
 
-    private readonly DynamicMapsUpdater mapsUpdater;
-
-    private readonly MapsService mapsService;
     private readonly KeysService keysService;
 
     public SearchService(
-        PanAndZoom cameraControl,
-        MapsService mapsService, 
         KeysService keysService, 
-        DynamicMapsUpdater mapsUpdater)
+        ViewportService viewportService)
     {
-        this.cameraControl = cameraControl;
-        this.mapsService = mapsService;
         this.keysService = keysService;
-        this.mapsUpdater = mapsUpdater;
+        this.viewportService = viewportService;
     }
 
     [Inject]
@@ -46,11 +39,7 @@ public class SearchService
         foreach (var result in response.Results)
         {
             var location = result.Geometry.Location;
-            var latlng = new LatLng(location.Latitude, location.Longitude);
-            mapsService.MoveFloatingOrigin(latlng);
-            var coords = mapsService.Coords.FromLatLngToVector3(latlng);
-            cameraControl.SetPosition(coords);
-            mapsUpdater.LoadMap();
+            viewportService.SetCenter(location.Latitude, location.Longitude);
             break;
         }
     }

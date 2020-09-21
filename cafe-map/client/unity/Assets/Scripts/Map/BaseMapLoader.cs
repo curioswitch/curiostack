@@ -26,7 +26,7 @@ namespace CafeMap.Map
     /// the loaded map with more functionality.
     ///
     /// </summary>
-    public class BaseMapLoader : MonoBehaviour
+    public class BaseMapLoader : MonoBehaviour, IInitializable
     {
         [Tooltip("LatLng to load (must be set before hitting play).")]
         public LatLng LatLng = new LatLng(40.6892199, -74.044601);
@@ -86,7 +86,7 @@ namespace CafeMap.Map
         /// In this example, the map setup and loading are done as soon as the loader becomes active in
         /// the scene.
         /// </summary>
-        void Start()
+        public void Initialize()
         {
             InitFloatingOrigin();
             InitStylingOptions();
@@ -111,11 +111,6 @@ namespace CafeMap.Map
         /// </summary>
         protected virtual void InitFloatingOrigin()
         {
-            if (mapsService == null)
-            {
-                return;
-            }
-
             // Set real-world location to load.
             mapsService.InitFloatingOrigin(LatLng);
         }
