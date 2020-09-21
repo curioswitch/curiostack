@@ -7,6 +7,7 @@ using Google.Maps.Examples.Shared;
 using Google.Maps.Feature;
 using Google.Maps.Feature.Shape;
 using Google.Maps.Feature.Style;
+using ModestTree;
 using UnityEngine;
 using Zenject;
 using Object = UnityEngine.Object;
@@ -124,7 +125,7 @@ namespace CafeMap.Map
                     }
                 }
             });
-
+            
             // Sign up to event called after each new building is loaded, so can assign Materials to this
             // new building. Note that:
             // - DynamicMapsService.MapsService is auto-found on first access (so will not be null).

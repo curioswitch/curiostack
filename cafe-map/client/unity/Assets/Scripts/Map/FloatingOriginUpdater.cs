@@ -52,10 +52,10 @@ namespace CafeMap.Map
         /// </remarks>
         private GameObject[] AdditionalGameObjects;
 
-        public MapsService mapsService;
+        private MapsService mapsService;
 
         [Inject]
-        public void Inject(MapsService mapsService)
+        public void Init(MapsService mapsService)
         {
             this.mapsService = mapsService;
         }
