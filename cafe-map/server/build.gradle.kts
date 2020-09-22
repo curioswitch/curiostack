@@ -37,7 +37,7 @@ application {
 
 dependencies {
     compile(project(":cafe-map:api"))
-    compile(project(":cafe-map:client:web"))
+    // compile(project(":cafe-map:client:web"))
     compile(project(":common:google-cloud:maps-services"))
     compile(project(":common:server:framework"))
     compile(project(":database:cafemapdb:bindings"))

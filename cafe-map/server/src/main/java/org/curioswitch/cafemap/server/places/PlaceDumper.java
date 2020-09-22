@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 Choko (choko@curioswitch.org)
+ * Copyright (c) 2020 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,25 +24,28 @@
 
 package org.curioswitch.cafemap.server.places;
 
-import com.google.common.base.Strings;
-import org.curioswitch.cafemap.api.LatLng;
-import org.curioswitch.database.cafemapdb.tables.interfaces.IPlace;
+import static org.curioswitch.database.cafemapdb.tables.Place.PLACE;
 
-final class PlaceUtil {
+import javax.inject.Inject;
+import org.curioswitch.cafemap.api.GetPlacesResponse;
+import org.jooq.DSLContext;
 
-  static org.curioswitch.cafemap.api.Place convertPlace(IPlace place) {
-    return org.curioswitch.cafemap.api.Place.newBuilder()
-        .setId(place.getId().toString())
-        .setName(place.getName())
-        .setPosition(
-            LatLng.newBuilder()
-                .setLatitude(place.getLatitude())
-                .setLongitude(place.getLongitude())
-                .build())
-        .setInstagramId(Strings.nullToEmpty(place.getInstagramId()))
-        .setGooglePlaceId(place.getGooglePlaceId())
-        .build();
+public class PlaceDumper {
+
+  private final DSLContext db;
+
+  @Inject
+  public PlaceDumper(DSLContext db) {
+    this.db = db;
   }
 
-  private PlaceUtil() {}
+  public GetPlacesResponse dumpAllPlaces() {
+    var response = GetPlacesResponse.newBuilder();
+
+    try (var stream = db.selectFrom(PLACE).fetchStream()) {
+      stream.forEach(place -> response.addPlace(PlaceUtil.convertPlace(place)));
+    }
+
+    return response.build();
+  }
 }
