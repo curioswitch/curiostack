@@ -28,10 +28,10 @@ import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.ServerCacheControl;
 import com.linecorp.armeria.server.HttpService;
+import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.ServiceRequestContextWrapper;
 import com.linecorp.armeria.server.SimpleDecoratingHttpService;
-import com.linecorp.armeria.server.composition.SimpleCompositeService;
 import com.linecorp.armeria.server.file.FileService;
 import com.linecorp.armeria.server.file.FileServiceBuilder;
 import com.linecorp.armeria.server.file.HttpFile;
@@ -53,7 +53,8 @@ public final class StaticSiteService {
    * @param staticPath the URL path from which static resources will be served, e.g., "/static".
    * @param classpathRoot the root directory in the classpath to serve resources from.
    */
-  public static HttpService of(String staticPath, String classpathRoot) {
+  public static void addToServer(
+      String urlRoot, String staticPath, String classpathRoot, ServerBuilder sb) {
     FileService staticFileService =
         FileService.builder(StaticSiteService.class.getClassLoader(), classpathRoot)
             .serveCompressedFiles(true)
@@ -75,10 +76,12 @@ public final class StaticSiteService {
             .orElse(indexHtmlService)
             .decorate(TrailingSlashAddingService::new);
 
-    return SimpleCompositeService.builder()
-        .serviceUnder(staticPath, staticFileService)
-        .serviceUnder("/", indexService)
-        .build();
+    String urlRootWithTrailingSlash = urlRoot.endsWith("/") ? urlRoot : urlRoot + "/";
+    String staticPathWithoutLeadingSlash =
+        staticPath.startsWith("/") ? staticPath.substring(1) : staticPath;
+
+    sb.serviceUnder(urlRootWithTrailingSlash + staticPathWithoutLeadingSlash, staticFileService)
+        .serviceUnder(urlRootWithTrailingSlash, indexService);
   }
 
   private static class TrailingSlashAddingService extends SimpleDecoratingHttpService {
@@ -93,9 +96,9 @@ public final class StaticSiteService {
           || ctx.mappedPath().charAt(ctx.mappedPath().length() - 1) == '/') {
         // A path that ends with '/' will be handled by HttpFileService correctly, and otherwise if
         // it has a '.' in the last path segment, assume it is a filename.
-        return delegate().serve(ctx, req);
+        return unwrap().serve(ctx, req);
       }
-      return delegate().serve(new ContextWrapper(ctx), req);
+      return unwrap().serve(new ContextWrapper(ctx), req);
     }
 
     private static class ContextWrapper extends ServiceRequestContextWrapper {

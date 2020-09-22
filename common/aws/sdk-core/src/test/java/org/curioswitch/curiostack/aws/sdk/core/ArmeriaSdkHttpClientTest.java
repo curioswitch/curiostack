@@ -30,9 +30,9 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.linecorp.armeria.client.WebClient;
+import com.linecorp.armeria.common.AggregatedHttpRequest;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
-import com.linecorp.armeria.common.HttpObject;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
@@ -151,14 +151,14 @@ class ArmeriaSdkHttpClientTest {
             .fullDuplex(false)
             .build();
 
-    AtomicReference<List<HttpObject>> requestObjects = new AtomicReference<>();
+    AtomicReference<AggregatedHttpRequest> aggregatedRequest = new AtomicReference<>();
 
     when(webClient.execute(any(HttpRequest.class)))
         .thenAnswer(
             (Answer<HttpResponse>)
                 invocation -> {
                   HttpRequest httpRequest = invocation.getArgument(0);
-                  requestObjects.set(httpRequest.drainAll().join());
+                  aggregatedRequest.set(httpRequest.aggregate().join());
                   return HttpResponse.of(
                       ResponseHeaders.of(
                           HttpStatus.OK,

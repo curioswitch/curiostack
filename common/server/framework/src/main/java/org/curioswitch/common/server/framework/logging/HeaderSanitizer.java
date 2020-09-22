@@ -27,13 +27,14 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.linecorp.armeria.common.HttpHeaders;
 import com.linecorp.armeria.common.HttpHeadersBuilder;
+import com.linecorp.armeria.common.RequestContext;
 import io.netty.util.AsciiString;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
-final class HeaderSanitizer implements Function<HttpHeaders, HttpHeaders> {
+final class HeaderSanitizer implements BiFunction<RequestContext, HttpHeaders, HttpHeaders> {
 
   private final Set<Consumer<HttpHeadersBuilder>> customSanitizers;
   private final Set<AsciiString> blacklistedHeaders;
@@ -46,7 +47,7 @@ final class HeaderSanitizer implements Function<HttpHeaders, HttpHeaders> {
   }
 
   @Override
-  public HttpHeaders apply(HttpHeaders entries) {
+  public HttpHeaders apply(RequestContext ctx, HttpHeaders entries) {
     HttpHeadersBuilder builder = entries.toBuilder();
     blacklistedHeaders.forEach(builder::remove);
     customSanitizers.forEach(c -> c.accept(builder));

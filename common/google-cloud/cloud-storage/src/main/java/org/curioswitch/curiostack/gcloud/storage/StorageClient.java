@@ -44,7 +44,6 @@ import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.common.RequestContext;
 import com.linecorp.armeria.common.RequestHeaders;
 import com.linecorp.armeria.common.ResponseHeaders;
-import com.linecorp.armeria.unsafe.ByteBufHttpData;
 import com.spotify.futures.CompletableFuturesExtra;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -274,7 +273,7 @@ public class StorageClient {
       throw new UncheckedIOException("Could not serialize resource JSON to buffer.", e);
     }
 
-    return new ByteBufHttpData(buf, true);
+    return HttpData.wrap(buf).withEndOfStream();
   }
 
   @Immutable

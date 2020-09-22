@@ -27,7 +27,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.linecorp.armeria.client.ClientOption;
+import com.linecorp.armeria.client.ClientOptions;
 import com.linecorp.armeria.client.Clients;
 import com.linecorp.armeria.client.WebClient;
 import io.netty.buffer.ByteBuf;
@@ -85,7 +85,7 @@ public class CloudStorageBuildCacheServiceFactory
     WebClient authenticatedGoogleApis =
         Clients.newDerivedClient(
             GcloudAuthModule.authenticatedGoogleApisClient(googleApis, credentialsDecoratorFactory),
-            ClientOption.MAX_RESPONSE_LENGTH.newValue(100 * 1000 * 1000L));
+            ClientOptions.MAX_RESPONSE_LENGTH.newValue(100 * 1000 * 1000L));
 
     StorageClient storageClient =
         new StorageClient(

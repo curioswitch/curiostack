@@ -74,7 +74,7 @@ public class InstagramScraperServiceMain {
     static WebClient instagramClient(ClientBuilderFactory factory) {
       return factory
           .create("instagram-client", "none+https://www.instagram.com/")
-          .setHttpHeader(HttpHeaderNames.USER_AGENT, "CurioBot 0.1")
+          .setHeader(HttpHeaderNames.USER_AGENT, "CurioBot 0.1")
           .build(WebClient.class);
     }
 
