@@ -87,7 +87,7 @@ public class HttpsOnlyService extends SimpleDecoratingHttpService {
           .forEach(
               (key, value) ->
                   ctx.addAdditionalResponseHeader(HttpHeaderNames.of(key), (String) value));
-      return delegate().serve(ctx, req);
+      return unwrap().serve(ctx, req);
     }
     StringBuilder redirectUrl =
         new StringBuilder("https://" + req.headers().authority() + ctx.path());

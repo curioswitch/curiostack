@@ -83,7 +83,7 @@ public class IpFilteringService extends SimpleDecoratingHttpService {
       clientAddress = remoteAddress;
     }
     if (rules.stream().anyMatch(rule -> rule.matches(clientAddress))) {
-      return delegate().serve(ctx, req);
+      return unwrap().serve(ctx, req);
     } else {
       logger.info("Denying access from IP " + clientAddress);
       return HttpResponse.of(HttpStatus.FORBIDDEN);

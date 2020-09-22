@@ -48,20 +48,20 @@ repositories {
 data class DependencySet(val group: String, val version: String, val modules: List<String>)
 
 val DEPENDENCY_BOMS = listOf(
-        "com.fasterxml.jackson:jackson-bom:2.11.1",
+        "com.fasterxml.jackson:jackson-bom:2.11.2",
         "com.google.cloud:google-cloud-bom:0.131.0",
         "com.google.api-client:google-api-client-bom:1.30.10",
         "com.google.http-client:google-http-client-bom:1.36.0",
         "com.google.protobuf:protobuf-bom:3.12.4",
-        "com.linecorp.armeria:armeria-bom:0.99.6",
+        "com.linecorp.armeria:armeria-bom:1.1.0",
         "io.dropwizard.metrics:metrics-bom:4.1.12.1",
-        "io.grpc:grpc-bom:1.30.2",
-        "io.micrometer:micrometer-bom:1.5.3",
-        "io.zipkin.brave:brave-bom:5.12.4",
-        "io.netty:netty-bom:4.1.50.Final",
+        "io.grpc:grpc-bom:1.32.1",
+        "io.micrometer:micrometer-bom:1.5.5",
+        "io.zipkin.brave:brave-bom:5.12.6",
+        "io.netty:netty-bom:4.1.52.Final",
         "org.apache.beam:beam-sdks-java-bom:2.22.0",
         "org.apache.logging.log4j:log4j-bom:2.13.3",
-        "org.junit:junit-bom:5.6.1",
+        "org.junit:junit-bom:5.7.0",
         "software.amazon.awssdk:bom:2.13.59"
 )
 
@@ -192,7 +192,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.netty",
-                "2.0.30.Final",
+                "2.0.34.Final",
                 listOf("netty-tcnative-boringssl-static")
         ),
         DependencySet(

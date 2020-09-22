@@ -43,7 +43,7 @@ dependencies {
     compileOnly("org.checkerframework:checker-qual")
 
     testImplementation("com.google.guava:guava")
-    testImplementation("com.linecorp.armeria:armeria-testing-junit")
+    testImplementation("com.linecorp.armeria:armeria-junit5")
     testImplementation("software.amazon.awssdk:dynamodb") {
         exclude("software.amazon.awssdk", "apache-client")
         exclude("software.amazon.awssdk", "netty-nio-client")

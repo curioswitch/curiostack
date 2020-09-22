@@ -26,7 +26,7 @@ package org.curioswitch.curiostack.gcloud.core.auth;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.linecorp.armeria.client.ClientDecoration;
-import com.linecorp.armeria.client.ClientOption;
+import com.linecorp.armeria.client.ClientOptions;
 import com.linecorp.armeria.client.Clients;
 import com.linecorp.armeria.client.WebClient;
 import com.typesafe.config.Config;
@@ -116,7 +116,7 @@ public abstract class GcloudAuthModule {
       WebClient client, GoogleCredentialsDecoratingClient.Factory credentialsDecorator) {
     return Clients.newDerivedClient(
         client,
-        ClientOption.DECORATION.newValue(
+        ClientOptions.DECORATION.newValue(
             ClientDecoration.of(credentialsDecorator.newAccessTokenDecorator())));
   }
 

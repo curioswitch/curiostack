@@ -24,7 +24,7 @@
 package org.curioswitch.curiostack.gcloud.storage;
 
 import com.linecorp.armeria.client.ClientDecoration;
-import com.linecorp.armeria.client.ClientOption;
+import com.linecorp.armeria.client.ClientOptions;
 import com.linecorp.armeria.client.Clients;
 import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.client.metric.MetricCollectingClient;
@@ -56,7 +56,7 @@ public abstract class StorageModule {
   static WebClient metricClient(@RetryingAuthenticatedGoogleApis WebClient httpClient) {
     return Clients.newDerivedClient(
         httpClient,
-        ClientOption.DECORATION.newValue(
+        ClientOptions.DECORATION.newValue(
             ClientDecoration.of(
                 MetricCollectingClient.newDecorator(MetricLabels.storageRequestLabeler()))));
   }
