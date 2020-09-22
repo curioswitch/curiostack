@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 Choko (choko@curioswitch.org)
+ * Copyright (c) 2020 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,27 +22,34 @@
  * SOFTWARE.
  */
 
-package org.curioswitch.cafemap.server.places;
+package org.curioswitch.cafemap.server;
 
-import com.google.common.base.Strings;
-import org.curioswitch.cafemap.api.LatLng;
-import org.curioswitch.database.cafemapdb.tables.interfaces.IPlace;
+import dagger.Component;
+import dagger.Module;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import javax.inject.Singleton;
+import org.curioswitch.cafemap.server.places.PlaceDumper;
+import org.curioswitch.common.server.framework.database.DatabaseModule;
 
-final class PlaceUtil {
+public class CafeMapDumperMain {
 
-  static org.curioswitch.cafemap.api.Place convertPlace(IPlace place) {
-    return org.curioswitch.cafemap.api.Place.newBuilder()
-        .setId(place.getId().toString())
-        .setName(place.getName())
-        .setPosition(
-            LatLng.newBuilder()
-                .setLatitude(place.getLatitude())
-                .setLongitude(place.getLongitude())
-                .build())
-        .setInstagramId(Strings.nullToEmpty(place.getInstagramId()))
-        .setGooglePlaceId(place.getGooglePlaceId())
-        .build();
+  @Module(includes = {DatabaseModule.class})
+  abstract static class CafeMapDumperModule {}
+
+  @Singleton
+  @Component(modules = CafeMapDumperModule.class)
+  interface DumperComponent {
+    PlaceDumper dumper();
   }
 
-  private PlaceUtil() {}
+  public static void main(String[] args) throws Exception {
+    var response = DaggerCafeMapDumperMain_DumperComponent.create().dumper().dumpAllPlaces();
+
+    Files.write(
+        Paths.get("cafe-map/client/unity/Assets/Resources/Secrets/placedb.binarypb"),
+        response.toByteArray());
+  }
+
+  private CafeMapDumperMain() {}
 }
