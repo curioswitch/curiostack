@@ -146,7 +146,7 @@ tasks.named("yarn").configure {
 
 tools {
     create("grpc_csharp") {
-        version.set("2.31.0")
+        version.set("2.26.0")
         artifact.set("Grpc.Tools")
         baseUrl.set("https://www.nuget.org/api/v2/package/")
         artifactPattern.set("[artifact]/[revision]")
