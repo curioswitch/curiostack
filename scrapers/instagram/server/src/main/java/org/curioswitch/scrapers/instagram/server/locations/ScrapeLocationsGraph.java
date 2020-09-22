@@ -157,11 +157,11 @@ public class ScrapeLocationsGraph {
     return Futures.successfulAsList(
         Stream.concat(
                 userPages.stream()
-                    .filter(Objects::nonNull)
+                    .filter(response -> response != null && response.status().isSuccess())
                     .map(page -> sharedDataExtractor.extractSharedData(page, ProfilePage.class))
                     .flatMap(ScrapeLocationsGraph::getLocationPageIds),
                 postPages.stream()
-                    .filter(Objects::nonNull)
+                    .filter(response -> response != null && response.status().isSuccess())
                     .map(page -> sharedDataExtractor.extractSharedData(page, PostPage.class))
                     .map(ScrapeLocationsGraph::getLocationPageId)
                     .filter(s -> !s.isEmpty()))
@@ -190,6 +190,9 @@ public class ScrapeLocationsGraph {
   }
 
   private static Stream<String> getLocationPageIds(ProfilePage profilePage) {
+    if (profilePage.getEntryData().getProfilePage().isEmpty()) {
+      return Stream.empty();
+    }
     return profilePage
         .getEntryData()
         .getProfilePage()
