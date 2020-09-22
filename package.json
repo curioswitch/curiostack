@@ -143,9 +143,7 @@
       "common/web/tsconfig",
       "developer-portal",
       "eggworld/api/build/web",
-      "eggworld/client/web",
-      "tools/cloudbuild-github",
-      "tools/cloudbuild-github-functions"
+      "eggworld/client/web"
     ]
   }
 }

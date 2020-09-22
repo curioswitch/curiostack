@@ -1,7 +1,0 @@
-{
-  "extends": "@curiostack/base",
-  "rules": {
-    "import/no-cycle": "off",
-    "import/no-unresolved": "off"
-  }
-}
