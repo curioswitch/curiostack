@@ -35,6 +35,7 @@ import com.google.common.geometry.S2LatLng;
 import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.server.Server;
+import com.linecorp.armeria.server.ServerBuilder;
 import dagger.Binds;
 import dagger.Component;
 import dagger.Module;
@@ -42,6 +43,7 @@ import dagger.Provides;
 import dagger.multibindings.IntoSet;
 import io.grpc.BindableService;
 import java.time.Duration;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
@@ -71,10 +73,17 @@ public class InstagramScraperServiceMain {
     abstract BindableService service(InstagramScraperService service);
 
     @Provides
+    @IntoSet
+    static Consumer<ServerBuilder> serverCustomizer() {
+      return sb -> sb.requestTimeout(Duration.ZERO);
+    }
+
+    @Provides
     static WebClient instagramClient(ClientBuilderFactory factory) {
       return factory
           .create("instagram-client", "none+https://www.instagram.com/")
-          .setHttpHeader(HttpHeaderNames.USER_AGENT, "CurioBot 0.1")
+          .setHeader(HttpHeaderNames.USER_AGENT, "CurioBot 0.1")
+          .responseTimeout(Duration.ofMinutes(1))
           .build(WebClient.class);
     }
 
@@ -126,6 +135,8 @@ public class InstagramScraperServiceMain {
                 .addUsername("cafemiru.jp")
                 .addHashtag("%E8%A1%A8%E5%8F%82%E9%81%93%E3%82%AB%E3%83%95%E3%82%A7")
                 .addHashtag("%E7%A5%9E%E8%B0%B7%E7%94%BA%E3%82%AB%E3%83%95%E3%82%A7")
+                .addHashtag(
+                    "%E3%81%BF%E3%81%AA%E3%81%A8%E3%81%BF%E3%82%89%E3%81%84%E3%82%AB%E3%83%95%E3%82%A7")
                 .build());
 
     var deduped =

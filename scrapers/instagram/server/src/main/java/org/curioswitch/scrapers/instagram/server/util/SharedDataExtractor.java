@@ -76,6 +76,6 @@ public class SharedDataExtractor {
         .orElseThrow(
             () ->
                 new IllegalArgumentException(
-                    "No shared data on page, is this a valid Instagram page?"));
+                    "No shared data on page, is this a valid Instagram page? page: " + doc));
   }
 }
