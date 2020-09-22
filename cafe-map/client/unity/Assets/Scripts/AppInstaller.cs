@@ -22,7 +22,7 @@ public class AppInstaller : MonoInstaller
         Container.Bind<TextAsset>().WithId("Secrets").FromResources("Secrets").AsSingle();
 
         Container.BindInterfacesAndSelfTo<ViewportService>().AsSingle();
-        Container.BindInterfacesAndSelfTo<KeysService>().AsSingle().NonLazy();
+        Container.BindInterfacesAndSelfTo<SecretsService>().AsSingle().NonLazy();
         Container.BindInterfacesAndSelfTo<SearchService>().AsSingle().NonLazy();
     }
 }

@@ -950,6 +950,7 @@ GameObject:
   - component: {fileID: 1606997818}
   - component: {fileID: 1606997822}
   - component: {fileID: 1606997823}
+  - component: {fileID: 1606997815}
   m_Layer: 0
   m_Name: Map Base
   m_TagString: GameController
@@ -957,6 +958,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1606997815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1606997814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d1e0cf6867d41b9b7f12ea2617cc82e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  model: {fileID: 4585618773184499939, guid: e0dc02b5c4bac4d4683953ca04605cd6, type: 3}
 --- !u!4 &1606997818
 Transform:
   m_ObjectHideFlags: 0

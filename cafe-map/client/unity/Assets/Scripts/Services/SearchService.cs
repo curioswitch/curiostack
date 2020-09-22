@@ -11,13 +11,13 @@ public class SearchService
 {
     private readonly ViewportService viewportService;
 
-    private readonly KeysService keysService;
+    private readonly SecretsService _secretsService;
 
     public SearchService(
-        KeysService keysService, 
+        SecretsService secretsService, 
         ViewportService viewportService)
     {
-        this.keysService = keysService;
+        this._secretsService = secretsService;
         this.viewportService = viewportService;
     }
 
@@ -31,7 +31,7 @@ public class SearchService
     {
         var request = new PlacesTextSearchRequest
         {
-            Key = keysService.GoogleApiKey,
+            Key = _secretsService.GoogleApiKey,
             Query = query,
         };
 
