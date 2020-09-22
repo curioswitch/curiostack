@@ -26,7 +26,7 @@ package org.curioswitch.curiostack.gcloud.core;
 import com.linecorp.armeria.client.ClientDecoration;
 import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.ClientFactoryBuilder;
-import com.linecorp.armeria.client.ClientOption;
+import com.linecorp.armeria.client.ClientOptions;
 import com.linecorp.armeria.client.Clients;
 import com.linecorp.armeria.client.WebClient;
 import com.linecorp.armeria.client.logging.LoggingClient;
@@ -84,7 +84,7 @@ public abstract class GcloudModule {
   public static WebClient retryingGoogleApisClient(@GoogleApis WebClient googleApisClient) {
     return Clients.newDerivedClient(
         googleApisClient,
-        ClientOption.DECORATION.newValue(
+        ClientOptions.DECORATION.newValue(
             ClientDecoration.of(RetryingClient.newDecorator(RetryRule.onServerErrorStatus()))));
   }
 

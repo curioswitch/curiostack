@@ -57,8 +57,8 @@ public abstract class YummlyApiModule {
   static YummlyApi yummlyApi(YummlyConfig config) {
     return ArmeriaRetrofit.builder(
             WebClient.builder("http://api.yummly.com/v1/api/")
-                .addHttpHeader(HttpHeaderNames.of("X-Yummly-App-ID"), config.getApiId())
-                .addHttpHeader(HttpHeaderNames.of("X-Yummly-App-Key"), config.getApiKey())
+                .addHeader(HttpHeaderNames.of("X-Yummly-App-ID"), config.getApiId())
+                .addHeader(HttpHeaderNames.of("X-Yummly-App-Key"), config.getApiKey())
                 .decorator(LoggingClient.builder().newDecorator())
                 .build())
         .addCallAdapterFactory(GuavaCallAdapterFactory.create())

@@ -88,7 +88,7 @@ public class FindRecipeGraph {
 
     ListenableFuture<SearchResponse> future = Futures.immediateFuture(null);
     // Get a random recipe to return. Search request fails randomly so try a few times.
-    Executor executor = RequestContext.current().contextAwareEventLoop();
+    Executor executor = RequestContext.current().eventLoop();
     Random random = randomSupplier.get();
     for (int i = 0; i < 5; i++) {
       int resultIndex = random.nextInt(totalCount);

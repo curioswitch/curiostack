@@ -64,7 +64,7 @@ public class GrpcApiClientBuilder {
                             req.headers().toBuilder()
                                 .set(HttpHeaderNames.CONTENT_TYPE, "application/grpc")
                                 .build());
-                    return delegate().execute(ctx, req);
+                    return unwrap().execute(ctx, req);
                   }
                 })
         .decorator(credentialsDecorator.newAccessTokenDecorator())

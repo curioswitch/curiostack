@@ -38,7 +38,6 @@ import com.linecorp.armeria.common.HttpStatusClass;
 import com.linecorp.armeria.common.RequestContext;
 import com.linecorp.armeria.common.RequestHeaders;
 import com.linecorp.armeria.common.ResponseHeaders;
-import com.linecorp.armeria.unsafe.ByteBufHttpData;
 import com.spotify.futures.CompletableFuturesExtra;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -260,7 +259,7 @@ public class FileWriter {
         RequestHeaders.of(
             HttpMethod.PUT, uploadUrl, HttpHeaderNames.CONTENT_RANGE, range.toString());
 
-    HttpData data = new ByteBufHttpData(chunk, true);
+    HttpData data = HttpData.wrap(chunk).withEndOfStream();
     chunk.retain();
 
     return httpClient

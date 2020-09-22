@@ -43,8 +43,8 @@ public class IamPermissionChecker {
 
   public CompletableFuture<Boolean> test(
       String accessToken, String serviceAccount, List<String> permissionsToTest) {
-    try (SafeCloseable sc =
-        Clients.withHttpHeader(HttpHeaderNames.AUTHORIZATION, "Bearer " + accessToken)) {
+    try (SafeCloseable ignored =
+        Clients.withHeader(HttpHeaderNames.AUTHORIZATION, "Bearer " + accessToken)) {
       return client
           .testIamPermissions(
               serviceAccount,

@@ -248,7 +248,7 @@ public abstract class ServerModule {
   @Provides
   @Production
   static Executor executor(ServiceRequestContext ctx) {
-    return ctx.contextAwareEventLoop();
+    return ctx.eventLoop();
   }
 
   @Provides
@@ -390,7 +390,7 @@ public abstract class ServerModule {
     if (!serverConfig.isDisableDocService()) {
       DocServiceBuilder docService = DocService.builder();
       if (!authConfig.getServiceAccountBase64().isEmpty()) {
-        docService.injectedScript(
+        docService.injectedScripts(
             "armeria.registerHeaderProvider(function() {\n"
                 + "  return firebase.auth().currentUser.getIdToken().then(token => { authorization: 'bearer ' + token });\n"
                 + "});");
@@ -498,9 +498,8 @@ public abstract class ServerModule {
     }
 
     for (StaticSiteServiceDefinition staticSite : staticSites) {
-      sb.serviceUnder(
-          staticSite.urlRoot(),
-          StaticSiteService.of(staticSite.staticPath(), staticSite.classpathRoot()));
+      StaticSiteService.addToServer(
+          staticSite.urlRoot(), staticSite.staticPath(), staticSite.classpathRoot(), sb);
     }
 
     if (ipFilter.isPresent() && !serverConfig.getIpFilterInternalOnly()) {

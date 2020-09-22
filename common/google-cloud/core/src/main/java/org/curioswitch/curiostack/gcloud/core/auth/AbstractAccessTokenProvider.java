@@ -33,7 +33,6 @@ import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.RequestHeaders;
-import com.linecorp.armeria.unsafe.ByteBufHttpData;
 import io.netty.buffer.ByteBuf;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -101,7 +100,7 @@ abstract class AbstractAccessTokenProvider implements AccessTokenProvider {
   }
 
   protected CompletableFuture<AggregatedHttpResponse> fetchToken(Type type) {
-    HttpData data = new ByteBufHttpData(refreshRequestContent(type), true);
+    HttpData data = HttpData.wrap(refreshRequestContent(type)).withEndOfStream();
     return googleApisClient
         .execute(
             RequestHeaders.of(

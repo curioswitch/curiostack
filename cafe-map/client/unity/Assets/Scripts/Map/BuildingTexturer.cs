@@ -90,12 +90,12 @@ namespace CafeMap.Map
 
             buildingModels.Add(StructureMetadata.UsageType.Bar, Resources.Load("Prefabs/Buildings/57_Building_Bar"));
             buildingModels.Add(StructureMetadata.UsageType.Cafe,
-                Resources.Load("Prefabs/Buildings/61_Building_Coffee Shop"));
+                Resources.Load("Prefabs/Buildings/Building_Coffee Shop 1"));
             buildingModels.Add(StructureMetadata.UsageType.Restaurant,
                 Resources.Load("Prefabs/Buildings/75_Building_Restaurant"));
             buildingModels.Add(StructureMetadata.UsageType.School, Resources.Load("Prefabs/Buildings/39_school"));
             buildingModels.Add(StructureMetadata.UsageType.Shopping,
-                Resources.Load("Prefabs/Buildings/72_Building_Music Store"));
+                Resources.Load("Prefabs/Buildings/Building_Coffee Shop 1"));
         }
 
         [Inject]
@@ -113,13 +113,10 @@ namespace CafeMap.Map
                             var edge = vertices[1] - vertices[0];
                             float angle = Vector2.Angle(edge, Vector2.right);
                             var rotation = Quaternion.AngleAxis(angle + 90, Vector3.up);
-                            GameObject parent = new GameObject();
                             GameObject prefab = (GameObject) Instantiate(model, Vector3.zero, rotation);
                             prefab.transform.localScale *= 2;
-                            prefab.transform.Translate(0, 10, 0);
-                            prefab.transform.parent = parent.transform;
                             ExtrudedStructureStyle style =
-                                new ExtrudedStructureStyle.Builder {Prefab = parent}.Build();
+                                new ExtrudedStructureStyle.Builder {Prefab = prefab}.Build();
                             args.Style = style;
                         }
                     }

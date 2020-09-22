@@ -106,11 +106,11 @@ public class GoogleCredentialsDecoratingClient extends SimpleDecoratingHttpClien
                 (token) -> {
                   ctx.addAdditionalRequestHeader(header, "Bearer " + token);
                   try {
-                    return delegate().execute(ctx, req);
+                    return unwrap().execute(ctx, req);
                   } catch (Exception e) {
                     return Exceptions.throwUnsafely(e);
                   }
                 },
-                ctx.contextAwareEventLoop()));
+                ctx.eventLoop()));
   }
 }
