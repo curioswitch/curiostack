@@ -17,6 +17,7 @@ namespace CafeMap.Map
             public double Longitude;
             public GameObject Model;
             public float Scale;
+            public float Rotation;
         }
         
         [SerializeField]
@@ -49,6 +50,7 @@ namespace CafeMap.Map
                 var instantiated = Instantiate(model.Model);
                 var position = mapsService.Coords.FromLatLngToVector3(new LatLng(model.Latitude, model.Longitude));
                 instantiated.transform.position = position;
+                instantiated.transform.Rotate(Vector3.up, model.Rotation);
                 instantiated.transform.localScale = new Vector3(model.Scale, model.Scale, model.Scale);
                 viewportService.RegisterMovedObject(instantiated);
             }

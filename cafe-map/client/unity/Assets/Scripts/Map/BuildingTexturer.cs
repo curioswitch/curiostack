@@ -8,6 +8,7 @@ using Google.Maps.Feature;
 using Google.Maps.Feature.Shape;
 using Google.Maps.Feature.Style;
 using ModestTree;
+using TMPro;
 using UnityEngine;
 using Zenject;
 using Object = UnityEngine.Object;
@@ -121,6 +122,30 @@ namespace CafeMap.Map
                         }
                     }
                 }
+            });
+            
+            mapsService.Events.ExtrudedStructureEvents.DidCreate.AddListener(args =>
+            {
+                var placeName = args.MapFeature.Metadata.Name;
+                if (placeName.IsEmpty())
+                {
+                    return;
+                }
+
+                if (args.MapFeature.Metadata.Usage != StructureMetadata.UsageType.Unspecified)
+                {
+                    return;
+                }
+                var mapObject = args.GameObject;
+                var nameObject = Instantiate(new GameObject(), mapObject.transform);
+                nameObject.name = "Name: " + placeName;
+                nameObject.transform.Translate(0, 0, 0);
+                var name = nameObject.AddComponent<TextMesh>();
+                name.text = placeName;
+                name.fontSize = 300;
+                name.fontStyle = FontStyle.Bold;
+                name.color = Color.black;
+                name.anchor = TextAnchor.LowerCenter;
             });
             
             // Sign up to event called after each new building is loaded, so can assign Materials to this
