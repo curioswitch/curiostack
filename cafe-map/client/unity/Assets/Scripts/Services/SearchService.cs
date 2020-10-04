@@ -1,7 +1,4 @@
-﻿using CafeMap.Map;
-using CafeMap.Player.Services;
-using Google.Maps;
-using Google.Maps.Coord;
+﻿using CafeMap.Player.Services;
 using GoogleApi;
 using GoogleApi.Entities.Places.Search.Text.Request;
 using UnityEngine.UI;
