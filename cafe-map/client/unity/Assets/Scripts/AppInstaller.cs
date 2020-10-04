@@ -1,5 +1,6 @@
 using CafeMap.Map;
 using CafeMap.Player.Services;
+using CafeMap.Services;
 using Google.Maps;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,7 +22,8 @@ public class AppInstaller : MonoInstaller
 
         Container.Bind<TextAsset>().WithId("Secrets").FromResources("Secrets").AsSingle();
 
-        Container.BindInterfacesAndSelfTo<ViewportService>().AsSingle();
+        Container.BindInterfacesAndSelfTo<ViewportService>().AsSingle().NonLazy();
+        Container.BindInterfacesAndSelfTo<PlacesService>().AsSingle().NonLazy();
         Container.BindInterfacesAndSelfTo<SecretsService>().AsSingle().NonLazy();
         Container.BindInterfacesAndSelfTo<SearchService>().AsSingle().NonLazy();
     }

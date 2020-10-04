@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using CafeMap.Services;
 using Google.Maps;
 using Google.Maps.Feature;
 using Google.Maps.Feature.Shape;
@@ -28,6 +31,8 @@ namespace CafeMap.Map
 
         private readonly Dictionary<StructureMetadata.UsageType, Object> buildingModels 
             = new Dictionary<StructureMetadata.UsageType, Object>();
+
+        private PlacesService _placesService;
 
         /// <summary>
         /// Verify given <see cref="Material"/> arrays are valid (not empty nor containing any null
@@ -84,19 +89,21 @@ namespace CafeMap.Map
                 }
             }
 
-            buildingModels.Add(StructureMetadata.UsageType.Bar, Resources.Load("Prefabs/Buildings/57_Building_Bar"));
+            buildingModels.Add(StructureMetadata.UsageType.Bar, Resources.Load("Prefabs/Buildings/25_Building_Bar"));
             buildingModels.Add(StructureMetadata.UsageType.Cafe,
-                Resources.Load("Prefabs/Buildings/Building_Coffee Shop 1"));
+                Resources.Load("Prefabs/Buildings/21_Building_Coffee Shop"));
             buildingModels.Add(StructureMetadata.UsageType.Restaurant,
-                Resources.Load("Prefabs/Buildings/75_Building_Restaurant"));
-            buildingModels.Add(StructureMetadata.UsageType.School, Resources.Load("Prefabs/Buildings/39_school"));
+                Resources.Load("Prefabs/Buildings/21_Building_Coffee Shop"));
+            buildingModels.Add(StructureMetadata.UsageType.School, Resources.Load("Prefabs/Buildings/19_Building_Factory"));
             buildingModels.Add(StructureMetadata.UsageType.Shopping,
-                Resources.Load("Prefabs/Buildings/Building_Coffee Shop 1"));
+                Resources.Load("Prefabs/Buildings/02_Building_Super Market"));
         }
 
         [Inject]
-        public void Init(MapsService mapsService)
+        public void Init(MapsService mapsService, PlacesService placesService)
         {
+            this._placesService = placesService;
+            
             mapsService.Events.ExtrudedStructureEvents.WillCreate.AddListener(args =>
             {
                 if (buildingModels.TryGetValue(args.MapFeature.Metadata.Usage, out var model))
@@ -110,7 +117,23 @@ namespace CafeMap.Map
                             float angle = Vector2.Angle(edge, Vector2.right);
                             var rotation = Quaternion.AngleAxis(angle + 90, Vector3.up);
                             GameObject prefab = (GameObject) Instantiate(model, Vector3.zero, rotation);
-                            prefab.transform.localScale *= 2;
+
+                            Bounds bounds = prefab.GetComponent<Renderer>().bounds;
+
+                            float minBoundsSize = Math.Min(bounds.size.x, bounds.size.z);
+                            float minEdgeSize = float.MaxValue;
+                            for (int i = 0; i < vertices.Length - 1; i++)
+                            {
+                                var edgeSize = (vertices[i + 1] - vertices[i]).magnitude;
+                                if (edgeSize < minEdgeSize)
+                                {
+                                    minEdgeSize = edgeSize;
+                                }
+                            }
+
+                            float scale = minEdgeSize / minBoundsSize;
+                            
+                            prefab.transform.localScale = new Vector3(scale, scale, scale);
                             ExtrudedStructureStyle style =
                                 new ExtrudedStructureStyle.Builder {Prefab = prefab}.Build();
                             args.Style = style;
@@ -151,10 +174,12 @@ namespace CafeMap.Map
             mapsService.Events.ExtrudedStructureEvents.DidCreate.AddListener(
                 args =>
                 {
+                    AssignNineSlicedMaterials(args.GameObject);
+                    /*
                     if (!buildingModels.ContainsKey(args.MapFeature.Metadata.Usage))
                     {
-                        AssignNineSlicedMaterials(args.GameObject);
                     }
+                    */
                 });
         }
 
@@ -206,6 +231,13 @@ namespace CafeMap.Map
             ExtrudedStructureStyle extrudedPrefabStyle =
                 new ExtrudedStructureStyle.Builder {Prefab = prefab}.Build();
             mapping.Add(type, extrudedPrefabStyle);
+        }
+
+        private async void logRefreshedPlaceId(string placeId)
+        {
+            string refreshed = await _placesService.refreshPlaceId(placeId);
+            Debug.Log("old: " + placeId);
+            Debug.Log("new: " + refreshed);
         }
     }
 }
