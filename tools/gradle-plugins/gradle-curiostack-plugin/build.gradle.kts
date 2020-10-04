@@ -93,12 +93,6 @@ gradlePlugin {
             description = "Plugin which adds a monorepo aware continuousBuild task for efficiently building on continuous integration"
             implementationClass = "org.curioswitch.gradle.plugins.ci.CurioGenericCiPlugin"
         }
-        register("cloudbuildGithub") {
-            id = "org.curioswitch.gradle-curio-cloudbuild-github-plugin"
-            displayName = "Gradle Cloudbuild GitHub Plugin"
-            description = "Plugin to initialize the cloudbuild-github function that allows running Cloudbuild from GitHub pull requests"
-            implementationClass = "org.curioswitch.gradle.plugins.cloudbuild.CloudbuildGithubPlugin"
-        }
         register("codelabs") {
             id = "org.curioswitch.gradle-codelabs-plugin"
             displayName = "Gradle Codelabs Plugin"
