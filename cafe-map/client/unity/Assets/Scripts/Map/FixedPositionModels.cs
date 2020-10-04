@@ -61,8 +61,6 @@ namespace CafeMap.Map
                 positionable.Longitude = model.Longitude;
                 positionable.Rotation = model.Rotation;
                 positionable.Scale = model.Scale;
-                instantiated.transform.Rotate(Vector3.up, model.Rotation);
-                instantiated.transform.localScale = new Vector3(model.Scale, model.Scale, model.Scale);
                 renderedModels.Add(instantiated);
             }
         }
