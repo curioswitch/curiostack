@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CafeMap.Events;
 using CafeMap.Map;
 using Google.Maps;
 using Google.Maps.Coord;
@@ -12,15 +13,17 @@ namespace CafeMap.Player.Services
         private readonly MapsService mapsService;
         private readonly PanAndZoom cameraControl;
         private readonly DynamicMapsUpdater mapsUpdater;
+        private readonly SignalBus _signalBus;
 
         private readonly List<GameObject> movedObjects;
 
         [Inject]
-        public ViewportService(MapsService mapsService, PanAndZoom cameraControl, DynamicMapsUpdater mapsUpdater)
+        public ViewportService(MapsService mapsService, PanAndZoom cameraControl, DynamicMapsUpdater mapsUpdater, SignalBus signalBus)
         {
             this.mapsService = mapsService;
             this.cameraControl = cameraControl;
             this.mapsUpdater = mapsUpdater;
+            _signalBus = signalBus;
             movedObjects = new List<GameObject>();
         }
 
@@ -28,6 +31,8 @@ namespace CafeMap.Player.Services
         {
             var latlng = new LatLng(latitude, longitude);
             mapsService.MoveFloatingOrigin(latlng, movedObjects);
+            _signalBus.Fire<MapOriginChanged>();
+
             var coords = mapsService.Coords.FromLatLngToVector3(latlng);
             cameraControl.SetPosition(coords);
             mapsUpdater.LoadMap();
