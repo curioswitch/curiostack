@@ -1,3 +1,4 @@
+using CafeMap.Events;
 using CafeMap.Map;
 using CafeMap.Player.Services;
 using CafeMap.Services;
@@ -10,6 +11,9 @@ public class AppInstaller : MonoInstaller
 {
     public override void InstallBindings()
     {
+        SignalBusInstaller.Install(Container);
+        Container.DeclareSignal<MapOriginChanged>();
+
         var searchBox = GameObject.FindWithTag("SearchBox");
 
         Container.Bind<MapsService>().FromComponentOnRoot().AsSingle();

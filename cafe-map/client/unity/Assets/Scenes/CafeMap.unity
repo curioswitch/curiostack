@@ -937,8 +937,9 @@ MonoBehaviour:
   models:
   - Latitude: 35.4523898
     Longitude: 139.6430242
-    Model: {fileID: 2684494563810822133, guid: bfdc17d77bb76475caa047927ff25ab3, type: 3}
-    Scale: 100
+    Model: {fileID: 704639796001301931, guid: 21fb84842adea499a83f616827d38664, type: 3}
+    Scale: 30
+    Rotation: 0
 --- !u!1 &1606997814
 GameObject:
   m_ObjectHideFlags: 0
@@ -970,7 +971,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d1e0cf6867d41b9b7f12ea2617cc82e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 4585618773184499939, guid: e0dc02b5c4bac4d4683953ca04605cd6, type: 3}
+  model: {fileID: 919132149155446097, guid: f88afc8f74326470fada82513896afa7, type: 3}
 --- !u!4 &1606997818
 Transform:
   m_ObjectHideFlags: 0
