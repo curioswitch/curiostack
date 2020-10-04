@@ -9,7 +9,7 @@ using Zenject;
 
 namespace CafeMap.Map
 {
-    public class FixedPositionModels : MonoBehaviour
+    public class FixedPositionModels : MonoBehaviour, IInitializable
     {
         [Serializable]
         public class PositionedModel
@@ -29,6 +29,7 @@ namespace CafeMap.Map
 
         private MapsService mapsService;
         private ViewportService viewportService;
+        private DiContainer container;
 
         public IEnumerable<PositionedModel> Models
         {
@@ -41,28 +42,33 @@ namespace CafeMap.Map
         }
 
         [Inject]
-        public void Init(MapsService mapsService, ViewportService viewportService, SignalBus signalBus)
+        public void Init(MapsService mapsService, ViewportService viewportService, DiContainer container, SignalBus signalBus)
         {
             this.mapsService = mapsService;
             this.viewportService = viewportService;
+            this.container = container;
 
             signalBus.Subscribe<MapOriginChanged>(recomputeBounds);
         }
 
-        private void Start()
+        public void Initialize()
         {
             foreach (var model in models)
             {
                 var instantiated = Instantiate(model.Model);
-                var position = mapsService.Coords.FromLatLngToVector3(new LatLng(model.Latitude, model.Longitude));
-                instantiated.transform.position = position;
+                var positionable = container.InstantiateComponent<WorldPositionable>(instantiated);
+                positionable.Latitude = model.Latitude;
+                positionable.Longitude = model.Longitude;
+                positionable.Rotation = model.Rotation;
+                positionable.Scale = model.Scale;
                 instantiated.transform.Rotate(Vector3.up, model.Rotation);
-                instantiated.transform.Translate(0, -100, 0);
                 instantiated.transform.localScale = new Vector3(model.Scale, model.Scale, model.Scale);
-                viewportService.RegisterMovedObject(instantiated);
                 renderedModels.Add(instantiated);
             }
+        }
 
+        private void Start()
+        {
             recomputeBounds();
 
             mapsService.Events.ExtrudedStructureEvents.WillCreate.AddListener(args =>
