@@ -8,6 +8,7 @@ TagManager:
   - asteroid
   - SearchBox
   - PositionedModels
+  - PlaceResultsPanel
   layers:
   - Default
   - TransparentFX

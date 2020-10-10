@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.cysharp.unitask": {
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.0.36",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "3bebaef9694b012df09747b322362e3228f8c09d"
+    },
     "com.unity.collab-proxy": {
       "version": "1.2.16",
       "depth": 0,
