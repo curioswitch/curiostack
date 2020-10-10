@@ -1,0 +1,124 @@
+fileFormatVersion: 2
+guid: dbfa1c49faba249f69077202e6019e38
+timeCreated: 1570025508
+licenseType: Store
+ModelImporter:
+  serializedVersion: 21
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: spitfire-base
+    100004: spitfire-cockpit
+    100006: spitfire-door
+    100008: spitfire-propeller
+    100010: spitfire-wheel_B
+    100012: spitfire-wheel_FL
+    100014: spitfire-wheel_FR
+    400000: //RootNode
+    400002: spitfire-base
+    400004: spitfire-cockpit
+    400006: spitfire-door
+    400008: spitfire-propeller
+    400010: spitfire-wheel_B
+    400012: spitfire-wheel_FL
+    400014: spitfire-wheel_FR
+    2300000: spitfire-base
+    2300002: spitfire-cockpit
+    2300004: spitfire-door
+    2300006: spitfire-propeller
+    2300008: spitfire-wheel_B
+    2300010: spitfire-wheel_FL
+    2300012: spitfire-wheel_FR
+    3300000: spitfire-base
+    3300002: spitfire-cockpit
+    3300004: spitfire-door
+    3300006: spitfire-propeller
+    3300008: spitfire-wheel_B
+    3300010: spitfire-wheel_FL
+    3300012: spitfire-wheel_FR
+    4300000: spitfire-base
+    4300002: spitfire-wheel_FR
+    4300004: spitfire-wheel_FL
+    4300006: spitfire-propeller
+    4300008: spitfire-cockpit
+    4300010: spitfire-door
+    4300012: spitfire-wheel_B
+    7400000: spitfire-cockpit|spitfire-cockpit|Take 001|BaseLayer
+    7400002: spitfire-cockpit|spitfire-door|Take 001|BaseLayer
+    7400004: spitfire-door|spitfire-cockpit|Take 001|BaseLayer
+    7400006: spitfire-door|spitfire-door|Take 001|BaseLayer
+    9500000: //RootNode
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 0
+    importBlendShapes: 0
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 0
+  importAnimation: 0
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

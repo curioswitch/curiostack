@@ -89,6 +89,7 @@ namespace CafeMap.Map
                 }
             }
 
+            /*
             buildingModels.Add(StructureMetadata.UsageType.Bar, Resources.Load("Prefabs/Buildings/25_Building_Bar"));
             buildingModels.Add(StructureMetadata.UsageType.Cafe,
                 Resources.Load("Prefabs/Buildings/21_Building_Coffee Shop"));
@@ -97,6 +98,7 @@ namespace CafeMap.Map
             buildingModels.Add(StructureMetadata.UsageType.School, Resources.Load("Prefabs/Buildings/19_Building_Factory"));
             buildingModels.Add(StructureMetadata.UsageType.Shopping,
                 Resources.Load("Prefabs/Buildings/02_Building_Super Market"));
+                */
         }
 
         [Inject]
@@ -174,12 +176,13 @@ namespace CafeMap.Map
             mapsService.Events.ExtrudedStructureEvents.DidCreate.AddListener(
                 args =>
                 {
-                    AssignNineSlicedMaterials(args.GameObject);
-                    /*
+                    
+                    
                     if (!buildingModels.ContainsKey(args.MapFeature.Metadata.Usage))
                     {
+                        AssignNineSlicedMaterials(args.GameObject);
                     }
-                    */
+                    
                 });
         }
 
