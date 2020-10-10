@@ -1,4 +1,5 @@
 using System;
+using CafeMap.Events;
 using CafeMap.Player.Services;
 using Google.Maps;
 using Google.Maps.Coord;
@@ -9,30 +10,46 @@ namespace CafeMap.Map
 {
     public class WorldPositionable : MonoBehaviour
     {
-
-        public double Latitude;
-        public double Longitude;
-        public float Rotation;
-        public float Scale;
+        public string Latitude;
+        public string Longitude;
 
         private MapsService _mapsService;
         private ViewportService _viewportService;
+        private SignalBus _signalBus;
+
+        private Renderer[] _renderers;
+        private Bounds bounds;
+
+        private void Awake()
+        {
+            _renderers = gameObject.GetComponentsInChildren<Renderer>();
+        }
 
         [Inject]
-        public void Init(MapsService mapsService, ViewportService viewportService)
+        public void Init(MapsService mapsService, ViewportService viewportService, SignalBus signalBus)
         {
             _mapsService = mapsService;
             _viewportService = viewportService;
+            _signalBus = signalBus;
         }
 
         private void Start()
         {
-            var position = _mapsService.Coords.FromLatLngToVector3(new LatLng(Latitude, Longitude));
+            var position = _mapsService.Coords.FromLatLngToVector3(new LatLng(double.Parse(Latitude), double.Parse(Longitude)));
             var gameObject = this.gameObject;
             gameObject.transform.position = position;
-            gameObject.transform.Rotate(Vector3.up, Rotation);
-            gameObject.transform.localScale = new Vector3(Scale, Scale, Scale);
-            _viewportService.RegisterMovedObject(gameObject);
+
+            recomputeBounds();
+
+            _signalBus.Subscribe<MapOriginChanged>(recomputeBounds);
+
+            _mapsService.Events.ExtrudedStructureEvents.WillCreate.AddListener(args =>
+            {
+                if (bounds.Intersects(args.MapFeature.Shape.BoundingBox))
+                {
+                    args.Cancel = true;
+                }
+            });
         }
 
         private void Update()
@@ -40,12 +57,22 @@ namespace CafeMap.Map
             if (transform.hasChanged)
             {
                 var latlng = _mapsService.Coords.FromVector3ToLatLng(gameObject.transform.position);
-                Latitude = latlng.Lat;
-                Longitude = latlng.Lng;
-                Rotation = gameObject.transform.rotation.eulerAngles.y;
-                Scale = Math.Min(gameObject.transform.localScale.x,
-                    Math.Min(gameObject.transform.localScale.y, gameObject.transform.localScale.z));
+                Latitude = latlng.Lat.ToString();
+                Longitude = latlng.Lng.ToString();
+
+                recomputeBounds();
             }
+        }
+
+        private void recomputeBounds()
+        {
+            Bounds bounds = new Bounds();
+            foreach (var renderer in _renderers)
+            {
+                bounds.Encapsulate(renderer.bounds);
+            }
+
+            this.bounds = bounds;
         }
     }
 }

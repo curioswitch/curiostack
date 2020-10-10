@@ -19,7 +19,6 @@ public class AppInstaller : MonoInstaller
         Container.Bind<MapsService>().FromComponentOnRoot().AsSingle();
         Container.BindInterfacesAndSelfTo<BaseMapLoader>().FromComponentOnRoot().AsSingle();
         Container.BindInterfacesAndSelfTo<DynamicMapsUpdater>().FromComponentOnRoot().AsSingle();
-        Container.BindInterfacesAndSelfTo<FixedPositionModels>().FromComponentsInHierarchy().AsSingle();
 
         Container.BindInstance(Camera.main.GetComponent<PanAndZoom>());
 
