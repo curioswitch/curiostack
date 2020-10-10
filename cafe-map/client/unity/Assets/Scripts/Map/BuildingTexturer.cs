@@ -29,7 +29,7 @@ namespace CafeMap.Map
             "is given Building Wall Material 2, then it will also be given Building Roof Material 2).")]
         public Material[] RoofMaterials;
 
-        private readonly Dictionary<StructureMetadata.UsageType, Object> buildingModels 
+        private readonly Dictionary<StructureMetadata.UsageType, Object> buildingModels
             = new Dictionary<StructureMetadata.UsageType, Object>();
 
         private PlacesService _placesService;
@@ -89,6 +89,7 @@ namespace CafeMap.Map
                 }
             }
 
+            /*
             buildingModels.Add(StructureMetadata.UsageType.Bar, Resources.Load("Prefabs/Buildings/25_Building_Bar"));
             buildingModels.Add(StructureMetadata.UsageType.Cafe,
                 Resources.Load("Prefabs/Buildings/21_Building_Coffee Shop"));
@@ -97,13 +98,14 @@ namespace CafeMap.Map
             buildingModels.Add(StructureMetadata.UsageType.School, Resources.Load("Prefabs/Buildings/19_Building_Factory"));
             buildingModels.Add(StructureMetadata.UsageType.Shopping,
                 Resources.Load("Prefabs/Buildings/02_Building_Super Market"));
+                */
         }
 
         [Inject]
         public void Init(MapsService mapsService, PlacesService placesService)
         {
             this._placesService = placesService;
-            
+
             mapsService.Events.ExtrudedStructureEvents.WillCreate.AddListener(args =>
             {
                 if (buildingModels.TryGetValue(args.MapFeature.Metadata.Usage, out var model))
@@ -132,7 +134,7 @@ namespace CafeMap.Map
                             }
 
                             float scale = minEdgeSize / minBoundsSize;
-                            
+
                             prefab.transform.localScale = new Vector3(scale, scale, scale);
                             ExtrudedStructureStyle style =
                                 new ExtrudedStructureStyle.Builder {Prefab = prefab}.Build();
@@ -141,7 +143,7 @@ namespace CafeMap.Map
                     }
                 }
             });
-            
+
             mapsService.Events.ExtrudedStructureEvents.DidCreate.AddListener(args =>
             {
                 var placeName = args.MapFeature.Metadata.Name;
@@ -162,10 +164,10 @@ namespace CafeMap.Map
                 name.text = placeName;
                 name.fontSize = 300;
                 name.fontStyle = FontStyle.Bold;
-                name.color = Color.black;
+                name.color = Color.white;
                 name.anchor = TextAnchor.LowerCenter;
             });
-            
+
             // Sign up to event called after each new building is loaded, so can assign Materials to this
             // new building. Note that:
             // - DynamicMapsService.MapsService is auto-found on first access (so will not be null).
@@ -174,12 +176,13 @@ namespace CafeMap.Map
             mapsService.Events.ExtrudedStructureEvents.DidCreate.AddListener(
                 args =>
                 {
-                    AssignNineSlicedMaterials(args.GameObject);
-                    /*
+
+
                     if (!buildingModels.ContainsKey(args.MapFeature.Metadata.Usage))
                     {
+                        AssignNineSlicedMaterials(args.GameObject);
                     }
-                    */
+
                 });
         }
 
