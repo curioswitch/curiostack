@@ -10,6 +10,8 @@ namespace CafeMap.Map
 {
     public class WorldPositionable : MonoBehaviour
     {
+        public GameObject Prefab;
+
         public string Latitude;
         public string Longitude;
 
@@ -36,8 +38,12 @@ namespace CafeMap.Map
         private void Start()
         {
             var position = _mapsService.Coords.FromLatLngToVector3(new LatLng(double.Parse(Latitude), double.Parse(Longitude)));
-            var gameObject = this.gameObject;
-            gameObject.transform.position = position;
+            transform.position = position;
+
+            if (Prefab != null)
+            {
+                Instantiate(Prefab, transform);
+            }
 
             recomputeBounds();
 
