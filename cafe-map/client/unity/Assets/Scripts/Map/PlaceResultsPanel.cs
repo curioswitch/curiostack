@@ -4,6 +4,7 @@ using CafeMap.Services;
 using GoogleApi;
 using GoogleApi.Entities.Places.Photos.Request;
 using GoogleApi.Entities.Places.Photos.Response;
+using ModestTree;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -49,9 +50,12 @@ namespace CafeMap.Map
         {
             var visiblePlaces = new List<Org.Curioswitch.Cafemap.Api.Place>(this.visiblePlaces);
             List<Texture2D> images = new List<Texture2D>();
-            for (int i = 0; i < 20; i++)
+            foreach (var place in visiblePlaces)
             {
-                images.Add(await _placesService.getPhoto("ChIJBdHOjD9dGGARk142RKVZsz0"));
+                if (!place.GooglePlaceId.IsEmpty())
+                {
+                    images.Add(await _placesService.getPhoto(place.GooglePlaceId));
+                }
             }
 
             foreach (Transform child in transform)
@@ -61,9 +65,9 @@ namespace CafeMap.Map
 
             for (int i = 0; i < images.Count; i++)
             {
-                // var place = visiblePlaces[i];
+                var place = visiblePlaces[i];
                 var texture = images[i];
-                var imageObject = new GameObject("Image");
+                var imageObject = new GameObject("Image " + place.Name);
                 imageObject.transform.SetParent(transform);
                 var image = imageObject.AddComponent<Image>();
                 image.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
