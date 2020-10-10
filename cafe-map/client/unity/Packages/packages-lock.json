@@ -110,6 +110,13 @@
         "com.unity.modules.imgui": "1.0.0"
       }
     },
+    "de.thirteenpixels.gitmerge": {
+      "version": "https://github.com/FlaShG/GitMerge-for-Unity.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "e4c21fda9bb6e3be4183dafb255c807bcadebc3a"
+    },
     "jillejr.newtonsoft.json-for-unity": {
       "version": "12.0.201",
       "depth": 0,
