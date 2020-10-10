@@ -20,6 +20,8 @@ public class AppInstaller : MonoInstaller
         Container.BindInterfacesAndSelfTo<BaseMapLoader>().FromComponentOnRoot().AsSingle();
         Container.BindInterfacesAndSelfTo<DynamicMapsUpdater>().FromComponentOnRoot().AsSingle();
 
+        Container.Bind<PlaceResultsPanel>().FromComponentOn(GameObject.FindWithTag("PlaceResultsPanel")).AsSingle();
+
         Container.BindInstance(Camera.main.GetComponent<PanAndZoom>());
 
         Container.Bind<InputField>().WithId("SearchBox").FromInstance(searchBox.GetComponent<InputField>());
