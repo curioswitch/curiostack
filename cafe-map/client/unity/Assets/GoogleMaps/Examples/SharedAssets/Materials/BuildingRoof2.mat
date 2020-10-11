@@ -4,8 +4,9 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: BuildingRoof2
   m_Shader: {fileID: 4800000, guid: 09987760f6b8d4a66973ff349cf679ce, type: 3}
   m_ShaderKeywords: _EMISSION
@@ -50,5 +51,5 @@ Material:
     - _TexWidth: 15
     m_Colors:
     - <noninit>: {r: 0, g: 1, b: 0, a: NaN}
-    - _Color: {r: 0.9607843, g: 0.90588236, b: 0.8156863, a: 1}
+    - _Color: {r: 1, g: 0.94394076, b: 0.9292453, a: 0.39215687}
     - _EmitColor: {r: 1, g: 0.9879171, b: 0.07071064, a: 1}

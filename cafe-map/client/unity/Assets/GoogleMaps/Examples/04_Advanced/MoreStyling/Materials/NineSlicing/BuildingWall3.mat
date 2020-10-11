@@ -28,11 +28,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmitMap:
-        m_Texture: {fileID: 2800000, guid: b509afcd2a3cd44ae8e155948f45d2f5, type: 3}
+        m_Texture: {fileID: 2800000, guid: eea1b6230b3b6470bafcc8779b8076a2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: f70bf91066a24479285e25254fc336e9, type: 3}
+        m_Texture: {fileID: 2800000, guid: eea1b6230b3b6470bafcc8779b8076a2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MapTex:
@@ -40,7 +40,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecMap:
-        m_Texture: {fileID: 2800000, guid: 0dbd8876a97ae426fba75f80d6850667, type: 3}
+        m_Texture: {fileID: 2800000, guid: eea1b6230b3b6470bafcc8779b8076a2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -49,7 +49,7 @@ Material:
     - _Shininess: 1
     - _SpecMin: 0.1
     - _TexDivisions: 32
-    - _TexHeight: 30
+    - _TexHeight: 10
     - _TexLeft: 4
     - _TexLeftBound: 0.25
     - _TexLower: 7
@@ -58,7 +58,7 @@ Material:
     - _TexRightBound: 0.75
     - _TexUpper: 7
     - _TexUpperBound: 0.75
-    - _TexWidth: 20
+    - _TexWidth: 10
     m_Colors:
     - <noninit>: {r: 0, g: 1, b: 0, a: NaN}
-    - _EmitColor: {r: 0.509434, g: 0.509434, b: 0.509434, a: 0}
+    - _EmitColor: {r: 1, g: 1, b: 1, a: 0}

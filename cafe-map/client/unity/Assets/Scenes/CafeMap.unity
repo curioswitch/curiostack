@@ -324,6 +324,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.4656956620439
   Longitude: 139.621158226856
 --- !u!1 &705507993
@@ -442,6 +443,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.6663503026539
   Longitude: 139.7105797824
 --- !u!1 &889836859
@@ -537,6 +539,84 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 889836859}
   m_Mesh: {fileID: 4300000, guid: 65060a3eef38d4c83994f02876b69051, type: 3}
+--- !u!1 &933680678
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 933680681}
+  - component: {fileID: 933680680}
+  - component: {fileID: 933680679}
+  m_Layer: 0
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &933680679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 933680678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 14
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 40
+    m_Alignment: 0
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: 
+--- !u!222 &933680680
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 933680678}
+  m_CullTransparentMesh: 0
+--- !u!224 &933680681
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 933680678}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -52.940987}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -134.2296, y: 35.370914}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -1291,6 +1371,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.452597904899
   Longitude: 139.642862285259
 --- !u!1 &1413904619
@@ -1389,13 +1470,17 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 0fe6f1c9f27354c3a8b6310a5c1e17c0, type: 2}
   - {fileID: 2100000, guid: c343b281e15c74d79b8aa0c6f4a9699c, type: 2}
   - {fileID: 2100000, guid: 0d737e776cb73459696dec45cc3f64a7, type: 2}
+  - {fileID: 2100000, guid: 01ab03ca0a7ed451f969bcbd5ace626d, type: 2}
+  - {fileID: 2100000, guid: a2790c6468a1a428ebee7469e7c193e0, type: 2}
   RoofMaterials:
-  - {fileID: 2100000, guid: 41275e03e099e48d08fa7e92a6c15b5f, type: 2}
-  - {fileID: 2100000, guid: 41275e03e099e48d08fa7e92a6c15b5f, type: 2}
-  - {fileID: 2100000, guid: 41275e03e099e48d08fa7e92a6c15b5f, type: 2}
-  - {fileID: 2100000, guid: 41275e03e099e48d08fa7e92a6c15b5f, type: 2}
-  - {fileID: 2100000, guid: 41275e03e099e48d08fa7e92a6c15b5f, type: 2}
-  - {fileID: 2100000, guid: 41275e03e099e48d08fa7e92a6c15b5f, type: 2}
+  - {fileID: 2100000, guid: 3f500edc758c34904b34243e2db2a353, type: 2}
+  - {fileID: 2100000, guid: d217c98fb1cb1479388fe1e06c4cf43f, type: 2}
+  - {fileID: 2100000, guid: c93246d5f012d47769754a4ed01adc55, type: 2}
+  - {fileID: 2100000, guid: 85c507be7d67343c18cb2f7a20e59a9f, type: 2}
+  - {fileID: 2100000, guid: bbf6255db5cf04ed7bec3d5090555ebc, type: 2}
+  - {fileID: 2100000, guid: 4874137aea7734152a64a9f706a2dba4, type: 2}
+  - {fileID: 2100000, guid: d189a9a19067840d386846988d72db06, type: 2}
+  - {fileID: 2100000, guid: d189a9a19067840d386846988d72db06, type: 2}
 --- !u!114 &1606997823
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1671,6 +1756,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.4503316328004
   Longitude: 139.649458683891
 --- !u!1 &1925121226
@@ -2197,6 +2283,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.6646585965347
   Longitude: 139.712503228932
 --- !u!1001 &534702503253476965
@@ -2301,6 +2388,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.6648252731631
   Longitude: 139.713495830998
 --- !u!1001 &823893656549482760
@@ -2663,6 +2751,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.663960594997
   Longitude: 139.711838176932
 --- !u!4 &2782594314956392800 stripped
@@ -2689,6 +2778,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.665020597988
   Longitude: 139.712255078416
 --- !u!4 &3196668688913148172 stripped
@@ -2721,6 +2811,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.6644238416088
   Longitude: 139.71234661623
 --- !u!1 &3518725385435023544 stripped
@@ -2741,6 +2832,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.6648449789238
   Longitude: 139.712664246737
 --- !u!1 &3760607320212537492 stripped
@@ -2761,6 +2853,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.666430051679
   Longitude: 139.71023016374
 --- !u!4 &4296107166624993794 stripped
@@ -2862,6 +2955,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.6649928244756
   Longitude: 139.712548443163
 --- !u!4 &4574404613518711342 stripped
@@ -3062,6 +3156,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.665653190931
   Longitude: 139.713373403614
 --- !u!1 &6368481989362993617 stripped
@@ -3082,6 +3177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.6637383686756
   Longitude: 139.711694801078
 --- !u!1001 &6667552380731224489
@@ -3210,6 +3306,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.6635546788505
   Longitude: 139.712234119175
 --- !u!1 &7715616307489834721 stripped
@@ -3230,6 +3327,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.6681064777991
   Longitude: 139.708109306148
 --- !u!1 &7820600988919004845 stripped
@@ -3250,6 +3348,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5212f424af7e4613aede891780997867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
   Latitude: 35.6642025266191
   Longitude: 139.712109494626
 --- !u!1001 &8223858478458358745
