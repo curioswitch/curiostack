@@ -13,7 +13,7 @@ Material:
   m_LightmapFlags: 1
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 0
+  m_CustomRenderQueue: 2000
   stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
@@ -61,9 +61,9 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0.94
+    - _Glossiness: 0
     - _GlossyReflections: 1
-    - _Metallic: 0.18
+    - _Metallic: 0.117
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
@@ -73,5 +73,5 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.91916806, g: 1, b: 0.8632076, a: 1}
+    - _Color: {r: 0.7415976, g: 0.9622642, b: 0.6853863, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

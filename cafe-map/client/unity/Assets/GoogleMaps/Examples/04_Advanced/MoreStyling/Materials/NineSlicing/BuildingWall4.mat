@@ -28,7 +28,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmitMap:
-        m_Texture: {fileID: 2800000, guid: 75edc5260005e4c2ca90e13f6963dda6, type: 3}
+        m_Texture: {fileID: 2800000, guid: 1decbea4096cb42e18062ed6939c564d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
@@ -40,7 +40,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecMap:
-        m_Texture: {fileID: 2800000, guid: bae9d1505a2c64df796158165f10c6b1, type: 3}
+        m_Texture: {fileID: 2800000, guid: ea185700385e84802a9552e55b0ed608, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -61,4 +61,4 @@ Material:
     - _TexWidth: 20
     m_Colors:
     - <noninit>: {r: 0, g: 1, b: 0, a: NaN}
-    - _EmitColor: {r: 0.44700074, g: 0.4486637, b: 0.46226418, a: 0}
+    - _EmitColor: {r: 1, g: 1, b: 1, a: 0}
