@@ -7,6 +7,20 @@
       "dependencies": {},
       "hash": "3bebaef9694b012df09747b322362e3228f8c09d"
     },
+    "com.neuecc.unirx": {
+      "version": "https://github.com/neuecc/UniRx.git?path=Assets/Plugins/UniRx/Scripts",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "284d5c50d3f1ddd9fa7df3d382ea904732a9c2ff"
+    },
+    "com.svermeulen.extenject": {
+      "version": "https://github.com/starikcetin/Extenject.git#9.1.0",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "8261b211687c43c40203c3e7dcdf9e0edfaf17a6"
+    },
     "com.unity.collab-proxy": {
       "version": "1.2.16",
       "depth": 0,

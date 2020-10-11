@@ -20,7 +20,7 @@ namespace CafeMap.Services
         private readonly SecretsService _secretsService;
 
         private readonly Dictionary<string, DetailsResult> _detailsCache = new Dictionary<string, DetailsResult>();
-        private readonly Dictionary<string, Texture2D> _photoCache = new Dictionary<string, Texture2D>();
+        private readonly Dictionary<string, Sprite> _photoCache = new Dictionary<string, Sprite>();
 
         [Inject]
         public PlacesService(SecretsService secretsService)
@@ -41,12 +41,12 @@ namespace CafeMap.Services
             return response.Result.PlaceId;
         }
 
-        public async UniTask<Texture2D> getPhoto(string placeId)
+        public async UniTask<Sprite> getPhoto(string placeId)
         {
-            Texture2D photoTexture;
-            if (_photoCache.TryGetValue(placeId, out photoTexture))
+            Sprite photoSprite;
+            if (_photoCache.TryGetValue(placeId, out photoSprite))
             {
-                return photoTexture;
+                return photoSprite;
             }
             var details = await getDetails(placeId);
             var photo = details.Photos.FirstOrDefault();
@@ -71,10 +71,11 @@ namespace CafeMap.Services
                     return null;
                 }
 
-                photoTexture = DownloadHandlerTexture.GetContent(uwr);
+                var texture = DownloadHandlerTexture.GetContent(uwr);
+                photoSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
             }
-            _photoCache[placeId] = photoTexture;
-            return photoTexture;
+            _photoCache[placeId] = photoSprite;
+            return photoSprite;
         }
 
         public async UniTask<DetailsResult> getDetails(string placeId)
