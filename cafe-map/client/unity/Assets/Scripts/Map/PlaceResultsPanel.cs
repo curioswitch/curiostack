@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CafeMap.Services;
-using GoogleApi;
-using GoogleApi.Entities.Places.Photos.Request;
-using GoogleApi.Entities.Places.Photos.Response;
+using Cysharp.Threading.Tasks;
 using ModestTree;
+using Org.Curioswitch.Cafemap.Api;
+using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -13,11 +14,10 @@ namespace CafeMap.Map
 {
     public class PlaceResultsPanel : MonoBehaviour
     {
-        private readonly HashSet<Org.Curioswitch.Cafemap.Api.Place> visiblePlaces = new HashSet<Org.Curioswitch.Cafemap.Api.Place>();
+        private readonly Dictionary<string, Place> visiblePlaces = new Dictionary<string, Place>();
+        private readonly Subject<bool> visiblePlacesChanged = new Subject<bool>();
 
         private PlacesService _placesService;
-
-        private RectTransform _rectTransform;
 
         [Inject]
         public void Init(PlacesService placesService)
@@ -27,53 +27,68 @@ namespace CafeMap.Map
 
         private void Awake()
         {
-            _rectTransform = GetComponent<RectTransform>();
-        }
+            visiblePlacesChanged.AsObservable()
+                .Throttle(TimeSpan.FromMilliseconds(500))
+                .Select(ignored => visiblePlaces.Values.ToList())
+                .Subscribe(rerender);
 
-        public void addVisiblePlace(Org.Curioswitch.Cafemap.Api.Place place)
-        {
-            if (visiblePlaces.Add(place))
+            for (int i = 0; i < 20; i++)
             {
-                rerender();
+                addResultPlaceholder();
             }
         }
 
-        public void removeVisiblePlace(Org.Curioswitch.Cafemap.Api.Place place)
+        public void addVisiblePlace(Place place)
         {
-            if (visiblePlaces.Remove(place))
+            visiblePlaces[place.Id] = place;
+            visiblePlacesChanged.OnNext(true);
+        }
+
+        public void removeVisiblePlace(Place place)
+        {
+            visiblePlaces.Remove(place.Id);
+            visiblePlacesChanged.OnNext(true);
+        }
+
+        private async void rerender(List<Place> places)
+        {
+            Debug.Log("Rerendering place results");
+            var images = await UniTask.WhenAll(
+                places
+                    .Where(place => !place.GooglePlaceId.IsEmpty())
+                    .Select(place => _placesService.getPhoto(place.GooglePlaceId)));
+
+            int numMissingPlaceholders = images.Length - transform.childCount;
+            for (int i = 0; i < numMissingPlaceholders; i++)
             {
-                rerender();
+                addResultPlaceholder();
+            }
+
+            for (int i = 0; i < images.Length; i++)
+            {
+                var place = places[i];
+                var sprite = images[i];
+                var imageObject = transform.GetChild(i).gameObject;
+                imageObject.SetActive(true);
+                imageObject.name = "Image " + place.Name;
+                var image = imageObject.GetComponent<Image>();
+                image.sprite = sprite;
+            }
+
+            for (int i = images.Length; i < transform.childCount; i++)
+            {
+                transform.GetChild(i).gameObject.SetActive(false);
             }
         }
 
-        private async void rerender()
+        private void addResultPlaceholder()
         {
-            var visiblePlaces = new List<Org.Curioswitch.Cafemap.Api.Place>(this.visiblePlaces);
-            List<Texture2D> images = new List<Texture2D>();
-            foreach (var place in visiblePlaces)
-            {
-                if (!place.GooglePlaceId.IsEmpty())
-                {
-                    images.Add(await _placesService.getPhoto(place.GooglePlaceId));
-                }
-            }
-
-            foreach (Transform child in transform)
-            {
-                Destroy(child.gameObject);
-            }
-
-            for (int i = 0; i < images.Count; i++)
-            {
-                var place = visiblePlaces[i];
-                var texture = images[i];
-                var imageObject = new GameObject("Image " + place.Name);
-                imageObject.transform.SetParent(transform);
-                var image = imageObject.AddComponent<Image>();
-                image.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
-                image.rectTransform.sizeDelta = new Vector2(400, 400);
-                image.preserveAspect = true;
-            }
+            var imageObject = new GameObject("Image Placeholder");
+            imageObject.SetActive(false);
+            imageObject.transform.SetParent(transform);
+            var image = imageObject.AddComponent<Image>();
+            image.rectTransform.sizeDelta = new Vector2(400, 400);
+            image.preserveAspect = true;
         }
     }
 }

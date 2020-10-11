@@ -10,6 +10,8 @@
   ],
   "dependencies": {
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.0.36",
+    "com.neuecc.unirx": "https://github.com/neuecc/UniRx.git?path=Assets/Plugins/UniRx/Scripts",
+    "com.svermeulen.extenject": "https://github.com/starikcetin/Extenject.git#9.1.0",
     "com.unity.collab-proxy": "1.2.16",
     "com.unity.ide.rider": "2.0.7",
     "com.unity.ide.visualstudio": "2.0.2",
