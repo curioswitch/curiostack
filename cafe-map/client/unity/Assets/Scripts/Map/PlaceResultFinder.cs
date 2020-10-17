@@ -12,7 +12,7 @@ using Zenject;
 public class PlaceResultFinder : MonoBehaviour
 {
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
@@ -21,10 +21,10 @@ public class PlaceResultFinder : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, 800))
             {
-                var result = hit.collider.gameObject.GetComponent<RenderedPlace>();
+                var result = hit.transform.gameObject.GetComponent<RenderedPlace>();
                 if (result != null)
                 {
-                    // result.Select();
+                    result.Select();
                 }
             }
         }
