@@ -46,8 +46,10 @@ namespace CafeMap.Services
             Sprite photoSprite;
             if (_photoCache.TryGetValue(placeId, out photoSprite))
             {
+                Debug.Log("Cached sprite");
                 return photoSprite;
             }
+            Debug.Log("fetch sprite");
             var details = await getDetails(placeId);
             var photo = details.Photos.FirstOrDefault();
             if (photo == null)
@@ -59,8 +61,8 @@ namespace CafeMap.Services
             {
                 Key = _secretsService.GoogleApiKey,
                 PhotoReference = photo.PhotoReference,
-                MaxWidth = 700,
-                MaxHeight = 700,
+                MaxWidth = 500,
+                MaxHeight = 500,
             };
 
             using (var uwr = UnityWebRequestTexture.GetTexture(request.GetUri()))

@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CafeMap.Services;
+using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Triggers;
 using Google.Maps;
+using Google.Maps.Examples.Shared;
 using Google.Maps.Feature;
 using Google.Maps.Feature.Shape;
 using Google.Maps.Feature.Style;
 using ModestTree;
+using UniRx;
+using UniRx.Triggers;
 using UnityEngine;
 using Zenject;
 using Object = UnityEngine.Object;
@@ -29,6 +34,9 @@ namespace CafeMap.Map
             "is given Building Wall Material 2, then it will also be given Building Roof Material 2).")]
         public Material[] RoofMaterials;
 
+        public Label labelPrefab;
+        public Canvas labelsCanvas;
+
         private readonly Dictionary<StructureMetadata.UsageType, Object> buildingModels
             = new Dictionary<StructureMetadata.UsageType, Object>();
 
@@ -40,6 +48,7 @@ namespace CafeMap.Map
         /// </summary>
         private void Awake()
         {
+
             // Verify that at least one Wall Material and at least one Roof Material has been given.
             if (WallMaterials.Length == 0)
             {
@@ -157,15 +166,13 @@ namespace CafeMap.Map
                     return;
                 }
                 var mapObject = args.GameObject;
-                var nameObject = Instantiate(new GameObject(), mapObject.transform);
-                nameObject.name = "Name: " + placeName;
-                nameObject.transform.Translate(0, 0, 0);
-                var name = nameObject.AddComponent<TextMesh>();
-                name.text = placeName;
-                name.fontSize = 300;
-                name.fontStyle = FontStyle.Bold;
-                name.color = Color.white;
-                name.anchor = TextAnchor.LowerCenter;
+                var nameObject = Instantiate(labelPrefab, labelsCanvas.transform);
+                nameObject.gameObject.name = "Name: " + placeName;
+                nameObject.SetText(placeName);
+                nameObject.transform.position = mapObject.transform.position;
+                nameObject.StartFadingIn();
+
+                args.GameObject.OnDestroyAsObservable().Subscribe(_ => Destroy(nameObject));
             });
 
             // Sign up to event called after each new building is loaded, so can assign Materials to this

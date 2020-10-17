@@ -22,6 +22,7 @@ namespace CafeMap.Map
 
         private PlacesService _placesService;
         private DiContainer _container;
+        private RectTransform _rectTransform;
 
         [Inject]
         public void Init(PlacesService placesService, DiContainer container)
@@ -32,6 +33,7 @@ namespace CafeMap.Map
 
         private void Awake()
         {
+            _rectTransform = GetComponent<RectTransform>();
             imageHolderPrefab = Resources.Load<GameObject>("Prefabs/UI/ImageHolder");
 
             visiblePlacesChanged.AsObservable()
@@ -63,7 +65,7 @@ namespace CafeMap.Map
         {
             Debug.Log("Rerendering place results");
 
-            places = places.Where(place => !place.GooglePlaceId.IsEmpty()).ToList();
+            places = places.Where(place => !place.GooglePlaceId.IsEmpty()).Take(10).ToList();
 
             var images = await UniTask.WhenAll(
                 places
@@ -74,6 +76,8 @@ namespace CafeMap.Map
                 transform.parent.gameObject.SetActive(false);
                 return;
             }
+
+            _rectTransform.anchoredPosition = Vector2.zero;
 
             transform.parent.gameObject.SetActive(true);
 
