@@ -36,6 +36,8 @@ namespace CafeMap.Map
             {
                 addResultPlaceholder();
             }
+
+            transform.parent.gameObject.SetActive(false);
         }
 
         public void addVisiblePlace(Place place)
@@ -57,6 +59,14 @@ namespace CafeMap.Map
                 places
                     .Where(place => !place.GooglePlaceId.IsEmpty())
                     .Select(place => _placesService.getPhoto(place.GooglePlaceId)));
+
+            if (images.IsEmpty())
+            {
+                transform.parent.gameObject.SetActive(false);
+                return;
+            }
+
+            transform.parent.gameObject.SetActive(true);
 
             int numMissingPlaceholders = images.Length - transform.childCount;
             for (int i = 0; i < numMissingPlaceholders; i++)
