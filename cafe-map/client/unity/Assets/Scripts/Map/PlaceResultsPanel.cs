@@ -95,6 +95,9 @@ namespace CafeMap.Map
 
                 var image = imageObject.transform.GetChild(0).gameObject.GetComponent<Image>();
 
+                var text = imageObject.transform.GetChild(1).GetComponentInChildren<Text>();
+                text.text = place.Name;
+
                 float spriteScale = 1.0f;
                 if (sprite.texture.width < 400)
                 {
