@@ -1,7 +1,7 @@
 ﻿#region copyright
 // MIT License
 
-// Copyright (c) 2017 
+// Copyright (c) 2017
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -72,7 +72,8 @@ public class PanAndZoom : MonoBehaviour {
     [Tooltip("Is the camera bound to an area?")]
     public bool useBounds;
 
-    public float tilt = 20;
+    public float cameraYOffset = 300;
+    public float cameraZOffset = 20;
 
     public float boundMinX = -150;
     public float boundMaxX = 150;
@@ -101,15 +102,14 @@ public class PanAndZoom : MonoBehaviour {
         startPosition = transform.position;
         startRotation = transform.rotation;
 
-        transform.Translate(0, 300, 0);
+        transform.Translate(0, cameraYOffset, cameraZOffset);
         transform.LookAt(Vector3.zero);
-        transform.Rotate(-tilt, 0, 0);
     }
 
     void Start()
     {
         canUseMouse = Application.platform != RuntimePlatform.Android &&
-                      Application.platform != RuntimePlatform.IPhonePlayer && 
+                      Application.platform != RuntimePlatform.IPhonePlayer &&
                       Mouse.current != null;
 
         if (!useMouse || !canUseMouse)
@@ -119,12 +119,12 @@ public class PanAndZoom : MonoBehaviour {
 
     void OnEnable()
     {
-        EnhancedTouchSupport.Enable();        
+        EnhancedTouchSupport.Enable();
     }
 
     void OnDisable()
     {
-        EnhancedTouchSupport.Disable();        
+        EnhancedTouchSupport.Disable();
     }
 
     void Update() {
@@ -265,21 +265,18 @@ public class PanAndZoom : MonoBehaviour {
             onSwipe(deltaPosition);
         }
 
-        // TODO(choko): Get better at camera control to be able to do this in one step.
-        transform.Rotate(tilt, 0, 0);
-        transform.Translate(-deltaPosition.x, -deltaPosition.y, 0);
-        transform.Rotate(-tilt, 0, 0);
+        var deltaTransform = new Vector3(-deltaPosition.x, 0, -deltaPosition.y);
+        var newPosition = transform.position + deltaTransform;
+        transform.SetPositionAndRotation(newPosition, transform.rotation);
     }
 
     public void SetPosition(Vector3 position)
     {
-        transform.SetPositionAndRotation(startPosition, startRotation);
-        
-        transform.Translate(position.x, 300, position.z);
+        transform.SetPositionAndRotation(position, Quaternion.identity);
+        transform.Translate(0, cameraYOffset, cameraZOffset);
         transform.LookAt(Vector3.zero);
-        transform.Rotate(-tilt, 0, 0);
     }
-    
+
     void DoOnPinch(Vector2 center, float oldDistance, float newDistance, Vector2 touchDelta) {
         if (onPinch != null) {
             onPinch(oldDistance, newDistance);

@@ -1,7 +1,10 @@
 using System;
+using System.Linq;
 using CafeMap.Player.Services;
+using Cysharp.Threading.Tasks;
 using Google.Maps;
 using Google.Maps.Coord;
+using ModestTree;
 using UnityEngine;
 using Zenject;
 
@@ -28,7 +31,7 @@ namespace CafeMap.Map
         private void Start()
         {
 
-            foreach (var place in secretsService.PlaceDb.Place)
+            foreach (var place in secretsService.PlaceDb.Place.Where(place => !place.GooglePlaceId.IsEmpty()))
             {
                 var instantiated = Instantiate(model);
                 var rendered = instantiated.GetComponentInChildren<Renderer>().gameObject.AddComponent<RenderedPlace>();

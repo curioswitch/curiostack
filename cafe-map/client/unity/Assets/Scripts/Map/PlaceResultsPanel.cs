@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using ModestTree;
 using Org.Curioswitch.Cafemap.Api;
 using UniRx;
+using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -20,11 +21,13 @@ namespace CafeMap.Map
         private GameObject imageHolderPrefab;
 
         private PlacesService _placesService;
+        private DiContainer _container;
 
         [Inject]
-        public void Init(PlacesService placesService)
+        public void Init(PlacesService placesService, DiContainer container)
         {
             _placesService = placesService;
+            _container = container;
         }
 
         private void Awake()
@@ -59,9 +62,11 @@ namespace CafeMap.Map
         private async void rerender(List<Place> places)
         {
             Debug.Log("Rerendering place results");
+
+            places = places.Where(place => !place.GooglePlaceId.IsEmpty()).ToList();
+
             var images = await UniTask.WhenAll(
                 places
-                    .Where(place => !place.GooglePlaceId.IsEmpty())
                     .Select(place => _placesService.getPhoto(place.GooglePlaceId)));
 
             if (images.IsEmpty())
@@ -85,6 +90,9 @@ namespace CafeMap.Map
                 var imageObject = transform.GetChild(i).gameObject;
                 imageObject.SetActive(true);
                 imageObject.name = "Image " + place.Name;
+
+                imageObject.GetComponent<PlaceResult>().place = place;
+
                 var image = imageObject.transform.GetChild(0).gameObject.GetComponent<Image>();
 
                 float spriteScale = 1.0f;
@@ -114,6 +122,7 @@ namespace CafeMap.Map
         {
             var imageObject = Instantiate(imageHolderPrefab, transform);
             imageObject.SetActive(false);
+            _container.Inject(imageObject.GetComponent<PlaceResult>());
         }
     }
 }
