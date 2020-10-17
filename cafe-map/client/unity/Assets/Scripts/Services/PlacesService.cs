@@ -59,8 +59,8 @@ namespace CafeMap.Services
             {
                 Key = _secretsService.GoogleApiKey,
                 PhotoReference = photo.PhotoReference,
-                MaxWidth = 500,
-                MaxHeight = 500,
+                MaxWidth = 700,
+                MaxHeight = 700,
             };
 
             using (var uwr = UnityWebRequestTexture.GetTexture(request.GetUri()))

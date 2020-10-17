@@ -14,6 +14,13 @@
       "dependencies": {},
       "hash": "284d5c50d3f1ddd9fa7df3d382ea904732a9c2ff"
     },
+    "com.nobi.roundedcorners": {
+      "version": "https://github.com/kirevdokimov/Unity-UI-Rounded-Corners.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "2cf5c829cce947bd395c32b894ea354b32b34299"
+    },
     "com.svermeulen.extenject": {
       "version": "https://github.com/starikcetin/Extenject.git#9.1.0",
       "depth": 0,
@@ -82,7 +89,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.quicksearch": {
-      "version": "1.5.4",
+      "version": "2.0.2",
       "depth": 0,
       "source": "registry",
       "dependencies": {},

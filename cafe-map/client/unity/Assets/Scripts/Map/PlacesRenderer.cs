@@ -38,7 +38,7 @@ namespace CafeMap.Map
                 var position = mapsService.Coords.FromLatLngToVector3(latLng);
                 instantiated.name = place.Name;
                 instantiated.transform.position = position;
-                instantiated.transform.localScale = new Vector3(10, 10, 10);
+                instantiated.transform.localScale = new Vector3(20, 20, 20);
                 viewportService.RegisterMovedObject(instantiated);
             }
         }
