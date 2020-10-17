@@ -54,7 +54,7 @@ namespace CafeMap.Map
         private Coroutine UnloadUnseenCoroutine;
 
         ///< summary>Interval in seconds at which unseen geometry is detected and unloaded.</summary>
-        private const float UnloadUnseenDelay = 10f;
+        private const float UnloadUnseenDelay = 5f;
 
         /// <summary>
         /// Used to let the unload co-routine that we have loaded additional geometry and that we can
