@@ -453,8 +453,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.4656957863119
-  Longitude: 139.621159583794
+  Latitude: 35.4656957863398
+  Longitude: 139.621159583535
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -572,8 +572,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6663504230563
-  Longitude: 139.710581137318
+  Latitude: 35.6663504266389
+  Longitude: 139.710581139078
 --- !u!1 &889836859
 GameObject:
   m_ObjectHideFlags: 0
@@ -1502,8 +1502,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.4525980294615
-  Longitude: 139.64286364287
+  Latitude: 35.4525980292152
+  Longitude: 139.642863641938
 --- !u!1 &1291464875
 GameObject:
   m_ObjectHideFlags: 0
@@ -1910,6 +1910,9 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 4874137aea7734152a64a9f706a2dba4, type: 2}
   - {fileID: 2100000, guid: d189a9a19067840d386846988d72db06, type: 2}
   - {fileID: 2100000, guid: d189a9a19067840d386846988d72db06, type: 2}
+  labelPrefab: {fileID: 6134786674435904508, guid: 92e939e87a7ca0b4e9659d778d53adac,
+    type: 3}
+  labelsCanvas: {fileID: 1576094239}
 --- !u!114 &1606997823
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2186,8 +2189,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.4503317568179
-  Longitude: 139.649460041502
+  Latitude: 35.45033175712
+  Longitude: 139.64946004057
 --- !u!1 &1925121226
 GameObject:
   m_ObjectHideFlags: 0
@@ -2715,8 +2718,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6646587169397
-  Longitude: 139.71250458385
+  Latitude: 35.6646587205224
+  Longitude: 139.712504585611
 --- !u!1001 &534702503253476965
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2820,8 +2823,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6648253935679
-  Longitude: 139.713497185916
+  Latitude: 35.6648253971505
+  Longitude: 139.713497187676
 --- !u!1001 &823893656549482760
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3183,8 +3186,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6639607154031
-  Longitude: 139.71183953185
+  Latitude: 35.6639607189858
+  Longitude: 139.711839533611
 --- !u!4 &2782594314956392800 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2673375984529624170, guid: 0514c1a83ebaf4f26a89b8854d9a4f01,
@@ -3210,8 +3213,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6650207183925
-  Longitude: 139.712256433334
+  Latitude: 35.6650207219751
+  Longitude: 139.712256435095
 --- !u!4 &3196668688913148172 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2824838706355783684, guid: 504cf8d3932ee4803a4060cb3fa685ce,
@@ -3243,8 +3246,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6644239620142
-  Longitude: 139.712347971148
+  Latitude: 35.6644239655969
+  Longitude: 139.712347972909
 --- !u!1 &3518725385435023544 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2826332159568465899, guid: b0a55e2971c5a4cdd916bd2b439677b5,
@@ -3264,8 +3267,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6648450993285
-  Longitude: 139.712665601655
+  Latitude: 35.6648451029112
+  Longitude: 139.712665603416
 --- !u!1 &3760607320212537492 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8778014914542460174, guid: 644910858f0264609bf554e643e07a1a,
@@ -3285,8 +3288,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6664301720813
-  Longitude: 139.710231518658
+  Latitude: 35.6664301756639
+  Longitude: 139.710231520419
 --- !u!4 &4296107166624993794 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3202893535802496337, guid: b0a55e2971c5a4cdd916bd2b439677b5,
@@ -3387,8 +3390,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6649929448801
-  Longitude: 139.712549798081
+  Latitude: 35.6649929484628
+  Longitude: 139.712549799841
 --- !u!4 &4574404613518711342 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8257937752127047604, guid: 644910858f0264609bf554e643e07a1a,
@@ -3588,8 +3591,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6656533113345
-  Longitude: 139.713374758532
+  Latitude: 35.6656533149171
+  Longitude: 139.713374760293
 --- !u!1 &6368481989362993617 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3044546694267798024, guid: 8e2d6d7db37e54c5d8f0495e334e57d3,
@@ -3609,8 +3612,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.663738489082
-  Longitude: 139.711696155996
+  Latitude: 35.6637384926647
+  Longitude: 139.711696157757
 --- !u!1001 &6667552380731224489
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3738,8 +3741,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6635547992572
-  Longitude: 139.712235474093
+  Latitude: 35.6635548028399
+  Longitude: 139.712235475854
 --- !u!1 &7715616307489834721 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1797915013836932038, guid: a78d0d331519e4dd581ec70b93c16fe5,
@@ -3759,8 +3762,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6681065981989
-  Longitude: 139.708110661066
+  Latitude: 35.6681066017814
+  Longitude: 139.708110662827
 --- !u!1 &7820600988919004845 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1483292020788282997, guid: 7c285293a5c6f4facb6f2fa15f7d39c2,
@@ -3780,8 +3783,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6642026470248
-  Longitude: 139.712110849544
+  Latitude: 35.6642026506075
+  Longitude: 139.712110851304
 --- !u!1001 &8223858478458358745
 PrefabInstance:
   m_ObjectHideFlags: 0
