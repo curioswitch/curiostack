@@ -1,0 +1,137 @@
+{
+    "m_SelectedDeviceId": "09051FDD4004P9",
+    "m_SelectedPackage": {
+        "deviceId": "09051FDD4004P9",
+        "name": "com.DefaultCompany.CafeMap",
+        "processId": 18022,
+        "exited": false
+    },
+    "m_SelectedPriority": 0,
+    "m_KnownPackagesForSerialization": [
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.teslacoilsw.launcher",
+            "processId": 20967,
+            "exited": false
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.DefaultCompany.CafeMap",
+            "processId": 11195,
+            "exited": true
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.DefaultCompany.CafeMap",
+            "processId": 14315,
+            "exited": true
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.DefaultCompany.CafeMap",
+            "processId": 16122,
+            "exited": true
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.DefaultCompany.CafeMap",
+            "processId": 18643,
+            "exited": true
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.DefaultCompany.CafeMap",
+            "processId": 32058,
+            "exited": true
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.DefaultCompany.CafeMap",
+            "processId": 1054,
+            "exited": true
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.DefaultCompany.CafeMap",
+            "processId": 3235,
+            "exited": true
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.DefaultCompany.CafeMap",
+            "processId": 5296,
+            "exited": true
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.DefaultCompany.CafeMap",
+            "processId": 8887,
+            "exited": true
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.DefaultCompany.CafeMap",
+            "processId": 15613,
+            "exited": false
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.DefaultCompany.CafeMap",
+            "processId": 18022,
+            "exited": false
+        }
+    ],
+    "m_Tags": {
+        "m_Entries": [
+            {
+                "m_Name": "Filter by all listed tags",
+                "m_Selected": false
+            },
+            {
+                "m_Name": "No Filter",
+                "m_Selected": true
+            },
+            {
+                "m_Name": "",
+                "m_Selected": false
+            },
+            {
+                "m_Name": "Tag Control...",
+                "m_Selected": false
+            },
+            {
+                "m_Name": "",
+                "m_Selected": false
+            },
+            {
+                "m_Name": "Unity",
+                "m_Selected": false
+            },
+            {
+                "m_Name": "CRASH",
+                "m_Selected": false
+            }
+        ]
+    },
+    "m_MemoryViewerState": {
+        "MemoryWindowHeight": 300.0,
+        "MemoryWindowWidth": 170.0,
+        "MemoryTypeEnabled": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+        ],
+        "MemoryGroup": 1,
+        "Behavior": 1
+    },
+    "m_Filter": "",
+    "m_FilterIsRegularExpression": false,
+    "m_SymbolPaths": []
+}

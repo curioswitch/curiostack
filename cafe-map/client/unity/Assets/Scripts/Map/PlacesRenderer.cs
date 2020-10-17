@@ -39,9 +39,11 @@ namespace CafeMap.Map
                 rendered.Place = place;
                 var latLng = new LatLng(place.Position.Latitude, place.Position.Longitude);
                 var position = mapsService.Coords.FromLatLngToVector3(latLng);
+                position.y = 50;
+                instantiated.transform.localRotation = Quaternion.Euler(30, 0, 0);
                 instantiated.name = place.Name;
                 instantiated.transform.position = position;
-                instantiated.transform.localScale = new Vector3(20, 20, 20);
+                instantiated.transform.localScale = new Vector3(10, 10, 10);
                 viewportService.RegisterMovedObject(instantiated);
             }
         }

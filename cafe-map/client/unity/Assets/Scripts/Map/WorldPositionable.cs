@@ -19,12 +19,11 @@ namespace CafeMap.Map
         private ViewportService _viewportService;
         private SignalBus _signalBus;
 
-        private Renderer[] _renderers;
-        private Bounds bounds;
+        private Collider _collider;
 
         private void Awake()
         {
-            _renderers = gameObject.GetComponentsInChildren<Renderer>();
+            _collider = gameObject.AddComponent<BoxCollider>();
         }
 
         [Inject]
@@ -45,13 +44,9 @@ namespace CafeMap.Map
                 Instantiate(Prefab, transform);
             }
 
-            recomputeBounds();
-
-            _signalBus.Subscribe<MapOriginChanged>(recomputeBounds);
-
             _mapsService.Events.ExtrudedStructureEvents.WillCreate.AddListener(args =>
             {
-                if (bounds.Intersects(args.MapFeature.Shape.BoundingBox))
+                if (_collider.bounds.Intersects(args.MapFeature.Shape.BoundingBox))
                 {
                     args.Cancel = true;
                 }
@@ -65,20 +60,7 @@ namespace CafeMap.Map
                 var latlng = _mapsService.Coords.FromVector3ToLatLng(gameObject.transform.position);
                 Latitude = latlng.Lat.ToString();
                 Longitude = latlng.Lng.ToString();
-
-                recomputeBounds();
             }
-        }
-
-        private void recomputeBounds()
-        {
-            Bounds bounds = new Bounds();
-            foreach (var renderer in _renderers)
-            {
-                bounds.Encapsulate(renderer.bounds);
-            }
-
-            this.bounds = bounds;
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Google.Maps;
 using Google.Maps.Coord;
 using UnityEngine;
+using Zenject;
 
 namespace CafeMap.Player
 {
@@ -25,10 +26,15 @@ namespace CafeMap.Player
 
         private bool initialized;
 
+        [Inject]
+        public void Init(MapsService mapsService)
+        {
+            this.mapsService = mapsService;
+        }
+
         private void Awake()
         {
             player = GameObject.Find("Player");
-            mapsService = GetComponent<MapsService>();
         }
 
         // Start is called before the first frame update

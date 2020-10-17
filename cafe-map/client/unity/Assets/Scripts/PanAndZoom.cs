@@ -80,6 +80,8 @@ public class PanAndZoom : MonoBehaviour {
     public float boundMinY = -150;
     public float boundMaxY = 150;
 
+    public float maxZoom = 40;
+
     Vector2 touch0StartPosition;
     Vector2 touch0LastPosition;
     float touch0StartTime;
@@ -294,7 +296,7 @@ public class PanAndZoom : MonoBehaviour {
 
                 cam.transform.position -= newPinchPosition - currentPinchPosition;
             } else {
-                cam.fieldOfView = Mathf.Clamp(cam.fieldOfView * oldDistance / newDistance, 0.1f, 179.9f);
+                cam.fieldOfView = Mathf.Clamp(cam.fieldOfView * oldDistance / newDistance, 0.1f, maxZoom);
             }
         }
     }

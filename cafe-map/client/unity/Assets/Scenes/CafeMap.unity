@@ -453,7 +453,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.4656957687956
+  Latitude: 35.4656957863398
   Longitude: 139.621159583535
 --- !u!1 &705507993
 GameObject:
@@ -572,7 +572,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6663504091386
+  Latitude: 35.6663504266389
   Longitude: 139.710581139078
 --- !u!1 &889836859
 GameObject:
@@ -852,11 +852,12 @@ MonoBehaviour:
   ignoreUI: 0
   useBounds: 0
   cameraYOffset: 200
-  cameraZOffset: -150
+  cameraZOffset: -200
   boundMinX: -150
   boundMaxX: 150
   boundMinY: -150
   boundMaxY: 150
+  maxZoom: 100
 --- !u!114 &963194230
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1501,7 +1502,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.4525980116681
+  Latitude: 35.4525980292152
   Longitude: 139.642863641938
 --- !u!1 &1291464875
 GameObject:
@@ -1753,6 +1754,86 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1506748075}
   m_CullTransparentMesh: 0
+--- !u!1 &1576094236
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1576094240}
+  - component: {fileID: 1576094239}
+  - component: {fileID: 1576094238}
+  m_Layer: 5
+  m_Name: Building Labels
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1576094238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1576094236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UiScaleMode: 0
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 800, y: 600}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 0
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
+--- !u!223 &1576094239
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1576094236}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 963194227}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!224 &1576094240
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1576094236}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1925121229}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 3000, y: 3000}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1606997814
 GameObject:
   m_ObjectHideFlags: 0
@@ -1829,6 +1910,9 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 4874137aea7734152a64a9f706a2dba4, type: 2}
   - {fileID: 2100000, guid: d189a9a19067840d386846988d72db06, type: 2}
   - {fileID: 2100000, guid: d189a9a19067840d386846988d72db06, type: 2}
+  labelPrefab: {fileID: 6134786674435904508, guid: 92e939e87a7ca0b4e9659d778d53adac,
+    type: 3}
+  labelsCanvas: {fileID: 1576094239}
 --- !u!114 &1606997823
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2105,7 +2189,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.4503317395725
+  Latitude: 35.45033175712
   Longitude: 139.64946004057
 --- !u!1 &1925121226
 GameObject:
@@ -2194,6 +2278,7 @@ Transform:
   - {fileID: 1780764338}
   - {fileID: 1413904620}
   - {fileID: 1291464876}
+  - {fileID: 1576094240}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2633,7 +2718,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6646587030217
+  Latitude: 35.6646587205224
   Longitude: 139.712504585611
 --- !u!1001 &534702503253476965
 PrefabInstance:
@@ -2738,7 +2823,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6648253796499
+  Latitude: 35.6648253971505
   Longitude: 139.713497187676
 --- !u!1001 &823893656549482760
 PrefabInstance:
@@ -3101,7 +3186,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6639607014849
+  Latitude: 35.6639607189858
   Longitude: 139.711839533611
 --- !u!4 &2782594314956392800 stripped
 Transform:
@@ -3128,7 +3213,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6650207044745
+  Latitude: 35.6650207219751
   Longitude: 139.712256435095
 --- !u!4 &3196668688913148172 stripped
 Transform:
@@ -3161,7 +3246,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6644239480961
+  Latitude: 35.6644239655969
   Longitude: 139.712347972909
 --- !u!1 &3518725385435023544 stripped
 GameObject:
@@ -3182,7 +3267,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6648450854105
+  Latitude: 35.6648451029112
   Longitude: 139.712665603416
 --- !u!1 &3760607320212537492 stripped
 GameObject:
@@ -3203,7 +3288,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6664301581636
+  Latitude: 35.6664301756639
   Longitude: 139.710231520419
 --- !u!4 &4296107166624993794 stripped
 Transform:
@@ -3305,7 +3390,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6649929309621
+  Latitude: 35.6649929484628
   Longitude: 139.712549799841
 --- !u!4 &4574404613518711342 stripped
 Transform:
@@ -3506,7 +3591,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6656532974167
+  Latitude: 35.6656533149171
   Longitude: 139.713374760293
 --- !u!1 &6368481989362993617 stripped
 GameObject:
@@ -3527,7 +3612,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6637384751638
+  Latitude: 35.6637384926647
   Longitude: 139.711696157757
 --- !u!1001 &6667552380731224489
 PrefabInstance:
@@ -3656,7 +3741,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.663554785339
+  Latitude: 35.6635548028399
   Longitude: 139.712235475854
 --- !u!1 &7715616307489834721 stripped
 GameObject:
@@ -3677,7 +3762,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6681065842814
+  Latitude: 35.6681066017814
   Longitude: 139.708110662827
 --- !u!1 &7820600988919004845 stripped
 GameObject:
@@ -3698,7 +3783,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6642026331067
+  Latitude: 35.6642026506075
   Longitude: 139.712110851304
 --- !u!1001 &8223858478458358745
 PrefabInstance:
