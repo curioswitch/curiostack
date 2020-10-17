@@ -17,6 +17,8 @@ namespace CafeMap.Map
         private readonly Dictionary<string, Place> visiblePlaces = new Dictionary<string, Place>();
         private readonly Subject<bool> visiblePlacesChanged = new Subject<bool>();
 
+        private GameObject imageHolderPrefab;
+
         private PlacesService _placesService;
 
         [Inject]
@@ -27,6 +29,8 @@ namespace CafeMap.Map
 
         private void Awake()
         {
+            imageHolderPrefab = Resources.Load<GameObject>("Prefabs/UI/ImageHolder");
+
             visiblePlacesChanged.AsObservable()
                 .Throttle(TimeSpan.FromMilliseconds(500))
                 .Select(ignored => visiblePlaces.Values.ToList())
@@ -81,8 +85,23 @@ namespace CafeMap.Map
                 var imageObject = transform.GetChild(i).gameObject;
                 imageObject.SetActive(true);
                 imageObject.name = "Image " + place.Name;
-                var image = imageObject.GetComponent<Image>();
+                var image = imageObject.transform.GetChild(0).gameObject.GetComponent<Image>();
+
+                float spriteScale = 1.0f;
+                if (sprite.texture.width < 400)
+                {
+                    spriteScale = 400.0f / sprite.texture.width;
+                }
+
+                if (sprite.texture.height < 400)
+                {
+                    spriteScale = Math.Max(spriteScale, 400.0f / sprite.texture.height);
+                }
+
+                image.preserveAspect = true;
                 image.sprite = sprite;
+                image.rectTransform.sizeDelta =
+                    new Vector2(spriteScale * sprite.texture.width, spriteScale * sprite.texture.height);
             }
 
             for (int i = images.Length; i < transform.childCount; i++)
@@ -93,12 +112,8 @@ namespace CafeMap.Map
 
         private void addResultPlaceholder()
         {
-            var imageObject = new GameObject("Image Placeholder");
+            var imageObject = Instantiate(imageHolderPrefab, transform);
             imageObject.SetActive(false);
-            imageObject.transform.SetParent(transform);
-            var image = imageObject.AddComponent<Image>();
-            image.rectTransform.sizeDelta = new Vector2(400, 400);
-            image.preserveAspect = true;
         }
     }
 }
