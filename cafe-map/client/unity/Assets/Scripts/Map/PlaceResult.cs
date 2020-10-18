@@ -1,3 +1,5 @@
+using System;
+using CafeMap.Events;
 using CafeMap.Player.Services;
 using Org.Curioswitch.Cafemap.Api;
 using UnityEngine;
@@ -10,13 +12,15 @@ namespace CafeMap.Map
     {
 
         private ViewportService viewportService;
+        private SignalBus _signalBus;
 
         public Place place;
 
         [Inject]
-        public void Init(ViewportService viewportService)
+        public void Init(ViewportService viewportService, SignalBus signalBus)
         {
             this.viewportService = viewportService;
+            _signalBus = signalBus;
         }
 
         public void OnPointerClick(PointerEventData ignored)
@@ -26,7 +30,7 @@ namespace CafeMap.Map
 
         public void SelectResult()
         {
-            viewportService.SetCenter(place.Position.Latitude, place.Position.Longitude);
+            _signalBus.Fire(PlaceSelected.create(place));
         }
     }
 }

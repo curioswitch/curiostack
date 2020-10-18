@@ -1,16 +1,22 @@
+using CafeMap.Events;
 using CafeMap.Player.Services;
 using Extensions.Runtime;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Zenject;
 
 namespace CafeMap.Map
 {
-    public class RenderedPlace : MonoBehaviour
+    public class PlacePin : MonoBehaviour, IPointerClickHandler
     {
+        private static readonly Vector3 NORMAL_SIZE = new Vector3(0.2f, 0.2f, 0.2f);
+        private static readonly Vector3 LARGE_SIZE = new Vector3(0.4f, 0.4f, 0.4f);
+
         public Org.Curioswitch.Cafemap.Api.Place Place;
 
         private PlaceResultsPanel _placeResultsPanel;
         private ViewportService _viewportService;
+        private SignalBus _signalBus;
 
         private Camera _camera;
         private RectTransform _rectTransform;
@@ -18,10 +24,11 @@ namespace CafeMap.Map
         private bool _visible;
 
         [Inject]
-        public void Init(PlaceResultsPanel placeResultsPanel, ViewportService viewportService)
+        public void Init(PlaceResultsPanel placeResultsPanel, ViewportService viewportService, SignalBus signalBus)
         {
             _placeResultsPanel = placeResultsPanel;
             _viewportService = viewportService;
+            _signalBus = signalBus;
         }
 
         private void Awake()
@@ -33,6 +40,8 @@ namespace CafeMap.Map
         {
             _camera = Camera.main;
             _visible = _rectTransform.IsFullyVisibleFrom(_camera);
+
+            _signalBus.Subscribe<PlaceSelected>(onPlaceSelected);
         }
 
         private void Update()
@@ -63,7 +72,17 @@ namespace CafeMap.Map
 
         public void Select()
         {
-            _viewportService.SetCenter(Place.Position.Longitude, Place.Position.Longitude);
+            _signalBus.Fire(PlaceSelected.create(Place));
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            Select();
+        }
+
+        private void onPlaceSelected(PlaceSelected selected)
+        {
+            transform.localScale = selected.Place.GooglePlaceId == Place.GooglePlaceId ? LARGE_SIZE : NORMAL_SIZE;
         }
     }
 }

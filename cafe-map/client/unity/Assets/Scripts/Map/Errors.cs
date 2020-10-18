@@ -42,8 +42,7 @@ namespace CafeMap.Map
       // Note: 'name' and 'GetType()' just give the name of the GameObject this script is on, and
       // the name of this script respectively.
       return string.Format(
-          "No {0} defined for {1}.{2}, which needs a {3} {4}.",
-          missingParameterName,
+          "No {0} defined for {1}.{2}, which needs a {3} {4}.", missingParameterName,
           script.name,
           script.GetType(),
           typeof(T),

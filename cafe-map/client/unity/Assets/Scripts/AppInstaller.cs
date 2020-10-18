@@ -13,6 +13,7 @@ public class AppInstaller : MonoInstaller
     {
         SignalBusInstaller.Install(Container);
         Container.DeclareSignal<MapOriginChanged>();
+        Container.DeclareSignal<PlaceSelected>();
 
         var searchBox = GameObject.FindWithTag("SearchBox");
         var worldCanvas = GameObject.FindWithTag("WorldCanvas");

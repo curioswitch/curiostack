@@ -39,7 +39,7 @@ namespace CafeMap.Map
                 var instantiated = Instantiate(pinPrefab, worldCanvas.gameObject.transform);
                 _container.InjectGameObject(instantiated);
 
-                var rendered = instantiated.GetComponent<RenderedPlace>();
+                var rendered = instantiated.GetComponent<PlacePin>();
                 rendered.Place = place;
 
                 var latLng = new LatLng(place.Position.Latitude, place.Position.Longitude);
@@ -47,8 +47,6 @@ namespace CafeMap.Map
                 position.y = 50;
                 instantiated.name = place.Name;
                 instantiated.transform.position = position;
-                // instantiated.transform.localScale = new Vector3(10, 10, 10);
-                // viewportService.RegisterMovedObject(instantiated);
             }
         }
     }
