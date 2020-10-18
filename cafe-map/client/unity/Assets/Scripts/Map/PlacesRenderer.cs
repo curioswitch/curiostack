@@ -58,7 +58,7 @@ namespace CafeMap.Map
             visiblePlacesChanged.OnNext(true);
         }
 
-        public void SetInivisiblePlace(Place place)
+        public void SetInvisiblePlace(Place place)
         {
             visiblePlaces.Remove(place.Id);
             visiblePlacesChanged.OnNext(true);

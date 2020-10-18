@@ -51,11 +51,11 @@ namespace CafeMap.Map
             // var cameraEuler = Camera.main.transform.eulerAngles;
             transform.rotation = _camera.transform.rotation;
 
-            if (_visible && !_rectTransform.IsVisibleFrom(_camera))
+            if (_visible && !_rectTransform.IsFullyVisibleFrom(_camera))
             {
                 _visible = false;
-                _placesRenderer.SetInivisiblePlace(_place);
-            } else if (!_visible && _rectTransform.IsVisibleFrom(_camera))
+                _placesRenderer.SetInvisiblePlace(_place);
+            } else if (!_visible && _rectTransform.IsFullyVisibleFrom(_camera))
             {
                 _visible = true;
                 _placesRenderer.SetVisiblePlace(_place);
