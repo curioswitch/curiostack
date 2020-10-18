@@ -43,7 +43,7 @@ namespace CafeMap.Map
             _camera = Camera.main;
             _visible = _rectTransform.IsFullyVisibleFrom(_camera);
 
-            _signalBus.Subscribe<PlaceSelected>(onPlaceSelected);
+            _signalBus.Subscribe<PlaceSelected>(ONPlaceSelected);
         }
 
         private void Update()
@@ -51,11 +51,11 @@ namespace CafeMap.Map
             // var cameraEuler = Camera.main.transform.eulerAngles;
             transform.rotation = _camera.transform.rotation;
 
-            if (_visible && !_rectTransform.IsFullyVisibleFrom(_camera))
+            if (_visible && !_rectTransform.IsVisibleFrom(_camera))
             {
                 _visible = false;
                 _placesRenderer.SetInivisiblePlace(_place);
-            } else if (!_visible && _rectTransform.IsFullyVisibleFrom(_camera))
+            } else if (!_visible && _rectTransform.IsVisibleFrom(_camera))
             {
                 _visible = true;
                 _placesRenderer.SetVisiblePlace(_place);
@@ -72,7 +72,7 @@ namespace CafeMap.Map
             Select();
         }
 
-        private void onPlaceSelected(PlaceSelected selected)
+        private void ONPlaceSelected(PlaceSelected selected)
         {
             transform.localScale = selected.Place.GooglePlaceId == _place.GooglePlaceId ? LARGE_SIZE : NORMAL_SIZE;
         }

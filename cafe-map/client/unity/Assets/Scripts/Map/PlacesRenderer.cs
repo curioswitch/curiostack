@@ -66,7 +66,10 @@ namespace CafeMap.Map
 
         private void Start()
         {
-            foreach (var place in secretsService.PlaceDb.Place.Where(place => !place.GooglePlaceId.IsEmpty()))
+            foreach (var place in secretsService.PlaceDb.Place
+                .Where(place => !place.GooglePlaceId.IsEmpty())
+                .GroupBy(p => p.GooglePlaceId)
+                .Select(grp => grp.FirstOrDefault()))
             {
                 var pin = _container.InstantiatePrefabForComponent<PlacePin>(pinPrefab, worldCanvas.gameObject.transform,
                     new object[] {place});
