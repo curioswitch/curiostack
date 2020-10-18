@@ -3,8 +3,8 @@
     "m_SelectedPackage": {
         "deviceId": "09051FDD4004P9",
         "name": "com.DefaultCompany.CafeMap",
-        "processId": 18102,
-        "exited": false
+        "processId": 22186,
+        "exited": true
     },
     "m_SelectedPriority": 0,
     "m_KnownPackagesForSerialization": [
@@ -103,6 +103,12 @@
             "name": "com.DefaultCompany.CafeMap",
             "processId": 18102,
             "exited": false
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.DefaultCompany.CafeMap",
+            "processId": 22186,
+            "exited": true
         },
         {
             "deviceId": "98899a414e4e303645",
