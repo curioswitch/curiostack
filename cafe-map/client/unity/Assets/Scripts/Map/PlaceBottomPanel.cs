@@ -84,8 +84,9 @@ namespace CafeMap.Map
         {
             if (_place.Id == selected.Place.Id)
             {
-                transform.SetAsFirstSibling();
-                ((RectTransform) transform.parent.transform).anchoredPosition = Vector2.zero;
+                var transform = this.transform;
+                var parentTransform = (RectTransform) transform.parent.transform;
+                parentTransform.localPosition = -transform.localPosition;
                 panelImage.color = SELECTED_COLOR;
             }
             else
