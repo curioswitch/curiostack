@@ -1765,13 +1765,31 @@ GameObject:
   - component: {fileID: 1576094240}
   - component: {fileID: 1576094239}
   - component: {fileID: 1576094238}
+  - component: {fileID: 1576094237}
   m_Layer: 5
-  m_Name: Building Labels
-  m_TagString: Untagged
+  m_Name: Canvas (World)
+  m_TagString: WorldCanvas
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1576094237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1576094236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &1576094238
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1865,7 +1883,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d1e0cf6867d41b9b7f12ea2617cc82e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 7841131925121660540, guid: 775841b5967704f9dbf3277d3dc1a5ee, type: 3}
+  pinPrefab: {fileID: 2040216869938450931, guid: 7a5cf8a40a2302e40933059cec8f7e6a,
+    type: 3}
 --- !u!4 &1606997818
 Transform:
   m_ObjectHideFlags: 0

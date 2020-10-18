@@ -9,6 +9,7 @@ TagManager:
   - SearchBox
   - PositionedModels
   - PlaceResultsPanel
+  - WorldCanvas
   layers:
   - Default
   - TransparentFX

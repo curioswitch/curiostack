@@ -13,8 +13,10 @@ public class AppInstaller : MonoInstaller
     {
         SignalBusInstaller.Install(Container);
         Container.DeclareSignal<MapOriginChanged>();
+        Container.DeclareSignal<PlaceSelected>();
 
         var searchBox = GameObject.FindWithTag("SearchBox");
+        var worldCanvas = GameObject.FindWithTag("WorldCanvas");
 
         Container.Bind<MapsService>().FromComponentOnRoot().AsSingle();
         Container.BindInterfacesAndSelfTo<BaseMapLoader>().FromComponentOnRoot().AsSingle();
@@ -27,6 +29,8 @@ public class AppInstaller : MonoInstaller
         Container.Bind<InputField>().WithId("SearchBox").FromInstance(searchBox.GetComponent<InputField>());
 
         Container.Bind<TextAsset>().WithId("Secrets").FromResources("Secrets").AsSingle();
+
+        Container.Bind<Canvas>().FromComponentOn(worldCanvas).AsSingle();
 
         Container.BindInterfacesAndSelfTo<ViewportService>().AsSingle().NonLazy();
         Container.BindInterfacesAndSelfTo<PlacesService>().AsSingle().NonLazy();

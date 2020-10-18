@@ -12,19 +12,22 @@ namespace CafeMap.Map
 {
     public class PlacesRenderer : MonoBehaviour
     {
-        public GameObject model;
+        [SerializeField]
+        private GameObject pinPrefab;
 
         private SecretsService secretsService;
         private MapsService mapsService;
         private ViewportService viewportService;
+        private Canvas worldCanvas;
         private DiContainer _container;
 
         [Inject]
-        public void Init(SecretsService secretsService, MapsService mapsService, ViewportService viewportService, DiContainer container)
+        public void Init(SecretsService secretsService, MapsService mapsService, ViewportService viewportService, Canvas worldCanvas, DiContainer container)
         {
             this.secretsService = secretsService;
             this.mapsService = mapsService;
             this.viewportService = viewportService;
+            this.worldCanvas = worldCanvas;
             _container = container;
         }
 
@@ -33,18 +36,17 @@ namespace CafeMap.Map
 
             foreach (var place in secretsService.PlaceDb.Place.Where(place => !place.GooglePlaceId.IsEmpty()))
             {
-                var instantiated = Instantiate(model);
-                var rendered = instantiated.GetComponentInChildren<Renderer>().gameObject.AddComponent<RenderedPlace>();
-                _container.Inject(rendered);
+                var instantiated = Instantiate(pinPrefab, worldCanvas.gameObject.transform);
+                _container.InjectGameObject(instantiated);
+
+                var rendered = instantiated.GetComponent<PlacePin>();
                 rendered.Place = place;
+
                 var latLng = new LatLng(place.Position.Latitude, place.Position.Longitude);
                 var position = mapsService.Coords.FromLatLngToVector3(latLng);
                 position.y = 50;
-                instantiated.transform.localRotation = Quaternion.Euler(30, 0, 0);
                 instantiated.name = place.Name;
                 instantiated.transform.position = position;
-                instantiated.transform.localScale = new Vector3(10, 10, 10);
-                viewportService.RegisterMovedObject(instantiated);
             }
         }
     }

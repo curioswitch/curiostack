@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using CafeMap.Map;
 using CafeMap.Player.Services;
+using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Triggers;
 using Google.Maps;
 using UnityEngine;
@@ -12,8 +13,17 @@ using Zenject;
 public class PlaceResultFinder : MonoBehaviour
 {
 
-    private void FixedUpdate()
+    private PlacePin result;
+
+    private void Update()
     {
+        if (result != null)
+        {
+            result.Select();
+            result = null;
+            return;
+        }
+
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
@@ -21,11 +31,7 @@ public class PlaceResultFinder : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, 800))
             {
-                var result = hit.transform.gameObject.GetComponent<RenderedPlace>();
-                if (result != null)
-                {
-                    result.Select();
-                }
+                result = hit.transform.gameObject.GetComponent<PlacePin>();
             }
         }
     }
