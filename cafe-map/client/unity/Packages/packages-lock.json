@@ -145,6 +145,13 @@
         "com.unity.modules.imgui": "1.0.0"
       }
     },
+    "com.unity.uiextensions": {
+      "version": "2.2.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://registry.npmjs.org"
+    },
     "jillejr.newtonsoft.json-for-unity": {
       "version": "12.0.201",
       "depth": 0,
