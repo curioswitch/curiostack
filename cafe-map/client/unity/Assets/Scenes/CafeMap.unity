@@ -1767,7 +1767,7 @@ GameObject:
   - component: {fileID: 1576094238}
   m_Layer: 5
   m_Name: Canvas (World)
-  m_TagString: Untagged
+  m_TagString: WorldCanvas
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1865,7 +1865,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d1e0cf6867d41b9b7f12ea2617cc82e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 7841131925121660540, guid: 775841b5967704f9dbf3277d3dc1a5ee, type: 3}
+  pinPrefab: {fileID: 2040216869938450931, guid: 7a5cf8a40a2302e40933059cec8f7e6a,
+    type: 3}
 --- !u!4 &1606997818
 Transform:
   m_ObjectHideFlags: 0

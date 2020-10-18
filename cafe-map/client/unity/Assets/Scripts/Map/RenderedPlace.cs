@@ -1,13 +1,11 @@
-using System;
 using CafeMap.Player.Services;
 using Extensions.Runtime;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using Zenject;
 
 namespace CafeMap.Map
 {
-    public class RenderedPlace : MonoBehaviour, IPointerClickHandler
+    public class RenderedPlace : MonoBehaviour
     {
         public Org.Curioswitch.Cafemap.Api.Place Place;
 
@@ -61,10 +59,6 @@ namespace CafeMap.Map
         private void OnBecameInvisible()
         {
             _placeResultsPanel.removeVisiblePlace(Place);
-        }
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            Select();
         }
 
         public void Select()
