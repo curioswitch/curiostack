@@ -26,6 +26,12 @@ MonoBehaviour:
     m_Scopes:
     - jillejr
     m_IsDefault: 0
+  - m_Id: scoped:npmjs
+    m_Name: npmjs
+    m_Url: https://registry.npmjs.org
+    m_Scopes:
+    - com.unity.uiextensions
+    m_IsDefault: 0
   m_UserSelectedRegistryName: 
   m_UserAddingNewScopedRegistry: 0
   m_RegistryInfoDraft:

@@ -1,6 +1,7 @@
 using CafeMap.Events;
 using CafeMap.Player.Services;
 using Extensions.Runtime;
+using Org.Curioswitch.Cafemap.Api;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Zenject;
@@ -12,9 +13,9 @@ namespace CafeMap.Map
         private static readonly Vector3 NORMAL_SIZE = new Vector3(0.2f, 0.2f, 0.2f);
         private static readonly Vector3 LARGE_SIZE = new Vector3(0.4f, 0.4f, 0.4f);
 
-        public Org.Curioswitch.Cafemap.Api.Place Place;
+        private Place _place;
 
-        private PlaceResultsPanel _placeResultsPanel;
+        private PlacesRenderer _placesRenderer;
         private ViewportService _viewportService;
         private SignalBus _signalBus;
 
@@ -24,11 +25,12 @@ namespace CafeMap.Map
         private bool _visible;
 
         [Inject]
-        public void Init(PlaceResultsPanel placeResultsPanel, ViewportService viewportService, SignalBus signalBus)
+        public void Init(PlacesRenderer placesRenderer, ViewportService viewportService, SignalBus signalBus, Place place)
         {
-            _placeResultsPanel = placeResultsPanel;
+            _placesRenderer = placesRenderer;
             _viewportService = viewportService;
             _signalBus = signalBus;
+            _place = place;
         }
 
         private void Awake()
@@ -41,7 +43,7 @@ namespace CafeMap.Map
             _camera = Camera.main;
             _visible = _rectTransform.IsFullyVisibleFrom(_camera);
 
-            _signalBus.Subscribe<PlaceSelected>(onPlaceSelected);
+            _signalBus.Subscribe<PlaceSelected>(ONPlaceSelected);
         }
 
         private void Update()
@@ -49,30 +51,20 @@ namespace CafeMap.Map
             // var cameraEuler = Camera.main.transform.eulerAngles;
             transform.rotation = _camera.transform.rotation;
 
-            if (_visible && !_rectTransform.IsFullyVisibleFrom(_camera))
+            if (_visible && !_rectTransform.IsVisibleFrom(_camera))
             {
                 _visible = false;
-                _placeResultsPanel.removeVisiblePlace(Place);
-            } else if (!_visible && _rectTransform.IsFullyVisibleFrom(_camera))
+                _placesRenderer.SetInivisiblePlace(_place);
+            } else if (!_visible && _rectTransform.IsVisibleFrom(_camera))
             {
                 _visible = true;
-                _placeResultsPanel.addVisiblePlace(Place);
+                _placesRenderer.SetVisiblePlace(_place);
             }
-        }
-
-        private void OnBecameVisible()
-        {
-            _placeResultsPanel.addVisiblePlace(Place);
-        }
-
-        private void OnBecameInvisible()
-        {
-            _placeResultsPanel.removeVisiblePlace(Place);
         }
 
         public void Select()
         {
-            _signalBus.Fire(PlaceSelected.create(Place));
+            _signalBus.Fire(PlaceSelected.create(_place));
         }
 
         public void OnPointerClick(PointerEventData eventData)
@@ -80,9 +72,9 @@ namespace CafeMap.Map
             Select();
         }
 
-        private void onPlaceSelected(PlaceSelected selected)
+        private void ONPlaceSelected(PlaceSelected selected)
         {
-            transform.localScale = selected.Place.GooglePlaceId == Place.GooglePlaceId ? LARGE_SIZE : NORMAL_SIZE;
+            transform.localScale = selected.Place.GooglePlaceId == _place.GooglePlaceId ? LARGE_SIZE : NORMAL_SIZE;
         }
     }
 }
