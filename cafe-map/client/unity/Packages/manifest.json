@@ -10,6 +10,7 @@
   ],
   "dependencies": {
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.0.36",
+    "com.deepfreeze.extensions": "https://github.com/DeepFreezeGames/com.deepfreeze.extensions.git#1.0.0",
     "com.neuecc.unirx": "https://github.com/neuecc/UniRx.git?path=Assets/Plugins/UniRx/Scripts",
     "com.nobi.roundedcorners": "https://github.com/kirevdokimov/Unity-UI-Rounded-Corners.git",
     "com.svermeulen.extenject": "https://github.com/starikcetin/Extenject.git#9.1.0",

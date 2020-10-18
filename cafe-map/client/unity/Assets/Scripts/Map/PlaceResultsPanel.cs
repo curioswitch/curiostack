@@ -16,6 +16,7 @@ namespace CafeMap.Map
     public class PlaceResultsPanel : MonoBehaviour
     {
         private readonly Dictionary<string, Place> visiblePlaces = new Dictionary<string, Place>();
+
         private readonly Subject<bool> visiblePlacesChanged = new Subject<bool>();
 
         private GameObject imageHolderPrefab;
@@ -65,7 +66,7 @@ namespace CafeMap.Map
         {
             Debug.Log("Rerendering place results");
 
-            places = places.Where(place => !place.GooglePlaceId.IsEmpty()).Take(10).ToList();
+            places = places.Where(place => !place.GooglePlaceId.IsEmpty()).Take(20).ToList();
 
             var images = await UniTask.WhenAll(
                 places

@@ -44,12 +44,7 @@ namespace CafeMap.Services
         public async UniTask<Sprite> getPhoto(string placeId)
         {
             Sprite photoSprite;
-            if (_photoCache.TryGetValue(placeId, out photoSprite))
-            {
-                Debug.Log("Cached sprite");
-                return photoSprite;
-            }
-            Debug.Log("fetch sprite");
+
             var details = await getDetails(placeId);
             var photo = details.Photos.FirstOrDefault();
             if (photo == null)

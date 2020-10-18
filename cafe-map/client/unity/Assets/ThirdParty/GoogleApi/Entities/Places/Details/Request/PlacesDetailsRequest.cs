@@ -30,7 +30,7 @@ namespace GoogleApi.Entities.Places.Details.Request
         public virtual string SessionToken { get; set; }
 
         /// <summary>
-        /// Language (optional) — The language code, indicating in which language the results should be returned, if possible. 
+        /// Language (optional) — The language code, indicating in which language the results should be returned, if possible.
         /// See the list of supported languages and their codes: https://developers.google.com/maps/faq#languagesupport
         /// Note that we often update supported languages so this list may not be exhaustive.
         /// </summary>
@@ -47,11 +47,11 @@ namespace GoogleApi.Entities.Places.Details.Request
         public virtual FieldTypes Fields { get; set; } = FieldTypes.Basic;
 
         /// <summary>
-        /// Extensions (optional) — Indicates if the Place Details response should include additional fields. 
-        /// Additional fields may include Premium data, requiring an additional license, or values that are not commonly requested. 
+        /// Extensions (optional) — Indicates if the Place Details response should include additional fields.
+        /// Additional fields may include Premium data, requiring an additional license, or values that are not commonly requested.
         /// Supported values for the extensions parameter are: ◦review_summary includes a rich and concise review curated by Google's editorial staff.
         /// </summary>
-        public virtual Extensions Extensions { get; set; } = Extensions.None;
+        public virtual Enums.Extensions Extensions { get; set; } = Enums.Extensions.None;
 
         /// <summary>
         /// See <see cref="BasePlacesRequest.GetQueryStringParameters()"/>.

@@ -170,6 +170,7 @@ namespace CafeMap.Map
                 nameObject.gameObject.name = "Name: " + placeName;
                 nameObject.SetText(placeName);
                 nameObject.transform.position = mapObject.transform.position;
+                nameObject.FadeWithView = true;
                 nameObject.StartFadingIn();
 
                 args.GameObject.OnDestroyAsObservable().Subscribe(_ => Destroy(nameObject));

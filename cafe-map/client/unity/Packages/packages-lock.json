@@ -7,6 +7,13 @@
       "dependencies": {},
       "hash": "3bebaef9694b012df09747b322362e3228f8c09d"
     },
+    "com.deepfreeze.extensions": {
+      "version": "https://github.com/DeepFreezeGames/com.deepfreeze.extensions.git#1.0.0",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "fba213ee09ce776bbc7a78a043ac8027f8e85195"
+    },
     "com.neuecc.unirx": {
       "version": "https://github.com/neuecc/UniRx.git?path=Assets/Plugins/UniRx/Scripts",
       "depth": 0,
