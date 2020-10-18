@@ -179,7 +179,6 @@ GameObject:
   - component: {fileID: 185126867}
   - component: {fileID: 185126872}
   - component: {fileID: 185126871}
-  - component: {fileID: 185126870}
   - component: {fileID: 185126869}
   - component: {fileID: 185126868}
   m_Layer: 5
@@ -236,7 +235,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Padding:
     m_Left: 20
-    m_Right: 0
+    m_Right: 20
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
@@ -247,18 +246,6 @@ MonoBehaviour:
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
---- !u!114 &185126870
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 185126866}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6307451957ac4d7bb7ff487609630b56, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &185126871
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -272,13 +259,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 0}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -453,8 +440,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.4656958260605
-  Longitude: 139.621159591198
+  Latitude: 35.4656959091494
+  Longitude: 139.621159594305
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -572,8 +559,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.666350458057
-  Longitude: 139.710581148088
+  Latitude: 35.666350531641
+  Longitude: 139.710581149849
 --- !u!1 &889836859
 GameObject:
   m_ObjectHideFlags: 0
@@ -1502,8 +1489,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.4525980689424
-  Longitude: 139.642863648255
+  Latitude: 35.4525981520447
+  Longitude: 139.642863652708
 --- !u!1 &1291464875
 GameObject:
   m_ObjectHideFlags: 0
@@ -1863,7 +1850,6 @@ GameObject:
   - component: {fileID: 1606997818}
   - component: {fileID: 1606997822}
   - component: {fileID: 1606997823}
-  - component: {fileID: 1606997815}
   m_Layer: 0
   m_Name: Map Base
   m_TagString: GameController
@@ -1871,20 +1857,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1606997815
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1606997814}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d1e0cf6867d41b9b7f12ea2617cc82e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pinPrefab: {fileID: 2040216869938450931, guid: 7a5cf8a40a2302e40933059cec8f7e6a,
-    type: 3}
 --- !u!4 &1606997818
 Transform:
   m_ObjectHideFlags: 0
@@ -2208,8 +2180,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.4503317973967
-  Longitude: 139.649460046887
+  Latitude: 35.450331879953
+  Longitude: 139.64946005134
 --- !u!1 &1925121226
 GameObject:
   m_ObjectHideFlags: 0
@@ -2226,6 +2198,7 @@ GameObject:
   - component: {fileID: 1925121230}
   - component: {fileID: 1925121233}
   - component: {fileID: 1925121234}
+  - component: {fileID: 1925121235}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -2488,6 +2461,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e0b68449f5c494498f0894eb2aa8a16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1925121235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1925121226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d1e0cf6867d41b9b7f12ea2617cc82e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pinPrefab: {fileID: 2040216869938450931, guid: 7a5cf8a40a2302e40933059cec8f7e6a,
+    type: 3}
+  resultPanelPrefab: {fileID: 9158360558302260041, guid: 3a3ef47dc8e43a04ead565b2be48e9d7,
+    type: 3}
+  resultsPanel: {fileID: 185126866}
 --- !u!1 &2106199203
 GameObject:
   m_ObjectHideFlags: 0
@@ -2737,8 +2727,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6646587519412
-  Longitude: 139.712504594621
+  Latitude: 35.6646588255267
+  Longitude: 139.712504596381
 --- !u!1001 &534702503253476965
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2842,8 +2832,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6648254285693
-  Longitude: 139.713497196686
+  Latitude: 35.6648255021546
+  Longitude: 139.713497198447
 --- !u!1001 &823893656549482760
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3205,8 +3195,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6639607504048
-  Longitude: 139.711839542621
+  Latitude: 35.663960823991
+  Longitude: 139.711839544381
 --- !u!4 &2782594314956392800 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2673375984529624170, guid: 0514c1a83ebaf4f26a89b8854d9a4f01,
@@ -3232,8 +3222,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6650207533937
-  Longitude: 139.712256444104
+  Latitude: 35.6650208269789
+  Longitude: 139.712256445865
 --- !u!4 &3196668688913148172 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2824838706355783684, guid: 504cf8d3932ee4803a4060cb3fa685ce,
@@ -3265,8 +3255,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6644239970157
-  Longitude: 139.712347981919
+  Latitude: 35.6644240706015
+  Longitude: 139.712347983679
 --- !u!1 &3518725385435023544 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2826332159568465899, guid: b0a55e2971c5a4cdd916bd2b439677b5,
@@ -3286,8 +3276,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6648451343299
-  Longitude: 139.712665612425
+  Latitude: 35.6648452079152
+  Longitude: 139.712665614186
 --- !u!1 &3760607320212537492 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8778014914542460174, guid: 644910858f0264609bf554e643e07a1a,
@@ -3307,8 +3297,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6664302070819
-  Longitude: 139.710231529429
+  Latitude: 35.6664302806658
+  Longitude: 139.710231531189
 --- !u!4 &4296107166624993794 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3202893535802496337, guid: b0a55e2971c5a4cdd916bd2b439677b5,
@@ -3409,8 +3399,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6649929798814
-  Longitude: 139.712549808851
+  Latitude: 35.6649930534666
+  Longitude: 139.712549810612
 --- !u!4 &4574404613518711342 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8257937752127047604, guid: 644910858f0264609bf554e643e07a1a,
@@ -3610,8 +3600,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6656533463355
-  Longitude: 139.713374769303
+  Latitude: 35.6656534199201
+  Longitude: 139.713374771063
 --- !u!1 &6368481989362993617 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3044546694267798024, guid: 8e2d6d7db37e54c5d8f0495e334e57d3,
@@ -3631,8 +3621,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6637385240838
-  Longitude: 139.711696166767
+  Latitude: 35.6637385976702
+  Longitude: 139.711696168527
 --- !u!1001 &6667552380731224489
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3760,8 +3750,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6635548342591
-  Longitude: 139.712235484864
+  Latitude: 35.6635549078457
+  Longitude: 139.712235486624
 --- !u!1 &7715616307489834721 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1797915013836932038, guid: a78d0d331519e4dd581ec70b93c16fe5,
@@ -3781,8 +3771,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6681066331988
-  Longitude: 139.708110671837
+  Latitude: 35.6681067067811
+  Longitude: 139.708110673597
 --- !u!1 &7820600988919004845 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1483292020788282997, guid: 7c285293a5c6f4facb6f2fa15f7d39c2,
@@ -3802,8 +3792,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 0}
-  Latitude: 35.6642026820265
-  Longitude: 139.712110860314
+  Latitude: 35.6642027556124
+  Longitude: 139.712110862075
 --- !u!1001 &8223858478458358745
 PrefabInstance:
   m_ObjectHideFlags: 0

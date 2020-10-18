@@ -25,8 +25,6 @@ namespace CafeMap.Player.Services
             this.mapsUpdater = mapsUpdater;
             _signalBus = signalBus;
             movedObjects = new List<GameObject>();
-
-            _signalBus.Subscribe<PlaceSelected>(place => SetCenter(place.Place.Position.Latitude, place.Place.Position.Longitude));
         }
 
         public void SetCenter(double latitude, double longitude)

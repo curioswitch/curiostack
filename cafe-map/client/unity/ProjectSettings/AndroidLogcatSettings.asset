@@ -3,7 +3,7 @@
     "m_SelectedPackage": {
         "deviceId": "09051FDD4004P9",
         "name": "com.DefaultCompany.CafeMap",
-        "processId": 3924,
+        "processId": 18102,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -84,6 +84,24 @@
             "deviceId": "09051FDD4004P9",
             "name": "com.DefaultCompany.CafeMap",
             "processId": 3924,
+            "exited": false
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.DefaultCompany.CafeMap",
+            "processId": 8927,
+            "exited": false
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.DefaultCompany.CafeMap",
+            "processId": 15943,
+            "exited": false
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "com.DefaultCompany.CafeMap",
+            "processId": 18102,
             "exited": false
         },
         {
