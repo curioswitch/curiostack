@@ -88,6 +88,11 @@ namespace CafeMap.Map
         /// </summary>
         public void Initialize()
         {
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
+            {
+                mapsService.CacheOptions.MaxDiskBytes = 0;
+            }
+
             InitFloatingOrigin();
             InitStylingOptions();
             InitEventListeners();

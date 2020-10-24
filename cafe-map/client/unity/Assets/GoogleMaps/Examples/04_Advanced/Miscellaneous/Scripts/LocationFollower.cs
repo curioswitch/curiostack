@@ -22,6 +22,16 @@ namespace Google.Maps.Examples {
     GameObject dialog = null;
     #endif
 
+    /// <summary>
+    /// The maps service.
+    /// </summary>
+    private MapsService MapsService;
+
+    /// <summary>
+    /// The player's last recorded real-world location and the the current floating origin.
+    /// </summary>
+    private LatLng PreviousLocation;
+
     /// <summary>Start following player's real-world location.</summary>
     private void Start() {
       GetPermissions();
@@ -70,27 +80,38 @@ namespace Google.Maps.Examples {
       }
 
       // Get the MapsService component and load it at the device location.
-      LatLng previousLocation =
+      PreviousLocation =
           new LatLng(Input.location.lastData.latitude, Input.location.lastData.longitude);
-      MapsService mapsService = GetComponent<MapsService>();
-      mapsService.InitFloatingOrigin(previousLocation);
-      mapsService.LoadMap(ExampleDefaults.DefaultBounds, ExampleDefaults.DefaultGameObjectOptions);
+      MapsService = GetComponent<MapsService>();
+      MapsService.InitFloatingOrigin(PreviousLocation);
+      MapsService.LoadMap(ExampleDefaults.DefaultBounds, ExampleDefaults.DefaultGameObjectOptions);
+    }
 
-      // Every second, move the map location to the device location.
-      while (true) {
-        yield return new WaitForSeconds(1f);
+    /// <summary>
+    /// Moves the camera and refreshes the map as the player moves.
+    /// </summary>
+    private void Update() {
+      if (MapsService == null) {
+        return;
+      }
 
-        // Only move the map location if the device has moved more than 2 meters.
-        LatLng currentLocation =
-            new LatLng(Input.location.lastData.latitude, Input.location.lastData.longitude);
+      // Get the current map location.
+      LatLng currentLocation =
+          new LatLng(Input.location.lastData.latitude, Input.location.lastData.longitude);
+      Vector3 currentWorldLocation = MapsService.Coords.FromLatLngToVector3(currentLocation);
 
-        float distance =
-            Vector3.Distance(Vector3.zero, mapsService.Coords.FromLatLngToVector3(currentLocation));
+      // Move the camera to the current map location.
+      Vector3 targetCameraPosition = new Vector3(currentWorldLocation.x,
+          Camera.main.transform.position.y, currentWorldLocation.z);
+      Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position,
+          targetCameraPosition, Time.deltaTime * 5);
 
-        if (distance > 2) {
-          mapsService.MoveFloatingOrigin(currentLocation);
-          previousLocation = currentLocation;
-        }
+      // Only move the map location if the device has moved more than 2 meters.
+      if (Vector3.Distance(Vector3.zero, currentWorldLocation) > 2) {
+        MapsService.MoveFloatingOrigin(currentLocation, new[] { Camera.main.gameObject });
+        MapsService.LoadMap(ExampleDefaults.DefaultBounds,
+            ExampleDefaults.DefaultGameObjectOptions);
+        PreviousLocation = currentLocation;
       }
     }
 

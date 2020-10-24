@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 6f702827fd9304b7b92f0edb78b61b47
+labels:
+- gvh
+- gvh_version-0.0.0
+- gvhp_exportpath-GoogleMaps/Examples/04_Advanced/Intersections/Scripts/TrafficSystem.cs
+timeCreated: 1480838400
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon:
+    instanceID: 0
+  userData:
+  assetBundleName:
+  assetBundleVariant:

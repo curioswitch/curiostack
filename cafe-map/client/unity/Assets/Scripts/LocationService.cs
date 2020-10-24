@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Google.Maps;
 using Google.Maps.Coord;
 using UnityEngine;
@@ -38,13 +39,13 @@ namespace CafeMap.Player
         }
 
         // Start is called before the first frame update
-        IEnumerator Start()
+        async void Start()
         {
             // First, check if user has location service enabled
             if (!Input.location.isEnabledByUser)
             {
                 Debug.Log("Location disabled");
-                yield break;
+                return;
             }
 
             // Start service before querying location
@@ -54,7 +55,7 @@ namespace CafeMap.Player
             int maxWait = 20;
             while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
             {
-                yield return new WaitForSeconds(1);
+                await UniTask.Delay(TimeSpan.FromSeconds(1));
                 maxWait--;
             }
 
@@ -62,18 +63,17 @@ namespace CafeMap.Player
             if (maxWait < 1)
             {
                 Debug.Log("Timed out");
-                yield break;
+                return;
             }
 
             // Connection has failed
-            if (Input.location.status == LocationServiceStatus.Failed)
+            if (Input.location.status != LocationServiceStatus.Running)
             {
                 Debug.Log("Unable to determine device location");
-                yield break;
+                return;
             }
 
             // Access granted and location value could be retrieved
-            Debug.Log("Location: " + Input.location.lastData.latitude + " " + Input.location.lastData.longitude + " " + Input.location.lastData.altitude + " " + Input.location.lastData.horizontalAccuracy + " " + Input.location.lastData.timestamp);
 
             initialized = true;
         }
@@ -89,7 +89,7 @@ namespace CafeMap.Player
         }
 
         // Update is called once per frame
-        void Stop()
+        void OnDestroy()
         {
             Input.location.Stop();
         }

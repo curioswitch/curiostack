@@ -56,6 +56,11 @@ namespace Google.Maps.Examples {
         "play starts to have an effect.")]
     public bool ShowModeled;
 
+    [Tooltip(
+        "Should intersections be included in the Minimap? These values must be set before " +
+        "play starts to have an effect.")]
+    public bool ShowIntersections;
+
     /// <summary>
     /// Use events to make sure all desired geometry is in the correct layer to be seen by, and
     /// shown in, the on-screen Minimap.
@@ -133,6 +138,11 @@ namespace Google.Maps.Examples {
 
       if (ShowModeled) {
         dynamicMapsService.MapsService.Events.ModeledStructureEvents.DidCreate.AddListener(
+            args => args.GameObject.layer = MinimapLayer);
+      }
+
+      if (ShowIntersections) {
+        dynamicMapsService.MapsService.Events.IntersectionEvents.DidCreate.AddListener(
             args => args.GameObject.layer = MinimapLayer);
       }
 

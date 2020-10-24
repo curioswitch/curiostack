@@ -32,7 +32,10 @@ namespace Google.Maps.Scripts {
           }
         }
       } catch (System.Exception e) {
-        Debug.LogWarningFormat("Couldn't get device country: " + e);
+        Debug.LogWarningFormat("<color=red><b>[Maps SDK]</b></color> DeviceCountryError: " +
+            "Couldn't get device country: {0}\nSee https://developers.google.com/maps/" +
+            "documentation/gaming/support/error_codes#device-country-error for more information.",
+            e);
       }
 #elif UNITY_IOS
       CountryCode = MuskGetLocaleRegion();

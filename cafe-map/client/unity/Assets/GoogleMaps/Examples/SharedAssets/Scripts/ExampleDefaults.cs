@@ -97,6 +97,11 @@ namespace Google.Maps.Examples.Shared {
       };
       segmentMaterial.SetFloat("_Glossiness", 0.5f);
 
+      Material intersectionMaterial = new Material(baseMapShader) {
+        color = new Color(0.4f, 0.4f, 0.4f),
+      };
+      intersectionMaterial.SetFloat("_Glossiness", 0.5f);
+
       // Create style for buildings made from extruded shapes (most buildings).
       ExtrudedStructureStyle extrudedStructureStyle =
           new ExtrudedStructureStyle
@@ -121,7 +126,8 @@ namespace Google.Maps.Examples.Shared {
 
       // Create style for segments (such as roads).
       SegmentStyle segmentStyle =
-          new SegmentStyle.Builder { Material = segmentMaterial, Width = 7.0f }.Build();
+          new SegmentStyle.Builder { Material = segmentMaterial,
+                  IntersectionMaterial = intersectionMaterial, Width = 7.0f }.Build();
 
       // Collect styles into a form that can be given to map loading function.
       DefaultGameObjectOptions = new GameObjectOptions {

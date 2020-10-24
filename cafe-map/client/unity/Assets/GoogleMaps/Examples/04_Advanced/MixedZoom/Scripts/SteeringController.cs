@@ -12,6 +12,12 @@ namespace Google.Maps.Examples {
     [Tooltip("Panning speed, in degrees per second.")]
     public float RotateSpeed = 45;
 
+    [Tooltip("Whether to raycast player position onto ground, e.g., terrain.")]
+    public bool RaycastToGround = true;
+
+    [Tooltip("Height of player position above raycast result.")]
+    public float RaycastHoverHeight = 1.0f;
+
     /// <summary>Per-frame update tasks.</summary>
     public void Update() {
       float dx = Input.GetAxis("Horizontal");
@@ -27,6 +33,28 @@ namespace Google.Maps.Examples {
 
       gameObject.transform.position +=
           gameObject.transform.rotation * (Vector3.forward * absoluteSpeed * dy * dt);
+      if (RaycastToGround) {
+        gameObject.transform.position =
+            ProjectToGround(gameObject.transform.position, RaycastHoverHeight);
+      }
+    }
+
+    /// <summary>
+    /// Project the supplied position by raycasting straight down onto ground or terrain.
+    /// </summary>
+    /// <param name="position">The position from which to cast ray.</param>
+    /// <param name="hoverHeight">The height of returned result above ray intersection.</param>
+    /// <returns>The raycast result (plus hover height).</returns>
+    public Vector3 ProjectToGround(Vector3 position, float hoverHeight) {
+      Ray ray = new Ray(position + Vector3.up * 1000f, Vector3.down);
+
+      RaycastHit hit;
+
+      if (Physics.Raycast(ray, out hit, Mathf.Infinity)) {
+        return hit.point + Vector3.up * hoverHeight;
+      }
+
+      return position;
     }
   }
 }

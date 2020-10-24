@@ -149,6 +149,8 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   MoveSpeed: 0.5
   RotateSpeed: 45
+  RaycastToGround: 0
+  RaycastHoverHeight: 1
 --- !u!23 &19175879
 MeshRenderer:
   m_ObjectHideFlags: 0
