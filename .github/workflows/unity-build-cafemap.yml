@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  activate:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -17,13 +17,17 @@ jobs:
             Library-CafeMap-
             Library-
       - name: Build for Android
-        uses: webbertakken/unity-builder@1
+        uses: webbertakken/unity-builder@v1
         env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE_UBUNTU }}
         with:
           projectPath: cafe-map/client/unity
           unityVersion: 2019.4.12f1
           targetPlatform: Android
+          androidKeystoreBase64: ${{ secrets.CAFEMAP_ANDROID_KEYSTORE_BASE64 }}
+          androidKeystorePass: ${{ secrets.CAFEMAP_ANDROID_KEYSTORE_PASS }}
+          androidKeyaliasName: cafemap-release
+          androidKeyaliasPass: ${{ secrets.CAFEMAP_ANDROID_KEYSTORE_PASS }}
       - name: Upload build
         uses: actions/upload-artifact@v2
         with:
