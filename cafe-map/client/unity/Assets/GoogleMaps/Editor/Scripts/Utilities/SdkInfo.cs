@@ -41,6 +41,7 @@ public class SdkInfo : EditorWindow {
     VersionLabelStyle.alignment = TextAnchor.MiddleCenter;
     VersionLabelStyle.margin.top = 5;
     VersionLabelStyle.margin.bottom = 5;
+    VersionLabelStyle.wordWrap = true;
   }
 
   /// <inheritdoc/>
@@ -57,8 +58,7 @@ public class SdkInfo : EditorWindow {
     GUILayout.Label("Google Maps SDK for Unity", TitleLabelStyle);
 
     // Version.
-    Version version = typeof(MapsService).Assembly.GetName().Version;
-    GUILayout.Label(string.Format("Version: {0}", version), VersionLabelStyle);
+    GUILayout.Label(string.Format("Version: {0}", MapsService.Version), VersionLabelStyle);
 
     GUILayout.FlexibleSpace();
     GUILayout.EndVertical();

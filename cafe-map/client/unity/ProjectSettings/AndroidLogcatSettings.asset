@@ -2,112 +2,52 @@
     "m_SelectedDeviceId": "09051FDD4004P9",
     "m_SelectedPackage": {
         "deviceId": "09051FDD4004P9",
-        "name": "com.DefaultCompany.CafeMap",
-        "processId": 22186,
+        "name": "org.curioswitch.cafemap",
+        "processId": 20699,
         "exited": true
     },
     "m_SelectedPriority": 0,
     "m_KnownPackagesForSerialization": [
         {
             "deviceId": "09051FDD4004P9",
-            "name": "com.teslacoilsw.launcher",
-            "processId": 20967,
-            "exited": false
-        },
-        {
-            "deviceId": "09051FDD4004P9",
-            "name": "com.DefaultCompany.CafeMap",
-            "processId": 11195,
-            "exited": true
-        },
-        {
-            "deviceId": "09051FDD4004P9",
-            "name": "com.DefaultCompany.CafeMap",
-            "processId": 14315,
-            "exited": true
-        },
-        {
-            "deviceId": "09051FDD4004P9",
-            "name": "com.DefaultCompany.CafeMap",
-            "processId": 16122,
-            "exited": true
-        },
-        {
-            "deviceId": "09051FDD4004P9",
-            "name": "com.DefaultCompany.CafeMap",
-            "processId": 18643,
-            "exited": true
-        },
-        {
-            "deviceId": "09051FDD4004P9",
-            "name": "com.DefaultCompany.CafeMap",
-            "processId": 32058,
-            "exited": true
-        },
-        {
-            "deviceId": "09051FDD4004P9",
-            "name": "com.DefaultCompany.CafeMap",
-            "processId": 1054,
-            "exited": true
-        },
-        {
-            "deviceId": "09051FDD4004P9",
-            "name": "com.DefaultCompany.CafeMap",
-            "processId": 3235,
-            "exited": true
-        },
-        {
-            "deviceId": "09051FDD4004P9",
-            "name": "com.DefaultCompany.CafeMap",
-            "processId": 5296,
-            "exited": true
-        },
-        {
-            "deviceId": "09051FDD4004P9",
-            "name": "com.DefaultCompany.CafeMap",
-            "processId": 8887,
-            "exited": true
-        },
-        {
-            "deviceId": "09051FDD4004P9",
-            "name": "com.DefaultCompany.CafeMap",
-            "processId": 15613,
-            "exited": false
-        },
-        {
-            "deviceId": "09051FDD4004P9",
-            "name": "com.DefaultCompany.CafeMap",
-            "processId": 18022,
-            "exited": false
-        },
-        {
-            "deviceId": "09051FDD4004P9",
-            "name": "com.DefaultCompany.CafeMap",
-            "processId": 3924,
-            "exited": false
-        },
-        {
-            "deviceId": "09051FDD4004P9",
             "name": "com.DefaultCompany.CafeMap",
             "processId": 8927,
-            "exited": false
+            "exited": true
         },
         {
             "deviceId": "09051FDD4004P9",
             "name": "com.DefaultCompany.CafeMap",
             "processId": 15943,
-            "exited": false
+            "exited": true
         },
         {
             "deviceId": "09051FDD4004P9",
             "name": "com.DefaultCompany.CafeMap",
             "processId": 18102,
-            "exited": false
+            "exited": true
         },
         {
             "deviceId": "09051FDD4004P9",
             "name": "com.DefaultCompany.CafeMap",
             "processId": 22186,
+            "exited": true
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "org.curioswitch.cafemap",
+            "processId": 13784,
+            "exited": true
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "org.curioswitch.cafemap",
+            "processId": 14970,
+            "exited": true
+        },
+        {
+            "deviceId": "09051FDD4004P9",
+            "name": "org.curioswitch.cafemap",
+            "processId": 20699,
             "exited": true
         },
         {
