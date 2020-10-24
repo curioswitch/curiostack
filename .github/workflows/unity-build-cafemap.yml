@@ -1,0 +1,31 @@
+name: Build CafeMap
+
+on:
+  workflow_dispatch:
+
+jobs:
+  activate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v1
+      - uses: actions/cache@v1.1.0
+        with:
+          path: cafe-map/client/unity/Library
+          key: Library-CafeMap-Android
+          restore-keys: |
+            Library-CafeMap-
+            Library-
+      - name: Build for Android
+        uses: webbertakken/unity-builder@<version>
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          projectPath: cafe-map/client/unity
+          unityVersion: 2019.4.12f1
+          targetPlatform: Android
+      - name: Upload build
+        uses: actions/upload-artifact@v2
+        with:
+          name: Build
+          path: build
