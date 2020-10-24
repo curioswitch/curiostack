@@ -1,0 +1,19 @@
+name: Create Unity Activation File
+
+on:
+  workflow_dispatch:
+
+jobs:
+  activate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request manual activation file
+        id: create-activation-file
+        uses: webbertakken/unity-request-manual-activation-file@v1.1
+        with:
+          unityVersion: 2019.4.13f1
+      - name: Upload activation file
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.create-activation-file.outputs.filePath }}
+          path: ${{ steps.create-activation-file.outputs.filePath }}
