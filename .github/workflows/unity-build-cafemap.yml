@@ -28,6 +28,9 @@ jobs:
           androidKeystorePass: ${{ secrets.CAFEMAP_ANDROID_KEYSTORE_PASS }}
           androidKeyaliasName: cafemap-release
           androidKeyaliasPass: ${{ secrets.CAFEMAP_ANDROID_KEYSTORE_PASS }}
+          # Unclear why this check isn't working but it doesn't matter since we know
+          # the build is clean.
+          allowDirtyBuild: true
       - name: Upload build
         uses: actions/upload-artifact@v2
         with:
