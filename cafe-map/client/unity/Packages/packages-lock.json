@@ -79,32 +79,9 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
-    "com.unity.postprocessing": {
-      "version": "2.3.0",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.probuilder": {
-      "version": "4.4.0",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.settings-manager": "1.0.3"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.quicksearch": {
       "version": "2.0.2",
       "depth": 0,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.settings-manager": {
-      "version": "1.0.3",
-      "depth": 1,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
@@ -117,15 +94,6 @@
         "com.unity.ext.nunit": "1.0.0",
         "com.unity.modules.imgui": "1.0.0",
         "com.unity.modules.jsonserialize": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.textmeshpro": {
-      "version": "2.1.1",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.ugui": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
