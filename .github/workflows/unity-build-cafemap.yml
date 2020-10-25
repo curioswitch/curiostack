@@ -1,7 +1,11 @@
 name: Build CafeMap
 
 on:
-  workflow_dispatch:
+  push:
+    paths:
+      - 'cafe-map/client/unity/**'
+      - '.github/workflows/unity-build-cafemap.yml'
+    branches: 'master'
 
 jobs:
   build:
@@ -26,7 +30,7 @@ jobs:
           projectPath: cafe-map/client/unity
           unityVersion: 2019.4.12f1
           targetPlatform: Android
-          androidKeystoreName: cafemap-release.keystore
+          androidKeystoreName: /tmp/cafemap-release.keystore
           androidKeystoreBase64: ${{ secrets.CAFEMAP_ANDROID_KEYSTORE_BASE64 }}
           androidKeystorePass: ${{ secrets.CAFEMAP_ANDROID_KEYSTORE_PASS }}
           androidKeyaliasName: cafemap-release
