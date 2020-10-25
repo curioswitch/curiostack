@@ -40,6 +40,19 @@ namespace CafeMap.Map
 
         private void Awake()
         {
+            foreach (var websiteLink in GetComponentsInChildren<WebsiteLink>())
+            {
+                switch (websiteLink.gameObject.name)
+                {
+                    case "Instagram":
+                        websiteLink.SetUrl("https://www.instagram.com/explore/locations/" + _place.InstagramId);
+                        break;
+                    case "GoogleMaps":
+                        websiteLink.SetUrl("https://www.google.com/maps/place/?q=place_id:" + _place.GooglePlaceId);
+                        break;
+                }
+            }
+
             _signalBus.Subscribe<PlaceSelected>(ONPlaceSelected);
             placeImage = transform.GetChild(0).GetComponent<Image>();
             panelImage = transform.GetChild(1).GetComponent<Image>();
