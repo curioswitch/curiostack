@@ -23,6 +23,8 @@ namespace CafeMap.Map
 
         [SerializeField] private GameObject resultsPanel;
 
+        [SerializeField] private GameObject resultsContainer;
+
         private readonly HashSet<string> visiblePlaces = new HashSet<string>();
         private readonly Subject<bool> visiblePlacesChanged = new Subject<bool>();
 
@@ -87,7 +89,7 @@ namespace CafeMap.Map
                 placeResultPanels[place.Id] = panel;
             }
 
-            resultsPanel.SetActive(false);
+            resultsContainer.SetActive(false);
         }
 
 
@@ -96,10 +98,10 @@ namespace CafeMap.Map
             Debug.Log("Rerendering: " + visiblePlaces.Count);
             if (visiblePlaces.IsEmpty())
             {
-                resultsPanel.SetActive(false);
+                resultsContainer.SetActive(false);
                 return;
             }
-            resultsPanel.SetActive(true);
+            resultsContainer.SetActive(true);
             foreach (var placePanel in placeResultPanels)
             {
                 if (visiblePlaces.Contains(placePanel.Key))
