@@ -10,8 +10,9 @@ namespace CafeMap.Map
 {
     public class PlacePin : MonoBehaviour, IPointerClickHandler
     {
-        private static readonly Vector3 NORMAL_SIZE = new Vector3(0.2f, 0.2f, 0.2f);
-        private static readonly Vector3 LARGE_SIZE = new Vector3(0.4f, 0.4f, 0.4f);
+
+        private static readonly Vector3 NORMAL_SIZE = new Vector3(0.03f, 0.03f, 0.03f);
+        private static readonly Vector3 LARGE_SIZE = new Vector3(0.05f, 0.05f, 0.05f);
 
         private Place _place;
 
@@ -36,6 +37,7 @@ namespace CafeMap.Map
         private void Awake()
         {
             _rectTransform = GetComponent<RectTransform>();
+            transform.localScale = NORMAL_SIZE;
         }
 
         private void Start()

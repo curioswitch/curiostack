@@ -46,6 +46,8 @@ public class PanAndZoom : MonoBehaviour {
     /// <summary> Called if the player pinched the screen. The arguments are the distance between the fingers before and after. </summary>
     public event Action<float, float> onPinch;
 
+    [SerializeField] private float swipeSpeed = 1.0f;
+
     [Header("Tap")]
     [Tooltip("The maximum movement for a touch motion to be treated as a tap")]
     public float maxDistanceForTap = 40;
@@ -81,6 +83,7 @@ public class PanAndZoom : MonoBehaviour {
     public float boundMaxY = 150;
 
     public float maxZoom = 40;
+    public float startZoom = 30;
 
     Vector2 touch0StartPosition;
     Vector2 touch0LastPosition;
@@ -106,6 +109,7 @@ public class PanAndZoom : MonoBehaviour {
 
         transform.Translate(0, cameraYOffset, cameraZOffset);
         transform.LookAt(Vector3.zero);
+        cam.fieldOfView = startZoom;
     }
 
     void Start()
@@ -266,6 +270,8 @@ public class PanAndZoom : MonoBehaviour {
         if (onSwipe != null) {
             onSwipe(deltaPosition);
         }
+
+        deltaPosition *= swipeSpeed;
 
         var deltaTransform = new Vector3(-deltaPosition.x, 0, -deltaPosition.y);
         var newPosition = transform.position + deltaTransform;
