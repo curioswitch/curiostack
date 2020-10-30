@@ -14,8 +14,8 @@ namespace CafeMap.Map
     public class PlaceBottomPanel : MonoBehaviour, IPointerClickHandler
     {
 
-        private static readonly Color UNSELECTED_COLOR = new Color(1, 1, 1, 0.5f);
-        private static readonly Color SELECTED_COLOR = new Color(1, 0, 1, 0.5f);
+        private static readonly Color UNSELECTED_COLOR = new Color(0, 0, 0, 0.5f);
+        private static readonly Color SELECTED_COLOR = new Color(0.93f, 0.58f, 0.71f, 0.9f);
 
         private PlacesService _placesService;
         private ViewportService viewportService;
