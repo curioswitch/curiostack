@@ -48,21 +48,22 @@ repositories {
 data class DependencySet(val group: String, val version: String, val modules: List<String>)
 
 val DEPENDENCY_BOMS = listOf(
-        "com.fasterxml.jackson:jackson-bom:2.11.2",
-        "com.google.cloud:google-cloud-bom:0.135.0",
-        "com.google.api-client:google-api-client-bom:1.30.10",
-        "com.google.http-client:google-http-client-bom:1.36.0",
+        "com.fasterxml.jackson:jackson-bom:2.11.3",
+        "com.google.cloud:google-cloud-bom:0.142.0",
+        "com.google.api-client:google-api-client-bom:1.30.11",
+        "com.google.guava:guava-bom:30.0-jre",
+        "com.google.http-client:google-http-client-bom:1.38.0",
         "com.google.protobuf:protobuf-bom:3.13.0",
-        "com.linecorp.armeria:armeria-bom:1.1.0",
-        "io.dropwizard.metrics:metrics-bom:4.1.12.1",
-        "io.grpc:grpc-bom:1.32.1",
-        "io.micrometer:micrometer-bom:1.5.5",
-        "io.zipkin.brave:brave-bom:5.12.6",
-        "io.netty:netty-bom:4.1.52.Final",
-        "org.apache.beam:beam-sdks-java-bom:2.23.0",
+        "com.linecorp.armeria:armeria-bom:1.2.0",
+        "io.dropwizard.metrics:metrics-bom:4.1.14",
+        "io.grpc:grpc-bom:1.33.1",
+        "io.micrometer:micrometer-bom:1.6.0",
+        "io.zipkin.brave:brave-bom:5.12.7",
+        "io.netty:netty-bom:4.1.53.Final",
+        "org.apache.beam:beam-sdks-java-bom:2.25.0",
         "org.apache.logging.log4j:log4j-bom:2.13.3",
         "org.junit:junit-bom:5.7.0",
-        "software.amazon.awssdk:bom:2.14.22"
+        "software.amazon.awssdk:bom:2.15.23"
 )
 
 val DEPENDENCY_SETS = listOf(
@@ -78,12 +79,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.auth0",
-                "3.10.3",
+                "3.11.0",
                 listOf("java-jwt")
         ),
         DependencySet(
                 "com.google.auth",
-                "0.21.1",
+                "0.22.0",
                 listOf("google-auth-library-oauth2-http")
         ),
         DependencySet(
@@ -103,7 +104,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.github.ben-manes.caffeine",
-                "2.8.5",
+                "2.8.6",
                 listOf("caffeine")
         ),
         DependencySet(
@@ -136,13 +137,8 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.firebase",
-                "7.0.0",
+                "7.0.1",
                 listOf("firebase-admin")
-        ),
-        DependencySet(
-                "com.google.guava",
-                "29.0-jre",
-                listOf("guava", "guava-testlib")
         ),
         DependencySet(
                 "com.google.protobuf",
@@ -167,7 +163,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.typesafe",
-                "1.4.0",
+                "1.4.1",
                 listOf("config")
         ),
         DependencySet(
@@ -182,12 +178,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.fabric8",
-                "4.11.1",
+                "4.12.0",
                 listOf("kubernetes-client")
         ),
         DependencySet(
                 "io.lettuce",
-                "5.3.4.RELEASE",
+                "6.0.1.RELEASE",
                 listOf("lettuce-core")
         ),
         DependencySet(
@@ -217,17 +213,17 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "junit",
-                "4.13",
+                "4.13.1",
                 listOf("junit")
         ),
         DependencySet(
                 "net.bytebuddy",
-                "1.10.15",
+                "1.10.18",
                 listOf("byte-buddy", "byte-buddy-agent")
         ),
         DependencySet(
                 "org.apache.httpcomponents",
-                "4.5.12",
+                "4.5.13",
                 listOf("httpclient")
         ),
         DependencySet(
@@ -237,7 +233,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.assertj",
-                "3.17.2",
+                "3.18.0",
                 listOf("assertj-core")
         ),
         DependencySet(
@@ -252,12 +248,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.bouncycastle",
-                "1.66",
+                "1.67",
                 listOf("bcpkix-jdk15on", "bcprov-jdk15on")
         ),
         DependencySet(
                 "org.checkerframework",
-                "3.6.1",
+                "3.7.1",
                 listOf("checker-qual")
         ),
         DependencySet(
@@ -292,12 +288,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.jooq",
-                "3.13.4",
+                "3.14.1",
                 listOf("jooq", "jooq-codegen", "jooq-meta")
         ),
         DependencySet(
                 "org.mockito",
-                "3.5.12",
+                "3.6.13",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -320,28 +316,28 @@ val DEPENDENCY_SETS = listOf(
 
 val DEPENDENCIES = listOf(
         "com.bmuschko:gradle-docker-plugin:6.6.1",
-        "com.diffplug.spotless:spotless-plugin-gradle:5.6.1",
-        "com.github.ben-manes:gradle-versions-plugin:0.33.0",
+        "com.diffplug.spotless:spotless-plugin-gradle:5.8.0",
+        "com.github.ben-manes:gradle-versions-plugin:0.35.0",
         "com.google.code.gson:gson:2.8.6",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",
         "com.google.maps:google-maps-services:0.15.0",
-        "com.gradle:gradle-enterprise-gradle-plugin:3.4.1",
-        "com.hubspot.jinjava:jinjava:2.5.5",
+        "com.gradle:gradle-enterprise-gradle-plugin:3.5",
+        "com.hubspot.jinjava:jinjava:2.5.6",
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5",
         "com.uber.nullaway:nullaway:0.8.0",
         "de.undercouch:gradle-download-task:4.1.1",
         "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.6",
         "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:2.1.0",
-        "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.3",
+        "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.4",
         "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
         "io.sgr:s2-geometry-library-java:1.0.1",
-        "it.unimi.dsi:fastutil:8.4.2",
+        "it.unimi.dsi:fastutil:8.4.3",
         "javax.activation:activation:1.1.1",
         "javax.annotation:javax.annotation-api:1.3.2",
         "me.champeau.gradle:jmh-gradle-plugin:0.5.2",
-        "mysql:mysql-connector-java:8.0.21",
+        "mysql:mysql-connector-java:8.0.22",
         "net.ltgt.gradle:gradle-apt-plugin:0.21",
-        "net.ltgt.gradle:gradle-errorprone-plugin:1.2.1",
+        "net.ltgt.gradle:gradle-errorprone-plugin:1.3.0",
         "net.ltgt.gradle:gradle-nullaway-plugin:1.0.2",
         "nu.studer:gradle-jooq-plugin:4.2",
         "org.jsoup:jsoup:1.13.1"
