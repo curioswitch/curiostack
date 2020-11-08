@@ -32,22 +32,22 @@ public class ToolDependencies {
 
   private static Map<String, String> DEFAULT_VERSIONS =
       ImmutableMap.<String, String>builder()
-          .put("awscli", "2.0.38")
-          .put("bom", "0.6.0-RC1")
+          .put("awscli", "2.0.62")
+          .put("bom", "0.6.0-RC2")
           .put("claat", "2.2.0")
-          .put("gcloud", "304.0.0")
-          .put("golang", "1.14.7")
-          .put("google-java-format", "1.8")
-          .put("gradle", "6.5.1")
+          .put("gcloud", "317.0.0")
+          .put("golang", "1.15.4")
+          .put("google-java-format", "1.9")
+          .put("gradle", "6.7")
           .put("helm", "2.10.0")
           .put("miniconda", "Miniconda3-py38_4.8.3")
-          .put("node", "14.7.0")
+          .put("node", "14.15.0")
           .put("openjdk", "zulu14.29.23-ca-jdk14.0.2")
           .put("openjdk8", "zulu8.48.0.53-ca-jdk8.0.265")
-          .put("pulumi", "2.8.2")
-          .put("terraform", "0.12.29")
-          .put("terraform-gsuite-provider", "0.1.54")
-          .put("yarn", "1.22.4")
+          .put("pulumi", "2.13.2")
+          .put("terraform", "0.13.5")
+          .put("terraform-gsuite-provider", "0.1.56")
+          .put("yarn", "1.22.5")
           .build();
 
   public static String getAwsCliVersion(Project project) {
