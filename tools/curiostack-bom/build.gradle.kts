@@ -48,22 +48,22 @@ repositories {
 data class DependencySet(val group: String, val version: String, val modules: List<String>)
 
 val DEPENDENCY_BOMS = listOf(
-        "com.fasterxml.jackson:jackson-bom:2.11.3",
-        "com.google.cloud:google-cloud-bom:0.142.0",
-        "com.google.api-client:google-api-client-bom:1.30.11",
+        "com.fasterxml.jackson:jackson-bom:2.12.0",
+        "com.google.cloud:google-cloud-bom:0.145.0",
+        "com.google.api-client:google-api-client-bom:1.31.1",
         "com.google.guava:guava-bom:30.0-jre",
         "com.google.http-client:google-http-client-bom:1.38.0",
-        "com.google.protobuf:protobuf-bom:3.13.0",
+        "com.google.protobuf:protobuf-bom:3.14.0",
         "com.linecorp.armeria:armeria-bom:1.2.0",
-        "io.dropwizard.metrics:metrics-bom:4.1.14",
+        "io.dropwizard.metrics:metrics-bom:4.1.16",
         "io.grpc:grpc-bom:1.33.1",
         "io.micrometer:micrometer-bom:1.6.0",
         "io.zipkin.brave:brave-bom:5.12.7",
         "io.netty:netty-bom:4.1.53.Final",
         "org.apache.beam:beam-sdks-java-bom:2.25.0",
-        "org.apache.logging.log4j:log4j-bom:2.13.3",
+        "org.apache.logging.log4j:log4j-bom:2.14.0",
         "org.junit:junit-bom:5.7.0",
-        "software.amazon.awssdk:bom:2.15.23"
+        "software.amazon.awssdk:bom:2.15.35"
 )
 
 val DEPENDENCY_SETS = listOf(
@@ -119,7 +119,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.cloud.sql",
-                "1.1.0",
+                "1.2.0",
                 listOf(
                         "mysql-socket-factory",
                         "mysql-socket-factory-connector-j-6",
@@ -127,7 +127,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.dagger",
-                "2.29.1",
+                "2.30.1",
                 listOf("dagger", "dagger-compiler", "dagger-producers")
         ),
         DependencySet(
@@ -142,7 +142,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.protobuf",
-                "3.13.0",
+                "3.14.0",
                 listOf("protoc")
         ),
         DependencySet(
@@ -233,7 +233,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.assertj",
-                "3.18.0",
+                "3.18.1",
                 listOf("assertj-core")
         ),
         DependencySet(
@@ -283,17 +283,17 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.jctools",
-                "3.1.0",
+                "3.2.0",
                 listOf("jctools-core")
         ),
         DependencySet(
                 "org.jooq",
-                "3.14.1",
+                "3.14.4",
                 listOf("jooq", "jooq-codegen", "jooq-meta")
         ),
         DependencySet(
                 "org.mockito",
-                "3.6.13",
+                "3.6.28",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -316,8 +316,8 @@ val DEPENDENCY_SETS = listOf(
 
 val DEPENDENCIES = listOf(
         "com.bmuschko:gradle-docker-plugin:6.6.1",
-        "com.diffplug.spotless:spotless-plugin-gradle:5.8.0",
-        "com.github.ben-manes:gradle-versions-plugin:0.35.0",
+        "com.diffplug.spotless:spotless-plugin-gradle:5.8.2",
+        "com.github.ben-manes:gradle-versions-plugin:0.36.0",
         "com.google.code.gson:gson:2.8.6",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",
         "com.google.maps:google-maps-services:0.15.0",
