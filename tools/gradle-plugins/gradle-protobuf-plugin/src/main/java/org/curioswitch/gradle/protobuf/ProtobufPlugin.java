@@ -133,14 +133,10 @@ public class ProtobufPlugin implements Plugin<Project> {
   private static void configureExtractIncludeTask(
       TaskProvider<ExtractProtosTask> task, SourceSet sourceSet, Project project) {
     task.configure(
-        t ->
-            t.getFiles()
-                .from(
-                    project
-                        .getConfigurations()
-                        // NOTE: Must be runtime, not compile, classpath since proto files are
-                        // resources and not part of Java compilation.
-                        .getByName(sourceSet.getRuntimeClasspathConfigurationName())));
+        t -> {
+          t.getFiles().from(sourceSet.getCompileClasspath());
+          t.getFiles().from(sourceSet.getResources());
+        });
   }
 
   private static SourceSetTasks configureSourceSet(

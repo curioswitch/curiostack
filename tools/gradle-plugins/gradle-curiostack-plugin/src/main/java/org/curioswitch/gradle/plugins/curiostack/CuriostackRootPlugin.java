@@ -467,10 +467,13 @@ public class CuriostackRootPlugin implements Plugin<Project> {
               maven.mavenContent(MavenRepositoryContentDescriptor::releasesOnly);
             });
     project.getRepositories().mavenCentral();
-    project.getRepositories().mavenLocal();
-    // SNAPSHOTs referred to by dated version number are treated as release by Gradle so we can't
-    // filter this unfortunately.
-    project.getRepositories().maven(maven -> maven.setUrl("https://oss.jfrog.org/libs-snapshot"));
+    project
+        .getRepositories()
+        .maven(
+            maven -> {
+              maven.setUrl("https://oss.jfrog.org/libs-snapshot");
+              maven.mavenContent(MavenRepositoryContentDescriptor::snapshotsOnly);
+            });
   }
 
   private static void setupJavaProject(

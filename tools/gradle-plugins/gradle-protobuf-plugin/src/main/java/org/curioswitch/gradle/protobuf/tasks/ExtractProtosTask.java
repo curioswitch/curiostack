@@ -31,7 +31,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 
@@ -49,7 +49,7 @@ public class ExtractProtosTask extends DefaultTask {
     onlyIf(unused -> !files.isEmpty());
   }
 
-  @InputFiles
+  @Classpath
   public ConfigurableFileCollection getFiles() {
     return files;
   }
