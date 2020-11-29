@@ -27,7 +27,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 plugins {
     `java-gradle-plugin`
     `maven-publish`
-    id("com.gradle.plugin-publish").version("0.10.1")
+    id("com.gradle.plugin-publish").version("0.12.0")
 }
 
 dependencies {
