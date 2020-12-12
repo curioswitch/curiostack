@@ -27,8 +27,10 @@ apply plugin: 'maven-publish'
 
 archivesBaseName = 'armeria-google-cloud-iam'
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
 
 dependencies {
     api project(':common:google-cloud:core')

@@ -30,11 +30,22 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import net.adoptopenjdk.v3.api.AOV3Architecture;
+import net.adoptopenjdk.v3.api.AOV3Error;
+import net.adoptopenjdk.v3.api.AOV3Exception;
+import net.adoptopenjdk.v3.api.AOV3ImageKind;
+import net.adoptopenjdk.v3.api.AOV3JVMImplementation;
+import net.adoptopenjdk.v3.api.AOV3ListBinaryAssetView;
+import net.adoptopenjdk.v3.vanilla.AOV3Clients;
 import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.GradleException;
 import org.gradle.api.tasks.TaskAction;
 
 /**
@@ -47,17 +58,66 @@ public class UpdateGradleWrapperTask extends DefaultTask {
   public void exec() throws IOException {
     var rootProject = getProject().getRootProject();
 
-    String version = ToolDependencies.getOpenJdkVersion(rootProject);
+    String releaseName = null;
+    String urlLinux = null;
+    String urlMac = null;
+    String urlWindows = null;
 
-    String urlBase = "https://cdn.azul.com/zulu/bin/" + version + '-';
+    var clients = new AOV3Clients();
+    final List<AOV3ListBinaryAssetView> releases;
+    try (var client = clients.createClient()) {
+      var errors = new ArrayList<AOV3Error>();
+      releases =
+          client
+              .assetsForLatest(
+                  errors::add,
+                  new BigInteger(ToolDependencies.getOpenJdkVersion(rootProject)),
+                  AOV3JVMImplementation.HOTSPOT)
+              .execute();
+    } catch (AOV3Exception | InterruptedException e) {
+      throw new GradleException("Could not query for latest AdoptOpenJDK release.", e);
+    }
+
+    for (var release : releases) {
+      releaseName = release.releaseName();
+      var binary = release.binary();
+      if (binary.architecture() != AOV3Architecture.X64
+          || binary.imageType() != AOV3ImageKind.JDK) {
+        continue;
+      }
+      switch (binary.operatingSystem()) {
+        case LINUX:
+          {
+            urlLinux = binary.package_().link().toASCIIString();
+            break;
+          }
+        case MAC:
+          {
+            urlMac = binary.package_().link().toASCIIString();
+            break;
+          }
+        case WINDOWS:
+          {
+            urlWindows = binary.package_().link().toASCIIString();
+            break;
+          }
+        default:
+          // Ignore
+      }
+    }
+
+    if (releaseName == null || urlLinux == null || urlMac == null || urlWindows == null) {
+      throw new GradleException("Could not find OpenJDK packages: " + releases);
+    }
+
     Map<String, String> templateVars =
         ImmutableMap.<String, String>builder()
-            .put("dest_folder", "jdk-" + version)
-            .put("url_linux", urlBase + "linux_x64.tar.gz")
-            .put("url_mac", urlBase + "macosx_x64.tar.gz")
-            .put("url_windows", urlBase + "win_x64.zip")
-            .put("dest_archive_name", "jdk-" + version + ".tar.gz.or.zip")
-            .put("version", version)
+            .put("dest_folder", "jdk-" + releaseName)
+            .put("url_linux", urlLinux)
+            .put("url_mac", urlMac)
+            .put("url_windows", urlWindows)
+            .put("dest_archive_name", "jdk-" + releaseName + ".tar.gz.or.zip")
+            .put("version", releaseName)
             .build();
 
     Jinjava jinjava = new Jinjava(JinjavaConfig.newBuilder().withFailOnUnknownTokens(true).build());
@@ -69,6 +129,8 @@ public class UpdateGradleWrapperTask extends DefaultTask {
 
     Files.writeString(
         rootProject.file("gradle/get-jdk.sh").toPath(), rendered, StandardCharsets.UTF_8);
+
+    Files.writeString(rootProject.file(".gradle/jdk-release-name.txt").toPath(), releaseName);
 
     var gradlew = rootProject.file("gradlew").toPath();
     var gradleWrapperLines = Files.readAllLines(gradlew);

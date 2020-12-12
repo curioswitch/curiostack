@@ -47,6 +47,8 @@ repositories {
 
 data class DependencySet(val group: String, val version: String, val modules: List<String>)
 
+val GRPC_VERSION = "1.34.0"
+
 val DEPENDENCY_BOMS = listOf(
         "com.fasterxml.jackson:jackson-bom:2.12.0",
         "com.google.cloud:google-cloud-bom:0.145.0",
@@ -54,16 +56,16 @@ val DEPENDENCY_BOMS = listOf(
         "com.google.guava:guava-bom:30.0-jre",
         "com.google.http-client:google-http-client-bom:1.38.0",
         "com.google.protobuf:protobuf-bom:3.14.0",
-        "com.linecorp.armeria:armeria-bom:1.2.0",
+        "com.linecorp.armeria:armeria-bom:1.3.0",
         "io.dropwizard.metrics:metrics-bom:4.1.16",
-        "io.grpc:grpc-bom:1.33.1",
-        "io.micrometer:micrometer-bom:1.6.0",
+        "io.grpc:grpc-bom:${GRPC_VERSION}",
+        "io.micrometer:micrometer-bom:1.6.2",
         "io.zipkin.brave:brave-bom:5.12.7",
-        "io.netty:netty-bom:4.1.53.Final",
+        "io.netty:netty-bom:4.1.54.Final",
         "org.apache.beam:beam-sdks-java-bom:2.25.0",
         "org.apache.logging.log4j:log4j-bom:2.14.0",
         "org.junit:junit-bom:5.7.0",
-        "software.amazon.awssdk:bom:2.15.35"
+        "software.amazon.awssdk:bom:2.15.45"
 )
 
 val DEPENDENCY_SETS = listOf(
@@ -84,7 +86,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.auth",
-                "0.22.0",
+                "0.22.2",
                 listOf("google-auth-library-oauth2-http")
         ),
         DependencySet(
@@ -104,7 +106,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.github.ben-manes.caffeine",
-                "2.8.6",
+                "2.8.8",
                 listOf("caffeine")
         ),
         DependencySet(
@@ -181,6 +183,14 @@ val DEPENDENCY_SETS = listOf(
                 "4.12.0",
                 listOf("kubernetes-client")
         ),
+        // grpc-bom can only be applied to Java projects because it does not export Gradle metadata. For
+        // non-Java projects compiling gRPC stubs, they will only use these artifacts so we go ahead and manage
+        // then in curiostack-bom as well.
+        DependencySet(
+                "io.grpc",
+                GRPC_VERSION,
+                listOf("grpc-core", "grpc-protobuf", "grpc-stub")
+        ),
         DependencySet(
                 "io.lettuce",
                 "6.0.1.RELEASE",
@@ -217,6 +227,11 @@ val DEPENDENCY_SETS = listOf(
                 listOf("junit")
         ),
         DependencySet(
+                "net.adoptopenjdk",
+                "0.4.0",
+                listOf("net.adoptopenjdk.v3.api", "net.adoptopenjdk.v3.vanilla")
+        ),
+        DependencySet(
                 "net.bytebuddy",
                 "1.10.18",
                 listOf("byte-buddy", "byte-buddy-agent")
@@ -228,7 +243,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.apache.httpcomponents",
-                "4.4.13",
+                "4.4.14",
                 listOf("httpcore")
         ),
         DependencySet(
@@ -253,7 +268,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.checkerframework",
-                "3.7.1",
+                "3.8.0",
                 listOf("checker-qual")
         ),
         DependencySet(
@@ -268,7 +283,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.eclipse.jgit",
-                "5.9.0.202009080501-r",
+                "5.10.0.202012080955-r",
                 listOf("org.eclipse.jgit")
         ),
         DependencySet(
@@ -293,7 +308,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "3.6.28",
+                "3.6.44",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -331,7 +346,7 @@ val DEPENDENCIES = listOf(
         "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.4",
         "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
         "io.sgr:s2-geometry-library-java:1.0.1",
-        "it.unimi.dsi:fastutil:8.4.3",
+        "it.unimi.dsi:fastutil:8.4.4",
         "javax.activation:activation:1.1.1",
         "javax.annotation:javax.annotation-api:1.3.2",
         "me.champeau.gradle:jmh-gradle-plugin:0.5.2",
