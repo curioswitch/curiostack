@@ -36,9 +36,9 @@ fi
 
 OPENJDK_DIR="$GRADLE_HOME/curiostack/openjdk"
 
-export JAVA_HOME="$OPENJDK_DIR/jdk-jdk-15.0.1+9"
+export JAVA_HOME="$OPENJDK_DIR/jdk-15.0.1+9"
 
-DEST="$OPENJDK_DIR/jdk-jdk-15.0.1+9.tar.gz.or.zip"
+DEST="$OPENJDK_DIR/jdk-15.0.1+9.tar.gz.or.zip"
 
 if "$linux" = "true"; then
   SRC="https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.1%2B9/OpenJDK15U-jdk_x64_linux_hotspot_15.0.1_9.tar.gz"
