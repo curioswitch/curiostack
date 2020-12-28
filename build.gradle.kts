@@ -38,6 +38,12 @@ allprojects {
         }
     }
 
+    plugins.withType(JacocoPlugin::class) {
+        configure<JacocoPluginExtension> {
+            toolVersion = "0.8.6"
+        }
+    }
+
     plugins.withType(LicensePlugin::class) {
         configure<LicenseExtension> {
             skipExistingHeaders = true
