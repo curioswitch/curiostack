@@ -36,21 +36,21 @@ fi
 
 OPENJDK_DIR="$GRADLE_HOME/curiostack/openjdk"
 
-export JAVA_HOME="$OPENJDK_DIR/jdk-zulu14.28.21-ca-jdk14.0.1"
+export JAVA_HOME="$OPENJDK_DIR/jdk-15.0.1+9"
 
-DEST="$OPENJDK_DIR/jdk-zulu14.28.21-ca-jdk14.0.1.tar.gz.or.zip"
+DEST="$OPENJDK_DIR/jdk-15.0.1+9.tar.gz.or.zip"
 
 if "$linux" = "true"; then
-  SRC="https://cdn.azul.com/zulu/bin/zulu14.28.21-ca-jdk14.0.1-linux_x64.tar.gz"
+  SRC="https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.1%2B9/OpenJDK15U-jdk_x64_linux_hotspot_15.0.1_9.tar.gz"
 fi
 
 if "$darwin" = "true"; then
-  SRC="https://cdn.azul.com/zulu/bin/zulu14.28.21-ca-jdk14.0.1-macosx_x64.tar.gz"
+  SRC="https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.1%2B9.1/OpenJDK15U-jdk_x64_mac_hotspot_15.0.1_9.tar.gz"
   export JAVA_HOME="$JAVA_HOME/Contents/Home"
 fi
 
 if "$windows" = "true"; then
-  SRC="https://cdn.azul.com/zulu/bin/zulu14.28.21-ca-jdk14.0.1-win_x64.zip"
+  SRC="https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.1%2B9/OpenJDK15U-jdk_x64_windows_hotspot_15.0.1_9.zip"
 fi
 
 if [ ! -d "$JAVA_HOME" ]; then
@@ -65,11 +65,10 @@ if [ ! -d "$JAVA_HOME" ]; then
 
   if "$windows" = "true"; then
     unzip "$DEST" -d "$OPENJDK_DIR"
-    mv "${OPENJDK_DIR}/zulu14.28.21-ca-jdk14.0.1-win_x64" "$JAVA_HOME"
   else
     mkdir -p "$JAVA_HOME"
     if "$darwin" = "true"; then
-      tar --strip-components 2 -xf "$DEST" -C "$JAVA_HOME"
+      tar --strip-components 3 -xf "$DEST" -C "$JAVA_HOME"
     else
       tar --strip-components 1 -xf "$DEST" -C "$JAVA_HOME"
     fi

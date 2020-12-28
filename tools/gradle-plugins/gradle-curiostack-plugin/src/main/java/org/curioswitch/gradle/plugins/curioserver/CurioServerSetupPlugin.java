@@ -47,15 +47,11 @@ public class CurioServerSetupPlugin implements Plugin<Project> {
                 plugin.registerToolIfAbsent(
                     "graalvm",
                     tool -> {
-                      tool.getVersion().set("1.0.0-rc10");
-                      tool.getBaseUrl().set("https://github.com/oracle/graal/releases/download/");
+                      tool.getVersion().set("20.3.0");
+                      tool.getBaseUrl()
+                          .set("https://github.com/graalvm/graalvm-ce-builds/releases/download/");
                       tool.getArtifactPattern()
-                          .set("vm-[revision]/[artifact]-ce-[revision]-[classifier].[ext]");
-
-                      // Just use the linux binary to try the plugin on it, it'll fail at
-                      // runtime since Windows isn't supported yet.
-                      tool.getOsClassifiers().getWindows().set("linux-amd64");
-                      tool.getOsExtensions().getWindows().set("tar.gz");
+                          .set("vm-[revision]/[artifact]-ce-java11-[classifier]-[revision].[ext]");
 
                       var pathBase = tool.getVersion().map(v -> "graalvm-ce-" + v);
                       var os = new PlatformHelper().getOs();

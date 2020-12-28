@@ -45,7 +45,7 @@ import org.curioswitch.gradle.plugins.curiostack.ToolDependencies;
 import org.curioswitch.gradle.plugins.shared.CommandUtil;
 import org.curioswitch.gradle.tooldownloader.DownloadedToolManager;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.JavaVersion;
+import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
 
@@ -57,7 +57,7 @@ public class UpdateIntelliJSdksTask extends DefaultTask {
 
   public static final String NAME = "curioUpdateIntelliJSdks";
 
-  @VisibleForTesting static final String LATEST_INTELLIJ_CONFIG_FOLDER = ".IntelliJIdea2019.3";
+  @VisibleForTesting static final String LATEST_INTELLIJ_CONFIG_FOLDER = ".IntelliJIdea2020.3";
 
   private static final List<String> JAVA_MODULES =
       ImmutableList.of(
@@ -187,9 +187,26 @@ public class UpdateIntelliJSdksTask extends DefaultTask {
 
   @TaskAction
   public void exec() throws IOException {
-    Path userHome = Paths.get(System.getProperty("user.home"));
+    final Path intelliJConfigFolder;
+    switch (new PlatformHelper().getOs()) {
+      case LINUX:
+        intelliJConfigFolder = Paths.get(System.getProperty("user.home"), ".config", "JetBrains");
+        break;
+      case MAC_OSX:
+        intelliJConfigFolder =
+            Paths.get(
+                System.getProperty("user.home"), "Library", "Application Support", "JetBrains");
+        break;
+      case WINDOWS:
+        intelliJConfigFolder =
+            Paths.get(System.getProperty("user.home"), "AppData", "Roaming", "JetBrains");
+        break;
+      case UNKNOWN:
+      default:
+        throw new GradleException("Unsupported OS");
+    }
     final List<Path> intelliJFolders;
-    try (var files = Files.list(userHome)) {
+    try (var files = Files.list(intelliJConfigFolder)) {
       intelliJFolders =
           files
               .filter(
@@ -208,18 +225,17 @@ public class UpdateIntelliJSdksTask extends DefaultTask {
       getProject()
           .getLogger()
           .info("No IntelliJ config folder found, writing to default location.");
-      intelliJFolder = userHome.resolve(LATEST_INTELLIJ_CONFIG_FOLDER);
+      intelliJFolder = intelliJConfigFolder.resolve(LATEST_INTELLIJ_CONFIG_FOLDER);
     }
 
     getProject()
         .getLogger()
         .info("Updating IntelliJ folder {}, found folders {}", intelliJFolder, intelliJFolders);
 
-    String javaVersion = ToolDependencies.getOpenJdkVersion(getProject());
-    String majorVersion =
-        javaVersion.startsWith("zulu")
-            ? JavaVersion.toVersion(javaVersion.substring("zulu".length())).getMajorVersion()
-            : JavaVersion.toVersion(javaVersion).getMajorVersion();
+    String majorVersion = ToolDependencies.getOpenJdkVersion(getProject());
+    String javaVersion =
+        Files.readString(
+            getProject().getRootProject().file(".gradle/jdk-release-name.txt").toPath());
 
     String java8Version = ToolDependencies.getOpenJdk8Version(getProject());
     final String jdk8FolderSuffix;

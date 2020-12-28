@@ -69,7 +69,7 @@ if [ ! -d "$JAVA_HOME" ]; then
   else
     mkdir -p "$JAVA_HOME"
     if "$darwin" = "true"; then
-      tar --strip-components 2 -xf "$DEST" -C "$JAVA_HOME"
+      tar --strip-components 3 -xf "$DEST" -C "$JAVA_HOME"
     else
       tar --strip-components 1 -xf "$DEST" -C "$JAVA_HOME"
     fi

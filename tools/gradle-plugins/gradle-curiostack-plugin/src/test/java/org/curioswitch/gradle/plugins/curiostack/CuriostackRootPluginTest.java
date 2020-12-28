@@ -36,6 +36,7 @@ import org.curioswitch.gradle.testing.ResourceProjects;
 import org.gradle.testkit.runner.GradleRunner;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -56,6 +57,8 @@ class CuriostackRootPluginTest {
     }
 
     @Test
+    // TODO(choko): Enable after figuring out how to mock AdoptOpenJDK API.
+    @Disabled
     void updatesWrapper() throws Exception {
       assertThat(
               GradleRunner.create()

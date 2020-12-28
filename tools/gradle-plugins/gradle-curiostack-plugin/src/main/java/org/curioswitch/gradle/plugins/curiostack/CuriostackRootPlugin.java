@@ -310,10 +310,13 @@ public class CuriostackRootPlugin implements Plugin<Project> {
             .register(
                 UpdateIntelliJSdksTask.NAME,
                 UpdateIntelliJSdksTask.class,
-                t -> t.dependsOn(DownloadToolUtil.getSetupTask(rootProject, "openjdk")));
+                t ->
+                    t.dependsOn(
+                        DownloadToolUtil.getSetupTask(rootProject, "openjdk"),
+                        updateGradleWrapper));
 
     var idea = rootProject.getTasks().named("idea");
-    idea.configure(t -> t.dependsOn(updateIntelliJJdks));
+    idea.configure(task -> task.dependsOn(updateIntelliJJdks));
 
     rootProject
         .getTasks()
@@ -580,22 +583,22 @@ public class CuriostackRootPlugin implements Plugin<Project> {
         .configureEach(task -> task.dependsOn(project.getTasks().withType(JavaCompile.class)));
 
     JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
-    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_14);
-    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_14);
+    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_15);
+    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_15);
 
-    // Even for libraries that set source version to 8 for compatibility with older runtimes,
-    // we always use 14 for tests.
+    // Even for libraries that set source version to 8/11 for compatibility with older runtimes,
+    // we always use 15 for tests.
     var testSourceSet = javaPlugin.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
     project
         .getConfigurations()
         .getByName(testSourceSet.getCompileClasspathConfigurationName())
         .getAttributes()
-        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 14);
+        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 15);
     project
         .getConfigurations()
         .getByName(testSourceSet.getRuntimeClasspathConfigurationName())
         .getAttributes()
-        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 14);
+        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 15);
 
     project
         .getTasks()

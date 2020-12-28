@@ -57,6 +57,8 @@ dependencies {
     implementation("gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin")
     implementation("io.fabric8:kubernetes-client")
     implementation("me.champeau.gradle:jmh-gradle-plugin")
+    implementation("net.adoptopenjdk:net.adoptopenjdk.v3.api")
+    implementation("net.adoptopenjdk:net.adoptopenjdk.v3.vanilla")
     implementation("net.ltgt.gradle:gradle-apt-plugin")
     implementation("net.ltgt.gradle:gradle-errorprone-plugin")
     implementation("net.ltgt.gradle:gradle-nullaway-plugin")

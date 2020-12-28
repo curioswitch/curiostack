@@ -100,7 +100,7 @@ public class CreateShellConfigTask extends DefaultTask {
     try {
       Files.writeString(
           getProject().getRootProject().file(".gradle/is-curiostack.txt").toPath(),
-          "Satisfying curiostiy");
+          "Satisfying curiosity");
     } catch (IOException e) {
       throw new UncheckedIOException("Could not write curiostack marker.", e);
     }
