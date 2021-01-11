@@ -133,7 +133,7 @@ class ProtoFieldInfo {
    */
   Message valuePrototype() {
     Message nestedPrototype =
-        containingPrototype.newBuilderForType().newBuilderForField(field).build();
+        containingPrototype.newBuilderForType().newBuilderForField(field).buildPartial();
     if (isMapField()) {
       // newBuilderForField will give us the Message corresponding to the map with key and value,
       // but we want the marshaller for the value itself.
@@ -336,7 +336,7 @@ class ProtoFieldInfo {
         return containingPrototype
             .newBuilderForType()
             .newBuilderForField(valueField().descriptor())
-            .build()
+            .buildPartial()
             .getClass();
       default:
         throw new IllegalArgumentException("Unknown field type: " + valueJavaType());
