@@ -47,13 +47,13 @@ repositories {
 
 data class DependencySet(val group: String, val version: String, val modules: List<String>)
 
-val GRPC_VERSION = "1.34.0"
+val GRPC_VERSION = "1.34.1"
 
 val DEPENDENCY_BOMS = listOf(
-        "com.fasterxml.jackson:jackson-bom:2.12.0",
-        "com.google.cloud:google-cloud-bom:0.145.0",
+        "com.fasterxml.jackson:jackson-bom:2.12.1",
+        "com.google.cloud:google-cloud-bom:0.146.0",
         "com.google.api-client:google-api-client-bom:1.31.1",
-        "com.google.guava:guava-bom:30.0-jre",
+        "com.google.guava:guava-bom:30.1-jre",
         "com.google.http-client:google-http-client-bom:1.38.0",
         "com.google.protobuf:protobuf-bom:3.14.0",
         "com.linecorp.armeria:armeria-bom:1.3.0",
@@ -62,10 +62,10 @@ val DEPENDENCY_BOMS = listOf(
         "io.micrometer:micrometer-bom:1.6.2",
         "io.zipkin.brave:brave-bom:5.12.7",
         "io.netty:netty-bom:4.1.54.Final",
-        "org.apache.beam:beam-sdks-java-bom:2.25.0",
+        "org.apache.beam:beam-sdks-java-bom:2.27.0",
         "org.apache.logging.log4j:log4j-bom:2.14.0",
         "org.junit:junit-bom:5.7.0",
-        "software.amazon.awssdk:bom:2.15.45"
+        "software.amazon.awssdk:bom:2.15.61"
 )
 
 val DEPENDENCY_SETS = listOf(
@@ -81,7 +81,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.auth0",
-                "3.11.0",
+                "3.12.0",
                 listOf("java-jwt")
         ),
         DependencySet(
@@ -139,7 +139,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.firebase",
-                "7.0.1",
+                "7.1.0",
                 listOf("firebase-admin")
         ),
         DependencySet(
@@ -233,7 +233,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "net.bytebuddy",
-                "1.10.18",
+                "1.10.19",
                 listOf("byte-buddy", "byte-buddy-agent")
         ),
         DependencySet(
@@ -268,7 +268,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.checkerframework",
-                "3.8.0",
+                "3.9.0",
                 listOf("checker-qual")
         ),
         DependencySet(
@@ -308,7 +308,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "3.6.44",
+                "3.7.3",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -330,13 +330,13 @@ val DEPENDENCY_SETS = listOf(
 )
 
 val DEPENDENCIES = listOf(
-        "com.bmuschko:gradle-docker-plugin:6.6.1",
-        "com.diffplug.spotless:spotless-plugin-gradle:5.8.2",
+        "com.bmuschko:gradle-docker-plugin:6.7.0",
+        "com.diffplug.spotless:spotless-plugin-gradle:5.9.0",
         "com.github.ben-manes:gradle-versions-plugin:0.36.0",
         "com.google.code.gson:gson:2.8.6",
         "com.google.gradle:osdetector-gradle-plugin:1.6.2",
         "com.google.maps:google-maps-services:0.15.0",
-        "com.gradle:gradle-enterprise-gradle-plugin:3.5",
+        "com.gradle:gradle-enterprise-gradle-plugin:3.5.1",
         "com.hubspot.jinjava:jinjava:2.5.6",
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5",
         "com.uber.nullaway:nullaway:0.8.0",
