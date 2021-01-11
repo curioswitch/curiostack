@@ -23,12 +23,12 @@
  */
 package org.curioswitch.common.protobuf.json;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.bytebuddy.description.field.FieldDescription;
@@ -43,19 +43,17 @@ import net.bytebuddy.implementation.bytecode.member.MethodInvocation;
  */
 final class CodeGenUtil {
 
+  private static final Comparator<FieldDescriptor> FIELD_DESCRIPTOR_COMPARATOR =
+      Comparator.comparing(FieldDescriptor::getNumber);
+
   /**
    * Returns the fields sorted in order of field number. By default, they are sorted in order of
    * definition in the proto file.
    */
   static List<FieldDescriptor> sorted(List<FieldDescriptor> fields) {
-    return ImmutableList.sortedCopyOf(
-        new Comparator<FieldDescriptor>() {
-          @Override
-          public int compare(FieldDescriptor o1, FieldDescriptor o2) {
-            return Integer.compare(o1.getNumber(), o2.getNumber());
-          }
-        },
-        fields);
+    List<FieldDescriptor> sorted = new ArrayList<>(fields);
+    sorted.sort(FIELD_DESCRIPTOR_COMPARATOR);
+    return sorted;
   }
 
   /**
@@ -81,11 +79,11 @@ final class CodeGenUtil {
 
   /** Returns a {@link Map} of names to class / instance fields. */
   static Map<String, FieldDescription> fieldsByName(Context implementationContext) {
-    ImmutableMap.Builder<String, FieldDescription> map = ImmutableMap.builder();
+    Map<String, FieldDescription> map = new HashMap<>();
     for (FieldDescription field : implementationContext.getInstrumentedType().getDeclaredFields()) {
       map.put(field.getName(), field);
     }
-    return map.build();
+    return map;
   }
 
   /**

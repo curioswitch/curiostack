@@ -23,7 +23,7 @@
  */
 package org.curioswitch.common.protobuf.json;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -154,8 +154,8 @@ public class MessageMarshaller {
    *     unknown fields in the input.
    */
   public void mergeValue(byte[] json, Message.Builder builder) throws IOException {
-    checkNotNull(json, "json");
-    checkNotNull(builder, "builder");
+    requireNonNull(json, "json");
+    requireNonNull(builder, "builder");
     try (JsonParser parser = jsonFactory.createParser(json)) {
       mergeValue(parser, builder);
     }
@@ -168,8 +168,8 @@ public class MessageMarshaller {
    *     unknown fields in the input.
    */
   public void mergeValue(String json, Message.Builder builder) throws IOException {
-    checkNotNull(json, "json");
-    checkNotNull(builder, "builder");
+    requireNonNull(json, "json");
+    requireNonNull(builder, "builder");
     try (JsonParser parser = jsonFactory.createParser(json)) {
       mergeValue(parser, builder);
     }
@@ -183,8 +183,8 @@ public class MessageMarshaller {
    *     unknown fields in the input.
    */
   public void mergeValue(InputStream json, Message.Builder builder) throws IOException {
-    checkNotNull(json, "json");
-    checkNotNull(builder, "builder");
+    requireNonNull(json, "json");
+    requireNonNull(builder, "builder");
     try (JsonParser parser = jsonFactory.createParser(json)) {
       mergeValue(parser, builder);
     }
@@ -197,8 +197,8 @@ public class MessageMarshaller {
    *     unknown fields in the input.
    */
   public void mergeValue(JsonParser jsonParser, Message.Builder builder) throws IOException {
-    checkNotNull(jsonParser, "jsonParser");
-    checkNotNull(builder, "builder");
+    requireNonNull(jsonParser, "jsonParser");
+    requireNonNull(builder, "builder");
     TypeSpecificMarshaller<?> parser =
         registry.findForPrototype(builder.getDefaultInstanceForType());
     try {
@@ -216,7 +216,7 @@ public class MessageMarshaller {
    * @throws InvalidProtocolBufferException if there are unknown Any types in the message.
    */
   public <T extends Message> byte[] writeValueAsBytes(T message) throws IOException {
-    checkNotNull(message, "message");
+    requireNonNull(message, "message");
     ByteArrayBuilder builder = new ByteArrayBuilder(jsonFactory._getBufferRecycler());
     try (JsonGenerator gen = jsonFactory.createGenerator(builder)) {
       writeValue(message, gen);
@@ -230,7 +230,7 @@ public class MessageMarshaller {
    * @throws InvalidProtocolBufferException if there are unknown Any types in the message.
    */
   public <T extends Message> String writeValueAsString(T message) throws IOException {
-    checkNotNull(message, "message");
+    requireNonNull(message, "message");
     SegmentedStringWriter sw = new SegmentedStringWriter(jsonFactory._getBufferRecycler());
     try (JsonGenerator gen = jsonFactory.createGenerator(sw)) {
       writeValue(message, gen);
@@ -243,8 +243,8 @@ public class MessageMarshaller {
    * close the {@link OutputStream}.
    */
   public <T extends Message> void writeValue(T message, OutputStream out) throws IOException {
-    checkNotNull(message, "message");
-    checkNotNull(out, "out");
+    requireNonNull(message, "message");
+    requireNonNull(out, "out");
     try (JsonGenerator gen = jsonFactory.createGenerator(out)) {
       writeValue(message, gen);
     }
@@ -256,8 +256,8 @@ public class MessageMarshaller {
    * @throws InvalidProtocolBufferException if there are unknown Any types in the message.
    */
   public <T extends Message> void writeValue(T message, JsonGenerator gen) throws IOException {
-    checkNotNull(message, "message");
-    checkNotNull(gen, "gen");
+    requireNonNull(message, "message");
+    requireNonNull(gen, "gen");
     // TypeSpecificMarshaller for T.prototype is TypeSpecificMarshaller<T>
     @SuppressWarnings("unchecked")
     TypeSpecificMarshaller<T> serializer =
@@ -300,7 +300,7 @@ public class MessageMarshaller {
      * MessageMarshaller} even if they are already registered as a nested {@link Message}.
      */
     public Builder register(Message prototype) {
-      checkNotNull(prototype, "prototype");
+      requireNonNull(prototype, "prototype");
       prototypes.add(prototype.getDefaultInstanceForType());
       return this;
     }
@@ -316,7 +316,7 @@ public class MessageMarshaller {
      * MessageMarshaller} even if they are already registered as a nested {@link Message}.
      */
     public Builder register(Class<? extends Message> messageClass) {
-      checkNotNull(messageClass, "messageClass");
+      requireNonNull(messageClass, "messageClass");
       try {
         return register(
             (Message) messageClass.getDeclaredMethod("getDefaultInstance").invoke(null));

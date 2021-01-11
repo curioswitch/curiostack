@@ -62,10 +62,10 @@ dependencies {
     api("com.fasterxml.jackson.core:jackson-core")
     api("com.google.protobuf:protobuf-java")
 
-    implementation("com.google.protobuf:protobuf-java-util")
     implementation("net.bytebuddy:byte-buddy")
 
     testImplementation("org.curioswitch.curiostack:curio-testing-framework:0.0.6")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
 }
 
 publishing {

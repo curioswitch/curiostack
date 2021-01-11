@@ -23,8 +23,7 @@
  */
 package org.curioswitch.common.protobuf.json;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -48,9 +47,6 @@ import com.google.protobuf.Timestamp;
 import com.google.protobuf.UInt32Value;
 import com.google.protobuf.UInt64Value;
 import com.google.protobuf.Value;
-import com.google.protobuf.util.Durations;
-import com.google.protobuf.util.FieldMaskUtil;
-import com.google.protobuf.util.Timestamps;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
@@ -288,7 +284,7 @@ abstract class WellKnownTypeMarshaller<T extends Message> extends TypeSpecificMa
         throws IOException {
       Timestamp.Builder builder = (Timestamp.Builder) messageBuilder;
       try {
-        builder.mergeFrom(Timestamps.parse(ParseSupport.parseString(parser)));
+        builder.mergeFrom(ProtobufUtil.parseTimestamp(ParseSupport.parseString(parser)));
       } catch (ParseException e) {
         throw new InvalidProtocolBufferException(
             "Failed to readValue timestamp: " + parser.getText());
@@ -297,7 +293,7 @@ abstract class WellKnownTypeMarshaller<T extends Message> extends TypeSpecificMa
 
     @Override
     public void doWrite(Timestamp message, JsonGenerator gen) throws IOException {
-      gen.writeString(Timestamps.toString(message));
+      gen.writeString(ProtobufUtil.formatTimestamp(message));
     }
   }
 
@@ -314,7 +310,7 @@ abstract class WellKnownTypeMarshaller<T extends Message> extends TypeSpecificMa
         throws IOException {
       Duration.Builder builder = (Duration.Builder) messageBuilder;
       try {
-        builder.mergeFrom(Durations.parse(ParseSupport.parseString(parser)));
+        builder.mergeFrom(ProtobufUtil.parseDuration(ParseSupport.parseString(parser)));
       } catch (ParseException e) {
         throw new InvalidProtocolBufferException(
             "Failed to readValue duration: " + parser.getText());
@@ -323,7 +319,7 @@ abstract class WellKnownTypeMarshaller<T extends Message> extends TypeSpecificMa
 
     @Override
     public void doWrite(Duration message, JsonGenerator gen) throws IOException {
-      gen.writeString(Durations.toString(message));
+      gen.writeString(ProtobufUtil.formatDuration(message));
     }
   }
 
@@ -339,12 +335,12 @@ abstract class WellKnownTypeMarshaller<T extends Message> extends TypeSpecificMa
     public void doMerge(JsonParser parser, int unused, Message.Builder messageBuilder)
         throws IOException {
       FieldMask.Builder builder = (FieldMask.Builder) messageBuilder;
-      builder.mergeFrom(FieldMaskUtil.fromJsonString(ParseSupport.parseString(parser)));
+      builder.mergeFrom(ProtobufUtil.fieldMaskFromJson(ParseSupport.parseString(parser)));
     }
 
     @Override
     public void doWrite(FieldMask message, JsonGenerator gen) throws IOException {
-      gen.writeString(FieldMaskUtil.toJsonString(message));
+      gen.writeString(ProtobufUtil.fieldMaskToJson(message));
     }
   }
 
@@ -480,8 +476,10 @@ abstract class WellKnownTypeMarshaller<T extends Message> extends TypeSpecificMa
     }
 
     void setMarshallerRegistry(MarshallerRegistry marshallerRegistry) {
-      checkNotNull(marshallerRegistry, "marshallerRegistry");
-      checkState(this.marshallerRegistry == null, "marshallerRegistry has already been set.");
+      requireNonNull(marshallerRegistry, "marshallerRegistry");
+      if (this.marshallerRegistry != null) {
+        throw new IllegalStateException("marshallerRegistry has already been set.");
+      }
       this.marshallerRegistry = marshallerRegistry;
     }
 
