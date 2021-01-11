@@ -23,11 +23,8 @@
  */
 package org.curioswitch.common.protobuf.json;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.CharMatcher;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
@@ -46,10 +43,6 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
  */
 class ProtoFieldInfo {
 
-  private static final CharMatcher DIGITS_ASCII = CharMatcher.inRange('0', '9');
-  private static final CharMatcher LOWERCASE_ASCII = CharMatcher.inRange('a', 'z');
-  private static final CharMatcher UPPERCASE_ASCII = CharMatcher.inRange('A', 'Z');
-
   private final FieldDescriptor field;
   private final Message containingPrototype;
   private final Class<? extends Message.Builder> builderClass;
@@ -60,8 +53,8 @@ class ProtoFieldInfo {
   @Nullable private final ProtoFieldInfo mapValueField;
 
   ProtoFieldInfo(FieldDescriptor field, Message containingPrototype) {
-    this.field = checkNotNull(field, "field");
-    this.containingPrototype = checkNotNull(containingPrototype, "containingPrototype");
+    this.field = requireNonNull(field, "field");
+    this.containingPrototype = requireNonNull(containingPrototype, "containingPrototype");
     builderClass = containingPrototype.newBuilderForType().getClass();
 
     camelCaseName = underscoresToUpperCamelCase(field.getName());
@@ -99,7 +92,9 @@ class ProtoFieldInfo {
   /** Returns the {@link ProtoFieldInfo} of the key for this map field. */
   @Nullable
   ProtoFieldInfo mapKeyField() {
-    checkState(isMapField(), "Not a map field: %s", field);
+    if (!isMapField()) {
+      throw new IllegalStateException("Not a map field:" + field);
+    }
     return mapKeyField;
   }
 
@@ -169,7 +164,9 @@ class ProtoFieldInfo {
    * oneof fields, which can be checked using {@link #isInOneof()}.
    */
   Method oneOfCaseMethod() {
-    checkState(isInOneof(), "field is not in a oneof");
+    if (!isInOneof()) {
+      throw new IllegalStateException("field is not in a oneof");
+    }
     String methodName =
         "get" + underscoresToUpperCamelCase(field.getContainingOneof().getName()) + "Case";
     try {
@@ -244,7 +241,9 @@ class ProtoFieldInfo {
    * oneof fields, which can be checked using {@link #isInOneof()}.
    */
   String getOneOfCaseMethodName() {
-    checkState(isInOneof(), "field is not in a oneof");
+    if (!isInOneof()) {
+      throw new IllegalStateException("field is not in a oneof");
+    }
     return "get" + underscoresToUpperCamelCase(field.getContainingOneof().getName()) + "Case";
   }
 
@@ -260,10 +259,10 @@ class ProtoFieldInfo {
       return getEnumAsClassMethod().getReturnType();
     }
     if (isMapField()) {
-      checkArgument(
-          valueJavaType() == JavaType.ENUM,
-          "Trying to determine enum class of non-enum type: %s",
-          field);
+      if (valueJavaType() != JavaType.ENUM) {
+        throw new IllegalStateException(
+            "Trying to determine enum class of non-enum type: " + field);
+      }
       Message msgWithEnumValue =
           containingPrototype
               .newBuilderForType()
@@ -348,7 +347,9 @@ class ProtoFieldInfo {
    * map fields, which can be checked using {@link #isMapField()}.
    */
   private String getMapValueOrThrowMethodName() {
-    checkState(isMapField(), "field is not a map");
+    if (!isMapField()) {
+      throw new IllegalStateException("field is not a map");
+    }
     return "get" + camelCaseName + "OrThrow";
   }
 
@@ -378,18 +379,18 @@ class ProtoFieldInfo {
     StringBuilder result = new StringBuilder(input.length());
     for (int i = 0; i < input.length(); i++) {
       char c = input.charAt(i);
-      if (LOWERCASE_ASCII.matches(c)) {
+      if (c >= 'a' && c <= 'z') {
         if (capitalizeNextLetter) {
           result.append((char) (c + ('A' - 'a')));
         } else {
           result.append(c);
         }
         capitalizeNextLetter = false;
-      } else if (UPPERCASE_ASCII.matches(c)) {
+      } else if (c >= 'A' && c <= 'Z') {
         // Capital letters are left as-is.
         result.append(c);
         capitalizeNextLetter = false;
-      } else if (DIGITS_ASCII.matches(c)) {
+      } else if (c >= '0' && c <= '9') {
         result.append(c);
         capitalizeNextLetter = true;
       } else {

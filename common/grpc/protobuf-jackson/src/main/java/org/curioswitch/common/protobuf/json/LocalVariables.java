@@ -23,11 +23,6 @@
  */
 package org.curioswitch.common.protobuf.json;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -80,20 +75,22 @@ final class LocalVariables<T extends VariableHandle> {
       Map<String, T> handlesByName = new HashMap<>();
       for (T handle : handles) {
         String name = handle.name();
-        checkArgument(
-            !handlesByName.containsKey(name),
-            "Duplicate VariableHandle with same name, there must only be one handle per variable "
-                + "name: "
-                + name);
+        if (handlesByName.containsKey(name)) {
+          throw new IllegalArgumentException(
+              "Duplicate VariableHandle with same name, there must only be one handle per variable "
+                  + "name: "
+                  + name);
+        }
         handlesByName.put(name, handle);
       }
       for (ParameterDescription param : method.getParameters()) {
         T handle = handlesByName.get(param.getName());
-        checkNotNull(
-            handle,
-            "Could not find VariableHandle with same variableName as parameter. Make sure variable "
-                + "handles match names of method parameters. param name: "
-                + param.getName());
+        if (handle == null) {
+          throw new IllegalStateException(
+              "Could not find VariableHandle with same variableName as parameter. Make sure variable "
+                  + "handles match names of method parameters. param name: "
+                  + param.getName());
+        }
         accessors.put(
             handle,
             new VariableAccessor(
@@ -123,7 +120,7 @@ final class LocalVariables<T extends VariableHandle> {
   private final List<Class<?>> frameLocalTypes;
 
   private LocalVariables(Map<T, VariableAccessor> accessors, List<Class<?>> frameLocalTypes) {
-    this.accessors = ImmutableMap.copyOf(accessors);
+    this.accessors = new LinkedHashMap<>(accessors);
     this.frameLocalTypes = frameLocalTypes;
   }
 
@@ -135,9 +132,7 @@ final class LocalVariables<T extends VariableHandle> {
   StackManipulation initialize() {
     int numMethodParams = accessors.size() - frameLocalTypes.size();
     List<StackManipulation> ops = new ArrayList<>();
-    for (VariableAccessor var : Iterables.skip(accessors.values(), numMethodParams)) {
-      ops.add(var.initialize());
-    }
+    accessors.values().stream().skip(numMethodParams).forEach(var -> ops.add(var.initialize()));
     return new Compound(ops);
   }
 

@@ -27,8 +27,6 @@ import static org.curioswitch.common.protobuf.json.CodeGenUtil.invoke;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.SerializableString;
-import com.google.common.base.CaseFormat;
-import com.google.common.base.Converter;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.EnumDescriptor;
@@ -101,9 +99,6 @@ final class DoWrite implements ByteCodeAppender, Implementation {
     iterator,
     entry
   }
-
-  private static final Converter<String, String> TO_CAMEL_CASE =
-      CaseFormat.LOWER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL);
 
   private static final StackManipulation JsonGenerator_writeFieldName_SerializableString;
   private static final StackManipulation JsonGenerator_writeFieldName_String;

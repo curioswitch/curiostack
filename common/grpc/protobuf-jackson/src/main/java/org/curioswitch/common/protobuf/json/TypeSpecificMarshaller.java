@@ -23,8 +23,6 @@
  */
 package org.curioswitch.common.protobuf.json;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -176,8 +174,10 @@ public abstract class TypeSpecificMarshaller<T extends Message> {
         if (field.getName().startsWith("MARSHALLER_")) {
           try {
             TypeSpecificMarshaller<?> nested = builtMarshallersByFieldName.get(field.getName());
-            checkNotNull(
-                nested, "nested marshaller could not be found for field: %s", field.getName());
+            if (nested == null) {
+              throw new IllegalStateException(
+                  "nested marshaller could not be found for field: + field.getName()");
+            }
             field.set(m, nested);
           } catch (IllegalAccessException e) {
             throw new IllegalStateException(

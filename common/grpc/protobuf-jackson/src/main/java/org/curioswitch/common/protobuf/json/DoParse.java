@@ -27,8 +27,6 @@ import static org.curioswitch.common.protobuf.json.CodeGenUtil.invoke;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.ObjectArrays;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.EnumDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
@@ -264,7 +262,8 @@ final class DoParse implements ByteCodeAppender, Implementation {
     List<FieldDescriptor> sortedFields = CodeGenUtil.sorted(descriptor.getFields());
 
     // Fields stored in order of number, so to get the highest number we take the last field.
-    FieldDescriptor lastField = Iterables.getLast(sortedFields, null);
+    FieldDescriptor lastField =
+        !sortedFields.isEmpty() ? sortedFields.get(sortedFields.size() - 1) : null;
     // Field numbers are 1 or greater so we will allocate the same size as the last field number
     // and subtract 1 when keeping track.
     int lastFieldNumber = lastField != null ? lastField.getNumber() : 0;
@@ -274,18 +273,19 @@ final class DoParse implements ByteCodeAppender, Implementation {
       numFieldPresenceWords++;
     }
 
-    List<LocalVariable> fieldPresenceVars = new ArrayList<>();
+    LocalVariable[] fieldPresenceVars = new LocalVariable[numFieldPresenceWords];
     for (int i = 0; i < numFieldPresenceWords; i++) {
-      fieldPresenceVars.add(new LocalVariable("setFieldBits" + i));
+      fieldPresenceVars[i] = new LocalVariable("setFieldBits" + i);
     }
 
+    LocalVariable[] handles =
+        Arrays.copyOf(
+            LocalVariable.values(), LocalVariable.values().length + fieldPresenceVars.length);
+    System.arraycopy(
+        fieldPresenceVars, 0, handles, LocalVariable.values().length, fieldPresenceVars.length);
+
     LocalVariables.Builder<LocalVariable> localsBuilder =
-        LocalVariables.builderForMethod(
-                instrumentedMethod,
-                ObjectArrays.concat(
-                    LocalVariable.values(),
-                    Iterables.toArray(fieldPresenceVars, LocalVariable.class),
-                    LocalVariable.class))
+        LocalVariables.builderForMethod(instrumentedMethod, handles)
             .add(builderClass, LocalVariable.builder)
             .add(String.class, LocalVariable.fieldName)
             .add(int.class, LocalVariable.intvalue)
@@ -347,7 +347,7 @@ final class DoParse implements ByteCodeAppender, Implementation {
       ProtoFieldInfo field = new ProtoFieldInfo(f, prototype);
 
       int fieldNumberZeroBased = field.descriptor().getNumber() - 1;
-      LocalVariable fieldPresenceVar = fieldPresenceVars.get(fieldNumberZeroBased / Integer.SIZE);
+      LocalVariable fieldPresenceVar = fieldPresenceVars[fieldNumberZeroBased / Integer.SIZE];
       int fieldPreserveVarBitIndex = fieldNumberZeroBased % Integer.SIZE;
 
       // if-statement for checking whether the current JSON field name matches this field, e.g.,

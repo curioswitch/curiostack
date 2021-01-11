@@ -23,10 +23,10 @@
  */
 package org.curioswitch.common.protobuf.json;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -43,13 +43,12 @@ final class MarshallerRegistry {
   private final Map<String, TypeSpecificMarshaller<?>> typeNameRegistry;
 
   MarshallerRegistry(Map<Descriptor, TypeSpecificMarshaller<?>> descriptorRegistry) {
-    this.descriptorRegistry = ImmutableMap.copyOf(descriptorRegistry);
-    ImmutableMap.Builder<String, TypeSpecificMarshaller<?>> typeNameRegistry =
-        ImmutableMap.builder();
+    this.descriptorRegistry = new HashMap<>(descriptorRegistry);
+    Map<String, TypeSpecificMarshaller<?>> typeNameRegistry = new HashMap<>();
     for (Map.Entry<Descriptor, TypeSpecificMarshaller<?>> entry : descriptorRegistry.entrySet()) {
       typeNameRegistry.put(entry.getKey().getFullName(), entry.getValue());
     }
-    this.typeNameRegistry = typeNameRegistry.build();
+    this.typeNameRegistry = typeNameRegistry;
   }
 
   /**
