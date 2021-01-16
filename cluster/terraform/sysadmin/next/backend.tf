@@ -21,11 +21,32 @@
 # SOFTWARE.
 #
 
+resource "aws_s3_bucket" "terraform_state" {
+  bucket = "curioswitch-terraform-state-sysadmin"
+  versioning {
+    enabled = true
+  }
+}
+
+resource "aws_dynamodb_table" "terraform_state_locks" {
+  name = "curioswitch-terraform-state-locks"
+  hash_key = "LockID"
+  billing_mode = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+}
+
 terraform {
   backend "s3" {
     bucket = "curioswitch-terraform-state-sysadmin"
     key = "terraform.tfstate"
     region = "ap-northeast-1"
     role_arn = "arn:aws:iam::413941899617:role/Owner"
+    encrypt = true
+    skip_metadata_api_check = true
+    dynamodb_table = "curioswitch-terraform-state-locks"
   }
 }

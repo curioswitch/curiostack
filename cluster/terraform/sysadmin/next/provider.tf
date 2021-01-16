@@ -22,7 +22,7 @@
 #
 
 provider "aws" {
-  version = "~> 2.60"
+  version = "~> 3.0"
   region = "ap-northeast-1"
 
   assume_role {
