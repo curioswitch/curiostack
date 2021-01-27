@@ -1,15 +1,15 @@
-package org.curioswitch.gradle.documentation.extension
+package org.curioswitch.gradle.documentation
 
 import org.gradle.api.Project
 
-class GradleDocumentationPluginExtension {
+class DocumentationExtension {
   private final Project project
   private static final String DEFAULT_DOC_NAME = 'documentation.md'
 
   String templateFilePath
   String templateOutputPath
 
-  GradleDocumentationPluginExtension(Project project) {
+  DocumentationExtension(Project project) {
     this.project = project
   }
 
