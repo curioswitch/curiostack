@@ -26,10 +26,6 @@ plugins {
     `maven-publish`
 }
 
-repositories {
-    jcenter()
-}
-
 dependencies {
     implementation("com.google.guava:guava")
 
