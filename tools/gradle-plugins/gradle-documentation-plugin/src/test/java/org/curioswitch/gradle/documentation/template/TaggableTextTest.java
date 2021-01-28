@@ -49,42 +49,42 @@ class TaggableTextTest {
   @Test
   void allAfterTaggedLine() {
     Assertions.assertEquals(
-        "\nPragraph after tags\n",
+        "\nParagraph after tags\n",
         taggableText.allAfterTaggedLine("d1e").toString());
   }
 
   @Test
   void allAfterTaggedLineWithRegex() {
     Assertions.assertEquals(
-        "\nPragraph after tags\n",
+        "\nParagraph after tags\n",
         taggableText.allAfterTaggedLine(".*d1e.*", true).toString());
   }
 
   @Test
   void allAfterTaggedLineWithoutRegex() {
     Assertions.assertEquals(
-        "\nPragraph after tags\n",
+        "\nParagraph after tags\n",
         taggableText.allAfterTaggedLine("d1e", false).toString());
   }
 
   @Test
   void allBetweenTaggedLines() {
     Assertions.assertEquals(
-        "Paragrpah\nin tags\n",
+        "Paragraph\nin tags\n",
         taggableText.allBetweenTaggedLines("d1s", "d1e").toString());
   }
 
   @Test
   void allBetweenTaggedLinesWithRegex() {
     Assertions.assertEquals(
-        "Paragrpah\nin tags\n",
+        "Paragraph\nin tags\n",
         taggableText.allBetweenTaggedLines(".*d1s.*", ".*d1e.*", true).toString());
   }
 
   @Test
   void allBetweenTaggedLinesWithoutRegex() {
     Assertions.assertEquals(
-        "Paragrpah\nin tags\n",
+        "Paragraph\nin tags\n",
         taggableText.allBetweenTaggedLines("d1s", "d1e", false).toString());
   }
 

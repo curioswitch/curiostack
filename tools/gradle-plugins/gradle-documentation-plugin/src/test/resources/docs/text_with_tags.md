@@ -1,8 +1,8 @@
 # Hello
 
 <!--- d1s -->
-Paragrpah
+Paragraph
 in tags
 <!--- d1e -->
 
-Pragraph after tags
+Paragraph after tags

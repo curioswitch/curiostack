@@ -67,52 +67,52 @@ class TextScannerTest {
     List<Pair<Function<TextScanner, String>, String>> result = new ArrayList<>();
     result.add(Pair.with(
         s -> s.getAllAfterLineContaining("d1s"),
-        "Paragrpah\nin tags\n<!--- d1e -->\n\nPragraph after tags\n"));
+        "Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n"));
     result.add(Pair.with(
         s -> s.getAllAfterLineContaining("d1e"),
-        "\nPragraph after tags\n"));
+        "\nParagraph after tags\n"));
     result.add(Pair.with(
         s -> s.getAllAfterLineContaining("wrong_tag"),
         ""));
     result.add(Pair.with(
         s -> s.getAllBetweenLinesContaining("d1s", "d1e"),
-        "Paragrpah\nin tags\n"));
+        "Paragraph\nin tags\n"));
     result.add(Pair.with(
         s -> s.getAllBetweenLinesContaining("d1s", "wrong_tag"),
-        "Paragrpah\nin tags\n<!--- d1e -->\n\nPragraph after tags\n"));
+        "Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n"));
     result.add(Pair.with(
         s -> s.getAllBetweenLinesContaining("d1e", "wrong_tag"),
-        "\nPragraph after tags\n"));
+        "\nParagraph after tags\n"));
     result.add(Pair.with(
         s -> s.getAllBetweenLinesContaining("wrong_tag", "d1e"),
         ""));
     result.add(Pair.with(
         s -> s.getAllAfterLineMatching(".*d1s.*"),
-        "Paragrpah\nin tags\n<!--- d1e -->\n\nPragraph after tags\n"));
+        "Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n"));
     result.add(Pair.with(
         s -> s.getAllAfterLineMatching(".*d1e.*"),
-        "\nPragraph after tags\n"));
+        "\nParagraph after tags\n"));
     result.add(Pair.with(
         s -> s.getAllAfterLineMatching("d1s"),
         ""));
     result.add(Pair.with(
         s -> s.getAllBetweenLinesMatching(".*d1s.*", ".*d1e.*"),
-        "Paragrpah\nin tags\n"));
+        "Paragraph\nin tags\n"));
     result.add(Pair.with(
         s -> s.getAllBetweenLinesMatching(".*d1s.*", ".*wrong_tag.*"),
-        "Paragrpah\nin tags\n<!--- d1e -->\n\nPragraph after tags\n"));
+        "Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n"));
     result.add(Pair.with(
         s -> s.getAllBetweenLinesMatching(".*d1s.*", "d1e"),
-        "Paragrpah\nin tags\n<!--- d1e -->\n\nPragraph after tags\n"));
+        "Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n"));
     result.add(Pair.with(
         s -> s.getAllBetweenLinesMatching(".*d1e.*", "wrong_tag"),
-        "\nPragraph after tags\n"));
+        "\nParagraph after tags\n"));
     result.add(Pair.with(
         s -> s.getAllAfterLineAsserting(l -> l.contains("d1s")),
-        "Paragrpah\nin tags\n<!--- d1e -->\n\nPragraph after tags\n"));
+        "Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n"));
     result.add(Pair.with(
         s -> s.getAllBetweenLinesAsserting(l -> l.contains("d1s"), l -> l.contains("d1e")),
-        "Paragrpah\nin tags\n"));
+        "Paragraph\nin tags\n"));
 
     return result;
   }
