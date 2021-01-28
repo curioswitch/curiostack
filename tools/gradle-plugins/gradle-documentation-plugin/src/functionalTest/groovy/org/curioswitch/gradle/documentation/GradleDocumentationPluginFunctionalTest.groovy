@@ -6,7 +6,7 @@ import org.gradle.testkit.runner.GradleRunner
 class GradleDocumentationPluginFunctionalTest extends Specification {
   def 'should run task'() {
     given:
-    def testResourceDirPath = '/home/vmeiren/git/gradle-documentation-plugin/src/test/resources'
+    def testResourceDirPath = 'src/test/resources'
     def testDir = new File('build/functionalTest')
     testDir.mkdirs()
     new File(testDir, 'settings.gradle') << ''
@@ -27,7 +27,7 @@ class GradleDocumentationPluginFunctionalTest extends Specification {
         .withProjectDir(testDir)
 
     and:
-    def expectedProcessedTemplate = new File(testResourceDirPath, 'template_processed.md').text
+    def expectedProcessedTemplate = new File("$testResourceDirPath/template_processed.md").text
 
     when:
     runner.withArguments('buildDocumentation').build()

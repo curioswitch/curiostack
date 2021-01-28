@@ -52,10 +52,10 @@ public class DocumentationPlugin implements Plugin<Project> {
 
         var outputFile = new File(extension.getTemplateOutputPath());
         outputFile.getParentFile().mkdirs();
-        String content = new TemplateProcessor(templateFile).process();
         try {
+          String content = new TemplateProcessor(templateFile).process();
           Files.write(content.getBytes(StandardCharsets.UTF_8), outputFile);
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
           throw new RuntimeException(e);
         }
       });
