@@ -31,15 +31,6 @@ repositories {
     jcenter()
 }
 
-sourceSets {
-    main {
-        withConvention(GroovySourceSet::class) {
-            java.setSrcDirs(emptyList<String>())
-            groovy.setSrcDirs(listOf("src/main/java", "src/main/groovy"))
-        }
-    }
-}
-
 dependencies {
     implementation(project(":tools:gradle-plugins:gradle-helpers"))
 
@@ -51,7 +42,8 @@ dependencies {
     annotationProcessor("org.immutables:value")
     compileOnly("org.immutables:value-annotations")
 
-    testImplementation("org.spockframework:spock-core:1.3-groovy-2.5")
+    testImplementation(gradleTestKit())
+    testImplementation("org.javatuples:javatuples:1.2")
 }
 
 gradlePlugin {
@@ -63,20 +55,4 @@ gradlePlugin {
             implementationClass = "org.curioswitch.gradle.documentation.DocumentationPlugin"
         }
     }
-}
-
-val functionalTestSourceSet = sourceSets.create("functionalTest") {}
-
-gradlePlugin.testSourceSets(functionalTestSourceSet)
-configurations.getByName("functionalTestImplementation")
-        .extendsFrom(configurations.getByName("testImplementation"))
-
-val functionalTest by tasks.registering(Test::class) {
-    group = "verification"
-    testClassesDirs = functionalTestSourceSet.output.classesDirs
-    classpath = functionalTestSourceSet.runtimeClasspath
-}
-
-val check by tasks.getting(Task::class) {
-    dependsOn(functionalTest)
 }
