@@ -24,7 +24,7 @@
 
 plugins {
     `java-gradle-plugin`
-    groovy
+    `maven-publish`
 }
 
 repositories {
@@ -32,27 +32,33 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":tools:gradle-plugins:gradle-helpers"))
-
-    implementation("com.google.gradle:osdetector-gradle-plugin")
     implementation("com.google.guava:guava")
-
-    compileOnly(project(":common:curio-helpers"))
-
-    annotationProcessor("org.immutables:value")
-    compileOnly("org.immutables:value-annotations")
 
     testImplementation(gradleTestKit())
     testImplementation("org.javatuples:javatuples:1.2")
 }
 
+val descriptionContent = "Gradle plugin for building and publishing documentation."
 gradlePlugin {
     plugins {
         register("documentation") {
             id = "org.curioswitch.gradle-documentation-plugin"
             displayName = "Gradle Documentation Plugin"
-            description = "A plugin for building and publishing documentation."
+            description = descriptionContent
             implementationClass = "org.curioswitch.gradle.documentation.DocumentationPlugin"
+        }
+    }
+}
+
+publishing {
+    publications {
+        register<MavenPublication>("pluginMaven") {
+            pom {
+                name.set("Gradle Documentation Plugin")
+                description.set(descriptionContent)
+                url.set("https://github.com/curioswitch/curiostack/tree/master/tools/" +
+                        "gradle-plugins/gradle-documentation-plugin")
+            }
         }
     }
 }
