@@ -36,6 +36,7 @@ dependencies {
 
     testImplementation(gradleTestKit())
     testImplementation("org.javatuples:javatuples:1.2")
+    testImplementation(project(":tools:gradle-plugins:gradle-test-helpers"))
 }
 
 val descriptionContent = "Gradle plugin for building and publishing documentation."
