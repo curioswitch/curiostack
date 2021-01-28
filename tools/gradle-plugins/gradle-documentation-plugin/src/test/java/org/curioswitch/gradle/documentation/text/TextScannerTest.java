@@ -2,6 +2,7 @@ package org.curioswitch.gradle.documentation.text;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import com.google.common.io.Resources;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,9 +20,9 @@ class TextScannerTest {
       scannerMethodCallsWithExpectedOutputs = populateSMCWEO();
 
   @Test
-  void shouldParseTextCorrectly() throws IOException {
-    var textWithTagsFile = new File(getClass().getResource("/docs/text_with_tags.md").getFile());
-    String textWithTags = Files.asCharSource(textWithTagsFile, Charsets.UTF_8).read();
+  void parseTextCorrectly() throws IOException {
+    String textWithTags = Resources.asCharSource(
+        Resources.getResource("docs/text_with_tags.md"), Charsets.UTF_8).read();
     var scanner = new TextScanner(textWithTags);
 
     scannerMethodCallsWithExpectedOutputs.forEach(pair ->
@@ -29,8 +30,8 @@ class TextScannerTest {
   }
 
   @Test
-  void shouldLoadTextFromFile() throws IOException, NoSuchFieldException, IllegalAccessException {
-    var file = new File(getClass().getResource("/docs/text_with_tags.md").getFile());
+  void loadTextFromFile() throws IOException, NoSuchFieldException, IllegalAccessException {
+    var file = new File(Resources.getResource("docs/text_with_tags.md").getFile());
     String fileContent = Files.asCharSource(file, Charsets.UTF_8).read();
     var textScanner = new TextScanner(file);
 

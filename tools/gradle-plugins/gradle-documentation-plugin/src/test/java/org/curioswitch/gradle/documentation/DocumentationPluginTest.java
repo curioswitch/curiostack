@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 class DocumentationPluginTest {
 
   @Test
-  void shouldRegisterExtensionAndTasks() {
+  void registerExtensionAndTasks() {
     Project project = ProjectBuilder.builder().build();
     project.getPlugins().apply("org.curioswitch.gradle-documentation-plugin");
 

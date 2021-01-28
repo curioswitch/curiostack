@@ -2,6 +2,8 @@ package org.curioswitch.gradle.documentation;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import com.google.common.io.MoreFiles;
+import com.google.common.io.Resources;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -13,22 +15,16 @@ import java.nio.charset.StandardCharsets;
 class DocumentationPluginFunctionalTest {
 
   @Test
-  void shouldRun() throws IOException {
-    var testDir = new File("build/functionalTest");
-    testDir.deleteOnExit();
-    testDir.mkdirs();
-
-    String testResourceDirPath = "src/test/resources";
-
+  void runTasksCorrectly() throws IOException {
     String buildContent = String.format("" +
             "plugins { id('org.curioswitch.gradle-documentation-plugin') }\n" +
-            "documentation { templateFilePath = '%s/template.md' }",
-        testResourceDirPath);
-    Files.write("".getBytes(StandardCharsets.UTF_8), new File(testDir, "settings.gradle"));
-    Files.write(buildContent.getBytes(StandardCharsets.UTF_8), new File(testDir, "build.gradle"));
+            "documentation { templateFilePath = '%s' }",
+        Resources.getResource("template.md").getPath());
 
-    String expectedProcessedTemplate = Files.asCharSource(
-        new File(testResourceDirPath + "/template_processed.md"), Charsets.UTF_8).read();
+    var testDir = new File("build/functionalTest");
+    testDir.mkdirs();
+    Files.touch(new File(testDir, "settings.gradle"));
+    Files.write(buildContent.getBytes(StandardCharsets.UTF_8), new File(testDir, "build.gradle"));
 
     GradleRunner runner = GradleRunner.create()
         .forwardOutput()
@@ -36,9 +32,15 @@ class DocumentationPluginFunctionalTest {
         .withProjectDir(testDir);
 
     runner.withArguments("buildDocumentation").build();
-    String processedTemplate = Files.asCharSource(
-        new File(testDir, "build/documentation/documentation.md"), Charsets.UTF_8).read();
-    Assertions.assertEquals(expectedProcessedTemplate, processedTemplate);
+    var documentationFile = new File(testDir, "build/documentation/documentation.md");
+    Assertions.assertTrue(documentationFile.isFile());
+
+    String documentationText = Files.asCharSource(documentationFile, Charsets.UTF_8).read();
+    String expectedProcessedTemplate = Resources.asCharSource(
+        Resources.getResource("template_processed.md"), Charsets.UTF_8).read();
+    Assertions.assertEquals(expectedProcessedTemplate, documentationText);
+
+    MoreFiles.deleteRecursively(testDir.toPath());
   }
 
 }
