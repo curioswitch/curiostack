@@ -23,7 +23,7 @@
  */
 package org.curioswitch.curiostack.gcloud.core.auth;
 
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.json.webtoken.JsonWebSignature;
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;
@@ -99,7 +99,7 @@ class ServiceAccountAccessTokenProvider extends AbstractAccessTokenProvider {
     try {
       assertion =
           JsonWebSignature.signUsingRsaSha256(
-              credentials.getPrivateKey(), JacksonFactory.getDefaultInstance(), header, payload);
+              credentials.getPrivateKey(), GsonFactory.getDefaultInstance(), header, payload);
     } catch (GeneralSecurityException | IOException e) {
       throw new IllegalStateException(
           "Error signing service account access token request with private key.", e);

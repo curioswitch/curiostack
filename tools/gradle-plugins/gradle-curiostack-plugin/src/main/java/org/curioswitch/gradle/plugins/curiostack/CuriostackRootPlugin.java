@@ -31,6 +31,7 @@ import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
 import com.diffplug.gradle.spotless.SpotlessTask;
 import com.github.benmanes.gradle.versions.VersionsPlugin;
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
@@ -43,9 +44,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import me.champeau.gradle.JMHPlugin;
 import me.champeau.gradle.JMHPluginExtension;
@@ -217,7 +220,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           .put("MultipleUnaryOperatorsInMethodCall", ERROR)
           .put("PackageLocation", ERROR)
           .put("ParameterComment", ERROR)
-          .put("ParameterNotNullable", ERROR)
           .put("PrivateConstructorForUtilityClass", ERROR)
           // Handled by spotless which also allows fixing it.
           .put("RemoveUnusedImports", OFF)
@@ -232,6 +234,8 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           .put("BadImport", OFF)
           .put("JavaTimeDefaultTimeZone", OFF)
           .build();
+
+  private static final Pattern IS_STABLE_VERSION = Pattern.compile("^[0-9,.v-]+(-r)?$");
 
   @Override
   public void apply(Project rootProject) {
@@ -359,6 +363,41 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           project
               .getPlugins()
               .withType(JavaPlugin.class, plugin -> setupJavaProject(project, ERROR_PRONE_CHECKS));
+
+          project
+              .getPlugins()
+              .withType(
+                  VersionsPlugin.class,
+                  unused -> {
+                    project
+                        .getTasks()
+                        .named(
+                            "dependencyUpdates",
+                            DependencyUpdatesTask.class,
+                            task -> {
+                              task.setRevision("release");
+                              task.setCheckConstraints(true);
+
+                              task.rejectVersionIf(
+                                  filter -> {
+                                    String version = filter.getCandidate().getVersion();
+                                    String uppercaseVersion = version.toUpperCase(Locale.ROOT);
+                                    if (uppercaseVersion.contains("RELEASE")
+                                        || uppercaseVersion.contains("FINAL")
+                                        || uppercaseVersion.contains("GA")) {
+                                      return false;
+                                    }
+                                    if (IS_STABLE_VERSION.matcher(version).matches()) {
+                                      return false;
+                                    }
+                                    if (version.endsWith("-jre")) {
+                                      // Guava
+                                      return false;
+                                    }
+                                    return true;
+                                  });
+                            });
+                  });
 
           project
               .getPlugins()
