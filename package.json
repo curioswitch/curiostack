@@ -135,6 +135,7 @@
     "packages": [
       "cafe-map/api/build/web",
       "cafe-map/client/web",
+      "cluster/pulumi/github",
       "cluster/pulumi/root",
       "cluster/pulumi/sysadmin",
       "common/web/base-node-dev",
