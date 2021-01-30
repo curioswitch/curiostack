@@ -1,5 +1,5 @@
 {
-    "name": "pulumi-sysadmin",
+    "name": "pulumi-root",
     "version": "0.0.1",
     "private": true,
     "devDependencies": {

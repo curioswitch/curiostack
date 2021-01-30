@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Choko (choko@curioswitch.org)
+ * Copyright (c) 2021 Choko (choko@curioswitch.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,33 +23,27 @@
  */
 
 import * as aws from '@pulumi/aws';
-import * as pulumi from '@pulumi/pulumi';
 
-const curiostackOrg = new aws.organizations.Organization('curiostack', {});
-
-// NOTE: This account is unused. It turns out to be simpler to manage sysadmin resources in the
-// root account. We may use it later for sysadmin-specific resources rather than core
-// infrastructure.
-export const sysadminAccount = new aws.organizations.Account(
-  'sysadmin',
-  {
-    name: 'sysadmin',
-    email: 'sysadmin-ext@curioswitch.org',
-    parentId: curiostackOrg.roots[0].id,
-    roleName: 'Owner',
-  },
-  {
-    ignoreChanges: ['roleName'],
-  },
-);
-
-const engineeringAccount = new aws.organizations.Account('engineering', {
-  name: 'engineering',
-  email: 'aws-engineering@curioswitch.org',
-  parentId: curiostackOrg.roots[0].id,
-  roleName: 'Owner',
+const zone = new aws.route53.Zone('kawaii-map.com', {
+  name: 'kawaii-map.com',
 });
 
-export const engineeringOwnerRole = pulumi
-  .all([engineeringAccount.id, engineeringAccount.roleName])
-  .apply(([id, roleName]) => `arn:aws:iam::${id}:role/${roleName}`);
+const cname = (subdomain: string, target: string) =>
+  new aws.route53.Record(
+    `${subdomain}.kawaii-map.com`,
+    {
+      zoneId: zone.zoneId,
+      name: `${subdomain}.kawaii-map.com`,
+      type: 'CNAME',
+      ttl: 300,
+      records: [target],
+    },
+    {
+      parent: zone,
+    },
+  );
+
+const www = cname(
+  'www',
+  'curiobalancer-1597516419.ap-northeast-1.elb.amazonaws.com',
+);

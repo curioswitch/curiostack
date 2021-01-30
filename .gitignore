@@ -188,3 +188,4 @@ sysinfo.txt
 *.apk
 *.unitypackage
 
+.terraform
