@@ -44,8 +44,8 @@ class TextScannerTest {
 
   @Test
   void parseTextCorrectly() throws IOException {
-    String textWithTags = Resources.asCharSource(
-        Resources.getResource("docs/text_with_tags.md"), Charsets.UTF_8).read();
+    String textWithTags = Resources.toString(
+        Resources.getResource("docs/text_with_tags.md"), Charsets.UTF_8);
     var scanner = new TextScanner(textWithTags);
 
     scannerMethodCallsWithExpectedOutputs.forEach(pair ->

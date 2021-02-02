@@ -29,6 +29,7 @@ import groovy.lang.Closure;
 import groovy.text.SimpleTemplateEngine;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -37,13 +38,13 @@ public class TemplateProcessor {
   private final File templateFile;
   private final File templateFileDir;
 
-  public TemplateProcessor(String templateFilePath) {
+  public TemplateProcessor(String templateFilePath) throws FileNotFoundException {
     this(new File(templateFilePath));
   }
 
-  public TemplateProcessor(File templateFile) {
+  public TemplateProcessor(File templateFile) throws FileNotFoundException {
     if (!templateFile.isFile()) {
-      throw new IllegalArgumentException("Provided template file does not exist.");
+      throw new FileNotFoundException("Cannot find provided template file.");
     }
 
     this.templateFile = templateFile;

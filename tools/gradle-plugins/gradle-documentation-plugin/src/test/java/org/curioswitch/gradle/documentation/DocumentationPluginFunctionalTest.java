@@ -79,8 +79,8 @@ class DocumentationPluginFunctionalTest {
     Assertions.assertTrue(builtDocsFile.isFile());
 
     String builtDocsText = Files.asCharSource(builtDocsFile, Charsets.UTF_8).read();
-    String expectedProcessedTemplate = Resources.asCharSource(
-        Resources.getResource("template_processed.md"), Charsets.UTF_8).read();
+    String expectedProcessedTemplate = Resources.toString(
+        Resources.getResource("template_processed.md"), Charsets.UTF_8);
     Assertions.assertEquals(expectedProcessedTemplate, builtDocsText);
   }
 
@@ -107,8 +107,8 @@ class DocumentationPluginFunctionalTest {
     Assertions.assertTrue(builtDocsFile.isFile());
 
     String builtDocsText = Files.asCharSource(builtDocsFile, Charsets.UTF_8).read();
-    String expectedProcessedTemplate = Resources.asCharSource(
-        Resources.getResource("template_processed.md"), Charsets.UTF_8).read();
+    String expectedProcessedTemplate = Resources.toString(
+        Resources.getResource("template_processed.md"), Charsets.UTF_8);
     Assertions.assertEquals(expectedProcessedTemplate, builtDocsText);
   }
 

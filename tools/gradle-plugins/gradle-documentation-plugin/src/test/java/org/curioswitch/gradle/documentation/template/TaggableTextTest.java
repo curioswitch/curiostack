@@ -37,8 +37,8 @@ class TaggableTextTest {
   private TaggableText taggableText;
 
   TaggableTextTest() throws IOException {
-    textWithTags = Resources.asCharSource(
-        Resources.getResource("docs/text_with_tags.md"), Charsets.UTF_8).read();
+    textWithTags = Resources.toString(
+        Resources.getResource("docs/text_with_tags.md"), Charsets.UTF_8);
   }
 
   @BeforeEach

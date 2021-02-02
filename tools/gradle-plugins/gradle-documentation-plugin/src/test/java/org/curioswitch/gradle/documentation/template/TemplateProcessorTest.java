@@ -34,8 +34,8 @@ public class TemplateProcessorTest {
 
   @Test
   void processTemplate() throws IOException, ClassNotFoundException {
-    String processedTemplateText = Resources.asCharSource(
-        Resources.getResource("template_processed.md"), Charsets.UTF_8).read();
+    String processedTemplateText = Resources.toString(
+        Resources.getResource("template_processed.md"), Charsets.UTF_8);
 
     var templateProcessor = new TemplateProcessor(
         getClass().getResource("/template.md").getPath());
