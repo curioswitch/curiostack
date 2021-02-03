@@ -1,0 +1,11 @@
+{
+  "name": "@curiostack/nunjucks",
+  "version": "1.0.0",
+  "description": "Curiostack extended version of nunjucks",
+  "repository": "curioswitch/curiostack",
+  "author": "Walter Meiren <walter@meiren.dev>",
+  "license": "MIT",
+  "devDependencies": {
+    "nunjucks": "3.2.2"
+  }
+}

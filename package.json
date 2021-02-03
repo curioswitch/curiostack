@@ -138,6 +138,7 @@
       "cluster/pulumi/github",
       "cluster/pulumi/root",
       "cluster/pulumi/sysadmin",
+      "common/nunjucks",
       "common/web/base-node-dev",
       "common/web/base-web",
       "common/web/eslint-config-base",
