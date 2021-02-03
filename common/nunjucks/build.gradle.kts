@@ -22,12 +22,6 @@
  * SOFTWARE.
  */
 
-const NunjucksEnvironment = require('nunjucks').Environment
-
-export default class extends NunjucksEnvironment {
-  constructor(loaders?, opts?) {
-    super(loaders, opts)
-
-    this.addFilter('foo', text => { return 'BAR!' })
-  }
+plugins {
+    id("org.curioswitch.gradle-node-plugin")
 }

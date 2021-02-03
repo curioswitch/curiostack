@@ -22,12 +22,10 @@
  * SOFTWARE.
  */
 
-const NunjucksEnvironment = require('nunjucks').Environment
+import Nunjucks from '.'
 
-export default class extends NunjucksEnvironment {
-  constructor(loaders?, opts?) {
-    super(loaders, opts)
+test('has filters', () => {
+  const nunjucks = new Nunjucks()
 
-    this.addFilter('foo', text => { return 'BAR!' })
-  }
-}
+  expect(nunjucks.getFilter('foo')).toBeDefined()
+})

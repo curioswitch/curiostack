@@ -5,7 +5,15 @@
   "repository": "curioswitch/curiostack",
   "author": "Walter Meiren <walter@meiren.dev>",
   "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
   "devDependencies": {
     "nunjucks": "3.2.2"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    }
   }
 }
