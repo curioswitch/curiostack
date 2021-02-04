@@ -22,10 +22,15 @@
  * SOFTWARE.
  */
 
-import Nunjucks from '.'
+const NunjucksEnvironment = require('nunjucks').Environment
 
-test('has filters', () => {
-  const nunjucks = new Nunjucks()
+import { allAfterTaggedLine, allBetweenTaggedLines } from '../filters'
 
-  expect(nunjucks.getFilter('foo')).toBeDefined()
-})
+export default class CurioNunjucksEnvironment extends NunjucksEnvironment {
+  constructor(loaders?, opts?) {
+    super(loaders, opts)
+
+    this.addFilter('allAfterTaggedLine', allAfterTaggedLine)
+    this.addFilter('allBetweenTaggedLines', allBetweenTaggedLines)
+  }
+}
