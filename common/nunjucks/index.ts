@@ -22,4 +22,9 @@
  * SOFTWARE.
  */
 
-export { default } from './src/main/CurioNunjucksEnvironment'
+import CurioNunjucksEnvironment from './src/main/CurioNunjucksEnvironment'
+
+const nunjucks = require('nunjucks')
+nunjucks.Environment = CurioNunjucksEnvironment
+
+export default nunjucks
