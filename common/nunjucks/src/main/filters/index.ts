@@ -51,7 +51,8 @@ function getAllBetweenLinesAsserting(
     }
 
     if (startLineFound) {
-      if (startAndEndLineFound = endLineAssertion(line)) {
+      if (endLineAssertion(line)) {
+        startAndEndLineFound = true
         return
       }
 

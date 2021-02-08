@@ -8,7 +8,8 @@ with some extra convenience methods added on.
 ### Import
 
 The extended `nunjucks` object can be imported in other `curiostack` `yarn` modules
-using the package name `@curiostack/nunjucks`.
+using the package name `@curiostack/nunjucks`. It can work outside of curiostack as well,
+but your project must use typescript and be configured to compile this module.
 
 ```typescript
 import nunjucks from '@curiostack/nunjucks'
