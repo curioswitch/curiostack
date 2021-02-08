@@ -24,13 +24,13 @@
 
 const NunjucksEnvironment = require('nunjucks').Environment
 
-import { allAfterTaggedLine, allBetweenTaggedLines } from '../filters'
+import { allAfterLine, allBetweenLines } from '../filters'
 
 export default class CurioNunjucksEnvironment extends NunjucksEnvironment {
   constructor(loaders?, opts?) {
     super(loaders, opts)
 
-    this.addFilter('allAfterTaggedLine', allAfterTaggedLine)
-    this.addFilter('allBetweenTaggedLines', allBetweenTaggedLines)
+    this.addFilter('allAfterLine', allAfterLine)
+    this.addFilter('allBetweenLines', allBetweenLines)
   }
 }

@@ -48,15 +48,13 @@ const result = env.render('template.njk')
 
 The `Environment` object is extended with some extra convenience filters.
 
-#### allAfterTaggedLine(tag: string, [useRegex: boolean])
+#### allAfterLine(lineMatcher: string, [doInclusionCheck: boolean])
 
-Scans the content of a multiline text and returns all the lines after a tagged line.
+Scans the content of a multiline text and returns all the lines after a line
+matching a `regex` expression.
 
-A tagged line is a line which contains the `tag` text within it.
-
-Alternatively, if `useRegex` is `true`, the tagged line is a line
-which matches the `tag` as a `regex` expression exactly.
-A partial match will not count.
+Alternatively, if `doInclusionCheck` is `true`, the line is checked if it
+includes `lineMatcher` within it, instead of doing a `regex` evaluation.
 
 > The last line gets `\n` appended to it.
 > If you wish, you can use `trim` to get rid of it.
@@ -64,8 +62,8 @@ A partial match will not count.
 ##### input
 
 ```
-{{ 'foo\na unique line\nbar\nbaz' | allAfterTaggedLine('unique') | trim }}
-{{ 'foo\na unique line\nbar\nbaz' | allAfterTaggedLine('.*unique.*', true) | trim }}
+{{ 'foo\na unique line\nbar\nbaz' | allAfterLine('.*unique.*') | trim }}
+{{ 'foo\na unique line\nbar\nbaz' | allAfterLine('unique', true) | trim }}
 ```
 
 ##### output
@@ -75,15 +73,13 @@ bar\nbaz
 bar\nbaz
 ```
 
-#### allBetweenTaggedLines(startTag: string, endTag: string, [useRegex: boolean])
+#### allBetweenLines(lineMatcher: string, [doInclusionCheck: boolean])
 
-Scans the content of a multiline text and returns all the lines between two tagged lines.
+Scans the content of a multiline text and returns all the lines between two lines
+matching a `regex` expression.
 
-A tagged line is a line which contains the `startTag|endTag` text within it.
-
-Alternatively, if `useRegex` is `true`, the tagged line is a line
-which matches the `startTag|endTag` as a `regex` expression exactly.
-A partial match will not count.
+Alternatively, if `doInclusionCheck` is `true`, the lines are checked if they
+include `lineMatcher` within themselves, instead of doing a `regex` evaluation.
 
 > The last line gets `\n` appended to it.
 > If you wish, you can use `trim` to get rid of it.
@@ -91,8 +87,8 @@ A partial match will not count.
 ##### input
 
 ```
-{{ 'foo\nuniq1\nbar\nbaz\nuniq2\nfoz' | allBetweenTaggedLines('q1', 'q2') | trim }}
-{{ 'foo\nuniq1\nbar\nbaz\nuniq2\nfoz' | allBetweenTaggedLines('.*q1.*', '.*q2.*', true) | trim }}
+{{ 'foo\nuniq\nbar\nbaz\nuniq\nfoz' | allBetweenLines('.*uniq.*') | trim }}
+{{ 'foo\nuniq\nbar\nbaz\nuniq\nfoz' | allBetweenLines('uniq', true) | trim }}
 ```
 
 ##### output

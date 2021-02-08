@@ -22,20 +22,25 @@
  * SOFTWARE.
  */
 
-export function allAfterTaggedLine(text: string, tag: string, useRegex = false): string {
-  return getAllBetweenLinesAsserting(text, makeLineAssertion(tag, useRegex), () => false)
+export function allAfterLine(text: string, lineMatcher: string, doInclusionCheck = false): string {
+  return getAllBetweenLinesAsserting(
+    text, makeLineAssertion(lineMatcher, doInclusionCheck), () => false)
 }
 
-export function allBetweenTaggedLines(
-    text: string, startTag: string, endTag: string, useRegex = false): string {
+export function allBetweenLines(
+    text: string, lineMatcher: string, doInclusionCheck = false): string {
   return getAllBetweenLinesAsserting(
-    text, makeLineAssertion(startTag, useRegex), makeLineAssertion(endTag, useRegex))
+    text,
+    makeLineAssertion(lineMatcher, doInclusionCheck),
+    makeLineAssertion(lineMatcher, doInclusionCheck)
+  )
 }
 
 type LineAssertion = (line: string) => boolean
 
-function makeLineAssertion(tag: string, useRegex: boolean): LineAssertion {
-  return (line: string) => useRegex ? new RegExp(tag).test(line) : line.includes(tag)
+function makeLineAssertion(lineMatcher: string, doInclusionCheck: boolean): LineAssertion {
+  return (line: string) => doInclusionCheck ?
+    line.includes(lineMatcher) : new RegExp(lineMatcher).test(line)
 }
 
 function getAllBetweenLinesAsserting(
