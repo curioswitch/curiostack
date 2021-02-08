@@ -22,14 +22,14 @@
  * SOFTWARE.
  */
 
-import { Environment, ILoader, ConfigureOptions } from 'nunjucks'
-import { allAfterLine, allBetweenLines } from '../filters'
+import { Environment, ILoader, ConfigureOptions } from 'nunjucks';
+import { allAfterLine, allBetweenLines } from '../filters';
 
 export default class CurioNunjucksEnvironment extends Environment {
   constructor(loaders?: ILoader | ILoader[] | null, opts?: ConfigureOptions) {
-    super(loaders, opts)
+    super(loaders, opts);
 
-    this.addFilter('allAfterLine', allAfterLine)
-    this.addFilter('allBetweenLines', allBetweenLines)
+    this.addFilter('allAfterLine', allAfterLine);
+    this.addFilter('allBetweenLines', allBetweenLines);
   }
 }

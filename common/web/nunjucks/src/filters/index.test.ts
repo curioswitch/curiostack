@@ -22,54 +22,68 @@
  * SOFTWARE.
  */
 
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
-import { allAfterLine, allBetweenLines } from '.'
+import { allAfterLine, allBetweenLines } from '.';
 
-const textWithTags = readFileSync(resolve(__dirname, '../resources/text_with_tags.txt'), 'utf8')
+const textWithTags = readFileSync(
+  resolve(__dirname, '../resources/text_with_tags.txt'),
+  'utf8',
+);
 
 describe('allAfterLine', () => {
-  const expectedResult = 'Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n'
+  const expectedResult =
+    'Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n';
 
   test('works with regex matcher', () => {
-    expect(allAfterLine(textWithTags, '.*d1s.*')).toMatch(expectedResult)
-    expect(allAfterLine(textWithTags, '.*d1s.*', false)).toMatch(expectedResult)
-  })
+    expect(allAfterLine(textWithTags, '.*d1s.*')).toMatch(expectedResult);
+    expect(allAfterLine(textWithTags, '.*d1s.*', false)).toMatch(
+      expectedResult,
+    );
+  });
 
   test('works with string inclusion matcher', () => {
-    expect(allAfterLine(textWithTags, 'd1s', true)).toMatch(expectedResult)
-  })
+    expect(allAfterLine(textWithTags, 'd1s', true)).toMatch(expectedResult);
+  });
 
   test('works with wrong regex matcher', () => {
-    expect(allAfterLine(textWithTags, 'd1s')).toMatch('')
-    expect(allAfterLine(textWithTags, '.*wrong.*')).toMatch('')
-  })
+    expect(allAfterLine(textWithTags, 'd1s')).toMatch('');
+    expect(allAfterLine(textWithTags, '.*wrong.*')).toMatch('');
+  });
 
   test('works with wrong string inclusion matcher', () => {
-    expect(allAfterLine(textWithTags, 'wrong', true)).toMatch('')
-  })
-})
+    expect(allAfterLine(textWithTags, 'wrong', true)).toMatch('');
+  });
+});
 
 describe('allBetweenLines', () => {
   test('works with regex matcher', () => {
-    expect(allBetweenLines(textWithTags, '.*(d1s|d1e).*')).toMatch('Paragraph\nin tags\n')
-    expect(allBetweenLines(textWithTags, '.*(d1s|d1e).*', false)).toMatch('Paragraph\nin tags\n')
-  })
+    expect(allBetweenLines(textWithTags, '.*(d1s|d1e).*')).toMatch(
+      'Paragraph\nin tags\n',
+    );
+    expect(allBetweenLines(textWithTags, '.*(d1s|d1e).*', false)).toMatch(
+      'Paragraph\nin tags\n',
+    );
+  });
 
   test('works with string inclusion matcher', () => {
-    expect(allBetweenLines(textWithTags, 'd1', true)).toMatch('Paragraph\nin tags\n')
-  })
+    expect(allBetweenLines(textWithTags, 'd1', true)).toMatch(
+      'Paragraph\nin tags\n',
+    );
+  });
 
   test('works with wrong regex matcher', () => {
-    expect(allBetweenLines(textWithTags, '.*d1s.*'))
-      .toMatch('Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n')
-    expect(allBetweenLines(textWithTags, 'wrong')).toMatch('')
-  })
+    expect(allBetweenLines(textWithTags, '.*d1s.*')).toMatch(
+      'Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n',
+    );
+    expect(allBetweenLines(textWithTags, 'wrong')).toMatch('');
+  });
 
   test('works with wrong string inclusion matcher', () => {
-    expect(allBetweenLines(textWithTags, 'd1s', true))
-      .toMatch('Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n')
-    expect(allBetweenLines(textWithTags, 'wrong', true)).toMatch('')
-  })
-})
+    expect(allBetweenLines(textWithTags, 'd1s', true)).toMatch(
+      'Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n',
+    );
+    expect(allBetweenLines(textWithTags, 'wrong', true)).toMatch('');
+  });
+});

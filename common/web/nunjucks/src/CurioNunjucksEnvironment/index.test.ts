@@ -22,39 +22,60 @@
  * SOFTWARE.
  */
 
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
-import CurioNunjucksEnvironment from '.'
+import CurioNunjucksEnvironment from '.';
 
-const nunjucksEnv = new CurioNunjucksEnvironment()
-const textWithTags = readFileSync(resolve(__dirname, '../resources/text_with_tags.txt'), 'utf8')
+const nunjucksEnv = new CurioNunjucksEnvironment();
+const textWithTags = readFileSync(
+  resolve(__dirname, '../resources/text_with_tags.txt'),
+  'utf8',
+);
 
 describe('filters', () => {
   test('exist', () => {
-    expect(nunjucksEnv.getFilter('allAfterLine')).toBeDefined()
-    expect(nunjucksEnv.getFilter('allBetweenLines')).toBeDefined()
-  })
+    expect(nunjucksEnv.getFilter('allAfterLine')).toBeDefined();
+    expect(nunjucksEnv.getFilter('allBetweenLines')).toBeDefined();
+  });
 
   test('working as intended', () => {
-    expect(nunjucksEnv.renderString(
-      "{% filter allAfterLine('.*d1e.*') %}" + textWithTags + "{% endfilter %}", null
-    )).toMatch('')
-    expect(nunjucksEnv.renderString(
-      "{% filter allAfterLine('.*d1e.*', false) %}" + textWithTags + "{% endfilter %}", null
-    )).toMatch('\nParagraph after tags\n')
-    expect(nunjucksEnv.renderString(
-      "{% filter allAfterLine('d1e', true) %}" + textWithTags + "{% endfilter %}", null
-    )).toMatch('\nParagraph after tags\n')
+    expect(
+      nunjucksEnv.renderString(
+        `{% filter allAfterLine('.*d1e.*') %}${textWithTags}{% endfilter %}`,
+        {},
+      ),
+    ).toMatch('');
+    expect(
+      nunjucksEnv.renderString(
+        `{% filter allAfterLine('.*d1e.*', false) %}${textWithTags}{% endfilter %}`,
+        {},
+      ),
+    ).toMatch('\nParagraph after tags\n');
+    expect(
+      nunjucksEnv.renderString(
+        `{% filter allAfterLine('d1e', true) %}${textWithTags}{% endfilter %}`,
+        {},
+      ),
+    ).toMatch('\nParagraph after tags\n');
 
-    expect(nunjucksEnv.renderString(
-      "{% filter allBetweenLines('.*(d1s|d1e).*') %}" + textWithTags + "{% endfilter %}", null
-    )).toMatch('Paragraph\nin tags\n')
-    expect(nunjucksEnv.renderString(
-      "{% filter allBetweenLines('.*(d1s|d1e).*', false) %}" + textWithTags + "{% endfilter %}", null
-    )).toMatch('')
-    expect(nunjucksEnv.renderString(
-      "{% filter allBetweenLines('d1', true) %}" + textWithTags + "{% endfilter %}", null
-    )).toMatch('Paragraph\nin tags\n')
-  })
-})
+    expect(
+      nunjucksEnv.renderString(
+        `{% filter allBetweenLines('.*(d1s|d1e).*') %}${textWithTags}{% endfilter %}`,
+        {},
+      ),
+    ).toMatch('Paragraph\nin tags\n');
+    expect(
+      nunjucksEnv.renderString(
+        `{% filter allBetweenLines('.*(d1s|d1e).*', false) %}${textWithTags}{% endfilter %}`,
+        {},
+      ),
+    ).toMatch('');
+    expect(
+      nunjucksEnv.renderString(
+        `{% filter allBetweenLines('d1', true) %}${textWithTags}{% endfilter %}`,
+        {},
+      ),
+    ).toMatch('Paragraph\nin tags\n');
+  });
+});

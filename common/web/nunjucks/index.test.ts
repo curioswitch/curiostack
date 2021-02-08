@@ -22,15 +22,18 @@
  * SOFTWARE.
  */
 
-import nunjucks from '.'
-import CurioNunjucksEnvironment from './src/CurioNunjucksEnvironment'
+import nunjucks from '.';
+import CurioNunjucksEnvironment from './src/CurioNunjucksEnvironment';
 
 describe('nunjucks as the default export', () => {
   test('has a functional CurioNunjucksEnvironment in the Environment property', () => {
-    const env = new nunjucks.Environment()
+    const env = new nunjucks.Environment();
 
-    expect(env).toBeInstanceOf(CurioNunjucksEnvironment)
-    expect(env.renderString("{{ 'foo\na unique line\nbar' | allAfterLine('.*unique.*') }}"))
-      .toMatch('bar\n')
-  })
-})
+    expect(env).toBeInstanceOf(CurioNunjucksEnvironment);
+    expect(
+      env.renderString(
+        "{{ 'foo\na unique line\nbar' | allAfterLine('.*unique.*') }}",
+      ),
+    ).toMatch('bar\n');
+  });
+});

@@ -22,51 +22,69 @@
  * SOFTWARE.
  */
 
-export function allAfterLine(text: string, lineMatcher: string, doInclusionCheck = false): string {
-  return getAllBetweenLinesAsserting(
-    text, makeLineAssertion(lineMatcher, doInclusionCheck), () => false)
-}
+type LineAssertion = (line: string) => boolean;
 
-export function allBetweenLines(
-    text: string, lineMatcher: string, doInclusionCheck = false): string {
-  return getAllBetweenLinesAsserting(
-    text,
-    makeLineAssertion(lineMatcher, doInclusionCheck),
-    makeLineAssertion(lineMatcher, doInclusionCheck)
-  )
-}
-
-type LineAssertion = (line: string) => boolean
-
-function makeLineAssertion(lineMatcher: string, doInclusionCheck: boolean): LineAssertion {
-  return (line: string) => doInclusionCheck ?
-    line.includes(lineMatcher) : new RegExp(lineMatcher).test(line)
+function makeLineAssertion(
+  lineMatcher: string,
+  doInclusionCheck: boolean,
+): LineAssertion {
+  return (line: string) =>
+    doInclusionCheck
+      ? line.includes(lineMatcher)
+      : new RegExp(lineMatcher).test(line);
 }
 
 function getAllBetweenLinesAsserting(
-    text: string, startLineAssertion: LineAssertion, endLineAssertion: LineAssertion): string {
-  let result = ''
+  text: string,
+  startLineAssertion: LineAssertion,
+  endLineAssertion: LineAssertion,
+): string {
+  let result = '';
 
-  let startLineFound = false
-  let startAndEndLineFound = false
-  text.split('\n').forEach(line => {
+  let startLineFound = false;
+  let startAndEndLineFound = false;
+  text.split('\n').forEach((line) => {
     if (startAndEndLineFound) {
       // Skipping all iterations after start and end line have been found
-      return
+      return;
     }
 
     if (startLineFound) {
       if (endLineAssertion(line)) {
-        startAndEndLineFound = true
-        return
+        startAndEndLineFound = true;
+        return;
       }
 
       // Include the line if it is after the start-line and it isn't itself the end-line
-      result += (line + '\n')
+      result += `${line}\n`;
     } else {
-      startLineFound = startLineAssertion(line)
+      startLineFound = startLineAssertion(line);
     }
-  })
+  });
 
-  return result
+  return result;
+}
+
+export function allAfterLine(
+  text: string,
+  lineMatcher: string,
+  doInclusionCheck = false,
+): string {
+  return getAllBetweenLinesAsserting(
+    text,
+    makeLineAssertion(lineMatcher, doInclusionCheck),
+    () => false,
+  );
+}
+
+export function allBetweenLines(
+  text: string,
+  lineMatcher: string,
+  doInclusionCheck = false,
+): string {
+  return getAllBetweenLinesAsserting(
+    text,
+    makeLineAssertion(lineMatcher, doInclusionCheck),
+    makeLineAssertion(lineMatcher, doInclusionCheck),
+  );
 }
