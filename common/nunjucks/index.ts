@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import CurioNunjucksEnvironment from './src/main/CurioNunjucksEnvironment'
+import CurioNunjucksEnvironment from './src/CurioNunjucksEnvironment'
 
 const nunjucks = require('nunjucks')
 nunjucks.Environment = CurioNunjucksEnvironment

@@ -9,6 +9,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@types/nunjucks": "3.1.4",
     "nunjucks": "3.2.2"
   },
   "jest": {

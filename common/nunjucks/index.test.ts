@@ -22,14 +22,15 @@
  * SOFTWARE.
  */
 
-import { Environment, ILoader, ConfigureOptions } from 'nunjucks'
-import { allAfterLine, allBetweenLines } from '../filters'
+import nunjucks from '.'
+import CurioNunjucksEnvironment from './src/CurioNunjucksEnvironment'
 
-export default class CurioNunjucksEnvironment extends Environment {
-  constructor(loaders?: ILoader | ILoader[] | null, opts?: ConfigureOptions) {
-    super(loaders, opts)
+describe('nunjucks as the default export', () => {
+  test('has a functional CurioNunjucksEnvironment in the Environment property', () => {
+    const env = new nunjucks.Environment()
 
-    this.addFilter('allAfterLine', allAfterLine)
-    this.addFilter('allBetweenLines', allBetweenLines)
-  }
-}
+    expect(env).toBeInstanceOf(CurioNunjucksEnvironment)
+    expect(env.renderString("{{ 'foo\na unique line\nbar' | allAfterLine('.*unique.*') }}"))
+      .toMatch('bar\n')
+  })
+})
