@@ -100,3 +100,15 @@ A partial match will not count.
 bar\nbaz
 bar\nbaz
 ```
+
+## Development
+
+All of the package code is under `common/nunjucks` and can be worked on there.
+
+### Testing
+
+`jest` is used for tests and can be run with the following command.
+
+```shell
+./gradlew :common:nunjucks:yarn_test
+```
