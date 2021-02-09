@@ -1,0 +1,13 @@
+# Hello
+
+<!--- d1s -->
+Paragraph
+in tags
+<!--- d1s -->
+
+<!--- d1s -->
+Other tagged
+paragraph
+<!--- d1s -->
+
+Paragraph after tags

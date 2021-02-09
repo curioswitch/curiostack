@@ -28,41 +28,52 @@ function makeLineAssertion(
   lineMatcher: string,
   doInclusionCheck: boolean,
 ): LineAssertion {
+  const matchExactly = (lineToCheck: string): boolean => {
+    const match = lineToCheck.match(new RegExp(lineMatcher));
+    return match != null && match[0] === lineToCheck;
+  };
+
   return (line: string) =>
-    doInclusionCheck
-      ? line.includes(lineMatcher)
-      : new RegExp(lineMatcher).test(line);
+    doInclusionCheck ? line.includes(lineMatcher) : matchExactly(line);
 }
 
-function getAllBetweenLinesAsserting(
+function getTextBlocksBetweenLines(
   text: string,
   startLineAssertion: LineAssertion,
   endLineAssertion: LineAssertion,
-): string {
-  let result = '';
+): string[] {
+  const textBlocks = [] as string[];
 
-  let startLineFound = false;
-  let startAndEndLineFound = false;
+  let includeMode = false;
+  let blockOfLines = [] as string[];
+
+  const addTextBlock = (lines: string[]) => {
+    textBlocks.push(lines.join('\n'));
+  };
+
   text.split('\n').forEach((line) => {
-    if (startAndEndLineFound) {
-      // Skipping all iterations after start and end line have been found
-      return;
-    }
-
-    if (startLineFound) {
+    if (includeMode) {
       if (endLineAssertion(line)) {
-        startAndEndLineFound = true;
+        // stop includeMode and finish a text block, if an end-line has been found
+        includeMode = false;
+        addTextBlock(blockOfLines);
+        blockOfLines = [];
         return;
       }
 
-      // Include the line if it is after the start-line and it isn't itself the end-line
-      result += `${line}\n`;
+      // include the line in the blockOfLines if in includeMode after the start-line,
+      // and this isn't the end-line
+      blockOfLines.push(line);
     } else {
-      startLineFound = startLineAssertion(line);
+      includeMode = startLineAssertion(line);
     }
   });
 
-  return result;
+  if (blockOfLines.length > 0) {
+    addTextBlock(blockOfLines);
+  }
+
+  return textBlocks;
 }
 
 export function allAfterLine(
@@ -70,11 +81,12 @@ export function allAfterLine(
   lineMatcher: string,
   doInclusionCheck = false,
 ): string {
-  return getAllBetweenLinesAsserting(
+  const textBlocks = getTextBlocksBetweenLines(
     text,
     makeLineAssertion(lineMatcher, doInclusionCheck),
     () => false,
   );
+  return textBlocks[0] || '';
 }
 
 export function allBetweenLines(
@@ -82,9 +94,10 @@ export function allBetweenLines(
   lineMatcher: string,
   doInclusionCheck = false,
 ): string {
-  return getAllBetweenLinesAsserting(
+  const textBlocks = getTextBlocksBetweenLines(
     text,
     makeLineAssertion(lineMatcher, doInclusionCheck),
     makeLineAssertion(lineMatcher, doInclusionCheck),
   );
+  return textBlocks.join('\n');
 }

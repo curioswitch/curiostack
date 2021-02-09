@@ -50,20 +50,17 @@ The `Environment` object is extended with some extra convenience filters.
 
 #### allAfterLine(lineMatcher: string, [doInclusionCheck: boolean])
 
-Scans the content of a multiline text and returns all the lines after a line
-matching a `regex` expression.
+Scans the content of a multiline text and returns all the text after a line
+matching a `regex` expression. Only exact matches will count.
 
 Alternatively, if `doInclusionCheck` is `true`, the line is checked if it
 includes `lineMatcher` within it, instead of doing a `regex` evaluation.
 
-> The last line gets `\n` appended to it.
-> If you wish, you can use `trim` to get rid of it.
-
 ##### input
 
 ```
-{{ 'foo\na unique line\nbar\nbaz' | allAfterLine('.*unique.*') | trim }}
-{{ 'foo\na unique line\nbar\nbaz' | allAfterLine('unique', true) | trim }}
+{{ 'foo\n_@@_\nbar\nbaz' | allAfterLine('.*@@.*') }}
+{{ 'foo\n_@@_\nbar\nbaz' | allAfterLine('@', true) }}
 ```
 
 ##### output
@@ -75,20 +72,21 @@ bar\nbaz
 
 #### allBetweenLines(lineMatcher: string, [doInclusionCheck: boolean])
 
-Scans the content of a multiline text and returns all the lines between two lines
-matching a `regex` expression.
+Scans the content of a multiline text and returns all the text between two lines
+matching a `regex` expression. Only exact matches will count.
 
 Alternatively, if `doInclusionCheck` is `true`, the lines are checked if they
 include `lineMatcher` within themselves, instead of doing a `regex` evaluation.
 
-> The last line gets `\n` appended to it.
-> If you wish, you can use `trim` to get rid of it.
+> If multiple blocks are found, all of them are joined together with a newline (`\n`)
+> and returned as one block.
 
 ##### input
 
 ```
-{{ 'foo\nuniq\nbar\nbaz\nuniq\nfoz' | allBetweenLines('.*uniq.*') | trim }}
-{{ 'foo\nuniq\nbar\nbaz\nuniq\nfoz' | allBetweenLines('uniq', true) | trim }}
+{{ 'foo\n@@\nbar\nbaz\n@@\nfoz' | allBetweenLines('.*@@.*') }}
+{{ 'foo\n@@\nbar\nbaz\n@@\nfoz' | allBetweenLines('@', true) }}
+{{ 'foo\n@@\nbar\nbaz\n@@\nfoz\n@@\nbop\n@@\nbap' | allBetweenLines('.*@@.*') }}
 ```
 
 ##### output
@@ -96,6 +94,7 @@ include `lineMatcher` within themselves, instead of doing a `regex` evaluation.
 ```
 bar\nbaz
 bar\nbaz
+bar\nbaz\nbop
 ```
 
 ## Development

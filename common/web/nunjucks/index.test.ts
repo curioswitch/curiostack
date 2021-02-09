@@ -32,8 +32,8 @@ describe('nunjucks as the default export', () => {
     expect(env).toBeInstanceOf(CurioNunjucksEnvironment);
     expect(
       env.renderString(
-        "{{ 'foo\na unique line\nbar' | allAfterLine('.*unique.*') }}",
+        "{{ 'foo\n@@\nbar\nbaz\n@@\nfoz\n@@\nbop\n@@\nbap' | allBetweenLines('.*@@.*') }}",
       ),
-    ).toMatch('bar\n');
+    ).toMatch(/^bar\nbaz\nbop$/);
   });
 });
