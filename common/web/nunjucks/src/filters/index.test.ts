@@ -36,60 +36,50 @@ const textWithMultipleTaggedBlocks = readFileSync(
   'utf8',
 );
 
+const textInTags = 'Paragraph\nin tags';
+const textAfterFirstTag =
+  'Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n';
+
 describe('allAfterLine', () => {
-  const expectedResult = /^Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n$/;
-
-  test('works with regex matcher', () => {
-    expect(allAfterLine(textWithTags, '.*d1s.*')).toMatch(expectedResult);
-    expect(allAfterLine(textWithTags, '.*d1s.*', false)).toMatch(
-      expectedResult,
-    );
+  test('works with partial match', () => {
+    expect(allAfterLine(textWithTags, 'd1s')).toBe(textAfterFirstTag);
+    expect(allAfterLine(textWithTags, 'd1s', false)).toBe(textAfterFirstTag);
   });
 
-  test('works with string inclusion matcher', () => {
-    expect(allAfterLine(textWithTags, 'd1s', true)).toMatch(expectedResult);
+  test('works with exact match', () => {
+    expect(allAfterLine(textWithTags, '.*d1s.*', true)).toBe(textAfterFirstTag);
   });
 
-  test('works with wrong regex matcher', () => {
-    expect(allAfterLine(textWithTags, 'd1s')).toMatch(/^$/);
-    expect(allAfterLine(textWithTags, '.*wrong.*')).toMatch(/^$/);
-  });
-
-  test('works with wrong string inclusion matcher', () => {
-    expect(allAfterLine(textWithTags, 'wrong', true)).toMatch(/^$/);
+  test('works with wrong match', () => {
+    expect(allAfterLine(textWithTags, 'wrong')).toBe('');
+    expect(allAfterLine(textWithTags, '.*(d1s|d1e)', true)).toBe('');
   });
 });
 
 describe('allBetweenLines', () => {
-  test('works with regex matcher', () => {
-    expect(allBetweenLines(textWithTags, '.*(d1s|d1e).*')).toMatch(
-      /^Paragraph\nin tags$/,
-    );
-    expect(allBetweenLines(textWithTags, '.*(d1s|d1e).*', false)).toMatch(
-      /^Paragraph\nin tags$/,
-    );
-    expect(allBetweenLines(textWithMultipleTaggedBlocks, '.*d1s.*')).toMatch(
-      /^Paragraph\nin tags\nOther tagged\nparagraph$/,
+  test('works with partial match', () => {
+    expect(allBetweenLines(textWithTags, '(d1s|d1e)')).toBe(textInTags);
+    expect(allBetweenLines(textWithTags, '(d1s|d1e)', false)).toBe(textInTags);
+  });
+
+  test('works with exact match', () => {
+    expect(allBetweenLines(textWithTags, '.*(d1s|d1e).*', true)).toBe(
+      textInTags,
     );
   });
 
-  test('works with string inclusion matcher', () => {
-    expect(allBetweenLines(textWithTags, 'd1', true)).toMatch(
-      /^Paragraph\nin tags$/,
+  test('works with multiple blocks', () => {
+    expect(allBetweenLines(textWithMultipleTaggedBlocks, 'd1s')).toBe(
+      'Paragraph\nin tags\nOther tagged\nparagraph',
     );
   });
 
-  test('works with wrong regex matcher', () => {
-    expect(allBetweenLines(textWithTags, '.*d1s.*')).toMatch(
-      /^Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n$/,
+  test('works with wrong match', () => {
+    expect(allBetweenLines(textWithTags, 'd1s')).toBe(textAfterFirstTag);
+    expect(allBetweenLines(textWithTags, 'wrong')).toBe('');
+    expect(allBetweenLines(textWithTags, '.*d1s.*', true)).toBe(
+      textAfterFirstTag,
     );
-    expect(allBetweenLines(textWithTags, 'wrong')).toMatch('');
-  });
-
-  test('works with wrong string inclusion matcher', () => {
-    expect(allBetweenLines(textWithTags, 'd1s', true)).toMatch(
-      /^Paragraph\nin tags\n<!--- d1e -->\n\nParagraph after tags\n$/,
-    );
-    expect(allBetweenLines(textWithTags, 'wrong', true)).toMatch(/^$/);
+    expect(allBetweenLines(textWithTags, '.*(d1s|d1e)', true)).toBe('');
   });
 });

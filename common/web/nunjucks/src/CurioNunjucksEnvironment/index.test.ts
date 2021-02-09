@@ -33,6 +33,9 @@ const textWithTags = readFileSync(
   'utf8',
 );
 
+const textInTags = 'Paragraph\nin tags';
+const textAfterTags = '\nParagraph after tags\n';
+
 describe('filters', () => {
   test('exist', () => {
     expect(nunjucksEnv.getFilter('allAfterLine')).toBeDefined();
@@ -42,40 +45,40 @@ describe('filters', () => {
   test('working as intended', () => {
     expect(
       nunjucksEnv.renderString(
-        `{% filter allAfterLine('.*d1e.*') %}${textWithTags}{% endfilter %}`,
+        `{% filter allAfterLine('d1e') %}${textWithTags}{% endfilter %}`,
         {},
       ),
-    ).toMatch(/^\nParagraph after tags\n$/);
+    ).toBe(textAfterTags);
     expect(
       nunjucksEnv.renderString(
-        `{% filter allAfterLine('.*d1e.*', false) %}${textWithTags}{% endfilter %}`,
+        `{% filter allAfterLine('d1e', false) %}${textWithTags}{% endfilter %}`,
         {},
       ),
-    ).toMatch(/^\nParagraph after tags\n$/);
+    ).toBe(textAfterTags);
     expect(
       nunjucksEnv.renderString(
-        `{% filter allAfterLine('d1e', true) %}${textWithTags}{% endfilter %}`,
+        `{% filter allAfterLine('.*d1e.*', true) %}${textWithTags}{% endfilter %}`,
         {},
       ),
-    ).toMatch(/^\nParagraph after tags\n$/);
+    ).toBe(textAfterTags);
 
     expect(
       nunjucksEnv.renderString(
-        `{% filter allBetweenLines('.*(d1s|d1e).*') %}${textWithTags}{% endfilter %}`,
+        `{% filter allBetweenLines('(d1s|d1e)') %}${textWithTags}{% endfilter %}`,
         {},
       ),
-    ).toMatch(/^Paragraph\nin tags$/);
+    ).toBe(textInTags);
     expect(
       nunjucksEnv.renderString(
-        `{% filter allBetweenLines('.*(d1s|d1e).*', false) %}${textWithTags}{% endfilter %}`,
+        `{% filter allBetweenLines('(d1s|d1e)', false) %}${textWithTags}{% endfilter %}`,
         {},
       ),
-    ).toMatch(/^Paragraph\nin tags$/);
+    ).toBe(textInTags);
     expect(
       nunjucksEnv.renderString(
-        `{% filter allBetweenLines('d1', true) %}${textWithTags}{% endfilter %}`,
+        `{% filter allBetweenLines('d1') %}${textWithTags}{% endfilter %}`,
         {},
       ),
-    ).toMatch(/^Paragraph\nin tags$/);
+    ).toBe(textInTags);
   });
 });

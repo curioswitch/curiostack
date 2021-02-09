@@ -26,15 +26,17 @@ type LineAssertion = (line: string) => boolean;
 
 function makeLineAssertion(
   lineMatcher: string,
-  doInclusionCheck: boolean,
+  exactMatch: boolean,
 ): LineAssertion {
-  const matchExactly = (lineToCheck: string): boolean => {
-    const match = lineToCheck.match(new RegExp(lineMatcher));
-    return match != null && match[0] === lineToCheck;
+  const lineRegex = new RegExp(lineMatcher);
+
+  const matchExactly = (lineToMatch: string): boolean => {
+    const match = lineToMatch.match(lineRegex);
+    return match != null && match[0] === lineToMatch;
   };
 
   return (line: string) =>
-    doInclusionCheck ? line.includes(lineMatcher) : matchExactly(line);
+    exactMatch ? matchExactly(line) : lineRegex.test(line);
 }
 
 function getTextBlocksBetweenLines(
@@ -44,33 +46,34 @@ function getTextBlocksBetweenLines(
 ): string[] {
   const textBlocks = [] as string[];
 
-  let includeMode = false;
-  let blockOfLines = [] as string[];
+  let insideTextBlock = false;
+  let textBlockLines = [] as string[];
 
   const addTextBlock = (lines: string[]) => {
     textBlocks.push(lines.join('\n'));
   };
 
   text.split('\n').forEach((line) => {
-    if (includeMode) {
+    if (insideTextBlock) {
       if (endLineAssertion(line)) {
-        // stop includeMode and finish a text block, if an end-line has been found
-        includeMode = false;
-        addTextBlock(blockOfLines);
-        blockOfLines = [];
+        // finish a text block and add it to textBlocks array, if an end-line has been found
+        insideTextBlock = false;
+        addTextBlock(textBlockLines);
+        textBlockLines = [];
         return;
       }
 
-      // include the line in the blockOfLines if in includeMode after the start-line,
-      // and this isn't the end-line
-      blockOfLines.push(line);
-    } else {
-      includeMode = startLineAssertion(line);
+      // include the line in the textBlockLines array if currently insideTextBlock
+      // after the start-line, and this isn't the end-line
+      textBlockLines.push(line);
+    } else if (startLineAssertion(line)) {
+      insideTextBlock = true;
     }
   });
 
-  if (blockOfLines.length > 0) {
-    addTextBlock(blockOfLines);
+  if (textBlockLines.length > 0) {
+    // add last text block if it wasn't closed, and the end was reached
+    addTextBlock(textBlockLines);
   }
 
   return textBlocks;
@@ -79,11 +82,11 @@ function getTextBlocksBetweenLines(
 export function allAfterLine(
   text: string,
   lineMatcher: string,
-  doInclusionCheck = false,
+  exactMatch = false,
 ): string {
   const textBlocks = getTextBlocksBetweenLines(
     text,
-    makeLineAssertion(lineMatcher, doInclusionCheck),
+    makeLineAssertion(lineMatcher, exactMatch),
     () => false,
   );
   return textBlocks[0] || '';
@@ -92,12 +95,12 @@ export function allAfterLine(
 export function allBetweenLines(
   text: string,
   lineMatcher: string,
-  doInclusionCheck = false,
+  exactMatch = false,
 ): string {
   const textBlocks = getTextBlocksBetweenLines(
     text,
-    makeLineAssertion(lineMatcher, doInclusionCheck),
-    makeLineAssertion(lineMatcher, doInclusionCheck),
+    makeLineAssertion(lineMatcher, exactMatch),
+    makeLineAssertion(lineMatcher, exactMatch),
   );
   return textBlocks.join('\n');
 }

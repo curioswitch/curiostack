@@ -32,7 +32,7 @@ describe('nunjucks as the default export', () => {
     expect(env).toBeInstanceOf(CurioNunjucksEnvironment);
     expect(
       env.renderString(
-        "{{ 'foo\n@@\nbar\nbaz\n@@\nfoz\n@@\nbop\n@@\nbap' | allBetweenLines('.*@@.*') }}",
+        "{{ 'foo\n_@@_\nbar\nbaz\n_@@_\nfoz\n_@@_\nbop\n_@@_\nbap' | allBetweenLines('@') }}",
       ),
     ).toMatch(/^bar\nbaz\nbop$/);
   });
