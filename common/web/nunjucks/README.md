@@ -100,12 +100,25 @@ bar\nbaz
 
 ## Development
 
-All of the package code is under `common/nunjucks` and can be worked on there.
+All of the package code is under `common/web/nunjucks` and can be worked on there.
 
 ### Testing
 
-`jest` is used for tests and can be run with the following command.
+`jest` is used for tests, and can be run with the following command.
 
 ```shell
-./gradlew :common:nunjucks:yarn_test
+./gradlew :common:web:nunjucks:yarn_test
+```
+
+### Style
+
+`eslint` with `curiostack` rules is used for controlling code style, and can be run
+with the following command.
+
+```shell
+./gradlew :common:web:nunjucks:yarn_lint
+# output linting problems
+
+./gradlew :common:web:nunjucks:yarn_lint_--fix
+# automatically fix linting problems, and output problems which can't be auto fixed
 ```
