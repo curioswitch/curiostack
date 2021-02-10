@@ -97,10 +97,11 @@ export function allBetweenLines(
   lineMatcher: string,
   exactMatch = false,
 ): string {
+  const lineAssertion = makeLineAssertion(lineMatcher, exactMatch);
   const textBlocks = getTextBlocksBetweenLines(
     text,
-    makeLineAssertion(lineMatcher, exactMatch),
-    makeLineAssertion(lineMatcher, exactMatch),
+    lineAssertion,
+    lineAssertion,
   );
   return textBlocks.join('\n');
 }
