@@ -7,21 +7,28 @@ with some extra convenience methods added on.
 
 ### Import
 
-The extended `nunjucks` object can be imported in other `curiostack` `yarn` modules
-using the package name `@curiostack/nunjucks`. It can work outside of curiostack as well,
-but your project must use typescript and be configured to compile this module.
+The default option for importing is, the extended version of `nunjucks` `Environment`.
+Also `Template`, `Loader`, `FileSystemLoader`, `WebLoader` are available as non-default
+imports.
+
+The import can be done in other `curiostack` `yarn` modules  using the package name
+`@curiostack/nunjucks`. It can work outside of curiostack as well, but your project
+must use typescript and be configured to compile this module.
 
 ```typescript
-import nunjucks from '@curiostack/nunjucks'
+import Environment, { Template, Loader, FileSystemLoader, WebLoader } from '@curiostack/nunjucks';
 // no need for require('nunjucks')
 
-const env = nunjucks.Environment()
-// ...
+const env = new Environment();
+// alternatives:
+// const env = new Environment(new FileSystemLoader('/some/path'));
+// const template = new Template('Hello {{ username }}', env);
+// etc ...
 ```
 
 ### API
 
-The underlying API of `nunjucks` is unchanged, so you can
+The underlying API of each available `nunjucks` class is unchanged, so you can
 [use the official docs](https://mozilla.github.io/nunjucks/getting-started.html) for reference.
 
 ## Environment
@@ -30,19 +37,15 @@ The [nunjucks Environment](https://mozilla.github.io/nunjucks/api.html#environme
 class still functions as before. It just has been extended with some extra functionality.
 
 ```typescript
-import nunjucks from '@curiostack/nunjucks'
+import Environment from '@curiostack/nunjucks';
 
-const env = nunjucks.Environment()
+const env = new Environment();
 // ...
 
-const result = env.render('template.njk')
+const result = env.render('template.njk');
 // `result` is rendered with all of the base `nunjucks.Environment` logic
-//   as well as the extended `curiostack` `nunjucks.Environment` functionality
+//   as well as the extended `curiostack` `Environment` functionality
 ```
-
-> This means that you can NOT access the extended features, if you use the
-> [simple nunjucks API](https://mozilla.github.io/nunjucks/api.html#simple-api),
-> without initializing the extended `nunjucks.Environment`
 
 ### Filters
 

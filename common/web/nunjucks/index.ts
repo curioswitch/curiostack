@@ -22,10 +22,5 @@
  * SOFTWARE.
  */
 
-import CurioNunjucksEnvironment from './src/CurioNunjucksEnvironment';
-
-const nunjucks = require('nunjucks');
-
-nunjucks.Environment = CurioNunjucksEnvironment;
-
-export default nunjucks;
+export { default } from './src/CurioNunjucksEnvironment';
+export { Template, Loader, FileSystemLoader, WebLoader } from 'nunjucks';

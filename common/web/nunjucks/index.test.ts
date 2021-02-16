@@ -22,18 +22,29 @@
  * SOFTWARE.
  */
 
-import nunjucks from '.';
+import * as nunjucks from 'nunjucks';
+import Environment, { Template, Loader, FileSystemLoader, WebLoader } from '.';
 import CurioNunjucksEnvironment from './src/CurioNunjucksEnvironment';
 
-describe('nunjucks as the default export', () => {
-  test('has a functional CurioNunjucksEnvironment in the Environment property', () => {
-    const env = new nunjucks.Environment();
+describe('Environment as the default export', () => {
+  test('is a functional CurioNunjucksEnvironment', () => {
+    const env = new Environment();
 
     expect(env).toBeInstanceOf(CurioNunjucksEnvironment);
     expect(
       env.renderString(
         "{{ 'foo\n_@@_\nbar\nbaz\n_@@_\nfoz\n_@@_\nbop\n_@@_\nbap' | allBetweenLines('@') }}",
+        {},
       ),
     ).toMatch(/^bar\nbaz\nbop$/);
+  });
+});
+
+describe('Non-default exports', () => {
+  test('are correct nunjucks classes', () => {
+    expect(Template).toBe(nunjucks.Template);
+    expect(Loader).toBe(nunjucks.Loader);
+    expect(FileSystemLoader).toBe(nunjucks.FileSystemLoader);
+    expect(WebLoader).toBe(nunjucks.WebLoader);
   });
 });
