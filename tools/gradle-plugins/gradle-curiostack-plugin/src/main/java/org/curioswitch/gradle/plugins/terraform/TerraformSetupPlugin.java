@@ -90,14 +90,6 @@ public class TerraformSetupPlugin implements Plugin<Project> {
         });
 
     toolDownloaderPlugin.registerToolIfAbsent(
-        "helm",
-        tool -> {
-          tool.getVersion().set(ToolDependencies.getHelmVersion(project));
-          tool.getBaseUrl().set("https://storage.googleapis.com/kubernetes-helm/");
-          tool.getArtifactPattern().set("[artifact]-v[revision]-[classifier].[ext]");
-        });
-
-    toolDownloaderPlugin.registerToolIfAbsent(
         "terraform-provider-gsuite",
         tool -> {
           tool.getVersion().set(ToolDependencies.getTerraformGsuiteProviderVersion(project));

@@ -39,7 +39,6 @@ public class ToolDependencies {
           .put("golang", "1.15.7")
           .put("google-java-format", "1.9")
           .put("gradle", "6.8.1")
-          .put("helm", "2.10.0")
           .put("miniconda", "Miniconda3-py38_4.9.2")
           .put("node", "14.15.4")
           .put("openjdk", "15")
@@ -76,10 +75,6 @@ public class ToolDependencies {
 
   public static String getGolangVersion(Project project) {
     return getVersion("golang", project);
-  }
-
-  public static String getHelmVersion(Project project) {
-    return getVersion("helm", project);
   }
 
   public static String getMinicondaVersion(Project project) {
