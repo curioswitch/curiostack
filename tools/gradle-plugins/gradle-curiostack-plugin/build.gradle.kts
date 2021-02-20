@@ -190,6 +190,8 @@ publishing {
 }
 
 tasks.withType(Test::class) {
+    enabled = (findProperty("enableCuriostackPluginTests") == "true")
+
     jvmArgs("-Dorg.curioswitch.curiostack.testing.buildDir=${rootProject.buildDir}")
 
     // TODO(choko): Have curiostack plugin do this.
