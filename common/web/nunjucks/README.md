@@ -1,4 +1,4 @@
-# @curiostack/nunjucks
+# @curiostack/nunjucks-extended
 
 An extended version of [mozilla/nunjucks](https://github.com/mozilla/nunjucks),
 with some extra convenience methods added on.
