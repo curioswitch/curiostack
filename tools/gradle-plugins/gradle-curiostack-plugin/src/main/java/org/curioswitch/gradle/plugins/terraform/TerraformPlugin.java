@@ -28,9 +28,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.UncheckedIOException;
-import java.util.List;
 import org.curioswitch.gradle.plugins.terraform.tasks.ConvertConfigsToJsonTask;
-import org.curioswitch.gradle.plugins.terraform.tasks.HelmTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TargetableTerraformPlanTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TargetableTerraformTask;
 import org.curioswitch.gradle.plugins.terraform.tasks.TerraformImportTask;
@@ -79,32 +77,6 @@ public class TerraformPlugin implements Plugin<Project> {
         });
     convertConfigs.dependsOn(BasePlugin.CLEAN_TASK_NAME, copyDependencies);
 
-    List<TaskProvider<?>> sysadminOutputTasks =
-        project.getPath().contains(":sysadmin")
-            ? ImmutableList.of(
-                createTerraformOutputTask(
-                    project,
-                    "outputTillerCaCert",
-                    "tiller-ca-cert",
-                    project.file("build/helm/ca.pem")),
-                createTerraformOutputTask(
-                    project,
-                    "outputTillerCertKey",
-                    "tiller-client-key",
-                    project.file("build/helm/key.pem")),
-                createTerraformOutputTask(
-                    project,
-                    "outputTillerCert",
-                    "tiller-client-cert",
-                    project.file("build/helm/cert.pem")),
-                project
-                    .getTasks()
-                    .register(
-                        "terraformInitHelm",
-                        HelmTask.class,
-                        helm -> helm.args("init", "--client-only")))
-            : ImmutableList.of();
-
     var gcloudInstallComponents =
         project.getRootProject().getTasks().named("gcloudInstallComponents");
 
@@ -123,7 +95,6 @@ public class TerraformPlugin implements Plugin<Project> {
                               DownloadedToolManager.get(project)
                                   .getCuriostackDir()
                                   .resolve("terraform-plugins")));
-                  sysadminOutputTasks.forEach(t::finalizedBy);
 
                   t.dependsOn(gcloudInstallComponents);
                 });
@@ -183,11 +154,6 @@ public class TerraformPlugin implements Plugin<Project> {
         .getTasks()
         .withType(TerraformTask.class)
         .configureEach(t -> t.dependsOn(setupTerraform, convertConfigs));
-
-    project
-        .getTasks()
-        .withType(HelmTask.class)
-        .configureEach(t -> t.dependsOn(DownloadToolUtil.getSetupTask(project, "helm")));
   }
 
   private static TaskProvider<TerraformOutputTask> createTerraformOutputTask(

@@ -37,11 +37,8 @@ import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.mockito.Mock;
 
-// This test is slow since it downloads a file, just run locally for now.
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class TerraformSetupPluginTest {
 
   private Path projectDir;

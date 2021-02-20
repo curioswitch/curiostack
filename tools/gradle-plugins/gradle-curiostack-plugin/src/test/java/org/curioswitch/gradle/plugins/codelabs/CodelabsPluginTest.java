@@ -31,10 +31,7 @@ import org.curioswitch.gradle.testing.ResourceProjects;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
-// This test is slow since it downloads a file, just run locally for now.
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class CodelabsPluginTest {
 
   private Path projectDir;
