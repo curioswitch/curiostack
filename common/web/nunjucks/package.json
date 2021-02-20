@@ -1,5 +1,5 @@
 {
-  "name": "@curiostack/nunjucks",
+  "name": "@curiostack/nunjucks-extended",
   "version": "1.0.0",
   "description": "Curiostack extended version of nunjucks",
   "repository": "curioswitch/curiostack",

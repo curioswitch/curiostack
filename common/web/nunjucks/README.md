@@ -12,11 +12,11 @@ Also `Template`, `Loader`, `FileSystemLoader`, `WebLoader` are available as non-
 imports.
 
 The import can be done in other `curiostack` `yarn` modules  using the package name
-`@curiostack/nunjucks`. It can work outside of curiostack as well, but your project
+`@curiostack/nunjucks-extended`. It can work outside of curiostack as well, but your project
 must use typescript and be configured to compile this module.
 
 ```typescript
-import Environment, { Template, Loader, FileSystemLoader, WebLoader } from '@curiostack/nunjucks';
+import Environment, { Template, Loader, FileSystemLoader, WebLoader } from '@curiostack/nunjucks-extended';
 // no need for require('nunjucks')
 
 const env = new Environment();
@@ -37,7 +37,7 @@ The [nunjucks Environment](https://mozilla.github.io/nunjucks/api.html#environme
 class still functions as before. It just has been extended with some extra functionality.
 
 ```typescript
-import Environment from '@curiostack/nunjucks';
+import Environment from '@curiostack/nunjucks-extended';
 
 const env = new Environment();
 // ...
@@ -99,10 +99,6 @@ bar\nbaz
 bar\nbaz
 bar\nbaz\nbop
 ```
-
-## Development
-
-All of the package code is under `common/web/nunjucks` and can be worked on there.
 
 ### Testing
 
