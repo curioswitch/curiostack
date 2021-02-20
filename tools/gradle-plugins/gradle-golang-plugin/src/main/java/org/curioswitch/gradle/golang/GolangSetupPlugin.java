@@ -42,7 +42,7 @@ public class GolangSetupPlugin implements Plugin<Project> {
               plugin.registerToolIfAbsent(
                   "go",
                   tool -> {
-                    tool.getVersion().set("1.15.5");
+                    tool.getVersion().set("1.16");
                     tool.getBaseUrl().set("https://dl.google.com/go/");
                     tool.getArtifactPattern().set("[artifact][revision].[classifier].[ext]");
                     tool.getPathSubDirs().add("go/bin");
