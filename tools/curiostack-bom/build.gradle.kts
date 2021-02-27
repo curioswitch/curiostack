@@ -47,25 +47,25 @@ repositories {
 
 data class DependencySet(val group: String, val version: String, val modules: List<String>)
 
-val GRPC_VERSION = "1.35.0"
+val GRPC_VERSION = "1.36.0"
 
 val DEPENDENCY_BOMS = listOf(
         "com.fasterxml.jackson:jackson-bom:2.12.1",
-        "com.google.cloud:google-cloud-bom:0.147.0",
+        "com.google.cloud:google-cloud-bom:0.148.0",
         "com.google.api-client:google-api-client-bom:1.31.2",
         "com.google.guava:guava-bom:30.1-jre",
-        "com.google.http-client:google-http-client-bom:1.38.1",
-        "com.google.protobuf:protobuf-bom:3.15.1",
+        "com.google.http-client:google-http-client-bom:1.39.0",
+        "com.google.protobuf:protobuf-bom:3.15.3",
         "com.linecorp.armeria:armeria-bom:1.5.0",
-        "io.dropwizard.metrics:metrics-bom:4.1.17",
+        "io.dropwizard.metrics:metrics-bom:4.1.18",
         "io.grpc:grpc-bom:${GRPC_VERSION}",
         "io.micrometer:micrometer-bom:1.6.4",
         "io.zipkin.brave:brave-bom:5.12.7",
         "io.netty:netty-bom:4.1.58.Final",
-        "org.apache.beam:beam-sdks-java-bom:2.27.0",
+        "org.apache.beam:beam-sdks-java-bom:2.28.0",
         "org.apache.logging.log4j:log4j-bom:2.14.0",
         "org.junit:junit-bom:5.7.1",
-        "software.amazon.awssdk:bom:2.16.3"
+        "software.amazon.awssdk:bom:2.16.8"
 )
 
 val DEPENDENCY_SETS = listOf(
@@ -86,7 +86,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.auth",
-                "0.23.0",
+                "0.24.1",
                 listOf("google-auth-library-oauth2-http")
         ),
         DependencySet(
@@ -106,7 +106,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.github.ben-manes.caffeine",
-                "2.9.0",
+                "3.0.0",
                 listOf("caffeine")
         ),
         DependencySet(
@@ -129,7 +129,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.dagger",
-                "2.32",
+                "2.33",
                 listOf("dagger", "dagger-compiler", "dagger-producers")
         ),
         DependencySet(
@@ -144,7 +144,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.protobuf",
-                "3.15.1",
+                "3.15.2",
                 listOf("protoc")
         ),
         DependencySet(
@@ -180,7 +180,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.fabric8",
-                "5.1.0",
+                "5.1.1",
                 listOf("kubernetes-client")
         ),
         // grpc-bom can only be applied to Java projects because it does not export Gradle metadata. For
@@ -303,12 +303,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.jooq",
-                "3.14.7",
+                "3.14.8",
                 listOf("jooq", "jooq-codegen", "jooq-meta")
         ),
         DependencySet(
                 "org.mockito",
-                "3.7.18",
+                "3.8.2",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -324,7 +324,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.yaml",
-                "1.27",
+                "1.28",
                 listOf("snakeyaml")
         )
 )
@@ -339,7 +339,7 @@ val DEPENDENCIES = listOf(
         "com.gradle:gradle-enterprise-gradle-plugin:3.5.2",
         "com.hubspot.jinjava:jinjava:2.5.6",
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5",
-        "com.uber.nullaway:nullaway:0.8.0",
+        "com.uber.nullaway:nullaway:0.9.0",
         "de.undercouch:gradle-download-task:4.1.1",
         "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.6",
         "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:2.1.0",

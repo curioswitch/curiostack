@@ -133,32 +133,6 @@ public class UpdateIntelliJSdksTask extends DefaultTask {
           "jdk.xml.dom",
           "jdk.zipfs");
 
-  private static final List<String> JAVA_8_JARS =
-      ImmutableList.of(
-          "charsets.jar",
-          "deploy.jar",
-          "ext/access-bridge-64.jar",
-          "ext/cldrdata.jar",
-          "ext/dnsns.jar",
-          "ext/jaccess.jar",
-          "ext/jfxrt.jar",
-          "ext/localedata.jar",
-          "ext/nashorn.jar",
-          "ext/sunec.jar",
-          "ext/sunjce_provider.jar",
-          "ext/sunmscapi.jar",
-          "ext/sunpkcs11.jar",
-          "ext/zipfs.jar",
-          "javaws.jar",
-          "jce.jar",
-          "jfr.jar",
-          "jfxswt.jar",
-          "jsse.jar",
-          "management-agent.jar",
-          "plugin.jar",
-          "resources.jar",
-          "rt.jar");
-
   private static final String EMPTY_JDK_TABLE =
       "<application>\n"
           + "  <component name=\"ProjectJdkTable\">\n"
@@ -237,23 +211,6 @@ public class UpdateIntelliJSdksTask extends DefaultTask {
         Files.readString(
             getProject().getRootProject().file(".gradle/jdk-release-name.txt").toPath());
 
-    String java8Version = ToolDependencies.getOpenJdk8Version(getProject());
-    final String jdk8FolderSuffix;
-    switch (new PlatformHelper().getOs()) {
-      case WINDOWS:
-        jdk8FolderSuffix = "win_x64";
-        break;
-      case MAC_OSX:
-        jdk8FolderSuffix = "macosx_x64";
-        break;
-      case LINUX:
-        jdk8FolderSuffix = "linux_x64";
-        break;
-      default:
-        throw new IllegalStateException("Unknown OS");
-    }
-    String jdk8FolderName = java8Version + "/" + java8Version + "-" + jdk8FolderSuffix;
-
     var jdkTable =
         Files.createDirectories(intelliJFolder.resolve("config/options")).resolve("jdk.table.xml");
     updateConfig(
@@ -264,14 +221,9 @@ public class UpdateIntelliJSdksTask extends DefaultTask {
         ImmutableMap.of(
             "javaVersion", javaVersion, "javaModules", JAVA_MODULES, "majorVersion", majorVersion),
         getProject());
-    updateConfig(
-        jdkTable,
-        jdk8FolderName,
-        "1.8",
-        "curiostack/openjdk-8-intellij-table-snippet.template.xml",
-        ImmutableMap.of("javaVersion", java8Version, "javaModules", JAVA_8_JARS),
-        getProject());
 
+    // We optimistically update Go SDKs as well even if the build doesn't use Go. The worst that
+    // could happen is a couple of red SDKs in the IntelliJ lists.
     updateGoSdk(intelliJFolder, getProject());
     updateGoPath(intelliJFolder, getProject());
   }
@@ -410,10 +362,6 @@ public class UpdateIntelliJSdksTask extends DefaultTask {
     updatedTables.add("  </component>").add("</application>");
 
     Files.writeString(jdkTable, String.join("\n", updatedTables.build()));
-
-    // We optimistically update Go SDKs as well even if the build doesn't use Go. The worst that
-    // could happen is a couple of red SDKs in the IntelliJ lists.
-
   }
 
   private static void addJdkSnippet(
@@ -434,7 +382,7 @@ public class UpdateIntelliJSdksTask extends DefaultTask {
 
   private static String intellijPath(String rawPath) {
     if (new PlatformHelper().getOs() == OperatingSystem.WINDOWS) {
-      // IntelliJ config users a normal Windows path with backslashes turned to slashes, e.g.
+      // IntelliJ config uses a normal Windows path with backslashes turned to slashes, e.g.
       // C:/Users/Choko/.gradle/openjdk/jdk-12.0.2
       return rawPath.replace('\\', '/');
     }
