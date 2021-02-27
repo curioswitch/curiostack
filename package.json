@@ -142,6 +142,7 @@
       "common/web/base-web",
       "common/web/eslint-config-base",
       "common/web/eslint-config-web",
+      "common/web/nunjucks",
       "common/web/tsconfig",
       "developer-portal",
       "eggworld/api/build/web",

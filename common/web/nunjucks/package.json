@@ -1,0 +1,24 @@
+{
+  "name": "@curiostack/nunjucks-extended",
+  "version": "1.0.0",
+  "description": "Curiostack extended version of nunjucks",
+  "repository": "curioswitch/curiostack",
+  "author": "Walter Meiren <walter@meiren.dev>",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint . --ext .ts,.tsx --ignore-pattern *.d.ts --ignore-pattern **/src-template/**"
+  },
+  "dependencies": {
+    "@types/nunjucks": "3.1.4",
+    "nunjucks": "3.2.2"
+  },
+  "devDependencies": {
+    "@curiostack/base-node-dev": "0.2.0"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    }
+  }
+}

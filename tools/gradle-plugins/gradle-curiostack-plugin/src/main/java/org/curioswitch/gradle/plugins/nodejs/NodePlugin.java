@@ -49,7 +49,7 @@ public class NodePlugin implements Plugin<Project> {
     project
         .getTasks()
         .addRule(
-            "Pattern: \"yarn_<command>\": Executes an Yarn command.",
+            "Pattern: \"yarn_<command>\": Executes a Yarn command.",
             taskName -> {
               if (taskName.startsWith("yarn_")) {
                 project
