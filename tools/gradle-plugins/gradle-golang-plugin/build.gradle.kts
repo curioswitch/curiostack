@@ -27,7 +27,8 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 plugins {
     `java-gradle-plugin`
     `maven-publish`
-    id("com.gradle.plugin-publish").version("0.12.0")
+
+    id("com.gradle.plugin-publish")
 }
 
 dependencies {
@@ -58,7 +59,7 @@ gradlePlugin {
 }
 
 pluginBundle {
-    website = "https://github.com/curioswitch/curiostack/"
+    website = "https://github.com/curioswitch/curiostack/tree/master/tools/gradle-plugins/gradle-golang-plugin"
     vcsUrl = "https://github.com/curioswitch/curiostack.git"
     tags = listOf("curiostack", "go", "golang")
 }

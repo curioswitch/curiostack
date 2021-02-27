@@ -65,7 +65,6 @@ if [ ! -d "$JAVA_HOME" ]; then
 
   if "$windows" = "true"; then
     unzip "$DEST" -d "$OPENJDK_DIR"
-    mv "${OPENJDK_DIR}/{{ version }}-win_x64" "$JAVA_HOME"
   else
     mkdir -p "$JAVA_HOME"
     if "$darwin" = "true"; then

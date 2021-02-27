@@ -25,6 +25,8 @@
 plugins {
     `java-gradle-plugin`
     `maven-publish`
+
+    id("com.gradle.plugin-publish")
 }
 
 dependencies {
@@ -40,9 +42,17 @@ gradlePlugin {
     plugins {
         register("curioRelease") {
             id = "org.curioswitch.gradle-release-plugin"
+            displayName = "Gradle Release Plugin"
+            description = "An opinionated plugin for setting release version for CurioStack"
             implementationClass = "org.curioswitch.gradle.release.ReleasePlugin"
         }
     }
+}
+
+pluginBundle {
+    website = "https://github.com/curioswitch/curiostack/tree/master/tools/gradle-plugins/gradle-release-plugin"
+    vcsUrl = "https://github.com/curioswitch/curiostack.git"
+    tags = listOf("curiostack", "release", "version")
 }
 
 publishing {

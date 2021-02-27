@@ -587,6 +587,7 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                       .findByType(ErrorProneOptions.class);
               if (errorProne != null) {
                 errorProne.getDisableWarningsInGeneratedCode().set(true);
+                errorProne.getIgnoreUnknownCheckNames().set(true);
                 errorProne.getExcludedPaths().set("(.*/build/.*|.*/gen-src/.*)");
                 errorProne.getChecks().set(errorProneChecks);
 

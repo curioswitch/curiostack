@@ -25,13 +25,15 @@
 plugins {
     `java-gradle-plugin`
     `maven-publish`
+
+    id("com.gradle.plugin-publish")
 }
 
 dependencies {
     implementation(project(":tools:gradle-plugins:gradle-tool-downloader-plugin"))
     implementation(project(":tools:gradle-plugins:gradle-helpers"))
 
-    compile("com.google.guava:guava")
+    implementation("com.google.guava:guava")
 
     compileOnly(project(":common:curio-helpers"))
 
@@ -43,13 +45,23 @@ gradlePlugin {
     plugins {
         register("conda") {
             id = "org.curioswitch.gradle-conda-plugin"
+            displayName = "Gradle Miniconda Plugin"
+            description = "Plugin for setting up a Miniconda environment"
             implementationClass = "org.curioswitch.gradle.conda.CondaPlugin"
         }
         register("buildenv") {
             id = "org.curioswitch.gradle-conda-buildenv-plugin"
+            displayName = "Gradle Conda Build Environment"
+            description = "Plugin for configuring the Miniconda environment for builds, downloading toolchains such as C++"
             implementationClass = "org.curioswitch.gradle.conda.CondaBuildEnvPlugin"
         }
     }
+}
+
+pluginBundle {
+    website = "https://github.com/curioswitch/curiostack/tree/master/tools/gradle-plugins/gradle-conda-plugin"
+    vcsUrl = "https://github.com/curioswitch/curiostack.git"
+    tags = listOf("curiostack", "miniconda")
 }
 
 publishing {
