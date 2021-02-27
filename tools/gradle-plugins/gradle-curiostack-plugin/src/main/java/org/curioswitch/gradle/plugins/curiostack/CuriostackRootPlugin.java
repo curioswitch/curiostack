@@ -291,23 +291,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
         .getTasks()
         .named("condaInstallPackagesMinicondaBuild", t -> t.mustRunAfter(updateShellConfig));
 
-    plugins.withType(
-        ToolDownloaderPlugin.class,
-        plugin ->
-            plugin.registerToolIfAbsent(
-                "openjdk",
-                tool -> {
-                  var version = ToolDependencies.getOpenJdk8Version(rootProject);
-
-                  tool.getVersion().set(version);
-                  tool.getBaseUrl().set("https://cdn.azul.com/zulu/bin/");
-                  tool.getArtifactPattern().set("[revision]-[classifier].[ext]");
-                  var classifiers = tool.getOsClassifiers();
-                  classifiers.getLinux().set("linux_x64");
-                  classifiers.getMac().set("macosx_x64");
-                  classifiers.getWindows().set("win_x64");
-                }));
-
     var updateIntelliJJdks =
         rootProject
             .getTasks()
