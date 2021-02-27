@@ -25,6 +25,8 @@
 plugins {
     `java-gradle-plugin`
     `maven-publish`
+
+    id("com.gradle.plugin-publish")
 }
 
 dependencies {
@@ -43,9 +45,17 @@ gradlePlugin {
     plugins {
         register("tool-downloader") {
             id = "org.curioswitch.gradle-tool-downloader-plugin"
+            displayName = "Gradle Tool Downloader Plugin"
+            description = "Plugin for automatically downloading various tools needed by codebases"
             implementationClass = "org.curioswitch.gradle.tooldownloader.ToolDownloaderPlugin"
         }
     }
+}
+
+pluginBundle {
+    website = "https://github.com/curioswitch/curiostack/tree/master/tools/gradle-plugins/gradle-tool-downloader-plugin"
+    vcsUrl = "https://github.com/curioswitch/curiostack.git"
+    tags = listOf("curiostack", "tools", "downloader")
 }
 
 publishing {

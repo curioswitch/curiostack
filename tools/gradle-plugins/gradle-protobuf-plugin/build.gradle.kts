@@ -25,6 +25,8 @@
 plugins {
     `java-gradle-plugin`
     `maven-publish`
+
+    id("com.gradle.plugin-publish")
 }
 
 dependencies {
@@ -43,9 +45,17 @@ gradlePlugin {
     plugins {
         register("protobuf") {
             id = "org.curioswitch.gradle-protobuf-plugin"
+            displayName = "Gradle Protobuf Plugin"
+            description = "A modern protobuf plugin using Gradle's latest features."
             implementationClass = "org.curioswitch.gradle.protobuf.ProtobufPlugin"
         }
     }
+}
+
+pluginBundle {
+    website = "https://github.com/curioswitch/curiostack/tree/master/tools/gradle-plugins/gradle-protobuf-plugin"
+    vcsUrl = "https://github.com/curioswitch/curiostack.git"
+    tags = listOf("curiostack", "protobuf")
 }
 
 publishing {

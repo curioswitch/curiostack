@@ -36,21 +36,21 @@ fi
 
 OPENJDK_DIR="$GRADLE_HOME/curiostack/openjdk"
 
-export JAVA_HOME="$OPENJDK_DIR/jdk-15.0.1+9"
+export JAVA_HOME="$OPENJDK_DIR/jdk-15.0.2+7"
 
-DEST="$OPENJDK_DIR/jdk-15.0.1+9.tar.gz.or.zip"
+DEST="$OPENJDK_DIR/jdk-15.0.2+7.tar.gz.or.zip"
 
 if "$linux" = "true"; then
-  SRC="https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.1%2B9/OpenJDK15U-jdk_x64_linux_hotspot_15.0.1_9.tar.gz"
+  SRC="https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.2%2B7/OpenJDK15U-jdk_x64_linux_hotspot_15.0.2_7.tar.gz"
 fi
 
 if "$darwin" = "true"; then
-  SRC="https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.1%2B9.1/OpenJDK15U-jdk_x64_mac_hotspot_15.0.1_9.tar.gz"
+  SRC="https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.2%2B7/OpenJDK15U-jdk_x64_mac_hotspot_15.0.2_7.tar.gz"
   export JAVA_HOME="$JAVA_HOME/Contents/Home"
 fi
 
 if "$windows" = "true"; then
-  SRC="https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.1%2B9/OpenJDK15U-jdk_x64_windows_hotspot_15.0.1_9.zip"
+  SRC="https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.2%2B7/OpenJDK15U-jdk_x64_windows_hotspot_15.0.2_7.zip"
 fi
 
 if [ ! -d "$JAVA_HOME" ]; then

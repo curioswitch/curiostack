@@ -112,11 +112,11 @@ public class UpdateGradleWrapperTask extends DefaultTask {
 
     Map<String, String> templateVars =
         ImmutableMap.<String, String>builder()
-            .put("dest_folder", "jdk-" + releaseName)
+            .put("dest_folder", releaseName)
             .put("url_linux", urlLinux)
             .put("url_mac", urlMac)
             .put("url_windows", urlWindows)
-            .put("dest_archive_name", "jdk-" + releaseName + ".tar.gz.or.zip")
+            .put("dest_archive_name", releaseName + ".tar.gz.or.zip")
             .put("version", releaseName)
             .build();
 
