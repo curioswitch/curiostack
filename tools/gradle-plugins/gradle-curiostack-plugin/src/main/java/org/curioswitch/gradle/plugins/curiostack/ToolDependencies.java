@@ -88,10 +88,6 @@ public class ToolDependencies {
     return getVersion("openjdk", project);
   }
 
-  public static String getOpenJdk8Version(Project project) {
-    return getVersion("openjdk8", project);
-  }
-
   public static String getPulumiVersion(Project project) {
     return getVersion("pulumi", project);
   }

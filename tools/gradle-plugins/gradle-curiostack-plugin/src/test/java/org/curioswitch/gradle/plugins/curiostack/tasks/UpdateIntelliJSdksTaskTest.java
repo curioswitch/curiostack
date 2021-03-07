@@ -70,7 +70,6 @@ class UpdateIntelliJSdksTaskTest {
     var project = ProjectBuilder.builder().withGradleUserHomeDir(testGradleHome.toFile()).build();
     var properties = project.getExtensions().getByType(ExtraPropertiesExtension.class);
     properties.set("org.curioswitch.curiostack.tools.openjdk", "zulu13.28.11-ca-jdk13.0.1");
-    properties.set("org.curioswitch.curiostack.tools.openjdk8", "zulu8.42.0.21-ca-jdk8.0.232");
 
     project.getPlugins().apply(CuriostackRootPlugin.class);
     project.getPlugins().apply(GolangSetupPlugin.class);
@@ -209,9 +208,6 @@ class UpdateIntelliJSdksTaskTest {
             .put("gradleHome", testGradleHome.toAbsolutePath().toString().replace('\\', '/'))
             .put("jdkFolder", "jdk-zulu13.28.11-ca-jdk13.0.1")
             .put("javaVersion", "zulu13.28.11-ca-jdk13.0.1")
-            .put(
-                "jdk8Folder", "zulu8.42.0.21-ca-jdk8.0.232/zulu8.42.0.21-ca-jdk8.0.232-" + suffix())
-            .put("java8Version", "zulu8.42.0.21-ca-jdk8.0.232")
             .put("goVersion", ToolDependencies.getDefaultVersion("golang"))
             .build());
   }

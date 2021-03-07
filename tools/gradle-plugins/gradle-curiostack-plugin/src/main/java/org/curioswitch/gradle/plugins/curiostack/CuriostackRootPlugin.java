@@ -297,10 +297,7 @@ public class CuriostackRootPlugin implements Plugin<Project> {
             .register(
                 UpdateIntelliJSdksTask.NAME,
                 UpdateIntelliJSdksTask.class,
-                t ->
-                    t.dependsOn(
-                        DownloadToolUtil.getSetupTask(rootProject, "openjdk"),
-                        updateGradleWrapper));
+                t -> t.dependsOn(updateGradleWrapper));
 
     var idea = rootProject.getTasks().named("idea");
     idea.configure(task -> task.dependsOn(updateIntelliJJdks));
