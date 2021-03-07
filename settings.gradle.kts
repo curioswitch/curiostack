@@ -46,7 +46,7 @@ pluginManagement {
 
 plugins {
     id("com.gradle.enterprise").version("3.5.2")
-    id("org.curioswitch.gradle-curiostack-plugin").version("0.7.0")
+    id("org.curioswitch.gradle-curiostack-plugin").version("0.7.1")
 }
 
 configure<CuriostackExtension> {
