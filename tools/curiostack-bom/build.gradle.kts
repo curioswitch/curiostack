@@ -284,7 +284,7 @@ val DEPENDENCY_SETS = listOf(
         DependencySet(
                 "org.eclipse.jgit",
                 "5.10.0.202012080955-r",
-                listOf("org.eclipse.jgit, org.eclipse.jgit.ssh.jsch")
+                listOf("org.eclipse.jgit", "org.eclipse.jgit.ssh.apache", "org.eclipse.jgit.ssh.jsch")
         ),
         DependencySet(
                 "org.immutables",

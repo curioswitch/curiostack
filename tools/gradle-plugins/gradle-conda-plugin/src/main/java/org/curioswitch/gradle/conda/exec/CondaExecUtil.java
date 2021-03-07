@@ -122,7 +122,7 @@ public final class CondaExecUtil {
             flag,
             "-isysroot"
                 + macOsSdkPath
-                + " -mmacosx-version-min=10.10 "
+                + " -mmacosx-version-min=10.12 "
                 + environment.getOrDefault(flag, "")
                 + ' '
                 + System.getenv().getOrDefault(flag, ""));

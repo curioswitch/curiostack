@@ -101,7 +101,7 @@ public class CondaBuildEnvPlugin implements Plugin<Project> {
                     "macos-sdk",
                     tool -> {
                       tool.getArtifact().set("MacOSX");
-                      tool.getVersion().set("10.10");
+                      tool.getVersion().set("10.13");
                       tool.getBaseUrl()
                           .set("https://github.com/phracker/MacOSX-SDKs/releases/download/10.13/");
                       tool.getArtifactPattern().set("[artifact][revision].sdk.[ext]");

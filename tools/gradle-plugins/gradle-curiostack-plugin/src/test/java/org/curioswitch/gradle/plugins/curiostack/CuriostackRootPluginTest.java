@@ -31,7 +31,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.curioswitch.gradle.plugins.curiostack.tasks.UpdateIntelliJSdksTask;
-import org.curioswitch.gradle.testing.GradleTempDirectories;
 import org.curioswitch.gradle.testing.ResourceProjects;
 import org.gradle.testkit.runner.GradleRunner;
 import org.jsoup.Jsoup;
@@ -160,35 +159,6 @@ class CuriostackRootPluginTest {
                   .withPluginClasspath())
           .builds()
           .tasksDidSucceed(":updateNodeResolutions");
-    }
-  }
-
-  @SuppressWarnings("ClassCanBeStatic")
-  @Nested
-  // This test is slow since it downloads a file, just run locally for now.
-  @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
-  class SetupOpenJdk8 {
-
-    private Path projectDir;
-
-    @BeforeAll
-    void copyProject() {
-      projectDir =
-          ResourceProjects.fromResources("test-projects/gradle-curiostack-plugin/kitchen-sink");
-    }
-
-    @Test
-    void downloadsTools() throws Exception {
-      Path gradleUserHome = GradleTempDirectories.create("tools-home");
-      assertThat(
-              GradleRunner.create()
-                  .withProjectDir(projectDir.toFile())
-                  .withArguments("toolsSetupOpenjdk")
-                  .withPluginClasspath()
-                  .withTestKitDir(gradleUserHome.toFile()))
-          .builds()
-          .tasksDidSucceed(":toolsSetupOpenjdk");
-      assertThat(gradleUserHome.resolve("curiostack/openjdk")).exists();
     }
   }
 
