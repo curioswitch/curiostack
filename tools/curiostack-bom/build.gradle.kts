@@ -342,7 +342,7 @@ val DEPENDENCIES = listOf(
         "com.uber.nullaway:nullaway:0.9.0",
         "de.undercouch:gradle-download-task:4.1.1",
         "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.6",
-        "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:2.1.0",
+        "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:2.8.0",
         "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.4",
         "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
         "io.sgr:s2-geometry-library-java:1.0.1",
