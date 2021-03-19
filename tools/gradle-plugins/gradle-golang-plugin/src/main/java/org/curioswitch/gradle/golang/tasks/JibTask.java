@@ -38,16 +38,16 @@
  */
 package org.curioswitch.gradle.golang.tasks;
 
-import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
 import com.google.cloud.tools.jib.api.Containerizer;
-import com.google.cloud.tools.jib.api.FilePermissions;
 import com.google.cloud.tools.jib.api.ImageReference;
 import com.google.cloud.tools.jib.api.Jib;
 import com.google.cloud.tools.jib.api.JibContainerBuilder;
 import com.google.cloud.tools.jib.api.LayerConfiguration;
 import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.api.Port;
 import com.google.cloud.tools.jib.api.RegistryImage;
+import com.google.cloud.tools.jib.api.buildplan.AbsoluteUnixPath;
+import com.google.cloud.tools.jib.api.buildplan.FilePermissions;
+import com.google.cloud.tools.jib.api.buildplan.Port;
 import com.google.cloud.tools.jib.event.events.ProgressEvent;
 import com.google.cloud.tools.jib.event.events.TimerEvent;
 import com.google.cloud.tools.jib.event.progress.ProgressEventHandler;

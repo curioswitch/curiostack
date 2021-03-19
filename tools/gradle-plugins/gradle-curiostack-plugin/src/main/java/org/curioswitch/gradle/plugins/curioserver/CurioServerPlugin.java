@@ -23,7 +23,7 @@
  */
 package org.curioswitch.gradle.plugins.curioserver;
 
-import com.google.cloud.tools.jib.api.ImageFormat;
+import com.google.cloud.tools.jib.api.buildplan.ImageFormat;
 import com.google.cloud.tools.jib.gradle.BuildImageTask;
 import com.google.cloud.tools.jib.gradle.JibExtension;
 import com.google.cloud.tools.jib.gradle.JibPlugin;
