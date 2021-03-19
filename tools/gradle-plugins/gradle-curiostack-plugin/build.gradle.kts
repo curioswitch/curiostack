@@ -49,6 +49,7 @@ dependencies {
     implementation("com.github.ben-manes:gradle-versions-plugin")
     implementation("com.google.auth:google-auth-library-oauth2-http")
     implementation("com.google.cloud:google-cloud-kms")
+    implementation("com.google.cloud.tools:jib-build-plan:0.4.0")
     implementation("com.google.guava:guava")
     implementation("com.hubspot.jinjava:jinjava")
     implementation("com.jfrog.bintray.gradle:gradle-bintray-plugin")
