@@ -76,6 +76,15 @@ public final class DatabaseTestUtil {
   }
 
   /**
+   * Returns a {@link DSLContext} with a mock connection using the provided {@link
+   * MockDataProvider} and {@link Clock} to override the system's current time
+   * with a fixed timestamp.
+   */
+  public static DSLContext newDbContext(MockDataProvider dataProvider, Clock clock) {
+    return newDbContext(dataProvider).configuration().set(clock).dsl();
+  }
+
+  /**
    * Setup a {@link MockDataProviderStubber} which can be used to set an expectation to return
    * records or throw an exception when the {@code query} is executed on the {@code provider}.
    */
