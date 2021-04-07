@@ -76,9 +76,8 @@ public final class DatabaseTestUtil {
   }
 
   /**
-   * Returns a {@link DSLContext} with a mock connection using the provided {@link
-   * MockDataProvider} and {@link Clock} to override the system's current time
-   * with a fixed timestamp.
+   * Returns a {@link DSLContext} with a mock connection using the provided {@link MockDataProvider}
+   * and {@link Clock} to override the system's current time with a fixed timestamp.
    */
   public static DSLContext newDbContext(MockDataProvider dataProvider, Clock clock) {
     return newDbContext(dataProvider).configuration().set(clock).dsl();
