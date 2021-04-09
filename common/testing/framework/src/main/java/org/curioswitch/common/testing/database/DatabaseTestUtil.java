@@ -34,7 +34,7 @@ import static org.mockito.Mockito.withSettings;
 
 import com.google.common.collect.ImmutableList;
 import java.sql.SQLException;
-import org.curioswitch.common.server.framework.database.DatabaseUtil;
+import java.time.Clock;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
@@ -71,9 +71,16 @@ public final class DatabaseTestUtil {
   public static DSLContext newDbContext(MockDataProvider dataProvider) {
     MockConnection connection = new MockConnection(dataProvider);
     DSLContext db = DSL.using(connection, SQLDialect.MYSQL);
-    db.configuration().set(DatabaseUtil.sfmRecordMapperProvider());
     db.settings().setRenderSchema(false);
     return db;
+  }
+
+  /**
+   * Returns a {@link DSLContext} with a mock connection using the provided {@link MockDataProvider}
+   * and {@link Clock} to override the system's current time with a fixed timestamp.
+   */
+  public static DSLContext newDbContext(MockDataProvider dataProvider, Clock clock) {
+    return newDbContext(dataProvider).configuration().set(clock).dsl();
   }
 
   /**
