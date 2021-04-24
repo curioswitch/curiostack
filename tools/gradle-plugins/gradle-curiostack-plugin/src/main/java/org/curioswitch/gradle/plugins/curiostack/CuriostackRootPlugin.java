@@ -758,17 +758,17 @@ public class CuriostackRootPlugin implements Plugin<Project> {
     String copyrightSlashStar =
         copyrightLines.stream()
             .map(line -> line.isEmpty() ? " *" : " * " + line)
-            .collect(Collectors.joining("\n", "/*\n", " */\n"));
+            .collect(Collectors.joining("\n", "/*\n", "\n */\n\n"));
 
     String copyrightDoubleSlash =
         copyrightLines.stream()
             .map(line -> line.isEmpty() ? "//" : "// " + line)
-            .collect(Collectors.joining("\n", "", "\n"));
+            .collect(Collectors.joining("\n", "", "\n\n"));
 
     String copyrightSharp =
         copyrightLines.stream()
             .map(line -> line.isEmpty() ? "#" : "# " + line)
-            .collect(Collectors.joining("\n", "", "\n"));
+            .collect(Collectors.joining("\n", "", "\n\n"));
 
     rootProject.subprojects(
         project -> {
@@ -779,6 +779,7 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           project.getPlugins().withId("java", unused -> {
             spotless.java(
                 (java) -> {
+                  java.targetExclude("build/**");
                   java.googleJavaFormat(
                       ToolDependencies.getGoogleJavaFormatVersion(project));
                   java.licenseHeader(copyrightSlashStar);
