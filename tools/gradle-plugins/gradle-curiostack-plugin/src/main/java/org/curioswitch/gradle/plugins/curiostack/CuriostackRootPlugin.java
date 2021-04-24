@@ -770,7 +770,7 @@ public class CuriostackRootPlugin implements Plugin<Project> {
             .map(line -> line.isEmpty() ? "#" : "# " + line)
             .collect(Collectors.joining("\n", "", "\n"));
 
-    rootProject.allprojects(
+    rootProject.subprojects(
         project -> {
           project.getPlugins().apply(SpotlessPlugin.class);
 
@@ -788,13 +788,13 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           spotless.typescript(typescript -> {
             typescript.target("**/*.ts", "**/*.js", "**/*.tsx", "**/*.jsx");
 
-            typescript.licenseHeader(copyrightSlashStar, "[^/][^*]|[^ ][^*]");
+            typescript.licenseHeader(copyrightSlashStar, "import|const|declare|export|var");
           });
 
           spotless.format("go", go -> {
             go.target("**/*.go");
 
-            go.licenseHeader(copyrightDoubleSlash, "^[^/][^/]");
+            go.licenseHeader(copyrightDoubleSlash, "package|// +|// -|//go");
           });
 
           spotless.format("proto", go -> {
@@ -812,7 +812,7 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           spotless.format("yml", conf -> {
             conf.target("**/*.yml", "**/*.yaml");
 
-            conf.licenseHeader(copyrightSharp, "[^#]|[^\\n]");
+            conf.licenseHeader(copyrightSharp, "[^#]");
           });
         });
   }
