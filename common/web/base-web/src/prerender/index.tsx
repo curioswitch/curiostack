@@ -22,8 +22,6 @@
  * SOFTWARE.
  */
 
-// tslint:disable:jsx-no-lambda
-
 import {
   createLocation,
   createMemoryHistory as createHistory,

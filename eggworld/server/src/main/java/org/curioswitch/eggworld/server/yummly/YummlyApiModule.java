@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package org.curioswitch.eggworld.server.yummly;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;

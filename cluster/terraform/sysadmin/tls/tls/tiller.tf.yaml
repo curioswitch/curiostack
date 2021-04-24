@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+
+# End License
+
 # We create a custom CA for tiller. Only clients using certificates signed by it
 # will be able to use helm.
 output:

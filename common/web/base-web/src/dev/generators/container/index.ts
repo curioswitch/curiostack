@@ -22,10 +22,6 @@
  * SOFTWARE.
  */
 
-/**
- * Container Generator
- */
-
 import fs from 'fs';
 import { mkdirs } from 'fs-extra';
 import path from 'path';

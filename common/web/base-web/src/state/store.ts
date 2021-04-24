@@ -22,10 +22,6 @@
  * SOFTWARE.
  */
 
-/**
- * Create the store with asynchronously loaded reducers
- */
-
 import {
   connectRouter,
   routerMiddleware,

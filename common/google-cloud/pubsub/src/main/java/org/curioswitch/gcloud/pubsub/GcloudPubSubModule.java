@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package org.curioswitch.gcloud.pubsub;
 
 import com.google.pubsub.v1.PublisherGrpc.PublisherFutureStub;

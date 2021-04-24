@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package org.curioswitch.gradle.plugins.curiostack;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -782,45 +783,60 @@ public class CuriostackRootPlugin implements Plugin<Project> {
 
           SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
 
-          project.getPlugins().withId("java", unused -> {
-            spotless.java(
-                (java) -> {
-                  java.targetExclude("build/**");
-                  java.googleJavaFormat(
-                      ToolDependencies.getGoogleJavaFormatVersion(project));
-                  java.licenseHeader(copyrightSlashStar);
-                });
-          });
+          project
+              .getPlugins()
+              .withId(
+                  "java",
+                  unused -> {
+                    spotless.java(
+                        (java) -> {
+                          java.targetExclude("build/**");
+                          java.googleJavaFormat(
+                              ToolDependencies.getGoogleJavaFormatVersion(project));
+                          java.licenseHeader(copyrightSlashStar);
+                        });
+                  });
 
-          spotless.typescript(typescript -> {
-            typescript.target("**/*.ts", "**/*.js", "**/*.tsx", "**/*.jsx");
+          spotless.typescript(
+              typescript -> {
+                typescript.target("**/*.ts", "**/*.js", "**/*.tsx", "**/*.jsx");
 
-            typescript.licenseHeader(copyrightSlashStar, "import|const|declare|export|var|module|/\\* eslint|// eslint|// End License|it\\(");
-          });
+                typescript.licenseHeader(
+                    copyrightSlashStar,
+                    "import|const|declare|export|var|module|/\\* eslint|// eslint|// End License|it\\(|/\\* global|#!|type ");
+              });
 
-          spotless.format("go", go -> {
-            go.target("**/*.go");
+          spotless.format(
+              "go",
+              go -> {
+                go.target("**/*.go");
 
-            go.licenseHeader(copyrightDoubleSlash, "package|// +|// -|//go|// End License");
-          });
+                go.licenseHeader(copyrightDoubleSlash, "package|// +|// -|//go|// End License");
+              });
 
-          spotless.format("proto", go -> {
-            go.target("**/*.proto");
+          spotless.format(
+              "proto",
+              go -> {
+                go.target("**/*.proto");
 
-            go.licenseHeader(copyrightDoubleSlash, "syntax|// End License");
-          });
+                go.licenseHeader(copyrightDoubleSlash, "syntax|// End License");
+              });
 
-          spotless.format("conf", conf -> {
-            conf.target("**/*.conf");
+          spotless.format(
+              "conf",
+              conf -> {
+                conf.target("**/*.conf");
 
-            conf.licenseHeader(copyrightDoubleSlash, "[a-zA-Z0-9]|// End License");
-          });
+                conf.licenseHeader(copyrightDoubleSlash, "[a-zA-Z0-9]|// End License");
+              });
 
-          spotless.format("yml", conf -> {
-            conf.target("**/*.yml", "**/*.yaml");
+          spotless.format(
+              "yml",
+              conf -> {
+                conf.target("**/*.yml", "**/*.yaml");
 
-            conf.licenseHeader(copyrightSharp, "[a-zA-Z0-9]|# End License");
-          });
+                conf.licenseHeader(copyrightSharp, "[a-zA-Z0-9]|# End License");
+              });
         });
   }
 
