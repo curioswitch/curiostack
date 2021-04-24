@@ -775,12 +775,15 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           project.getPlugins().apply(SpotlessPlugin.class);
 
           SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
-          spotless.java(
-              (java) -> {
+
+          project.getPlugins().withId("java", unused -> {
+            spotless.java(
+                (java) -> {
                   java.googleJavaFormat(
                       ToolDependencies.getGoogleJavaFormatVersion(project));
                   java.licenseHeader(copyrightSlashStar);
-              });
+                });
+          });
 
           spotless.typescript(typescript -> {
             typescript.target("**/*.ts", "**/*.js", "**/*.tsx", "**/*.jsx");
