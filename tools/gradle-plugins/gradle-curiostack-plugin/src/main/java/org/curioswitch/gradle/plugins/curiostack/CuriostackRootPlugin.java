@@ -772,6 +772,12 @@ public class CuriostackRootPlugin implements Plugin<Project> {
 
     rootProject.subprojects(
         project -> {
+          // Don't apply spotless to intermediate projects, CurioStack currently doesn't have a use
+          // case for it and it allows globs like "**/*.ext"
+          if (!project.getChildProjects().isEmpty()) {
+            return;
+          }
+
           project.getPlugins().apply(SpotlessPlugin.class);
 
           SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
