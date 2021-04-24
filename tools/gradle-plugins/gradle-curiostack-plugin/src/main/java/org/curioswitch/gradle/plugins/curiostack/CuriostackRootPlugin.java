@@ -23,13 +23,13 @@
  */
 package org.curioswitch.gradle.plugins.curiostack;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static net.ltgt.gradle.errorprone.CheckSeverity.ERROR;
 import static net.ltgt.gradle.errorprone.CheckSeverity.OFF;
 import static net.ltgt.gradle.errorprone.CheckSeverity.WARN;
 
 import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
-import com.diffplug.gradle.spotless.SpotlessTask;
 import com.github.benmanes.gradle.versions.VersionsPlugin;
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask;
 import com.google.common.collect.ImmutableList;
@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.xml.parsers.ParserConfigurationException;
 import me.champeau.gradle.JMHPlugin;
 import me.champeau.gradle.JMHPluginExtension;
@@ -60,9 +61,6 @@ import net.ltgt.gradle.errorprone.ErrorProneOptions;
 import net.ltgt.gradle.errorprone.ErrorPronePlugin;
 import net.ltgt.gradle.nullaway.NullAwayOptions;
 import net.ltgt.gradle.nullaway.NullAwayPlugin;
-import nl.javadude.gradle.plugins.license.License;
-import nl.javadude.gradle.plugins.license.LicenseExtension;
-import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
 import nu.studer.gradle.jooq.JooqTask;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -403,36 +401,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                                 t.dependsOn(
                                     project.getRootProject().getTasks().getByName("gcloudSetup")));
                   });
-
-          project
-              .getPlugins()
-              .withType(
-                  LicensePlugin.class,
-                  unused -> {
-                    LicenseExtension license =
-                        project.getExtensions().getByType(LicenseExtension.class);
-                    license.setHeader(rootProject.file("LICENSE"));
-                    license.mapping(
-                        ImmutableMap.of(
-                            "conf", "DOUBLESLASH_STYLE",
-                            "go", "SLASHSTAR_STYLE",
-                            "java", "SLASHSTAR_STYLE",
-                            "proto", "SLASHSTAR_STYLE",
-                            "yml", "SCRIPT_STYLE"));
-
-                    project
-                        .getTasks()
-                        .withType(License.class)
-                        .configureEach(
-                            t -> {
-                              t.exclude("**/*.json");
-                              t.exclude(
-                                  f ->
-                                      f.getFile()
-                                          .toPath()
-                                          .startsWith(project.getBuildDir().toPath()));
-                            });
-                  });
         });
 
     setupDataSources(rootProject);
@@ -469,6 +437,8 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                             conda
                                 .getVersion()
                                 .set(ToolDependencies.getMinicondaVersion(rootProject))));
+
+    setupSpotless(rootProject);
   }
 
   private static void setupRepositories(Project project) {
@@ -507,9 +477,7 @@ public class CuriostackRootPlugin implements Plugin<Project> {
     plugins.apply(AptIdeaPlugin.class);
     plugins.apply(ErrorPronePlugin.class);
     plugins.apply(IdeaPlugin.class);
-    plugins.apply(LicensePlugin.class);
     plugins.apply(NullAwayPlugin.class);
-    plugins.apply(SpotlessPlugin.class);
     plugins.apply(VersionsPlugin.class);
 
     var java = project.getExtensions().getByType(JavaPluginExtension.class);
@@ -596,11 +564,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                     .addAll(MonotonicNonNull.class.getCanonicalName(), "org.mockito.Mock");
               }
             });
-
-    project
-        .getTasks()
-        .withType(SpotlessTask.class)
-        .configureEach(task -> task.dependsOn(project.getTasks().withType(JavaCompile.class)));
 
     JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
     javaPlugin.setSourceCompatibility(JavaVersion.VERSION_15);
@@ -705,13 +668,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           options.addBooleanOption("Xdoclint:all,-missing", true);
         });
 
-    SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
-    spotless.java(
-        (spotlessJava) -> {
-          spotlessJava.target("src/**/*.java");
-          spotlessJava.googleJavaFormat(ToolDependencies.getGoogleJavaFormatVersion(project));
-        });
-
     project
         .getTasks()
         .register(
@@ -784,6 +740,78 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                     .filter(entry -> !((String) entry.getKey()).startsWith("java."))
                     .forEach(
                         entry -> task.systemProperty((String) entry.getKey(), entry.getValue())));
+  }
+
+  private static void setupSpotless(Project rootProject) {
+    List<String> copyrightLines;
+    try (var files = Files.list(rootProject.file(".baseline/copyright").toPath())) {
+      copyrightLines = Files.readAllLines(files.findFirst().get());
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+
+    copyrightLines =
+        copyrightLines.stream()
+            .map(line -> line.replace("${today.year}", "$today.year"))
+            .collect(toImmutableList());
+
+    String copyrightSlashStar =
+        copyrightLines.stream()
+            .map(line -> " * " + line)
+            .collect(Collectors.joining("\n", "/*\n", " */\n"));
+
+    String copyrightDoubleSlash =
+        copyrightLines.stream()
+            .map(line -> "// " + line)
+            .collect(Collectors.joining("\n", "", "\n"));
+
+    String copyrightSharp =
+        copyrightLines.stream()
+            .map(line -> "# " + line)
+            .collect(Collectors.joining("\n", "", "\n"));
+
+    rootProject.allprojects(
+        project -> {
+          project.getPlugins().apply(SpotlessPlugin.class);
+
+          SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
+          spotless.java(
+              (java) -> {
+                  java.googleJavaFormat(
+                      ToolDependencies.getGoogleJavaFormatVersion(project));
+                  java.licenseHeader(copyrightSlashStar);
+              });
+
+          spotless.typescript(typescript -> {
+            typescript.target("**/*.ts", "**/*.js", "**/*.tsx", "**/*.jsx");
+
+            typescript.licenseHeader(copyrightSlashStar, "import|//");
+          });
+
+          spotless.format("go", go -> {
+            go.target("**/*.go");
+
+            go.licenseHeader(copyrightDoubleSlash, "^[^/][^/]");
+          });
+
+          spotless.format("proto", go -> {
+            go.target("**/*.proto");
+
+            go.licenseHeader(copyrightDoubleSlash, "syntax");
+          });
+
+          spotless.format("conf", conf -> {
+            conf.target("**/*.conf");
+
+            conf.licenseHeader(copyrightDoubleSlash, "^[^/][^/]");
+          });
+
+          spotless.format("conf", conf -> {
+            conf.target("**/*.yml", "**/*.yaml");
+
+            conf.licenseHeader(copyrightSharp, "^[^#]");
+          });
+        });
   }
 
   private static void addStandardJavaTestDependencies(Project project) {
