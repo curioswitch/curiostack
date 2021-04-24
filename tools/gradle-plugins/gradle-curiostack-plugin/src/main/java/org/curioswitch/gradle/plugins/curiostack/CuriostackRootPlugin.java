@@ -757,17 +757,17 @@ public class CuriostackRootPlugin implements Plugin<Project> {
 
     String copyrightSlashStar =
         copyrightLines.stream()
-            .map(line -> " * " + line)
+            .map(line -> line.isEmpty() ? " *" : " * " + line)
             .collect(Collectors.joining("\n", "/*\n", " */\n"));
 
     String copyrightDoubleSlash =
         copyrightLines.stream()
-            .map(line -> "// " + line)
+            .map(line -> line.isEmpty() ? "//" : "// " + line)
             .collect(Collectors.joining("\n", "", "\n"));
 
     String copyrightSharp =
         copyrightLines.stream()
-            .map(line -> "# " + line)
+            .map(line -> line.isEmpty() ? "#" : "# " + line)
             .collect(Collectors.joining("\n", "", "\n"));
 
     rootProject.allprojects(
@@ -788,13 +788,13 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           spotless.typescript(typescript -> {
             typescript.target("**/*.ts", "**/*.js", "**/*.tsx", "**/*.jsx");
 
-            typescript.licenseHeader(copyrightSlashStar, "import|//");
+            typescript.licenseHeader(copyrightSlashStar, "[^/][^*]|[^ ][^*]|[^\n]");
           });
 
           spotless.format("go", go -> {
             go.target("**/*.go");
 
-            go.licenseHeader(copyrightDoubleSlash, "^[^/][^/]");
+            go.licenseHeader(copyrightDoubleSlash, "^[^/][^/]|[^\n]");
           });
 
           spotless.format("proto", go -> {
@@ -806,13 +806,13 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           spotless.format("conf", conf -> {
             conf.target("**/*.conf");
 
-            conf.licenseHeader(copyrightDoubleSlash, "^[^/][^/]");
+            conf.licenseHeader(copyrightDoubleSlash, "^[^/][^/]|[^\n]");
           });
 
           spotless.format("yml", conf -> {
             conf.target("**/*.yml", "**/*.yaml");
 
-            conf.licenseHeader(copyrightSharp, "^[^#]");
+            conf.licenseHeader(copyrightSharp, "[^#]|[^\n]");
           });
         });
   }
