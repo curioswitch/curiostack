@@ -22,8 +22,7 @@
  * SOFTWARE.
  */
 
-import com.diffplug.gradle.spotless.SpotlessTask
-import nl.javadude.gradle.plugins.license.License
+import com.diffplug.gradle.spotless.SpotlessExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
@@ -204,13 +203,8 @@ tasks.withType(Test::class) {
     }
 }
 
-tasks.withType(License::class) {
-    exclude("**/*.xml")
-}
-
-tasks {
-    withType<SpotlessTask>().configureEach {
-        setTarget(target.minus(files("**/test-projects/**")))
+configure<SpotlessExtension> {
+    java {
+        targetExclude("**/test-projects/**")
     }
 }
-
