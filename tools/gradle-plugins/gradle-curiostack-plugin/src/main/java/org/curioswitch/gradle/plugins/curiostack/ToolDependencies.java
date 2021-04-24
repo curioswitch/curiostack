@@ -30,21 +30,21 @@ import org.gradle.api.Project;
 
 public class ToolDependencies {
 
-  private static Map<String, String> DEFAULT_VERSIONS =
+  private static final Map<String, String> DEFAULT_VERSIONS =
       ImmutableMap.<String, String>builder()
-          .put("awscli", "2.1.28")
+          .put("awscli", "2.1.39")
           .put("bom", "0.7.4")
           .put("claat", "2.2.0")
-          .put("gcloud", "329.0.0")
-          .put("golang", "1.16")
-          .put("google-java-format", "1.9")
+          .put("gcloud", "337.0.0")
+          .put("golang", "1.16.3")
+          .put("google-java-format", "1.10.0")
           .put("gradle", "6.8.3")
           .put("miniconda", "Miniconda3-py39_4.9.2")
-          .put("node", "14.16.0")
+          .put("node", "14.16.1")
           .put("openjdk", "15")
-          .put("pulumi", "2.21.2")
-          .put("terraform", "0.14.7")
-          .put("terraform-gsuite-provider", "0.1.58")
+          .put("pulumi", "3.1.0")
+          .put("terraform", "0.15.0")
+          .put("terraform-gsuite-provider", "0.1.60")
           .put("yarn", "1.22.5")
           .build();
 

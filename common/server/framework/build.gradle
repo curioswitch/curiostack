@@ -76,8 +76,8 @@ dependencies {
     implementation 'org.bouncycastle:bcpkix-jdk15on'
     implementation 'org.jctools:jctools-core'
 
-    runtime 'com.google.cloud.sql:mysql-socket-factory'
-    runtime 'mysql:mysql-connector-java'
+    runtimeOnly 'com.google.cloud.sql:mysql-socket-factory'
+    runtimeOnly 'mysql:mysql-connector-java'
 
     annotationProcessor 'com.google.auto.factory:auto-factory'
     compileOnly 'com.google.auto.factory:auto-factory'
