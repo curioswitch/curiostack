@@ -789,19 +789,19 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           spotless.typescript(typescript -> {
             typescript.target("**/*.ts", "**/*.js", "**/*.tsx", "**/*.jsx");
 
-            typescript.licenseHeader(copyrightSlashStar, "import|const|declare|export|var|module");
+            typescript.licenseHeader(copyrightSlashStar, "import|const|declare|export|var|module|// End License");
           });
 
           spotless.format("go", go -> {
             go.target("**/*.go");
 
-            go.licenseHeader(copyrightDoubleSlash, "package|// +|// -|//go");
+            go.licenseHeader(copyrightDoubleSlash, "package|// +|// -|//go|// End License");
           });
 
           spotless.format("proto", go -> {
             go.target("**/*.proto");
 
-            go.licenseHeader(copyrightDoubleSlash, "syntax");
+            go.licenseHeader(copyrightDoubleSlash, "syntax|// End License");
           });
 
           spotless.format("conf", conf -> {
