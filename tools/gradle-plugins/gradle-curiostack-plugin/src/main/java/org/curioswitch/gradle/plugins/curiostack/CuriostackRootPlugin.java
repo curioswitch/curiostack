@@ -807,13 +807,13 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           spotless.format("conf", conf -> {
             conf.target("**/*.conf");
 
-            conf.licenseHeader(copyrightDoubleSlash, "^[^/][^/]");
+            conf.licenseHeader(copyrightDoubleSlash, "[a-zA-Z0-9]|// End License");
           });
 
           spotless.format("yml", conf -> {
             conf.target("**/*.yml", "**/*.yaml");
 
-            conf.licenseHeader(copyrightSharp, "[^#]|[^\\n]");
+            conf.licenseHeader(copyrightSharp, "[a-zA-Z0-9]|# End License");
           });
         });
   }
