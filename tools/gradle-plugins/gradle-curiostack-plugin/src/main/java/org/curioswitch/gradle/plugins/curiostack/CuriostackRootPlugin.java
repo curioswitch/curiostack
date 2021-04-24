@@ -793,7 +793,8 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                           java.targetExclude("build/**");
                           java.googleJavaFormat(
                               ToolDependencies.getGoogleJavaFormatVersion(project));
-                          java.licenseHeader(copyrightSlashStar, "package |// End License|// Includes work from:");
+                          java.licenseHeader(
+                              copyrightSlashStar, "package |// End License|// Includes work from:");
                         });
                   });
 
@@ -811,7 +812,9 @@ public class CuriostackRootPlugin implements Plugin<Project> {
               go -> {
                 go.target("**/*.go");
 
-                go.licenseHeader(copyrightDoubleSlash, "package|// +|// -|//go|// End License|// Includes work from:");
+                go.licenseHeader(
+                    copyrightDoubleSlash,
+                    "package|// +|// -|//go|// End License|// Includes work from:");
               });
 
           spotless.format(
@@ -819,7 +822,8 @@ public class CuriostackRootPlugin implements Plugin<Project> {
               go -> {
                 go.target("**/*.proto");
 
-                go.licenseHeader(copyrightDoubleSlash, "syntax|// End License|// Includes work from:");
+                go.licenseHeader(
+                    copyrightDoubleSlash, "syntax|// End License|// Includes work from:");
               });
 
           spotless.format(
@@ -827,7 +831,8 @@ public class CuriostackRootPlugin implements Plugin<Project> {
               conf -> {
                 conf.target("**/*.conf");
 
-                conf.licenseHeader(copyrightDoubleSlash, "[a-zA-Z0-9]|// End License|// Includes work from:");
+                conf.licenseHeader(
+                    copyrightDoubleSlash, "[a-zA-Z0-9]|// End License|// Includes work from:");
               });
 
           spotless.format(
@@ -835,7 +840,8 @@ public class CuriostackRootPlugin implements Plugin<Project> {
               conf -> {
                 conf.target("**/*.yml", "**/*.yaml");
 
-                conf.licenseHeader(copyrightSharp, "[a-zA-Z0-9]|# End License|# Includes work from:");
+                conf.licenseHeader(
+                    copyrightSharp, "[a-zA-Z0-9]|# End License|# Includes work from:");
               });
         });
   }
