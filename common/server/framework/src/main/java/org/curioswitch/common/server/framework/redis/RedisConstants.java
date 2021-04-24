@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package org.curioswitch.common.server.framework.redis;
 
 import com.linecorp.armeria.common.metric.MeterIdPrefix;
