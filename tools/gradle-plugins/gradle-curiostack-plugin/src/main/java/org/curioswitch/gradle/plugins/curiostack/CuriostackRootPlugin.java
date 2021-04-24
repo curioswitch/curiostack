@@ -806,7 +806,7 @@ public class CuriostackRootPlugin implements Plugin<Project> {
             conf.licenseHeader(copyrightDoubleSlash, "^[^/][^/]");
           });
 
-          spotless.format("conf", conf -> {
+          spotless.format("yml", conf -> {
             conf.target("**/*.yml", "**/*.yaml");
 
             conf.licenseHeader(copyrightSharp, "^[^#]");

@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import com.diffplug.gradle.spotless.SpotlessTask
 import nl.javadude.gradle.plugins.license.License
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
@@ -208,8 +209,8 @@ tasks.withType(License::class) {
 }
 
 tasks {
-    named<License>("licenseTest") {
-        exclude("**/rendered-get-jdk.sh")
-        exclude("**/test-projects/**")
+    withType<SpotlessTask>().configureEach {
+        setTarget(target.minus(files("**/test-projects/**")))
     }
 }
+
