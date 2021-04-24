@@ -44,10 +44,8 @@ tasks {
 
 configure<SpotlessExtension> {
     typescript {
-        // Overwrites the shebang, can live without.
-        targetExclude("src/dev/scripts/**")
-
-        // Used for generating user apps does not have copyright
-        targetExclude("src/dev/generators/package/src-template/**")
+        // Scripts have shebang at the top before copyright.
+        // Template has code that is generated for users.
+        targetExclude("src/dev/scripts/**", "src/dev/generators/package/src-template/**")
     }
 }
