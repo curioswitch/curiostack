@@ -54,9 +54,6 @@ import java.util.stream.Collectors;
 import javax.xml.parsers.ParserConfigurationException;
 import me.champeau.gradle.JMHPlugin;
 import me.champeau.gradle.JMHPluginExtension;
-import net.ltgt.gradle.apt.AptIdeaPlugin;
-import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleApt;
-import net.ltgt.gradle.apt.AptPlugin;
 import net.ltgt.gradle.errorprone.CheckSeverity;
 import net.ltgt.gradle.errorprone.ErrorProneOptions;
 import net.ltgt.gradle.errorprone.ErrorPronePlugin;
@@ -474,8 +471,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
     setupRepositories(project);
 
     PluginContainer plugins = project.getPlugins();
-    plugins.apply(AptPlugin.class);
-    plugins.apply(AptIdeaPlugin.class);
     plugins.apply(ErrorPronePlugin.class);
     plugins.apply(IdeaPlugin.class);
     plugins.apply(NullAwayPlugin.class);
@@ -624,11 +619,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                   .named("cleanIdea")
                   .configure(
                       t -> t.doLast(unused -> project.file(project.getName() + ".iml").delete()));
-
-              ((ExtensionAware) module)
-                  .getExtensions()
-                  .getByType(ModuleApt.class)
-                  .setAddAptDependencies(false);
             });
 
     // Pretty much all java code needs at least the Generated annotation.

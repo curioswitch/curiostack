@@ -351,7 +351,6 @@ val DEPENDENCIES = listOf(
         "javax.annotation:javax.annotation-api:1.3.2",
         "me.champeau.gradle:jmh-gradle-plugin:0.5.3",
         "mysql:mysql-connector-java:8.0.24",
-        "net.ltgt.gradle:gradle-apt-plugin:0.21",
         "net.ltgt.gradle:gradle-errorprone-plugin:2.0.1",
         "net.ltgt.gradle:gradle-nullaway-plugin:1.1.0",
         "nu.studer:gradle-jooq-plugin:4.2",

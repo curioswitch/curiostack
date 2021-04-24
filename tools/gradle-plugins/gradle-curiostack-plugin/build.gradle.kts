@@ -61,7 +61,6 @@ dependencies {
     implementation("me.champeau.gradle:jmh-gradle-plugin")
     implementation("net.adoptopenjdk:net.adoptopenjdk.v3.api")
     implementation("net.adoptopenjdk:net.adoptopenjdk.v3.vanilla")
-    implementation("net.ltgt.gradle:gradle-apt-plugin")
     implementation("net.ltgt.gradle:gradle-errorprone-plugin")
     implementation("net.ltgt.gradle:gradle-nullaway-plugin")
     implementation("nu.studer:gradle-jooq-plugin")
