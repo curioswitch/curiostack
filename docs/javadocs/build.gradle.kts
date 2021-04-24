@@ -27,8 +27,8 @@ plugins {
 }
 
 dependencies {
-  compile(project(":common:grpc:protobuf-jackson"))
-  compile(project(":common:server:framework"))
+  implementation(project(":common:grpc:protobuf-jackson"))
+  implementation(project(":common:server:framework"))
 }
 
 tasks {

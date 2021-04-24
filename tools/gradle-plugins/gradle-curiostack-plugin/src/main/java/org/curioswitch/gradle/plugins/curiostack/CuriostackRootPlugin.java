@@ -35,6 +35,7 @@ import com.github.benmanes.gradle.versions.VersionsPlugin;
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import groovy.util.Node;
 import groovy.util.XmlParser;
@@ -48,6 +49,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -114,8 +116,10 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat;
 import org.gradle.api.tasks.wrapper.Wrapper;
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType;
 import org.gradle.external.javadoc.CoreJavadocOptions;
+import org.gradle.internal.deprecation.DeprecatableConfiguration;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
+import org.gradle.testing.jacoco.plugins.JacocoPlugin;
 import org.xml.sax.SAXException;
 
 public class CuriostackRootPlugin implements Plugin<Project> {
@@ -230,6 +234,9 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           .put("BadImport", OFF)
           .put("JavaTimeDefaultTimeZone", OFF)
           .build();
+
+  private static final Set<String> UNMANAGED_CONFIGURATIONS =
+      ImmutableSet.of(JacocoPlugin.AGENT_CONFIGURATION_NAME, JacocoPlugin.ANT_CONFIGURATION_NAME);
 
   private static final Pattern IS_STABLE_VERSION = Pattern.compile("^[0-9,.v-]+(-r)?$");
 
@@ -487,25 +494,28 @@ public class CuriostackRootPlugin implements Plugin<Project> {
             : "org.curioswitch.curiostack:curiostack-bom:"
                 + ToolDependencies.getBomVersion(project);
 
+    var platformDependency = project.getDependencies().platform(bomDependency);
+
+    // Needs to be in afterEvaluate since there is no way to guarantee isCanBeResolved, etc
+    // are set otherwise.
+    project
+        .getConfigurations()
+        .configureEach(
+            configuration -> {
+              if (configuration instanceof DeprecatableConfiguration) {
+                if (((DeprecatableConfiguration) configuration).getDeclarationAlternatives()
+                    != null) {
+                  return;
+                }
+              }
+              if (!configuration.getName().endsWith("Classpath")
+                  && !UNMANAGED_CONFIGURATIONS.contains(configuration.getName())) {
+                project.getDependencies().add(configuration.getName(), platformDependency);
+              }
+            });
+
     project.afterEvaluate(
         unused -> {
-          var platform = project.getDependencies().platform(bomDependency);
-
-          // Needs to be in afterEvaluate since there is no way to guarantee isCanBeResolved, etc
-          // are set otherwise.
-          project
-              .getConfigurations()
-              .configureEach(
-                  configuration -> {
-                    if (configuration.isCanBeResolved() && !configuration.isCanBeConsumed()) {
-                      project.getDependencies().add(configuration.getName(), platform);
-                    }
-                  });
-
-          // Add bom to deprecated configurations too for now.
-          project.getDependencies().add("compile", platform);
-          project.getDependencies().add("testCompile", platform);
-
           plugins.withType(
               MavenPublishPlugin.class,
               unused2 -> {
