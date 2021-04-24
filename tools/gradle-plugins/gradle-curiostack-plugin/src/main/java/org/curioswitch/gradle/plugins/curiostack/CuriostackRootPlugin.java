@@ -813,7 +813,7 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           spotless.format("yml", conf -> {
             conf.target("**/*.yml", "**/*.yaml");
 
-            conf.licenseHeader(copyrightSharp, "[^#]");
+            conf.licenseHeader(copyrightSharp, "^[^#]");
           });
         });
   }
