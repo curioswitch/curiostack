@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import com.diffplug.gradle.spotless.SpotlessExtension
 import org.curioswitch.gradle.plugins.nodejs.tasks.NodeTask
 
 plugins {
@@ -38,5 +39,15 @@ tasks {
         outputs.dir("build")
 
         args("prepare")
+    }
+}
+
+configure<SpotlessExtension> {
+    typescript {
+        // Overwrites the shebang, can live without.
+        targetExclude("src/dev/scripts/**")
+
+        // Used for generating user apps does not have copyright
+        targetExclude("src/dev/generators/package/src-template/**")
     }
 }
