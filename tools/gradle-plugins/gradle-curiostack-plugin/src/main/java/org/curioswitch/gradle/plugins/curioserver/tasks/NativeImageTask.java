@@ -55,7 +55,7 @@ public class NativeImageTask extends DefaultTask {
     var objects = getProject().getObjects();
 
     jarFile = objects.fileProperty();
-    classpath = getProject().getLayout().configurableFiles();
+    classpath = getProject().getObjects().fileCollection();
 
     outputDir = objects.directoryProperty();
     outputDir.set(getProject().file("build/graal"));

@@ -38,8 +38,8 @@ pluginManagement {
     }
 
     repositories {
-        jcenter()
         gradlePluginPortal()
+        jcenter()
         mavenLocal()
     }
 }

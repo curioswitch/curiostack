@@ -119,15 +119,17 @@ public class ProtobufPlugin implements Plugin<Project> {
                 compileTask.dependsOn(generateProto);
               }
 
-              sourceSet
-                  .getJava()
-                  .srcDir(
-                      extension
-                          .getOutputBaseDir()
-                          .map(
-                              outputBaseDir ->
-                                  SourceSetUtils.getLanguageOutputDir(
-                                      language, outputBaseDir, sourceSet.getName())));
+              if (language.getName().equals("java")) {
+                sourceSet
+                    .getJava()
+                    .srcDir(
+                        extension
+                            .getOutputBaseDir()
+                            .map(
+                                outputBaseDir ->
+                                    SourceSetUtils.getLanguageOutputDir(
+                                        language, outputBaseDir, sourceSet.getName())));
+              }
             });
   }
 

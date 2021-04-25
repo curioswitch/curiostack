@@ -280,7 +280,7 @@ val DEPENDENCY_SETS = listOf(
     ),
     DependencySet(
         "org.codehaus.groovy",
-        "2.5.8",
+        "3.0.8",
         listOf("groovy")
     ),
     DependencySet(
@@ -339,6 +339,7 @@ val DEPENDENCIES = listOf(
     "com.google.code.gson:gson:2.8.6",
     "com.google.gradle:osdetector-gradle-plugin:1.7.0",
     "com.google.maps:google-maps-services:0.18.0",
+    "com.gorylenko.gradle-git-properties:gradle-git-properties:2.3.1-rc3",
     "com.gradle:gradle-enterprise-gradle-plugin:3.6.1",
     "com.hubspot.jinjava:jinjava:2.5.7",
     "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5",
@@ -346,7 +347,6 @@ val DEPENDENCIES = listOf(
     "de.undercouch:gradle-download-task:4.1.1",
     "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:6.0.6",
     "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:2.8.0",
-    "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.2.4",
     "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0",
     "io.sgr:s2-geometry-library-java:1.0.1",
     "it.unimi.dsi:fastutil:8.5.3",

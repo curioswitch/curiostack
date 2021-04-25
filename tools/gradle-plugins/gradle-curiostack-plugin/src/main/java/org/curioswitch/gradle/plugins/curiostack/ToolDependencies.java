@@ -42,7 +42,7 @@ public class ToolDependencies {
           .put("gradle", "7.0")
           .put("miniconda", "Miniconda3-py39_4.9.2")
           .put("node", "14.16.1")
-          .put("openjdk", "15")
+          .put("openjdk", "16")
           .put("pulumi", "3.1.0")
           .put("terraform", "0.15.0")
           .put("terraform-gsuite-provider", "0.1.60")
