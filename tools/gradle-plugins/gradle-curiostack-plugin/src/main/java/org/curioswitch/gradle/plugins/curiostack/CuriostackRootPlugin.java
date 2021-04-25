@@ -572,8 +572,8 @@ public class CuriostackRootPlugin implements Plugin<Project> {
             });
 
     JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
-    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_15);
-    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_15);
+    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_16);
+    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_16);
 
     // Even for libraries that set source version to 8/11 for compatibility with older runtimes,
     // we always use 15 for tests.
