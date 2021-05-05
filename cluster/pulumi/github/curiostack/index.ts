@@ -22,10 +22,9 @@
  * SOFTWARE.
  */
 
-import * as pulumi from '@pulumi/pulumi';
 import * as github from '@pulumi/github';
 
-const sysadminStack = new pulumi.StackReference('sysadmin');
+import { sysadminStack } from '../stacks';
 
 const curiostack = new github.Repository(
   'curiostack',

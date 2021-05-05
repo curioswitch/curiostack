@@ -6,7 +6,7 @@
         "@types/node": "13.13.5"
     },
     "dependencies": {
-        "@pulumi/github": "2.4.2",
-        "@pulumi/pulumi": "2.17.2"
+        "@pulumi/github": "4.0.0",
+        "@pulumi/pulumi": "3.1.0"
     }
 }
