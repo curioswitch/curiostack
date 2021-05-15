@@ -80,3 +80,15 @@ const mavenGpgPrivateKey = new github.ActionsSecret(
     plaintextValue: sysadminStack.getOutput('mavenGpgPrivateKey'),
   },
 );
+
+const mavenUsername = new github.ActionsSecret('curiostack-mavenUsername', {
+  secretName: 'MAVEN_USERNAME',
+  repository: curiostack.name,
+  plaintextValue: sysadminStack.getOutput('mavenUsername'),
+});
+
+const mavenPassword = new github.ActionsSecret('curiostack-mavenPassword', {
+  secretName: 'MAVEN_PASSWORD',
+  repository: curiostack.name,
+  plaintextValue: sysadminStack.getOutput('mavenPassword'),
+});

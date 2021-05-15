@@ -23,10 +23,33 @@
  */
 
 import * as openpgp from '@curiostack/pulumi-openpgp';
+import * as random from '@pulumi/random';
 
 const mavenGpgKey = new openpgp.Key('maven-gpg', {
   name: 'curiostack-gpg',
   email: 'maven@curioswitch.org',
 });
 
+const mavenUsername = new random.RandomPassword(
+  'maven-username',
+  {
+    length: 8,
+  },
+  {
+    protect: true,
+  },
+);
+
+const mavenPassword = new random.RandomPassword(
+  'maven-password',
+  {
+    length: 44,
+  },
+  {
+    protect: true,
+  },
+);
+
 export const { publicKey, privateKey } = mavenGpgKey;
+export const mavenUsernameResult = mavenUsername.result;
+export const mavenPasswordResult = mavenPassword.result;
