@@ -1,3 +1,5 @@
+import * as pulumi from '@pulumi/pulumi';
+
 import './iam';
 import './network';
 import './publishing';
@@ -9,6 +11,8 @@ import {
 
 import { result as npmPublishKey } from './publishing/npm';
 import {
+  mavenUsernameResult as mavenUsername,
+  mavenPasswordResult as mavenPassword,
   publicKey as mavenGpgPublicKey,
   privateKey as mavenGpgPrivateKey,
 } from './publishing/maven';
@@ -19,4 +23,6 @@ export {
   npmPublishKey,
   mavenGpgPublicKey,
   mavenGpgPrivateKey,
+  mavenUsername,
+  mavenPassword,
 };
