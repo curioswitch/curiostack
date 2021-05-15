@@ -22,5 +22,11 @@
  * SOFTWARE.
  */
 
-import './maven';
-import './npm';
+import * as openpgp from '@curiostack/pulumi-openpgp';
+
+const mavenGpgKey = new openpgp.Key('maven-gpg', {
+  name: 'curiostack-gpg',
+  email: 'maven@curioswitch.org',
+});
+
+export const { publicKey, privateKey } = mavenGpgKey;

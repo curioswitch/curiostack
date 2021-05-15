@@ -8,9 +8,15 @@ import {
 } from './iam/curiostack-github';
 
 import { result as npmPublishKey } from './publishing/npm';
+import {
+  publicKey as mavenGpgPublicKey,
+  privateKey as mavenGpgPrivateKey,
+} from './publishing/maven';
 
 export {
   curiostackGithubAccessKeyId,
   curiostackGithubAccessKeySecret,
   npmPublishKey,
+  mavenGpgPublicKey,
+  mavenGpgPrivateKey,
 };

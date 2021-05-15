@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import * as openpgp from '@curiostack/pulumi-openpgp';
 import * as github from '@pulumi/github';
 
 import { sysadminStack } from '../stacks';
@@ -59,5 +60,23 @@ const awsSecretAccessKey = new github.ActionsSecret(
     secretName: 'AWS_SECRET_ACCESS_KEY',
     repository: curiostack.name,
     plaintextValue: sysadminStack.getOutput('curiostackGithubAccessKeySecret'),
+  },
+);
+
+const mavenGpgPublicKey = new github.ActionsSecret(
+  'curiostack-mavenGpgPublicKey',
+  {
+    secretName: 'MAVEN_GPG_PUBLIC_KEY',
+    repository: curiostack.name,
+    plaintextValue: sysadminStack.getOutput('mavenGpgPublicKey'),
+  },
+);
+
+const mavenGpgPrivateKey = new github.ActionsSecret(
+  'curiostack-mavenGpgPrivateKey',
+  {
+    secretName: 'MAVEN_GPG_PRIVATE_KEY',
+    repository: curiostack.name,
+    plaintextValue: sysadminStack.getOutput('mavenGpgPrivateKey'),
   },
 );
