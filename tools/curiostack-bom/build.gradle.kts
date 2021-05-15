@@ -39,9 +39,6 @@ repositories {
     maven {
         setUrl("https://dl.bintray.com/curioswitch/curiostack")
     }
-    maven {
-        setUrl("https://dl.bintray.com/mockito/maven")
-    }
     gradlePluginPortal()
 }
 
@@ -308,7 +305,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "3.9.7",
+                "3.10.0",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(

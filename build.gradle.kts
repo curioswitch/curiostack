@@ -60,7 +60,17 @@ allprojects {
     }
 
     plugins.withType(MavenPublishPlugin::class) {
+        plugins.apply("signing")
+
         afterEvaluate {
+            configure<SigningExtension> {
+                useInMemoryPgpKeys(System.getenv("MAVEN_GPG_PRIVATE_KEY"), "")
+                val publications = the<PublishingExtension>().publications
+                if (publications.names.contains("maven")) {
+                    sign(publications["maven"])
+                }
+            }
+
             configure<PublishingExtension> {
                 publications.withType<MavenPublication> {
                     groupId = project.group as String
@@ -95,6 +105,16 @@ allprojects {
                             url.set("https://github.com/curioswitch/curiostack")
                         }
                     }
+                }
+            }
+        }
+    }
+
+    plugins.withId("com.gradle.plugin-publish") {
+        afterEvaluate {
+            tasks.configureEach {
+                if (name != "publishPlugins" && name.startsWith("publish")) {
+                    enabled = false
                 }
             }
         }
