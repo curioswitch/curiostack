@@ -22,13 +22,12 @@
  * SOFTWARE.
  */
 
-import * as openpgp from '@curiostack/pulumi-openpgp';
 import * as github from '@pulumi/github';
 
 import { sysadminStack } from '../stacks';
 
-const curiostack = new github.Repository(
-  'curiostack',
+const pulumiOpenpgp = new github.Repository(
+  'pulumi-openpgp',
   {
     allowMergeCommit: false,
     allowRebaseMerge: false,
@@ -40,7 +39,7 @@ const curiostack = new github.Repository(
     hasIssues: true,
     hasProjects: true,
     hasWiki: true,
-    name: 'curiostack',
+    name: 'pulumi-openpgp',
     vulnerabilityAlerts: true,
   },
   {
@@ -48,35 +47,8 @@ const curiostack = new github.Repository(
   },
 );
 
-const awsAccessKeyId = new github.ActionsSecret('curiostack-awsAccessKeyId', {
-  secretName: 'AWS_ACCESS_KEY_ID',
-  repository: curiostack.name,
-  plaintextValue: sysadminStack.getOutput('curiostackGithubAccessKeyId'),
+const npmPublishKey = new github.ActionsSecret('pulumi-openpgp-npmPublishKey', {
+  secretName: 'NPM_PUBLISH_KEY',
+  repository: pulumiOpenpgp.name,
+  plaintextValue: sysadminStack.getOutput('npmPublishKey'),
 });
-
-const awsSecretAccessKey = new github.ActionsSecret(
-  'curiostack-awsSecretAccessKey',
-  {
-    secretName: 'AWS_SECRET_ACCESS_KEY',
-    repository: curiostack.name,
-    plaintextValue: sysadminStack.getOutput('curiostackGithubAccessKeySecret'),
-  },
-);
-
-const mavenGpgPublicKey = new github.ActionsSecret(
-  'curiostack-mavenGpgPublicKey',
-  {
-    secretName: 'MAVEN_GPG_PUBLIC_KEY',
-    repository: curiostack.name,
-    plaintextValue: sysadminStack.getOutput('mavenGpgPublicKey'),
-  },
-);
-
-const mavenGpgPrivateKey = new github.ActionsSecret(
-  'curiostack-mavenGpgPrivateKey',
-  {
-    secretName: 'MAVEN_GPG_PRIVATE_KEY',
-    repository: curiostack.name,
-    plaintextValue: sysadminStack.getOutput('mavenGpgPrivateKey'),
-  },
-);

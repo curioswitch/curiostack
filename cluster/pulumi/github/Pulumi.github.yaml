@@ -3,4 +3,4 @@ config:
   aws:assumeRole:
     roleArn: arn:aws:iam::413941899617:role/Owner
   aws:region: ap-northeast-1
-  github:organization: curioswitch
+  github:owner: curioswitch
