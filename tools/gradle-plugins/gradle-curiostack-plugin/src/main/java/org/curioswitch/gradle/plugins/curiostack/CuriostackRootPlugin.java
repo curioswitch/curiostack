@@ -560,12 +560,12 @@ public class CuriostackRootPlugin implements Plugin<Project> {
         .getConfigurations()
         .getByName(testSourceSet.getCompileClasspathConfigurationName())
         .getAttributes()
-        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 15);
+        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 16);
     project
         .getConfigurations()
         .getByName(testSourceSet.getRuntimeClasspathConfigurationName())
         .getAttributes()
-        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 15);
+        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 16);
 
     project
         .getTasks()
