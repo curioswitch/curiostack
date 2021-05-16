@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package org.curioswitch.gradle.plugins.curiostack;
 
 import com.google.common.collect.ImmutableMap;
@@ -32,18 +33,18 @@ public class ToolDependencies {
 
   private static final Map<String, String> DEFAULT_VERSIONS =
       ImmutableMap.<String, String>builder()
-          .put("awscli", "2.1.39")
-          .put("bom", "0.7.4")
+          .put("awscli", "2.2.5")
+          .put("bom", "0.8.0")
           .put("claat", "2.2.0")
-          .put("gcloud", "337.0.0")
-          .put("golang", "1.16.3")
+          .put("gcloud", "340.0.0")
+          .put("golang", "1.16.4")
           .put("google-java-format", "1.10.0")
-          .put("gradle", "6.8.3")
+          .put("gradle", "7.0.2")
           .put("miniconda", "Miniconda3-py39_4.9.2")
           .put("node", "14.16.1")
-          .put("openjdk", "15")
-          .put("pulumi", "3.1.0")
-          .put("terraform", "0.15.0")
+          .put("openjdk", "16")
+          .put("pulumi", "3.2.1")
+          .put("terraform", "0.15.3")
           .put("terraform-gsuite-provider", "0.1.60")
           .put("yarn", "1.22.5")
           .build();

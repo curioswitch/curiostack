@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 
-// tslint:disable-next-line:no-empty
 it('need to add tests', () => {
   // Do nothing
 });

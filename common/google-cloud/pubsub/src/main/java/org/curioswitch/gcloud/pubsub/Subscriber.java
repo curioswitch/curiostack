@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package org.curioswitch.gcloud.pubsub;
 
 import static com.google.common.base.Preconditions.checkNotNull;

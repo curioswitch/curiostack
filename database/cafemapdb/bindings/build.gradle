@@ -86,7 +86,7 @@ gradle.taskGraph.whenReady { graph ->
     }
 }
 
-tasks.withType(com.diffplug.gradle.spotless.SpotlessCheck) {
+tasks.withType(com.diffplug.gradle.spotless.SpotlessTask) {
     enabled = false
 }
 

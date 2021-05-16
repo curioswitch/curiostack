@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package org.curioswitch.gradle.plugins.curioserver.tasks;
 
 import com.google.common.collect.ImmutableList;
@@ -54,7 +55,7 @@ public class NativeImageTask extends DefaultTask {
     var objects = getProject().getObjects();
 
     jarFile = objects.fileProperty();
-    classpath = getProject().getLayout().configurableFiles();
+    classpath = getProject().getObjects().fileCollection();
 
     outputDir = objects.directoryProperty();
     outputDir.set(getProject().file("build/graal"));

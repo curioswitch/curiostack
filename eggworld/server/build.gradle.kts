@@ -31,18 +31,18 @@ base {
 }
 
 application {
-    mainClassName = "org.curioswitch.eggworld.server.EggworldMain"
+    mainClass.set("org.curioswitch.eggworld.server.EggworldMain")
 }
 
 dependencies {
-    compile(project(":common:server:framework"))
-    compile(project(":eggworld:api"))
-    compile(project(":eggworld:client:web"))
+    implementation(project(":common:server:framework"))
+    implementation(project(":eggworld:api"))
+    implementation(project(":eggworld:client:web"))
 
-    compile("com.fasterxml.jackson.datatype:jackson-datatype-guava")
-    compile("com.linecorp.armeria:armeria-retrofit2")
-    compile("com.squareup.retrofit2:adapter-guava")
-    compile("com.squareup.retrofit2:converter-jackson")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-guava")
+    implementation("com.linecorp.armeria:armeria-retrofit2")
+    implementation("com.squareup.retrofit2:adapter-guava")
+    implementation("com.squareup.retrofit2:converter-jackson")
 
     annotationProcessor("com.google.dagger:dagger-compiler")
 

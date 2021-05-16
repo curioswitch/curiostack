@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import nl.javadude.gradle.plugins.license.License
+import com.diffplug.gradle.spotless.SpotlessExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
@@ -51,21 +51,20 @@ dependencies {
     implementation("com.google.cloud:google-cloud-kms")
     implementation("com.google.cloud.tools:jib-build-plan:0.4.0")
     implementation("com.google.guava:guava")
+    implementation("com.gorylenko.gradle-git-properties:gradle-git-properties")
     implementation("com.hubspot.jinjava:jinjava")
-    implementation("com.jfrog.bintray.gradle:gradle-bintray-plugin")
     implementation("gradle.plugin.com.boxfuse.client:gradle-plugin-publishing")
     implementation("gradle.plugin.com.google.cloud.tools:jib-gradle-plugin")
-    implementation("gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties")
     implementation("gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin")
     implementation("io.fabric8:kubernetes-client")
     implementation("me.champeau.gradle:jmh-gradle-plugin")
     implementation("net.adoptopenjdk:net.adoptopenjdk.v3.api")
     implementation("net.adoptopenjdk:net.adoptopenjdk.v3.vanilla")
-    implementation("net.ltgt.gradle:gradle-apt-plugin")
     implementation("net.ltgt.gradle:gradle-errorprone-plugin")
     implementation("net.ltgt.gradle:gradle-nullaway-plugin")
     implementation("nu.studer:gradle-jooq-plugin")
     implementation("org.bouncycastle:bcpkix-jdk15on")
+    implementation("org.eclipse.jgit:org.eclipse.jgit")
 
     // Prevent dependency hell for plugin users by specifying bom"d versions of grpc here
     runtimeOnly("io.grpc:grpc-core")
@@ -203,13 +202,8 @@ tasks.withType(Test::class) {
     }
 }
 
-tasks.withType(License::class) {
-    exclude("**/*.xml")
-}
-
-tasks {
-    named<License>("licenseTest") {
-        exclude("**/rendered-get-jdk.sh")
-        exclude("**/test-projects/**")
+configure<SpotlessExtension> {
+    java {
+        targetExclude("**/test-projects/**")
     }
 }

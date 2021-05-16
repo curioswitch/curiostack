@@ -22,22 +22,24 @@
  * SOFTWARE.
  */
 
-apply plugin: 'org.curioswitch.gradle-curio-server-plugin'
+plugins {
+    id("org.curioswitch.gradle-curio-server-plugin")
+}
 
-archivesBaseName = 'curio-gateway-server'
-mainClassName = 'org.curioswitch.curiostack.gateway.GatewayMain'
+base.archivesBaseName = "curio-gateway-server"
+application.mainClass.set("org.curioswitch.curiostack.gateway.GatewayMain")
 
 dependencies {
-    compile project(':common:server:framework')
+    implementation(project(":common:server:framework"))
 
-    compile 'com.fasterxml.jackson.core:jackson-databind'
-    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
-    compile 'com.github.ben-manes.caffeine:caffeine'
-    compile 'com.google.guava:guava'
+    implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-guava")
+    implementation("com.github.ben-manes.caffeine:caffeine")
+    implementation("com.google.guava:guava")
 
-    annotationProcessor 'com.google.dagger:dagger-compiler'
+    annotationProcessor("com.google.dagger:dagger-compiler")
 
-    annotationProcessor 'org.immutables:value'
-    compileOnly group: 'org.immutables', name: 'value', classifier: 'annotations'
+    annotationProcessor("org.immutables:value")
+    compileOnly("org.immutables:value-annotations")
 }

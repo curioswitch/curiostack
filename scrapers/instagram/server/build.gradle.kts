@@ -32,17 +32,17 @@ base {
 }
 
 application {
-    mainClassName = "org.curioswitch.scrapers.instagram.server.InstagramScraperServiceMain"
+    mainClass.set("org.curioswitch.scrapers.instagram.server.InstagramScraperServiceMain")
 }
 
 dependencies {
-    compile(project(":common:google-cloud:maps-services"))
-    compile(project(":common:server:framework"))
-    compile(project(":database:cafemapdb:bindings"))
-    compile(project(":scrapers:instagram:api"))
+    implementation(project(":common:google-cloud:maps-services"))
+    implementation(project(":common:server:framework"))
+    implementation(project(":database:cafemapdb:bindings"))
+    implementation(project(":scrapers:instagram:api"))
 
-    compile("io.sgr:s2-geometry-library-java")
-    compile("org.jsoup:jsoup")
+    implementation("io.sgr:s2-geometry-library-java")
+    implementation("org.jsoup:jsoup")
 
     annotationProcessor("com.google.dagger:dagger-compiler")
     annotationProcessor("org.immutables:value")

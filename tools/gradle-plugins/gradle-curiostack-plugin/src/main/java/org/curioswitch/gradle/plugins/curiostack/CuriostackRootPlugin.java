@@ -21,19 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package org.curioswitch.gradle.plugins.curiostack;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static net.ltgt.gradle.errorprone.CheckSeverity.ERROR;
 import static net.ltgt.gradle.errorprone.CheckSeverity.OFF;
 import static net.ltgt.gradle.errorprone.CheckSeverity.WARN;
 
 import com.diffplug.gradle.spotless.SpotlessExtension;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
-import com.diffplug.gradle.spotless.SpotlessTask;
 import com.github.benmanes.gradle.versions.VersionsPlugin;
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import groovy.util.Node;
 import groovy.util.XmlParser;
@@ -47,22 +49,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.xml.parsers.ParserConfigurationException;
 import me.champeau.gradle.JMHPlugin;
 import me.champeau.gradle.JMHPluginExtension;
-import net.ltgt.gradle.apt.AptIdeaPlugin;
-import net.ltgt.gradle.apt.AptIdeaPlugin.ModuleApt;
-import net.ltgt.gradle.apt.AptPlugin;
 import net.ltgt.gradle.errorprone.CheckSeverity;
 import net.ltgt.gradle.errorprone.ErrorProneOptions;
 import net.ltgt.gradle.errorprone.ErrorPronePlugin;
 import net.ltgt.gradle.nullaway.NullAwayOptions;
 import net.ltgt.gradle.nullaway.NullAwayPlugin;
-import nl.javadude.gradle.plugins.license.License;
-import nl.javadude.gradle.plugins.license.LicenseExtension;
-import nl.javadude.gradle.plugins.license.LicensePlugin;
 import nu.studer.gradle.jooq.JooqPlugin;
 import nu.studer.gradle.jooq.JooqTask;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -96,7 +94,6 @@ import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolutionStrategy;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.artifacts.repositories.MavenRepositoryContentDescriptor;
 import org.gradle.api.attributes.java.TargetJvmVersion;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.ExtensionAware;
@@ -118,8 +115,10 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat;
 import org.gradle.api.tasks.wrapper.Wrapper;
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType;
 import org.gradle.external.javadoc.CoreJavadocOptions;
+import org.gradle.internal.deprecation.DeprecatableConfiguration;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
+import org.gradle.testing.jacoco.plugins.JacocoPlugin;
 import org.xml.sax.SAXException;
 
 public class CuriostackRootPlugin implements Plugin<Project> {
@@ -234,6 +233,9 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           .put("BadImport", OFF)
           .put("JavaTimeDefaultTimeZone", OFF)
           .build();
+
+  private static final Set<String> UNMANAGED_CONFIGURATIONS =
+      ImmutableSet.of(JacocoPlugin.AGENT_CONFIGURATION_NAME, JacocoPlugin.ANT_CONFIGURATION_NAME);
 
   private static final Pattern IS_STABLE_VERSION = Pattern.compile("^[0-9,.v-]+(-r)?$");
 
@@ -403,36 +405,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                                 t.dependsOn(
                                     project.getRootProject().getTasks().getByName("gcloudSetup")));
                   });
-
-          project
-              .getPlugins()
-              .withType(
-                  LicensePlugin.class,
-                  unused -> {
-                    LicenseExtension license =
-                        project.getExtensions().getByType(LicenseExtension.class);
-                    license.setHeader(rootProject.file("LICENSE"));
-                    license.mapping(
-                        ImmutableMap.of(
-                            "conf", "DOUBLESLASH_STYLE",
-                            "go", "SLASHSTAR_STYLE",
-                            "java", "SLASHSTAR_STYLE",
-                            "proto", "SLASHSTAR_STYLE",
-                            "yml", "SCRIPT_STYLE"));
-
-                    project
-                        .getTasks()
-                        .withType(License.class)
-                        .configureEach(
-                            t -> {
-                              t.exclude("**/*.json");
-                              t.exclude(
-                                  f ->
-                                      f.getFile()
-                                          .toPath()
-                                          .startsWith(project.getBuildDir().toPath()));
-                            });
-                  });
         });
 
     setupDataSources(rootProject);
@@ -469,33 +441,14 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                             conda
                                 .getVersion()
                                 .set(ToolDependencies.getMinicondaVersion(rootProject))));
+
+    setupSpotless(rootProject);
   }
 
   private static void setupRepositories(Project project) {
     project.getRepositories().jcenter();
     project.getRepositories().gradlePluginPortal();
-    project
-        .getRepositories()
-        .maven(
-            maven -> {
-              maven.setUrl("https://dl.bintray.com/curioswitch/curiostack");
-              maven.mavenContent(MavenRepositoryContentDescriptor::releasesOnly);
-            });
-    project
-        .getRepositories()
-        .maven(
-            maven -> {
-              maven.setUrl("https://dl.bintray.com/mockito/maven");
-              maven.mavenContent(MavenRepositoryContentDescriptor::releasesOnly);
-            });
     project.getRepositories().mavenCentral();
-    project
-        .getRepositories()
-        .maven(
-            maven -> {
-              maven.setUrl("https://oss.jfrog.org/libs-snapshot");
-              maven.mavenContent(MavenRepositoryContentDescriptor::snapshotsOnly);
-            });
   }
 
   private static void setupJavaProject(
@@ -503,13 +456,9 @@ public class CuriostackRootPlugin implements Plugin<Project> {
     setupRepositories(project);
 
     PluginContainer plugins = project.getPlugins();
-    plugins.apply(AptPlugin.class);
-    plugins.apply(AptIdeaPlugin.class);
     plugins.apply(ErrorPronePlugin.class);
     plugins.apply(IdeaPlugin.class);
-    plugins.apply(LicensePlugin.class);
     plugins.apply(NullAwayPlugin.class);
-    plugins.apply(SpotlessPlugin.class);
     plugins.apply(VersionsPlugin.class);
 
     var java = project.getExtensions().getByType(JavaPluginExtension.class);
@@ -523,25 +472,28 @@ public class CuriostackRootPlugin implements Plugin<Project> {
             : "org.curioswitch.curiostack:curiostack-bom:"
                 + ToolDependencies.getBomVersion(project);
 
+    var platformDependency = project.getDependencies().platform(bomDependency);
+
+    // Needs to be in afterEvaluate since there is no way to guarantee isCanBeResolved, etc
+    // are set otherwise.
+    project
+        .getConfigurations()
+        .configureEach(
+            configuration -> {
+              if (configuration instanceof DeprecatableConfiguration) {
+                if (((DeprecatableConfiguration) configuration).getDeclarationAlternatives()
+                    != null) {
+                  return;
+                }
+              }
+              if (!configuration.getName().endsWith("Classpath")
+                  && !UNMANAGED_CONFIGURATIONS.contains(configuration.getName())) {
+                project.getDependencies().add(configuration.getName(), platformDependency);
+              }
+            });
+
     project.afterEvaluate(
         unused -> {
-          var platform = project.getDependencies().platform(bomDependency);
-
-          // Needs to be in afterEvaluate since there is no way to guarantee isCanBeResolved, etc
-          // are set otherwise.
-          project
-              .getConfigurations()
-              .configureEach(
-                  configuration -> {
-                    if (configuration.isCanBeResolved() && !configuration.isCanBeConsumed()) {
-                      project.getDependencies().add(configuration.getName(), platform);
-                    }
-                  });
-
-          // Add bom to deprecated configurations too for now.
-          project.getDependencies().add("compile", platform);
-          project.getDependencies().add("testCompile", platform);
-
           plugins.withType(
               MavenPublishPlugin.class,
               unused2 -> {
@@ -597,14 +549,9 @@ public class CuriostackRootPlugin implements Plugin<Project> {
               }
             });
 
-    project
-        .getTasks()
-        .withType(SpotlessTask.class)
-        .configureEach(task -> task.dependsOn(project.getTasks().withType(JavaCompile.class)));
-
     JavaPluginConvention javaPlugin = project.getConvention().getPlugin(JavaPluginConvention.class);
-    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_15);
-    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_15);
+    javaPlugin.setSourceCompatibility(JavaVersion.VERSION_16);
+    javaPlugin.setTargetCompatibility(JavaVersion.VERSION_16);
 
     // Even for libraries that set source version to 8/11 for compatibility with older runtimes,
     // we always use 15 for tests.
@@ -613,12 +560,12 @@ public class CuriostackRootPlugin implements Plugin<Project> {
         .getConfigurations()
         .getByName(testSourceSet.getCompileClasspathConfigurationName())
         .getAttributes()
-        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 15);
+        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 16);
     project
         .getConfigurations()
         .getByName(testSourceSet.getRuntimeClasspathConfigurationName())
         .getAttributes()
-        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 15);
+        .attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 16);
 
     project
         .getTasks()
@@ -660,11 +607,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                   .named("cleanIdea")
                   .configure(
                       t -> t.doLast(unused -> project.file(project.getName() + ".iml").delete()));
-
-              ((ExtensionAware) module)
-                  .getExtensions()
-                  .getByType(ModuleApt.class)
-                  .setAddAptDependencies(false);
             });
 
     // Pretty much all java code needs at least the Generated annotation.
@@ -703,13 +645,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
           CoreJavadocOptions options = (CoreJavadocOptions) t.getOptions();
           options.quiet();
           options.addBooleanOption("Xdoclint:all,-missing", true);
-        });
-
-    SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
-    spotless.java(
-        (spotlessJava) -> {
-          spotlessJava.target("src/**/*.java");
-          spotlessJava.googleJavaFormat(ToolDependencies.getGoogleJavaFormatVersion(project));
         });
 
     project
@@ -784,6 +719,109 @@ public class CuriostackRootPlugin implements Plugin<Project> {
                     .filter(entry -> !((String) entry.getKey()).startsWith("java."))
                     .forEach(
                         entry -> task.systemProperty((String) entry.getKey(), entry.getValue())));
+  }
+
+  private static void setupSpotless(Project rootProject) {
+    List<String> copyrightLines;
+    try (var files = Files.list(rootProject.file(".baseline/copyright").toPath())) {
+      copyrightLines = Files.readAllLines(files.findFirst().get());
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+
+    copyrightLines =
+        copyrightLines.stream()
+            .map(line -> line.replace("${today.year}", "$today.year"))
+            .collect(toImmutableList());
+
+    String copyrightSlashStar =
+        copyrightLines.stream()
+            .map(line -> line.isEmpty() ? " *" : " * " + line)
+            .collect(Collectors.joining("\n", "/*\n", "\n */\n\n"));
+
+    String copyrightDoubleSlash =
+        copyrightLines.stream()
+            .map(line -> line.isEmpty() ? "//" : "// " + line)
+            .collect(Collectors.joining("\n", "", "\n\n"));
+
+    String copyrightSharp =
+        copyrightLines.stream()
+            .map(line -> line.isEmpty() ? "#" : "# " + line)
+            .collect(Collectors.joining("\n", "", "\n\n"));
+
+    rootProject.subprojects(
+        project -> {
+          // Don't apply spotless to intermediate projects, CurioStack currently doesn't have a use
+          // case for it and it allows globs like "**/*.ext"
+          if (!project.getChildProjects().isEmpty()) {
+            return;
+          }
+
+          project.getPlugins().apply(SpotlessPlugin.class);
+
+          SpotlessExtension spotless = project.getExtensions().getByType(SpotlessExtension.class);
+
+          project
+              .getPlugins()
+              .withId(
+                  "java",
+                  unused -> {
+                    spotless.java(
+                        (java) -> {
+                          java.targetExclude("build/**");
+                          java.googleJavaFormat(
+                              ToolDependencies.getGoogleJavaFormatVersion(project));
+                          java.licenseHeader(
+                              copyrightSlashStar, "package |// End License|// Includes work from:");
+                        });
+                  });
+
+          spotless.typescript(
+              typescript -> {
+                typescript.target("**/*.ts", "**/*.js", "**/*.tsx", "**/*.jsx");
+
+                typescript.licenseHeader(
+                    copyrightSlashStar,
+                    "import|const|declare|export|var|module|/\\* eslint|// eslint|// End License|it\\(|/\\* global|#!|type ");
+              });
+
+          spotless.format(
+              "go",
+              go -> {
+                go.target("**/*.go");
+
+                go.licenseHeader(
+                    copyrightDoubleSlash,
+                    "package|// +|// -|//go|// End License|// Includes work from:");
+              });
+
+          spotless.format(
+              "proto",
+              go -> {
+                go.target("**/*.proto");
+
+                go.licenseHeader(
+                    copyrightDoubleSlash, "syntax|// End License|// Includes work from:");
+              });
+
+          spotless.format(
+              "conf",
+              conf -> {
+                conf.target("**/*.conf");
+
+                conf.licenseHeader(
+                    copyrightDoubleSlash, "[a-zA-Z0-9]|// End License|// Includes work from:");
+              });
+
+          spotless.format(
+              "yml",
+              conf -> {
+                conf.target("**/*.yml", "**/*.yaml");
+
+                conf.licenseHeader(
+                    copyrightSharp, "[a-zA-Z0-9]|# End License|# Includes work from:");
+              });
+        });
   }
 
   private static void addStandardJavaTestDependencies(Project project) {
@@ -950,22 +988,23 @@ public class CuriostackRootPlugin implements Plugin<Project> {
             .orElseGet(
                 () -> inspectionManager.appendNode("profile", ImmutableMap.of("version", "1.0")));
     setOption(profile, "myName", "Project Default");
-    findChild(
-            profile,
-            n -> n.name().equals("inspection_tool") && "Eslint".equals(n.attribute("class")))
-        .orElseGet(
-            () ->
-                profile.appendNode(
-                    "inspection_tool",
-                    ImmutableMap.of(
-                        "class",
-                        "Eslint",
-                        "enabled",
-                        "true",
-                        "level",
-                        "WARNING",
-                        "enabled_by_default",
-                        "true")));
+    Node updated =
+        findChild(
+                profile,
+                n -> n.name().equals("inspection_tool") && "Eslint".equals(n.attribute("class")))
+            .orElseGet(
+                () ->
+                    profile.appendNode(
+                        "inspection_tool",
+                        ImmutableMap.of(
+                            "class",
+                            "Eslint",
+                            "enabled",
+                            "true",
+                            "level",
+                            "WARNING",
+                            "enabled_by_default",
+                            "true")));
 
     var projectCodeStyleConfiguration =
         findOrCreateChild(xml.asNode(), "component", "ProjectCodeStyleConfiguration");

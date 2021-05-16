@@ -32,17 +32,17 @@ base {
 }
 
 application {
-    mainClassName = "org.curioswitch.cafemap.server.CafeMapServiceMain"
+    mainClass.set("org.curioswitch.cafemap.server.CafeMapServiceMain")
 }
 
 dependencies {
-    compile(project(":cafe-map:api"))
-    // compile(project(":cafe-map:client:web"))
-    compile(project(":common:google-cloud:maps-services"))
-    compile(project(":common:server:framework"))
-    compile(project(":database:cafemapdb:bindings"))
+    implementation(project(":cafe-map:api"))
+    // implementation(project(":cafe-map:client:web"))
+    implementation(project(":common:google-cloud:maps-services"))
+    implementation(project(":common:server:framework"))
+    implementation(project(":database:cafemapdb:bindings"))
 
-    compile("io.sgr:s2-geometry-library-java")
+    implementation("io.sgr:s2-geometry-library-java")
 
     annotationProcessor("com.google.dagger:dagger-compiler")
     annotationProcessor("org.immutables:value-annotations")

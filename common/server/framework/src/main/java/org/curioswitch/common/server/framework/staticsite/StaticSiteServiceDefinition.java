@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package org.curioswitch.common.server.framework.staticsite;
 
 import org.curioswitch.common.server.framework.immutables.CurioStyle;

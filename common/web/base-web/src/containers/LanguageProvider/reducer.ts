@@ -22,11 +22,6 @@
  * SOFTWARE.
  */
 
-/**
- * LanguageProvider reducer
- *
- */
-
 import { Record } from 'immutable';
 
 import { Actions, ActionTypes } from './actions';

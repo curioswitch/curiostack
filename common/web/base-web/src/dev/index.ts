@@ -22,4 +22,6 @@
  * SOFTWARE.
  */
 
+// End License
+
 // Empty file so tsc treats this as a package.

@@ -31,13 +31,13 @@ base {
 }
 
 application {
-    mainClassName = "org.curioswitch.auth.server.Main"
+    mainClass.set("org.curioswitch.auth.server.Main")
 }
 
 dependencies {
-    compile(project(":auth:api"))
-    compile(project(":common:server:framework"))
+    implementation(project(":auth:api"))
+    implementation(project(":common:server:framework"))
 
     annotationProcessor("com.google.dagger:dagger-compiler")
-    compile("com.google.dagger:dagger")
+    implementation("com.google.dagger:dagger")
 }
