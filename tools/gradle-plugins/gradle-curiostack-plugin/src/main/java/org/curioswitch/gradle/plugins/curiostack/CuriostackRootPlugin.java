@@ -94,7 +94,6 @@ import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolutionStrategy;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.artifacts.repositories.MavenRepositoryContentDescriptor;
 import org.gradle.api.attributes.java.TargetJvmVersion;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.ExtensionAware;
@@ -449,28 +448,7 @@ public class CuriostackRootPlugin implements Plugin<Project> {
   private static void setupRepositories(Project project) {
     project.getRepositories().jcenter();
     project.getRepositories().gradlePluginPortal();
-    project
-        .getRepositories()
-        .maven(
-            maven -> {
-              maven.setUrl("https://dl.bintray.com/curioswitch/curiostack");
-              maven.mavenContent(MavenRepositoryContentDescriptor::releasesOnly);
-            });
-    project
-        .getRepositories()
-        .maven(
-            maven -> {
-              maven.setUrl("https://dl.bintray.com/mockito/maven");
-              maven.mavenContent(MavenRepositoryContentDescriptor::releasesOnly);
-            });
     project.getRepositories().mavenCentral();
-    project
-        .getRepositories()
-        .maven(
-            maven -> {
-              maven.setUrl("https://oss.jfrog.org/libs-snapshot");
-              maven.mavenContent(MavenRepositoryContentDescriptor::snapshotsOnly);
-            });
   }
 
   private static void setupJavaProject(
@@ -1010,22 +988,23 @@ public class CuriostackRootPlugin implements Plugin<Project> {
             .orElseGet(
                 () -> inspectionManager.appendNode("profile", ImmutableMap.of("version", "1.0")));
     setOption(profile, "myName", "Project Default");
-    findChild(
-            profile,
-            n -> n.name().equals("inspection_tool") && "Eslint".equals(n.attribute("class")))
-        .orElseGet(
-            () ->
-                profile.appendNode(
-                    "inspection_tool",
-                    ImmutableMap.of(
-                        "class",
-                        "Eslint",
-                        "enabled",
-                        "true",
-                        "level",
-                        "WARNING",
-                        "enabled_by_default",
-                        "true")));
+    Node updated =
+        findChild(
+                profile,
+                n -> n.name().equals("inspection_tool") && "Eslint".equals(n.attribute("class")))
+            .orElseGet(
+                () ->
+                    profile.appendNode(
+                        "inspection_tool",
+                        ImmutableMap.of(
+                            "class",
+                            "Eslint",
+                            "enabled",
+                            "true",
+                            "level",
+                            "WARNING",
+                            "enabled_by_default",
+                            "true")));
 
     var projectCodeStyleConfiguration =
         findOrCreateChild(xml.asNode(), "component", "ProjectCodeStyleConfiguration");

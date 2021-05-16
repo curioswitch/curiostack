@@ -40,25 +40,25 @@ repositories {
 
 data class DependencySet(val group: String, val version: String, val modules: List<String>)
 
-val GRPC_VERSION = "1.37.0"
+val GRPC_VERSION = "1.37.1"
 
 val DEPENDENCY_BOMS = listOf(
         "com.fasterxml.jackson:jackson-bom:2.12.3",
-        "com.google.cloud:google-cloud-bom:0.152.0",
-        "com.google.api-client:google-api-client-bom:1.31.4",
+        "com.google.cloud:google-cloud-bom:0.153.0",
+        "com.google.api-client:google-api-client-bom:1.31.5",
         "com.google.guava:guava-bom:30.1.1-jre",
         "com.google.http-client:google-http-client-bom:1.39.2",
-        "com.google.protobuf:protobuf-bom:3.15.8",
-        "com.linecorp.armeria:armeria-bom:1.6.0",
-        "io.dropwizard.metrics:metrics-bom:4.1.20",
+        "com.google.protobuf:protobuf-bom:3.17.0",
+        "com.linecorp.armeria:armeria-bom:1.7.2",
+        "io.dropwizard.metrics:metrics-bom:4.2.0",
         "io.grpc:grpc-bom:${GRPC_VERSION}",
-        "io.micrometer:micrometer-bom:1.6.6",
-        "io.zipkin.brave:brave-bom:5.12.7",
+        "io.micrometer:micrometer-bom:1.7.0",
+        "io.zipkin.brave:brave-bom:5.13.3",
         "io.netty:netty-bom:4.1.63.Final",
-        "org.apache.beam:beam-sdks-java-bom:2.28.0",
+        "org.apache.beam:beam-sdks-java-bom:2.29.0",
         "org.apache.logging.log4j:log4j-bom:2.14.1",
-        "org.junit:junit-bom:5.7.1",
-        "software.amazon.awssdk:bom:2.16.47"
+        "org.junit:junit-bom:5.7.2",
+        "software.amazon.awssdk:bom:2.16.63"
 )
 
 val DEPENDENCY_SETS = listOf(
@@ -74,7 +74,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.auth0",
-                "3.15.0",
+                "3.16.0",
                 listOf("java-jwt")
         ),
         DependencySet(
@@ -84,7 +84,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.auto.factory",
-                "1.0",
+                "1.0.1",
                 listOf("auto-factory")
         ),
         DependencySet(
@@ -99,7 +99,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.github.ben-manes.caffeine",
-                "3.0.1",
+                "3.0.2",
                 listOf("caffeine")
         ),
         DependencySet(
@@ -114,31 +114,30 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "com.google.cloud.sql",
-                "1.2.2",
+                "1.2.3",
                 listOf(
                         "mysql-socket-factory",
-                        "mysql-socket-factory-connector-j-6",
                         "mysql-socket-factory-connector-j-8"
                 )
         ),
         DependencySet(
                 "com.google.dagger",
-                "2.35",
+                "2.35.1",
                 listOf("dagger", "dagger-compiler", "dagger-producers")
         ),
         DependencySet(
                 "com.google.errorprone",
-                "2.6.0",
+                "2.7.0",
                 listOf("error_prone_annotations", "error_prone_core")
         ),
         DependencySet(
                 "com.google.firebase",
-                "7.1.1",
+                "7.3.0",
                 listOf("firebase-admin")
         ),
         DependencySet(
                 "com.google.protobuf",
-                "3.15.8",
+                "3.17.0",
                 listOf("protoc")
         ),
         DependencySet(
@@ -188,12 +187,12 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "io.lettuce",
-                "6.1.0.RELEASE",
+                "6.1.2.RELEASE",
                 listOf("lettuce-core")
         ),
         DependencySet(
                 "io.netty",
-                "2.0.38.Final",
+                "2.0.39.Final",
                 listOf("netty-tcnative-boringssl-static")
         ),
         DependencySet(
@@ -253,7 +252,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.awaitility",
-                "4.0.3",
+                "4.1.0",
                 listOf("awaitility")
         ),
         DependencySet(
@@ -263,7 +262,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.checkerframework",
-                "3.12.0",
+                "3.13.0",
                 listOf("checker-qual")
         ),
         DependencySet(
@@ -278,7 +277,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.eclipse.jgit",
-                "5.11.0.202103091610-r",
+                "5.11.1.202105131744-r",
                 listOf("org.eclipse.jgit", "org.eclipse.jgit.ssh.apache", "org.eclipse.jgit.ssh.jsch")
         ),
         DependencySet(
@@ -288,7 +287,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.javassist",
-                "3.27.0-GA",
+                "3.28.0-GA",
                 listOf("javassist")
         ),
         DependencySet(
@@ -303,7 +302,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "3.9.0",
+                "3.10.0",
                 listOf("mockito-core", "mockito-junit-jupiter")
         ),
         DependencySet(
@@ -326,13 +325,13 @@ val DEPENDENCY_SETS = listOf(
 )
 
 val DEPENDENCIES = listOf(
-        "com.bmuschko:gradle-docker-plugin:6.7.0",
-        "com.diffplug.spotless:spotless-plugin-gradle:5.12.4",
+        "com.bmuschko:gradle-docker-plugin:7.0.0",
+        "com.diffplug.spotless:spotless-plugin-gradle:5.12.5",
         "com.github.ben-manes:gradle-versions-plugin:0.38.0",
         "com.google.code.gson:gson:2.8.6",
         "com.google.gradle:osdetector-gradle-plugin:1.7.0",
         "com.google.maps:google-maps-services:0.18.0",
-        "com.gorylenko.gradle-git-properties:gradle-git-properties:2.3.1-rc3",
+        "com.gorylenko.gradle-git-properties:gradle-git-properties:2.3.1",
         "com.gradle:gradle-enterprise-gradle-plugin:3.6.1",
         "com.hubspot.jinjava:jinjava:2.5.7",
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5",
@@ -417,5 +416,9 @@ tasks {
         rejectVersionIf {
             isNonStable(candidate.version)
         }
+    }
+
+    withType<GenerateModuleMetadata> {
+        suppressedValidationErrors.add("enforced-platform")
     }
 }

@@ -53,7 +53,6 @@ dependencies {
     implementation("com.google.guava:guava")
     implementation("com.gorylenko.gradle-git-properties:gradle-git-properties")
     implementation("com.hubspot.jinjava:jinjava")
-    implementation("com.jfrog.bintray.gradle:gradle-bintray-plugin")
     implementation("gradle.plugin.com.boxfuse.client:gradle-plugin-publishing")
     implementation("gradle.plugin.com.google.cloud.tools:jib-gradle-plugin")
     implementation("gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin")

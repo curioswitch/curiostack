@@ -113,7 +113,7 @@ allprojects {
     plugins.withId("com.gradle.plugin-publish") {
         afterEvaluate {
             tasks.configureEach {
-                if (name != "publishPlugins" && name.startsWith("publish")) {
+                if (name != "publishPlugins" && !name.contains("MavenLocal") && name.startsWith("publish")) {
                     enabled = false
                 }
             }
