@@ -6,9 +6,10 @@
         "@types/node": "13.13.5"
     },
     "dependencies": {
-        "@pulumi/aws": "3.23.0",
-        "@pulumi/awsx": "0.23.0",
-        "@pulumi/pulumi": "2.17.2",
-        "@pulumi/random": "3.0.1"
+        "@curiostack/pulumi-openpgp": "0.0.1",
+        "@pulumi/aws": "3.38.1",
+        "@pulumi/awsx": "0.30.0",
+        "@pulumi/pulumi": "3.1.0",
+        "@pulumi/random": "4.0.0"
     }
 }

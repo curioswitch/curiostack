@@ -22,5 +22,33 @@
  * SOFTWARE.
  */
 
-import './curiostack';
-import './pulumi-openpgp';
+import * as github from '@pulumi/github';
+
+import { sysadminStack } from '../stacks';
+
+const pulumiOpenpgp = new github.Repository(
+  'pulumi-openpgp',
+  {
+    allowMergeCommit: false,
+    allowRebaseMerge: false,
+    allowSquashMerge: true,
+    archived: false,
+    deleteBranchOnMerge: false,
+    description: 'Full stack to help satisfy curiosity',
+    hasDownloads: true,
+    hasIssues: true,
+    hasProjects: true,
+    hasWiki: true,
+    name: 'pulumi-openpgp',
+    vulnerabilityAlerts: true,
+  },
+  {
+    protect: true,
+  },
+);
+
+const npmPublishKey = new github.ActionsSecret('pulumi-openpgp-npmPublishKey', {
+  secretName: 'NPM_PUBLISH_KEY',
+  repository: pulumiOpenpgp.name,
+  plaintextValue: sysadminStack.getOutput('npmPublishKey'),
+});

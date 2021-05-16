@@ -22,10 +22,19 @@
  * SOFTWARE.
  */
 
-import com.jfrog.bintray.gradle.BintrayExtension
 import net.ltgt.gradle.nullaway.NullAwayExtension
 import nl.javadude.gradle.plugins.license.LicenseExtension
 import nl.javadude.gradle.plugins.license.LicensePlugin
+
+plugins {
+    id("io.github.gradle-nexus.publish-plugin")
+}
+
+nexusPublishing {
+    repositories {
+        sonatype()
+    }
+}
 
 allprojects {
     project.group = "org.curioswitch.curiostack"
@@ -50,39 +59,16 @@ allprojects {
         }
     }
 
-    plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin::class) {
-        project.plugins.apply("com.jfrog.bintray")
-        // This should happen automatically, not clear why not.
-        tasks.named("bintrayUpload") {
-            dependsOn(tasks.named("publishToMavenLocal"))
-        }
-
-        val bintrayUser = project.findProperty("bintray.user") as String?
-        val bintrayKey = project.findProperty("bintray.key") as String?
+    plugins.withType(MavenPublishPlugin::class) {
+        plugins.apply("signing")
 
         afterEvaluate {
-            configure<BintrayExtension> {
-                publish = true
-                user = bintrayUser
-                key = bintrayKey
-                pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
-                    name = the<BasePluginConvention>().archivesBaseName
-                    repo = "curiostack"
-                    userOrg = "curioswitch"
-                    setLicenses("MIT")
-                    vcsUrl = "https://github.com/curioswitch/curiostack.git"
-                    githubRepo = "curioswitch/curiostack"
-                    version(delegateClosureOf<BintrayExtension.VersionConfig> {
-                        name = project.version as String
-                        gpg(delegateClosureOf<BintrayExtension.GpgConfig> {
-                            // Use bintray"s keys for signing since there isn"t much of a difference
-                            // in security vs giving them your own private keys - either way bintray
-                            // is trusted as the identity provider of your packages.
-                            sign = true
-                        })
-                    })
-                })
-                setPublications(*the<PublishingExtension>().publications.map{ it.name }.toTypedArray())
+            configure<SigningExtension> {
+                useInMemoryPgpKeys(System.getenv("MAVEN_GPG_PRIVATE_KEY"), "")
+                val publications = the<PublishingExtension>().publications
+                if (publications.names.contains("maven")) {
+                    sign(publications["maven"])
+                }
             }
 
             configure<PublishingExtension> {
@@ -119,6 +105,16 @@ allprojects {
                             url.set("https://github.com/curioswitch/curiostack")
                         }
                     }
+                }
+            }
+        }
+    }
+
+    plugins.withId("com.gradle.plugin-publish") {
+        afterEvaluate {
+            tasks.configureEach {
+                if (name != "publishPlugins" && name.startsWith("publish")) {
+                    enabled = false
                 }
             }
         }

@@ -22,5 +22,5 @@
  * SOFTWARE.
  */
 
-import './curiostack';
-import './pulumi-openpgp';
+import './maven';
+import './npm';

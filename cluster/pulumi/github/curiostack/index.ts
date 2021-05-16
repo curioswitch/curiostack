@@ -22,10 +22,10 @@
  * SOFTWARE.
  */
 
-import * as pulumi from '@pulumi/pulumi';
+import * as openpgp from '@curiostack/pulumi-openpgp';
 import * as github from '@pulumi/github';
 
-const sysadminStack = new pulumi.StackReference('sysadmin');
+import { sysadminStack } from '../stacks';
 
 const curiostack = new github.Repository(
   'curiostack',
@@ -62,3 +62,33 @@ const awsSecretAccessKey = new github.ActionsSecret(
     plaintextValue: sysadminStack.getOutput('curiostackGithubAccessKeySecret'),
   },
 );
+
+const mavenGpgPublicKey = new github.ActionsSecret(
+  'curiostack-mavenGpgPublicKey',
+  {
+    secretName: 'MAVEN_GPG_PUBLIC_KEY',
+    repository: curiostack.name,
+    plaintextValue: sysadminStack.getOutput('mavenGpgPublicKey'),
+  },
+);
+
+const mavenGpgPrivateKey = new github.ActionsSecret(
+  'curiostack-mavenGpgPrivateKey',
+  {
+    secretName: 'MAVEN_GPG_PRIVATE_KEY',
+    repository: curiostack.name,
+    plaintextValue: sysadminStack.getOutput('mavenGpgPrivateKey'),
+  },
+);
+
+const mavenUsername = new github.ActionsSecret('curiostack-mavenUsername', {
+  secretName: 'MAVEN_USERNAME',
+  repository: curiostack.name,
+  plaintextValue: sysadminStack.getOutput('mavenUsername'),
+});
+
+const mavenPassword = new github.ActionsSecret('curiostack-mavenPassword', {
+  secretName: 'MAVEN_PASSWORD',
+  repository: curiostack.name,
+  plaintextValue: sysadminStack.getOutput('mavenPassword'),
+});

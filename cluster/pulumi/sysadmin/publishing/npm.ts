@@ -22,5 +22,25 @@
  * SOFTWARE.
  */
 
-import './curiostack';
-import './pulumi-openpgp';
+import * as random from '@pulumi/random';
+
+const npmPublish = new random.RandomPassword(
+  'npm-publish',
+  {
+    length: 36,
+    lower: true,
+    minLower: 0,
+    minNumeric: 0,
+    minSpecial: 0,
+    minUpper: 0,
+    number: true,
+    overrideSpecial: '-',
+    special: true,
+    upper: true,
+  },
+  {
+    protect: true,
+  },
+);
+
+export const { result } = npmPublish;

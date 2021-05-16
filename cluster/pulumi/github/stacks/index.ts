@@ -22,5 +22,6 @@
  * SOFTWARE.
  */
 
-import './curiostack';
-import './pulumi-openpgp';
+import * as pulumi from '@pulumi/pulumi';
+
+export const sysadminStack = new pulumi.StackReference('sysadmin');
