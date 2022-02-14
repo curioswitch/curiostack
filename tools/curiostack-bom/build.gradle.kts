@@ -349,6 +349,7 @@ val DEPENDENCIES = listOf(
         "net.ltgt.gradle:gradle-errorprone-plugin:2.0.1",
         "net.ltgt.gradle:gradle-nullaway-plugin:1.1.0",
         "nu.studer:gradle-jooq-plugin:4.2",
+        "org.ow2.asm:asm:9.2",
         "org.jsoup:jsoup:1.13.1"
 )
 

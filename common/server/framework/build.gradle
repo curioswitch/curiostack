@@ -75,6 +75,7 @@ dependencies {
     implementation 'org.apache.logging.log4j:log4j-slf4j-impl'
     implementation 'org.bouncycastle:bcpkix-jdk15on'
     implementation 'org.jctools:jctools-core'
+    implementation 'org.ow2.asm:asm:9.2'
 
     runtimeOnly 'com.google.cloud.sql:mysql-socket-factory'
     runtimeOnly 'mysql:mysql-connector-java'

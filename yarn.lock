@@ -1067,6 +1067,13 @@
     webpack-sane-compiler "3.1.1"
     webpack-sane-compiler-reporter "3.3.2"
 
+"@curiostack/pulumi-openpgp@0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@curiostack/pulumi-openpgp/-/pulumi-openpgp-0.0.1.tgz#c7cf4178892582235f58a944d1148b76b0b82295"
+  integrity sha512-NvUTYKZAmOR0VPjlshK7L67qXtRzUU9I9Pdj/SXioLymhlgYkmBVSvBwpQxLrIo9KaxggZx72LpP9cwG4qdx4A==
+  dependencies:
+    "@pulumi/pulumi" "^3.0.0"
+
 "@emotion/cache@^10.0.27":
   version "10.0.29"
   resolved "https://registry.yarnpkg.com/@emotion/cache/-/cache-10.0.29.tgz#87e7e64f412c060102d589fe7c6dc042e6f9d1e0"

@@ -23,15 +23,16 @@
  */
 package org.curioswitch.common.server.framework.database;
 
+import org.curioswitch.common.server.framework.database.smf.CurioReflectionService;
 import org.simpleflatmapper.jooq.SfmRecordMapperProvider;
-import org.simpleflatmapper.jooq.SfmRecordMapperProviderFactory;
+import org.simpleflatmapper.jooq.JooqMapperFactory;
 
 /** Utilities for working with databases. */
 public final class DatabaseUtil {
 
   // Make singleton to allow better code generation.
   private static final SfmRecordMapperProvider MAPPER_PROVIDER =
-      SfmRecordMapperProviderFactory.newInstance().ignorePropertyNotFound().newProvider();
+          JooqMapperFactory.newInstance().ignorePropertyNotFound().reflectionService(CurioReflectionService.newInstance()).newRecordMapperProvider();
 
   /**
    * Returns a {@link SfmRecordMapperProvider} configured to allow missing properties, which are
