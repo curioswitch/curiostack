@@ -56,7 +56,7 @@ val DEPENDENCY_BOMS = listOf(
         "io.zipkin.brave:brave-bom:5.13.3",
         "io.netty:netty-bom:4.1.63.Final",
         "org.apache.beam:beam-sdks-java-bom:2.29.0",
-        "org.apache.logging.log4j:log4j-bom:2.14.1",
+        "org.apache.logging.log4j:log4j-bom:2.17.1",
         "org.junit:junit-bom:5.7.2",
         "software.amazon.awssdk:bom:2.16.63"
 )
