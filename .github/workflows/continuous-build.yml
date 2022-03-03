@@ -36,26 +36,17 @@ jobs:
           - windows-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
         with:
           fetch-depth: 10
-      - name: Cache Gradle Modules
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches
-          key: gradle-caches
-      - name: Cache Gradle Wrapper
-        uses: actions/cache@v1
-        with:
-         path: ~/.gradle/wrapper
-         key: gradle-wrapper
-      - name: Cache Curiostack
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/curiostack
-          key: ${{ runner.os }}-gradle-curiostack
       - name: Execute continuousBuild
-        run: ./gradlew continuousBuild --stacktrace -Porg.curioswitch.curiostack.ci.disableCoverage=true
-        shell: bash
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: continuousBuild --stacktrace -Porg.curioswitch.curiostack.ci.disableCoverage=true
+          cache-read-only: ${{ github.ref != 'refs/heads/master' }}
+          gradle-home-cache-includes: |
+            caches
+            notifications
+            curiostack
         env:
           CI: true
