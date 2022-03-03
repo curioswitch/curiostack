@@ -42,11 +42,13 @@ jobs:
       - name: Execute continuousBuild
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: continuousBuild --stacktrace -Porg.curioswitch.curiostack.ci.disableCoverage=true
           cache-read-only: ${{ github.ref != 'refs/heads/master' }}
           gradle-home-cache-includes: |
             caches
             notifications
             curiostack
+      - name: Execute continuousBuild
+        run: ./gradlew continuousBuild --stacktrace -Porg.curioswitch.curiostack.ci.disableCoverage=true
+        shell: bash
         env:
           CI: true
