@@ -778,11 +778,12 @@ public class CuriostackRootPlugin implements Plugin<Project> {
 
           spotless.typescript(
               typescript -> {
+                typescript.targetExclude("node_modules/**");
                 typescript.target("**/*.ts", "**/*.js", "**/*.tsx", "**/*.jsx");
 
                 typescript.licenseHeader(
                     copyrightSlashStar,
-                    "import|const|declare|export|var|module|/\\* eslint|// eslint|// End License|it\\(|/\\* global|#!|type ");
+                    "import|const|declare|export|var|module|/\\* eslint|// eslint|// End License|// Includes work from:|it\\(|/\\* global|#!|type ");
               });
 
           spotless.format(
@@ -792,7 +793,7 @@ public class CuriostackRootPlugin implements Plugin<Project> {
 
                 go.licenseHeader(
                     copyrightDoubleSlash,
-                    "package|// +|// -|//go|// End License|// Includes work from:");
+                    "package|// \\+|// -|//go|// End License|// Includes work from:");
               });
 
           spotless.format(

@@ -34,7 +34,7 @@ pluginManagement {
     }
 
     plugins {
-        id("com.gradle.plugin-publish") version "0.13.0"
+        id("com.gradle.plugin-publish") version "0.14.0"
         id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
     }
 
@@ -46,7 +46,7 @@ pluginManagement {
 }
 
 plugins {
-    id("com.gradle.enterprise").version("3.6.1")
+    id("com.gradle.enterprise").version("3.6.3")
     id("org.curioswitch.gradle-curiostack-plugin").version("0.8.0")
 }
 
