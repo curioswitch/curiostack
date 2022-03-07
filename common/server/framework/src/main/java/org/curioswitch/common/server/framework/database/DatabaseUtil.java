@@ -21,18 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package org.curioswitch.common.server.framework.database;
 
 import org.curioswitch.common.server.framework.database.smf.CurioReflectionService;
-import org.simpleflatmapper.jooq.SfmRecordMapperProvider;
 import org.simpleflatmapper.jooq.JooqMapperFactory;
+import org.simpleflatmapper.jooq.SfmRecordMapperProvider;
 
 /** Utilities for working with databases. */
 public final class DatabaseUtil {
 
   // Make singleton to allow better code generation.
   private static final SfmRecordMapperProvider MAPPER_PROVIDER =
-          JooqMapperFactory.newInstance().ignorePropertyNotFound().reflectionService(CurioReflectionService.newInstance()).newRecordMapperProvider();
+      JooqMapperFactory.newInstance()
+          .ignorePropertyNotFound()
+          .reflectionService(CurioReflectionService.newInstance())
+          .newRecordMapperProvider();
 
   /**
    * Returns a {@link SfmRecordMapperProvider} configured to allow missing properties, which are
