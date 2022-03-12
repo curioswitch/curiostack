@@ -5,7 +5,7 @@ on:
     paths:
       - 'cafe-map/client/unity/**'
       - '.github/workflows/unity-build-cafemap.yml'
-    branches: 'master'
+    branches: 'main'
 
 jobs:
   build:
