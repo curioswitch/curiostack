@@ -27,14 +27,12 @@ plugins {
 }
 
 dependencies {
-  implementation(project(":common:grpc:protobuf-jackson"))
   implementation(project(":common:server:framework"))
 }
 
 tasks {
   val javadoc = named<Javadoc>("javadoc") {
     listOf(
-        ":common:grpc:protobuf-jackson",
         ":common:server:framework",
         ":common:testing:framework"
     ).forEach {

@@ -35,9 +35,10 @@ base {
 dependencies {
     api(project(":common:server:framework"))
     api(project(":common:testing:assertj-protobuf"))
-    implementation(project(":common:grpc:protobuf-jackson"))
 
     api("org.junit.jupiter:junit-jupiter-api")
+
+    implementation("org.curioswitch.curiostack:protobuf-jackson")
 
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-guava")
