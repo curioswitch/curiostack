@@ -40,6 +40,7 @@ jobs:
         with:
           fetch-depth: 10
       - run: git fetch origin main --depth=10
+      - run: git fetch origin master --depth=10
       - uses: gradle/gradle-build-action@v2
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
