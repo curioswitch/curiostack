@@ -28,7 +28,7 @@ on:
       - tools/build-images/cloud-builder
       - .github/workflows/docker-cloud-builder.yml
     branches:
-      - master
+      - main
   schedule:
     # https://crontab.guru/#0_0_*_*_0
     - cron: '0 0 * * 0'

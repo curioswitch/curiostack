@@ -189,3 +189,5 @@ sysinfo.txt
 *.unitypackage
 
 .terraform
+
+.envrc
