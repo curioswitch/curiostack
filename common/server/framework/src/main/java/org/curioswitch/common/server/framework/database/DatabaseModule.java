@@ -119,7 +119,8 @@ public abstract class DatabaseModule {
             .set(dbExecutor)
             .set(SQLDialect.MYSQL)
             .set(new Settings().withRenderSchema(false))
-            .set(new DataSourceConnectionProvider(dataSource));
+            .set(new DataSourceConnectionProvider(dataSource))
+            .set(DatabaseUtil.sfmRecordMapperProvider());
     if (config.getLogQueries()) {
       configuration.set(new QueryLogger());
     }

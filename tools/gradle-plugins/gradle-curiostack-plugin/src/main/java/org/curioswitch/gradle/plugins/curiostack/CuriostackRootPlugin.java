@@ -446,7 +446,6 @@ public class CuriostackRootPlugin implements Plugin<Project> {
   }
 
   private static void setupRepositories(Project project) {
-    project.getRepositories().jcenter();
     project.getRepositories().gradlePluginPortal();
     project.getRepositories().mavenCentral();
   }

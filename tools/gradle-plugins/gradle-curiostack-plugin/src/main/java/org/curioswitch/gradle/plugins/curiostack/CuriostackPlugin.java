@@ -66,7 +66,6 @@ public class CuriostackPlugin implements Plugin<Settings> {
   }
 
   private static void configureRepositories(RepositoryHandler repositories) {
-    repositories.jcenter();
     repositories.gradlePluginPortal();
     repositories.mavenLocal();
   }

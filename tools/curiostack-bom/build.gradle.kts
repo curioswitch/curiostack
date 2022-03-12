@@ -56,7 +56,7 @@ val DEPENDENCY_BOMS = listOf(
         "io.zipkin.brave:brave-bom:5.13.3",
         "io.netty:netty-bom:4.1.66.Final",
         "org.apache.beam:beam-sdks-java-bom:2.31.0",
-        "org.apache.logging.log4j:log4j-bom:2.14.1",
+        "org.apache.logging.log4j:log4j-bom:2.17.1",
         "org.junit:junit-bom:5.7.2",
         "software.amazon.awssdk:bom:2.17.14"
 )
@@ -349,6 +349,7 @@ val DEPENDENCIES = listOf(
         "net.ltgt.gradle:gradle-errorprone-plugin:2.0.2",
         "net.ltgt.gradle:gradle-nullaway-plugin:1.1.0",
         "nu.studer:gradle-jooq-plugin:4.2",
+        "org.ow2.asm:asm:9.2",
         "org.jsoup:jsoup:1.14.1"
 )
 
