@@ -30,6 +30,7 @@ import static net.ltgt.gradle.errorprone.CheckSeverity.OFF;
 import static net.ltgt.gradle.errorprone.CheckSeverity.WARN;
 
 import com.diffplug.gradle.spotless.SpotlessExtension;
+import com.diffplug.gradle.spotless.SpotlessExtensionPredeclare;
 import com.diffplug.gradle.spotless.SpotlessPlugin;
 import com.github.benmanes.gradle.versions.VersionsPlugin;
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask;
@@ -268,6 +269,9 @@ public class CuriostackRootPlugin implements Plugin<Project> {
     plugins.apply(ReleasePlugin.class);
     plugins.apply(TerraformSetupPlugin.class);
     plugins.apply(ToolDownloaderPlugin.class);
+
+    rootProject.getRepositories().mavenCentral();
+    rootProject.getRepositories().mavenLocal();
 
     var updateGradleWrapper =
         rootProject.getTasks().register("curioUpdateWrapper", UpdateGradleWrapperTask.class);
@@ -756,6 +760,21 @@ public class CuriostackRootPlugin implements Plugin<Project> {
         copyrightLines.stream()
             .map(line -> line.isEmpty() ? "#" : "# " + line)
             .collect(Collectors.joining("\n", "", "\n\n"));
+
+    rootProject.getPlugins().apply(SpotlessPlugin.class);
+    rootProject
+        .getExtensions()
+        .configure(SpotlessExtension.class, SpotlessExtension::predeclareDeps);
+    rootProject
+        .getExtensions()
+        .configure(
+            SpotlessExtensionPredeclare.class,
+            spotless -> {
+              spotless.java(
+                  java ->
+                      java.googleJavaFormat(
+                          ToolDependencies.getGoogleJavaFormatVersion(rootProject)));
+            });
 
     rootProject.subprojects(
         project -> {

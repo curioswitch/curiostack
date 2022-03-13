@@ -41,6 +41,5 @@ public interface GraphImage {
 
   /** The location the caption was taken. */
   @JsonProperty("location")
-  @Nullable
-  Location getLocation();
+  @Nullable Location getLocation();
 }

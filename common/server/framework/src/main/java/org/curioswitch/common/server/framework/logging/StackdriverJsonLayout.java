@@ -272,7 +272,9 @@ public final class StackdriverJsonLayout extends AbstractJacksonLayout {
     return result;
   }
 
-  /** @return The content type. */
+  /**
+   * @return The content type.
+   */
   @Override
   public String getContentType() {
     return CONTENT_TYPE + "; charset=" + this.getCharset();
