@@ -297,7 +297,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.jooq",
-                "3.16.5",
+                "3.14.9",
                 listOf("jooq", "jooq-codegen", "jooq-meta")
         ),
         DependencySet(

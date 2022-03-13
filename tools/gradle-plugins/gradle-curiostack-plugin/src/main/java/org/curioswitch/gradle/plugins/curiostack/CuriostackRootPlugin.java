@@ -115,7 +115,6 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat;
 import org.gradle.api.tasks.wrapper.Wrapper;
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType;
 import org.gradle.external.javadoc.CoreJavadocOptions;
-import org.gradle.internal.deprecation.DeprecatableConfiguration;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
 import org.gradle.testing.jacoco.plugins.JacocoPlugin;
@@ -473,22 +472,32 @@ public class CuriostackRootPlugin implements Plugin<Project> {
 
     var platformDependency = project.getDependencies().platform(bomDependency);
 
+    var dependencyManagement =
+        project
+            .getConfigurations()
+            .create(
+                "dependencyManagement",
+                conf -> {
+                  conf.setCanBeConsumed(false);
+                  conf.setCanBeResolved(false);
+                  conf.setVisible(false);
+                });
+    project.getDependencies().add(dependencyManagement.getName(), platformDependency);
+
     // Needs to be in afterEvaluate since there is no way to guarantee isCanBeResolved, etc
     // are set otherwise.
     project
         .getConfigurations()
         .configureEach(
             configuration -> {
-              if (configuration instanceof DeprecatableConfiguration) {
-                if (((DeprecatableConfiguration) configuration).getDeclarationAlternatives()
-                    != null) {
-                  return;
-                }
-              }
-              if (!configuration.getName().endsWith("Classpath")
-                  && !UNMANAGED_CONFIGURATIONS.contains(configuration.getName())) {
-                project.getDependencies().add(configuration.getName(), platformDependency);
-              }
+              project.afterEvaluate(
+                  unused -> {
+                    if (configuration.isCanBeResolved()
+                        && !configuration.isCanBeConsumed()
+                        && !UNMANAGED_CONFIGURATIONS.contains(configuration.getName())) {
+                      configuration.extendsFrom(dependencyManagement);
+                    }
+                  });
             });
 
     project.afterEvaluate(
