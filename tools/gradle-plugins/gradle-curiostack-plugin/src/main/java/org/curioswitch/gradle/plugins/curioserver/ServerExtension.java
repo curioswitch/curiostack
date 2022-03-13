@@ -50,7 +50,10 @@ public interface ServerExtension extends HasPublicType {
             .setImagePrefix(objects.property(String.class))
             .setImageTag(objects.property(String.class).value("latest"))
             .setBaseName(objects.property(String.class))
-            .setBaseImage(objects.property(String.class).value("curiostack/java-cloud-runner:16"));
+            .setBaseImage(
+                objects
+                    .property(String.class)
+                    .value("ghcr.io/curioswitch/java-cloud-runner:java16"));
     extension.setDeployments(
         project.container(
             AutoDeployment.class, name -> AutoDeployment.create(name, objects, extension)));
