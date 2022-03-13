@@ -21,7 +21,7 @@
 # SOFTWARE.
 #
 
-name: Build cloud-builder image
+name: Build java-cloud-runner image
 on:
   push:
     paths:
