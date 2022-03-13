@@ -473,22 +473,26 @@ public class CuriostackRootPlugin implements Plugin<Project> {
 
     var platformDependency = project.getDependencies().platform(bomDependency);
 
+    var dependencyManagement =
+        project.getConfigurations().create("dependencyManagement", conf -> {
+          conf.setCanBeConsumed(false);
+          conf.setCanBeResolved(false);
+          conf.setVisible(false);
+            });
+    project.getDependencies().add(dependencyManagement.getName(), platformDependency);
+
     // Needs to be in afterEvaluate since there is no way to guarantee isCanBeResolved, etc
     // are set otherwise.
     project
         .getConfigurations()
         .configureEach(
             configuration -> {
-              if (configuration instanceof DeprecatableConfiguration) {
-                if (((DeprecatableConfiguration) configuration).getDeclarationAlternatives()
-                    != null) {
-                  return;
+              project.afterEvaluate(unused -> {
+                if (configuration.isCanBeResolved() && !configuration.isCanBeConsumed()
+                    && !UNMANAGED_CONFIGURATIONS.contains(configuration.getName())) {
+                  configuration.extendsFrom(dependencyManagement);
                 }
-              }
-              if (!configuration.getName().endsWith("Classpath")
-                  && !UNMANAGED_CONFIGURATIONS.contains(configuration.getName())) {
-                project.getDependencies().add(configuration.getName(), platformDependency);
-              }
+              });
             });
 
     project.afterEvaluate(
