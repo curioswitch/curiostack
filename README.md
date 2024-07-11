@@ -1,3 +1,8 @@
+This repository is archived: it has not had any maintenance in several years with 1 or 0 current users.
+curioswitch has migrated to Go as its main language and the successor can be found at
+[go-curiostack](https://github.com/curioswitch/go-curiostack), with a full service in development using it
+at [tasuke](https://github.com/curioswitch/tasuke).
+
 # curiostack
 Very full stack to help satisfy curiosity
 
